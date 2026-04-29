@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Javen Cao — Cover Letter (Qualcomm Embedded Intern Summer 2026)</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    color: #222;
+    font-size: 11pt;
+    line-height: 1.5;
+    background: #fff;
+  }
+  body {
+    max-width: 8.5in;
+    padding: 0.6in 0.75in 0.5in 0.75in;
+    margin: 0 auto;
+  }
+  .sender { margin: 0 0 18px 0; }
+  .sender p { margin: 0; line-height: 1.35; font-size: 10.5pt; }
+  .sender .name { font-weight: 700; font-size: 11.5pt; margin-bottom: 1px; }
+  .date { margin: 0 0 18px 0; font-size: 10.5pt; }
+  .recipient { margin: 0 0 22px 0; font-size: 10.5pt; line-height: 1.35; }
+  .recipient p { margin: 0; }
+  .body-text p { margin: 0 0 12px 0; text-align: left; }
+  .salutation { margin: 0 0 14px 0 !important; }
+  .signoff { margin-top: 22px; }
+  .signoff p { margin: 0; line-height: 1.35; }
+  .signoff .name { margin-top: 6px; font-weight: 700; }
+  @media print {
+    @page { size: letter; margin: 0.6in 0.75in 0.5in 0.75in; }
+    body { max-width: 100%; padding: 0; margin: 0; font-size: 11pt; }
+    .no-print { display: none; }
+  }
+  .no-print {
+    background: #fff7d6;
+    border: 1px solid #d4a800;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+    font-size: 10pt;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="no-print">
+  <strong>📄 PDF：</strong> <kbd>Cmd</kbd>+<kbd>P</kbd> → "Save as PDF"。这条黄框打印时自动消失。文件名建议 <code>Javen_Cao_CoverLetter_Qualcomm_Embedded.pdf</code>
+</div>
+
+<div class="sender">
+  <p class="name">Javen Jiawen Cao</p>
+  <p>San Diego, CA</p>
+  <p>jacao@ucsd.edu &nbsp;·&nbsp; (858) 340-3255</p>
+</div>
+
+<p class="date">April 29, 2026</p>
+
+<div class="recipient">
+  <p>Qualcomm Technologies, Inc.</p>
+  <p>San Diego, CA</p>
+</div>
+
+<div class="body-text">
+
+<p class="salutation">Dear Qualcomm Hiring Team,</p>
+
+<p>I'm applying for the Embedded Engineering Internship (Summer 2026, San Diego). I'm a Junior at UC San Diego pursuing a B.S. in Electrical Engineering on the Machine Learning and Controls track, returning to UCSD this fall to finish my final year. I'm a U.S. Citizen, available 11&ndash;14 weeks May&ndash;September 2026, with expected graduation June 2027.</p>
+
+<p>What draws me to this role is that the embedded layer is exactly where I've been working &mdash; the place where you have to handle both the hardware peripherals showing up correctly to the OS <em>and</em> the application logic on top of them. In ECE 148 last quarter (Winter 2026), I configured a Raspberry Pi 4 stack from scratch for an autonomous vehicle: writing udev rules for USB device permissions, enabling I2C for an OAK-D Lite stereo camera through the DepthAI driver, configuring serial communication with a VESC motor controller, and patching library compatibility issues to make open-source robotics frameworks work with our specific hardware. I then trained a CNN behavior-cloning model with TensorFlow 2.15 and deployed it CPU-only on the Pi &mdash; a resource-constrained embedded environment &mdash; for full real-time autonomous driving. Across three individual labs (behavior cloning, GPS path following, ROS 2 integration), I got a real sense of how much of an embedded engineer's work lives at the boundary between "kernel sees the device" and "the system actually behaves correctly."</p>
+
+<p>For my four-person final project (autonomous recycling collector), I owned the Python servo-control script and the Raspberry Pi system integration, while teammates handled YOLOv8 detection, the ROS 2 state machine, and the 3D-printed mechanism. Working across ECE / CompE / Aerospace / Mechanical taught me that delivering an embedded system is mostly about clean interfaces between disciplines.</p>
+
+<p>I want to be honest about the gaps. I haven't yet written bare-metal microcontroller firmware (my embedded work has been on Linux SBCs), I haven't developed Linux kernel device drivers (I've used drivers heavily, including debugging when udev rules and DepthAI permissions interacted unexpectedly, but I haven't authored kernel-level code), and I don't have wireless protocol experience (5G / LTE / 802.11). My primary languages are Python, C, and ARM64 Assembly &mdash; I'm comfortable in C but haven't done a project specifically in C++. The good news is that the foundations &mdash; embedded Linux internals, scope-level debugging from coursework, sensor integration, real-time control loops, and ML edge deployment &mdash; I've actually done, and I learn embedded tooling fast when there's a working system in front of me.</p>
+
+<p>What's particularly exciting is that Qualcomm's core work &mdash; running ML inference and signal processing on Snapdragon embedded silicon &mdash; is structurally the same problem I tackled at much smaller scale on the Pi: how to get a complex algorithm running well on a resource-constrained processor. I'd love to see that problem at the production scale you operate at.</p>
+
+<p>Thank you for considering my application. I'd be excited to spend a summer building real embedded systems in San Diego.</p>
+
+</div>
+
+<div class="signoff">
+  <p>Sincerely,</p>
+  <p class="name">Javen Jiawen Cao</p>
+</div>
+
+</body>
+</html>

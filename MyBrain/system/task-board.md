@@ -3,14 +3,19 @@
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
 **最后更新**：2026-04-29
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 5 待启动 / 4 已完成
-（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投）
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 7 待启动 / 4 已完成
+（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。新加 task-013 router + task-014 QClaw 跟进 4/29 凌晨用户表达的兴趣）
 
 > 📌 2026-04-29 凌晨主对话 Claude 执行 4 项 approvals.md 打勾事项：
 > 1. ✅ task-006 AI Watch v2 — skill 部署完，待 03:00 daemon 出第一份报告
 > 2. ✅ task-011 邮箱 triage — skill 部署完，待 03:00 daemon 出第一份报告
-> 3. ✅ task-008 c1 — .gitignore + git init + commit `5b1498f` 完成；剩 GitHub repo + plugin GUI 给 Javen（≤5 min）
+> 3. ✅ task-008 c1 — .gitignore + git init + commit `5b1498f` 完成 + GitHub push 成功；plugin 装好（待 Javen 关掉一个 toggle 验证 5min auto commit）
 > 4. ⛔ task-009 Brain Corp — 外部窗口 4/1 已关闭，不可投，归档
+
+> 📌 2026-04-29 凌晨 Javen 睡觉时，主对话 Claude 推进：
+> - **task-009 Qualcomm Embedded Intern SD**：JD 抓取 + 简历定制 + cover letter 写完 + applications.md ⏳ 待 submit。**Javen 醒后审 → 渲染 PDF → careers.qualcomm.com 投**
+> - **task-013** 加进看板：claude-code-router 路由 daemon 到 DeepSeek 降成本 + setup guide 写好
+> - **task-014** 加进看板：QClaw 试玩评估 + setup guide 写好
 
 ---
 
@@ -142,6 +147,53 @@
     - [ ] f. （recurring）每次新投：Claude 读 JD → 起草定制简历 → 起草 cover letter（如需）→ 你审阅 → 投 → 记到 applications.md
     - [ ] g. （recurring）每周末复盘：投了几份 / 收到几个反馈 / 下周目标 + 节奏调整
     - [ ] h. （recurring，daemon 可做）监测目标公司招聘页有无新岗位 → 在 daemon-runs 里通知 Javen
+  - **2026-04-29 主对话凌晨推进**：Brain Corp 4/1 已下架（归档）。**Qualcomm Embedded Internship Summer 2026 SD** — JD 已抓 + 简历定制 + cover letter 写完 + applications.md ⏳ 待 submit。Javen 醒来核对 → 渲染 PDF → careers.qualcomm.com 投。文件位置：`career/resume-versions/2026-04-29_qualcomm_embedded-intern.{md,html}` + `career/cover-letters/2026-04-29_qualcomm_embedded-intern.{md,html}`
+
+- [ ] **task-013** | claude-code-router 路由 daemon 到 DeepSeek 降成本 | #P2 | owner: @claude（主对话）
+  - **目标**：装 claude-code-router 让 daemon 凌晨任务从 Anthropic Sonnet 路由到 DeepSeek-V3.2，预期省 ~50x daemon 成本。主对话仍保留 Sonnet
+  - **触发**：Javen 2026-04-29 凌晨看到 QClaw 4000万 token/天免费 → 意识到 LLM 成本是杠杆点 → 主对话 Claude 解释 router 概念 → Javen 表示感兴趣
+  - **Definition of Done**：
+    - claude-code-router 装好 + DeepSeek API key 配好 + ccr 后台稳定运行
+    - daemon 端到端跑一次走 router（手动触发，不等 03:00）→ 跟 Sonnet 产出对比 quality
+    - 一周观察期：5%+ task fail 不上线 / quality 满意才长期保留
+    - 周末看 DeepSeek 控制台 cost 验证省钱效果
+  - **创建**：2026-04-29
+  - **更新**：2026-04-29
+  - **前置**：daemon 已稳定运行 ≥1 周（建议 5/6 之后）+ Javen 期末缓冲期开始
+  - **setup guide**：`MyBrain/system/claude-code-router-setup.md` 已写好（凌晨主对话 Claude 写）
+  - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]]
+  - **子任务**：
+    - [x] a. 调研 claude-code-router + 写 setup guide — done 2026-04-29
+    - [ ] b. 注册 DeepSeek 账号 + 充 ~$5 + 创建 API key（owner: @javen，5 min）
+    - [ ] c. 装 npm 包 `@musistudio/claude-code-router` + 测试 ccr start/status
+    - [ ] d. 写 `~/.claude-code-router/config.json` 路由规则（default → Sonnet, background → DeepSeek）
+    - [ ] e. 备份 daemon wrapper.sh / prompt.md / rules.md
+    - [ ] f. 改 daemon wrapper.sh 加 ANTHROPIC_BASE_URL=http://localhost:3456
+    - [ ] g. 配 launchd LaunchAgent 让 ccr 持续后台运行
+    - [ ] h. 端到端手动跑一次 daemon → 看 daemon-runs 报告 quality
+    - [ ] i. （观察 7 天）DeepSeek 任务成功率 / 成本节省验证
+    - [ ] j. （决策）保留 / 调整路由 / 回滚
+
+- [ ] **task-014** | QClaw 体验试玩 + 评估 | #P2 | owner: @javen（动手装）+ @claude（写 trial 报告）
+  - **目标**：装腾讯 QClaw 试一会儿，看 multi-agent UX / 微信扫码 / 安全沙箱实测体感如何，评估有无对 Javen 工作流真正借鉴价值
+  - **触发**：Javen 2026-04-29 凌晨表态对视频里的"超级个体 + QClaw"震撼 + 感兴趣
+  - **Definition of Done**：
+    - QClaw 装上能跑（≤15 min setup）
+    - 至少跑通 1 个真实 task（整理 / 文件 / multi-agent 协作之一）
+    - 写一份 trial 报告到 `research/qclaw-trial/<日期>_第一次试用.md`
+    - 报告里明确：值得长期用 / 偶尔玩 / 卸了
+  - **创建**：2026-04-29
+  - **更新**：2026-04-29
+  - **setup guide**：`MyBrain/system/qclaw-setup.md` 已写好（凌晨主对话 Claude 写）
+  - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]]，[[raw/web-research/2026-04-29_QClaw_超级个体视频文案]]
+  - **子任务**：
+    - [x] a. 调研 QClaw 现状 + 写 setup guide — done 2026-04-29
+    - [ ] b. 下载 QClaw 客户端（owner: @javen，10 min）
+    - [ ] c. 微信扫码登录 + 创建第一个 agent
+    - [ ] d. 跑 setup guide Step 4 里的 3 个测试任务之一
+    - [ ] e. 写 trial 报告（owner: @javen 主写 + @claude 整理润色）
+    - [ ] f. 决策：长期用 / 偶尔 / 卸（写到 trial 报告末尾）
+    - [ ] g. 把发现回填到 [[wiki/工程方法/超级个体_工具与杠杆]] 的"知识缺口"小节
 
 ---
 

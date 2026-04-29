@@ -8,6 +8,7 @@
 |---|------|------|------|------|---------|---------|------|
 | 1 | 2026-04-28 | **Anduril Industries** | Electrical Engineering Intern (Summer 2026, Costa Mesa) | **📤 投出** | resume v2 + EE-targeted cover letter | [anduril.com/open-roles](https://www.anduril.com/open-roles?employmentType=intern) (REQ 4259) | **🥇 主投** — ECE 专业完美对口 + 嵌入式 Linux + RPi 经验直接命中 preferred qualifications。**Submitted 2026-04-28**。Javen 第一份投出 |
 | 2 | 2026-04-28 | **Anduril Industries** | Software Engineer Intern, Frontier Systems (Summer 2026, Irvine) | **📤 投出** | resume v2 + SWE-targeted cover letter | [anduril.com/open-roles](https://www.anduril.com/open-roles?employmentType=intern) (REQ 6878) | 🥈 备投 — JD 偏好 Rust/C++/Go/TS（你弱），但接受 "related field" + Python。**Submitted 2026-04-28** |
+| 3 | 2026-04-29 | **Qualcomm Technologies** | Embedded Engineering Internship — Summer 2026 (San Diego) | **⏳ 待 submit** | Qualcomm-Embedded resume + cover letter | [careers.qualcomm.com](https://careers.qualcomm.com/careers/job/446707492801) (Job ID 446707492801) | 🥇 SD 总部、ECE 完美对口、Snapdragon AI 嵌入式路线。主对话 Claude 在 Javen 睡觉时（凌晨 4/29）准备好材料 — `resume-versions/2026-04-29_qualcomm_embedded-intern.{md,html}` + `cover-letters/2026-04-29_qualcomm_embedded-intern.{md,html}`。**待 Javen 醒后审 + 渲染 PDF + 在 careers.qualcomm.com 上点 Apply** |
 
 ## 状态字典
 
