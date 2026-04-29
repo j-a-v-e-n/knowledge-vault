@@ -1,0 +1,56 @@
+# ===================================================================
+# Vault .gitignore — text-only backup, exclude bulk binary/raw content
+# Generated 2026-04-28 by Claude (task-008 c1, approved in approvals.md)
+# ===================================================================
+
+# === macOS junk ===
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# === Bulk content (excluded from git, kept on Google Drive only) ===
+# raw/ = 300MB original source materials (PDFs, course materials)
+# attachments/ = 99MB rendered images
+# These re-derive from raw/ via ingest pipeline; not worth versioning
+MyBrain/raw/
+MyBrain/attachments/
+MyBrain/archive/
+
+# === Obsidian workspace state (per-machine, not shared content) ===
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/graph.json
+
+# Plugins binaries (re-installable from community plugins)
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/styles.css
+.obsidian/plugins/*/data.json
+
+# === Claudian / daemon state (machine-specific, secrets-adjacent) ===
+.claudian/
+
+# === Clippings (web clipper raw output, often noisy) ===
+Clippings/
+
+# === Temp / system files ===
+*.swp
+*.swo
+*~
+.tmp/
+.cache/
+
+# === Logs (can be large, regenerable) ===
+MyBrain/system/logs/
+MyBrain/system/daemon-runs/
+
+# === Approvals — keep tracked (it's the source of truth for AI ↔ user) ===
+# (no exclude — approvals.md SHOULD be in git)
+
+# === Career — KEEP TRACKED ===
+# (resume / cover letters / applications.md are critical, all .md tracked)
+
+# === Inbox — keep tracked (transient but small text) ===
+# (no exclude — inbox/ stays in git)
