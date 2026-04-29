@@ -3,7 +3,7 @@
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
 **最后更新**：2026-04-29
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 7 待启动 / 4 已完成
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 8 待启动 / 4 已完成
 （**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。新加 task-013 router + task-014 QClaw 跟进 4/29 凌晨用户表达的兴趣）
 
 > 📌 2026-04-29 凌晨主对话 Claude 执行 4 项 approvals.md 打勾事项：
@@ -194,6 +194,26 @@
     - [ ] e. 写 trial 报告（owner: @javen 主写 + @claude 整理润色）
     - [ ] f. 决策：长期用 / 偶尔 / 卸（写到 trial 报告末尾）
     - [ ] g. 把发现回填到 [[wiki/工程方法/超级个体_工具与杠杆]] 的"知识缺口"小节
+
+- [ ] **task-015** | Daemon 03:00 incident 后续：监测 + 长期 robustness | #P1 | owner: @claude（主对话）
+  - **目标**：4/29 03:00 daemon 因 Anthropic API stream idle timeout 失败（cache 累积到 ~200K + Claude 处理过程 idle 超时被切）。已部署初步修复，需要验证 + 记录 + 后续 robustness 改进
+  - **触发**：4/29 03:00 daemon 失败 → 4/29 11:20 主对话 Claude root-cause + 部署修复
+  - **Definition of Done**：
+    - 至少连续 3 次 03:00 daemon 跑通（无 stream timeout）
+    - failure mode 写入 `system/经验教训.md`（让以后 debug 类似问题快）
+    - hook 路径 quote bug 修完没回归
+  - **创建**：2026-04-29
+  - **更新**：2026-04-29
+  - **关联**：`MyBrain/system/daemon-runs/2026-04-29.md`（根因报告）
+  - **子任务**：
+    - [x] a. Root-cause 4/29 03:00 失败 — 4/29 11:15 (主对话). NDJSON exit `is_error: true`, `result: "API Error: Stream idle timeout"`
+    - [x] b. 修 settings.json hook 路径未 quote bug — 4/29 11:25 (主对话, 4 处全量替换)
+    - [x] c. 改 wrapper.sh 不再 --resume，每次 fresh session（用 uuidgen）— 4/29 11:30 (主对话)
+    - [x] d. wrapper.sh syntax check pass — 4/29 11:30
+    - [ ] e. 监测明早 4/30 03:00 daemon — 跑通 / 还失败？产出报告？hook 是否报错？
+    - [ ] f. 监测 5/1 + 5/2 03:00 daemon — 连续 3 次跑通才算 DoD 满
+    - [ ] g. 写到 `system/经验教训.md`：第 7 条经验"长 context resume session 会触发 API stream timeout"
+    - [ ] h. （可选 backup）若 stream timeout 再次出现 → 拆 daemon 工作流为两个 session（先 skill 再看板，每个独立 fresh session）
 
 ---
 
