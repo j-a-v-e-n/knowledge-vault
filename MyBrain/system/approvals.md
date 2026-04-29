@@ -13,26 +13,6 @@
 
 ## ⏳ 待审批
 
-- [x] **2026-04-28 23:30** | task-006 | 部署 AI Watch v2 daemon skill（每日 AI 趋势早报）?
-  - **建议**：批准（你昨晚明确表过兴趣 + 设计原则已定 70% 启发好奇心 / 30% 落地建议）
-  - **批准后做**：30-60 min 工作。写 `.claude/skills/ai-watch/SKILL.md` + 改 daemon rules/prompt 解禁 ai-watch 白名单 + 端到端测试 + 第一份报告产出
-  - **不批的影响**：daemon 不会扫 AI 资讯，你需要自己每天关注 SOTA / 找项目灵感
-
-- [x] **2026-04-28 23:30** | task-011 | 部署邮箱 triage daemon？
-  - **建议**：批准（早上已验证 Gmail MCP 真能 access 你邮箱 + Anduril confirmation 已自动 surface）
-  - **批准后做**：30-60 min。写 `.claude/skills/email-triage/SKILL.md` + 改 daemon rules/prompt 允许 Gmail MCP + 测试一次产出第一份 mail-triage 报告
-  - **不批的影响**：每天得手动扫邮箱，可能漏 recruiter 回信 / OA 邀请
-
-- [x] **2026-04-28 23:30** | task-008 c1 | 装 git 备份（Obsidian Git plugin + GitHub 私有 repo）？
-  - **建议**：批准（免费、半小时、即使将来不真迁 GitHub 也是异地备份保险）
-  - **批准后做**：装 Obsidian Git plugin + 配 .gitignore（排除 raw/ attachments/）+ 建 GitHub 私有 repo + 自动 5 分钟 commit
-  - **不批的影响**：vault 仍然只在 Google Drive 一份，没版本历史
-
-- [x] **2026-04-28 23:30** | task-009 (Brain Corp) | fetch braincorp.com 真 JD + finalize daemon 凌晨写的草稿 + 投？
-  - **建议**：先看 daemon 草稿质量决定
-  - **批准后做**：我 WebFetch braincorp.com careers + 找 SWE/Robotics intern + 调整草稿 + 你审 + 渲染 PDF + 投
-  - **不批的影响**：第二家公司今天不投；草稿留 vault 以后可用
-
 - [ ] **2026-04-28 23:30** | GitHub profile setup | fork team repo 让 j-a-v-e-n profile 不空 + 设头像/bio？
   - **建议**：批准（5 分钟事，Anduril recruiter 进入面试阶段会去看你 GitHub）
   - **批准后做**：你自己 fork（30 秒 GUI）+ 我可以指导设 bio/name/profile pic
@@ -42,7 +22,27 @@
 
 ## ✅ 已批准（执行完归档；满 7 天清理）
 
-（暂无）
+- [x] **2026-04-28 23:30** | task-006 | 部署 AI Watch v2 daemon skill
+  - **done** 2026-04-29 00:15 by 主对话 Claude
+  - **outcome**: 写完 `.claude/skills/ai-watch/SKILL.md`（70% 启发好奇心 / 30% 落地建议设计落地）+ daemon `wrapper.sh` 加 WebSearch 白名单 + `rules.md` 改 rule 15 限定 ai-watch 上下文使用 WebSearch + `prompt.md` 加 Step 0.5(a) 每日跑一次 + 输出位置 `MyBrain/research/ai-watch/<date>.md`
+  - **第一份报告**：等 2026-04-29 03:00 daemon 自动跑产出（已 verify 预检全过）
+
+- [x] **2026-04-28 23:30** | task-011 | 部署邮箱 triage daemon
+  - **done** 2026-04-29 00:15 by 主对话 Claude
+  - **outcome**: 写完 `.claude/skills/email-triage/SKILL.md`（read-only，scan past 24h，分 🔴 立即 / 🟡 当天 / ⚪ 已归类）+ daemon `wrapper.sh` 加 4 个 Gmail MCP read-only 工具 white-list（search_threads / get_thread / list_labels / list_drafts）+ `rules.md` 加 17-19 条 Gmail MCP 边界（write 类不放，避免擅改你 Gmail 状态）+ `prompt.md` 加 Step 0.5(b) + 输出位置 `MyBrain/system/email-triage/<date>.md`
+  - **第一份报告**：等 2026-04-29 03:00 daemon 自动跑产出
+
+- [x] **2026-04-28 23:30** | task-008 c1 | 装 git 备份（Obsidian Git plugin + GitHub 私有 repo）
+  - **partial done** 2026-04-29 00:10 by 主对话 Claude
+  - **outcome (我做的)**: `.gitignore` 配好（排除 raw/ 300M、attachments/ 99M、archive/、Clippings/、daemon logs、.obsidian/workspace state、plugin binaries）+ `git init -b main` + initial commit `5b1498f`（117 文件，9MB 工作集）+ 写了完整接力指引 `MyBrain/system/git-backup-setup.md`
+  - **awaiting Javen (GUI 步骤)**: ① 浏览器建 GitHub 私有 repo（30s）② Obsidian → Settings → Community plugins 装 Obsidian Git（1min）③ terminal 跑 `git remote add origin ... && git push -u origin main`（30s）。完整步骤见 `git-backup-setup.md`
+  - **note**: 不全闭环但卡在 GUI 限制；剩下步骤 ≤ 5 分钟，等 Javen 有空做
+
+- [x] **2026-04-28 23:30** | task-009 (Brain Corp) | fetch braincorp.com 真 JD + finalize 草稿 + 投
+  - **done (closed by external)** 2026-04-29 00:00 by 主对话 Claude
+  - **outcome**: ⛔ **不可执行** — Brain Corp 的 "2026 Summer Intern - Software Engineering - Autonomy" 已于 **2026-04-01 18:10 CST 下架**（BuiltIn 显示明确 "Sorry, this job was removed at..."）。今天 4/29，错过 28 天
+  - **action taken**: 在 `target-companies.md` 把 Brain Corp 标 ❌ 2026 cycle closed；daemon 凌晨写的草稿 (`resume-versions/2026-04-28_braincorp-autonomous-robotics.md`) 保留，给 2026 fall 全职 / 2027 summer 用
+  - **next move**: 跳到 target-companies tier 1 的 #1 Qualcomm（SD-based 总部，ECE/嵌入式/Edge AI 完美对口）— 主对话 Claude 在你下次说"投 Qualcomm"时启动
 
 ---
 

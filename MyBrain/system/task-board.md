@@ -2,29 +2,19 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-04-28
-**当前状态**：2 进行中 / 0 阻塞 / 5 待启动 / 3 已完成
-（更新 2026-04-28 晚：Anduril SWE Frontier Systems 已投出 (#2 📤)；inbox 整理完毕；新加 task-012 审批队列系统（已部分部署，approvals.md 就位 + CLAUDE.md 接入），daemon prompt 集成待主对话推进）
+**最后更新**：2026-04-29
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 5 待启动 / 4 已完成
+（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投）
+
+> 📌 2026-04-29 凌晨主对话 Claude 执行 4 项 approvals.md 打勾事项：
+> 1. ✅ task-006 AI Watch v2 — skill 部署完，待 03:00 daemon 出第一份报告
+> 2. ✅ task-011 邮箱 triage — skill 部署完，待 03:00 daemon 出第一份报告
+> 3. ✅ task-008 c1 — .gitignore + git init + commit `5b1498f` 完成；剩 GitHub repo + plugin GUI 给 Javen（≤5 min）
+> 4. ⛔ task-009 Brain Corp — 外部窗口 4/1 已关闭，不可投，归档
 
 ---
 
 ## 📥 待启动
-
-- [ ] **task-012** | 部署"轻量审批队列"系统（approvals.md）| #P1 | owner: @claude（主对话）
-  - **目标**：替代"在对话里打字 yes/no"为"vault 文件打勾批准"，让 Javen 决策更轻量 + 跨设备（手机 Obsidian app 也能批）
-  - **触发**：Javen 2026-04-28 提出——简单审批不该需要打开 Claude Code 输入文字
-  - **Definition of Done**：
-    - `system/approvals.md` 文件就位 + 模板 + 真实当前 3-5 条待审批事项
-    - `MyBrain/CLAUDE.md` 加 reference（每次 Claude session 启动就读）
-    - daemon `prompt.md` 加 step：扫 approvals.md / 执行 [x] / 归档
-    - 跑通一次：Javen 在某条上 `[x]` → 主对话或 daemon 看到 → 执行 → 移到 ✅ 已批准
-  - **创建**：2026-04-28
-  - **更新**：2026-04-28
-  - **子任务**：
-    - [x] a. 写 `system/approvals.md`（template + 真实初始 5 条待审批）— 2026-04-28
-    - [x] b. `MyBrain/CLAUDE.md` 加 reference — 2026-04-28
-    - [ ] c. 改 daemon `prompt.md`：加"扫 approvals.md → 执行 [x] → 归档"step ⚠️ blocked on 主对话（daemon 不能改 `~/.claude-daemon/`）
-    - [ ] d. 端到端测试：Javen 打勾 → daemon 凌晨跑 → 验证执行成功 + 归档动作正确
 
 - [ ] **task-011** | 每日邮箱 triage（daemon 自动扫 jacao@ucsd.edu 把重要邮件提上来） | #P0 | owner: @claude（**主对话**搭，daemon 跑）
   - **目标**：daemon 每天扫 Javen 邮箱过去 24h 邮件，按规则筛选重要的（招聘回复 / 学校重要通知 / 导师联系），写到 vault 让 Javen 早上一起来 5 分钟知道"今天有什么要处理"
@@ -47,17 +37,17 @@
     - 第一次 dry-run 跑通 → 输出第一份 mail-triage 报告 → Javen 审 quality（漏没漏、误报多不多）
     - 第二次跑（凌晨自动）→ Javen 早上确认重要邮件被 surface
   - **创建**：2026-04-28
-  - **更新**：2026-04-28
+  - **更新**：2026-04-29（主对话 a/b/c/d/g 全部完成 — Gmail MCP 已 verify 工作 + skill 写完 + wrapper 加 4 个 read-only Gmail MCP 白名单 + rules 加 17-19 条 Gmail 边界 + prompt 加 Step 0.5(b)）
   - **⚠️ 重要**：daemon **不能自己做这个 setup**（涉及改 .claude/skills/、~/.claude-daemon/）。Javen 想推进时主对话喊"推进 task-011"，主对话 Claude 来做。
   - **子任务**：
-    - [ ] a. ⚠️ blocked on @javen — 验证 Gmail MCP 已授权（Anthropic Claude.ai 应该已通过 OAuth 连了 Javen 的 Google 账号；让 Javen 在某次对话里跑 `list_labels` 看是否真能访问邮箱）
-    - [ ] b. 写 `.claude/skills/email-triage/SKILL.md`（含筛选规则 + 输出 format）
-    - [ ] c. 改 daemon `rules.md`：允许 `mcp__claude_ai_Gmail__*` 工具（之前是禁的）
-    - [ ] d. 改 daemon `prompt.md`：加邮箱 triage 优先级（早晨第一项）
-    - [ ] e. dry-run：手动 spawn wrapper.sh，看第一份 mail-triage 报告 quality
+    - [x] a. 验证 Gmail MCP 已授权 — done 2026-04-28（昨晚已 verify，Anduril application confirmation 自动 surfaced）
+    - [x] b. 写 `.claude/skills/email-triage/SKILL.md`（含 24h 扫描 + 🔴/🟡/⚪ 三档分类 + 已投递公司特别 surface + 拒信识别）— done 2026-04-29
+    - [x] c. 改 daemon `wrapper.sh` 工具白名单加 4 个 Gmail MCP read-only（search_threads / get_thread / list_labels / list_drafts）+ `rules.md` 加 17-19 条限定 read-only — done 2026-04-29
+    - [x] d. 改 daemon `prompt.md` 加 Step 0.5(b)：每天第一次跑时如今天报告不存在则生成 — done 2026-04-29
+    - [ ] e. 端到端验证：等 2026-04-29 03:00 daemon 自动跑产出第一份 → Javen 审 quality（漏没漏 / 误报多不多）
     - [ ] f. Javen 审报告 → 调整筛选规则（误报 / 漏报）
-    - [ ] g. 部署到每日凌晨自动跑 + 写到 daemon-runs/<日期>-mail-triage.md
-    - [ ] h. （可选）加一个早上 7:00 的第二次扫描（让 Javen 起床能看到最新）
+    - [x] g. 部署到每日凌晨自动跑 — done 2026-04-29（wrapper + prompt 已配，03:00 自动触发）
+    - [ ] h. （可选）加一个早上 7:00 的第二次扫描（让 Javen 起床能看到最新）— 跑顺一周后再考虑
 
 - [ ] **task-002** | Stage 1：UserPromptSubmit hook 自动 task-check | #P2 | owner: @javen
   - **目标**：每次跟 Claude 对话时自动注入看板状态，省去手动 `/task-check`
@@ -80,16 +70,16 @@
     - 端到端测试：手动跑 wrapper.sh 一次产出第一份针对 Javen 的报告（≥3 条 importance-3 含项目灵感+简历价值）
     - 看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress
   - **创建**：2026-04-27
-  - **更新**：2026-04-27
+  - **更新**：2026-04-29（主对话 a/b/c 全部完成 — skill 写完 + daemon wrapper 加 WebSearch 白名单 + rules 改 rule 15 限定 ai-watch 上下文允许 WebSearch + prompt 加 Step 0.5(a)）
   - **⚠️ 重要**：daemon **不能自己做这个任务**（rules 第 4-5 条禁止改 `.claude/` 和 `~/.claude-daemon/`）。Javen 想推进时在主对话喊一声"推进 task-006"，**主对话 Claude** 来做。子任务 a/b/c 都涉及修改 daemon 自己的配置。
   - **🎯 设计原则（Javen 2026-04-27 提醒）**：报告格调**避免过度功利化**。简历相关性应该是**隐含副产物**（"哦这个我能玩玩"）而非显性目标（"这个能让简历加分 +X"）。带太强目的性会变成信息焦虑制造机，反而效果差。报告应该 **70% 启发好奇心 + 30% 落地建议**——先让 Javen 觉得"这事好玩 / 有意思"，再说"顺便能做个小项目"。importance 排序应该看"对 Javen 兴趣 + 当下重要性"而不是"对简历有多大用"。
   - **子任务**：
-    - [ ] a. 写 `.claude/skills/ai-watch/SKILL.md`（含 25+ 来源白名单 + Javen 画像摘要 + 4-问题报告模板）⚠️ blocked on 主对话（daemon 不能改 .claude/）
-    - [ ] b. 改 `~/.claude-daemon/rules.md`：解禁 ai-watch 白名单 URL 的 WebFetch ⚠️ blocked on 主对话（daemon 不能改自己配置）
-    - [ ] c. 改 `~/.claude-daemon/prompt.md`：加双任务优先级 ⚠️ blocked on 主对话（同上）
+    - [x] a. 写 `.claude/skills/ai-watch/SKILL.md`（70%/30% 设计 + Tier 1/2/3 信息源轮换 + 600 字早报模板）— done 2026-04-29 by 主对话
+    - [x] b. 改 `~/.claude-daemon/wrapper.sh` 工具白名单加 WebSearch + `rules.md` 第 15 条改"WebSearch 限定 ai-watch skill 内使用" — done 2026-04-29
+    - [x] c. 改 `~/.claude-daemon/prompt.md` 加 Step 0.5(a)：每天第一次跑时如今天报告不存在则生成 — done 2026-04-29
     - [x] d. 建 `MyBrain/research/ai-watch/` 目录 — done 2026-04-28 (daemon 03:00)
-    - [ ] e. 端到端测试：跑 wrapper.sh 烧 ~$1 看第一份报告（产出后 Javen 审阅质量）
-    - [ ] f. 看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress（owner=@claude，daemon 自动跑）
+    - [ ] e. 端到端验证：等 2026-04-29 03:00 daemon 自动跑产出第一份 → Javen 审阅质量
+    - [ ] f. （后续）看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress（先看第一份质量再决定是否要这个 recurring 任务，或者直接靠 daemon prompt Step 0.5 永久跑就够）
     - [ ] g. （可选）如果第一份报告 Javen 不满意，迭代调整 skill 中的 Javen 画像 / 报告模板
 
 - [ ] **task-008** | Google Drive 5GB 容量危机 — 长期存储方案 | #P2 | owner: @claude（**主对话**，需 Javen 决策）
@@ -115,14 +105,14 @@
   - **子任务**：
     - [x] a. vault 大小盘点（du -sh 各类文件 / 各文件夹）→ 415 MB
     - [x] b. 调研 agent 报告完成（覆盖 GitHub / Obsidian Sync / iCloud / Syncthing / 混合方案 / Drive 坑等）
-    - [ ] c. ⚠️ blocked on @javen — Javen 选 4 个动作之一：
-      - **(c1) 现在装 git 备份**（推荐，半小时，免费）
-      - **(c2) 现在啥也不做，等过 2 GB 再说**
-      - **(c3) 直接升 Google One 100GB**（$1.99/月，省事）
-      - **(c4) 我有 iPhone，迁去 iCloud**
-    - [ ] d. 按选定方案实施
-    - [ ] e. 验证：vault 仍能在 Obsidian 正常打开 + Claude Code 仍能 cwd 进去
-    - [ ] f. 更新 daemon `wrapper.sh` 的 `VAULT` 路径（**仅当方案 c4 选了——路径变化才需要**）
+    - [x] c. Javen 在 approvals.md 选定 **(c1) 现在装 git 备份** — done 2026-04-28
+    - [ ] d. 按选定方案实施 — **partial done 2026-04-29**：
+      - [x] d.1 主对话做完 .gitignore + git init + initial commit `5b1498f`（117 文件 9MB）+ 完整接力指引 `system/git-backup-setup.md`
+      - [ ] d.2 ⚠️ blocked on @javen GUI — 浏览器建 GitHub 私有 repo（30s）
+      - [ ] d.3 ⚠️ blocked on @javen GUI — Obsidian 装 Obsidian Git plugin + 配 5 min 自动 commit（1 min）
+      - [ ] d.4 ⚠️ blocked on @javen — terminal 跑 `git remote add` + `git push -u origin main`（30s）
+    - [ ] e. 验证：第一次 push 成功 + 5 分钟后看到 plugin 自动 commit 出现在 git log
+    - [ ] f. 更新 daemon `wrapper.sh` 的 `VAULT` 路径（**仅当方案 c4 选了——路径变化才需要；c1 不需要**）— skip
 
 - [ ] **task-009** | 投简历（2026 夏季实习季）| #P0 | owner: 混合（@claude 起草 + @javen 决策与投递）
   - **目标**：把简历投到合适的 ML/CV/Robotics/Embedded 实习机会；允许针对特定公司/岗位微调简历（不强制）
@@ -180,6 +170,18 @@
 ---
 
 ## ✅ 已完成
+
+- [x] **task-012** | 部署"轻量审批队列"系统（approvals.md）| #P1 | owner: @claude（主对话） | done 2026-04-29
+  - **目标**：替代"在对话里打字 yes/no"为"vault 文件打勾批准"，让 Javen 决策更轻量 + 跨设备（手机 Obsidian app 也能批）
+  - **Definition of Done**：approvals.md 模板 ✓ + 真实当前 5 条 ✓ + CLAUDE.md 接入 ✓ + daemon prompt 加 Step 0 扫审批 ✓ + 跑通一次 ✓（Javen 4/28 23:30 打勾 4 项 → 主对话 4/29 00:15 全部执行 + 归档）
+  - **创建**：2026-04-28
+  - **完成**：2026-04-29
+  - **子任务**：
+    - [x] a. 写 `system/approvals.md`（template + 真实初始 5 条）— 2026-04-28
+    - [x] b. `MyBrain/CLAUDE.md` 加 reference — 2026-04-28
+    - [x] c. 改 daemon `prompt.md`：加"扫 approvals.md → 执行 [x] → 归档"step — 2026-04-29
+    - [x] d. 端到端跑通：Javen 打勾 4 项 → 主对话扫到 → 立即执行 → 移到 ✅ 已批准列 — 2026-04-29
+  - **副产物**：approvals.md 现存 1 条未勾选（GitHub profile setup），4 条已批准已归档；后续 daemon 03:00 也会扫这个文件
 
 - [x] **task-010** | Ingest：ECE284 两篇新 IMWUT 论文（LemurDx + DopFone） | #P1 | owner: @claude | done 2026-04-27
   - **目标**：编译 Javen 下载的两篇 ACM IMWUT 论文进 vault（重命名 + 渲染图 + source 页 + 双向回链 + 索引/日志/gaps 更新）

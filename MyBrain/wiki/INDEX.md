@@ -175,7 +175,8 @@ wiki/                           ← 知识网络（concept/debate/overview/synth
 ├── 哲学/                                          ← new 2026-04-27 (daemon)
 │   └── PHIL28_概览.md
 └── 工程方法/                                      ← new 2026-04-28
-    └── AI 团队设计原则.md                         ← Javen+Claude 共撰元方法论
+    ├── AI 团队设计原则.md                         ← Javen+Claude 共撰元方法论
+    └── 超级个体_工具与杠杆.md                      ← new 2026-04-29 | QClaw 视频引发的工具/路由策略 synthesis
 
 vault 内 system/ 下的元规则（不算 wiki 页面，但 Claude 启动时通过 MyBrain/CLAUDE.md 引用读到）：
 - MyBrain/system/经验教训.md   ← debug 方法论 6 条 + checklist (new 2026-04-28)

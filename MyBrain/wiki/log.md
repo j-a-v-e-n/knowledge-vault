@@ -1,5 +1,19 @@
 # Wiki 操作日志
 
+## [2026-04-29] Semi-ingest | QClaw 超级个体视频文案
+
+Javen 分享了一段第三方视频博主的工作流 vlog（QClaw "超级个体"叙事 + 腾讯 AI 龙虾 marketing）。核心处理：
+
+- 新建：`raw/web-research/2026-04-29_QClaw_超级个体视频文案.md`（原文存档）
+- 新建：[[工程方法/超级个体_工具与杠杆]]（synthesis，confidence: medium）
+- **关键事实修正**：QClaw 不接 Claude（接 Kimi/Minimax/GLM/DeepSeek）；4000ml = 4000 万 token/天；Claude Code shell 可通过 claude-code-router 接其他 LLM 省 50-99%
+- **认知层结论**：视频"超级个体"叙事跟 Javen 已有方向一致（vault/daemon/skills/approvals = 数字资产），不是新启示而是确认
+- **工具层结论**：QClaw 适合中国生态用户；Javen 真正的杠杆是"保留 Claude Code shell + 路由底层 LLM 到便宜模型"
+- 反向印证：[[工程方法/AI 团队设计原则]]——QClaw 视频里"3 agent 并行"实为 4 个独立 single-agent，营销话术
+- 新问题：已记入 [[工程方法/超级个体_工具与杠杆#知识缺口]]（DeepSeek vs Claude 真实质量差 / router 在 launchd 稳定性 / QClaw UX 借鉴价值）
+
+---
+
 ## [2026-04-28] 元规则沉淀 | 经验教训 + AI 团队设计原则
 
 ### 操作概览
