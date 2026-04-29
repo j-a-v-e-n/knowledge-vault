@@ -1,12 +1,12 @@
 ---
 name: task-check
-description: 扫描 MyBrain/system/task-board.md 报告每个任务的当前状态、阻塞原因、可推进的下一步。当用户问"看板状态"、"今天该做什么"、"还有什么任务"、"看板情况"等时调用此 skill。
+description: 扫描 MyBrain/automation/queue/task-board.md 报告每个任务的当前状态、阻塞原因、可推进的下一步。当用户问"看板状态"、"今天该做什么"、"还有什么任务"、"看板情况"等时调用此 skill。
 allowed-tools: Read, Grep
 ---
 
 # 任务看板状态检查
 
-读取 `MyBrain/system/task-board.md`，按以下格式汇报。汇报要简洁，**关注状态和下一步，不要复述任务全文**。
+读取 `MyBrain/automation/queue/task-board.md`，按以下格式汇报。汇报要简洁，**关注状态和下一步，不要复述任务全文**。
 
 ## 汇报模板
 
@@ -35,7 +35,7 @@ allowed-tools: Read, Grep
 
 ## 实施步骤
 
-1. **Read** `MyBrain/system/task-board.md`
+1. **Read** `MyBrain/automation/queue/task-board.md`
 2. 解析四列（📥 待启动 / 🚧 进行中 / 🔒 阻塞 / ✅ 已完成）
 3. 对每个任务提取：ID、标题、优先级、owner、子任务进度（已完成/总数）、阻塞原因
 4. 按上面模板汇报

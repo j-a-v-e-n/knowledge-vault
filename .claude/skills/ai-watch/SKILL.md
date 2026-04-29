@@ -1,6 +1,6 @@
 ---
 name: ai-watch
-description: 每日 AI 趋势扫描 + 写一份早报到 MyBrain/research/ai-watch/。设计原则 70% 启发好奇心（broad horizon、值得了解的有趣进展）/ 30% 落地建议（连到 Javen 的 ECE148 / 175A / 175B / 找实习场景，能实际用上的）。当用户说"AI 早报"、"今天 AI 圈有什么新东西"，或 daemon 凌晨任务里包含此 skill 时调用。
+description: 每日 AI 趋势扫描 + 写一份早报到 MyBrain/automation/reports/ai-watch/。设计原则 70% 启发好奇心（broad horizon、值得了解的有趣进展）/ 30% 落地建议（连到 Javen 的 ECE148 / 175A / 175B / 找实习场景，能实际用上的）。当用户说"AI 早报"、"今天 AI 圈有什么新东西"，或 daemon 凌晨任务里包含此 skill 时调用。
 allowed-tools: Read, Write, WebSearch, WebFetch, Glob, Bash(date*), Bash(ls*)
 ---
 
@@ -21,7 +21,7 @@ allowed-tools: Read, Write, WebSearch, WebFetch, Glob, Bash(date*), Bash(ls*)
 
 ## 输出位置
 
-`MyBrain/research/ai-watch/YYYY-MM-DD.md`
+`MyBrain/automation/reports/ai-watch/YYYY-MM-DD.md`
 
 **先 Glob 一下**：今天文件已经存在 → 不重写，跳过本次。每天最多一份。
 

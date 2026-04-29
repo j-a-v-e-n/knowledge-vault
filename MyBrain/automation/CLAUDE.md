@@ -1,6 +1,6 @@
 # 任务看板系统 — Claude 操作指令
 
-本文件被 `MyBrain/CLAUDE.md` import，定义 Claude 如何操作 `MyBrain/system/task-board.md`。
+本文件被 `MyBrain/CLAUDE.md` import，定义 Claude 如何操作 `MyBrain/automation/queue/task-board.md`。
 
 ## 核心原则
 
@@ -66,7 +66,7 @@
 
 - **task ID 自增**：读看板找最大 NNN，新任务 = NNN+1，三位数补零
 - **完成任务**：从"进行中"移到"✅ 已完成"，把外层 `[ ]` 改为 `[x]`，加 `done YYYY-MM-DD`
-- **归档**：超过 14 天的"已完成"任务，移到 `MyBrain/system/archive/YYYY-MM-task-board.md`（按月分文件）
+- **归档**：超过 14 天的"已完成"任务，移到 `MyBrain/automation/archive/YYYY-MM-task-board.md`（按月分文件）
 - **不要重写整个看板**——只 Edit 受影响的列/任务
 - **顶部统计每次都要更新**："1 进行中 / 0 阻塞 / 2 待启动 / 0 已完成"
 
@@ -79,12 +79,12 @@
 
 ## 日志
 
-`MyBrain/system/logs/YYYY-MM-DD.jsonl` 由 `.claude/hooks/audit.sh` 自动写入，我不直接维护它。日志记录：
+`MyBrain/automation/logs/YYYY-MM-DD.jsonl` 由 `.claude/hooks/audit.sh` 自动写入，我不直接维护它。日志记录：
 
 - SessionStart / SessionEnd / Stop 事件
 - 看板文件被 Edit/Write 时的 tool_input
 
-读日志（Javen 想看历史）：`cat MyBrain/system/logs/2026-04-27.jsonl | jq`
+读日志（Javen 想看历史）：`cat MyBrain/automation/logs/2026-04-27.jsonl | jq`
 
 ## 当前阶段
 

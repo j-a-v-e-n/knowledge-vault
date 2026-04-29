@@ -179,9 +179,9 @@ wiki/                           ← 知识网络（concept/debate/overview/synth
     └── 超级个体_工具与杠杆.md                      ← new 2026-04-29 | QClaw 视频引发的工具/路由策略 synthesis
 
 vault 内 system/ 下的元规则（不算 wiki 页面，但 Claude 启动时通过 MyBrain/CLAUDE.md 引用读到）：
-- MyBrain/system/经验教训.md   ← debug 方法论 6 条 + checklist (new 2026-04-28)
-- MyBrain/system/CLAUDE.md     ← 任务看板系统操作规则
-- MyBrain/system/README.md     ← 用户文档
+- MyBrain/automation/docs/lessons.md   ← debug 方法论 6 条 + checklist (new 2026-04-28)
+- MyBrain/automation/CLAUDE.md     ← 任务看板系统操作规则
+- MyBrain/automation/docs/user-guide.md     ← 用户文档
 
 attachments/
 ├── ECE175B/   (18 slides)

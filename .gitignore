@@ -43,8 +43,8 @@ Clippings/
 .cache/
 
 # === Logs (can be large, regenerable) ===
-MyBrain/system/logs/
-MyBrain/system/daemon-runs/
+MyBrain/automation/logs/
+MyBrain/automation/runs/
 
 # === Approvals — keep tracked (it's the source of truth for AI ↔ user) ===
 # (no exclude — approvals.md SHOULD be in git)

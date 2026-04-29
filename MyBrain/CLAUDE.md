@@ -394,11 +394,11 @@ notes/ 和 wiki/ 之间的链接用完整路径或确保页面名唯一。
 
 ## 任务看板系统
 
-vault 内有一个共享任务看板系统，用于跟踪待办/阻塞/已完成事项。**详细操作规则见 `MyBrain/system/CLAUDE.md`** —— 真正要操作看板时先 Read 该文件，再按其规则动手。
+vault 内有一个共享任务看板系统，用于跟踪待办/阻塞/已完成事项。**详细操作规则见 `MyBrain/automation/CLAUDE.md`** —— 真正要操作看板时先 Read 该文件，再按其规则动手。
 
 **要点速览（让 Claude 在主上下文里始终知道有这个系统）：**
 
-- 看板文件：`MyBrain/system/task-board.md`（vault 内单一事实源）
+- 看板文件：`MyBrain/automation/queue/task-board.md`（vault 内单一事实源）
 - 4 列：📥 待启动 / 🚧 进行中 / 🔒 阻塞 / ✅ 已完成
 - 任务标 #P0/#P1/#P2 + owner（@claude / @javen）
 - 遇到不能自己决定的事 → 标 `⚠️ blocked on @javen — 原因`，移到"🔒 阻塞"列，转去做别的
@@ -408,18 +408,18 @@ vault 内有一个共享任务看板系统，用于跟踪待办/阻塞/已完成
 
 - Javen 问"看板情况"、"今天该干啥"、"还有什么任务" → 用 `/task-check`
 - Javen 说"加个任务"、"接到一个新活" → 用 `/task-add`
-- Javen 让我推进任务 → Read system/CLAUDE.md 后按规则推进，遇阻塞按上面流程处理
+- Javen 让我推进任务 → Read automation/CLAUDE.md 后按规则推进，遇阻塞按上面流程处理
 - 我自己在主对话里完成了一项可记录的工作 → 主动添加到"✅ 已完成"列（不要问，直接写，告诉 Javen）
 
 **ingest 与看板的协作：** ingest/lint/connect 等知识库操作触发后，可主动在看板加一条对应任务（owner=@claude），完成后归档。但小型查询不需要走看板。
 
-详细的任务路由规则、优先级判定、阻塞处理、归档逻辑、Stage 升级规则见 `MyBrain/system/CLAUDE.md`。
+详细的任务路由规则、优先级判定、阻塞处理、归档逻辑、Stage 升级规则见 `MyBrain/automation/CLAUDE.md`。
 
-**遇到 debug 卡死时**：先翻 `MyBrain/system/经验教训.md`——里面是历次 debug 沉淀下来的"逻辑层教训"+ checklist。强制要求：同一假设连续 3 次修不通时，停下来过一遍那个 checklist 再继续。
+**遇到 debug 卡死时**：先翻 `MyBrain/automation/docs/lessons.md`——里面是历次 debug 沉淀下来的"逻辑层教训"+ checklist。强制要求：同一假设连续 3 次修不通时，停下来过一遍那个 checklist 再继续。
 
 **设计任何新 AI 系统 / agent / 改 daemon prompt 之前**：先翻 `MyBrain/wiki/工程方法/AI 团队设计原则.md`——基于 Javen 两条 axiom（AI=员工、团队管理是通用学问）+ 业内已验证 framework。**默认 single-agent；multi-agent 只在 Anthropic 三准则（高度并行 / 超 context / 多复杂工具）全满足时启用**。
 
-**审批队列**（每次 session 启动必读）：`MyBrain/system/approvals.md` 是 Javen 跟 AI 之间的"轻量审批入口"。
+**审批队列**（每次 session 启动必读）：`MyBrain/automation/queue/approvals.md` 是 Javen 跟 AI 之间的"轻量审批入口"。
 - 遇到需要 Javen 简单 yes/no 决定的事 → **append 一条到 ⏳ 待审批列**，**不要**逼 Javen 在对话里打字回答
 - 看到 ⏳ 待审批列里有 `[x]` 已勾选的 → **立刻执行那个动作** + 移到 ✅ 已批准列 + 加 done timestamp + 简短 outcome
 - Javen 删掉某条 = 拒绝，**不要追问**为啥删

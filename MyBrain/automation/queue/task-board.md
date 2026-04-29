@@ -3,7 +3,7 @@
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
 **最后更新**：2026-04-29
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 8 待启动 / 4 已完成
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 8 待启动 / 5 已完成
 （**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。新加 task-013 router + task-014 QClaw 跟进 4/29 凌晨用户表达的兴趣）
 
 > 📌 2026-04-29 凌晨主对话 Claude 执行 4 项 approvals.md 打勾事项：
@@ -32,7 +32,7 @@
        - 🟡 P1：UCSD 课程通知（作业截止 / 考试时间）
        - 🟡 P1：学院讲座 / 实验室招人邮件（如果跟 Javen 兴趣 match）
        - 🟢 跳过：marketing / promotion / GitHub PR notifications / 推送类
-    3. **输出位置**：`MyBrain/system/daemon-runs/<日期>-mail-triage.md`（跟 daemon 主报告分开，免得 Javen 早上一打开看到太多东西）
+    3. **输出位置**：`MyBrain/automation/runs/<日期>-mail-triage.md`（跟 daemon 主报告分开，免得 Javen 早上一打开看到太多东西）
     4. **不做的事**：daemon **不自动回邮件 / 不点链接 / 不下载附件**——只 read + 筛 + summarize
     5. **频率**：每日凌晨 03:00（跟 daemon 主跑同步）+ 可选 7:00 早安再跑一次（让 Javen 起床看最新）
     6. **隐私**：jacao@ucsd.edu 是 UCSD 学生邮箱，邮件内容不公开 push 到 vault git（如果以后用 git 备份 vault，这个文件夹要 .gitignore）
@@ -66,12 +66,12 @@
     - [ ] d. 端到端测试
 
 - [ ] **task-006** | 部署 AI Watch v2（每日 AI 趋势监测 daemon skill） | #P1 | owner: @claude（**主对话**，非 daemon）
-  - **目标**：daemon 每天扫 25+ 个权威 AI 来源，按 Javen 简历画像（ECE ML/Controls + ROS2/YOLOv8 + 数字健康 + edge AI 潜力）写"行业雷达 + 项目教练 + 简历放大器"风格的早安简报到 `MyBrain/research/ai-watch/<日期>.md`；每条信息回答"是什么 / 为什么是你 / 能做什么小项目（含简历价值）/ 难度+耗时"
+  - **目标**：daemon 每天扫 25+ 个权威 AI 来源，按 Javen 简历画像（ECE ML/Controls + ROS2/YOLOv8 + 数字健康 + edge AI 潜力）写"行业雷达 + 项目教练 + 简历放大器"风格的早安简报到 `MyBrain/automation/reports/ai-watch/<日期>.md`；每条信息回答"是什么 / 为什么是你 / 能做什么小项目（含简历价值）/ 难度+耗时"
   - **Definition of Done**：
     - ai-watch skill 部署到 `.claude/skills/ai-watch/SKILL.md`（含 25+ 来源白名单 + Javen 画像 + 报告模板）
     - daemon `rules.md` 更新：解禁 ai-watch 白名单的 WebFetch
     - daemon `prompt.md` 更新：双任务优先级（先 ai-watch、剩余推看板）
-    - 建好 `MyBrain/research/ai-watch/` 目录
+    - 建好 `MyBrain/automation/reports/ai-watch/` 目录
     - 端到端测试：手动跑 wrapper.sh 一次产出第一份针对 Javen 的报告（≥3 条 importance-3 含项目灵感+简历价值）
     - 看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress
   - **创建**：2026-04-27
@@ -82,7 +82,7 @@
     - [x] a. 写 `.claude/skills/ai-watch/SKILL.md`（70%/30% 设计 + Tier 1/2/3 信息源轮换 + 600 字早报模板）— done 2026-04-29 by 主对话
     - [x] b. 改 `~/.claude-daemon/wrapper.sh` 工具白名单加 WebSearch + `rules.md` 第 15 条改"WebSearch 限定 ai-watch skill 内使用" — done 2026-04-29
     - [x] c. 改 `~/.claude-daemon/prompt.md` 加 Step 0.5(a)：每天第一次跑时如今天报告不存在则生成 — done 2026-04-29
-    - [x] d. 建 `MyBrain/research/ai-watch/` 目录 — done 2026-04-28 (daemon 03:00)
+    - [x] d. 建 `MyBrain/automation/reports/ai-watch/` 目录 — done 2026-04-28 (daemon 03:00)
     - [ ] e. 端到端验证：等 2026-04-29 03:00 daemon 自动跑产出第一份 → Javen 审阅质量
     - [ ] f. （后续）看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress（先看第一份质量再决定是否要这个 recurring 任务，或者直接靠 daemon prompt Step 0.5 永久跑就够）
     - [ ] g. （可选）如果第一份报告 Javen 不满意，迭代调整 skill 中的 Javen 画像 / 报告模板
@@ -160,7 +160,7 @@
   - **创建**：2026-04-29
   - **更新**：2026-04-29
   - **前置**：daemon 已稳定运行 ≥1 周（建议 5/6 之后）+ Javen 期末缓冲期开始
-  - **setup guide**：`MyBrain/system/claude-code-router-setup.md` 已写好（凌晨主对话 Claude 写）
+  - **setup guide**：`MyBrain/automation/docs/claude-code-router-setup.md` 已写好（凌晨主对话 Claude 写）
   - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]]
   - **子任务**：
     - [x] a. 调研 claude-code-router + 写 setup guide — done 2026-04-29
@@ -184,7 +184,7 @@
     - 报告里明确：值得长期用 / 偶尔玩 / 卸了
   - **创建**：2026-04-29
   - **更新**：2026-04-29
-  - **setup guide**：`MyBrain/system/qclaw-setup.md` 已写好（凌晨主对话 Claude 写）
+  - **setup guide**：`MyBrain/automation/docs/qclaw-setup.md` 已写好（凌晨主对话 Claude 写）
   - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]]，[[raw/web-research/2026-04-29_QClaw_超级个体视频文案]]
   - **子任务**：
     - [x] a. 调研 QClaw 现状 + 写 setup guide — done 2026-04-29
@@ -200,11 +200,11 @@
   - **触发**：4/29 03:00 daemon 失败 → 4/29 11:20 主对话 Claude root-cause + 部署修复
   - **Definition of Done**：
     - 至少连续 3 次 03:00 daemon 跑通（无 stream timeout）
-    - failure mode 写入 `system/经验教训.md`（让以后 debug 类似问题快）
+    - failure mode 写入 `automation/docs/lessons.md`（让以后 debug 类似问题快）
     - hook 路径 quote bug 修完没回归
   - **创建**：2026-04-29
   - **更新**：2026-04-29
-  - **关联**：`MyBrain/system/daemon-runs/2026-04-29.md`（根因报告）
+  - **关联**：`MyBrain/automation/runs/2026-04-29.md`（根因报告）
   - **子任务**：
     - [x] a. Root-cause 4/29 03:00 失败 — 4/29 11:15 (主对话). NDJSON exit `is_error: true`, `result: "API Error: Stream idle timeout"`
     - [x] b. 修 settings.json hook 路径未 quote bug — 4/29 11:25 (主对话, 4 处全量替换)
@@ -212,7 +212,7 @@
     - [x] d. wrapper.sh syntax check pass — 4/29 11:30
     - [ ] e. 监测明早 4/30 03:00 daemon — 跑通 / 还失败？产出报告？hook 是否报错？
     - [ ] f. 监测 5/1 + 5/2 03:00 daemon — 连续 3 次跑通才算 DoD 满
-    - [ ] g. 写到 `system/经验教训.md`：第 7 条经验"长 context resume session 会触发 API stream timeout"
+    - [ ] g. 写到 `automation/docs/lessons.md`：第 7 条经验"长 context resume session 会触发 API stream timeout"
     - [ ] h. （可选 backup）若 stream timeout 再次出现 → 拆 daemon 工作流为两个 session（先 skill 再看板，每个独立 fresh session）
 
 ---
@@ -243,13 +243,28 @@
 
 ## ✅ 已完成
 
+- [x] **task-016** | 物理重构：所有自动化文件归并到 `MyBrain/automation/` module | #P1 | owner: @claude（主对话） | done 2026-04-29
+  - **目标**：Javen 4/29 上午要求"把所有自动化的任务单独放一块好查"。把分散在 system/ + research/ai-watch/ 的所有自动化文件归并到 `MyBrain/automation/` 单一 module，新建 dashboard 让他每天 1 click 看完
+  - **Definition of Done**：所有 17 个 automation 相关文件移到 `automation/`；19 个 vault + daemon 文件的引用更新；wrapper.sh syntax + check mode pass；automation/README.md dashboard 就位；daemon 4/30 03:00 用新路径跑通（待验证）
+  - **创建**：2026-04-29
+  - **完成**：2026-04-29
+  - **子任务**：
+    - [x] a. 建 `automation/{runs,reports/ai-watch,reports/email-triage,queue,docs,logs,archive}/` 目录树
+    - [x] b. mv 17 个文件 (system/* + research/ai-watch/*) → automation/
+    - [x] c. sed 批量替换 19 个文件里的旧路径引用 (vault 17 + daemon 2)
+    - [x] d. 边缘清理：wikilink、settings.json bash 权限、audit.sh 文件名匹配
+    - [x] e. 写 `automation/README.md` dashboard（today 链接 + 队列入口 + 健康度 + 快速命令）
+    - [x] f. 写 `wiki/工程方法/Managed Agents vs Claudian daemon.md`（响应 Javen 第二个需求）
+    - [x] g. 验证：bash -n wrapper.sh + check mode + grep 残留路径
+    - [ ] h. 4/30 03:00 daemon 跑通新路径（最终验证 — pending overnight）
+
 - [x] **task-012** | 部署"轻量审批队列"系统（approvals.md）| #P1 | owner: @claude（主对话） | done 2026-04-29
   - **目标**：替代"在对话里打字 yes/no"为"vault 文件打勾批准"，让 Javen 决策更轻量 + 跨设备（手机 Obsidian app 也能批）
   - **Definition of Done**：approvals.md 模板 ✓ + 真实当前 5 条 ✓ + CLAUDE.md 接入 ✓ + daemon prompt 加 Step 0 扫审批 ✓ + 跑通一次 ✓（Javen 4/28 23:30 打勾 4 项 → 主对话 4/29 00:15 全部执行 + 归档）
   - **创建**：2026-04-28
   - **完成**：2026-04-29
   - **子任务**：
-    - [x] a. 写 `system/approvals.md`（template + 真实初始 5 条）— 2026-04-28
+    - [x] a. 写 `automation/queue/approvals.md`（template + 真实初始 5 条）— 2026-04-28
     - [x] b. `MyBrain/CLAUDE.md` 加 reference — 2026-04-28
     - [x] c. 改 daemon `prompt.md`：加"扫 approvals.md → 执行 [x] → 归档"step — 2026-04-29
     - [x] d. 端到端跑通：Javen 打勾 4 项 → 主对话扫到 → 立即执行 → 移到 ✅ 已批准列 — 2026-04-29
@@ -286,8 +301,8 @@
     - [x] d. 设计五层架构与分阶段方案
     - [x] e. 创建 `MyBrain/system/` 目录结构
     - [x] f. 写 `task-board.md` 模板（本文件）
-    - [x] g. 写 `system/CLAUDE.md`（Claude 操作指令）
-    - [x] h. 写 `system/README.md`（用户文档）
+    - [x] g. 写 `automation/CLAUDE.md`（Claude 操作指令）
+    - [x] h. 写 `automation/docs/user-guide.md`（用户文档）
     - [x] i. 写 `task-check` / `task-add` skills
     - [x] j. 写 `audit.sh` hook 与 `settings.json`（pipe-test 5 种输入全过；jq schema 校验通过）
     - [x] k. 在 `MyBrain/CLAUDE.md` 末尾接入"任务看板系统"小节（要点速览 + 指向 system/CLAUDE.md）
@@ -333,4 +348,4 @@
 | 直接说"看板上能做的都做了" | Claude 自主推进所有 owner=@claude 且无阻塞的任务 |
 | 直接说"task-005 用 X 方案" | Claude 解阻塞、移回"进行中" |
 
-详细规则见 `MyBrain/system/CLAUDE.md` 与 `MyBrain/system/README.md`。
+详细规则见 `MyBrain/automation/CLAUDE.md` 与 `MyBrain/automation/docs/user-guide.md`。

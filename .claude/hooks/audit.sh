@@ -29,8 +29,9 @@ case "$EVENT" in
     # 只记录看板文件相关的 Edit/Write
     FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // ""' 2>/dev/null)
     if [[ "$FILE_PATH" == *"task-board.md"* ]] \
-       || [[ "$FILE_PATH" == *"system/CLAUDE.md"* ]] \
-       || [[ "$FILE_PATH" == *"system/README.md"* ]]; then
+       || [[ "$FILE_PATH" == *"approvals.md"* ]] \
+       || [[ "$FILE_PATH" == *"automation/CLAUDE.md"* ]] \
+       || [[ "$FILE_PATH" == *"automation/docs/user-guide.md"* ]]; then
       SHOULD_LOG=true
     fi
     ;;

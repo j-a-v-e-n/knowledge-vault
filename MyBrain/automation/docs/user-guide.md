@@ -92,13 +92,13 @@ task-005 用 X 方案           ← 解阻塞，重新推进
 
 ```bash
 # 看今天发生了什么
-cat MyBrain/system/logs/2026-04-27.jsonl | jq
+cat MyBrain/automation/logs/2026-04-27.jsonl | jq
 
 # 看某个任务相关的所有改动
-cat MyBrain/system/logs/*.jsonl | jq 'select(.file | contains("task-board"))'
+cat MyBrain/automation/logs/*.jsonl | jq 'select(.file | contains("task-board"))'
 
 # 看某个 session 的全部
-cat MyBrain/system/logs/*.jsonl | jq 'select(.session=="<session-id>")'
+cat MyBrain/automation/logs/*.jsonl | jq 'select(.session=="<session-id>")'
 ```
 
 ## 设计原则（取自思瑶视频 + 开源经验）

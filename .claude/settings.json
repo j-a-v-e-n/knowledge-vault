@@ -6,7 +6,7 @@
       "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/hooks/audit.sh)",
       "Edit(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/hooks/audit.sh)",
       "Edit(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/settings.json)",
-      "Bash(mkdir -p '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/skills/ai-watch' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/skills/email-triage' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/MyBrain/research/ai-watch' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/MyBrain/system/email-triage' && echo done)",
+      "Bash(mkdir -p '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/skills/ai-watch' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/skills/email-triage' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/MyBrain/automation/reports/ai-watch' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/MyBrain/automation/reports/email-triage' && echo done)",
       "Edit(/.claude/skills/ai-watch/**)",
       "Edit(/.claude/skills/email-triage/**)"
     ]

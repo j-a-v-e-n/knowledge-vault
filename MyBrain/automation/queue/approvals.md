@@ -24,17 +24,17 @@
 
 - [x] **2026-04-28 23:30** | task-006 | 部署 AI Watch v2 daemon skill
   - **done** 2026-04-29 00:15 by 主对话 Claude
-  - **outcome**: 写完 `.claude/skills/ai-watch/SKILL.md`（70% 启发好奇心 / 30% 落地建议设计落地）+ daemon `wrapper.sh` 加 WebSearch 白名单 + `rules.md` 改 rule 15 限定 ai-watch 上下文使用 WebSearch + `prompt.md` 加 Step 0.5(a) 每日跑一次 + 输出位置 `MyBrain/research/ai-watch/<date>.md`
+  - **outcome**: 写完 `.claude/skills/ai-watch/SKILL.md`（70% 启发好奇心 / 30% 落地建议设计落地）+ daemon `wrapper.sh` 加 WebSearch 白名单 + `rules.md` 改 rule 15 限定 ai-watch 上下文使用 WebSearch + `prompt.md` 加 Step 0.5(a) 每日跑一次 + 输出位置 `MyBrain/automation/reports/ai-watch/<date>.md`
   - **第一份报告**：等 2026-04-29 03:00 daemon 自动跑产出（已 verify 预检全过）
 
 - [x] **2026-04-28 23:30** | task-011 | 部署邮箱 triage daemon
   - **done** 2026-04-29 00:15 by 主对话 Claude
-  - **outcome**: 写完 `.claude/skills/email-triage/SKILL.md`（read-only，scan past 24h，分 🔴 立即 / 🟡 当天 / ⚪ 已归类）+ daemon `wrapper.sh` 加 4 个 Gmail MCP read-only 工具 white-list（search_threads / get_thread / list_labels / list_drafts）+ `rules.md` 加 17-19 条 Gmail MCP 边界（write 类不放，避免擅改你 Gmail 状态）+ `prompt.md` 加 Step 0.5(b) + 输出位置 `MyBrain/system/email-triage/<date>.md`
+  - **outcome**: 写完 `.claude/skills/email-triage/SKILL.md`（read-only，scan past 24h，分 🔴 立即 / 🟡 当天 / ⚪ 已归类）+ daemon `wrapper.sh` 加 4 个 Gmail MCP read-only 工具 white-list（search_threads / get_thread / list_labels / list_drafts）+ `rules.md` 加 17-19 条 Gmail MCP 边界（write 类不放，避免擅改你 Gmail 状态）+ `prompt.md` 加 Step 0.5(b) + 输出位置 `MyBrain/automation/reports/email-triage/<date>.md`
   - **第一份报告**：等 2026-04-29 03:00 daemon 自动跑产出
 
 - [x] **2026-04-28 23:30** | task-008 c1 | 装 git 备份（Obsidian Git plugin + GitHub 私有 repo）
   - **partial done** 2026-04-29 00:10 by 主对话 Claude
-  - **outcome (我做的)**: `.gitignore` 配好（排除 raw/ 300M、attachments/ 99M、archive/、Clippings/、daemon logs、.obsidian/workspace state、plugin binaries）+ `git init -b main` + initial commit `5b1498f`（117 文件，9MB 工作集）+ 写了完整接力指引 `MyBrain/system/git-backup-setup.md`
+  - **outcome (我做的)**: `.gitignore` 配好（排除 raw/ 300M、attachments/ 99M、archive/、Clippings/、daemon logs、.obsidian/workspace state、plugin binaries）+ `git init -b main` + initial commit `5b1498f`（117 文件，9MB 工作集）+ 写了完整接力指引 `MyBrain/automation/docs/git-backup-setup.md`
   - **awaiting Javen (GUI 步骤)**: ① 浏览器建 GitHub 私有 repo（30s）② Obsidian → Settings → Community plugins 装 Obsidian Git（1min）③ terminal 跑 `git remote add origin ... && git push -u origin main`（30s）。完整步骤见 `git-backup-setup.md`
   - **note**: 不全闭环但卡在 GUI 限制；剩下步骤 ≤ 5 分钟，等 Javen 有空做
 
@@ -74,6 +74,6 @@
 
 ## 📱 手机端使用
 
-vault 在 Google Drive 同步盘 → 手机装 Obsidian app + 同步 vault → 打开 `system/approvals.md` → 打勾保存 → 几秒同步回 Mac → 下次 Claude 启动看见。
+vault 在 Google Drive 同步盘 → 手机装 Obsidian app + 同步 vault → 打开 `automation/queue/approvals.md` → 打勾保存 → 几秒同步回 Mac → 下次 Claude 启动看见。
 
 适合场景：你早上通勤 / 课间 / 睡前刷一下，把 AI 排队等批准的事顺手处理掉。

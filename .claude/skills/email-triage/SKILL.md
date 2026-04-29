@@ -1,6 +1,6 @@
 ---
 name: email-triage
-description: 扫描 Javen 的 Gmail 收件箱（jacao@ucsd.edu），识别招聘 / OA / 面试 / 学校重要 / 其他高优先级邮件，写一份每日早报到 MyBrain/system/email-triage/。当用户说"扫一下邮箱"、"今天有啥邮件"，或 daemon 凌晨任务里包含此 skill 时调用。**默认只读**——不自动回信、不自动 label、不创建 draft（除非任务卡里明确放行）。
+description: 扫描 Javen 的 Gmail 收件箱（jacao@ucsd.edu），识别招聘 / OA / 面试 / 学校重要 / 其他高优先级邮件，写一份每日早报到 MyBrain/automation/reports/email-triage/。当用户说"扫一下邮箱"、"今天有啥邮件"，或 daemon 凌晨任务里包含此 skill 时调用。**默认只读**——不自动回信、不自动 label、不创建 draft（除非任务卡里明确放行）。
 allowed-tools: Read, Write, Glob, Bash(date*), mcp__claude_ai_Gmail__search_threads, mcp__claude_ai_Gmail__get_thread, mcp__claude_ai_Gmail__list_labels, mcp__claude_ai_Gmail__list_drafts
 ---
 
@@ -10,7 +10,7 @@ allowed-tools: Read, Write, Glob, Bash(date*), mcp__claude_ai_Gmail__search_thre
 
 ## 输出位置
 
-`MyBrain/system/email-triage/YYYY-MM-DD.md`
+`MyBrain/automation/reports/email-triage/YYYY-MM-DD.md`
 
 **先 Glob 一下**：今天文件已经存在 → 不重写，跳过本次。每天最多一份。
 

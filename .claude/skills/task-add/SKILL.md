@@ -1,6 +1,6 @@
 ---
 name: task-add
-description: 把新任务加入 MyBrain/system/task-board.md 的"📥 待启动"列。需要从用户拿到任务标题、目标、Definition of Done、优先级、责任人，按规范格式写入。当用户说"加个任务"、"接到一个新活"、"记一下要做 X"等时调用。
+description: 把新任务加入 MyBrain/automation/queue/task-board.md 的"📥 待启动"列。需要从用户拿到任务标题、目标、Definition of Done、优先级、责任人，按规范格式写入。当用户说"加个任务"、"接到一个新活"、"记一下要做 X"等时调用。
 allowed-tools: Read, Edit
 arguments: [task-title]
 ---
@@ -11,7 +11,7 @@ arguments: [task-title]
 
 ### 1. 读看板找下一个 ID
 
-`Read MyBrain/system/task-board.md`，扫描所有 `task-NNN`，找最大 N，新任务 ID = `task-{N+1}`（三位数，前导零）。
+`Read MyBrain/automation/queue/task-board.md`，扫描所有 `task-NNN`，找最大 N，新任务 ID = `task-{N+1}`（三位数，前导零）。
 
 ### 2. 从用户拿信息
 
@@ -29,7 +29,7 @@ arguments: [task-title]
 
 提问示例：**"为什么做这个？做到什么程度算完成？"**——一次性问完两个最关键的，不要一条一条来。
 
-### 3. 路由判断（参考 system/CLAUDE.md）
+### 3. 路由判断（参考 automation/CLAUDE.md）
 
 拿到信息后判断：
 
