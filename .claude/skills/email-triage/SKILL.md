@@ -1,7 +1,7 @@
 ---
 name: email-triage
 description: 扫描 Javen 的 Gmail 收件箱（jacao@ucsd.edu），识别招聘 / OA / 面试 / 学校重要 / 其他高优先级邮件，写一份每日早报到 MyBrain/automation/reports/email-triage/。当用户说"扫一下邮箱"、"今天有啥邮件"，或 daemon 凌晨任务里包含此 skill 时调用。**默认只读**——不自动回信、不自动 label、不创建 draft（除非任务卡里明确放行）。
-allowed-tools: Read, Write, Glob, Bash(date*), mcp__claude_ai_Gmail__search_threads, mcp__claude_ai_Gmail__get_thread, mcp__claude_ai_Gmail__list_labels, mcp__claude_ai_Gmail__list_drafts
+allowed-tools: Read, Write, Glob, Bash(date*), ToolSearch, mcp__claude_ai_Gmail__search_threads, mcp__claude_ai_Gmail__get_thread, mcp__claude_ai_Gmail__list_labels, mcp__claude_ai_Gmail__list_drafts
 ---
 
 # Email Triage — 每日邮箱筛选早报
@@ -29,6 +29,17 @@ allowed-tools: Read, Write, Glob, Bash(date*), mcp__claude_ai_Gmail__search_thre
 | 营销 / 订阅 / Newsletter | ⚪ 跳过详情 | 不进报告 |
 
 ## 扫描流程
+
+### 0. **必须先做**：加载 Gmail MCP 工具 schema
+
+平台已把 `mcp__claude_ai_Gmail__*` 改成 deferred tools——schema 默认不加载，直接调用会 `InputValidationError`。开工前**先**跑一次：
+
+```
+ToolSearch query="select:mcp__claude_ai_Gmail__search_threads,mcp__claude_ai_Gmail__get_thread,mcp__claude_ai_Gmail__list_labels,mcp__claude_ai_Gmail__list_drafts"
+max_results=4
+```
+
+返回的 `<functions>` 块里包含全部 4 个工具的 schema 后，才进入第 1 步。这一步不是可选的，daemon 跑也要做。
 
 ### 1. 拿过去 24 小时的所有 thread
 
