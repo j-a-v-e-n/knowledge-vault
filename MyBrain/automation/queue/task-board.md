@@ -2,7 +2,7 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-04-29
+**最后更新**：2026-04-30
 **当前状态**：1 进行中（task-003）/ 0 阻塞 / 8 待启动 / 5 已完成
 （**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。新加 task-013 router + task-014 QClaw 跟进 4/29 凌晨用户表达的兴趣）
 
@@ -210,9 +210,9 @@
     - [x] b. 修 settings.json hook 路径未 quote bug — 4/29 11:25 (主对话, 4 处全量替换)
     - [x] c. 改 wrapper.sh 不再 --resume，每次 fresh session（用 uuidgen）— 4/29 11:30 (主对话)
     - [x] d. wrapper.sh syntax check pass — 4/29 11:30
-    - [ ] e. 监测明早 4/30 03:00 daemon — 跑通 / 还失败？产出报告？hook 是否报错？
+    - [x] e. 监测明早 4/30 03:00 daemon — 跑通 / 还失败？产出报告？hook 是否报错？ — done 2026-04-30（ai-watch ✅ 产出；email-triage ❌ Gmail MCP 未注入；看板任务正常跑）
     - [ ] f. 监测 5/1 + 5/2 03:00 daemon — 连续 3 次跑通才算 DoD 满
-    - [ ] g. 写到 `automation/docs/lessons.md`：第 7 条经验"长 context resume session 会触发 API stream timeout"
+    - [x] g. 写到 `automation/docs/lessons.md`：第 7 条经验"长 context resume session 会触发 API stream timeout" — done 2026-04-30
     - [ ] h. （可选 backup）若 stream timeout 再次出现 → 拆 daemon 工作流为两个 session（先 skill 再看板，每个独立 fresh session）
 
 ---

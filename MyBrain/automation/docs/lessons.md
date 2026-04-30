@@ -109,3 +109,18 @@
 ```
 
 来源：实际 debug 后用户/Claude 共同总结。每条都是 hindsight，但写下来就能 prevent 下一次。
+
+---
+
+## ⑦ 长 context + `--resume` 会触发 API stream idle timeout
+
+**症状**：daemon 跑到中途（通常 5-15 分钟后）突然中断，NDJSON 输出末尾出现 `is_error: true` + `result: "API Error: Stream idle timeout"`。重试还是超时。
+
+**真相**：`claude --resume <session-id>` 会把历次 session 的 context 都带进去。随着 daemon 日复一日运行，累积 context 接近或超过 200K token 时，Claude 处理时间变长——单步 thinking 时间若超过 Anthropic API 的 stream idle timeout 阈值（大约 5-10 分钟无输出），连接被服务端切断，客户端收到 stream error。**这个问题不是网络问题，也不是 token limit 问题，是"单步处理太慢导致 stream 心跳超时"。**
+
+**避免**：
+1. **每次 daemon 都用 fresh session**（不 `--resume`）——在 `wrapper.sh` 里用 `uuidgen` 生成新 session-id 或完全不传 `-r` flag，每次从干净 context 启动
+2. 如果要保持 session 连续性：把 daemon 工作流拆成多个独立 fresh session（先 skill、再看板），每个单独跑，避免单 session 累积过多 context
+3. 看到 stream timeout 的第一反应：**先检查是不是 resume 了过大的 context**，而不是怀疑网络或 token limit
+
+> 例（2026-04-29 03:00 daemon）：daemon 连续几天 `--resume` 同一 session，context 累积至 ~200K。03:00 启动后处理 Step 0 审批时 idle 超时，整个 run 失败，没有产出报告。根因分析由主对话 Claude 在 2026-04-29 11:15 完成。修复：改 `wrapper.sh` 不再 `--resume`，每次用 `uuidgen` 新建 session。详见 `automation/runs/2026-04-29.md`。
