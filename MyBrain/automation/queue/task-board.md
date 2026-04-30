@@ -2,9 +2,14 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-04-30
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 8 待启动 / 5 已完成
-（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。新加 task-013 router + task-014 QClaw 跟进 4/29 凌晨用户表达的兴趣）
+**最后更新**：2026-04-30 14:45
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 5 已完成
+（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。新加 task-013 router + task-014 QClaw 跟进 4/29 凌晨用户表达的兴趣。**新加 task-017 (ECE175B project) + task-018 (ECE284 project) — Javen 4/30 派活"两个 project 全让 AI 干"，5 条审批已 append 到 approvals.md**）
+
+> 📌 2026-04-30 14:45 主对话：Javen "两个 project 全让 AI 干，我只检查"——
+> - **task-017 (ECE175B ADG diffusion)**: code 骨架主对话写，GPU 训练 blocked on @javen 选 Colab/DSMLP
+> - **task-018 (ECE284 LLM-PPG)**: 全 CPU + Claude API，主对话搭，daemon 凌晨接力跑实验
+> - approvals.md 加 5 条早起打勾的事 → AI 接力
 
 > 📌 2026-04-29 凌晨主对话 Claude 执行 4 项 approvals.md 打勾事项：
 > 1. ✅ task-006 AI Watch v2 — skill 部署完，待 03:00 daemon 出第一份报告
@@ -214,6 +219,67 @@
     - [ ] f. 监测 5/1 + 5/2 03:00 daemon — 连续 3 次跑通才算 DoD 满
     - [x] g. 写到 `automation/docs/lessons.md`：第 7 条经验"长 context resume session 会触发 API stream timeout" — done 2026-04-30
     - [ ] h. （可选 backup）若 stream timeout 再次出现 → 拆 daemon 工作流为两个 session（先 skill 再看板，每个独立 fresh session）
+
+- [ ] **task-017** | ECE175B Project: Attribute-Disentangled CFG (ADG) — 实现 + 训练 + 报告 | #P0 | owner: 混合（@claude 写代码 / @javen 跑 GPU + 提交）
+  - **目标**：完成 ECE175B 期末 project — Attribute-Disentangled Guidance for Diffusion Models。proposal 4/22 已交，timeline 现在在 Week 5-6（实现 ADG sampling + 初步实验）
+  - **背景**：核心想法是把标准 CFG 的单一 guidance scale `w` 拆解为 K 个 per-attribute 的 `w_k`，让 face attributes（笑/眼镜/男/年轻）有独立强度控制。在 CelebA 64×64 数据集上验证。proposal 在 `raw/ucsd/Spring 2026/ECE175B/proposal.pdf`
+  - **Definition of Done**：
+    - 代码 repo（`MyBrain/projects/ece175b-adg/` + 后续 push GitHub）含 dataloader / DDPM / CFG / ADG sampling / FID + per-attribute accuracy 评估脚本
+    - Baseline DDPM 在 CelebA 训练完毕（~50 epoch，需要外部 GPU）
+    - ADG sampling 实现 + 初步可视化（同一 seed，不同 w_k 组合的图像）
+    - Midterm report (Week 7) 提交：模型设计 + 数学 + 初步结果
+    - Final report (Week 10-11) 提交 + 可视化 + per-attribute 解耦分析
+  - **创建**：2026-04-30
+  - **更新**：2026-04-30
+  - **🤖 AI vs Javen 分工**：
+    - ✅ **主对话能干**：写完整代码骨架（dataloader / DDPM / training loop / ADG sampling / 评估）
+    - ✅ **daemon 凌晨能干**：跑代码 lint / 写 README / 调 prompt / 整理实验日志
+    - ❌ **必须 Javen**：提供 GPU 资源（本机无 GPU，daemon 也没）+ 真正点"提交报告"
+  - **⚠️ 主要 blocker**：GPU 方案未定 — Colab Pro / UCSD DSMLP / RunPod / Kaggle 之一。已写到 approvals.md 等 Javen 打勾
+  - **子任务**：
+    - [ ] a. 主对话写代码骨架 → `MyBrain/projects/ece175b-adg/`（dataloader, model, train.py, sample.py, adg.py, eval.py, README）
+    - [ ] b. ⚠️ blocked on @javen — GPU 方案选定（默认推荐 Colab Pro $10/月）
+    - [ ] c. 训练 baseline conditional DDPM 在 CelebA（~50 epochs，预估 4-8h GPU）
+    - [ ] d. 实现 ADG sampling（K+1 forward passes，可视化对比 standard CFG vs ADG）
+    - [ ] e. 量化评估：FID 分数 + 每个 attribute 的分类器准确率 + 解耦度（调一个 attribute 时其他变化多少）
+    - [ ] f. 失败模式分析：哪些 attribute pair 干扰最严重 / 线性分解假设何时失效
+    - [ ] g. Midterm report (Week 7, 2026-05-13 左右) — 模型设计 + 数学 + 初步结果
+    - [ ] h. Final report (Week 10-11, 2026-06-12 左右) — 7-10 页 NeurIPS 风格 + GitHub repo
+    - [ ] i. ⚠️ blocked on @javen — 期末交报告 + 提交 GitHub repo 链接
+  - **关联**：[[ECE175B_概览]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]]
+
+- [ ] **task-018** | ECE284 Project: Benchmarking LLM Paradigms for PPG HR Estimation | #P0 | owner: 混合（@claude 主导 / @javen 提交）
+  - **目标**：完成 ECE284 期末 project — 在 IEEE SPC 2015 数据集上对比 4 个系统：TROIKA-lite / Random Forest / Claude λ-generator (主贡献) / Claude ReAct orchestration (stretch)。proposal 4/22 已交 revised 版
+  - **背景**：核心是 paradigm comparison — LLM 作为参数生成器 vs 工具编排者。proposal 在 `raw/ucsd/Spring 2026/ECE284/proposal_javen_revised.pdf`
+  - **Definition of Done**：
+    - 代码 repo（`MyBrain/projects/ece284-llm-ppg/`）含 data loader / TROIKA-lite / RF baseline / λ-generator / ReAct (stretch) / LOSO 评估
+    - IEEE SPC 2015 dataset 下载 + 解析（12 subjects 的 .mat 文件）
+    - 4 个系统的 LOSO MAE 数字（committed 是 3 个：TROIKA + RF + λ；ReAct 是 stretch）
+    - 4 个评估轴（MAE / motion-level / λ appropriateness / token cost & latency）的图表
+    - Project Update report (Week 8) 提交
+    - Final report (Week 10) 提交（7-10 页 ACM Large 2-column）
+  - **创建**：2026-04-30
+  - **更新**：2026-04-30
+  - **🤖 AI vs Javen 分工 — 这是"AI 全包"的好 case**：
+    - ✅ **主对话能干**：全部代码（纯 numpy/scipy/sklearn + Anthropic API），全部跑实验（CPU-only）
+    - ✅ **daemon 凌晨能干**：跑长时间 LOSO 评估（sklearn 可能 1-2 小时）+ 调 Claude API 跑 ~1800 windows 的 λ 生成
+    - ❌ **必须 Javen**：① 第一次跑前批准本机装 Python 包 ② 真正点"提交报告"
+  - **⚠️ 主要 blocker**（已写到 approvals.md 等打勾）：
+    - 批准在本机 pip install (numpy/scipy/scikit-learn/anthropic/mat73)
+    - 批准下载 IEEE SPC 2015 dataset 到 vault（~50 MB）
+    - 提供 ANTHROPIC_API_KEY（你的 Claude Max 订阅可以走 API mode 给 daemon 用，~5min 生成）
+  - **子任务**：
+    - [ ] a. 主对话写代码骨架 → `MyBrain/projects/ece284-llm-ppg/`（data.py, troika_lite.py, rf_baseline.py, llm_lambda.py, react_agent.py, evaluate.py, README）
+    - [ ] b. ⚠️ blocked on @javen — 批准 pip install + 数据下载 + API key（approvals.md）
+    - [ ] c. TROIKA-lite 实现（bandpass + FFT + spectral subtraction + peak detect）+ sanity check on static windows
+    - [ ] d. Random Forest baseline（4 频域特征 + sklearn）+ LOSO MAE
+    - [ ] e. Claude λ-generator（per-window prompt，输出 λ ∈ [0.1, 3.0]，driving fixed pipeline）
+    - [ ] f. 全 12 subjects LOSO 评估 → MAE 总分 + motion-level 分层 + λ appropriateness 100-window 分析 + token cost
+    - [ ] g. Project Update report (Week 8, 2026-05-20 左右) — 进度 + 1-2 张架构图 / 初步结果图
+    - [ ] h. (Stretch) Claude ReAct orchestrator + 同 LOSO 评估 → 跟 λ-generator 头对头对比
+    - [ ] i. Final report (Week 10, 2026-06-05 左右) — 7-10 页 ACM Large 2-column + GitHub repo
+    - [ ] j. ⚠️ blocked on @javen — 期末交报告 + Final Oral defense (Week 11)
+  - **关联**：[[Zhang_2015_TROIKA]], [[Arakawa_2023_LemurDx]], [[Garg_2025_DopFone]], [[ECE284 syllabus]]
 
 ---
 

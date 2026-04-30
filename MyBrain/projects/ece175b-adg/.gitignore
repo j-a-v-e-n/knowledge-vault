@@ -1,0 +1,36 @@
+# 数据
+data/
+*.zip
+*.tar.gz
+*.7z
+
+# Checkpoints (太大,不 push)
+checkpoints/
+*.pt
+*.pth
+*.safetensors
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Results — 大图不 push
+results/*.png
+results/*.npy
+!results/.gitkeep
+!results/*.md      # 保留 markdown 报告
+
+# IDE
+.vscode/
+.idea/
+
+# wandb / tensorboard logs
+wandb/
+runs/
+
+# 环境密钥
+.env
+*.key

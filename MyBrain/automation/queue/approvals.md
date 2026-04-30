@@ -20,6 +20,46 @@
 
 ---
 
+### 🎯 2026-04-30 14:50 一组 (task-017 + task-018) — Javen 派活"两个 project 全让 AI 干"
+
+打勾这 5 条，AI 就能自动接力把 ECE175B 和 ECE284 两个 project 推到「等你检查」的程度。**全部 5 条 5 分钟可批完。**
+
+- [ ] **2026-04-30 14:50** | task-018 (ECE284) | 批准本机装 Python 实验包 (`pip install --user numpy scipy scikit-learn matplotlib anthropic mat73 pyEDFlib`)
+  - **建议**：批准（这些都是数据科学标配，不会动系统 Python）
+  - **批准后做**：主对话 / 我下次启动时跑 `pip install --user ...` 装到你 user site-packages
+  - **不批的影响**：ECE284 实验代码无法运行，daemon 也跑不了 LOSO 评估
+  - **隐私/安全**：这些都是 PyPI 知名包；`--user` flag 不动 system Python；Anthropic 是官方 SDK
+
+- [ ] **2026-04-30 14:50** | task-018 (ECE284) | 批准下载 IEEE SPC 2015 dataset 到 `MyBrain/projects/ece284-llm-ppg/data/`（~50 MB，12 .mat 文件）
+  - **建议**：批准（论文公开数据，proposal 已 cite [Zhang 2015]）
+  - **批准后做**：主对话跑 `curl https://zenodo.org/.../IEEE-SPC-2015.zip -o data.zip && unzip` 一键下完
+  - **不批的影响**：ECE284 实验跑不起来（数据是 RQ1/RQ2 的根基）
+  - **大小说明**：50MB 远低于 vault 415MB → 15GB Drive 配额安全；之后会被 .gitignore 排除掉不会 push GitHub
+
+- [ ] **2026-04-30 14:50** | task-018 (ECE284) | 批准生成 ANTHROPIC_API_KEY 给 ECE284 用（你 Claude Max 订阅 → console.anthropic.com 5 min 生成）
+  - **建议**：批准（proposal 估算 ~3M tokens / $5 以内，远低于你 Max 5x 月度配额）
+  - **批准后做**：你打开 https://console.anthropic.com/settings/keys → "Create Key" → 命名 `ece284-ppg` → 复制 key 给我，我写到 `~/.config/anthropic-keys/ece284` (chmod 600)，代码 import 这个 key。**daemon 也能用同一个 key 凌晨跑实验**
+  - **不批的影响**：λ-generator 系统跑不了 = 主贡献废了，只剩 baseline
+  - **风险**：API key 仅写到 `~/.config/...` 600 权限文件，不会进 git，不会 push GitHub
+  - **替代方案**：如果你不想用 API key，可以让 daemon 调本机 Claude Code CLI（更慢但不要 key），但 ~1800 windows 太慢。**强烈推荐 API**
+
+- [ ] **2026-04-30 14:50** | task-017 (ECE175B) | 批准 GPU 方案 — 选一个
+  - **(a) Colab Pro $10/月** — **推荐**。30 秒注册，浏览器开 ipynb 就能用 A100/V100，最多 24h 连续。我把代码写成 Jupyter notebook 你直接挂上跑
+  - **(b) UCSD DSMLP** — 免费给学生，但 GPU 老（K80），排队等位时间不可控；适合长期跑长 job
+  - **(c) RunPod / Vast.ai pay-per-hour** — RTX 3090 $0.3/h，4090 $0.5/h；适合"集中训 6 小时再关"省钱；要 SSH key
+  - **(d) Kaggle Notebook 免费 GPU** — 30 小时/周 P100，免费但有限制
+  - **建议**：批 (a) Colab Pro（最省事，期末忙起来 GPU 不能成为瓶颈）
+  - **批准后做**：你点 colab.research.google.com 注册 Pro → 我把 train.py 改成 ipynb 兼容版本 → 你 Drive mount 后挂上跑
+  - **不批的影响**：ECE175B 训练永远卡在"代码写完但跑不了"
+
+- [ ] **2026-04-30 14:50** | task-017 + 018 | 批准建 2 个 GitHub 私有 repo (ece175b-adg, ece284-llm-ppg)
+  - **建议**：批准（课程要求"include GitHub repo with README"）
+  - **批准后做**：你打开 github.com → "+New" 建 2 个 private repo → 名字 `ece175b-adg` 和 `ece284-llm-ppg`（30 秒）→ 我跑 `git remote add origin ... && git push` 把 vault 里的 projects/ 内容推上去
+  - **不批的影响**：可以晚点批，不影响代码开发；但 final report 时要交 GitHub link，不批 = 自己手动建
+  - **风险**：private repo，只你看得到；data/ 不 push（已 .gitignore）；API key 不 push（不在 repo 里）
+
+---
+
 ## ✅ 已批准（执行完归档；满 7 天清理）
 
 - [x] **2026-04-28 23:30** | task-006 | 部署 AI Watch v2 daemon skill
