@@ -8,7 +8,12 @@
       "Edit(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/settings.json)",
       "Bash(mkdir -p '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/skills/ai-watch' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/skills/email-triage' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/MyBrain/automation/reports/ai-watch' '/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/MyBrain/automation/reports/email-triage' && echo done)",
       "Edit(/.claude/skills/ai-watch/**)",
-      "Edit(/.claude/skills/email-triage/**)"
+      "Edit(/.claude/skills/email-triage/**)",
+      "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/researcher.md)",
+      "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/engineer.md)",
+      "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/writer.md)",
+      "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/reviewer.md)",
+      "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/README.md)"
     ]
   },
   "hooks": {

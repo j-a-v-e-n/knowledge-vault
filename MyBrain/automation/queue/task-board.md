@@ -281,6 +281,34 @@
     - [ ] j. ⚠️ blocked on @javen — 期末交报告 + Final Oral defense (Week 11)
   - **关联**：[[Zhang_2015_TROIKA]], [[Arakawa_2023_LemurDx]], [[Garg_2025_DopFone]], [[ECE284 syllabus]]
 
+- [ ] **task-019** | 搭建 AI 项目经理 + 员工团队（模式 B：subagent + 模型分层） | #P1 | owner: @claude（主对话）
+  - **目标**：让 Claude Code 当项目经理，下面一支 4 人小团队（researcher / engineer / writer / reviewer），每个 subagent 独立模型 / tool 边界 / 系统 prompt。直接服务 task-017 (ECE175B) + task-018 (ECE284) 这两个 project 的写代码 / 调研 / 写报告 / 审稿活
+  - **触发**：Javen 2026-04-30 "代替我的人力，让 AI 成为团队"。基于 [[AI 团队设计原则]] DACI + Two-Pizza
+  - **设计参考**：[[AI 项目经理_subagent 模式]]（待写）
+  - **Definition of Done**：
+    - 4 个 subagent markdown 写到 `.claude/agents/`：researcher (Haiku), engineer (Sonnet), writer (Sonnet), reviewer (Sonnet)
+    - 每个 subagent 有：明确 objective / model / tools / boundaries / iteration cap / 终止条件
+    - `.claude/agents/README.md` 使用指南（怎么调、什么时候调、跟主对话 lead 的协作）
+    - wiki 笔记 [[AI 项目经理_subagent 模式]]：设计文档 + 落到 ECE 项目的具体场景
+    - smoke test：用 researcher subagent 做一次"读 vault 一篇 paper notes 出 200 字 lay summary"验证闭环
+    - 看板加任务时 owner=@claude 的活，**主对话从此默认评估"派给哪个 subagent"再动手**
+  - **创建**：2026-04-30
+  - **更新**：2026-04-30
+  - **🤖 跟 task-013 (router) 的关系**：
+    - 模式 B 不强依赖 router；现在 subagent 的 model 字段先用 Anthropic 内档（Haiku $1/M vs Sonnet $3/M 已经有 3× 价差）
+    - task-013 跑通后，把 subagent model 字段改成 `deepseek-chat` / `openrouter/...` 就完成"DeepSeek 接管员工岗位" 的最终形态
+  - **子任务**：
+    - [ ] a. 写 `.claude/agents/researcher.md` (model: claude-haiku-4-5)
+    - [ ] b. 写 `.claude/agents/engineer.md` (model: claude-sonnet-4-5)
+    - [ ] c. 写 `.claude/agents/writer.md` (model: claude-sonnet-4-5)
+    - [ ] d. 写 `.claude/agents/reviewer.md` (model: claude-sonnet-4-5)
+    - [ ] e. 写 `.claude/agents/README.md` 使用指南
+    - [ ] f. 写 wiki [[AI 项目经理_subagent 模式]]
+    - [ ] g. smoke test：调 researcher 出 [[Zhang_2015_TROIKA]] 的 lay summary 验证
+    - [ ] h. （等 task-013 完成后）改 4 个 subagent 的 model 字段路由到 DeepSeek，再跑一次 smoke test
+    - [ ] i. （观察 1 周）哪些任务 subagent 跑得好 / 哪些回退 single-agent 更好；总结到 `MyBrain/automation/docs/lessons.md`
+  - **关联**：[[AI 团队设计原则]], [[超级个体_工具与杠杆]], [[claude-code-router-setup.md]]
+
 ---
 
 ## 🚧 进行中
