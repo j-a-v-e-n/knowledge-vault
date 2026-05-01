@@ -2,7 +2,7 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-04-30 15:30
+**最后更新**：2026-05-01 03:00
 **当前状态**：1 进行中（task-003）/ 0 阻塞 / 11 待启动 / 5 已完成
 （**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**新加 task-017/018/019 — 4/30 主对话三连推进：两个 ECE project 骨架 + AI subagent 团队系统**）
 
@@ -58,7 +58,7 @@
     - [x] b. 写 `.claude/skills/email-triage/SKILL.md`（含 24h 扫描 + 🔴/🟡/⚪ 三档分类 + 已投递公司特别 surface + 拒信识别）— done 2026-04-29
     - [x] c. 改 daemon `wrapper.sh` 工具白名单加 4 个 Gmail MCP read-only（search_threads / get_thread / list_labels / list_drafts）+ `rules.md` 加 17-19 条限定 read-only — done 2026-04-29
     - [x] d. 改 daemon `prompt.md` 加 Step 0.5(b)：每天第一次跑时如今天报告不存在则生成 — done 2026-04-29
-    - [ ] e. 端到端验证：等 2026-04-29 03:00 daemon 自动跑产出第一份 → Javen 审 quality（漏没漏 / 误报多不多）
+    - [ ] e. ⚠️ blocked on @javen — Gmail MCP 在 daemon 上下文不可用（ToolSearch 找不到 mcp__claude_ai_Gmail__* 工具）；04-29/04-30 email-triage 报告文件存在但不确定是否真正扫了邮件；需 Javen 在主对话跑一次验证 MCP 是否正确注入
     - [ ] f. Javen 审报告 → 调整筛选规则（误报 / 漏报）
     - [x] g. 部署到每日凌晨自动跑 — done 2026-04-29（wrapper + prompt 已配，03:00 自动触发）
     - [ ] h. （可选）加一个早上 7:00 的第二次扫描（让 Javen 起床能看到最新）— 跑顺一周后再考虑
@@ -92,7 +92,7 @@
     - [x] b. 改 `~/.claude-daemon/wrapper.sh` 工具白名单加 WebSearch + `rules.md` 第 15 条改"WebSearch 限定 ai-watch skill 内使用" — done 2026-04-29
     - [x] c. 改 `~/.claude-daemon/prompt.md` 加 Step 0.5(a)：每天第一次跑时如今天报告不存在则生成 — done 2026-04-29
     - [x] d. 建 `MyBrain/automation/reports/ai-watch/` 目录 — done 2026-04-28 (daemon 03:00)
-    - [ ] e. 端到端验证：等 2026-04-29 03:00 daemon 自动跑产出第一份 → Javen 审阅质量
+    - [x] e. 端到端验证：daemon 已持续产出 ai-watch 报告（04-29, 04-30, 05-01）→ Javen 可审阅质量 — done 2026-05-01
     - [ ] f. （后续）看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress（先看第一份质量再决定是否要这个 recurring 任务，或者直接靠 daemon prompt Step 0.5 永久跑就够）
     - [ ] g. （可选）如果第一份报告 Javen 不满意，迭代调整 skill 中的 Javen 画像 / 报告模板
 
@@ -220,7 +220,7 @@
     - [x] c. 改 wrapper.sh 不再 --resume，每次 fresh session（用 uuidgen）— 4/29 11:30 (主对话)
     - [x] d. wrapper.sh syntax check pass — 4/29 11:30
     - [x] e. 监测明早 4/30 03:00 daemon — 跑通 / 还失败？产出报告？hook 是否报错？ — done 2026-04-30（ai-watch ✅ 产出；email-triage ❌ Gmail MCP 未注入；看板任务正常跑）
-    - [ ] f. 监测 5/1 + 5/2 03:00 daemon — 连续 3 次跑通才算 DoD 满
+    - [ ] f. 监测 5/1 + 5/2 03:00 daemon — 连续 3 次跑通才算 DoD 满（5/1: ai-watch ✅ 产出；email-triage ❌ Gmail MCP daemon 上下文不可用；5/2 待监测）
     - [x] g. 写到 `automation/docs/lessons.md`：第 7 条经验"长 context resume session 会触发 API stream timeout" — done 2026-04-30
     - [ ] h. （可选 backup）若 stream timeout 再次出现 → 拆 daemon 工作流为两个 session（先 skill 再看板，每个独立 fresh session）
 
