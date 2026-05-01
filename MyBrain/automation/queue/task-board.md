@@ -2,14 +2,18 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-04-30 14:45
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 5 已完成
-（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。新加 task-013 router + task-014 QClaw 跟进 4/29 凌晨用户表达的兴趣。**新加 task-017 (ECE175B project) + task-018 (ECE284 project) — Javen 4/30 派活"两个 project 全让 AI 干"，5 条审批已 append 到 approvals.md**）
+**最后更新**：2026-04-30 15:30
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 11 待启动 / 5 已完成
+（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**新加 task-017/018/019 — 4/30 主对话三连推进：两个 ECE project 骨架 + AI subagent 团队系统**）
 
 > 📌 2026-04-30 14:45 主对话：Javen "两个 project 全让 AI 干，我只检查"——
 > - **task-017 (ECE175B ADG diffusion)**: code 骨架主对话写，GPU 训练 blocked on @javen 选 Colab/DSMLP
 > - **task-018 (ECE284 LLM-PPG)**: 全 CPU + Claude API，主对话搭，daemon 凌晨接力跑实验
 > - approvals.md 加 5 条早起打勾的事 → AI 接力
+
+> 📌 2026-04-30 15:30 主对话：Javen "代替我的人力，让 AI 成为团队"——
+> - **task-019 (AI subagent 团队/模式 B)**: 4 个 subagent (researcher/engineer/writer/reviewer) + README + wiki [[AI 项目经理_subagent 模式]] + smoke test 全部 done
+> - **重启 Claude Code session 后**主对话能直接派活给 4 个员工，每个员工独立 model + tool boundary + iteration cap
 
 > 📌 2026-04-29 凌晨主对话 Claude 执行 4 项 approvals.md 打勾事项：
 > 1. ✅ task-006 AI Watch v2 — skill 部署完，待 03:00 daemon 出第一份报告
@@ -298,13 +302,14 @@
     - 模式 B 不强依赖 router；现在 subagent 的 model 字段先用 Anthropic 内档（Haiku $1/M vs Sonnet $3/M 已经有 3× 价差）
     - task-013 跑通后，把 subagent model 字段改成 `deepseek-chat` / `openrouter/...` 就完成"DeepSeek 接管员工岗位" 的最终形态
   - **子任务**：
-    - [ ] a. 写 `.claude/agents/researcher.md` (model: claude-haiku-4-5)
-    - [ ] b. 写 `.claude/agents/engineer.md` (model: claude-sonnet-4-5)
-    - [ ] c. 写 `.claude/agents/writer.md` (model: claude-sonnet-4-5)
-    - [ ] d. 写 `.claude/agents/reviewer.md` (model: claude-sonnet-4-5)
-    - [ ] e. 写 `.claude/agents/README.md` 使用指南
-    - [ ] f. 写 wiki [[AI 项目经理_subagent 模式]]
-    - [ ] g. smoke test：调 researcher 出 [[Zhang_2015_TROIKA]] 的 lay summary 验证
+    - [x] a. 写 `.claude/agents/researcher.md` (model: claude-haiku-4-5) — done 2026-04-30
+    - [x] b. 写 `.claude/agents/engineer.md` (model: claude-sonnet-4-5) — done 2026-04-30
+    - [x] c. 写 `.claude/agents/writer.md` (model: claude-sonnet-4-5) — done 2026-04-30
+    - [x] d. 写 `.claude/agents/reviewer.md` (model: claude-sonnet-4-5) — done 2026-04-30
+    - [x] e. 写 `.claude/agents/README.md` 使用指南 — done 2026-04-30
+    - [x] f. 写 wiki [[AI 项目经理_subagent 模式]] — done 2026-04-30
+    - [x] g. smoke test 用 general-purpose 模拟跑了 researcher → 5 次工具调用 + 200 字摘要 + 有用 next-step → 闭环 OK — done 2026-04-30
+    - [ ] g.2 ⚠️ 等 Javen 重启 Claude Code session 后跑真 researcher subagent 验证（session 不会热重载 .claude/agents/，需要新 session 才能调用）
     - [ ] h. （等 task-013 完成后）改 4 个 subagent 的 model 字段路由到 DeepSeek，再跑一次 smoke test
     - [ ] i. （观察 1 周）哪些任务 subagent 跑得好 / 哪些回退 single-agent 更好；总结到 `MyBrain/automation/docs/lessons.md`
   - **关联**：[[AI 团队设计原则]], [[超级个体_工具与杠杆]], [[claude-code-router-setup.md]]
