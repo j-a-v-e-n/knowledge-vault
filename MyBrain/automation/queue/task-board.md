@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-01 03:00
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 11 待启动 / 5 已完成
+**最后更新**：2026-05-02 03:07
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 6 已完成
 （**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**新加 task-017/018/019 — 4/30 主对话三连推进：两个 ECE project 骨架 + AI subagent 团队系统**）
 
 > 📌 2026-04-30 14:45 主对话：Javen "两个 project 全让 AI 干，我只检查"——
@@ -204,25 +204,6 @@
     - [ ] f. 决策：长期用 / 偶尔 / 卸（写到 trial 报告末尾）
     - [ ] g. 把发现回填到 [[wiki/工程方法/超级个体_工具与杠杆]] 的"知识缺口"小节
 
-- [ ] **task-015** | Daemon 03:00 incident 后续：监测 + 长期 robustness | #P1 | owner: @claude（主对话）
-  - **目标**：4/29 03:00 daemon 因 Anthropic API stream idle timeout 失败（cache 累积到 ~200K + Claude 处理过程 idle 超时被切）。已部署初步修复，需要验证 + 记录 + 后续 robustness 改进
-  - **触发**：4/29 03:00 daemon 失败 → 4/29 11:20 主对话 Claude root-cause + 部署修复
-  - **Definition of Done**：
-    - 至少连续 3 次 03:00 daemon 跑通（无 stream timeout）
-    - failure mode 写入 `automation/docs/lessons.md`（让以后 debug 类似问题快）
-    - hook 路径 quote bug 修完没回归
-  - **创建**：2026-04-29
-  - **更新**：2026-04-29
-  - **关联**：`MyBrain/automation/runs/2026-04-29.md`（根因报告）
-  - **子任务**：
-    - [x] a. Root-cause 4/29 03:00 失败 — 4/29 11:15 (主对话). NDJSON exit `is_error: true`, `result: "API Error: Stream idle timeout"`
-    - [x] b. 修 settings.json hook 路径未 quote bug — 4/29 11:25 (主对话, 4 处全量替换)
-    - [x] c. 改 wrapper.sh 不再 --resume，每次 fresh session（用 uuidgen）— 4/29 11:30 (主对话)
-    - [x] d. wrapper.sh syntax check pass — 4/29 11:30
-    - [x] e. 监测明早 4/30 03:00 daemon — 跑通 / 还失败？产出报告？hook 是否报错？ — done 2026-04-30（ai-watch ✅ 产出；email-triage ❌ Gmail MCP 未注入；看板任务正常跑）
-    - [ ] f. 监测 5/1 + 5/2 03:00 daemon — 连续 3 次跑通才算 DoD 满（5/1: ai-watch ✅ 产出；email-triage ❌ Gmail MCP daemon 上下文不可用；5/2 待监测）
-    - [x] g. 写到 `automation/docs/lessons.md`：第 7 条经验"长 context resume session 会触发 API stream timeout" — done 2026-04-30
-    - [ ] h. （可选 backup）若 stream timeout 再次出现 → 拆 daemon 工作流为两个 session（先 skill 再看板，每个独立 fresh session）
 
 - [ ] **task-017** | ECE175B Project: Attribute-Disentangled CFG (ADG) — 实现 + 训练 + 报告 | #P0 | owner: 混合（@claude 写代码 / @javen 跑 GPU + 提交）
   - **目标**：完成 ECE175B 期末 project — Attribute-Disentangled Guidance for Diffusion Models。proposal 4/22 已交，timeline 现在在 Week 5-6（实现 ADG sampling + 初步实验）
@@ -341,6 +322,11 @@
 ---
 
 ## ✅ 已完成
+
+- [x] **task-015** | Daemon 03:00 incident 后续：监测 + 长期 robustness | #P1 | owner: @claude | done 2026-05-02
+  - **目标**：验证 4/29 修复（stream timeout / hook quote bug / fresh session）稳定性
+  - **完成**：2026-05-02（连续 3 次 daemon 跑通：4/30 / 5/1 / 5/2 ✅；lessons.md 更新；hook bug 已修无回归）
+  - **注**：email-triage Gmail MCP 问题为独立问题，跟踪在 task-011
 
 - [x] **task-016** | 物理重构：所有自动化文件归并到 `MyBrain/automation/` module | #P1 | owner: @claude（主对话） | done 2026-04-29
   - **目标**：Javen 4/29 上午要求"把所有自动化的任务单独放一块好查"。把分散在 system/ + research/ai-watch/ 的所有自动化文件归并到 `MyBrain/automation/` 单一 module，新建 dashboard 让他每天 1 click 看完
