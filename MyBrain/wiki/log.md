@@ -1,5 +1,126 @@
 # Wiki 操作日志
 
+## [2026-05-01] Ingest | COGS117 Week 5 语言习得四大新材料
+
+### 操作概览
+按 Javen 指示编译 4 个新 PDF（先 md5 验证 3 个旧文件 7_walking / Adolph 2018 / Oudeyer 2017 与 raw 已有版本完全一致 → 跳过；剩 4 个为真新材料）：
+
+1. `raw/ucsd/Spring 2026/COGS117/Saffran (1996).pdf` — Saffran, Aslin & Newport *Statistical Learning by 8-Month-Old Infants* (Science 1996)，统计学习范式奠基
+2. `raw/ucsd/Spring 2026/COGS117/Vong et al. (2024).pdf` — Vong, Wang, Orhan & Lake *Grounded language acquisition through the eyes and ears of a single child* (Science 2024)，CVCL + SAYcam-S
+3. `raw/ucsd/Spring 2026/COGS117/8_reading_papers.pdf` — Zettersten Lecture 8 (Apr 28)，论文阅读技能
+4. `raw/ucsd/Spring 2026/COGS117/9_language.pdf` — Zettersten Lecture 9 (Apr 30)，语言习得理论 + 三大词语学习策略
+
+### 新文件清单
+
+**新建 source 页（4 个）：**
+
+| 原始文件 | source 页 | 位置 |
+|---------|-----------|------|
+| Saffran (1996).pdf | [[Saffran_1996_统计学习]] | notes/ucsd/Spring 2026/COGS117/ |
+| Vong et al. (2024).pdf | [[Vong_2024_单童语言习得]] | notes/ucsd/Spring 2026/COGS117/ |
+| 8_reading_papers.pdf | [[Zettersten_2026_Lecture8_语言1与如何读论文]] | notes/ucsd/Spring 2026/COGS117/ |
+| 9_language.pdf | [[Zettersten_2026_Lecture9_语言2]] | notes/ucsd/Spring 2026/COGS117/ |
+
+**新建 concept 页（2 个）：**
+
+| 页面 | 主要来源 | 位置 |
+|------|---------|------|
+| [[统计学习]] | Saffran 1996 + Vong 2024 + L9 + Frank 2023（多源已超阈值） | wiki/认知科学/ |
+| [[词语学习机制]] | L9 系统提出的"三大策略"框架（statistical / social / cognitive biases）| wiki/认知科学/ |
+
+**新建 debate 页（1 个）：**
+
+| 页面 | 争议方 |
+|------|--------|
+| [[争论_先天语言vs统计学习]] | Chomsky/Pinker (innate UG) vs Saffran/Vong (empiricist statistical) vs Evans & Levinson (反 universals)；4 阵营在 Lecture 9 中均有直接呈现，超过 debate 页阈值 |
+
+### 图片处理（PyMuPDF 2.5× zoom）
+- 渲染 33 张关键图至 `attachments/COGS117/`：
+  - Saffran 1996：2 张（abstract、Table 1+设计描述）
+  - Vong 2024：5 张（Fig 1 CVCL 架构、Fig 2 Labeled-S 结果、Fig 3 Konkle 零样本、Fig 4 多模态对齐 t-SNE、Fig 5 Grad-CAM 注意力）
+  - Lecture 8：8 张（时间表、Darwin 私信、论文沙漏、peer review、Frank 2024 eLife 实例、abstract 注解、深入方法评估、今日目标）
+  - Lecture 9：18 张（Chomsky 引用、Vervet/Kanzi、data gap Frank 2023、alien from Mars、语言变异、sign 语言列表、4 问题 toolkit、PRETTY BABY 统计、Tokibu 人造语言、Headturn setup、Gavagai/Quine、cross-situational modi、Vong 2024 引用、Baldwin 凝视、shape bias、mutual exclusivity、textbook child 时间表）
+
+### 更新文件（双向链接整合）
+
+**核心来源页（加 Saffran/Vong/L9 回链）：**
+- [[Frank_2023_数据鸿沟]] — 加 Saffran/Vong/L9 + 新 concept + 新 debate 回链
+- [[Cusack_2024_婴儿无助期假说]] — 加 Vong（反方向证据）+ Saffran + L9 + 新 debate 回链
+- [[Zettersten_2025_婴儿主动学习]] — 加 L8/L9（同作者讲座）+ Vong（被动 vs 主动张力）+ 词语学习机制 回链
+- [[争论_婴儿被动vs主动学习]] — 加 Saffran/Vong/L9/词语学习机制 + 新 debate 回链（不同维度的争论）
+
+**概念页（加新主题回链）：**
+- [[自监督学习与基础模型]] — 加 Saffran（认知科学版自监督）/ Vong（CVCL = SimCLR/CLIP 婴儿版）/ 新 concept / 新 debate 回链
+- [[感知窄化]] — 加 Saffran（窄化 vs 统计学习同根）/ 新 concept / L9 回链
+- [[发展研究方法]] — 加 Saffran（headturn 范式应用）/ L9（Baldwin 凝视范式）/ L8（论文阅读元方法）/ Vong（SAYcam 新方法范式）回链
+- [[内在动机与好奇心驱动学习]] — 加 Vong（CVCL 缺好奇心 → 41% 性能差距来源）/ 词语学习机制 / 统计学习 回链
+- [[COGS117_概览]] — 加 L8/L9 / Saffran/Vong（Week 5 阅读）+ 新 concept + 新 debate 回链
+
+**跨课程：**
+- [[ECE175B_Lecture1b_贝叶斯网络]] — 加"婴儿统计学习是简化版 BN"小节，链 Saffran（transitional probability = bigram）+ 统计学习 + Vong
+- [[统一多模态生成架构]] — 加"跨课程：婴儿认知科学 / COGS117 视角"小节，链 Vong（CVCL 是同源 contrastive 范式的婴儿数据极限实验）+ Saffran + 三大概念
+
+**INDEX.md** — 全量更新：
+- 头部"最新操作"指向本批
+- COGS117 讲座列表新增 L8/L9
+- COGS117 文献列表新增 Saffran/Vong
+- COGS117 核心概念新增 [[统计学习]]/[[词语学习机制]]
+- 理论辩论新增 [[争论_先天语言vs统计学习]]
+- 按类型分类表更新（concept 11→13，source 38→42，debate 2→3）
+- 目录结构图更新（COGS117 17→21 md，争论 +1，认知科学 +2）
+- 概念导航新增 13 条（语言习得、词语学习、transitional probability、cross-situational learning、CVCL/SAYcam、shape bias / mutual exclusivity、Chomsky / nativism、gavagai 问题、headturn preference、gaze following / Baldwin、如何读论文、peer review；扩展 LLM 与统计学习 entries）
+- 跨页面矛盾汇总新增"先天语言能力 vs 统计学习"四阵营对照表
+- 统计 56 → **63** 页（source +4, concept +2, debate +1）；confidence: high 45 → 52
+
+**gaps.md** — 新增 9 条推测性问题：
+- 统计学习算法的高效性来源
+- CVCL vs 真孩子差距的四种解释拆解
+- 可控的"用 SAYcam 训出来的婴儿模拟器"
+- shape bias 跨语言因果归因
+- mutual exclusivity 在 bilingual 弱化的关键期
+- headturn preference 与 LLM perplexity 的同源性
+- L8 中 Frank et al. 2024 *eLife* (Peekbank) 是否值得独立 source 页
+- 三大策略的 weighted ensemble 模型化
+- whistled/sign 语言的 transitional probability 结构
+
+### 决策记录
+
+- **三个新 wiki 页同时建立的理由**：
+  - [[统计学习]]：Saffran 1996 + Vong 2024 + L9 详解 + Frank 2023 关联 = 4+ 独立来源 → 远超 concept 阈值；Saffran 1996 自身就跨域（语言+视觉+音乐）证明 concept 普适性
+  - [[词语学习机制]]：L9 系统提出三大策略框架，本身已是 concept-level 综述；Vong + Saffran + Smith&Yu 2008 + Baldwin + Markman 1988 = 5+ 来源支持
+  - [[争论_先天语言vs统计学习]]：L9 中 Chomsky 引用 + Pinker 引用 + Evans & Levinson 反驳 + Saffran/Vong 实证 = 至少 4 个独立来源**直接对立**，明确符合 debate 页"两个或多个来源明确对立"标准；与已有 [[争论_婴儿被动vs主动学习]] 是不同维度
+
+- **为什么不建独立的 [[语言习得]] concept 页**：跟 [[词语学习机制]] 重叠太多；本轮选择更聚焦的"词语学习机制"，等后续涉及句法/语用/双语等更广议题时再考虑顶层 concept
+
+- **"先懂再细"严格执行**：4 篇 source 页都按"问题 → 核心结论 → 机制（含类比）→ 证明（图表就近 `>` 引用块解读）→ 意味着什么 → 局限 → 技术细节后置"展开
+
+- **类比开路**：
+  - Saffran：词内 vs 跨词 transitional probability = "你听一段陌生外语，注意 xy 这个音节对——如果 x 之后几乎总跟 y，那 xy 多半在一个词内部"
+  - Vong：cross-situational learning = "你是个 1 岁孩子，妈妈说'球'时眼前 100 种东西。下一次妈妈说'球'眼前是另外 100 种——交集变小。再下次又交集——只有'球'每次都出现"
+
+- **Lecture 9 71 页大讲座的处理**：分批读 (1-5, 6-20, 21-40, 41-60, 61-71) 完整理解；source 页用主线串联 (4 问题 → 工具 1 切词 + 工具 2 词义 → 三大策略)，避免被 71 页 slides 拖成流水账
+
+- **跨课程链接的双向触发**：
+  - 不仅 COGS117 source 页链 ECE175B（如 transitional probability ↔ bigram），也在 ECE175B [[ECE175B_Lecture1b_贝叶斯网络]] 加"跨课程：婴儿统计学习是简化版 BN"小节，让 COGS117 ↔ ECE175B 在两个方向都可达
+  - [[统一多模态生成架构]] 加完整跨课程小节（5 条新链接），让看 ECE175B 的人也能注意到 COGS117 的 Vong 2024
+
+### raw/ 覆盖率
+| 课程 | 覆盖率 |
+|------|--------|
+| COGS117 | 21/21 (100%) — 全部 PDF 已编译或归档（含本轮新增 4 篇）|
+| ECE284 | 11/11 (100%) |
+| ECE175B | 5/5 讲座 (100%) |
+| PHIL28 | 2/8（syllabus + midterm 已编译，6 pptx 仍 blocked）|
+| web-research | 2/2 (100%) |
+
+### 待 Javen 确认的后续
+1. **Frank et al. 2024 *eLife* (Peekbank)**：L8 用作 peer review 教学样本，但论文本身值得编译——是否要建独立 source 页（可能需要先抓取 PDF）？已加入 gaps.md 待 Javen 拍板
+2. **跨课程 synthesis 候选**：[[Vong_2024_单童语言习得]] 跟 [[统一多模态生成架构]] 的"通用对比学习架构在不同数据规模"视角已经形成有趣的跨领域结构对应——是否值得建一个 synthesis 页？（候选名：`综合_对比学习的数据规模光谱`）。本轮**未建**（CLAUDE.md 规则：synthesis 是 connect 操作，每隔几周做，不在每次 ingest 中）
+3. **lint 全面体检**：vault 总页数到 63 + 跨子目录 / 跨链接复杂度上升，建议某个空闲时段跑一次完整 `/lint` 检查（特别核对 [[争论_婴儿被动vs主动学习]] 跟新 [[争论_先天语言vs统计学习]] 之间是否有内容重叠）
+4. **遗留 lint 待办**（继承自 4-27）：`notes/ECE284/Bhamla_2017_Paperfuge.md` 错位仍未修复；`wiki/医疗技术/` 子目录提议 pending
+
+---
+
 ## [2026-04-29] Semi-ingest | QClaw 超级个体视频文案
 
 Javen 分享了一段第三方视频博主的工作流 vlog（QClaw "超级个体"叙事 + 腾讯 AI 龙虾 marketing）。核心处理：

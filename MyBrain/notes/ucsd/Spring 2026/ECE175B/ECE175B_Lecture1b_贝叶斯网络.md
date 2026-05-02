@@ -79,6 +79,11 @@ LLM 正是后者的典范：Transformer 网络参数化了 P(Wₖ|W₁:ₖ₋₁
 - [[统一多模态生成架构]] — 应用：全自回归路线（Chameleon）让"LLM 是链式 BN"自然延伸到图文混合序列；混合路线（Transfusion）保留文本侧的 AR 分解
 - [[ECE175B_概览]] — 课程全局视图
 
+### 跨课程：婴儿统计学习是简化版 BN
+- [[Saffran_1996_统计学习]] — Transitional probability $P(Y|X) = \frac{\text{freq}(XY)}{\text{freq}(X)}$ = bigram language model = **一阶马尔可夫链**。Saffran 1996 证明 8 月婴儿能在 2 分钟内做无监督的二元 BN 参数估计——这跟 LLM next-token prediction 用的是同一个数学结构，只是 context window=1
+- [[统计学习]] — 婴儿的统计学习是**最简单的链式 BN 估计**
+- [[Vong_2024_单童语言习得]] — CVCL contrastive learning 把 BN 推到多模态：视觉、语言两个变量的联合概率分布建模（虽然没有显式 graphical model，但 contrastive loss 等价于一种 noise contrastive estimation）
+
 ## 📎 来源
 
 - `raw/ucsd/Spring 2026/ECE175B/lecture-1b.pdf`（8 slides）

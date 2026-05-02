@@ -94,6 +94,8 @@ priority: active
 - **Week 3**：[[Zettersten_2026_Lecture5_感知发展1]] — 感知发展 1（面孔、物体、窄化开篇）
 - **Week 3**：[[Zettersten_2026_Lecture6_感知发展2]] — 感知发展 2（类别发展、标签、婴儿视觉输入统计）
 - **Week 4**：[[Zettersten_2026_Lecture7_走路与动作发展]] — 反射、新生儿模仿、里程碑、动态系统、发展级联
+- **Week 5**：[[Zettersten_2026_Lecture8_语言1与如何读论文]] — 论文阅读技能 + Saffran/Vong 课堂工作坊
+- **Week 5**：[[Zettersten_2026_Lecture9_语言2]] — Chomsky vs empiricism + 4 问题语言习得 toolkit + 词语学习 3 大策略
 
 ### 文献笔记
 - [[Frank_2023_数据鸿沟]] — 第1周讨论（Frank 2023）
@@ -105,6 +107,8 @@ priority: active
 - [[Johnson_2024_婴儿感知]] — Week 3：婴儿感知的百科综述（视觉、听觉、跨通道）
 - [[Adolph_2018_走路发展15条建议]] — Week 4：走路作为发展科学模型系统，15 条普适建议
 - [[Oudeyer_2017_婴儿发展机器人]] — Week 4：发展机器人视角，内在动机形式化
+- [[Saffran_1996_统计学习]] — Week 5：Science 1996 经典；8月婴儿仅 2 分钟统计学习切词；统计学习范式奠基
+- [[Vong_2024_单童语言习得]] — Week 5：Science 2024 现代证据；CVCL + SAYcam-S 单孩 61h 学 22 个 word-referent 映射
 
 ### 概念与争论
 - [[监督学习与无监督学习]] — 课程的核心学习理论基础
@@ -117,8 +121,11 @@ priority: active
 - [[动作发展]] — 成熟论 vs 动态系统范式之争
 - [[发展级联]] — 技能跨域连锁变化
 - [[内在动机与好奇心驱动学习]] — 好奇心 / ZPD 的形式化
+- [[统计学习]] — transitional probability + cross-situational：Saffran/Vong/L9 共同支撑
+- [[词语学习机制]] — 三大互补策略（统计/社交/偏好）系统框架（L9 提出）
 - [[争论_婴儿被动vs主动学习]] — 两篇论文的对照与考试重点
 - [[争论_新生儿模仿]] — Meltzoff vs Jones vs Oostenbroek 三方辩论
+- [[争论_先天语言vs统计学习]] — Chomsky 先天 UG vs 经验主义统计学习派
 
 ### 考前参考
 - `cogs_117_sp26_exam_1_study_guide.pdf`（位于 notes/ucsd/Spring 2026/COGS117/）— Exam 1 学习指南（4/23 考试，覆盖 Week 1–4）

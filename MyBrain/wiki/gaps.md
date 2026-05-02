@@ -68,6 +68,26 @@
 - [ ] Oudeyer Playground 实验里的"阶段涌现"能否在**LLM-based agents**（如 AutoGPT、AutoGen）里复现？给 LLM 智能体装一个"好奇心目标"机制（例如选择 perplexity 下降最大的任务），观察是否产生类似的**自发阶段化**。如果能，LLM 就是开发好奇心驱动智能的新平台。（触发来源：[[内在动机与好奇心驱动学习]]）
 - [ ] 发展级联 vs AI 多任务学习——在什么数学条件下，**共享主干 + 任务专用头**的神经网络能自然产生类似婴儿的"一个任务改善带动其他任务"的级联行为？如果这些条件能形式化，可以作为"设计更像人类发展的 AI 系统"的准则。（触发来源：[[发展级联]]）
 
+### 2026-05-01 编译 COGS117 Week 5 语言习得文献后新增
+
+- [ ] **统计学习算法的高效性来源**：[[Saffran_1996_统计学习]] 的 8 月婴儿仅 2 分钟即可学到 transitional probability 结构——这远比当前 self-supervised LLM 的样本效率高几个数量级。是婴儿用了**完全不同的算法**（而非 SGD-based parameter update），还是有**强 inductive bias** 让贝叶斯估计快速收敛？还是两者皆有？需要把婴儿统计学习能力**算法层**的形式化（参 [[Frank_2023_数据鸿沟]]）（触发来源：编译 [[Saffran_1996_统计学习]]）
+
+- [ ] **CVCL 与真孩子差距 (61.6% vs 几千词) 的来源拆解**：[[Vong_2024_单童语言习得]] 用通用 contrastive learning + 单孩 61h 数据学到 22 名词。差距是不是来自 (a) 数据量不够（孩子 1% waking time 被 cover），(b) 主动学习 / attention 调度（CVCL 是被动 batch；孩子是 active episodic streaming），(c) 多模态深度（CVCL 缺触觉、本体感、嗅觉），还是 (d) social cognition（CVCL 没有 joint attention / 凝视 / 意图推断）？这四种解释的相对贡献需要 ablation 实验。（触发来源：[[Vong_2024_单童语言习得]]）
+
+- [ ] **可控的"用 SAYcam 训出来的婴儿模拟器"**：能否把 CVCL 类模型 + 头戴相机 + LLM 风格 active learning（chooses what to look at 而非 batch random）整合，做一个**"按婴儿成长曲线发展"** 的可控模拟？这能把 [[争论_先天语言vs统计学习]] 的核心争议从理论推到实证：模型在哪些点开始落后于真孩子？需要加哪些能力才能赶上？（触发来源：[[Vong_2024_单童语言习得]] + [[Cusack_2024_婴儿无助期假说]]）
+
+- [ ] **shape bias 的因果归因**：英语母语孩子的 shape bias 比中文/日文母语孩子强——这是不是因为英语 noun 词汇本身**更多按形状组织**（孩子从输入分布学到偏好），还是某种**先天倾向 + 经验调谐**？做一个跨语言婴儿 + LLM 对照（用纯英文 corpus 训 vs 用纯中文 corpus 训），看 LLM 的 shape bias 是否复现。（触发来源：[[词语学习机制]] + [[Zettersten_2026_Lecture9_语言2]]）
+
+- [ ] **Mutual exclusivity 在 bilingual 弱化的关键期**：Byers-Heinlein & Werker 2009 显示 bilingual 孩子 mutual exclusivity 较弱——这个差异是否有发展窗口？2 岁前接触第二语言 vs 5 岁前 vs 成年——bias 调节程度一样吗？这关系到"双语家长应该几岁开始第二语言"的实操建议。（触发来源：[[词语学习机制]]）
+
+- [ ] **headturn preference 与 LLM 的 perplexity surprisal 是否同源**？[[Saffran_1996_统计学习]] 中婴儿对 part-words "听更久"（novelty）暗示 part-words 在婴儿的内部模型里 surprisal 高——这跟 LLM 用 perplexity 评估 surprise 是同一信号吗？如果是，可以把婴儿 listening duration 与 LLM perplexity 直接对照，做"婴儿是否拥有跟 GPT-2 类似的 next-token 预测能力"的定量比较（触发来源：[[Saffran_1996_统计学习]] + [[ECE175B_Lecture1b_贝叶斯网络]]）
+
+- [ ] **L8 介绍的 Frank et al. 2024 *eLife* (Peekbank) 是否值得单独建 source 页**？讲座 8 用它作为 peer review 教学样本。但论文本身（Peekbank 数据库 + word recognition 速度发展曲线）跟 [[Vong_2024_单童语言习得]] 有方法学交集（都研究词学习的发展轨迹）——是否在课程后续提到时再补 source 页？（触发来源：[[Zettersten_2026_Lecture8_语言1与如何读论文]]）
+
+- [ ] **语言习得三大策略的相对权重模型化**：能否把 statistical regularities + social cues + cognitive biases 写成一个 weighted ensemble model，在不同年龄段给不同策略不同权重，看哪种权重曲线最佳预测真实词汇成长曲线？（触发来源：[[词语学习机制]]）
+
+- [ ] **whistled / sign 语言的统计学习是否仍有 transitional probability 的一阶马尔可夫结构**？这些非声学语言是 [[争论_先天语言vs统计学习]] 中"反 universals"的关键证据——但它们的统计结构是否仍跟口语类似？如果是，统计学习派立场更强；如果不是，需要修订模型。（触发来源：[[Zettersten_2026_Lecture9_语言2]]）
+
 ## 已回答
 
 （暂无）
