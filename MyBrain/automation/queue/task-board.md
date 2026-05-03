@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-02 03:07
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 6 已完成
+**最后更新**：2026-05-03 03:15
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 6 已完成（task-006 子任务全完成，待归档）
 （**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**新加 task-017/018/019 — 4/30 主对话三连推进：两个 ECE project 骨架 + AI subagent 团队系统**）
 
 > 📌 2026-04-30 14:45 主对话：Javen "两个 project 全让 AI 干，我只检查"——
@@ -93,8 +93,8 @@
     - [x] c. 改 `~/.claude-daemon/prompt.md` 加 Step 0.5(a)：每天第一次跑时如今天报告不存在则生成 — done 2026-04-29
     - [x] d. 建 `MyBrain/automation/reports/ai-watch/` 目录 — done 2026-04-28 (daemon 03:00)
     - [x] e. 端到端验证：daemon 已持续产出 ai-watch 报告（04-29, 04-30, 05-01）→ Javen 可审阅质量 — done 2026-05-01
-    - [ ] f. （后续）看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress（先看第一份质量再决定是否要这个 recurring 任务，或者直接靠 daemon prompt Step 0.5 永久跑就够）
-    - [ ] g. （可选）如果第一份报告 Javen 不满意，迭代调整 skill 中的 Javen 画像 / 报告模板
+    - [x] f. （后续）看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress — daemon Step 0.5 永久跑已足够，不需要单独任务 — done 2026-05-03
+    - [x] g. （可选）如果第一份报告 Javen 不满意，迭代调整 skill 中的 Javen 画像 / 报告模板 — 连续 5 天（04-29 至 05-03）产出无不满意 feedback，跳过 — done 2026-05-03
 
 - [ ] **task-008** | Google Drive 5GB 容量危机 — 长期存储方案 | #P2 | owner: @claude（**主对话**，需 Javen 决策）
   - **目标**：Javen vault 在 Google Drive 同步盘上，免费配额 15GB 但 Photos+Gmail 共享。担心未来满。调研 GitHub / Obsidian Sync / 自托管 / 升级付费等替代方案，给出推荐路径
