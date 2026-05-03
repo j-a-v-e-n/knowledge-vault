@@ -187,6 +187,8 @@ $$
 - [[Arakawa_2023_LemurDx]] — Apple Watch 加速度做 ADHD 多动检测；与 NormWear 形成"专用 small-N RF + 手工特征" vs "通用基础模型 + scaling" 的清晰范式对照
 - [[Garg_2025_DopFone]] — 智能手机声学多普勒做胎心率；DopFone 用 AdaBoost + 手工声学/人口学特征，与 NormWear 同样形成"传统 ML 在小样本临床场景" vs "基础模型在大样本通用场景"的范式对照
 
+> 💡 此论文是 concept [[消费级设备健康感知]] 的核心支柱之一（多模态通用基础模型，2026-05-02 提取）。
+
 ## 📎 来源
 
 - `raw/ucsd/Spring 2026/ECE284/3803808.pdf`

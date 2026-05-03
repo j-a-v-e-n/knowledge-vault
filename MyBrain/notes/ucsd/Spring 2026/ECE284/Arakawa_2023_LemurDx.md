@@ -138,6 +138,8 @@ LemurDx 的最终 UI mockup（Fig 1）按这三条需求设计：每日总分 + 
 ### 概念
 - 情境过滤（context filtering）作为可穿戴 ML 的特征工程范式——目前 LemurDx 是 vault 内最系统论述者，建议未来若有第二来源加入再提取 concept 页
 
+> 💡 此论文是 concept [[消费级设备健康感知]] 的核心支柱之一（Apple Watch 被动感知 + 情境过滤，2026-05-02 提取）。
+
 ## 📎 来源
 
 - `raw/ucsd/Spring 2026/ECE284/Arakawa_2023_LemurDx.pdf`

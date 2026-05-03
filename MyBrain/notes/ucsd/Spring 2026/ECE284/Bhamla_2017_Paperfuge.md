@@ -1,219 +1,158 @@
-# Apple Heart Study — Speaking Script v2
+---
+title: "Hand-powered ultralow-cost paper centrifuge (Paperfuge)"
+type: source
+tags: [ECE284, POC, frugal-science, 离心机, 全球健康, 血浆分离, 疟疾]
+sources:
+  - raw/ucsd/Spring 2026/ECE284/Bhamla_2017_Paperfuge.md
+created: 2026-05-02
+updated: 2026-05-02
+confidence: high
+priority: active
+---
 
-# 演讲稿 v2（中英双语）
+# Bhamla et al. (2017) — Paperfuge：20 美分纸质离心机
+
+> 一个由古老陀螺玩具（buzzer toy）启发的 20 美分纸质装置达到 **125,000 r.p.m. + 30,000 g**，能 **1.5 分钟**从全血分离纯血浆、**15 分钟**分离疟疾寄生虫——人类有史以来最快的人力旋转设备。
 
 ---
 
-## Slide 1 — Title / 标题
+## 这项研究在解决什么问题？
 
-**EN:** Today I'm presenting the Apple Heart Study, published in the New England Journal of Medicine in 2019. The question is straightforward: Can an Apple Watch detect atrial fibrillation during everyday use? They enrolled over 419,000 people in 8 months, entirely remotely. Let's look at what they found.
+**资源匮乏地区做不了基础诊断——因为离心机是瓶颈。**
 
-**中文：** 今天讲的是Apple Heart Study，2019年发表在《新英格兰医学杂志》上。问题很直接：Apple Watch能不能在日常使用中检测到房颤？他们8个月招了41万多人，全程远程完成。我们来看看他们发现了什么。
+商业离心机贵（数百到上千美元）、笨重（需要桌面）、依赖电力。但**几乎所有医疗诊断的第一步**都需要离心：从全血分离血浆做免疫测定、计算血细胞比容（hematocrit，用于贫血诊断）、从血样分离寄生虫（疟疾、HIV、肺结核早期检测）。
 
----
+之前学界尝试过用打蛋器、沙拉甩水器替代——但都受限于**最高 1,200 r.p.m.（300 g）**，血浆分离要 >10 分钟。这远不够实用。
 
-## Slide 2 — What Is AFib / 什么是房颤
-
-**EN:** First, some background. AFib, or atrial fibrillation, is the most common serious heart rhythm disorder. Normally your heart beats in a steady rhythm. In AFib, the electrical signals in the upper chambers become chaotic, so the heartbeat turns irregular. Why is this dangerous? Blood can pool in the heart, form clots, and if a clot reaches the brain, that's a stroke. AFib increases stroke risk by five times.
-
-The tricky part: AFib often comes and goes. Between episodes, a standard ECG looks completely normal. And many people have no symptoms. About 700,000 people in the U.S. may have AFib without knowing it.
-
-**中文：** 先讲背景。房颤是临床上最常见的严重心律失常。正常心脏有规律地跳动，但房颤时心房的电信号变得混乱，心跳不规则。为什么危险？血液会在心房里淤积、形成血栓，血栓到脑子里就是中风。房颤让中风风险增加5倍。
-
-麻烦的是：房颤经常来了又走。不发作时心电图看上去完全正常。而且很多人没有症状。美国大约有70万人可能有房颤但自己不知道。
+**目标**：造一个便宜（<$1）、轻便（克级）、人力驱动、转速能与商用机比的离心装置。
 
 ---
 
-## Slide 3 — The Detection Gap / 检测的空白
+## 核心发现（一句话）
 
-**EN:** So how do we currently detect AFib? Standard ECGs only capture a snapshot. If AFib isn't happening at that moment, you miss it. Holter monitors record for 24 to 48 hours, but that's often too short. Implantable devices work well but require surgery.
-
-What we need is something long-term, passive, non-invasive, and that uses devices people already own. A smartwatch could fill that gap. But can it actually work? That's what this study tested.
-
-**中文：** 那现在怎么检测房颤？标准心电图只是快照，发作时没做就抓不到。Holter动态心电图能记录24到48小时，但往往不够长。植入式设备效果好，但要手术。
-
-我们需要的是长期、被动、无创、用人们已有的设备。智能手表可能填补这个空白。但它真的行吗？这就是这个研究要验证的。
+**Paperfuge：用两片纸圆盘 + 鱼线 + 木把手，借鉴古代陀螺玩具的"超螺旋"动力学，达到 125,000 r.p.m. / 30,000 g、20 美分成本——血浆 1.5 min、疟疾寄生虫 15 min 分离，与昂贵商用机精度相当。**
 
 ---
 
-## Slide 4 — Study Design / 研究设计
+## 为什么会这样？机制：超螺旋驱动的非线性振荡器
 
-**EN:** This was a prospective, single-arm, siteless, pragmatic study. Let me explain the key terms.
+**生活类比**：
+> 你小时候应该玩过那种"按钮玩具"或"嗡嗡响的拉绳陀螺"——一根绳穿过纸盘中心两个孔，左右一拉绳就缠紧，再放松绳就反向自旋——再拉、再放……手往外扯一次能转好几圈。Paperfuge 把这个玩具优化到极致：用最细的纸盘 + 最理想的绳长 + 双手的最佳频率。
 
-"Single-arm" means no control group. Everyone got the same monitoring. This means sensitivity and specificity can't be calculated, which is a known trade-off of this design.
+### 机制核心：**两阶段循环 + 超螺旋极限**
 
-"Siteless" is the most interesting part. No physical site visits at all. Consent through the app. Monitoring on the watch. Telemedicine by video. ECG patches by mail. This is what made it possible to enroll 419,000 people in 8 months.
+每次循环分两阶段：
 
-They recruited U.S. residents aged 22 and older who owned an Apple Watch and iPhone. Importantly, participants self-reported that they had no prior AFib. The two primary outcomes were: the percentage of notified people with AFib on ECG patch, and the positive predictive value of the irregular tachograms.
+1. **Unwinding（解螺旋）**：手向外拉，输入力矩 `τ_Input` 加速圆盘到最高转速 $\dot{\phi}_{max}$
+2. **Winding（重缠）**：手停止用力，圆盘的**惯性**反向把绳重新拧紧——但**关键**：因为绳的弯曲刚度极低，能拧到**几何零扭点之外**，进入"**超螺旋（supercoiled）状态**"——绳子像 DNA 一样自相缠成更紧密的螺旋
 
-**中文：** 这是一个前瞻性、单组、无现场、务实的研究。解释几个关键术语。
+到达超螺旋极限时，圆盘短暂停顿——再次外拉，循环开始。
 
-"单组"意味着没有对照组。每个人接受同样的监测。所以没法算灵敏度和特异度，这是这种设计的已知局限。
+**为什么这能比 sala spinner 快 100×？** 因为超螺旋让"绳能存储的旋转能"远超线性扭转 spring。手每次拉的力以高效率转化为转速，而不是被绳子的简单弹性消散。
 
-"无现场"是最有意思的部分。全程不需要去任何地方。App同意、手表监测、视频问诊、ECG贴片邮寄。这让8个月招41万人成为可能。
+### 形式化：非线性、非保守振荡器
 
-他们招的是22岁以上、有Apple Watch和iPhone的美国居民。重要的是，参与者自己报告没有房颤病史。两个主要结局是：收到通知的人中有多少ECG确认了房颤，以及不规则tachogram的阳性预测值。
+控制方程：
+$$I \ddot{\phi} = \tau_{Input}(\phi) + \tau_{Drag}(\dot{\phi}) + \tau_{Twist}(\phi)$$
 
----
+三个力矩项：
+- `τ_Input`：手力矩，依赖于手力 F 和绳几何
+- `τ_Drag`：空气阻力（Re ≈ 10⁵，需用湍流模型）
+- `τ_Twist`：绳的扭转阻力（含超螺旋经验项 $\propto 1/(\phi_{max} - |\phi|)^\gamma$，γ 由实验拟合）
 
-## Slide 5 — How the Algorithm Works / 算法怎么工作
-
-**EN:** How does the technology work? Five steps.
-
-First, the Apple Watch has a PPG sensor on the back. A green LED shines light onto your wrist. When your heart beats, more blood flows through and absorbs more light. The sensor picks up this pulsing pattern.
-
-Second, the watch generates a "tachogram," a one-minute recording of the intervals between pulses. This happens passively while you're at rest.
-
-Third, an algorithm classifies each tachogram as regular or irregular based on how variable the intervals are.
-
-Fourth, and this is a key design choice: the algorithm does NOT alert after just one irregular reading. It requires multiple irregular tachograms before sending a notification. A single reading could just be noise.
-
-Fifth, if the threshold is met, the user gets one notification. After that, the watch keeps recording but stops showing alerts.
-
-Why does this matter? A single tachogram had a PPV of 0.71. After requiring multiple confirmations, the notification PPV rose to 0.84. The multi-confirmation step meaningfully improved accuracy. The paper mentions this design but does not specify the exact number of readings required or the time interval between them. Those details are in the supplementary materials.
-
-**中文：** 技术怎么工作？五步。
-
-第一，Apple Watch背面有PPG传感器。绿色LED照射手腕，心脏跳动时血流增加、吸收更多光。传感器检测到这个脉动信号。
-
-第二，手表生成一个"tachogram"，一分钟的脉搏间期记录。在你休息时被动采集。
-
-第三，算法判定每条tachogram是规则还是不规则，依据是间期的变异程度。
-
-第四，关键设计：算法不会因为一次不规则就报警。它要求多条不规则tachogram才发通知。单次读数可能只是噪声。
-
-第五，达到门槛后用户收到一次通知。之后手表继续记录，但不再显示警报。
-
-为什么重要？单条tachogram的PPV是0.71。要求多次确认后，通知PPV升到了0.84。多次确认这一步确实提高了准确度。论文提到了这个设计但没有写具体需要几次或间隔多久，这些细节在补充材料里。
+各阶段主导项不同：unwinding 阶段 `τ_Input` 主导；最高速时 `τ_Drag` 主导；winding 末段 `τ_Twist` 急剧上升让圆盘瞬时停止。
 
 ---
 
-## Slide 6 — After the Notification / 通知之后
+## 怎么证明的？
 
-**EN:** What happens after someone gets notified? Six steps. The notification comes through the app. Then a telemedicine visit with a physician to check eligibility and symptoms. If there's no emergency, an ECG patch is mailed out, worn for up to 7 days. The patch is mailed back and read by two clinicians independently. Then a second telemedicine visit to discuss results. Finally, a 90-day follow-up survey.
+### Fig 1: 高速摄影证实超螺旋动力学
 
-Notice the attrition at the bottom of this slide. 2,161 people were notified. Only 450 returned an analyzable ECG patch. That's about 20%. The 34% AFib yield we'll talk about next is based on those 450, not all 2,161.
+![[Bhamla_2017_Fig1_spinning_dynamics.jpg]]
 
-**中文：** 收到通知后怎么走？六步。App推送通知。远程医疗问诊确认资格和症状。没有紧急情况就邮寄ECG贴片，戴最多7天。贴片寄回后两名临床医生独立判读。然后第二次远程问诊讨论结果。最后90天随访问卷。
+> 6,000 fps 高速相机拍下整个循环。Panel a 是经典 buzzer 玩具结构；Panel c 显示绳子从直线 → 螺旋 → **超螺旋（supercoiled）打结**的过程；Panel e 量化了**圆盘半径越小、最高转速越快**的标度律——5 mm 直径达到 **125,000 r.p.m.**（人力驱动旋转的世界纪录，已申报吉尼斯）。
+>
+> 关键论点：超螺旋这个非线性效应让小盘比大盘快 25×。
 
-注意这页底部的流失数据。2,161人收到通知，只有450人返回了可分析的贴片。大约20%。接下来要讲的34%检出率就是基于这450人。
+### Fig 2: 模型 vs 实验
 
----
+![[Bhamla_2017_Fig2_model_validation.jpg]]
 
-## Slide 7 — Result 1: Notification Rate / 结果1：通知率
+> 同步用力传感器 + 高速相机捕捉力-时间-转速三轴数据。Panel b 是手力的实测时间序列（周期约 0.5s）；Panel c 模型预测的转速曲线 vs 实测吻合；Panel d 跨参数空间验证：5-85 mm 半径、5-50 N 力、0.05-0.5 mm 绳半径——**模型在所有验证点都准**。
+>
+> 推断结论：用 50 N 力 + 10 Hz 频率，可达 **1,000,000 r.p.m. 的理论极限**（受制于人体肌肉力-速权衡，10 Hz 是手能维持的极限频率）。
 
-**EN:** Now the results. Of 419,000 participants, only 0.52% got a notification. Very low. It varies by age: 3.1% for those 65 and older, only 0.16% for 22 to 39 year olds.
+### Fig 3: 血浆分离
 
-This shows the algorithm is conservative by design. It prioritizes not bothering users over catching every case. But it also means we don't know how many real AFib cases were missed.
+![[Bhamla_2017_Fig3_blood_separation.jpg]]
 
-Let me explain two concepts here. Sensitivity asks: of all people who truly have AFib, how many did the watch catch? This study does not measure that, because they didn't do ECGs on everyone. PPV asks: of all people the watch flagged, how many actually had AFib? That's what this study measures. It was not designed to assess sensitivity.
+> 20 μl 全血指尖采血 → 玻璃管 → Paperfuge → **1.5 分钟内完全分离 plasma 和红细胞**（PCV = 0.43）；与价值 $700 的商用 Critspin 离心机（PCV = 0.47, 16,000 r.p.m., 2 min）结果相当。
+>
+> Paperfuge 实际有效转速 ~20,000 r.p.m. / ~10,000 g 的离心力（成本 = 商用机的 1/3500）。
 
-**中文：** 看结果。419,000人中只有0.52%收到了通知。非常低。按年龄不同：65岁以上3.1%，22到39岁只有0.16%。
+### Fig 4: 多种应用 + 材料
 
-这说明算法设计上就是保守的。它优先考虑不打扰用户，而不是抓住每一个病例。但这也意味着我们不知道漏掉了多少真正的房颤。
+![[Bhamla_2017_Fig4_applications.jpg]]
 
-这里解释两个概念。灵敏度问的是：所有真正有房颤的人里，手表抓到了多少？这个研究没测，因为没给所有人做ECG。PPV问的是：手表报警的人里，有多少真的有房颤？这才是这个研究测的。这个研究不是为了评估灵敏度而设计的。
-
----
-
-## Slide 8 — Result 2: ECG Yield / 结果2：ECG检出率
-
-**EN:** Of 450 people who returned ECG patches, 153 had AFib confirmed. That's a yield of 34%.
-
-You might think: only 34%? Does that mean 66% were false positives? Not necessarily. The ECG patch was applied on average 13 days after the notification. AFib comes and goes. The episode that triggered the notification could have ended by then. So 34% is a floor estimate, not a false positive rate.
-
-Among the confirmed cases, 89% had episodes lasting at least one hour. These are clinically meaningful.
-
-A quick note on the confidence interval shown here. "97.5% CI: 29 to 39%" means if you repeated this study many times, 97.5% of the time the true value would land between 29% and 39%.
-
-One caveat: only 20% of notified people returned patches. Those who returned and those who didn't had similar baseline characteristics. But we simply don't know the AFib status of the other 80%.
-
-**中文：** 450个返回ECG贴片的人中，153人确认了房颤。检出率34%。
-
-你可能会想：才34%？66%都是假阳性？不一定。ECG贴片平均在通知后13天才贴上。房颤来了又走，触发通知的那次发作可能已经结束了。所以34%是下限估计，不是假阳性率。
-
-确认房颤的人中，89%有持续至少一小时的发作。这些是有临床意义的。
-
-解释一下这里的置信区间。"97.5% CI: 29到39%"意思是如果重复做这个研究很多次，97.5%的时候真实值会在29%到39%之间。
-
-一个注意事项：只有20%的收到通知的人返回了贴片。返回和没返回的人基线特征相似。但那80%到底有没有房颤，我们确实不知道。
+> Panel a：QBC（quantitative buffy coat）检测疟疾——用 acridine orange 染色 + paperfuge 离心 15 min + 荧光显微镜识别 *Plasmodium falciparum* 寄生虫。
+> Panel b：3D 打印的"3D-fuge"达 ~10,000 r.p.m.；
+> Panel c：PDMS-fuge 实现集成微流控；
+> Panel d：胶带微流控 + Paperfuge 实现 2 min 血浆分离。
+>
+> **意义**：Paperfuge 不是一个孤立装置，而是一个**离心机平台范式**——任何材料（纸/塑料/3D 打印/PDMS）都能造，开启了"零电力 lab-on-a-chip"的可能。
 
 ---
 
-## Slide 9 — Result 3: PPV / 结果3：阳性预测值
+## 意味着什么？
 
-**EN:** Now the accuracy numbers. Single tachogram PPV was 0.71. Notification PPV, after multi-confirmation, was 0.84. This jump shows that requiring multiple readings before alerting actually works.
+### 全球健康影响
 
-What about the irregular readings that weren't AFib? Of 600 such cases, 77% were premature atrial contractions, 38% were atrial tachycardia, 16% were premature ventricular contractions. Only about 5% were truly benign.
+- **离心机这个长期被认为不可便携、不可廉价的设备，被一个 20 美分的玩具改造成可便携且廉价**
+- 资源匮乏地区（农村、灾区、战区、太空）的诊断瓶颈被打通：贫血、疟疾、非洲锥虫病、HIV、肺结核早期筛查都需要离心，现在可以在没有电力的现场做
+- 论文末尾承诺**立即量产分发**——不是学术 paper-then-forget，而是有清晰的部署路径
 
-So even when the algorithm was wrong about AFib, it was mostly picking up real cardiac abnormalities, not random noise. Whether these findings matter clinically is a question worth studying further.
+### 工程美学
 
-**中文：** 看准确度数据。单条tachogram的PPV是0.71。多次确认后的通知PPV是0.84。这个提升说明要求多次读数再报警确实有效。
+- 这是 **frugal science**（节俭科学）的范本：用对一个简单玩具的深度物理分析，解决全球健康问题
+- 复杂系统的**核心物理机制（超螺旋）一旦被识别清楚**，就能用最简单的材料工程化实现极端性能
+- 跟"先有理论再造装置" vs "先造装置再理解"两种科研范式对比有趣——Paperfuge 是先观察玩具，再用理论解释，最后参数优化
 
-那些不规则但不是房颤的读数是什么？600条中77%是房性早搏，38%是房性心动过速，16%是室性早搏。只有大约5%是真的没事。
+### 局限
 
-所以即使算法在房颤这件事上判断错了，它大多数时候也在检测到真实的心脏异常，而不是噪声。这些发现临床上有没有意义，值得进一步研究。
-
----
-
-## Slide 10 — Result 4: Behavioral Impact / 结果4：行为改变
-
-**EN:** Did the notifications change behavior? Yes. Of those who returned the 90-day survey, 57% contacted a doctor outside the study. 28% got new prescriptions. 33% were told to see a specialist. Overall, 76% sought some form of medical care.
-
-At the end of the study, 44% of notified people reported a new AFib diagnosis, versus only 1% among those never notified.
-
-On safety: 16 app-related adverse events, 15 of which were anxiety. No serious events. No hospitalizations from the app.
-
-**中文：** 通知改变行为了吗？改变了。返回90天问卷的人中，57%联系了研究外的医生。28%被开了新药。33%被建议看专科。总共76%寻求了某种形式的医疗帮助。
-
-研究结束时，44%的收到通知的人报告了新的房颤诊断，没收到通知的人只有1%。
-
-安全方面：16例与app相关的不良事件，15例是焦虑。没有严重事件，没有因为app住院的。
+- **手动操作**：需要双手协调和力气；老人、小孩、肌力差的人可能用不好
+- **20 μl 容量**：批量处理仍需多次操作；不适合大样本
+- **不稳定**：手力波动会影响转速一致性
+- **安全**：高速旋转 + 血样需要防溅（论文用 Velcro 双盘 + 密封 straw 解决）
+- 后续工作（如 Hollerith 等）已用 hand-crank 设计提高一致性
 
 ---
 
-## Slide 11 — Limitations / 局限性
+## ⚠️ 矛盾与未解决问题
 
-**EN:** Now limitations. On the left are things the authors acknowledge in the paper. No sensitivity or specificity, by design. Low ECG patch return rate, only 20%. And self-reported eligibility, meaning some participants actually had prior AFib but still enrolled.
-
-On the right are our observations, outside the paper's scope. There are no clinical hard endpoints. The study proves detection, but not whether early detection reduces strokes or deaths. That would need randomized controlled trials. And regarding PPG and skin tone: PPG signal quality is known to vary with skin pigmentation. The notified group was 81% white, and no subgroup analysis by race was done. This doesn't prove a problem exists, but it's worth noting when thinking about generalizability.
-
-**中文：** 讲局限性。左边是作者在论文中承认的。没有灵敏度和特异度，这是设计决定的。ECG贴片返回率低，只有20%。还有自报入选资格，有些参与者其实有房颤病史但还是参加了。
-
-右边是我们的观察，超出了论文讨论的范围。没有临床硬终点。研究证明了能检测到房颤，但没有回答早期检测是否减少中风或死亡。那需要随机对照试验。还有PPG和肤色的问题：PPG信号质量在不同肤色上有已知差异。通知组81%是白人，没有按种族做亚组分析。这不证明有问题，但在考虑推广性时值得注意。
+- 论文未直接对比 Paperfuge 与最近的廉价电动微离心机（约 $20-50 USD，需电池）——在有电场景下 Paperfuge 是否仍优？
+- 长时间使用的**疲劳**：QBC 需要 15 min 持续操作——实地操作员能否维持？论文未测人因数据
+- 跟 [[Song_2024_SmartphoneMicroscope]] 同属 "frugal POC" 范式，但两者从未真正在同一现场联合部署测试
 
 ---
 
-## Slide 12 — Key Takeaways / 关键要点
+## 🔗 关联
 
-**EN:** To wrap up. The notification PPV is 0.84. When the watch alerts, it's usually right. The notification rate is very low at 0.52%, showing the algorithm is conservative. 34% of notified people had AFib confirmed on ECG. And notifications drove real clinical action.
+### 同主题来源
+- [[Song_2024_SmartphoneMicroscope]] — 智能手机显微镜附件；frugal-POC 兄弟工作；Paperfuge 离心 → m-phone 镜检的天然 pipeline
+- [[Garg_2025_DopFone]] — 智能手机 18 kHz Doppler 测胎心；POC 三件套候选
+- [[Jubran_1990_脉搏血氧仪种族偏差]] — 同样揭示设备公平性问题（不同人群差异）；与 Paperfuge "操作 unbiased" 的设计形成对比
 
-What's still open? Does earlier detection actually reduce strokes or deaths? How does it perform across different skin tones and age groups? If this becomes a consumer feature, who's liable for missed diagnoses? And how should FDA regulation adapt?
+### 概念页
+- [[消费级设备健康感知]] — Paperfuge 是该 concept 的 7 个奠基来源之一（frugal POC 一支）
+- [[综合_医疗技术中的种族偏见]] — Paperfuge 的"低门槛 + 操作员独立"设计是反向案例（避免了 Jubran/Obermeyer 揭露的种族偏差，因为完全靠物理而非传感器）
 
-I think the biggest contribution isn't just the AFib results. It's proving that a siteless, app-based study can enroll 400,000 people in 8 months. That model will shape digital health research going forward. Thank you.
-
-**中文：** 总结一下。通知的PPV是0.84，手表报警时通常是对的。通知率很低只有0.52%，说明算法保守。34%收到通知的人ECG确认了房颤。通知驱动了真实的临床行动。
-
-还有什么没解决？更早检测是否真的减少中风或死亡？在不同肤色和年龄群体中表现如何？如果变成消费功能，漏诊谁负责？FDA监管怎么适应？
-
-我认为最大的贡献不只是房颤检测结果，而是证明了无现场、基于app的研究可以8个月招40万人。这个模式会影响未来的数字健康研究。谢谢大家。
+### 跨课程
+- [[内在动机与好奇心驱动学习]] — Bhamla 论文末段的 frugal science 哲学跟 Oudeyer 内在动机有结构相似（用简单工具的深度探索创造大价值）
 
 ---
 
-## Timing Estimate / 时间估算
+## 📎 来源
 
-| Slide     | Topic             | ~Min        |
-| --------- | ----------------- | ----------- |
-| 1         | Title             | 0.5         |
-| 2         | What is AFib      | 1.0         |
-| 3         | Detection gap     | 0.5         |
-| 4         | Study design      | 1.5         |
-| 5         | Algorithm         | 1.5         |
-| 6         | Verification      | 1.0         |
-| 7         | Notification rate | 1.5         |
-| 8         | ECG yield         | 1.5         |
-| 9         | PPV               | 1.0         |
-| 10        | Behavior          | 0.5         |
-| 11        | Limitations       | 1.5         |
-| 12        | Takeaways         | 1.0         |
-| **Total** |                   | **~13 min** |
+- `raw/ucsd/Spring 2026/ECE284/Bhamla_2017_Paperfuge.md`（Nature 网页 clip，含 4 张关键图链接）
+- 原始引用：Bhamla, M. S., Benson, B., Chai, C., Katsikis, G., Johri, A., & Prakash, M. (2017). *Hand-powered ultralow-cost paper centrifuge*. Nature Biomedical Engineering, 1, 0009.
+- 4 张图已下载至 `attachments/ECE284/Bhamla_2017_Fig{1-4}_*.jpg`

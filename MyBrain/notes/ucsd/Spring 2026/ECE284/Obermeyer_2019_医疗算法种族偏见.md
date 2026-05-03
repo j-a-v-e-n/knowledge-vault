@@ -141,6 +141,8 @@ priority: active
 
 ---
 
+> 💡 此论文是 concept [[消费级设备健康感知]] 的核心支柱之一（算法层种族偏差（公平性警示），2026-05-02 提取）。
+
 ## 📎 来源
 
 - `raw/ucsd/Spring 2026/ECE284/science.aax2342.pdf`

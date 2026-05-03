@@ -131,6 +131,8 @@ priority: active
 
 ---
 
+> 💡 此论文是 concept [[消费级设备健康感知]] 的核心支柱之一（Frugal POC + 智能手机融合，2026-05-02 提取）。
+
 ## 📎 来源
 
 - `raw/ucsd/Spring 2026/ECE284/Song_2024_SmartphoneMicroscope.pdf`

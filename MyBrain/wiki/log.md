@@ -1,5 +1,71 @@
 # Wiki 操作日志
 
+## [2026-05-02] Lint 修复 | 解决两条遗留 lint 待办
+
+按 Javen 5-02 决定 ("4. 解决")，把 4-27 留下的两条遗留 lint 一次性清掉。
+
+### 修复 A：ECE284 Bhamla_2017_Paperfuge.md 内容错位
+
+**问题状态**（4-27 发现，5-02 修复前）：
+- `notes/.../ECE284/Bhamla_2017_Paperfuge.md` 实为 Apple Heart Study 演讲稿（218 行 `# Apple Heart Study — Speaking Script v2`）
+- 真正的 Paperfuge 来源（Nature 网页 clip）只在 `raw/.../ECE284/Bhamla_2017_Paperfuge.md`，notes/ 中**没有**对应的 source 页
+- 所有引用 [[Bhamla_2017_Paperfuge]] 的页面（INDEX、log、Song 2024、Garg 2025、综合_医疗技术中的种族偏见 等）都指向了错误内容
+
+**修复操作**：
+1. `mv notes/.../ECE284/Bhamla_2017_Paperfuge.md → notes/.../ECE284/Perez_2019_AppleHeartStudy_演讲稿.md`（rename 错位文件，命名跟 source 页风格一致：作者_年份_题目_演讲稿）
+2. **新建**真正的 [[Bhamla_2017_Paperfuge]] source 页（基于 raw clip + 4 张已有图）：
+   - 严格"先懂再细"四步：问题（资源匮乏地区做不了基础诊断）→ 核心结论（125,000 r.p.m. 20 美分）→ 机制（超螺旋驱动的非线性振荡器）→ 证明（Fig 1-4 图表就近解读）→ 意味着什么（全球健康影响、frugal science 哲学）
+   - 嵌入全部 4 张已有图（`Bhamla_2017_Fig1_spinning_dynamics.jpg` 等）
+   - 关联到 [[消费级设备健康感知]]（修复 B 新建的 concept）
+3. 更新 INDEX 目录结构图：标注新文件 + rename 关系；移除"⚠️ 内容错位（待修复）"标注
+
+### 修复 B：wiki/医疗技术/ 子目录 + concept 提取
+
+**背景**（4-27 ingest 留的提议）：消费级智能手机/可穿戴健康感知主题在 ECE284 已积累 7+ 独立来源（LemurDx + DopFone + Bhamla + Song + Perez + Shah + Zhang + Luo + Mason + Jubran/Obermeyer）——远超 concept 提取阈值，但因 CLAUDE.md "新建 wiki 子目录需用户确认"原则一直 pending。
+
+**修复操作**：
+1. `mkdir wiki/医疗技术/`（vault 第 7 个 wiki 子领域）
+2. 新建 [[消费级设备健康感知]] concept 页：
+   - **两条主线**：(A) 高端消费电子作为医疗传感器（智能手表 PPG/IMU、Oura 体温、智能手机麦克风/相机）+ (B) Frugal POC（纸离心机、智能手机显微镜）
+   - **设计哲学对立**：情境过滤（LemurDx）vs 情境无关（DopFone）；通用基础模型（NormWear）vs 专用单任务模型；都是 SNR-维度匹配原则的不同选择
+   - **公平性维度**：链入 [[Jubran_1990_脉搏血氧仪种族偏差]]（传感器层）+ [[Obermeyer_2019_医疗算法种族偏见]]（算法层）+ [[综合_医疗技术中的种族偏见]] 综合页
+   - **跨课程关联**：跟 [[Vong_2024_单童语言习得]] 同源（"通用学习算法 + 现实数据低数据极限"哲学）；跟 [[内在动机与好奇心驱动学习]] 同源（frugal science）
+3. 给 10 个 ECE284 source 页插入 concept 回链小节（`> 💡 此论文是 concept [[消费级设备健康感知]] 的核心支柱之一（<具体维度>，2026-05-02 提取）。`）：
+   Zhang 2015 / Perez 2019 / Shah 2025 / Bhamla 2017 / Song 2024 / Arakawa 2023 / Garg 2025 / Luo 2026 / Mason 2024 / Jubran 1990 / Obermeyer 2019
+
+### INDEX 更新
+- 头部"最新操作"指向本次修复
+- concept 列表 13 → 14（+ [[消费级设备健康感知]]）
+- source 列表 + [[Perez_2019_AppleHeartStudy_演讲稿]]（之前错位计为 Bhamla source 的，现在正名后正式入库）
+- 目录结构图：ECE284 11 → 12 md（rename + new Bhamla）；wiki/ 加新子领域 wiki/医疗技术/
+- 概念导航新增 3 条（消费级设备健康感知 / Frugal POC / 即时诊断 POC 扩展）
+- 移除"⚠️ 内容错位（待修复）"标注
+- 移除底部"lint 待办"两条（已解决）
+- 统计 63 → **65** 页（source +1, concept +1）；confidence: high 52 → 54
+
+### 决策记录
+
+- **演讲稿文件名**：用 `Perez_2019_AppleHeartStudy_演讲稿.md` 而非 4-27 提议的 `apple_heart_study_演讲稿.md`，因为：(a) 跟 source 页 [[Perez_2019_AppleHeartStudy]] 风格一致（都以 Perez_2019 起头），便于在 Obsidian 文件浏览器看到两个相关文件相邻；(b) 明确归属（Apple Heart Study 的演讲稿，而不是泛指 Apple 心脏研究）
+- **真正的 Paperfuge 编译源**：选用 raw/ 中的 Nature 网页 clip（256 行 markdown），而非重新 fetch（按 CLAUDE.md "永不修改 raw/" 原则，但**复制其内容到新 source 页**完全合规）
+- **图片复用**：4 张 Bhamla 图（`Bhamla_2017_Fig{1-4}_*.jpg`）在 4-12 ingest 时就下载好了，本次直接 wikilink 嵌入新 source 页 — 不重新渲染，节省时间
+- **不建独立 concept 页**：考虑过把 concept 拆成 3 个（"智能手表 PPG"、"Frugal POC"、"通用基础模型"）但拒绝——目前 ECE284 来源还不足以支撑 3 个 concept 各自有 4+ 来源；先建一个 umbrella concept [[消费级设备健康感知]]，等后续 ECE284 文献积累足够再拆分
+- **回链格式选择**：用 `> 💡 ...` 块引用而非加到 🔗 关联区底部——视觉更突出，且不依赖每个 source 页的关联区结构（10 个文件结构不一）。Python 脚本批量插入，统一在 `## 📎 来源` 行之前
+
+### 修复后的 vault 健康度
+| 指标 | 修复前 | 修复后 |
+|---|---|---|
+| 错位文件数 | 1（Bhamla_2017_Paperfuge.md） | **0** |
+| 缺失 source 页（被引用但不存在）| 1（真正的 Paperfuge）| **0** |
+| 待 Javen 拍板的 lint 待办 | 2 | **0** |
+| ECE284 source 数（带 frontmatter）| 11 | **12**（含真 Bhamla）|
+
+### 待 Javen 确认的后续
+
+- **演讲稿是否要补 frontmatter**：[[Perez_2019_AppleHeartStudy_演讲稿]] 目前没有标准 source frontmatter（只有 H1 + 内容）。是否要补 `type: source, tags: [...], created/updated` 等？或者作为用户工作产出保持原样？本轮**未补**，等 Javen 决定
+- **`week 2 primary presentation.md` 是什么**：grep 时发现 ECE284 还有这个文件（也是演讲稿样式），跟 [[Perez_2019_AppleHeartStudy_演讲稿]] 关系不明。是否合并 / rename / 归档？
+
+---
+
 ## [2026-05-01] Ingest | COGS117 Week 5 语言习得四大新材料
 
 ### 操作概览

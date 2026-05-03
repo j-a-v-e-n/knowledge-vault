@@ -140,6 +140,8 @@ priority: active
 
 ---
 
+> 💡 此论文是 concept [[消费级设备健康感知]] 的核心支柱之一（极高特异性算法设计，2026-05-02 提取）。
+
 ## 📎 来源
 
 - `raw/ucsd/Spring 2026/ECE284/Shah_2025_LossOfPulse.pdf`
