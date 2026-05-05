@@ -174,6 +174,10 @@ AdaBoost 因为对噪声/伪影鲁棒（弱学习器加权集成），在 spectr
 ### 跨主题
 - [[综合_医疗技术中的种族偏见]] — DopFone 在 BMI ≥ 30 群体上 MAE 升高 33%（1.8 → 2.4 BPM），归因于脂肪组织对 18 kHz 信号的衰减——这暗示**身体组成差异分布**（往往与族群相关）可能成为新的算法公平性挑战源；论文未做种族子群分析，待补
 
+### 同孕产域姊妹研究（2026-05-04 新加）
+- [[Basavaraja_2024_LaborPrediction]] — 同 pregnancy 但走 passive sensing（Oura ring 连续皮肤温度 → 分娩预测）vs DopFone active sensing（手机扬声器 18 kHz Doppler 主动询问胎心）。两者代表 wearable 健康监测的两条互补路径：长期被动 + 即时主动
+- [[Tuli_2022_MenstrualTrackers]] — HCI critical 视角，同 ingest 周期；问 DopFone 这类 prediction tools 是 capability building 还是 surveillance/control？论文里临床医生访谈已部分触及（DopFone 设计为"在 OB 缺席时家用"）但未深入
+
 > 💡 此论文是 concept [[消费级设备健康感知]] 的核心支柱之一（智能手机主动声学传感，2026-05-02 提取）。
 
 ## 📎 来源

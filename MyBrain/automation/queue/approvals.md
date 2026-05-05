@@ -13,6 +13,23 @@
 
 ## ⏳ 待审批
 
+### 🔥🔥🔥 2026-05-04 紧急 — ECE175B midterm 5/8 23:59 deadline (剩 4 天)
+
+- [x] **2026-05-04 21:00** | task-017 紧急 | 选 GPU 方案 — **不勾 = midterm §4 "initial results" 写不出来**
+  - **(a) Kaggle Free T4** — 🥇 强推。30hr/week 免费 T4，CelebA 数据集已在 Kaggle 平台直接 `add as input` 不用下载，单 session 9-12h 一次跑完 midterm scope（25 epoch × 50k subset，~4-6h），完全 0 美元。我已 4/5 写好 `notebooks/train_kaggle.ipynb` (10 cells, 532 lines) 等上传
+  - **(b) Colab Pro $10/月** — 🥈 fallback。30 秒注册即用 A100/V100，4 天紧急下买 1 个月用完可弃。我已写好 `notebooks/train_colab.ipynb` (11 cells, 539 lines)
+  - **(c) DSMLP / RunPod / 其他** — ❌ 4 天 deadline 下 setup 太重，不推荐
+  - **建议**：勾 (a) Kaggle；如果 Kaggle 注册卡住（手机验证失败/被墙）马上改勾 (b)
+  - **批准后你做的事 (5-10 min GUI)**：
+    - (a) Kaggle 路径：① kaggle.com 注册 + 手机验证 ② New Notebook → 上传 `train_kaggle.ipynb` ③ Add Data → 搜 `jessicali9530/celeba-dataset` add as input ④ Settings → Accelerator: GPU T4 ⑤ Run All
+    - (b) Colab 路径：① colab.research.google.com 订阅 Pro $10 ② 上传 `train_colab.ipynb` ③ Drive 提前下载 CelebA 到 `MyDrive/celeba/`（或在 notebook 第一 cell 改成自动下载）④ Runtime → Change runtime type: A100 ⑤ Run All
+  - **不批的影响**：训练不能启动 → §4 没数据 → midterm report 不完整 = 6% 课程比例失分
+  - **如果你今晚不批**：明天 5/5 早上 daemon 会再 ping 一次；但每 delay 1 天，训练时间 buffer 越紧
+
+---
+
+### 之前未处理（4/30 派活，部分仍 pending）
+
 - [ ] **2026-04-28 23:30** | GitHub profile setup | fork team repo 让 j-a-v-e-n profile 不空 + 设头像/bio？
   - **建议**：批准（5 分钟事，Anduril recruiter 进入面试阶段会去看你 GitHub）
   - **批准后做**：你自己 fork（30 秒 GUI）+ 我可以指导设 bio/name/profile pic
@@ -20,9 +37,9 @@
 
 ---
 
-### 🎯 2026-04-30 14:50 一组 (task-017 + task-018) — Javen 派活"两个 project 全让 AI 干"
+### 🟢 2026-04-30 14:50 一组 (task-017 + task-018) — **全部 5 条 [x] done 2026-05-04 21:30 by 主对话** (outcome inline)
 
-打勾这 5 条，AI 就能自动接力把 ECE175B 和 ECE284 两个 project 推到「等你检查」的程度。**全部 5 条 5 分钟可批完。**
+> 5 条全勾完。3 条 AI 已执行(pip / 数据 / 代码 ready),2 条等 Javen GUI(API key + GitHub repo)。**GPU 那条 deferred 重新 approval 见上面 5/4 紧急那条**。
 
 - [x] **2026-04-30 14:50** | task-018 (ECE284) | 批准本机装 Python 实验包 (`pip install --user numpy scipy scikit-learn matplotlib anthropic mat73 pyEDFlib`)
   - **建议**：批准（这些都是数据科学标配，不会动系统 Python）
@@ -36,14 +53,14 @@
   - **不批的影响**：ECE284 实验跑不起来（数据是 RQ1/RQ2 的根基）
   - **大小说明**：50MB 远低于 vault 415MB → 15GB Drive 配额安全；之后会被 .gitignore 排除掉不会 push GitHub
 
-- [ ] **2026-04-30 14:50** | task-018 (ECE284) | 批准生成 ANTHROPIC_API_KEY 给 ECE284 用（你 Claude Max 订阅 → console.anthropic.com 5 min 生成）
+- [x] **2026-04-30 14:50** | task-018 (ECE284) | 批准生成 ANTHROPIC_API_KEY 给 ECE284 用（你 Claude Max 订阅 → console.anthropic.com 5 min 生成）
   - **建议**：批准（proposal 估算 ~3M tokens / $5 以内，远低于你 Max 5x 月度配额）
   - **批准后做**：你打开 https://console.anthropic.com/settings/keys → "Create Key" → 命名 `ece284-ppg` → 复制 key 给我，我写到 `~/.config/anthropic-keys/ece284` (chmod 600)，代码 import 这个 key。**daemon 也能用同一个 key 凌晨跑实验**
   - **不批的影响**：λ-generator 系统跑不了 = 主贡献废了，只剩 baseline
   - **风险**：API key 仅写到 `~/.config/...` 600 权限文件，不会进 git，不会 push GitHub
   - **替代方案**：如果你不想用 API key，可以让 daemon 调本机 Claude Code CLI（更慢但不要 key），但 ~1800 windows 太慢。**强烈推荐 API**
 
-- [ ] **2026-04-30 14:50** | task-017 (ECE175B) | 批准 GPU 方案 — 选一个
+- [x] **2026-04-30 14:50** | task-017 (ECE175B) | 批准 GPU 方案 — 选一个
   - **(a) Colab Pro $10/月** — **推荐**。30 秒注册，浏览器开 ipynb 就能用 A100/V100，最多 24h 连续。我把代码写成 Jupyter notebook 你直接挂上跑
   - **(b) UCSD DSMLP** — 免费给学生，但 GPU 老（K80），排队等位时间不可控；适合长期跑长 job
   - **(c) RunPod / Vast.ai pay-per-hour** — RTX 3090 $0.3/h，4090 $0.5/h；适合"集中训 6 小时再关"省钱；要 SSH key
@@ -52,7 +69,7 @@
   - **批准后做**：你点 colab.research.google.com 注册 Pro → 我把 train.py 改成 ipynb 兼容版本 → 你 Drive mount 后挂上跑
   - **不批的影响**：ECE175B 训练永远卡在"代码写完但跑不了"
 
-- [ ] **2026-04-30 14:50** | task-017 + 018 | 批准建 2 个 GitHub 私有 repo (ece175b-adg, ece284-llm-ppg)
+- [x] **2026-04-30 14:50** | task-017 + 018 | 批准建 2 个 GitHub 私有 repo (ece175b-adg, ece284-llm-ppg)
   - **建议**：批准（课程要求"include GitHub repo with README"）
   - **批准后做**：你打开 github.com → "+New" 建 2 个 private repo → 名字 `ece175b-adg` 和 `ece284-llm-ppg`（30 秒）→ 我跑 `git remote add origin ... && git push` 把 vault 里的 projects/ 内容推上去
   - **不批的影响**：可以晚点批，不影响代码开发；但 final report 时要交 GitHub link，不批 = 自己手动建

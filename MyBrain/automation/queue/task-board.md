@@ -2,9 +2,16 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-03 03:15
+**最后更新**：2026-05-04 21:15
 **当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 6 已完成（task-006 子任务全完成，待归档）
-（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**新加 task-017/018/019 — 4/30 主对话三连推进：两个 ECE project 骨架 + AI subagent 团队系统**）
+（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**新加 task-017/018/019 — 4/30 主对话三连推进：两个 ECE project 骨架 + AI subagent 团队系统**。**🔥 5/4 紧急更新：task-017 升 P0，5/8 23:59 midterm 截止，4 天**）
+
+> 🔥 **2026-05-04 21:15 主对话紧急派活**：Javen "周五 11:59 提交 ECE175B project midterm report"——
+> - **task-017 升 P0 + 加 deadline 5/8 23:59**（剩 4 天）
+> - **engineer subagent** 写完 `train_kaggle.ipynb` (10 cells) + `train_colab.ipynb` (11 cells) — 等 Javen 选 GPU 平台后上传
+> - **writer subagent** 写完 `midterm_report.tex` (450 行 §1-§6 + abstract + figure placeholder) + `refs.bib` (7 条引用)
+> - **唯一 blocker**：approvals.md 顶置 GPU 决策（推 Kaggle Free，Colab Pro $10 fallback）
+> - 待 Javen 勾 → engineer 协助 Kaggle setup → 启动训练
 
 > 📌 2026-04-30 14:45 主对话：Javen "两个 project 全让 AI 干，我只检查"——
 > - **task-017 (ECE175B ADG diffusion)**: code 骨架主对话写，GPU 训练 blocked on @javen 选 Colab/DSMLP
@@ -205,33 +212,45 @@
     - [ ] g. 把发现回填到 [[wiki/工程方法/超级个体_工具与杠杆]] 的"知识缺口"小节
 
 
-- [ ] **task-017** | ECE175B Project: Attribute-Disentangled CFG (ADG) — 实现 + 训练 + 报告 | #P0 | owner: 混合（@claude 写代码 / @javen 跑 GPU + 提交）
-  - **目标**：完成 ECE175B 期末 project — Attribute-Disentangled Guidance for Diffusion Models。proposal 4/22 已交，timeline 现在在 Week 5-6（实现 ADG sampling + 初步实验）
+- [ ] **task-017** | ECE175B Project: Attribute-Disentangled CFG (ADG) — 实现 + 训练 + 报告 | #P0 🔥🔥🔥 | owner: 混合（@claude 写代码 / @javen 跑 GPU + 提交）
+  - **🚨 紧急 deadline 更新 2026-05-04**：Javen 主对话告知 **midterm report 5/8（周五）23:59 截止**，比 proposal Week 7 tentative timeline 早 1 周。**剩 4 天**。
+  - **目标**：完成 ECE175B midterm report — model design + math + initial results。proposal 4/22 已交，timeline 实际现在 Week 6 末。
   - **背景**：核心想法是把标准 CFG 的单一 guidance scale `w` 拆解为 K 个 per-attribute 的 `w_k`，让 face attributes（笑/眼镜/男/年轻）有独立强度控制。在 CelebA 64×64 数据集上验证。proposal 在 `raw/ucsd/Spring 2026/ECE175B/proposal.pdf`
-  - **Definition of Done**：
-    - 代码 repo（`MyBrain/projects/ece175b-adg/` + 后续 push GitHub）含 dataloader / DDPM / CFG / ADG sampling / FID + per-attribute accuracy 评估脚本
-    - Baseline DDPM 在 CelebA 训练完毕（~50 epoch，需要外部 GPU）
-    - ADG sampling 实现 + 初步可视化（同一 seed，不同 w_k 组合的图像）
-    - Midterm report (Week 7) 提交：模型设计 + 数学 + 初步结果
-    - Final report (Week 10-11) 提交 + 可视化 + per-attribute 解耦分析
+  - **Definition of Done (midterm scope, 5/8)**：
+    - ✅ 代码 repo `MyBrain/projects/ece175b-adg/` 已就绪 (4/30 完成)
+    - [ ] CPU smoke test 通过（forward pass 不报错）
+    - [ ] Kaggle/Colab notebook 包装跑通
+    - [ ] Conditional DDPM 训练完成（midterm scope: 20-30 epoch + 50k subset, ≈4-6h on T4）
+    - [ ] ADG sampling 出至少 1 张可视化（同 seed 不同 w_k 对比 + 1 个 attribute sweep）
+    - [ ] Midterm report PDF 提交（NeurIPS 模板, 估计 3-4 页：design + math + initial results）
   - **创建**：2026-04-30
-  - **更新**：2026-04-30
+  - **更新**：2026-05-04（**P0 升级 + 4 天紧急 plan**；代码骨架确认完整；GPU 仍是唯一 blocker）
   - **🤖 AI vs Javen 分工**：
     - ✅ **主对话能干**：写完整代码骨架（dataloader / DDPM / training loop / ADG sampling / 评估）
-    - ✅ **daemon 凌晨能干**：跑代码 lint / 写 README / 调 prompt / 整理实验日志
-    - ❌ **必须 Javen**：提供 GPU 资源（本机无 GPU，daemon 也没）+ 真正点"提交报告"
-  - **⚠️ 主要 blocker**：GPU 方案未定 — Colab Pro / UCSD DSMLP / RunPod / Kaggle 之一。已写到 approvals.md 等 Javen 打勾
+    - ✅ **engineer subagent 干**：CPU smoke test + Kaggle/Colab notebook 包装 + 训练监控
+    - ✅ **writer subagent 干**：midterm report 第 1-3 节起草（design + math + 概念图）
+    - ✅ **reviewer subagent 干**：报告交付前 review
+    - ❌ **必须 Javen**：① 选 GPU 方案 + 注册账号（5 min）② 真正点"提交报告"
+  - **⚠️ 唯一 blocker**：GPU 方案未定 → 4/30 写到 approvals.md 等 Javen 勾选，5/4 紧急升级版重写到 approvals 顶置
+  - **4-day plan (5/4 → 5/8)**：
+    - **D-4 (5/4 周一今晚)**：Javen 勾 GPU；engineer 跑 CPU smoke test + 写 ipynb；writer 起草 report §1-3
+    - **D-3 (5/5 周二)**：Javen 注册 + Drive/Kaggle setup（5 min）→ 启动训练；writer 完成 §1-3 并整合
+    - **D-2 (5/6 周三)**：训练继续；ADG sampling 跑 → 出可视化；writer 写 §4 (initial results)
+    - **D-1 (5/7 周四)**：选最佳 sample；reviewer 审；polish + LaTeX 渲染 PDF
+    - **D-0 (5/8 周五)**：最终 sanity + 提交（白天前）
   - **子任务**：
-    - [ ] a. 主对话写代码骨架 → `MyBrain/projects/ece175b-adg/`（dataloader, model, train.py, sample.py, adg.py, eval.py, README）
-    - [ ] b. ⚠️ blocked on @javen — GPU 方案选定（默认推荐 Colab Pro $10/月）
-    - [ ] c. 训练 baseline conditional DDPM 在 CelebA（~50 epochs，预估 4-8h GPU）
-    - [ ] d. 实现 ADG sampling（K+1 forward passes，可视化对比 standard CFG vs ADG）
-    - [ ] e. 量化评估：FID 分数 + 每个 attribute 的分类器准确率 + 解耦度（调一个 attribute 时其他变化多少）
-    - [ ] f. 失败模式分析：哪些 attribute pair 干扰最严重 / 线性分解假设何时失效
-    - [ ] g. Midterm report (Week 7, 2026-05-13 左右) — 模型设计 + 数学 + 初步结果
+    - [x] a. 代码骨架 → `MyBrain/projects/ece175b-adg/` — done 2026-04-30 (data/model/ddpm/cfg/adg/train/sample/eval_fid/eval_disentangle)
+    - [ ] a.2 CPU smoke test：python -c "import torch; from model import AttrConditionedUNet; ..." 无报错
+    - [ ] b. ⚠️ blocked on @javen — GPU 方案选定（**5/4 主对话推 Kaggle Free T4，Colab Pro $10 fallback**）
+    - [ ] b.2 写 Kaggle/Colab ipynb 包装（engineer subagent）
+    - [ ] c. 训练 conditional DDPM (midterm scope: 20-30 epoch + 50k subset，~4-6h on T4)
+    - [ ] d. ADG sampling 跑 → 出 sweep + 单组合可视化（同 seed 多 w_k）
+    - [ ] e. （final 阶段，midterm 不必）量化评估：FID + per-attribute accuracy + 解耦度
+    - [ ] f. （final 阶段，midterm 不必）失败模式分析
+    - [ ] g. **Midterm report (5/8 23:59 提交)** — NeurIPS 模板，design + math + initial results，3-4 页
     - [ ] h. Final report (Week 10-11, 2026-06-12 左右) — 7-10 页 NeurIPS 风格 + GitHub repo
     - [ ] i. ⚠️ blocked on @javen — 期末交报告 + 提交 GitHub repo 链接
-  - **关联**：[[ECE175B_概览]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]]
+  - **关联**：[[ECE175B_概览]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]], `notes/ucsd/Spring 2026/ECE175B/HW1/` (NeurIPS LaTeX 模板复用源)
 
 - [ ] **task-018** | ECE284 Project: Benchmarking LLM Paradigms for PPG HR Estimation | #P0 | owner: 混合（@claude 主导 / @javen 提交）
   - **目标**：完成 ECE284 期末 project — 在 IEEE SPC 2015 数据集上对比 4 个系统：TROIKA-lite / Random Forest / Claude λ-generator (主贡献) / Claude ReAct orchestration (stretch)。proposal 4/22 已交 revised 版

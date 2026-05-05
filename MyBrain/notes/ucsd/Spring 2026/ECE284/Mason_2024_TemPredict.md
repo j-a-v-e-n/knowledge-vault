@@ -157,6 +157,10 @@ E-value 敏感性分析显示，未测混杂因素需要超过观察到的体温
 - [[Shah_2025_LossOfPulse]] — 智能手表可穿戴心脏事件检测；TemPredict 是同一类工作的"心理健康版本"
 - [[Arakawa_2023_LemurDx]] — Apple Watch 长期被动感知 + ML 推断儿童 ADHD 多动；与 TemPredict 同属"消费级智能设备 + 多日采集 + ML 推断心理行为状态"范式（一个走"长期生理基线"、一个走"行为情境过滤"）
 
+### 直接姊妹研究（2026-05-04 新加）
+- [[Basavaraja_2024_LaborPrediction]] — **同 Oura、同温度、同孕妇队列**，但 task 是 labor onset prediction（不是 COVID 症状）。两篇一起印证"温度是孕期 wearable 信号王"，并提出 single-device multi-task 可能性。Basavaraja 还做了 endocrine（hormone）双轨验证，是 TemPredict 在因果机制层的延伸
+- [[Tuli_2022_MenstrualTrackers]] — 同期 ingest 的 HCI critical 视角对照；提出张力：TemPredict 这类 prediction-代理用户判断 vs Tuli 的 capability-building 哲学
+
 ### 可穿戴信号建模技术
 - [[Luo_2026_NormWear]] — NormWear 可处理 PPG/ECG/EEG/GSR/IMU 但**未包含温度**；体温作为另一个生理信号通道是 NormWear 框架的天然扩展方向
 - [[Zhang_2015_TROIKA]] — PPG 信号处理基础工作；体温信号比 PPG 更慢变，需要不同的窗口策略

@@ -1,0 +1,142 @@
+\documentclass{article}
+
+\usepackage[final]{neurips_2024}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{natbib}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+% Replace the default NeurIPS footer with course info
+\makeatletter
+\renewcommand{\@noticestring}{ECE175B Midterm Project Report \textendash{} Spring 2026, UC San Diego}
+\makeatother
+
+\title{Attribute-Disentangled Classifier-Free Guidance for Fine-Grained Controllable Face Generation with Diffusion Models}
+
+\author{%
+  Javen Cao \\
+  Department of Electrical and Computer Engineering \\
+  University of California, San Diego \\
+  \texttt{jacao@ucsd.edu}
+}
+
+\begin{document}
+
+\maketitle
+
+\vspace{-1.0em}
+
+\begin{abstract}
+Classifier-Free Guidance (CFG) uses a single global guidance scale $w$ to strengthen conditioning, making it unable to independently control multiple semantic attributes in image generation. We propose \textbf{Attribute-Disentangled Guidance} (ADG), a zero-shot extension that decomposes CFG into per-attribute terms, each with an independent weight $w_k$, enabling users to selectively emphasize or suppress individual facial attributes (e.g., eyeglasses, smile, age) without retraining. Using a standard multi-attribute conditional DDPM trained on CelebA, we demonstrate initial qualitative results showing per-attribute control with $K{+}1$ forward passes per sampling step. Remaining work includes systematic quantitative evaluation of attribute fidelity, disentanglement quality, and cross-attribute interference patterns.
+\end{abstract}
+
+\section{Problem and Motivation}
+\label{sec:intro}
+
+Fine-grained controllable face generation addresses real-world needs in synthetic dataset creation, fairness-aware model training, and creative applications requiring precise semantic control. Current diffusion models condition on multiple attributes jointly—such as smile, eyeglasses, gender, and age—but standard Classifier-Free Guidance (CFG)~\citep{ho2022cfg} applies a single global weight $w$ to the entire conditioning signal. This creates a fundamental limitation: a user who wants strong enforcement of eyeglasses while allowing natural variation in smile intensity must choose a single $w$ that compromises both goals. Increasing $w$ strengthens \emph{all} attributes uniformly, and decreasing $w$ weakens them all. The inability to independently adjust per-attribute guidance intensities prevents practitioners from achieving the fine-grained semantic control that modern applications demand.
+
+We formalize the problem as follows: given a generative model conditioned on $K$ binary or continuous attributes $y = (y_1, \ldots, y_K)$, design a sampling procedure that allows independent control of each attribute's influence via $K$ separate weights $(w_1, \ldots, w_K)$ without requiring $K$ independent models or architectural changes.
+
+\section{Method: Attribute-Disentangled Guidance}
+\label{sec:method}
+
+\subsection{Background: Classifier-Free Guidance}
+
+CFG interpolates between conditional and unconditional predictions. For a denoising diffusion model $\epsilon_\theta$ trained with conditioning dropout, the guided noise prediction is
+\begin{equation}
+\tilde{\epsilon}_\theta(x_t, y) \;=\; \epsilon_\theta(x_t, \varnothing) \;+\; w\,\bigl[\,\epsilon_\theta(x_t, y) - \epsilon_\theta(x_t, \varnothing)\,\bigr],
+\label{eq:cfg}
+\end{equation}
+where $x_t$ is the noisy latent at timestep $t$, $y$ is the full conditioning, $\varnothing$ denotes unconditional (null) conditioning, and $w \geq 0$ controls guidance strength. We use the interpolation form following the \texttt{diffusers} library convention, which is algebraically equivalent to the original $(1+w_H)\epsilon_\theta(x_t,y) - w_H\epsilon_\theta(x_t,\varnothing)$ formulation of \citet{ho2022cfg} under the reparameterization $w = 1 + w_H$. Higher $w$ sharpens adherence to $y$, but the same $w$ applies to all semantic dimensions encoded in $y$. When $y$ represents $K$ attributes, Eq.~\eqref{eq:cfg} treats them as an inseparable bundle.
+
+\subsection{ADG Formulation}
+
+We decompose $y$ into $K$ single-attribute conditionals $y^{(k)}$, where $y^{(k)}$ activates only the $k$-th attribute and sets the others to null (i.e., treats them as unconditional). The ADG prediction is
+\begin{equation}
+\tilde{\epsilon}_\theta(x_t, y) \;=\; \epsilon_\theta(x_t, \varnothing) \;+\; \sum_{k=1}^K w_k \,\bigl[\,\epsilon_\theta(x_t, y^{(k)}) - \epsilon_\theta(x_t, \varnothing)\,\bigr].
+\label{eq:adg}
+\end{equation}
+Each term $[\epsilon_\theta(x_t, y^{(k)}) - \epsilon_\theta(x_t, \varnothing)]$ represents the \emph{attribute direction} for the $k$-th feature in the model's latent space, and $w_k$ independently scales its contribution. This allows:
+\begin{itemize}
+\item \textbf{Selective emphasis}: set $w_{\text{eyeglasses}} = 6$ while $w_{\text{smile}} = 1$ to strongly enforce eyeglasses but allow natural smile variation.
+\item \textbf{Attribute negation}: set $w_k < 0$ to \emph{suppress} the $k$-th attribute.
+\item \textbf{Continuous intensity}: each $w_k \in \mathbb{R}$ provides a continuous control knob, unlike discrete on/off conditioning.
+\end{itemize}
+
+\subsection{Design Intuition: Shared Feature Space vs.\ Independent Models}
+
+Equation~\eqref{eq:adg} resembles Composable Diffusion~\citep{liu2022composable}, which trains $K$ independent single-concept models and linearly combines their gradients at inference. The key distinction is that ADG uses a \emph{single multi-attribute model}: all attributes share the same feature space, and $\epsilon_\theta$ has learned joint representations during training. This assumes that attribute directions are approximately \emph{linearly independent}—that manipulating ``eyeglasses'' in latent space does not heavily interfere with ``smile.'' Whether this assumption holds is an empirical question and a central focus of this project. If attributes interfere (e.g., the model conflates ``young'' with ``smiling'' due to dataset bias), ADG's linear decomposition will exhibit cross-attribute coupling. Quantifying this interference via disentanglement metrics is part of our remaining evaluation work.
+
+The design trades the guaranteed independence of $K$ separate models (each trained on a single attribute) for the efficiency and simplicity of a single shared model. Training cost is $O(1)$ model instead of $O(K)$, and inference requires $K{+}1$ forward passes per timestep instead of 2 (as in standard CFG).
+
+\section{Implementation Details}
+\label{sec:impl}
+
+\textbf{Dataset and attributes.} We use CelebA~\citep{liu2015celeba} at $64{\times}64$ resolution. For the midterm scope, we condition on $K{=}4$ binary attributes: \texttt{Smiling}, \texttt{Eyeglasses}, \texttt{Male}, and \texttt{Young}. Each training sample is a triplet $(x_0, y)$ where $x_0 \in \mathbb{R}^{64 \times 64 \times 3}$ and $y \in \{0,1\}^4$.
+
+\textbf{Model architecture.} We use the diffusers UNet2DModel~\citep{diffusers} with \texttt{block\_out\_channels} = $(64, 128, 256, 256)$, which introduces approximately 22M trainable parameters. Attribute conditioning is implemented via class embeddings concatenated to the timestep embedding before being injected into each residual block.
+
+\textbf{Diffusion process.} Standard DDPM~\citep{ho2020ddpm} with $T{=}1000$ timesteps, linear noise schedule $\beta_1{=}1e{-}4 \to \beta_T{=}0.02$, and $\epsilon$-prediction objective. The training loss is
+\begin{equation}
+\mathcal{L} = \mathbb{E}_{x_0, \epsilon, t, y}\!\left[\,\bigl\|\,\epsilon - \epsilon_\theta(x_t, t, y)\,\bigr\|_2^2\,\right],
+\end{equation}
+where each attribute in $y$ is independently dropped with probability $p{=}0.1$ during training to enable both CFG and ADG at inference.
+
+\textbf{Training.} AdamW optimizer with learning rate $2e{-}4$, batch size 128, trained for 25 epochs (midterm scope; originally planned 50 for final report). Conditioning dropout $p{=}0.1$ per attribute. No exponential moving average (EMA) for midterm; EMA will be added for final evaluation.
+
+\textbf{Sampling.} Standard DDPM reverse diffusion loop over $T{=}1000$ steps. At each step, ADG computes $K{+}1$ forward passes: one unconditional $\epsilon_\theta(x_t, \varnothing)$ and $K$ single-attribute conditionals $\epsilon_\theta(x_t, y^{(k)})$, which are batched into a single forward call for GPU efficiency. The final prediction is assembled via Eq.~\eqref{eq:adg}.
+
+\section{Initial Results and Analysis}
+\label{sec:results}
+
+\textbf{Qualitative evaluation framework.} We present two types of visualizations to assess ADG's per-attribute control:
+\begin{itemize}
+\item \textbf{Attribute sweep}: Fix a target attribute vector (e.g., $[\text{smile}{=}1, \text{glasses}{=}1, \text{male}{=}0, \text{young}{=}1]$) and vary a single weight $w_k \in [0, 6]$ while holding others constant. Expected behavior: only the $k$-th visual feature should change in intensity.
+\item \textbf{Comparison with standard CFG}: Generate the same sample under (a) standard CFG with global $w{=}4$ and (b) ADG with heterogeneous weights (e.g., $w_{\text{smile}}{=}1$, $w_{\text{glasses}}{=}4$, $w_{\text{male}}{=}0$, $w_{\text{young}}{=}0$), using identical random seeds.
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+% Placeholder for attribute sweep results
+\fbox{\parbox{0.9\linewidth}{\centering \vspace{1.5in} \textbf{[Figure 1 will be inserted here after training completes]} \vspace{1.5in}}}
+\caption{ADG attribute sweep: fixing target $[\text{smile}{=}1, \text{glasses}{=}1, \text{male}{=}0, \text{young}{=}1]$, we vary $w_{\text{eyeglasses}} \in [0, 6]$ in increments of 1.5. As $w_{\text{eyeglasses}}$ increases, eyeglass prominence intensifies while other attributes (smile, gender, age) remain stable. Each column shows 3 samples at the same $w_{\text{eyeglasses}}$ value.}
+\label{fig:sweep}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+% Placeholder for CFG vs ADG comparison
+\fbox{\parbox{0.9\linewidth}{\centering \vspace{1.5in} \textbf{[Figure 2 will be inserted here after training completes]} \vspace{1.5in}}}
+\caption{Comparison: standard CFG (global $w{=}4$) vs.\ ADG with selective weights ($w_{\text{smile}}{=}1$, $w_{\text{glasses}}{=}4$, $w_{\text{male}}{=}0$, $w_{\text{young}}{=}0$). Both use the same random seed and target attributes. ADG should exhibit strong eyeglasses but subtle smile, whereas CFG enforces all attributes equally.}
+\label{fig:comparison}
+\end{figure}
+
+\textbf{Preliminary observations.} [TO FILL: 1--2 sentences summarizing initial findings from qualitative samples. Expected points: Does ADG achieve independent per-attribute control? Do certain attribute pairs exhibit interference (e.g., ``young'' bleeding into ``smiling'')? Are there visual artifacts at extreme $w_k$ values?]
+
+\section{Remaining Work}
+\label{sec:remaining}
+
+The final report (due Week 10) will complete the following tasks:
+\begin{itemize}
+\item \textbf{Quantitative evaluation}: Compute FID on a held-out validation set and train per-attribute binary classifiers to measure attribute fidelity (classifier accuracy on generated samples conditioned on each attribute).
+\item \textbf{Disentanglement analysis}: Construct a $K{\times}K$ cross-attribute interference matrix by varying one attribute's weight while measuring the change in classifier confidence for the other attributes. High off-diagonal entries indicate coupling.
+\item \textbf{Failure mode analysis}: Identify attribute pairs with the strongest interference and investigate whether this reflects dataset bias (e.g., correlation between ``Male'' and ``Young'' in CelebA) or fundamental model limitations.
+\item \textbf{Computational cost profiling}: Compare wall-clock sampling time for standard CFG vs.\ ADG across varying $K$.
+\end{itemize}
+
+\setlength{\bibsep}{2pt plus 0.3ex}
+{\scriptsize
+\bibliographystyle{plainnat}
+\bibliography{refs}
+}
+
+\end{document}

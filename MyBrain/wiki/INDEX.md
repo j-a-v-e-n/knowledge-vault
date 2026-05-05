@@ -1,6 +1,6 @@
 # 知识库总目录
 
-**最后更新**：2026-05-02 | **页面总数**：65 | **最新操作**：解决两条遗留 lint 待办 — (a) 修复 ECE284 错位：补建真正的 [[Bhamla_2017_Paperfuge]] source 页（基于 raw clip + 4 张图），把原错位文件 rename 为 [[Perez_2019_AppleHeartStudy_演讲稿]]；(b) 提取 ECE284 7+ 来源的核心 concept [[消费级设备健康感知]]（新建 wiki/医疗技术/ 子目录），10 个 ECE284 source 页加 concept 回链。前次 5-01 编译 COGS117 Week 5 语言习得 4 个新材料（Saffran/Vong/L8/L9 + 2 concept + 1 debate）
+**最后更新**：2026-05-04 | **页面总数**：67 | **最新操作**：编译 ECE284 两篇新论文 — (a) [[Tuli_2022_MenstrualTrackers]] CHI '22 印度月经追踪 app HCI critical 研究（Nussbaum capabilities approach 重设计 femtech），ECE284 内**唯一**定性 / 政治哲学维度文献；(b) [[Basavaraja_2024_LaborPrediction]] medRxiv 2024 Oura Ring + AE-LSTM 预测分娩日（前 8 天误差 < 2 天，endocrine 双轨验证），**直接延伸** [[Mason_2024_TemPredict]] 同 Oura+temp+pregnancy 路线。渲染 6 张关键图，[[消费级设备健康感知]] concept 加 2 论据 + "prediction vs capability building" 张力。前次 5-02 修复 ECE284 错位 + 提取核心 concept
 
 ---
 
@@ -95,6 +95,8 @@
 - [[Mason_2024_TemPredict]] — Mason et al. (2024)：TemPredict 队列研究——20K 人 Oura Ring 7 个月数据，清醒体温每升 1°C → PROMIS 抑郁 T-score +0.86 分；全身热疗作为治疗启示
 - [[Arakawa_2023_LemurDx]] — Arakawa et al. (2023 IMWUT)：Apple Watch 被动感知 + 情境过滤检测儿童 ADHD 多动；N=61，with context filtering RF 准确率 85.2%（家长标签）/ 82.0%（自动情境检测）；半小时分辨率 risk score 支持药物滴定
 - [[Garg_2025_DopFone]] — Garg et al. (2025 IMWUT)：智能手机 18 kHz Doppler 测胎心率；N=23 孕妇，AdaBoost MAE 2.1±1.3 BPM、95% LoA ±4.9 BPM（< 临床阈值 ±8 BPM），位置无关 + 用户无需训练；BMI ≥ 30 时误差升 33%
+- [[Tuli_2022_MenstrualTrackers]] — Tuli et al. (2022 CHI)：印度德里 12-65 岁 450+ 人月经追踪混合方法研究；Nussbaum central human capabilities 框架重设计 femtech——从"通过控制实现尊严"转向"通过 capability building 实现解放"；ECE284 内唯一定性 / 政治哲学维度文献
+- [[Basavaraja_2024_LaborPrediction]] — Basavaraja et al. (2024 medRxiv)：Oura Ring 连续皮肤温度 + AE-LSTM 预测分娩日；91 孕妇，自然分娩前 8 天平均误差 < 2 天，79% 在 4.6 天窗口内；endocrine（α-pregnanediol↓ + estriol/α-Preg 比值↑）双轨验证；直接延伸 [[Mason_2024_TemPredict]]
 
 ---
 
@@ -104,7 +106,7 @@
 |------|------|
 | **overview** | [[COGS117_概览]], [[ECE175B_概览]], [[PHIL28_概览]] |
 | **concept** | [[监督学习与无监督学习]], [[自监督学习与基础模型]], [[感知窄化]], [[面孔知觉发展]], [[核心知识理论]], [[物体识别与形状感知]], [[发展研究方法]], [[统一多模态生成架构]], [[动作发展]], [[发展级联]], [[内在动机与好奇心驱动学习]], [[统计学习]], [[词语学习机制]], [[消费级设备健康感知]] |
-| **source** | [[COGS117_2026_课程大纲]], [[Love_2026_监督与无监督学习]], [[Zettersten_2026_计算模型与框架]], [[Frank_2023_数据鸿沟]], [[Cusack_2024_婴儿无助期假说]], [[Zettersten_2025_婴儿主动学习]], [[Scott_2009_面孔知觉偏差起源]], [[Johnson_2024_婴儿感知]], [[Ayzenberg_2024_视觉物体识别发展]], [[Adolph_2018_走路发展15条建议]], [[Oudeyer_2017_婴儿发展机器人]], [[Saffran_1996_统计学习]], [[Vong_2024_单童语言习得]], [[Zettersten_2026_Lecture1_课程导论与大问题]], [[Zettersten_2026_Lecture2_发展研究方法]], [[Zettersten_2026_Lecture4_发展理论]], [[Zettersten_2026_Lecture5_感知发展1]], [[Zettersten_2026_Lecture6_感知发展2]], [[Zettersten_2026_Lecture7_走路与动作发展]], [[Zettersten_2026_Lecture8_语言1与如何读论文]], [[Zettersten_2026_Lecture9_语言2]], [[Zhang_2015_TROIKA]], [[Perez_2019_AppleHeartStudy]], [[Perez_2019_AppleHeartStudy_演讲稿]], [[Shah_2025_LossOfPulse]], [[Bhamla_2017_Paperfuge]], [[Song_2024_SmartphoneMicroscope]], [[Jubran_1990_脉搏血氧仪种族偏差]], [[Obermeyer_2019_医疗算法种族偏见]], [[Luo_2026_NormWear]], [[Mason_2024_TemPredict]], [[Arakawa_2023_LemurDx]], [[Garg_2025_DopFone]], [[ECE175B_Lecture1a_课程导论与DGM概述]], [[ECE175B_Lecture1b_贝叶斯网络]], [[ECE175B_Lecture2_变分自编码器设计]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]], [[2026-04-20_多模态故事生成研究]], [[2026-04-27_AI任务面板自动化系统]], [[PHIL28_2026_课程大纲]], [[PHIL28_2026_期中考题清单]] |
+| **source** | [[COGS117_2026_课程大纲]], [[Love_2026_监督与无监督学习]], [[Zettersten_2026_计算模型与框架]], [[Frank_2023_数据鸿沟]], [[Cusack_2024_婴儿无助期假说]], [[Zettersten_2025_婴儿主动学习]], [[Scott_2009_面孔知觉偏差起源]], [[Johnson_2024_婴儿感知]], [[Ayzenberg_2024_视觉物体识别发展]], [[Adolph_2018_走路发展15条建议]], [[Oudeyer_2017_婴儿发展机器人]], [[Saffran_1996_统计学习]], [[Vong_2024_单童语言习得]], [[Zettersten_2026_Lecture1_课程导论与大问题]], [[Zettersten_2026_Lecture2_发展研究方法]], [[Zettersten_2026_Lecture4_发展理论]], [[Zettersten_2026_Lecture5_感知发展1]], [[Zettersten_2026_Lecture6_感知发展2]], [[Zettersten_2026_Lecture7_走路与动作发展]], [[Zettersten_2026_Lecture8_语言1与如何读论文]], [[Zettersten_2026_Lecture9_语言2]], [[Zhang_2015_TROIKA]], [[Perez_2019_AppleHeartStudy]], [[Perez_2019_AppleHeartStudy_演讲稿]], [[Shah_2025_LossOfPulse]], [[Bhamla_2017_Paperfuge]], [[Song_2024_SmartphoneMicroscope]], [[Jubran_1990_脉搏血氧仪种族偏差]], [[Obermeyer_2019_医疗算法种族偏见]], [[Luo_2026_NormWear]], [[Mason_2024_TemPredict]], [[Arakawa_2023_LemurDx]], [[Garg_2025_DopFone]], [[Tuli_2022_MenstrualTrackers]], [[Basavaraja_2024_LaborPrediction]], [[ECE175B_Lecture1a_课程导论与DGM概述]], [[ECE175B_Lecture1b_贝叶斯网络]], [[ECE175B_Lecture2_变分自编码器设计]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]], [[2026-04-20_多模态故事生成研究]], [[2026-04-27_AI任务面板自动化系统]], [[PHIL28_2026_课程大纲]], [[PHIL28_2026_期中考题清单]] |
 | **debate** | [[争论_婴儿被动vs主动学习]], [[争论_新生儿模仿]], [[争论_先天语言vs统计学习]] |
 | **synthesis** | [[综合_医疗技术中的种族偏见]], [[AI 团队设计原则]] |
 
@@ -122,7 +124,7 @@ notes/                          ← 文献笔记（source 页面，镜像 raw/ �
 │   ├── ECE175B_Lecture4_生成对抗网络.md
 │   ├── Homework_1.pdf                           ← copied 2026-04-22 (不编译, 参考)
 │   └── proposal.pdf                             ← copied 2026-04-22 (不编译, 参考)
-├── ucsd/Spring 2026/ECE284/    (12 md + 1 pdf)
+├── ucsd/Spring 2026/ECE284/    (14 md + 1 pdf)
 │   ├── Zhang_2015_TROIKA.md
 │   ├── Perez_2019_AppleHeartStudy.md
 │   ├── Perez_2019_AppleHeartStudy_演讲稿.md     ← renamed 2026-05-02 (原错位为 Bhamla_2017_Paperfuge.md)
@@ -135,6 +137,8 @@ notes/                          ← 文献笔记（source 页面，镜像 raw/ �
 │   ├── Mason_2024_TemPredict.md
 │   ├── Arakawa_2023_LemurDx.md
 │   ├── Garg_2025_DopFone.md
+│   ├── Tuli_2022_MenstrualTrackers.md            ← new 2026-05-04 (CHI '22 HCI critical 研究 femtech)
+│   ├── Basavaraja_2024_LaborPrediction.md         ← new 2026-05-04 (medRxiv Oura ring AE-LSTM 预测分娩)
 │   └── proposal_javen_revised.pdf               (不编译, 用户自己的项目提案)
 ├── ucsd/Spring 2026/COGS117/   (21 md + 1 pdf)
 │   ├── COGS117_2026_课程大纲.md
@@ -362,7 +366,9 @@ attachments/
 
 **本轮增长（2026-05-01）**：+4 source（COGS117 Week 5 语言习得：[[Saffran_1996_统计学习]] + [[Vong_2024_单童语言习得]] + [[Zettersten_2026_Lecture8_语言1与如何读论文]] + [[Zettersten_2026_Lecture9_语言2]]）；+2 concept（[[统计学习]] + [[词语学习机制]]）；+1 debate（[[争论_先天语言vs统计学习]]）；渲染 33 张关键图至 attachments/COGS117/；多个跨课程交叉链接（CVCL ↔ ECE175B [[统一多模态生成架构]]、Saffran transitional probability ↔ ECE175B bigram model、自监督学习 ↔ 婴儿统计学习）；多个旧页面加回链（[[Frank_2023_数据鸿沟]], [[Cusack_2024_婴儿无助期假说]], [[Zettersten_2025_婴儿主动学习]], [[争论_婴儿被动vs主动学习]], [[感知窄化]], [[发展研究方法]] 等）；gaps.md 新增 8+ 条推测性问题
 
-**本轮增长（2026-05-02）**：+1 source（真正的 [[Bhamla_2017_Paperfuge]]，rebuild 自 raw clip）；+1 source（[[Perez_2019_AppleHeartStudy_演讲稿]]，rename 后正式入库）；+1 concept（[[消费级设备健康感知]]，wiki/医疗技术/ 新子领域，7+ 来源支撑）；10 个 ECE284 source 页加 concept 回链。**两条遗留 lint 全部解决**
+**本轮增长（2026-05-04）**：+2 source（[[Tuli_2022_MenstrualTrackers]] CHI '22 HCI critical 视角；[[Basavaraja_2024_LaborPrediction]] medRxiv Oura+AE-LSTM 分娩预测）；ECE284 文献池 12 → 14 篇；[[消费级设备健康感知]] concept 论据 11 → 13 + 加"prediction vs capability"张力；[[综合_医疗技术中的种族偏见]] 加 femtech 偏见维度 + Basavaraja BMI/族群待验证；6 张关键图渲染到 attachments/ECE284/
+
+**前次增长（2026-05-02）**：+1 source（真正的 [[Bhamla_2017_Paperfuge]]，rebuild 自 raw clip）；+1 source（[[Perez_2019_AppleHeartStudy_演讲稿]]，rename 后正式入库）；+1 concept（[[消费级设备健康感知]]，wiki/医疗技术/ 新子领域，7+ 来源支撑）；10 个 ECE284 source 页加 concept 回链。**两条遗留 lint 全部解决**
 
 **前次增长（2026-05-01）**：+4 source（COGS117 Week 5：Saffran/Vong/L8/L9）+ 2 concept（统计学习/词语学习机制）+ 1 debate（先天语言vs统计学习）
 

@@ -1,5 +1,60 @@
 # Wiki 操作日志
 
+## [2026-05-04] Ingest | ECE284 两篇新论文（Tuli 2022 femtech HCI + Basavaraja 2024 Oura 分娩预测）
+
+Javen 5/4 晚下载到 ~/Downloads 的两份 PDF，主对话识别为 ECE284 主题后执行完整 ingest pipeline。
+
+### 文件操作
+- `~/Downloads/3491102.3517662.pdf` → `raw/.../ECE284/Tuli_2022_MenstrualTrackers.pdf`（重命名 + 移入 raw/）
+- `~/Downloads/2024.02.25.24303344v2.full.pdf` → `raw/.../ECE284/Basavaraja_2024_LaborPrediction.pdf`
+
+### 新文件清单（2 个 source 页）
+
+| 原始 | source 页 | 位置 |
+|---|---|---|
+| Tuli_2022_MenstrualTrackers.pdf | [[Tuli_2022_MenstrualTrackers]] | notes/ucsd/Spring 2026/ECE284/ |
+| Basavaraja_2024_LaborPrediction.pdf | [[Basavaraja_2024_LaborPrediction]] | 同上 |
+
+### 图片处理（6 张，PyMuPDF 2.5× zoom，存 attachments/ECE284/）
+
+- Tuli p6 → `Tuli_2022_Fig1_app_screenshots_page06.png`（Period Journal cultural probe，6 panels (a)-(f)，参与者装饰封面以伪装隐瞒月经话题）
+- Basavaraja p9/p10/p14/p16/p18 → 5 张关键图（BioBAYB study design / AE-LSTM 架构 / Temp+Circadian+α-Pregnanediol 三轨同步下降 / AE-LSTM <2 day 误差 / Table 4 prediction windows）
+
+### 更新文件（双向链接整合）
+
+- [[消费级设备健康感知]] (concept) — 主要来源 11 → 13；"矛盾与未解决问题" 加两条新张力（algorithmic prediction vs capability building 来自 Tuli；single-device multi-task 可行性来自 Mason+Basavaraja）
+- [[综合_医疗技术中的种族偏见]] — 加 Tuli（gender / 月经污名维度扩展，原页讨论 race，新加性别）+ Basavaraja（Oura ring 是否族群一致性未验证，[[Jubran_1990_脉搏血氧仪种族偏差]] wearable 版待验证）
+- [[Mason_2024_TemPredict]] — 加"直接姊妹研究"小节（同 Oura+temp+pregnancy；Basavaraja 是 endocrine 验证延伸）
+- [[Garg_2025_DopFone]] — 加"同孕产域姊妹研究"小节（Garg active sensing vs Basavaraja passive sensing；DopFone 设计为家用 vs Tuli 的 capability building 框架待对比）
+- INDEX.md — ECE284 文献条目 14 → 16；按类型 source 列加 2 条；目录结构 12 md → 14 md；统计 65 → 67 页（source +2）；本轮增长说明
+- gaps.md — 加 4 条新推测问题（Tuli capability framework 在 wearable / IoT 时代扩展；Basavaraja BMI 子群分析；Mason+Basavaraja single-device multi-task FDA 路径；Tuli + Obermeyer 同构偏见结构是否能形式化）
+
+### 决策记录
+
+- **未提取新 concept 页**：Tuli 引入 capabilities approach 但在 vault 内此框架来源单一（Tuli 2022 一篇）——不达 concept 阈值，先在 source 页详述 + 在 [[消费级设备健康感知]] "矛盾与未解决问题"中标 hook，等后续 HCI critical FemTech 文献加入再考虑
+- **未建独立 debate 页**：Tuli vs Basavaraja 张力**结构性存在**但**没有明确对立论断**（Tuli 提哲学框架，Basavaraja 提技术能力，两者不在同一辩论场域）。先在 source 页 ⚠️ 节互相 hook，未来如有论文明确反驳 capability framework 的可行性再建 debate 页
+- **"先懂再细"严格执行**：两篇都按"问题 → 核心结论 → 机制（含类比）→ 证明（图表就近 `>` 引用块解读）→ 意味着什么 → 局限 → 矛盾"展开
+- **类比开路**：
+  - Tuli："iPhone 卖给一个偷偷上网的孩子" — 类比 femtech 的"通过隐藏赋能"哲学
+  - Basavaraja："奶牛 → 农场主 → 助产士" — 类比 Oura 监测扮演 24/7 助产士角色（动物模型温度法跨物种延伸）
+
+### raw/ 覆盖率
+
+| 课程 | 覆盖率（5/4 收尾后）|
+|------|--------|
+| ECE284 | 13/14（含本次 +2 = 14；其中 13 已编译，1 是 Javen 自己 proposal 不编）|
+| COGS117 | 21/21 (100%) |
+| ECE175B | 5/5 讲座 (100%) |
+| PHIL28 | 2/8 (syllabus + midterm 已；6 pptx blocked) |
+| web-research | 2/2 (100%) |
+
+### 待 Javen 关注
+
+- **endocrine 双轨验证设计可借鉴**：Basavaraja 的"温度数据 + 同步 hormone 测量"是 ECE284 final project 设计的好范本（不要单纯做 ML，加生物机制验证）
+- **HCI critical 视角空缺**：ECE284 12 篇技术文献 + 2 篇背景偏见 + 1 篇 Tuli HCI——后续可考虑加 Sherman 2024 / Gillingham 2023 等 femtech / wearable critical 研究补这一维
+
+---
+
 ## [2026-05-02] Lint 修复 | 解决两条遗留 lint 待办
 
 按 Javen 5-02 决定 ("4. 解决")，把 4-27 留下的两条遗留 lint 一次性清掉。

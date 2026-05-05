@@ -87,6 +87,10 @@
 - [ ] **语言习得三大策略的相对权重模型化**：能否把 statistical regularities + social cues + cognitive biases 写成一个 weighted ensemble model，在不同年龄段给不同策略不同权重，看哪种权重曲线最佳预测真实词汇成长曲线？（触发来源：[[词语学习机制]]）
 
 - [ ] **whistled / sign 语言的统计学习是否仍有 transitional probability 的一阶马尔可夫结构**？这些非声学语言是 [[争论_先天语言vs统计学习]] 中"反 universals"的关键证据——但它们的统计结构是否仍跟口语类似？如果是，统计学习派立场更强；如果不是，需要修订模型。（触发来源：[[Zettersten_2026_Lecture9_语言2]]）
+- [ ] **Tuli 2022 提出的 Nussbaum capabilities approach** 是 2022 年针对 menstrual tracker app 设计的——该框架在 wearable / IoT / 生成式 AI 健康应用（2024+）的扩展性如何？是否有论文系统应用 capabilities approach 到 LLM 健康助手？（触发来源：编译 [[Tuli_2022_MenstrualTrackers]]）
+- [ ] **Basavaraja 2024 训练样本 N=91**（54 自然分娩进训练）—— deep learning 通常需要更多数据。模型是否对训练队列特征（人口构成 / BMI / 健康状态）过拟合？跨机构 / 跨地理 / 跨族群 external validation 缺失，临床部署前必须验证。（触发来源：编译 [[Basavaraja_2024_LaborPrediction]]）
+- [ ] **Mason 2024 + Basavaraja 2024 都用 Oura ring + 温度信号但 task 不同**（COVID 症状 vs 分娩日）—— 同一 wearable 是否能 multi-task 同时跑多个临床预测？工程实现（latency / 置信度融合）+ 商业可行性（FDA 单一 device 多 indication 监管）+ 伦理（用户知情）三层都未解决。（触发来源：[[Mason_2024_TemPredict]] + [[Basavaraja_2024_LaborPrediction]] 交叉思考）
+- [ ] **Tuli 2022 + Obermeyer 2019 + Jubran 1990 三者描述的是"医疗技术编码社会偏见"的同一现象的三个轴**（gender / 月经污名 ↔ race / 健康费用代理 ↔ race / 皮肤色素）——这套框架能否形式化成一个**抽象偏见编码模型**（社会标签 + 代理变量 + 算法决策的耦合结构），让未来论文能用同一术语讨论不同轴上的偏见？（触发来源：编译 [[Tuli_2022_MenstrualTrackers]] 后看到三个轴的结构同构）
 
 ## 已回答
 

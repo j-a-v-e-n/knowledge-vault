@@ -57,20 +57,22 @@ class Window:
     hr_truth: float  # BPM, 来自 ECG R-peak detection
 
 
+_KNOWN_KEYS = ("sig", "BPM0", "BVP_Data", "data")
+
+
 def _load_mat(path: Path) -> np.ndarray:
-    """加载一个 .mat 文件,返回 (6, N) 信号矩阵。"""
+    """加载一个 .mat 文件,返回主 array (signal 文件 = (6, N), BPMtrace = (n, 1))."""
     if HAS_MAT73:
         try:
             data = mat73.loadmat(str(path))
-            # 数据键名因版本不同,常见 'sig' / 'BVP_Data'
-            for key in ("sig", "BVP_Data", "data"):
+            for key in _KNOWN_KEYS:
                 if key in data:
                     return np.asarray(data[key])
         except Exception:
             pass
     if HAS_SCIPY:
         data = loadmat(str(path))
-        for key in ("sig", "BVP_Data", "data"):
+        for key in _KNOWN_KEYS:
             if key in data:
                 return np.asarray(data[key])
     raise RuntimeError(
@@ -96,7 +98,25 @@ def _hr_from_ecg(ecg: np.ndarray, fs: int = FS) -> float:
 
 
 class IEEESPC2015Dataset:
-    """IEEE Signal Processing Cup 2015 dataset wrapper."""
+    """IEEE Signal Processing Cup 2015 dataset wrapper.
+
+    实际数据集结构 (来自 https://github.com/AlessandraGalli/PPG DATABASE.zip):
+
+        data/
+          DATABASE/
+            Training_data/
+              DATA_01_TYPE01.mat       — sig (6, N) float64
+              DATA_01_TYPE01_BPMtrace.mat — BPM0 (n_windows, 1) ground-truth
+              DATA_02_TYPE02.mat
+              DATA_02_TYPE02_BPMtrace.mat
+              ...
+              DATA_12_TYPE02.mat
+              DATA_12_TYPE02_BPMtrace.mat
+            Competition_data/        ← 10 个 TEST subjects + True ground-truth (10 subjects)
+
+    我们用 12 个 Training subjects 做 LOSO (proposal §4)。
+    BPMtrace 是官方 ground-truth — 每 2 秒一个 BPM 值 (8s window, 2s shift, 跟我们 windowing 完全一致)。
+    """
 
     def __init__(self, data_dir: str | Path = "data/"):
         self.data_dir = Path(data_dir)
@@ -104,53 +124,79 @@ class IEEESPC2015Dataset:
             raise FileNotFoundError(
                 f"{self.data_dir} 不存在。先下数据 (见 README §2)。"
             )
+        # 优先 DATABASE/Training_data 子结构,fallback 到平铺
+        self._training_dir = self.data_dir / "DATABASE" / "Training_data"
+        if not self._training_dir.exists():
+            self._training_dir = self.data_dir
 
     @property
     def subject_files(self) -> list[Path]:
-        """返回所有 subject .mat 文件的有序列表。"""
-        files = sorted(self.data_dir.glob("**/*.mat"))
-        if not files:
+        """返回 12 个 training subject signal .mat 文件 (排除 BPMtrace)。"""
+        all_mat = sorted(self._training_dir.glob("DATA_*_TYPE*.mat"))
+        sig_files = [f for f in all_mat if "BPMtrace" not in f.name]
+        if not sig_files:
             raise FileNotFoundError(
-                f"{self.data_dir} 下没有 .mat 文件。检查解压是否完整"
+                f"{self._training_dir} 下没有 DATA_*_TYPE*.mat 文件。检查 DATABASE.zip 是否解压"
             )
-        return files
+        return sig_files
+
+    @property
+    def bpmtrace_files(self) -> list[Path]:
+        """返回对应的 12 个 BPMtrace ground-truth 文件,跟 subject_files 顺序一一对应。"""
+        return [f.with_name(f.stem + "_BPMtrace.mat") for f in self.subject_files]
 
     @property
     def n_subjects(self) -> int:
         return len(self.subject_files)
 
     def load_subject(self, subject_id: int) -> dict[str, np.ndarray]:
-        """加载第 subject_id 个 subject (1-indexed) 的全段信号。
+        """加载第 subject_id 个 subject (1-indexed) 的信号 + BPM ground-truth.
 
         Returns:
-            dict 含 'ecg' (N,), 'ppg' (2,N), 'accel' (3,N)
+            dict 含
+              'ecg' (N,) — chest ECG (用于 sanity check, 不再做 truth)
+              'ppg' (2, N) — 2-channel wrist PPG (绿光)
+              'accel' (3, N) — 3-axis wrist accelerometer
+              'bpm0' (n_windows,) — 官方 ground-truth, 每个对应一个 8s/2s window
         """
         if subject_id < 1 or subject_id > self.n_subjects:
             raise ValueError(f"subject_id {subject_id} 超范围 [1, {self.n_subjects}]")
-        path = self.subject_files[subject_id - 1]
-        sig = _load_mat(path)  # (6, N) 期望
+        sig_path = self.subject_files[subject_id - 1]
+        bpm_path = self.bpmtrace_files[subject_id - 1]
+
+        sig = _load_mat(sig_path)  # (6, N)
         if sig.shape[0] != 6:
-            sig = sig.T  # 万一是 (N, 6)
+            sig = sig.T
+
+        bpm0 = _load_mat(bpm_path).flatten()  # (n_windows,)
+
         return {
             "ecg": sig[0],
-            "ppg": sig[1:3],  # 2-channel
-            "accel": sig[3:6],  # 3-axis
+            "ppg": sig[1:3],
+            "accel": sig[3:6],
+            "bpm0": bpm0,
         }
 
     def windows_for_subject(self, subject_id: int) -> list[Window]:
-        """切分一个 subject 的信号为 8 秒窗口,2 秒 shift。"""
+        """切分一个 subject 的信号为 8 秒窗口,2 秒 shift。
+
+        ground-truth HR 从官方 BPMtrace 直接读 (BPM0[k] 对应第 k 个 8s window)。
+        """
         signals = self.load_subject(subject_id)
         n_samples = signals["ecg"].shape[0]
+        bpm0 = signals["bpm0"]
         windows: list[Window] = []
 
-        for w_idx, start in enumerate(range(0, n_samples - WINDOW_LEN, SHIFT_LEN)):
+        for w_idx, start in enumerate(range(0, n_samples - WINDOW_LEN + 1, SHIFT_LEN)):
+            if w_idx >= len(bpm0):
+                break  # BPM0 长度兜底 — 信号末尾不一定有对应 truth
             end = start + WINDOW_LEN
             ecg_w = signals["ecg"][start:end]
             ppg_w = signals["ppg"][:, start:end]
             accel_w = signals["accel"][:, start:end]
-            hr = _hr_from_ecg(ecg_w)
-            if np.isnan(hr):
-                continue  # 跳过无法计算 ground truth 的窗口
+            hr_truth = float(bpm0[w_idx])
+            if np.isnan(hr_truth) or hr_truth <= 0:
+                continue
             windows.append(
                 Window(
                     subject_id=subject_id,
@@ -158,7 +204,7 @@ class IEEESPC2015Dataset:
                     ppg=ppg_w,
                     accel=accel_w,
                     ecg=ecg_w,
-                    hr_truth=hr,
+                    hr_truth=hr_truth,
                 )
             )
         return windows
