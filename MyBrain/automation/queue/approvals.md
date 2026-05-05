@@ -24,13 +24,13 @@
 
 打勾这 5 条，AI 就能自动接力把 ECE175B 和 ECE284 两个 project 推到「等你检查」的程度。**全部 5 条 5 分钟可批完。**
 
-- [ ] **2026-04-30 14:50** | task-018 (ECE284) | 批准本机装 Python 实验包 (`pip install --user numpy scipy scikit-learn matplotlib anthropic mat73 pyEDFlib`)
+- [x] **2026-04-30 14:50** | task-018 (ECE284) | 批准本机装 Python 实验包 (`pip install --user numpy scipy scikit-learn matplotlib anthropic mat73 pyEDFlib`)
   - **建议**：批准（这些都是数据科学标配，不会动系统 Python）
   - **批准后做**：主对话 / 我下次启动时跑 `pip install --user ...` 装到你 user site-packages
   - **不批的影响**：ECE284 实验代码无法运行，daemon 也跑不了 LOSO 评估
   - **隐私/安全**：这些都是 PyPI 知名包；`--user` flag 不动 system Python；Anthropic 是官方 SDK
 
-- [ ] **2026-04-30 14:50** | task-018 (ECE284) | 批准下载 IEEE SPC 2015 dataset 到 `MyBrain/projects/ece284-llm-ppg/data/`（~50 MB，12 .mat 文件）
+- [x] **2026-04-30 14:50** | task-018 (ECE284) | 批准下载 IEEE SPC 2015 dataset 到 `MyBrain/projects/ece284-llm-ppg/data/`（~50 MB，12 .mat 文件）
   - **建议**：批准（论文公开数据，proposal 已 cite [Zhang 2015]）
   - **批准后做**：主对话跑 `curl https://zenodo.org/.../IEEE-SPC-2015.zip -o data.zip && unzip` 一键下完
   - **不批的影响**：ECE284 实验跑不起来（数据是 RQ1/RQ2 的根基）

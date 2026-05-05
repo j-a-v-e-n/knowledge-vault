@@ -13,7 +13,12 @@
       "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/engineer.md)",
       "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/writer.md)",
       "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/reviewer.md)",
-      "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/README.md)"
+      "Write(/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/.claude/agents/README.md)",
+      "Bash(mkdir -p *)",
+      "Bash(open *)",
+      "mcp__claude_ai_Gmail__search_threads",
+      "mcp__claude_ai_Gmail__get_thread",
+      "mcp__claude_ai_Gmail__list_labels"
     ]
   },
   "hooks": {
