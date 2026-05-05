@@ -2,9 +2,9 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-04 21:15
+**最后更新**：2026-05-05 03:00
 **当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 6 已完成（task-006 子任务全完成，待归档）
-（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"——见各卡内 [x] 子任务 + 备注。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**新加 task-017/018/019 — 4/30 主对话三连推进：两个 ECE project 骨架 + AI subagent 团队系统**。**🔥 5/4 紧急更新：task-017 升 P0，5/8 23:59 midterm 截止，4 天**）
+（**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**🔥 5/5 更新：task-017 GPU=Kaggle 选定，notebooks 就绪，等 Javen GUI 启动训练（还剩 3 天）；task-018 代码骨架+数据已确认存在**）
 
 > 🔥 **2026-05-04 21:15 主对话紧急派活**：Javen "周五 11:59 提交 ECE175B project midterm report"——
 > - **task-017 升 P0 + 加 deadline 5/8 23:59**（剩 4 天）
@@ -224,7 +224,7 @@
     - [ ] ADG sampling 出至少 1 张可视化（同 seed 不同 w_k 对比 + 1 个 attribute sweep）
     - [ ] Midterm report PDF 提交（NeurIPS 模板, 估计 3-4 页：design + math + initial results）
   - **创建**：2026-04-30
-  - **更新**：2026-05-04（**P0 升级 + 4 天紧急 plan**；代码骨架确认完整；GPU 仍是唯一 blocker）
+  - **更新**：2026-05-05（GPU=Kaggle 选定 ✓；notebooks 确认就绪；等 Javen GUI 步骤启动训练；deadline 5/8 23:59 剩 3 天）
   - **🤖 AI vs Javen 分工**：
     - ✅ **主对话能干**：写完整代码骨架（dataloader / DDPM / training loop / ADG sampling / 评估）
     - ✅ **engineer subagent 干**：CPU smoke test + Kaggle/Colab notebook 包装 + 训练监控
@@ -241,8 +241,8 @@
   - **子任务**：
     - [x] a. 代码骨架 → `MyBrain/projects/ece175b-adg/` — done 2026-04-30 (data/model/ddpm/cfg/adg/train/sample/eval_fid/eval_disentangle)
     - [ ] a.2 CPU smoke test：python -c "import torch; from model import AttrConditionedUNet; ..." 无报错
-    - [ ] b. ⚠️ blocked on @javen — GPU 方案选定（**5/4 主对话推 Kaggle Free T4，Colab Pro $10 fallback**）
-    - [ ] b.2 写 Kaggle/Colab ipynb 包装（engineer subagent）
+    - [x] b. GPU 方案选定 — Kaggle Free T4 ✓（Javen 勾 2026-05-05）；等 Javen 完成 GUI 步骤（Kaggle 注册→上传 notebook→Add Data→T4→Run All）
+    - [x] b.2 写 Kaggle/Colab ipynb 包装（engineer subagent）— daemon 2026-05-05 确认 notebooks/train_kaggle.ipynb + train_colab.ipynb 存在
     - [ ] c. 训练 conditional DDPM (midterm scope: 20-30 epoch + 50k subset，~4-6h on T4)
     - [ ] d. ADG sampling 跑 → 出 sweep + 单组合可视化（同 seed 多 w_k）
     - [ ] e. （final 阶段，midterm 不必）量化评估：FID + per-attribute accuracy + 解耦度
@@ -263,7 +263,7 @@
     - Project Update report (Week 8) 提交
     - Final report (Week 10) 提交（7-10 页 ACM Large 2-column）
   - **创建**：2026-04-30
-  - **更新**：2026-04-30
+  - **更新**：2026-05-05（代码骨架+数据已 daemon 确认；pip/API key 状态见 sub-task b）
   - **🤖 AI vs Javen 分工 — 这是"AI 全包"的好 case**：
     - ✅ **主对话能干**：全部代码（纯 numpy/scipy/sklearn + Anthropic API），全部跑实验（CPU-only）
     - ✅ **daemon 凌晨能干**：跑长时间 LOSO 评估（sklearn 可能 1-2 小时）+ 调 Claude API 跑 ~1800 windows 的 λ 生成
@@ -273,8 +273,8 @@
     - 批准下载 IEEE SPC 2015 dataset 到 vault（~50 MB）
     - 提供 ANTHROPIC_API_KEY（你的 Claude Max 订阅可以走 API mode 给 daemon 用，~5min 生成）
   - **子任务**：
-    - [ ] a. 主对话写代码骨架 → `MyBrain/projects/ece284-llm-ppg/`（data.py, troika_lite.py, rf_baseline.py, llm_lambda.py, react_agent.py, evaluate.py, README）
-    - [ ] b. ⚠️ blocked on @javen — 批准 pip install + 数据下载 + API key（approvals.md）
+    - [x] a. 主对话写代码骨架 → `MyBrain/projects/ece284-llm-ppg/`（data.py, troika_lite.py, rf_baseline.py, llm_lambda.py, react_agent.py, evaluate.py, README）— daemon 2026-05-05 确认所有文件存在
+    - [ ] b. ⚠️ blocked on @javen (partial) — 数据下载 ✓（DATABASE/ 全部 .mat 文件存在）+ pip install: 已批准 2026-05-04（请在主对话验证是否已装 scipy/numpy/mat73）+ API key: ⚠️ 仍需 Javen 前往 console.anthropic.com 生成 key 并提供
     - [ ] c. TROIKA-lite 实现（bandpass + FFT + spectral subtraction + peak detect）+ sanity check on static windows
     - [ ] d. Random Forest baseline（4 频域特征 + sklearn）+ LOSO MAE
     - [ ] e. Claude λ-generator（per-window prompt，输出 λ ∈ [0.1, 3.0]，driving fixed pipeline）

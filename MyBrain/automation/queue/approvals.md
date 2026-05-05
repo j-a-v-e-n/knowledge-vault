@@ -13,21 +13,6 @@
 
 ## ⏳ 待审批
 
-### 🔥🔥🔥 2026-05-04 紧急 — ECE175B midterm 5/8 23:59 deadline (剩 4 天)
-
-- [x] **2026-05-04 21:00** | task-017 紧急 | 选 GPU 方案 — **不勾 = midterm §4 "initial results" 写不出来**
-  - **(a) Kaggle Free T4** — 🥇 强推。30hr/week 免费 T4，CelebA 数据集已在 Kaggle 平台直接 `add as input` 不用下载，单 session 9-12h 一次跑完 midterm scope（25 epoch × 50k subset，~4-6h），完全 0 美元。我已 4/5 写好 `notebooks/train_kaggle.ipynb` (10 cells, 532 lines) 等上传
-  - **(b) Colab Pro $10/月** — 🥈 fallback。30 秒注册即用 A100/V100，4 天紧急下买 1 个月用完可弃。我已写好 `notebooks/train_colab.ipynb` (11 cells, 539 lines)
-  - **(c) DSMLP / RunPod / 其他** — ❌ 4 天 deadline 下 setup 太重，不推荐
-  - **建议**：勾 (a) Kaggle；如果 Kaggle 注册卡住（手机验证失败/被墙）马上改勾 (b)
-  - **批准后你做的事 (5-10 min GUI)**：
-    - (a) Kaggle 路径：① kaggle.com 注册 + 手机验证 ② New Notebook → 上传 `train_kaggle.ipynb` ③ Add Data → 搜 `jessicali9530/celeba-dataset` add as input ④ Settings → Accelerator: GPU T4 ⑤ Run All
-    - (b) Colab 路径：① colab.research.google.com 订阅 Pro $10 ② 上传 `train_colab.ipynb` ③ Drive 提前下载 CelebA 到 `MyDrive/celeba/`（或在 notebook 第一 cell 改成自动下载）④ Runtime → Change runtime type: A100 ⑤ Run All
-  - **不批的影响**：训练不能启动 → §4 没数据 → midterm report 不完整 = 6% 课程比例失分
-  - **如果你今晚不批**：明天 5/5 早上 daemon 会再 ping 一次；但每 delay 1 天，训练时间 buffer 越紧
-
----
-
 ### 之前未处理（4/30 派活，部分仍 pending）
 
 - [ ] **2026-04-28 23:30** | GitHub profile setup | fork team repo 让 j-a-v-e-n profile 不空 + 设头像/bio？
@@ -78,6 +63,10 @@
 ---
 
 ## ✅ 已批准（执行完归档；满 7 天清理）
+
+- [x] **2026-05-04 21:00** | task-017 紧急 | GPU 方案选定 → Kaggle Free T4
+  - **done** 2026-05-05 03:00 by daemon
+  - **outcome**: Javen 选 (a) Kaggle Free T4。`notebooks/train_kaggle.ipynb` (10 cells) + `notebooks/train_colab.ipynb` (11 cells) 已在 vault 确认存在。task-017 sub-task b 解阻塞（GPU 决策完成）。等 Javen GUI 步骤：① kaggle.com 注册+手机验证 ② New Notebook → 上传 `train_kaggle.ipynb` ③ Add Data → 搜 `jessicali9530/celeba-dataset` add as input ④ Settings → Accelerator: GPU T4 ⑤ Run All
 
 - [x] **2026-04-28 23:30** | task-006 | 部署 AI Watch v2 daemon skill
   - **done** 2026-04-29 00:15 by 主对话 Claude
