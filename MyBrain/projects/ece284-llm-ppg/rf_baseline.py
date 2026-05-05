@@ -141,6 +141,7 @@ if __name__ == "__main__":
             {
                 "per_subject_mae": res["per_subject_mae"],
                 "overall_mae": res["overall_mae"],
+                "all_predictions": res["all_predictions"],  # (truth, pred, accel_rms) per window
             },
             f,
             indent=2,

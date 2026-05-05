@@ -2,15 +2,16 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-05 [Javen 多 tab 协作开启]
+**最后更新**：2026-05-05 [Tab B 推进 task-018: c/d done + caching + prompt 校准 fix]
 **当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 6 已完成（task-006 子任务全完成，待归档）
 
-> 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定）：
+> 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
-> - **Tab B**（接 ECE284 task-018）→ 只动 `MyBrain/projects/ece284-llm-ppg/`
+> - **Tab B**（接 ECE284 task-018，已开始 — 5/5 改了 troika_lite.py 加 evaluate_subject）→ 只动 `MyBrain/projects/ece284-llm-ppg/`
+> - **Tab C**（一人公司探索 / 学习 + 调研 + 沉淀 wiki，**不真 launch**）→ 只动 `MyBrain/wiki/工程方法/` + `wiki/创业/`(新建) + `MyBrain/research/`
 > - **共享文件**(task-board.md / approvals.md / .claude/agents/) 只追加不互相覆盖
 > - **同步机制**：完成子任务后立刻在对应 task 卡里 [x] + 一句 outcome；遇阻塞写 `⚠️ blocked on @javen` 移阻塞列
-> - **冲突避免**：Tab A 不动 ECE284 文件，Tab B 不动 ECE175B 文件
+> - **冲突避免**：Tab A 不动 ECE284/wiki，Tab B 不动 ECE175B/wiki，Tab C 不动 ECE 项目和 career/
 （**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**🔥 5/5 更新：task-017 GPU=Kaggle 选定，notebooks 就绪，等 Javen GUI 启动训练（还剩 3 天）；task-018 代码骨架+数据已确认存在**）
 
 > 🔥 **2026-05-04 21:15 主对话紧急派活**：Javen "周五 11:59 提交 ECE175B project midterm report"——
@@ -270,23 +271,34 @@
     - Project Update report (Week 8) 提交
     - Final report (Week 10) 提交（7-10 页 ACM Large 2-column）
   - **创建**：2026-04-30
-  - **更新**：2026-05-05（代码骨架+数据已 daemon 确认；pip/API key 状态见 sub-task b）
+  - **更新**：2026-05-05（**Tab B 主对话推进**: c/d 跑通 + caching 接好 + 主动 fix 一个 motion threshold prompt-calibration bug；详见子任务 outcomes）
   - **🤖 AI vs Javen 分工 — 这是"AI 全包"的好 case**：
     - ✅ **主对话能干**：全部代码（纯 numpy/scipy/sklearn + Anthropic API），全部跑实验（CPU-only）
     - ✅ **daemon 凌晨能干**：跑长时间 LOSO 评估（sklearn 可能 1-2 小时）+ 调 Claude API 跑 ~1800 windows 的 λ 生成
     - ❌ **必须 Javen**：① 第一次跑前批准本机装 Python 包 ② 真正点"提交报告"
   - **⚠️ 主要 blocker**（已写到 approvals.md 等打勾）：
-    - 批准在本机 pip install (numpy/scipy/scikit-learn/anthropic/mat73)
-    - 批准下载 IEEE SPC 2015 dataset 到 vault（~50 MB）
-    - 提供 ANTHROPIC_API_KEY（你的 Claude Max 订阅可以走 API mode 给 daemon 用，~5min 生成）
+    - ✅ 批准在本机 pip install (numpy/scipy/scikit-learn/anthropic/mat73) — done 2026-05-04
+    - ✅ 批准下载 IEEE SPC 2015 dataset 到 vault — done 2026-05-04
+    - ⚠️ 提供 ANTHROPIC_API_KEY（仍需 Javen 前往 console.anthropic.com 生成 key 并写到 `~/.config/anthropic-keys/ece284`）
   - **子任务**：
     - [x] a. 主对话写代码骨架 → `MyBrain/projects/ece284-llm-ppg/`（data.py, troika_lite.py, rf_baseline.py, llm_lambda.py, react_agent.py, evaluate.py, README）— daemon 2026-05-05 确认所有文件存在
-    - [ ] b. ⚠️ blocked on @javen (partial) — 数据下载 ✓（DATABASE/ 全部 .mat 文件存在）+ pip install: 已批准 2026-05-04（请在主对话验证是否已装 scipy/numpy/mat73）+ API key: ⚠️ 仍需 Javen 前往 console.anthropic.com 生成 key 并提供
-    - [ ] c. TROIKA-lite 实现（bandpass + FFT + spectral subtraction + peak detect）+ sanity check on static windows
-    - [ ] d. Random Forest baseline（4 频域特征 + sklearn）+ LOSO MAE
-    - [ ] e. Claude λ-generator（per-window prompt，输出 λ ∈ [0.1, 3.0]，driving fixed pipeline）
+    - [x] b.1 数据下载（DATABASE/Training_data 12 subjects）— done 2026-05-04 by Tab A
+    - [x] b.2 pip install scipy/numpy/scikit-learn/anthropic/mat73/tqdm — done 2026-05-04 by Tab A
+    - [ ] b.3 ⚠️ blocked on @javen — ANTHROPIC_API_KEY 仍需生成
+    - [x] c. TROIKA-lite 实现 + 12-subject LOSO sanity check — done 2026-05-05 by Tab B (overall MAE **23.46 BPM**, best subj 4 = 6.87 / worst subj 10 = 65.06; results/troika_loso.json + 加 --loso CLI 模式)
+    - [x] d. Random Forest baseline 12-subject LOSO — done 2026-05-05 by Tab B (overall MAE **10.53 BPM**, best subj 5 = 4.27 / worst subj 2 = 17.57; **比 TROIKA-lite 好 55.1%**; results/rf_loso.json with all_predictions)
+    - [x] e.1 Claude λ-generator 代码 + Anthropic prompt caching — done 2026-05-05 by Tab B
+        - SYSTEM_PROMPT 加厚到 4612 token (≥Haiku 4.5 cache min 4096) + 10 few-shot examples + harmonics FAQ + physiology cheat sheet + anti-patterns
+        - cache_control: ephemeral 5min on system block (单 cache breakpoint)
+        - 4 字段 token tracking (uncached / cache_write / cache_read / out)
+        - LambdaGenerator.cost_usd() / usage_summary() / log_to_cost_tracker()
+        - **owner mindset 主动校准**: 发现原 motion thresholds (1.5/3.0) 在 IEEE SPC 2015 实际分布 (0.85-2.26) 下永远到不了 high regime — 改成 1.3/1.7 让 LLM 真看到三档分布; 同步改 10 个 few-shot examples 的 accel_rms 数值到现实范围 + FAQ Q5 的"4.5"改成"2.1"
+    - [x] e.2 cost_tracker.py 中央 logger — done 2026-05-05 by Tab B (jsonl 写 MyBrain/automation/logs/cost-tracker.jsonl, daemon-friendly entry-point `log_run(source, model, ...)`, summarize() rollup by source/model)
+    - [x] e.3 Mock test 5/5 pass — done 2026-05-05 (test_caching_mock.py: 验证 4 字段累加 + 1.25/0.10/1× 三档定价 + jsonl 字段 + 82% 省钱预测 + Haiku pricing)
+    - [ ] e.4 ⚠️ blocked on @javen API key — λ-generator pilot 30 windows × subject 1 × Sonnet vs Haiku
     - [ ] f. 全 12 subjects LOSO 评估 → MAE 总分 + motion-level 分层 + λ appropriateness 100-window 分析 + token cost
-    - [ ] g. Project Update report (Week 8, 2026-05-20 左右) — 进度 + 1-2 张架构图 / 初步结果图
+    - [x] f.0 baselines_comparison.png/pdf — done 2026-05-05 by Tab B (双 panel: 左=per-subject TROIKA vs RF bar chart, 右=motion regime boxplot RF error: low n=508 median 3 BPM / med n=673 median 5 BPM / high n=587 median 10 BPM — final report §4 直接可用)
+    - [ ] g. Project Update report (Week 8, 2026-05-20 截止) — 进度 + 1-2 张架构图 / 初步结果图
     - [ ] h. (Stretch) Claude ReAct orchestrator + 同 LOSO 评估 → 跟 λ-generator 头对头对比
     - [ ] i. Final report (Week 10, 2026-06-05 左右) — 7-10 页 ACM Large 2-column + GitHub repo
     - [ ] j. ⚠️ blocked on @javen — 期末交报告 + Final Oral defense (Week 11)

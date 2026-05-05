@@ -128,30 +128,89 @@ def oracle_lambda(window: Window, lam_grid: np.ndarray | None = None) -> tuple[f
     return best_lam, best_err
 
 
+def evaluate_subject(ds, subject_id: int, lam: float = 1.0) -> dict:
+    """跑一个 subject 的全部窗口, 返回 stats + per-window predictions."""
+    windows = ds.windows_for_subject(subject_id)
+    truths, preds, accel_rms_list = [], [], []
+    for w in windows:
+        est = estimate_hr(w, lam=lam)
+        accel_rms = float(np.sqrt(np.mean(accel_magnitude(w.accel) ** 2)))
+        truths.append(float(w.hr_truth))
+        preds.append(float(est) if not np.isnan(est) else None)
+        accel_rms_list.append(accel_rms)
+    valid_errs = [
+        abs(p - t) for p, t in zip(preds, truths) if p is not None
+    ]
+    return {
+        "subject": subject_id,
+        "n_windows": len(windows),
+        "n_valid": len(valid_errs),
+        "mae": float(np.mean(valid_errs)) if valid_errs else float("nan"),
+        "median": float(np.median(valid_errs)) if valid_errs else float("nan"),
+        "p90": float(np.percentile(valid_errs, 90)) if valid_errs else float("nan"),
+        "max": float(np.max(valid_errs)) if valid_errs else float("nan"),
+        "predictions": [
+            {"truth": t, "pred": p, "accel_rms": a}
+            for t, p, a in zip(truths, preds, accel_rms_list)
+        ],
+    }
+
+
 if __name__ == "__main__":
     import argparse
+    import json
+    import os
 
     from data import IEEESPC2015Dataset
 
-    p = argparse.ArgumentParser(description="TROIKA-lite sanity check")
+    p = argparse.ArgumentParser(description="TROIKA-lite sanity check / LOSO dump")
     p.add_argument("--data-dir", default="data/")
     p.add_argument("--subject", type=int, default=1)
     p.add_argument("--lam", type=float, default=1.0)
+    p.add_argument("--loso", action="store_true", help="跑全 12 subjects 并 dump JSON")
+    p.add_argument("--out", default="results/troika_loso.json")
     args = p.parse_args()
 
     ds = IEEESPC2015Dataset(args.data_dir)
-    windows = ds.windows_for_subject(args.subject)
 
-    errors = []
-    for w in windows:
-        est = estimate_hr(w, lam=args.lam)
-        if not np.isnan(est):
-            errors.append(abs(est - w.hr_truth))
-    errors = np.array(errors)
-    print(f"Subject {args.subject}: {len(errors)} valid windows")
-    print(f"  MAE: {np.mean(errors):.2f} BPM")
-    print(f"  Median: {np.median(errors):.2f} BPM")
-    print(f"  P90:    {np.percentile(errors, 90):.2f} BPM")
-    print(f"  Max:    {np.max(errors):.2f} BPM")
-    print(f"\n  Reference: TROIKA paper reports 2.34 BPM MAE on this dataset.")
-    print(f"  (Our simplified version omits M-FOCUSS — expect higher MAE.)")
+    if args.loso:
+        per_subject = []
+        for s in range(1, ds.n_subjects + 1):
+            stats = evaluate_subject(ds, s, lam=args.lam)
+            per_subject.append(stats)
+            print(
+                f"  Subject {s:>2}: n={stats['n_valid']:>3} valid / {stats['n_windows']:>3} total | "
+                f"MAE={stats['mae']:>6.2f} | median={stats['median']:>5.2f} | p90={stats['p90']:>6.2f} BPM"
+            )
+
+        per_subject_mae = [s["mae"] for s in per_subject]
+        overall_mae = float(np.mean(per_subject_mae))
+        print(f"\n  Overall LOSO-style MAE (avg over {ds.n_subjects} subjects): {overall_mae:.2f} BPM")
+        print(f"  Best:  subj {1 + int(np.argmin(per_subject_mae))} ({min(per_subject_mae):.2f})")
+        print(f"  Worst: subj {1 + int(np.argmax(per_subject_mae))} ({max(per_subject_mae):.2f})")
+        print(f"  Reference: TROIKA paper reports 2.34 BPM MAE (full M-FOCUSS).")
+
+        os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
+        with open(args.out, "w") as f:
+            json.dump(
+                {
+                    "system": "troika_lite",
+                    "lambda": args.lam,
+                    "n_subjects": ds.n_subjects,
+                    "overall_mae": overall_mae,
+                    "per_subject_mae": per_subject_mae,
+                    "per_subject": per_subject,
+                },
+                f,
+                indent=2,
+            )
+        print(f"\n  Saved → {args.out}")
+    else:
+        stats = evaluate_subject(ds, args.subject, lam=args.lam)
+        print(f"Subject {args.subject}: {stats['n_valid']} valid windows")
+        print(f"  MAE: {stats['mae']:.2f} BPM")
+        print(f"  Median: {stats['median']:.2f} BPM")
+        print(f"  P90:    {stats['p90']:.2f} BPM")
+        print(f"  Max:    {stats['max']:.2f} BPM")
+        print(f"\n  Reference: TROIKA paper reports 2.34 BPM MAE on this dataset.")
+        print(f"  (Our simplified version omits M-FOCUSS — expect higher MAE.)")
