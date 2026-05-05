@@ -2,8 +2,15 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-05 03:00
+**最后更新**：2026-05-05 [Javen 多 tab 协作开启]
 **当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 6 已完成（task-006 子任务全完成，待归档）
+
+> 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定）：
+> - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
+> - **Tab B**（接 ECE284 task-018）→ 只动 `MyBrain/projects/ece284-llm-ppg/`
+> - **共享文件**(task-board.md / approvals.md / .claude/agents/) 只追加不互相覆盖
+> - **同步机制**：完成子任务后立刻在对应 task 卡里 [x] + 一句 outcome；遇阻塞写 `⚠️ blocked on @javen` 移阻塞列
+> - **冲突避免**：Tab A 不动 ECE284 文件，Tab B 不动 ECE175B 文件
 （**真实进度**：task-006/008/011 名义在"待启动"列但子任务都已推进到"等外部验证"。task-012 已闭环移入"✅ 已完成"。Brain Corp 2026 cycle 4/1 已外部下架→归档不投。**🔥 5/5 更新：task-017 GPU=Kaggle 选定，notebooks 就绪，等 Javen GUI 启动训练（还剩 3 天）；task-018 代码骨架+数据已确认存在**）
 
 > 🔥 **2026-05-04 21:15 主对话紧急派活**：Javen "周五 11:59 提交 ECE175B project midterm report"——
