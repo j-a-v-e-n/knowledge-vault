@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-05 [Tab B 推进 task-018: c/d done + caching + prompt 校准 fix]
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 10 待启动 / 6 已完成（task-006 子任务全完成，待归档）
+**最后更新**：2026-05-06 [daemon dawn-shift: task-006 归档至已完成; ai-watch 写完; email-triage MCP 不可用]
+**当前状态**：1 进行中（task-003）/ 0 阻塞 / 9 待启动 / 7 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -89,27 +89,6 @@
     - [ ] c. 在 settings.json 挂 UserPromptSubmit hook
     - [ ] d. 端到端测试
 
-- [ ] **task-006** | 部署 AI Watch v2（每日 AI 趋势监测 daemon skill） | #P1 | owner: @claude（**主对话**，非 daemon）
-  - **目标**：daemon 每天扫 25+ 个权威 AI 来源，按 Javen 简历画像（ECE ML/Controls + ROS2/YOLOv8 + 数字健康 + edge AI 潜力）写"行业雷达 + 项目教练 + 简历放大器"风格的早安简报到 `MyBrain/automation/reports/ai-watch/<日期>.md`；每条信息回答"是什么 / 为什么是你 / 能做什么小项目（含简历价值）/ 难度+耗时"
-  - **Definition of Done**：
-    - ai-watch skill 部署到 `.claude/skills/ai-watch/SKILL.md`（含 25+ 来源白名单 + Javen 画像 + 报告模板）
-    - daemon `rules.md` 更新：解禁 ai-watch 白名单的 WebFetch
-    - daemon `prompt.md` 更新：双任务优先级（先 ai-watch、剩余推看板）
-    - 建好 `MyBrain/automation/reports/ai-watch/` 目录
-    - 端到端测试：手动跑 wrapper.sh 一次产出第一份针对 Javen 的报告（≥3 条 importance-3 含项目灵感+简历价值）
-    - 看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress
-  - **创建**：2026-04-27
-  - **更新**：2026-04-29（主对话 a/b/c 全部完成 — skill 写完 + daemon wrapper 加 WebSearch 白名单 + rules 改 rule 15 限定 ai-watch 上下文允许 WebSearch + prompt 加 Step 0.5(a)）
-  - **⚠️ 重要**：daemon **不能自己做这个任务**（rules 第 4-5 条禁止改 `.claude/` 和 `~/.claude-daemon/`）。Javen 想推进时在主对话喊一声"推进 task-006"，**主对话 Claude** 来做。子任务 a/b/c 都涉及修改 daemon 自己的配置。
-  - **🎯 设计原则（Javen 2026-04-27 提醒）**：报告格调**避免过度功利化**。简历相关性应该是**隐含副产物**（"哦这个我能玩玩"）而非显性目标（"这个能让简历加分 +X"）。带太强目的性会变成信息焦虑制造机，反而效果差。报告应该 **70% 启发好奇心 + 30% 落地建议**——先让 Javen 觉得"这事好玩 / 有意思"，再说"顺便能做个小项目"。importance 排序应该看"对 Javen 兴趣 + 当下重要性"而不是"对简历有多大用"。
-  - **子任务**：
-    - [x] a. 写 `.claude/skills/ai-watch/SKILL.md`（70%/30% 设计 + Tier 1/2/3 信息源轮换 + 600 字早报模板）— done 2026-04-29 by 主对话
-    - [x] b. 改 `~/.claude-daemon/wrapper.sh` 工具白名单加 WebSearch + `rules.md` 第 15 条改"WebSearch 限定 ai-watch skill 内使用" — done 2026-04-29
-    - [x] c. 改 `~/.claude-daemon/prompt.md` 加 Step 0.5(a)：每天第一次跑时如今天报告不存在则生成 — done 2026-04-29
-    - [x] d. 建 `MyBrain/automation/reports/ai-watch/` 目录 — done 2026-04-28 (daemon 03:00)
-    - [x] e. 端到端验证：daemon 已持续产出 ai-watch 报告（04-29, 04-30, 05-01）→ Javen 可审阅质量 — done 2026-05-01
-    - [x] f. （后续）看板加 task-007「Recurring: 每日 AI Watch 运行」永久 in-progress — daemon Step 0.5 永久跑已足够，不需要单独任务 — done 2026-05-03
-    - [x] g. （可选）如果第一份报告 Javen 不满意，迭代调整 skill 中的 Javen 画像 / 报告模板 — 连续 5 天（04-29 至 05-03）产出无不满意 feedback，跳过 — done 2026-05-03
 
 - [ ] **task-008** | Google Drive 5GB 容量危机 — 长期存储方案 | #P2 | owner: @claude（**主对话**，需 Javen 决策）
   - **目标**：Javen vault 在 Google Drive 同步盘上，免费配额 15GB 但 Photos+Gmail 共享。担心未来满。调研 GitHub / Obsidian Sync / 自托管 / 升级付费等替代方案，给出推荐路径
@@ -360,6 +339,10 @@
 ---
 
 ## ✅ 已完成
+
+- [x] **task-006** | 部署 AI Watch v2（每日 AI 趋势监测 daemon skill） | #P1 | owner: @claude | done 2026-05-06
+  - **完成**：全部 7 个子任务 [x]。skill 部署到 `.claude/skills/ai-watch/SKILL.md`；daemon 持续产出每日报告（04-29 至今）；系统稳定运行无 Javen 不满意反馈。
+  - **归档**：由 daemon 2026-05-06 dawn-shift 执行归档
 
 - [x] **task-015** | Daemon 03:00 incident 后续：监测 + 长期 robustness | #P1 | owner: @claude | done 2026-05-02
   - **目标**：验证 4/29 修复（stream timeout / hook quote bug / fresh session）稳定性
