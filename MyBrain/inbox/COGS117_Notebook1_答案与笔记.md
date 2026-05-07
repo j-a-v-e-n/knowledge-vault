@@ -109,7 +109,7 @@ mapping — this hedge is what lets it generalize and handle ambiguity.
 ```markdown
 The `temperature` parameter (currently 0.01) controls how "noisy" or random the 
 choice is. **Lower temperature → more consistent / deterministic** (closer to 
-argmax of the probability distribution). Setting `temperature=0.0` or 
+argmax of the probability distribution). Setting `temperature=0.0` or  na
 `do_sample=False` would give pure greedy decoding (always pick the most likely 
 token), making the continuation fully reproducible. The `top_p=0.95` parameter 
 also limits sampling to the top tokens covering 95% probability mass — 
