@@ -363,6 +363,46 @@ Javen 2026-05-02 主对话明确指令：
 
 ---
 
+### 持久记忆协议（Memory Commit Protocol）— **强制执行**
+
+**根因**：Claude Code session 之间不共享对话历史。**vault 文件是唯一跨 session 记忆**。Javen 在某 session 讲过的事实，如果当时的 Claude 没主动写进 vault，下个 session 的 Claude **就完全不知道**。
+
+**规则**：Javen 任何时候在对话里说"X 现在变成 Y"——**不要等他让你记**，**当 turn 内**写进 vault，再回复他。**默认他以为你已经在记**。
+
+**触发清单**（不限于以下，原则是"任何事实变化"）：
+
+- **求职/投递**："投出了 X / X 关窗口了 / 收到 OA / 拒信 / 面试邀请 / offer / 改岗" → 立刻 Edit `MyBrain/career/applications.md` 对应行
+- **课程/学业**："X 课 deadline 改了 / 新作业 / 教授换了 policy / 拿到 grade" → 对应 `MyBrain/notes/ucsd/<quarter>/<course>/` 课程页或建一篇
+- **偏好/长期决定**："以后都用 X / 我不喜欢 Y / 改用 Z 工具 / 我倾向 ___" → `MyBrain/CLAUDE.md` 或对应领域 wiki
+- **联系人/资源**："认识了 X 教授 / X 工具有学生免费版 / X 服务能用" → 对应领域 wiki
+- **财务/生活事实**："信用卡换了 / 房租涨了 / 搬家 / 车" → `MyBrain/life/` 或对应位置
+- **任何"事实 X 现在变成 Y"** → 写到对应文件
+
+**执行流程**（每个 turn 强制自检）：
+
+1. 听到触发词 → 判断该写哪个 vault 文件
+2. **知道写哪儿** → 立刻 Edit/Write 那个文件（带日期、简短说明）
+3. **不知道写哪儿** → append 到 `inbox/auto-memory.md`，下次 ingest/session 处理：
+
+   ```markdown
+   ## YYYY-MM-DD HH:MM
+   [Javen 说的事实]
+   建议落点：[最佳猜测的目标文件路径]
+   ```
+
+4. 落盘后再回复 Javen。**不要先答完了才说"我去落盘"——常常会忘**
+
+**反 pattern（Javen 2026-05-08 的痛点出处）：**
+
+- ❌ 在主对话里点头说"知道了 / 记下了"，没动任何 vault 文件——**这等于把记忆扔了**
+- ❌ 等 Javen 显式说"记一下" 才记——**他默认你已经在记**
+- ❌ 把"事实变化"当作普通对话信息处理——任何"X 变 Y"的陈述都是 commit 信号
+- ❌ 依赖 Claude Code 原生 Auto Memory（`~/.claude/projects/*/memory/`）自动捕获——它依赖 Claude 自觉判断"值不值得记"，**不可靠**。vault 文件才是 single source of truth
+
+**指令出处：** 2026-05-08 Javen "我和你在另一个窗口老早就说的事，你这个窗口还不知道"——上次 Claude 听到 QGOV 关窗口没落盘 applications.md，下次 session 不知道。这条规则就是为了让"信息丢在 session 之间"永久不再发生。
+
+---
+
 ### 主动优化建议
 
 用户自称"不是特别会用 AI"，希望我主动指出更优方案，而不是只被动执行。
