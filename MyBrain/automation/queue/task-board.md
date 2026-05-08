@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-06 [daemon dawn-shift: task-006 归档至已完成; ai-watch 写完; email-triage MCP 不可用]
-**当前状态**：1 进行中（task-003）/ 0 阻塞 / 9 待启动 / 7 已完成
+**最后更新**：2026-05-08 [主对话: 新接 task-020 抖音收藏字幕 pipeline #P0]
+**当前状态**：2 进行中（task-003 + task-020）/ 0 阻塞 / 9 待启动 / 7 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -234,7 +234,7 @@
     - [ ] d. ADG sampling 跑 → 出 sweep + 单组合可视化（同 seed 多 w_k）
     - [ ] e. （final 阶段，midterm 不必）量化评估：FID + per-attribute accuracy + 解耦度
     - [ ] f. （final 阶段，midterm 不必）失败模式分析
-    - [ ] g. **Midterm report (5/8 23:59 提交)** — NeurIPS 模板，design + math + initial results，3-4 页
+    - [x] g. **Midterm report (5/8 23:59 提交)** — done 2026-05-08（v3 PDF 出 5 页 NeurIPS 风格；reviewer subagent 审过 + fix 3 处事实错误：dropout 描述跟代码对齐 / 删 2 个未引 bib 含 arxiv 占位符 / 删除虚构的"50 epochs in proposal"；最终 PDF 通过主对话 sanity check 后 Javen 上传 Canvas）
     - [ ] h. Final report (Week 10-11, 2026-06-12 左右) — 7-10 页 NeurIPS 风格 + GitHub repo
     - [ ] i. ⚠️ blocked on @javen — 期末交报告 + 提交 GitHub repo 链接
   - **关联**：[[ECE175B_概览]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]], `notes/ucsd/Spring 2026/ECE175B/HW1/` (NeurIPS LaTeX 模板复用源)
@@ -315,6 +315,39 @@
 ---
 
 ## 🚧 进行中
+
+- [ ] **task-020** | 抖音收藏视频 → 字幕 → vault 自动化 pipeline | #P0 | owner: 混合（@claude 写代码 / @javen 配 iOS Shortcut + 分享操作）
+  - **目标**：搭一套**永久零维护**的系统——Javen 在 iPhone 抖音 app 看到喜欢的视频 → 点"分享" → iOS Shortcut 落到 iCloud Drive → Mac launchd 监听 → yt-dlp 下载 + Whisper Large v3 本地转中文字幕 → 写到 `MyBrain/raw/douyin-favorites/` → Javen 用 Claudian 跟字幕讨论 + 沉淀进 wiki
+  - **触发**：Javen 2026-05-08 提出"经常在抖音收藏视频，需要字幕提取 + 讨论 + 沉淀"，强调**"只许成功不许失败"**
+  - **核心设计决策**：**reframe workflow** —— 不爬抖音（researcher 调研：所有爬虫工具 6-12 月失效，反爬虫军备竞赛打不赢）。改用「iOS Shortcut + 全本地处理」消除所有外部 API 依赖：抖音分享按钮（永远在）+ Apple Shortcut（永远在）+ iCloud Drive（SLA 保障）+ yt-dlp + Whisper 本地（断网都能跑）。**整条链路无任何外部依赖可被抖音单方面"封杀"**。
+  - **Javen 答的关键信息**（2026-05-08）：① 抖音（非 TikTok）② app 和网页同步 ③ 几十条 + 持续 ④ iPhone
+  - **Definition of Done**：
+    - Phase 2 永久 pipeline 代码就位（`MyBrain/projects/douyin-favorites-pipeline/`） + launchd 跑通
+    - iOS Shortcut 配好 + test.txt 端到端验证
+    - Phase 1 存量：Javen 把现有几十条收藏在 iPhone 上手动分享一遍
+    - vault `raw/douyin-favorites/` 里有 ≥ 30 条字幕笔记
+    - Javen 至少跟其中 1 条讨论 → 沉淀到 wiki/
+  - **创建**：2026-05-08
+  - **更新**：2026-05-08（主对话 spawn engineer subagent 写 Phase 2 代码进行中；同时主对话写 iOS Shortcut 教程；Javen 临时离开后我自主推进）
+  - **🤖 AI vs Javen 分工**：
+    - ✅ **@claude（主对话 + engineer subagent）**：写 monitor.py / process.py / transcribe.py / generate_md.py / launchd plist / setup.sh / requirements.txt / README + iOS Shortcut step-by-step 教程
+    - ❌ **@javen 必须**：① 在 iPhone 配 Shortcut（10 min 跟教程做）② 跑 setup.sh（30s）③ 手动分享几十条存量收藏 ④ 后续每次看到喜欢的视频点分享（取代点抖音❤️收藏）
+  - **风险预演 + fallback**：
+    - **iOS Shortcut 抓不到 douyin URL** — fallback：Shortcut 把整段分享文本（含 URL）存下来，Mac 端 regex 提
+    - **抖音视频 yt-dlp 部分下不下来**（地区限制 / 私密视频）— fallback：失败的进 `errored/`，Javen 手动补
+    - **Whisper 中文准确度对快语速/方言/流行语降 10-20%** — 接受，后续可挂 Claude API 改写 transcript
+    - **iCloud 同步延迟** — launchd KeepAlive，最坏几分钟内拉到
+  - **成本**：$0/月（全本地 + 已有 iCloud）
+  - **关联**：`MyBrain/projects/douyin-favorites-pipeline/`
+  - **子任务**：
+    - [x] a. **engineer subagent** 写 Phase 2 pipeline 代码 — done 2026-05-08（8 文件 709 行：monitor.py / process.py / transcribe.py / generate_md.py / plist / setup.sh / requirements.txt / README）
+    - [x] a.2 **reviewer subagent** audit + 主对话 fix — done 2026-05-08（reviewer 找出 4 critical + 6 major；主对话又自查发现 1 个 reviewer 漏的（plist 用 `/usr/bin/python3` vs pip3 装到 Homebrew Python 不一致）；**11 个 bug 全 fix**：YAML title 注入 / video_id 提取 / iCloud partial-write race / setup cwd 验证 / URL_PATTERNS 加 `[\w-]+/?` + iesdouyin + share/video / cache 冲突 → URL hash / multi-format glob (mp4/mov/webm) / cache cleanup / rename → replace 原子 / except 块 dedup / setup.sh 动态 sed plist Python 路径；4 个 .py + setup.sh 全部 syntax 验证通过）
+    - [x] b. **主对话**写 `iOS-Shortcut-setup.md` step-by-step 教程 — done 2026-05-08（8 步配置 + 测试 + 故障排查 + Phase 1 存量批量分享指南；README.md 已加 reference）
+    - [ ] c. ⚠️ blocked on @javen — 跑 `setup.sh` 安装 launchd 守护进程
+    - [ ] d. ⚠️ blocked on @javen — iPhone 跟教程配 Shortcut（~10 min）
+    - [ ] e. ⚠️ blocked on @javen — 端到端测试：往 DouyinInbox 丢 test.txt 验证 pipeline 跑通
+    - [ ] f. ⚠️ blocked on @javen — Phase 1 存量抢救：iPhone 抖音收藏夹手动分享一遍（量小约 5-10 min）
+    - [ ] g. 第一次 ingest：Claudian 跟 Javen 讨论生成的字幕，沉淀到 wiki/ 相关领域
 
 - [ ] **task-003** | PHIL28 课程材料编译 | #P1 | owner: @claude
   - **目标**：把 `raw/PHIL28/` 下 8 个材料（6 讲座 pptx + syllabus + midterm questions）编入 wiki 体系

@@ -1,0 +1,4 @@
+watchdog>=3.0.0
+yt-dlp>=2023.12.0
+mlx-whisper>=0.1.0; sys_platform == 'darwin' and platform_machine == 'arm64'
+faster-whisper>=0.10.0
