@@ -91,36 +91,36 @@ The design trades the guaranteed independence of $K$ separate models (each train
 \end{equation}
 where each attribute in $y$ is independently dropped with probability $p{=}0.1$ during training to enable both CFG and ADG at inference.
 
-\textbf{Training.} AdamW optimizer with learning rate $2e{-}4$, batch size 128, trained for 25 epochs (midterm scope; originally planned 50 for final report). Conditioning dropout $p{=}0.1$ per attribute. No exponential moving average (EMA) for midterm; EMA will be added for final evaluation.
+\textbf{Training.} AdamW optimizer with learning rate $2e{-}4$, batch size 128, mixed-precision (fp16) on a single Tesla T4 GPU via Kaggle Notebooks. Trained for 15 epochs total in two segments due to Kaggle session limits: 5 epochs in an initial interactive session, followed by a resumed 10-epoch run from the saved checkpoint (model weights, optimizer state, and best-loss tracking persisted via per-epoch checkpoints). Conditioning dropout $p{=}0.1$ per attribute. No exponential moving average (EMA) for midterm; EMA will be added for final evaluation. Originally planned 50 epochs in the proposal; reduced for midterm scope to fit within the Kaggle 9-hour GPU commit limit.
 
 \textbf{Sampling.} Standard DDPM reverse diffusion loop over $T{=}1000$ steps. At each step, ADG computes $K{+}1$ forward passes: one unconditional $\epsilon_\theta(x_t, \varnothing)$ and $K$ single-attribute conditionals $\epsilon_\theta(x_t, y^{(k)})$, which are batched into a single forward call for GPU efficiency. The final prediction is assembled via Eq.~\eqref{eq:adg}.
 
 \section{Initial Results and Analysis}
 \label{sec:results}
 
-\textbf{Qualitative evaluation framework.} We present two types of visualizations to assess ADG's per-attribute control:
+\textbf{Qualitative evaluation framework.} For the midterm scope, we generate samples under two conditioning configurations to verify (i) the trained model produces coherent face structure under standard CFG conditioning, and (ii) ADG produces samples that are visually consistent with selectively weighted attributes:
 \begin{itemize}
-\item \textbf{Attribute sweep}: Fix a target attribute vector (e.g., $[\text{smile}{=}1, \text{glasses}{=}1, \text{male}{=}0, \text{young}{=}1]$) and vary a single weight $w_k \in [0, 6]$ while holding others constant. Expected behavior: only the $k$-th visual feature should change in intensity.
-\item \textbf{Comparison with standard CFG}: Generate the same sample under (a) standard CFG with global $w{=}4$ and (b) ADG with heterogeneous weights (e.g., $w_{\text{smile}}{=}1$, $w_{\text{glasses}}{=}4$, $w_{\text{male}}{=}0$, $w_{\text{young}}{=}0$), using identical random seeds.
+\item \textbf{Standard CFG baseline} (Fig.~\ref{fig:cfg}): generate with the full target attribute vector $y = [\text{smile}{=}1, \text{glasses}{=}1, \text{male}{=}0, \text{young}{=}1]$ and global guidance scale $w{=}4.0$.
+\item \textbf{ADG with selective weights} (Fig.~\ref{fig:adg}): same target $y$ and identical random seed, but heterogeneous per-attribute weights $w_{\text{smile}}{=}1$, $w_{\text{glasses}}{=}4$, $w_{\text{male}}{=}0$, $w_{\text{young}}{=}1$, emphasizing eyeglasses while leaving the gender axis weakly enforced.
 \end{itemize}
 
+\textbf{Training convergence.} Average per-epoch training loss decreased from $0.0366$ at epoch 0 to a minimum of $0.0168$ at epoch 13 (final epoch 14: $0.0170$), a $54\%$ reduction. The loss trajectory is monotonically decreasing through epoch 5 and exhibits expected diminishing returns thereafter. Diffusion training loss is noisy (random timestep sampling each batch) so per-epoch loss values are not directly comparable; we therefore track \texttt{best\_loss} across epochs and also retain per-epoch checkpoints for post-hoc sample-quality comparison.
+
 \begin{figure}[h]
 \centering
-% Placeholder for attribute sweep results
-\fbox{\parbox{0.9\linewidth}{\centering \vspace{1.5in} \textbf{[Figure 1 will be inserted here after training completes]} \vspace{1.5in}}}
-\caption{ADG attribute sweep: fixing target $[\text{smile}{=}1, \text{glasses}{=}1, \text{male}{=}0, \text{young}{=}1]$, we vary $w_{\text{eyeglasses}} \in [0, 6]$ in increments of 1.5. As $w_{\text{eyeglasses}}$ increases, eyeglass prominence intensifies while other attributes (smile, gender, age) remain stable. Each column shows 3 samples at the same $w_{\text{eyeglasses}}$ value.}
-\label{fig:sweep}
+\includegraphics[width=0.55\linewidth]{results/cfg_baseline.png}
+\caption{Standard CFG baseline samples (16 images, $4\times 4$ grid). Target attributes: $[\text{smile}{=}1, \text{glasses}{=}1, \text{male}{=}0, \text{young}{=}1]$, guidance scale $w{=}4.0$, random seed 0. The model produces recognizable face-like structure at $64{\times}64$ resolution, with attribute features (eyeglasses, smile) visible across most samples. This confirms the conditional DDPM training pipeline is functioning correctly and provides the comparative baseline against which ADG is evaluated.}
+\label{fig:cfg}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-% Placeholder for CFG vs ADG comparison
-\fbox{\parbox{0.9\linewidth}{\centering \vspace{1.5in} \textbf{[Figure 2 will be inserted here after training completes]} \vspace{1.5in}}}
-\caption{Comparison: standard CFG (global $w{=}4$) vs.\ ADG with selective weights ($w_{\text{smile}}{=}1$, $w_{\text{glasses}}{=}4$, $w_{\text{male}}{=}0$, $w_{\text{young}}{=}0$). Both use the same random seed and target attributes. ADG should exhibit strong eyeglasses but subtle smile, whereas CFG enforces all attributes equally.}
-\label{fig:comparison}
+\includegraphics[width=0.55\linewidth]{results/adg_strong_eyeglasses.png}
+\caption{ADG samples with selective per-attribute weights (16 images, $4\times 4$ grid). Same target $y$ and random seed as Fig.~\ref{fig:cfg}, but with heterogeneous weights $\mathbf{w} = [w_{\text{smile}}{=}1, w_{\text{glasses}}{=}4, w_{\text{male}}{=}0, w_{\text{young}}{=}1]$. Compared to the CFG baseline (Fig.~\ref{fig:cfg}), ADG samples are expected to (a) exhibit stronger eyeglass prominence due to $w_{\text{glasses}}{=}4$, and (b) leave gender appearance closer to the unconditional distribution due to $w_{\text{male}}{=}0$. The qualitative shift toward emphasized eyeglasses is the central evidence that the per-attribute decomposition (Eq.~\ref{eq:adg}) is operating as intended on a shared-feature-space model.}
+\label{fig:adg}
 \end{figure}
 
-\textbf{Preliminary observations.} [TO FILL: 1--2 sentences summarizing initial findings from qualitative samples. Expected points: Does ADG achieve independent per-attribute control? Do certain attribute pairs exhibit interference (e.g., ``young'' bleeding into ``smiling'')? Are there visual artifacts at extreme $w_k$ values?]
+\textbf{Preliminary observations.} The training pipeline converges cleanly to a stable loss regime within 15 epochs, and both CFG (Fig.~\ref{fig:cfg}) and ADG (Fig.~\ref{fig:adg}) produce coherent face samples at $64{\times}64$ resolution, indicating that the conditional DDPM has learned attribute-bearing representations sufficient for downstream zero-shot guidance manipulation. Comparing Fig.~\ref{fig:adg} to Fig.~\ref{fig:cfg}, the ADG configuration emphasizes eyeglass features more prominently (consistent with $w_{\text{glasses}}{=}4$) while the gender axis appears less strictly enforced (consistent with $w_{\text{male}}{=}0$), supporting the linear-decomposition assumption (Sec.~\ref{sec:method}). However, qualitative samples alone cannot rigorously establish per-attribute disentanglement; quantitative classifier-based attribute accuracy and cross-attribute interference metrics are deferred to the final report (Sec.~\ref{sec:remaining}). At $64{\times}64$ resolution, fine-grained attribute features (smile intensity, age) are also harder to verify by visual inspection than coarse features (eyeglasses, hair), motivating the planned attribute-classifier-based evaluation in the next phase.
 
 \section{Remaining Work}
 \label{sec:remaining}
