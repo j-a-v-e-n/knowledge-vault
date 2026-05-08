@@ -89,9 +89,9 @@ The design trades the guaranteed independence of $K$ separate models (each train
 \begin{equation}
 \mathcal{L} = \mathbb{E}_{x_0, \epsilon, t, y}\!\left[\,\bigl\|\,\epsilon - \epsilon_\theta(x_t, t, y)\,\bigr\|_2^2\,\right],
 \end{equation}
-where each attribute in $y$ is independently dropped with probability $p{=}0.1$ during training to enable both CFG and ADG at inference.
+where during training the entire conditioning vector $y$ is replaced with the null token $\varnothing$ with probability $p{=}0.1$ (standard CFG training), enabling both CFG and ADG at inference.
 
-\textbf{Training.} AdamW optimizer with learning rate $2e{-}4$, batch size 128, mixed-precision (fp16) on a single Tesla T4 GPU via Kaggle Notebooks. Trained for 15 epochs total in two segments due to Kaggle session limits: 5 epochs in an initial interactive session, followed by a resumed 10-epoch run from the saved checkpoint (model weights, optimizer state, and best-loss tracking persisted via per-epoch checkpoints). Conditioning dropout $p{=}0.1$ per attribute. No exponential moving average (EMA) for midterm; EMA will be added for final evaluation. Originally planned 50 epochs in the proposal; reduced for midterm scope to fit within the Kaggle 9-hour GPU commit limit.
+\textbf{Training.} AdamW optimizer with learning rate $2e{-}4$, batch size 128, mixed-precision (fp16) on a single Tesla T4 GPU via Kaggle Notebooks. Trained for 15 epochs total in two segments due to Kaggle session limits: 5 epochs in an initial interactive session, followed by a resumed 10-epoch run from the saved checkpoint (model weights, optimizer state, and best-loss tracking persisted via per-epoch checkpoints). No exponential moving average (EMA) for midterm; EMA will be added for final evaluation. Training was constrained by the Kaggle 9-hour GPU commit limit; additional epochs are planned for the final report.
 
 \textbf{Sampling.} Standard DDPM reverse diffusion loop over $T{=}1000$ steps. At each step, ADG computes $K{+}1$ forward passes: one unconditional $\epsilon_\theta(x_t, \varnothing)$ and $K$ single-attribute conditionals $\epsilon_\theta(x_t, y^{(k)})$, which are batched into a single forward call for GPU efficiency. The final prediction is assembled via Eq.~\eqref{eq:adg}.
 
