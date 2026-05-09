@@ -17,7 +17,10 @@ from process import process_one
 HOME = Path.home()
 INBOX_DIR = HOME / "Library/Mobile Documents/com~apple~CloudDocs/DouyinInbox"
 VAULT_PATH = Path("/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库")
-CACHE_BASE = INBOX_DIR / "cache"
+# Cache (downloaded mp4s during processing) lives OUTSIDE iCloud — large videos
+# would otherwise eat Javen's iCloud quota even though they get cleaned up after
+# transcription. Local-only path, ~/.cache/douyin-favorites/.
+CACHE_BASE = HOME / ".cache" / "douyin-favorites"
 LOG_DIR = INBOX_DIR / "logs"
 PROCESSED_DIR = INBOX_DIR / "processed"
 ERRORED_DIR = INBOX_DIR / "errored"
