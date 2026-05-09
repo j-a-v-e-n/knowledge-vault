@@ -4,9 +4,9 @@
 
 ---
 
-## 🌅 早安报告（2026-05-09）— **请先看这一段**
+## 🌅 早安报告（2026-05-09 03:30 更新）— **请先看这一段**
 
-**一句话**：Mac 端 daemon 跑起来了，整条 pipeline 经测试 work，**等你醒来分享一条真抖音视频**（不是 hashtag 页面）就能看到第一篇 .md 出现在 vault 里。
+**一句话**：Pipeline 跑通了，**第一篇 .md 已经在 vault**（`raw/douyin-favorites/2026-05-09_在全国首家LV餐厅...PENDING.md`）。**但有个外部 blocker 我没法独自解决** —— yt-dlp 主线**对抖音 broken**（2025-2026 douyin anti-bot 升级 yt-dlp 还没适配，`--cookies-from-browser` 也不 work，详见 [yt-dlp issue #12669](https://github.com/yt-dlp/yt-dlp/issues/12669)），所以**视频本身下不下来→Whisper 转不了字幕**。我把 pipeline pivot 成"URL 索引版"——视频下载失败时仍然把 URL + 原始分享文本 + 标题写到 vault .md（标 `status: download_pending`），未来 yt-dlp 修复或换库后批量 retry。
 
 ### 我帮你做了什么（Javen 睡觉时）
 
@@ -15,39 +15,53 @@
    - 装了 `brew install expat`（升级 macOS expat 到 2.8.0）
    - 改了 `plist` 加 `DYLD_LIBRARY_PATH=/opt/homebrew/opt/expat/lib`
    - 改了 `process.py` 在 subprocess.run 时显式传 env（双保险，避免 launchd SIP 剥离 DYLD vars）
-3. ✅ **测试整条链路**：
-   - daemon 检测 .txt ✅
-   - URL 提取 ✅（regex 工作）
-   - yt-dlp 启动 ✅（DYLD fix 后不再报 expat 错）
-   - yt-dlp 拒绝你那条 URL（`https://v.douyin.com/iRrxBLUe/`）—— 因为它**重定向到 douyin hashtag 页面**，不是视频页，yt-dlp 报 "Unsupported URL"。**这不是 bug，是你那条 URL 本身就不是单条视频**
-4. ✅ 清理了 errored/ 里 3 个测试文件（不污染你早上看到的状态）
-5. ✅ daemon 持续运行中（PID 58618），KeepAlive: true，Mac 重启后会自动起来
+3. ✅ **测试整条链路**：daemon 检测 → URL 提取 → yt-dlp 调用都通了
+4. ⚠️ **发现 yt-dlp 主线对抖音 broken** —— researcher 调研 + 我自己 verify 多种 cookies 方案（chrome/safari/cookies-from-browser）全部 fail。错误是 `[Douyin] xxx: Failed to parse JSON: line 1 column 1` + `Fresh cookies needed`，底层是抖音 2024-2026 anti-bot 升级 yt-dlp Douyin extractor 没适配。GitHub issue #12669 多个用户同样报告。
+5. ✅ **Pivot 到 "URL 索引版" pipeline**（架构改进）：
+   - 改 `process.py`：yt-dlp 失败时不再阻塞 → fallback 到 `generate_markdown_partial`
+   - 改 `generate_md.py`：加 partial 函数生成最小 .md（含原始分享文本 + URL + PENDING 标记）
+   - 改 `monitor.py`：`status: partial` 也算成功，.txt 进 processed/
+   - **效果**：vault 永远有索引（标题+URL+原文），即使下不动视频也不丢东西。未来 retry 扫 frontmatter `status: download_pending` 的 .md 重跑
+6. ✅ **端到端测试通过**：用你给的真分享文本（LV 餐厅那条）跑出第一篇 .md：`raw/douyin-favorites/2026-05-09_在全国首家LV餐厅吃顿饭是什么体验，属实见世面了_bf98d55d_PENDING.md`
+7. ✅ daemon 持续运行（PID 75259），KeepAlive: true，Mac 重启自动起来
 
-### 你醒来要做的（5 分钟）
+### 你醒来要做的决策（看完后告诉我选哪条路）
 
-**Step 1 · 验证 Javen 之前 iPhone 分享的 .txt 是否到 Mac**
+**当前状态评估**：
+- ✅ 整条 pipeline 跑通（daemon + iCloud 中转 + URL 索引版 .md 已 verified）
+- ✅ 你以后分享抖音视频，**5 秒后** vault 里出现一篇 .md（标题 + URL + 原文）✓
+- ❌ **但暂时拿不到视频字幕**——yt-dlp 这块 broken，Whisper 跑不起来
+
+**3 条出路**（按推荐度排序）：
+
+| 路径 | 工作量 | 时机 | 备注 |
+|---|---|---|---|
+| **A. 接受 URL 索引版 + 等 yt-dlp 修复** | 0 | 当前可用 | 最 owner 选择。vault 至少有索引，能搜能开浏览器看视频。yt-dlp 历史上 douyin extractor 修过几次，3-6 个月内大概率修复。我可以加个**每周一次自动 retry** 把 PENDING .md 重跑一遍 |
+| **B. 调研 + 接入第三方 douyin 下载库** | 2-4h 工程 | 看你优先级 | researcher 提到 `douyin-tiktok-scraper-api` 等 Python 库专门处理 douyin。可能更稳定但也是 cat-and-mouse。需要新一轮调研 + 集成 + 测试 |
+| **C. 用浏览器自动化（Playwright headless Chrome）** | 4-8h 工程 | 大投入 | 启动 headless Chrome 加载视频页 → DOM 抓 video src → 下载。最稳定但工程量大，还要装 Chromium |
+
+**我的推荐**：先走 A（不动），同时开 **task-021 调研 douyin 下载库稳定方案**（B 路径）。**等你回话告诉我**：
+1. 是否接受 URL 索引版作为正式上线（task-020 e/f/g 子任务能继续推进）？
+2. 是否要我现在加自动 retry 机制？
+3. 是否要 spawn task-021 调研第三方下载库？
+
+### 你醒来还要做的（一旦 OK 上线）
+
+**Step 1 · 看一下 vault 里那篇 .md**
+
+打开 [[MyBrain/raw/douyin-favorites/2026-05-09_在全国首家LV餐厅吃顿饭是什么体验，属实见世面了_bf98d55d_PENDING.md|这篇 .md]] 看格式 OK 不（标题/URL/frontmatter）。
+
+**Step 2 · 验证你之前 iPhone 分享的 .txt 是否到 Mac**
 
 ```bash
 ls "$HOME/Library/Mobile Documents/com~apple~CloudDocs/DouyinInbox/"
 ```
 
-预期：要么有真 .txt 文件（iCloud 终于同步过来了），要么还是空的（iPhone 上 .txt 没真上传）
+预期：daemon 自动处理 → vault 多一篇 .md（如果 iCloud 终于同步过来）。
 
-**Step 2 · 在 iPhone 上分享一条真抖音视频**
+**Step 3 · 跑 Phase 1 存量批量分享**
 
-⚠️ **关键**：要分享**单条视频**（视频播放页面分享出来的链接），不要分享 hashtag、合集、用户主页。检查方法：分享出来的 URL 在浏览器打开应该是**单个视频播放页**，不是 hashtag 列表。
-
-**Step 3 · 等 1-2 分钟，看 vault 出 .md**
-
-```bash
-# 实时看处理日志
-tail -f "$HOME/Library/Mobile Documents/com~apple~CloudDocs/DouyinInbox/logs/monitor.log"
-
-# 看 vault 输出
-ls "MyBrain/raw/douyin-favorites/"
-```
-
-⏰ 第一次跑会触发 Whisper 模型下载（~3GB），可能要等 5-10 分钟
+iPhone 抖音收藏夹一个个分享（5-10 min），每条几秒后 vault 多一篇 .md。一次性把存量收藏全索引化。
 
 ### ⚠️ 你之前 iPhone 分享的 .txt 同步问题（未确认）
 

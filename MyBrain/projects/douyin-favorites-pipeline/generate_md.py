@@ -48,6 +48,81 @@ def format_timestamp(seconds: float) -> str:
         return f"[{minutes:02d}:{secs:02d}]"
 
 
+def generate_markdown_partial(
+    raw_text: str,
+    url: str,
+    output_dir: Path,
+    error_reason: str
+) -> Path:
+    """
+    Generate a URL-only fallback markdown when video download fails.
+
+    Used when yt-dlp can't download (e.g., Douyin anti-bot blocking) but we
+    still want the URL + original share text archived in vault. Future retry
+    can scan vault for `status: download_pending` frontmatter and re-attempt.
+
+    Args:
+        raw_text: Original .txt content (Douyin share text with title + URL + tags)
+        url: Extracted Douyin URL
+        output_dir: Directory to save markdown
+        error_reason: yt-dlp error string (for debugging)
+
+    Returns:
+        Path to generated markdown file
+    """
+    import hashlib
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Heuristic: extract title from raw_text (first long-ish non-URL non-#tag chunk)
+    title = "抖音收藏_未下载"
+    # Split by whitespace, find a meaningful chunk
+    for chunk in raw_text.split():
+        if (not chunk.startswith('http')
+                and not chunk.startswith('#')
+                and not chunk.startswith('Z@')
+                and len(chunk) >= 6
+                and not re.fullmatch(r'[\d\s:./]+', chunk)):
+            title = chunk[:40].strip()
+            break
+
+    now = datetime.now()
+    date_str = now.strftime("%Y-%m-%d")
+    sanitized_title = sanitize_filename(title)
+    id_suffix = hashlib.md5(url.encode()).hexdigest()[:8]
+    filename = f"{date_str}_{sanitized_title}_{id_suffix}_PENDING.md"
+    output_path = output_dir / filename
+
+    frontmatter = (
+        "---\n"
+        f'title: "{escape_yaml_value(title)}"\n'
+        f'source_url: "{escape_yaml_value(url)}"\n'
+        f'fetched: {now.strftime("%Y-%m-%d %H:%M")}\n'
+        f'status: download_pending\n'
+        f'download_error: "{escape_yaml_value(error_reason[:200])}"\n'
+        f'type: source\n'
+        f'tags: [抖音, 短视频, 待下载]\n'
+        "---\n"
+    )
+
+    content = (
+        f"# {title}\n\n"
+        f"> ⚠️ **视频下载失败** — yt-dlp 当前对抖音 broken（anti-bot 升级，cookies 也修不了；详见 [yt-dlp issue #12669](https://github.com/yt-dlp/yt-dlp/issues/12669)）。URL + 原始文本已存档，等待 yt-dlp 修复或切换到第三方 douyin 下载库后批量 retry。\n\n"
+        f"**原始链接**: {url}\n\n"
+        f"## 原始分享文本\n\n"
+        f"```\n{raw_text}\n```\n\n"
+        f"## 下载错误（debug 用）\n\n"
+        f"```\n{error_reason[:500]}\n```\n\n"
+        f"## 📎 来源\n- {url}\n"
+    )
+
+    full_content = frontmatter + "\n" + content
+    output_path.write_text(full_content, encoding="utf-8")
+    logger.info(f"Generated PARTIAL markdown (download blocked): {output_path}")
+
+    return output_path
+
+
 def generate_markdown(
     metadata: Dict[str, Any],
     segments: List[Dict[str, Any]],

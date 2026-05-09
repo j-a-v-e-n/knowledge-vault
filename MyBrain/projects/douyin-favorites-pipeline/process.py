@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import Optional
 
 from transcribe import transcribe_audio
-from generate_md import generate_markdown
+from generate_md import generate_markdown, generate_markdown_partial
 
 logger = logging.getLogger(__name__)
 
@@ -146,8 +146,11 @@ def process_one(input_file: Path, vault_path: Path, cache_base: Path, log_path: 
     }
 
     cache_dir = None
+    text = ""
+    url = None
+    output_dir = vault_path / "MyBrain" / "raw" / "douyin-favorites"
     try:
-        # 1. Extract URL
+        # 1. Extract URL — unrecoverable failure if missing
         text = input_file.read_text(encoding="utf-8")
         url = extract_url(text)
         if not url:
@@ -155,25 +158,36 @@ def process_one(input_file: Path, vault_path: Path, cache_base: Path, log_path: 
         result["url"] = url
         logger.info(f"Extracted URL: {url}")
 
-        # 2. Download (cache dir derived from URL hash — no collisions)
+        # 2. Try download + transcribe + full .md. If yt-dlp fails (e.g.,
+        # Douyin anti-bot — see yt-dlp issue #12669), fall back to URL-only
+        # archival so vault always has at least an index entry.
         cache_dir = cache_base / cache_id_for(url)
-        video_path, metadata = download_video(url, cache_dir)
-
-        # 3. Transcribe
-        segments = transcribe_audio(video_path)
-
-        # 4. Generate markdown
-        output_dir = vault_path / "MyBrain" / "raw" / "douyin-favorites"
-        md_path = generate_markdown(metadata, segments, output_dir)
-
-        result["status"] = "success"
-        result["output_path"] = str(md_path)
-        logger.info(f"Processing complete: {md_path.name}")
-
-        # 5. Clean up cache (only on success — keep on failure for debugging)
-        cleanup_cache(cache_dir)
+        try:
+            video_path, metadata = download_video(url, cache_dir)
+            segments = transcribe_audio(video_path)
+            md_path = generate_markdown(metadata, segments, output_dir)
+            result["status"] = "success"
+            result["output_path"] = str(md_path)
+            logger.info(f"Processing complete (FULL): {md_path.name}")
+            cleanup_cache(cache_dir)
+        except RuntimeError as download_err:
+            # Download/transcribe failed — write partial .md as fallback.
+            # Keep cache_dir for debugging; gets cleaned on next retry.
+            logger.warning(
+                f"Video download/transcribe failed: {download_err}. "
+                f"Falling back to URL-only .md (vault will still get index entry)."
+            )
+            md_path = generate_markdown_partial(
+                raw_text=text, url=url, output_dir=output_dir,
+                error_reason=str(download_err),
+            )
+            result["status"] = "partial"
+            result["output_path"] = str(md_path)
+            result["error"] = str(download_err)
+            logger.info(f"Processing complete (PARTIAL — URL only): {md_path.name}")
 
     except Exception as e:
+        # Genuinely unrecoverable: file unreadable, no URL, generate_md crashed.
         result["error"] = str(e)
         logger.error(f"Processing failed for {input_file.name}: {e}", exc_info=True)
 

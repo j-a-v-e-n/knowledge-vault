@@ -74,11 +74,15 @@ class DouyinHandler(FileSystemEventHandler):
         result = process_one(file_path, VAULT_PATH, CACHE_BASE, log_path)
 
         # Move to appropriate folder. Use Path.replace (atomic; overwrites if dest exists).
-        if result["status"] == "success":
+        # "partial" = video download failed but URL-only .md was saved to vault — still
+        # counts as processed (.md exists, vault has index). Future retry scans vault for
+        # frontmatter `status: download_pending` to re-attempt video download.
+        if result["status"] in ("success", "partial"):
             PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
             dest = PROCESSED_DIR / file_path.name
             file_path.replace(dest)
-            logger.info(f"Moved to processed: {file_path.name}")
+            tag = "PROCESSED" if result["status"] == "success" else "PARTIAL"
+            logger.info(f"Moved to processed [{tag}]: {file_path.name}")
         else:
             ERRORED_DIR.mkdir(parents=True, exist_ok=True)
             dest = ERRORED_DIR / file_path.name

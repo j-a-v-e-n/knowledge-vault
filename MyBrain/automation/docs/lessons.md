@@ -140,3 +140,20 @@
 4. **诊断信号**：错误信息含 `Symbol not found:` + `Expected in: /usr/lib/...dylib` = 100% 这类 dyld mismatch，立刻怀疑系统库 vs brew 库版本
 
 > 例（2026-05-09 task-020 douyin pipeline）：Javen Mac 装了 Python 3.14，daemon 跑 yt-dlp 一律 fail "No module named expat"。误以为 Python 3.14 不兼容 yt-dlp 浪费时间，实际 root cause 是系统 libexpat 老。`brew install expat` + plist 加 DYLD_LIBRARY_PATH + process.py subprocess 双保险传 env 后立即修复。教训：错误信息里"Symbol not found"+"Expected in /usr/lib/"两个关键词同时出现就是 dyld mismatch，别去找 Python/包级别的兼容性问题。
+
+---
+
+## ⑨ 反爬虫游戏中第三方工具会"随时 broken"——pipeline 必须 graceful degrade
+
+**症状**：依赖某个第三方工具下载/抓取某站内容（如 yt-dlp 下抖音 / 微博 / 小红书等），**某天突然 fail**，错误信息可能 misleading（说 cookies 过期 / JSON parse fail / authentication needed），但实际是站点 anti-bot 升级了，工具还没适配。
+
+**真相**：抖音 / 微博 / 小红书等站点反爬虫在打 cat-and-mouse —— 站点改 API → 工具适配 → 站点再改 → 工具再适配，循环往复。**任何依赖单一开源工具的 pipeline 都会经历"工具突然不行了"的状态**，且这个状态可能持续数周到数月（取决于工具维护者反应速度）。
+
+**避免**：
+1. **设计 pipeline 时就预设 fallback**：核心 archival action（保存 URL + 元数据）一定 work，富 content extraction（视频 / 字幕 / 图片）允许失败但不阻塞
+2. **status 字段三元化**：`success / partial / failed`——partial 是"核心保留 + 富内容缺失"，pipeline 不应该把 partial 当 failure
+3. **frontmatter 标记 retryable**：`status: download_pending` 这种，未来 batch retry 时能筛
+4. **不依赖单条 path**：对核心功能（如视频下载），调研 2-3 个独立来源（yt-dlp / 第三方 Python 库 / 浏览器自动化），主路径 fail 时自动切换或留路径 ready
+5. **错误信息别照单全收**：工具说"cookies needed"不代表加 cookies 就修；先 grep github issues 看是不是已知 broken 状态，再决定 invest 多少时间修
+
+> 例（2026-05-09 task-020 douyin pipeline）：第一次跑用真 douyin URL 测试，yt-dlp 报 "Fresh cookies needed"。我先信了 cookies 是问题，spent 10 分钟试 `--cookies-from-browser chrome/safari`——都 fail。spawn researcher 发现是 yt-dlp issue #12669 + #9667 多个用户同样报告，**底层是 JSON parse fail，cookies 不解决**。立刻 pivot 改 process.py 加 partial fallback：yt-dlp fail 时仍生成 URL-only .md 到 vault，标 status: download_pending，未来 retry 时扫 vault 重跑。**结果**：vault 至少有索引价值，pipeline 不阻塞，比"什么都没成"好得多。教训：发现某工具对某站突然 broken 时，**先决定 pipeline 是否能 graceful degrade，不要硬刚那个工具修**。一旦 pivot 完成，再 background 调研 stable 替代方案。
