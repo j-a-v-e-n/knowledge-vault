@@ -4,17 +4,25 @@
 
 ---
 
-## 当前进度：⏳ 正在配 iOS Shortcut（Javen 在 iPhone 上）
+## 当前进度：✅ iOS Shortcut 配通！等你跑 setup.sh
 
 ```
 [✅] 1. 代码全写完（8 文件 + 1 教程）
 [✅] 2. reviewer audit + 11 bug fix 全部 apply
 [✅] 3. 全部 syntax 通过（python -m py_compile / bash -n）
-[⏳] 4. 你跑 setup.sh         ← 还没跑
-[🔄] 5. 你配 iOS Shortcut      ← 进行中（详见下方）
-[⏳] 6. 端到端测试一条 test.txt
+[⏳] 4. 你跑 setup.sh         ← 接下来要做（Mac 端，1 分钟）
+[✅] 5. 你配 iOS Shortcut      ← 2026-05-09 02:30 done
+[⏳] 6. 端到端测试一条 test.txt（5 跑通后自动覆盖）
 [⏳] 7. Phase 1 存量批量分享 ~几十条
 ```
+
+**iOS Shortcut 配置最终成功的方案（避免下次踩坑）**：
+- shortcut 拓扑必须是 4 个 action（不是 3 个）：接收 → 格式化日期 → **文本**（中转）→ 存储文件
+- 中转的「文本」action 内容用变量栏插入「**输入快捷指令的信息**」（中文 iOS 18+ 把 "Shortcut Input" 翻译成这个奇怪的名字，找不到很正常）
+- 「存储文件」的"文件"字段会自动连接到上一个 action（即「文本」action）的输出 ✅，绕开了 iOS 不允许在"文件"字段直接插变量的限制
+- 子路径格式：`DouyinInbox/[紫色变量:格式化后的日期].txt`（**变量必须是紫色标签，不能打字打成字面字符串**）
+- 服务字段必须改成「iCloud 云盘」（默认是「Shortcuts」=私有沙盒，不在 Files app 里出现）
+- iOS 19 中 share sheet 命名容易跟系统原生「储存到文件」冲突，shortcut 名字别叫"保存"开头的
 
 ---
 

@@ -342,10 +342,11 @@
   - **子任务**：
     - [x] a. **engineer subagent** 写 Phase 2 pipeline 代码 — done 2026-05-08（8 文件 709 行：monitor.py / process.py / transcribe.py / generate_md.py / plist / setup.sh / requirements.txt / README）
     - [x] a.2 **reviewer subagent** audit + 主对话 fix — done 2026-05-08（reviewer 找出 4 critical + 6 major；主对话又自查发现 1 个 reviewer 漏的（plist 用 `/usr/bin/python3` vs pip3 装到 Homebrew Python 不一致）；**11 个 bug 全 fix**：YAML title 注入 / video_id 提取 / iCloud partial-write race / setup cwd 验证 / URL_PATTERNS 加 `[\w-]+/?` + iesdouyin + share/video / cache 冲突 → URL hash / multi-format glob (mp4/mov/webm) / cache cleanup / rename → replace 原子 / except 块 dedup / setup.sh 动态 sed plist Python 路径；4 个 .py + setup.sh 全部 syntax 验证通过）
-    - [x] b. **主对话**写 `iOS-Shortcut-setup.md` step-by-step 教程 — done 2026-05-08（8 步配置 + 测试 + 故障排查 + Phase 1 存量批量分享指南；README.md 已加 reference）
-    - [ ] c. ⚠️ blocked on @javen — 跑 `setup.sh` 安装 launchd 守护进程
-    - [ ] d. ⚠️ blocked on @javen — iPhone 跟教程配 Shortcut（~10 min）
-    - [ ] e. ⚠️ blocked on @javen — 端到端测试：往 DouyinInbox 丢 test.txt 验证 pipeline 跑通
+    - [x] b. **主对话**写 `iOS-Shortcut-setup.md` step-by-step 教程 — done 2026-05-08
+    - [x] b.2 教程 + 主对话陪练实战修订：iOS 19 实际 UX 跟教程不完全一致（变量"输入快捷指令的信息"中文翻译陷阱 / "文件"字段不允许直接插变量需要 Text action 中转 / shortcut 名别叫"保存"开头）— STATUS.md 已沉淀 — done 2026-05-09 by 主对话
+    - [ ] c. ⚠️ blocked on @javen — 跑 `setup.sh` 安装 launchd 守护进程（1 分钟，Mac 终端）
+    - [x] d. iPhone 跟教程配 Shortcut — done 2026-05-09 02:30（端到端 ▶️ 跑通 + 抖音分享触发 .txt 含视频链接落到 iCloud DouyinInbox 验证）
+    - [ ] e. ⚠️ blocked on @javen — 端到端测试：抖音分享 → Mac daemon 处理 → vault 出 .md（依赖 c 完成）
     - [ ] f. ⚠️ blocked on @javen — Phase 1 存量抢救：iPhone 抖音收藏夹手动分享一遍（量小约 5-10 min）
     - [ ] g. 第一次 ingest：Claudian 跟 Javen 讨论生成的字幕，沉淀到 wiki/ 相关领域
 
