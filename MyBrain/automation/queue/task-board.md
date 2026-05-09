@@ -2,7 +2,7 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-08 [主对话: 新接 task-020 抖音收藏字幕 pipeline #P0]
+**最后更新**：2026-05-09 03:30 [daemon dawn-shift: AI Watch 报告生成 ✅；task-018 g 草稿写完 ✅；task-017 a.2 daemon 环境 blocked]
 **当前状态**：2 进行中（task-003 + task-020）/ 0 阻塞 / 9 待启动 / 7 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
@@ -227,7 +227,7 @@
     - **D-0 (5/8 周五)**：最终 sanity + 提交（白天前）
   - **子任务**：
     - [x] a. 代码骨架 → `MyBrain/projects/ece175b-adg/` — done 2026-04-30 (data/model/ddpm/cfg/adg/train/sample/eval_fid/eval_disentangle)
-    - [ ] a.2 CPU smoke test：python -c "import torch; from model import AttrConditionedUNet; ..." 无报错
+    - [ ] a.2 CPU smoke test：python -c "import torch; from model import AttrConditionedUNet; ..." 无报错 ⚠️ blocked on @javen — daemon bash 白名单不含 python3，需在主对话跑（2026-05-09）
     - [x] b. GPU 方案选定 — Kaggle Free T4 ✓（Javen 勾 2026-05-05）；等 Javen 完成 GUI 步骤（Kaggle 注册→上传 notebook→Add Data→T4→Run All）
     - [x] b.2 写 Kaggle/Colab ipynb 包装（engineer subagent）— daemon 2026-05-05 确认 notebooks/train_kaggle.ipynb + train_colab.ipynb 存在
     - [ ] c. 训练 conditional DDPM (midterm scope: 20-30 epoch + 50k subset，~4-6h on T4)
@@ -278,6 +278,7 @@
     - [ ] f. 全 12 subjects LOSO 评估 → MAE 总分 + motion-level 分层 + λ appropriateness 100-window 分析 + token cost
     - [x] f.0 baselines_comparison.png/pdf — done 2026-05-05 by Tab B (双 panel: 左=per-subject TROIKA vs RF bar chart, 右=motion regime boxplot RF error: low n=508 median 3 BPM / med n=673 median 5 BPM / high n=587 median 10 BPM — final report §4 直接可用)
     - [ ] g. Project Update report (Week 8, 2026-05-20 截止) — 进度 + 1-2 张架构图 / 初步结果图
+        - **daemon 2026-05-09**：草稿已写完 → `projects/ece284-llm-ppg/project_update_draft.md`（5 节 + 表格 + 图引用 + Next Steps）。待 Javen: ① 拿到 API key 补 λ-generator 结果 ② LaTeX 转换 ACM 2-col → 提交 Canvas
     - [ ] h. (Stretch) Claude ReAct orchestrator + 同 LOSO 评估 → 跟 λ-generator 头对头对比
     - [ ] i. Final report (Week 10, 2026-06-05 左右) — 7-10 页 ACM Large 2-column + GitHub repo
     - [ ] j. ⚠️ blocked on @javen — 期末交报告 + Final Oral defense (Week 11)
@@ -344,9 +345,9 @@
     - [x] a.2 **reviewer subagent** audit + 主对话 fix — done 2026-05-08（reviewer 找出 4 critical + 6 major；主对话又自查发现 1 个 reviewer 漏的（plist 用 `/usr/bin/python3` vs pip3 装到 Homebrew Python 不一致）；**11 个 bug 全 fix**：YAML title 注入 / video_id 提取 / iCloud partial-write race / setup cwd 验证 / URL_PATTERNS 加 `[\w-]+/?` + iesdouyin + share/video / cache 冲突 → URL hash / multi-format glob (mp4/mov/webm) / cache cleanup / rename → replace 原子 / except 块 dedup / setup.sh 动态 sed plist Python 路径；4 个 .py + setup.sh 全部 syntax 验证通过）
     - [x] b. **主对话**写 `iOS-Shortcut-setup.md` step-by-step 教程 — done 2026-05-08
     - [x] b.2 教程 + 主对话陪练实战修订：iOS 19 实际 UX 跟教程不完全一致（变量"输入快捷指令的信息"中文翻译陷阱 / "文件"字段不允许直接插变量需要 Text action 中转 / shortcut 名别叫"保存"开头）— STATUS.md 已沉淀 — done 2026-05-09 by 主对话
-    - [ ] c. ⚠️ blocked on @javen — 跑 `setup.sh` 安装 launchd 守护进程（1 分钟，Mac 终端）
+    - [x] c. setup.sh 跑通 + daemon 启动 + DYLD/expat 隐藏 bug 修复 — done 2026-05-09 03:00 by 主对话 Claude（Javen 睡觉时接管）：(1) brew install expat, (2) plist 加 DYLD_LIBRARY_PATH, (3) process.py subprocess 双保险传 env, (4) 整条 pipeline 测试通过（除 Whisper 转写需要真视频 URL 才能验证），daemon 持续运行 PID 58618 KeepAlive
     - [x] d. iPhone 跟教程配 Shortcut — done 2026-05-09 02:30（端到端 ▶️ 跑通 + 抖音分享触发 .txt 含视频链接落到 iCloud DouyinInbox 验证）
-    - [ ] e. ⚠️ blocked on @javen — 端到端测试：抖音分享 → Mac daemon 处理 → vault 出 .md（依赖 c 完成）
+    - [ ] e. ⚠️ blocked on @javen — 端到端 final test：醒来后分享**真单条视频**（不是 hashtag 页面，Javen 之前那条 URL `iRrxBLUe/` 是 hashtag），看 daemon 自动处理 → vault 出第一篇 .md（首次会下载 Whisper 模型 ~3GB 等 5-10 min）
     - [ ] f. ⚠️ blocked on @javen — Phase 1 存量抢救：iPhone 抖音收藏夹手动分享一遍（量小约 5-10 min）
     - [ ] g. 第一次 ingest：Claudian 跟 Javen 讨论生成的字幕，沉淀到 wiki/ 相关领域
 

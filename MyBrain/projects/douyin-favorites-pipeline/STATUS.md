@@ -1,6 +1,68 @@
 # 状态总览（Javen 回来看这一个文件就够）
 
-**最后更新**：2026-05-09（主对话 Claude，Javen 在配 iOS Shortcut 中，跨窗口接力）
+**最后更新**：2026-05-09 03:00（Javen 睡觉时 Claude 接管推进，写了这份早安报告）
+
+---
+
+## 🌅 早安报告（2026-05-09）— **请先看这一段**
+
+**一句话**：Mac 端 daemon 跑起来了，整条 pipeline 经测试 work，**等你醒来分享一条真抖音视频**（不是 hashtag 页面）就能看到第一篇 .md 出现在 vault 里。
+
+### 我帮你做了什么（Javen 睡觉时）
+
+1. ✅ 跑了 `setup.sh` —— Python deps / launchd plist / DouyinInbox 目录树全部就位，daemon 启动监听
+2. ✅ **修了一个不修就完全跑不动的隐藏 bug** —— Python 3.14 + macOS 系统 libexpat 版本不匹配（Python 3.14 用的 expat 比 macOS `/usr/lib/libexpat.1.dylib` 新，缺 `_XML_SetAllocTrackerActivationThreshold` symbol → yt-dlp 任何调用都 fail）。
+   - 装了 `brew install expat`（升级 macOS expat 到 2.8.0）
+   - 改了 `plist` 加 `DYLD_LIBRARY_PATH=/opt/homebrew/opt/expat/lib`
+   - 改了 `process.py` 在 subprocess.run 时显式传 env（双保险，避免 launchd SIP 剥离 DYLD vars）
+3. ✅ **测试整条链路**：
+   - daemon 检测 .txt ✅
+   - URL 提取 ✅（regex 工作）
+   - yt-dlp 启动 ✅（DYLD fix 后不再报 expat 错）
+   - yt-dlp 拒绝你那条 URL（`https://v.douyin.com/iRrxBLUe/`）—— 因为它**重定向到 douyin hashtag 页面**，不是视频页，yt-dlp 报 "Unsupported URL"。**这不是 bug，是你那条 URL 本身就不是单条视频**
+4. ✅ 清理了 errored/ 里 3 个测试文件（不污染你早上看到的状态）
+5. ✅ daemon 持续运行中（PID 58618），KeepAlive: true，Mac 重启后会自动起来
+
+### 你醒来要做的（5 分钟）
+
+**Step 1 · 验证 Javen 之前 iPhone 分享的 .txt 是否到 Mac**
+
+```bash
+ls "$HOME/Library/Mobile Documents/com~apple~CloudDocs/DouyinInbox/"
+```
+
+预期：要么有真 .txt 文件（iCloud 终于同步过来了），要么还是空的（iPhone 上 .txt 没真上传）
+
+**Step 2 · 在 iPhone 上分享一条真抖音视频**
+
+⚠️ **关键**：要分享**单条视频**（视频播放页面分享出来的链接），不要分享 hashtag、合集、用户主页。检查方法：分享出来的 URL 在浏览器打开应该是**单个视频播放页**，不是 hashtag 列表。
+
+**Step 3 · 等 1-2 分钟，看 vault 出 .md**
+
+```bash
+# 实时看处理日志
+tail -f "$HOME/Library/Mobile Documents/com~apple~CloudDocs/DouyinInbox/logs/monitor.log"
+
+# 看 vault 输出
+ls "MyBrain/raw/douyin-favorites/"
+```
+
+⏰ 第一次跑会触发 Whisper 模型下载（~3GB），可能要等 5-10 分钟
+
+### ⚠️ 你之前 iPhone 分享的 .txt 同步问题（未确认）
+
+- 我等了 5 分钟，Javen 之前 iPhone 上看到的那条 .txt **没出现在 Mac 端**
+- iCloud quota 显示**还剩 4.83 GB**（Javen 关 iCloud Photos 同步释放出来的），**不是空间满**
+- 可能原因：iPhone 端 iCloud Drive 同步 lag（手机在低电量/后台/没 WiFi 时会延迟）
+- 你早上检查 Mac 端 DouyinInbox 应该能看到了；如果还没看到，在 iPhone Files app 进 DouyinInbox 看那个 .txt **是否带云图标**（带云=没真同步，下拉刷新强制上传）
+
+### 🔧 顺手做的代码改进（永久受益）
+
+1. `monitor.py` CACHE_BASE 从 iCloud 路径改到 `~/.cache/douyin-favorites/` —— 视频下载缓存**永远不再占你 iCloud 配额**
+2. plist 加 `DYLD_LIBRARY_PATH` 解决 Python 3.14 兼容
+3. process.py subprocess 双保险传 env
+
+
 
 ---
 

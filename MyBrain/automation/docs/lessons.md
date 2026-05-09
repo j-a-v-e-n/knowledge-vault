@@ -124,3 +124,19 @@
 3. 看到 stream timeout 的第一反应：**先检查是不是 resume 了过大的 context**，而不是怀疑网络或 token limit
 
 > 例（2026-04-29 03:00 daemon）：daemon 连续几天 `--resume` 同一 session，context 累积至 ~200K。03:00 启动后处理 Step 0 审批时 idle 超时，整个 run 失败，没有产出报告。根因分析由主对话 Claude 在 2026-04-29 11:15 完成。修复：改 `wrapper.sh` 不再 `--resume`，每次用 `uuidgen` 新建 session。详见 `automation/runs/2026-04-29.md`。
+
+---
+
+## ⑧ Python 解释器升级 vs 系统老 C 库 = 隐藏 dyld 不匹配
+
+**症状**：Python `import xml.parsers.expat` 或 yt-dlp / 任何用到 XML 的库突然报 `Symbol not found: _XML_SetAllocTrackerActivationThreshold` / `No module named expat; use SimpleXMLTreeBuilder instead`。重装 yt-dlp 不解决。`python3 -c "import xml.parsers.expat"` 看似 OK 但 yt-dlp 子进程一调就 fail（或反过来）。
+
+**真相**：Homebrew Python 3.13/3.14 编译时链接了**新版 expat**（含 `XML_SetAllocTrackerActivationThreshold` 等新 symbol），但 macOS 系统自带 `/usr/lib/libexpat.1.dylib` 还是老版（缺这些 symbol）。Python 启动时 dyld 优先去 `/usr/lib/` 找 libexpat → 找到老版 → resolve 不出新 symbol → ImportError。**这不是 Python bug 也不是 yt-dlp bug，是 dyld 版本不匹配**。
+
+**避免**：
+1. `brew install expat` 装 Homebrew 新 expat 到 `/opt/homebrew/opt/expat/lib/`
+2. 启动 Python 进程时设 `DYLD_LIBRARY_PATH=/opt/homebrew/opt/expat/lib` 让 dyld 优先找 brew 的 expat
+3. **launchd plist 里的 `EnvironmentVariables` 可能被 SIP 剥离 DYLD_***——关键 subprocess.run 调 yt-dlp 时**显式传 `env={'DYLD_LIBRARY_PATH': ...}`** 双保险
+4. **诊断信号**：错误信息含 `Symbol not found:` + `Expected in: /usr/lib/...dylib` = 100% 这类 dyld mismatch，立刻怀疑系统库 vs brew 库版本
+
+> 例（2026-05-09 task-020 douyin pipeline）：Javen Mac 装了 Python 3.14，daemon 跑 yt-dlp 一律 fail "No module named expat"。误以为 Python 3.14 不兼容 yt-dlp 浪费时间，实际 root cause 是系统 libexpat 老。`brew install expat` + plist 加 DYLD_LIBRARY_PATH + process.py subprocess 双保险传 env 后立即修复。教训：错误信息里"Symbol not found"+"Expected in /usr/lib/"两个关键词同时出现就是 dyld mismatch，别去找 Python/包级别的兼容性问题。

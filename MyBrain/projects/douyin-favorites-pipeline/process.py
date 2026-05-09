@@ -3,6 +3,7 @@ Process a single Douyin URL file: extract URL -> download -> transcribe -> markd
 """
 
 import logging
+import os
 import re
 import json
 import hashlib
@@ -16,6 +17,22 @@ from transcribe import transcribe_audio
 from generate_md import generate_markdown
 
 logger = logging.getLogger(__name__)
+
+# Python 3.14's bundled pyexpat needs newer libexpat symbols than what macOS
+# ships in /usr/lib/libexpat.1.dylib. Point dyld at Homebrew's expat for any
+# subprocess (yt-dlp) we spawn. Belt-and-suspenders alongside the plist's
+# EnvironmentVariables — launchd's SIP-strip behavior can be quirky.
+EXPAT_LIB_PATH = "/opt/homebrew/opt/expat/lib"
+
+
+def _subprocess_env() -> dict:
+    """Build env dict with DYLD_LIBRARY_PATH prepended for expat fix."""
+    env = os.environ.copy()
+    existing = env.get("DYLD_LIBRARY_PATH", "")
+    env["DYLD_LIBRARY_PATH"] = (
+        f"{EXPAT_LIB_PATH}:{existing}" if existing else EXPAT_LIB_PATH
+    )
+    return env
 
 # Regex patterns for Douyin URLs (try in order, use first match).
 # Note: Douyin short-link IDs may contain letters, digits, '-', '_'.
@@ -70,7 +87,10 @@ def download_video(url: str, cache_dir: Path) -> tuple[Path, dict]:
 
     logger.info(f"Downloading: {url}")
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=600,
+            env=_subprocess_env(),
+        )
         if result.returncode != 0:
             raise RuntimeError(f"yt-dlp failed (exit {result.returncode}): {result.stderr.strip()}")
     except subprocess.TimeoutExpired:

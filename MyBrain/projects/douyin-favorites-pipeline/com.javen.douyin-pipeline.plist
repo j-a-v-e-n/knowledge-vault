@@ -30,6 +30,12 @@
     <dict>
         <key>PATH</key>
         <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
+        <!-- Python 3.14's bundled pyexpat needs newer libexpat than what
+             macOS ships in /usr/lib/libexpat.1.dylib (missing
+             _XML_SetAllocTrackerActivationThreshold symbol). Point dyld at
+             Homebrew's expat to fix yt-dlp's expat ImportError. -->
+        <key>DYLD_LIBRARY_PATH</key>
+        <string>/opt/homebrew/opt/expat/lib</string>
     </dict>
 </dict>
 </plist>
