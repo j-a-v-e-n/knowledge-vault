@@ -1,192 +1,100 @@
-# iOS Shortcut 配置指南 — 抖音收藏字幕 Pipeline 入口
+# iOS 快捷指令配置 — 极简版（3 个动作，5 分钟）
 
-> 这个 Shortcut 是整套 pipeline 的**入口**：iPhone 抖音 app → 分享 → Shortcut 落地到 iCloud Drive → Mac 接管处理。
+> 在中文系统里 **iOS Shortcuts = 快捷指令**。下面 action 名字按中文系统来；如果你 iPhone 是英文系统，括号里给了英文对照。
 >
-> **配置时间**：~10 分钟 · **永久有效**：iOS Shortcut 是 Apple 官方功能，永远不失效。
+> 你只需要把抖音分享出来的**整段文本**写到 iCloud Drive 的一个文件夹。Mac 端已经会从任意文本里 regex 提 URL，**不需要你在 iOS 端做任何提取/解析**。
 
 ---
 
 ## 配置前确认
 
-- ✅ iPhone 已升级到 iOS 16+（Shortcuts app 默认安装）
-- ✅ iCloud Drive 已开（设置 → [你的名字] → iCloud → iCloud Drive 打开）
-- ✅ Mac 端已跑过 `setup.sh`（会创建 `~/Library/Mobile Documents/com~apple~CloudDocs/DouyinInbox/`，你 iPhone 文件 app 里能看到这个文件夹）
+- ✅ iPhone 已升级到 iOS 16+
+- ✅ iCloud Drive 已开（设置 → [你的名字] → iCloud → iCloud Drive）
 
-如果 Mac 端 setup.sh 还没跑——回头让我帮你跑，**iOS Shortcut 这边可以同时配**，互不阻塞。
+DouyinInbox 文件夹我会在 Mac 端 setup.sh 里建，几秒后 iCloud 同步到你 iPhone。
 
 ---
 
-## 配置步骤（共 8 步）
+## 配置（3 个动作）
 
-### Step 1: 打开 Shortcuts app
+### Step 1：新建快捷指令
 
-iPhone 桌面找 **Shortcuts**（图标是两个交叠的彩色方块）→ 右上角 **+** 新建 Shortcut。
+1. iPhone 打开 **快捷指令**（Shortcuts）app → 右上角 **+** 新建
+2. 顶部点名字 → 改成 **抖音收藏存档**
+3. 顶部右上 **ⓘ 信息按钮**（i）→ 滑开 **用于"共享表单"**（Use with Share Sheet）
+4. **共享表单类型**（Share Sheet Types）只勾 **文本**（Text）
 
-### Step 2: 命名 + 设为分享菜单可用
+### Step 2：添加 3 个动作
 
-1. 顶部点 Shortcut 名字 → 改成 "**抖音收藏存档**"（自己取，但这个名字以后在分享菜单看到的就是这个）
-2. 顶部右边 **(i) 信息按钮** → 滑开 **Use with Share Sheet**
-3. **Share Sheet Types** 只勾：
-   - ✅ Text
-   - ✅ URLs
-   - ❌ 其他全关掉
+#### 动作 1 · 接收输入
+- 搜索栏输 "**接收**"（Receive）→ 选 **「接收来自'共享表单'的输入」**（Receive Input from Share Sheet）
+- 输入类型（Input Type）：**文本**（Text）
 
-### Step 3: 添加 Action 1 — 接收输入
+#### 动作 2 · 格式化日期
+- 搜 "**格式化**"（Format）→ 选 **「格式化日期」**（Format Date）
+- **日期**（Date）：**当前日期**（Current Date）
+- **格式**（Format）：**自定**（Custom）
+- **格式字符串**（Format String）：`yyyy-MM-dd_HHmmss`
 
-1. 搜索栏输入 "Receive"
-2. 选 **Receive [Input] from Share Sheet**
-3. 点 [Input] → 改成 **Text**（抖音分享出来主要是文本含 URL）
-4. **If there's no input**: Stop and respond → Stop（这样如果用户不通过分享触发，会优雅退出）
+#### 动作 3 · 存储文件
+- 搜 "**存储**"（Save）→ 选 **「存储文件」**（Save File）
+- **文件**（File）：拖入变量 **「快捷指令」输入**（Shortcut Input）
+- **服务**（Service）：**iCloud Drive**
+- **文件名**（File Name）：拖入变量 **已格式化的日期**（Formatted Date）+ 手动输入 `.txt`
+- **目标路径**（Destination Path）：`/DouyinInbox/`
+- ❌ 关闭 **询问存储位置**（Ask Where to Save）
+- ❌ 关闭 **覆盖原文件**（Overwrite If File Exists）
 
-### Step 4: 添加 Action 2 — 提取 URL（可选但强烈建议）
+### Step 3：完成
 
-抖音分享文本通常长这样：
-```
-看看这个视频 #美食探店 https://v.douyin.com/abc123XYZ/ -- 复制此链接...
-```
-
-我们要从中拿到那个 `v.douyin.com/...` 链接：
-
-1. 搜索 "Match Text"
-2. 选 **Match Text** action
-3. **Pattern** 填这个 regex：
-   ```
-   https?://v\.douyin\.com/[^\s/]+/?|https?://(?:www\.)?douyin\.com/video/\d+
-   ```
-   （这个正则匹配抖音短链 v.douyin.com/xxx 和长链 douyin.com/video/数字）
-4. 默认会输出 **Matches** 列表
-
-### Step 5: 添加 Action 3 — 准备文件内容
-
-1. 搜索 "Text"
-2. 选 **Text** action（黄色那个）
-3. 在文本框里写：
-   ```
-   [URL]
-   [SHARED_TEXT]
-   ```
-   把 `[URL]` 替换成 **Matches**（点变量插入），`[SHARED_TEXT]` 替换成 **Shortcut Input**
-
-   最终应该长这样（变量是带颜色的胶囊）：
-   ```
-   <Matches>
-
-   <Shortcut Input>
-   ```
-
-### Step 6: 添加 Action 4 — 生成唯一文件名
-
-1. 搜索 "Format Date"
-2. 选 **Format Date**
-3. **Date**：选 **Current Date**
-4. **Format**：选 **Custom**
-5. **Format String**：`yyyy-MM-dd_HHmmss`（这样文件名 = 2026-05-08_163045）
-
-### Step 7: 添加 Action 5 — 保存到 iCloud Drive
-
-1. 搜索 "Save File"
-2. 选 **Save File**
-3. **File**：上一步的 **Text**（Step 5 的输出）
-4. **Service**：iCloud Drive
-5. **Destination Path**：`/DouyinInbox/<Formatted Date>.txt`
-   - `<Formatted Date>` 是 Step 6 的变量
-   - 完整路径示例：`/DouyinInbox/2026-05-08_163045.txt`
-6. **Overwrite If File Exists**：关闭（每次都新文件）
-7. **Ask Where to Save**：**关掉**（自动保存，不要每次问）
-
-### Step 8: 添加 Action 6 — 通知（可选，让你知道存好了）
-
-1. 搜索 "Show Notification"
-2. **Title**：抖音收藏存档
-3. **Body**：`已保存 → Mac 处理中`
+右上角 **完成**（Done）。
 
 ---
 
 ## 测试
 
-### 第一次手动测试（不走分享菜单）
+1. 打开抖音 app → 任意视频 → 右下角 **↗ 分享**
+2. 滑找 **抖音收藏存档**（找不到点"更多"启用它）
+3. 点 → 应该秒回（无任何弹窗）
+4. iPhone 打开 **Files** app → iCloud Drive → DouyinInbox → 应该看到一个 `.txt`
+5. Mac 端几秒后自动处理，vault `MyBrain/raw/douyin-favorites/` 出 .md
 
-1. 在 Shortcuts app 里点你刚建的 "抖音收藏存档" 看完整 actions 列表
-2. 顶部 ▶️ Play 测试运行——它会要你输入文本
-3. 粘贴一段假数据，比如：
-   ```
-   测试视频 https://v.douyin.com/test123/ 美食
-   ```
-4. 应该会通知"已保存"
-5. 打开 iPhone Files app → iCloud Drive → DouyinInbox → 看到 `2026-05-08_xxxxxx.txt`
+如果想看 Mac 端在做啥，跑：
 
-### 真实测试（走抖音分享）
+```bash
+tail -f "$HOME/Library/Mobile Documents/com~apple~CloudDocs/DouyinInbox/logs/monitor.log"
+```
 
-1. 打开抖音 app → 任一视频 → 右下角 **分享** 图标（箭头）
-2. 滑出来的菜单里找 **抖音收藏存档**（如果没看到，下滑找"更多"→ 启用它）
-3. 点 → 应该秒回 + 通知
-4. iCloud Files 里出现新 .txt
-5. 几分钟内 Mac launchd 检测到 → yt-dlp 下载 → Whisper 转字幕 → vault `MyBrain/raw/douyin-favorites/` 出一个 .md 文件
+---
+
+## Phase 1 存量批量分享
+
+setup 完成后，把现有抖音收藏夹几十条手动分享一遍：
+
+1. 抖音 app → 我 → 收藏 / 喜欢
+2. 一个个点开 → ↗ 分享 → 抖音收藏存档
+3. ~5 秒/条 × 几十条 ≈ 5 分钟
+
+之后看到喜欢视频直接点分享（取代点❤️收藏），pipeline 永久跑。
 
 ---
 
 ## 故障排查
 
-| 现象 | 原因 | 修复 |
-|---|---|---|
-| 分享菜单看不到 Shortcut | Step 2 的 Share Sheet 没开 / iPhone 需要重启 | 检查 Shortcut 信息页 Share Sheet 开关；重启 iPhone |
-| 保存失败 | iCloud Drive 没开 / DouyinInbox 文件夹不存在 | Mac 上跑 `setup.sh` 会创建该文件夹（iCloud 同步几秒后 iPhone 也能看到） |
-| Match Text 抓不到 URL | 抖音分享文本格式变了 / 用了其他短链 | 不影响 pipeline——Mac 端 process.py 也会 regex 抓 URL（双保险） |
-| Mac 端没拉到文件 | iCloud 同步慢（最坏 1-2 分钟）/ launchd 没跑 | 先等 2 分钟；不行的话 `launchctl list \| grep douyin` 看进程在不在 |
+| 现象 | 修复 |
+|---|---|
+| 分享菜单看不到 Shortcut | Shortcut 信息页 Share Sheet 没开；或 iPhone 重启 |
+| Save File 报错 "找不到文件夹" | DouyinInbox 还没同步到 iPhone（等 30s 或重启 Files app） |
+| Mac 端没拉到 | iCloud 同步慢，等 1-2 min；不行 `launchctl list \| grep douyin` 看 daemon |
 
 ---
 
-## 流程总览
+## 备份方案（万一 Shortcut 真有问题）
 
-```
-┌──────────────────────────────────────────────┐
-│ iPhone                                        │
-│                                               │
-│  抖音 app 看到喜欢的视频                      │
-│  → 点 ↗ 分享                                  │
-│  → 选 「抖音收藏存档」                         │
-│  → Shortcut 自动跑                            │
-│  → 写 yyyy-MM-dd_HHmmss.txt                   │
-│  → iCloud Drive: DouyinInbox/                 │
-└──────────────────────────────────────────────┘
-                    ↓ iCloud 同步（秒级）
-┌──────────────────────────────────────────────┐
-│ Mac                                           │
-│                                               │
-│  launchd 守护 monitor.py                      │
-│  → watchdog 检测到新 .txt                     │
-│  → process.py 提取 URL                        │
-│  → yt-dlp 下载 mp4 + metadata                 │
-│  → Whisper Large v3 本地转中文字幕            │
-│  → generate_md.py 生成 markdown               │
-│  → vault/raw/douyin-favorites/                │
-└──────────────────────────────────────────────┘
-                    ↓
-              你跟 Claudian 聊
-              → ingest 沉淀进 wiki
-```
+完全 fallback：手动操作
 
----
+1. 抖音 app → 分享 → **拷贝链接**
+2. iPhone Files → iCloud Drive → DouyinInbox
+3. 长按空白 → 新建文件 → `.txt` → 粘贴链接
 
-## Phase 1 存量批量分享（一次性）
-
-setup 完成后，把现在 iPhone 抖音收藏夹里的几十条**手动分享一遍**：
-
-1. 抖音 app → 我 → 收藏 / 喜欢
-2. 一个个点开 → 分享 → 抖音收藏存档
-3. 大约 10 秒/条 × 几十条 ≈ 5-10 分钟
-
-存量分享完，所有视频自动进 vault。**之后看到喜欢的视频就分享（取代点 ❤️ 收藏）**，pipeline 永久跑。
-
----
-
-## 备份方案：不用 Shortcut 也能跑
-
-万一 iOS Shortcut 真出问题，**手动 fallback**：
-
-1. 抖音 app 分享 → 选 **拷贝链接**
-2. iPhone 打开 Files / iCloud Drive / DouyinInbox
-3. 新建一个 .txt 文件，粘贴那个链接
-
-效果一样——pipeline 同样能拉到。
-
+效果一样。pipeline 同样能拉到。
