@@ -15,6 +15,7 @@ from typing import Optional
 
 from transcribe import transcribe_audio
 from generate_md import generate_markdown, generate_markdown_partial
+from douyin_extractor import download_douyin_video
 
 logger = logging.getLogger(__name__)
 
@@ -63,57 +64,60 @@ def cache_id_for(url: str) -> str:
 
 def download_video(url: str, cache_dir: Path) -> tuple[Path, dict]:
     """
-    Download video and metadata using yt-dlp.
+    Download video and metadata.
+
+    Primary path: Playwright (mobile UA) → iesdouyin share page → playwm mp4
+                  (bypasses yt-dlp's broken Douyin extractor — issue #12669)
+    Fallback: yt-dlp (kept for future when yt-dlp Douyin extractor is repaired)
 
     Returns:
         (video_path, metadata_dict)
 
     Raises:
-        RuntimeError: If download fails or expected files missing.
+        RuntimeError: If both primary and fallback fail.
     """
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
 
+    # === Primary: Douyin extractor (Playwright + direct mp4 download) ===
+    try:
+        return download_douyin_video(url, cache_dir)
+    except Exception as primary_err:
+        logger.warning(f"Primary douyin_extractor failed: {primary_err}. Falling back to yt-dlp.")
+        primary_err_msg = str(primary_err)
+
+    # === Fallback: yt-dlp (currently broken on Douyin but may work in future) ===
     output_template = str(cache_dir / "%(id)s.%(ext)s")
-
     cmd = [
-        "yt-dlp",
-        "--no-playlist",
-        "--write-info-json",
-        "--format", "best",
-        "--output", output_template,
-        url,
+        "yt-dlp", "--no-playlist", "--write-info-json",
+        "--format", "best", "--output", output_template, url,
     ]
-
-    logger.info(f"Downloading: {url}")
+    logger.info(f"yt-dlp fallback: {url}")
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True, timeout=600,
             env=_subprocess_env(),
         )
         if result.returncode != 0:
-            raise RuntimeError(f"yt-dlp failed (exit {result.returncode}): {result.stderr.strip()}")
+            raise RuntimeError(
+                f"BOTH downloaders failed.\n"
+                f"  primary (Playwright): {primary_err_msg}\n"
+                f"  fallback (yt-dlp): {result.stderr.strip()[:300]}"
+            )
     except subprocess.TimeoutExpired:
-        raise RuntimeError("yt-dlp timed out after 10 minutes")
+        raise RuntimeError(f"BOTH downloaders failed: primary={primary_err_msg}, yt-dlp timed out")
     except FileNotFoundError:
-        raise RuntimeError("yt-dlp binary not found in PATH — run setup.sh first")
+        raise RuntimeError(f"BOTH downloaders failed: primary={primary_err_msg}, yt-dlp binary missing")
 
-    # Find downloaded files (multi-format support)
     video_files = [p for p in cache_dir.iterdir() if p.suffix.lower() in VIDEO_EXTS]
     json_files = list(cache_dir.glob("*.info.json"))
-
-    if not video_files:
-        raise RuntimeError(f"No video file produced in {cache_dir} (expected one of {VIDEO_EXTS})")
-    if not json_files:
-        raise RuntimeError(f"No .info.json metadata produced in {cache_dir}")
+    if not video_files or not json_files:
+        raise RuntimeError(f"yt-dlp ran but produced no expected files in {cache_dir}")
 
     video_path = video_files[0]
-    json_path = json_files[0]
-
-    with open(json_path, "r", encoding="utf-8") as f:
+    with open(json_files[0], "r", encoding="utf-8") as f:
         metadata = json.load(f)
-
-    logger.info(f"Downloaded: {video_path.name} ({video_path.stat().st_size // 1024} KB)")
+    logger.info(f"yt-dlp fallback succeeded: {video_path.name}")
     return video_path, metadata
 
 
