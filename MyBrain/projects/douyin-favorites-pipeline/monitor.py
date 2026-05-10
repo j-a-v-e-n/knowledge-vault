@@ -70,24 +70,42 @@ class DouyinHandler(FileSystemEventHandler):
 
         logger.info(f"Processing new file: {file_path.name}")
 
-        log_path = LOG_DIR / "processed.jsonl"
-        result = process_one(file_path, VAULT_PATH, CACHE_BASE, log_path)
-
-        # Move to appropriate folder. Use Path.replace (atomic; overwrites if dest exists).
-        # "partial" = video download failed but URL-only .md was saved to vault — still
-        # counts as processed (.md exists, vault has index). Future retry scans vault for
-        # frontmatter `status: download_pending` to re-attempt video download.
-        if result["status"] in ("success", "partial"):
-            PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-            dest = PROCESSED_DIR / file_path.name
-            file_path.replace(dest)
-            tag = "PROCESSED" if result["status"] == "success" else "PARTIAL"
-            logger.info(f"Moved to processed [{tag}]: {file_path.name}")
-        else:
-            ERRORED_DIR.mkdir(parents=True, exist_ok=True)
-            dest = ERRORED_DIR / file_path.name
-            file_path.replace(dest)
-            logger.error(f"Moved to errored: {file_path.name} (error: {result['error']})")
+        # IMPORTANT: We don't call process_one() directly here. Instead spawn a
+        # subprocess via /bin/zsh login shell so it inherits the user's full
+        # GUI/Aqua session — Playwright headless chromium sees douyin's <video>
+        # element when launched from a user shell but not when launched from
+        # launchd's process tree (root cause unclear; suspected macOS Aqua
+        # session token differences or douyin anti-bot fingerprinting). The
+        # subprocess invokes manual_run.py which scans the inbox, processes
+        # whatever's pending (including this file), and moves to processed/
+        # or errored/ as appropriate.
+        import subprocess
+        script_dir = Path(__file__).parent
+        cmd = [
+            "/bin/zsh", "-l", "-c",
+            f'cd "{script_dir}" && '
+            f'export DYLD_LIBRARY_PATH="/opt/homebrew/opt/expat/lib:${{DYLD_LIBRARY_PATH:-}}" && '
+            f'/usr/local/bin/python3 manual_run.py'
+        ]
+        try:
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=1800,  # 30 min
+            )
+            if result.returncode == 0:
+                logger.info(f"manual_run subprocess succeeded for {file_path.name}")
+                if result.stdout:
+                    logger.info(f"manual_run stdout (last 500 chars): ...{result.stdout[-500:]}")
+            else:
+                logger.error(f"manual_run subprocess failed (exit {result.returncode}): {result.stderr[-500:]}")
+                # Move file to errored/ so we don't reprocess infinitely
+                if file_path.exists():
+                    ERRORED_DIR.mkdir(parents=True, exist_ok=True)
+                    file_path.replace(ERRORED_DIR / file_path.name)
+        except subprocess.TimeoutExpired:
+            logger.error(f"manual_run subprocess timed out (30 min) for {file_path.name}")
+            if file_path.exists():
+                ERRORED_DIR.mkdir(parents=True, exist_ok=True)
+                file_path.replace(ERRORED_DIR / file_path.name)
 
 
 def catchup_existing_files():

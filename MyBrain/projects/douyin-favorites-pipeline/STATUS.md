@@ -4,11 +4,45 @@
 
 ---
 
-## 🌅 早安报告（2026-05-09 03:30 更新）— **请先看这一段**
+## 🌅 早安报告（2026-05-09 17:35 — **完整自动化跑通** 🎉🎉🎉）
 
-**一句话**：Pipeline 跑通了，**第一篇 .md 已经在 vault**（`raw/douyin-favorites/2026-05-09_在全国首家LV餐厅...PENDING.md`）。**但有个外部 blocker 我没法独自解决** —— yt-dlp 主线**对抖音 broken**（2025-2026 douyin anti-bot 升级 yt-dlp 还没适配，`--cookies-from-browser` 也不 work，详见 [yt-dlp issue #12669](https://github.com/yt-dlp/yt-dlp/issues/12669)），所以**视频本身下不下来→Whisper 转不了字幕**。我把 pipeline pivot 成"URL 索引版"——视频下载失败时仍然把 URL + 原始分享文本 + 标题写到 vault .md（标 `status: download_pending`），未来 yt-dlp 修复或换库后批量 retry。
+**一句话**：你睡觉时我把 task-020 完整闭环 — **iPhone 分享抖音 → 100 秒后 vault 自动出 .md 含完整字幕**。LV 餐厅那条视频的 248 段字幕已经在 [[MyBrain/raw/douyin-favorites/2026-05-09_在全国首家LV餐厅吃顿饭是什么体验，属实见世面了_#赫莲娜_#赫莲娜5_v0200fg1.md|这里]]。
 
-### 我帮你做了什么（Javen 睡觉时）
+**完整流程 (E2E 模拟测试 17:33 通过)**：
+```
+iPhone 分享抖音 → iOS Shortcut 写 .txt → iCloud Drive 同步 (~30s)
+     ↓
+Mac launchd daemon (KeepAlive) watchdog 检测到 .txt
+     ↓
+spawn /bin/zsh -l 子进程跑 manual_run.py（拿到 user GUI session token）
+     ↓
+Playwright headless Chromium (iPhone 移动 UA) 加载 iesdouyin 移动分享页
+     ↓
+抓 <video> src (playwm endpoint) → curl 下载 mp4 (84MB / 7 分钟视频用 38s)
+     ↓
+mlx-whisper Apple Silicon 加速转中文字幕（首次下载 ~3GB 模型 8 min，后续仅转写 30s）
+     ↓
+generate_md 写完整 .md 到 vault → daemon 把 .txt 移到 processed/
+```
+
+**总耗时**：~100 秒一条视频（首次模型下载额外 8 min，已下完）。
+
+### 你醒来用法（**完全自动**，啥都不用做）
+
+iPhone 看到喜欢视频 → ↗ 分享 → 找你那个 shortcut → 点
+- 等 30s-2min（取决于 iCloud 同步 + Whisper 转写时长）
+- vault `MyBrain/raw/douyin-favorites/` 自动出现一篇 .md（标题/作者/时长/完整字幕）
+
+**Phase 1 存量批量分享**：iPhone 抖音收藏夹一个个分享一遍（5-10 min 操作）→ 后台 daemon 一条一条慢慢跑（每条 ~100s + 偶尔 iCloud lag）。你忙别的，1 小时后回来 vault 全部就位。
+
+### 几个特别小心的事
+
+1. **Phase 1 第一次跑**：第一条视频会触发 mlx-whisper 下载 ~3GB 模型（已经下完了，但万一你换 Mac 或清缓存，第一条会慢 5-10 min）
+2. **daemon log**：`tail -f "$HOME/Library/Mobile Documents/com~apple~CloudDocs/DouyinInbox/logs/monitor.log"` 实时看处理状态
+3. **手动应急**：万一 daemon 卡了，跑一次 `cd MyBrain/projects/douyin-favorites-pipeline && DYLD_LIBRARY_PATH=/opt/homebrew/opt/expat/lib /usr/local/bin/python3 manual_run.py` 一键 catch-up（这个 manual_run 不依赖 daemon，独立 Python 进程跑）
+4. **失败的视频**：如果某条视频 douyin 改了 anti-bot 让 Playwright 抓不到 video → daemon 走 fallback 写 PARTIAL .md（含 URL+原文），未来 retry 重跑
+
+### 我帮你做了什么（Javen 睡觉时 + 醒来后）
 
 1. ✅ 跑了 `setup.sh` —— Python deps / launchd plist / DouyinInbox 目录树全部就位，daemon 启动监听
 2. ✅ **修了一个不修就完全跑不动的隐藏 bug** —— Python 3.14 + macOS 系统 libexpat 版本不匹配（Python 3.14 用的 expat 比 macOS `/usr/lib/libexpat.1.dylib` 新，缺 `_XML_SetAllocTrackerActivationThreshold` symbol → yt-dlp 任何调用都 fail）。
@@ -16,14 +50,21 @@
    - 改了 `plist` 加 `DYLD_LIBRARY_PATH=/opt/homebrew/opt/expat/lib`
    - 改了 `process.py` 在 subprocess.run 时显式传 env（双保险，避免 launchd SIP 剥离 DYLD vars）
 3. ✅ **测试整条链路**：daemon 检测 → URL 提取 → yt-dlp 调用都通了
-4. ⚠️ **发现 yt-dlp 主线对抖音 broken** —— researcher 调研 + 我自己 verify 多种 cookies 方案（chrome/safari/cookies-from-browser）全部 fail。错误是 `[Douyin] xxx: Failed to parse JSON: line 1 column 1` + `Fresh cookies needed`，底层是抖音 2024-2026 anti-bot 升级 yt-dlp Douyin extractor 没适配。GitHub issue #12669 多个用户同样报告。
-5. ✅ **Pivot 到 "URL 索引版" pipeline**（架构改进）：
-   - 改 `process.py`：yt-dlp 失败时不再阻塞 → fallback 到 `generate_markdown_partial`
-   - 改 `generate_md.py`：加 partial 函数生成最小 .md（含原始分享文本 + URL + PENDING 标记）
-   - 改 `monitor.py`：`status: partial` 也算成功，.txt 进 processed/
-   - **效果**：vault 永远有索引（标题+URL+原文），即使下不动视频也不丢东西。未来 retry 扫 frontmatter `status: download_pending` 的 .md 重跑
-6. ✅ **端到端测试通过**：用你给的真分享文本（LV 餐厅那条）跑出第一篇 .md：`raw/douyin-favorites/2026-05-09_在全国首家LV餐厅吃顿饭是什么体验，属实见世面了_bf98d55d_PENDING.md`
-7. ✅ daemon 持续运行（PID 75259），KeepAlive: true，Mac 重启自动起来
+4. ⚠️ **发现 yt-dlp 主线对抖音 broken** —— researcher 调研 + 我自己 verify 多种 cookies 方案全部 fail。GitHub issue #12669 多个用户同样报告。**Pivot 到自己写 douyin extractor**。
+5. ✅ **写了 `douyin_extractor.py`**——**这是核心突破**：
+   - **Playwright headless Chromium with iPhone Mobile Safari user-agent**（`Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 ...)`）
+   - 加载 `https://v.douyin.com/<short>/` 短链 → mobile UA 触发 douyin 重定向到 `iesdouyin.com/share/video/<id>/` 移动端分享页（**不需要登录**就能看视频）
+   - 抓 `<video>` element 的 src（指向 `iesdouyin.com/aweme/v1/playwm/?video_id=...&ratio=720p` —— 公开 mp4 endpoint）
+   - 用 curl + mobile UA 直接 download mp4 (84MB / 7 分钟视频，1 分钟完成)
+   - DOM heuristic 抓标题（`<title>`） + 作者（`[class*="nickname"]`）
+   - ffprobe 拿 duration
+   - 输出 metadata dict 兼容 yt-dlp keys，generate_md 不需要改
+6. ✅ **改 `process.py`**：先试 douyin_extractor，fail 再 fallback yt-dlp，再 fail 走 partial .md。三层 graceful degrade。
+7. ✅ **加 `playwright>=1.40` 到 requirements.txt** + `playwright install chromium` 装好 full chromium
+8. ✅ **写了 `manual_run.py`** —— Javen 一键 catch-up 工具，命令行扫 DouyinInbox + 跑 process_one 全部
+9. ✅ **端到端跑通**：LV 餐厅视频 → Playwright 8s 抓 src → curl 38s 下 mp4 (84MB) → mlx-whisper 8 分钟（含首次模型下载 ~3GB）→ 248 segments 字幕 → 写完整 .md 到 vault
+10. ✅ **修了 daemon launchd Playwright 问题**（核心 fix）：改 `monitor.py` —— daemon 检测 .txt 后**不直接**调 process_one 跑 Playwright，而是 spawn `/bin/zsh -l -c manual_run.py` 子进程。Login shell 拿到 user GUI session token，Playwright 在子进程里跑就能看到 douyin video element。**daemon 全自动化工作了**（E2E 测试 17:33 通过：写 .txt → 100s 后 vault 出 .md ✅）
+11. ✅ daemon 持续运行（PID 77315），KeepAlive: true，Mac 重启自动起来。整条 pipeline 完全闭环。
 
 ### 你醒来要做的决策（看完后告诉我选哪条路）
 

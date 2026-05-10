@@ -156,4 +156,19 @@
 4. **不依赖单条 path**：对核心功能（如视频下载），调研 2-3 个独立来源（yt-dlp / 第三方 Python 库 / 浏览器自动化），主路径 fail 时自动切换或留路径 ready
 5. **错误信息别照单全收**：工具说"cookies needed"不代表加 cookies 就修；先 grep github issues 看是不是已知 broken 状态，再决定 invest 多少时间修
 
-> 例（2026-05-09 task-020 douyin pipeline）：第一次跑用真 douyin URL 测试，yt-dlp 报 "Fresh cookies needed"。我先信了 cookies 是问题，spent 10 分钟试 `--cookies-from-browser chrome/safari`——都 fail。spawn researcher 发现是 yt-dlp issue #12669 + #9667 多个用户同样报告，**底层是 JSON parse fail，cookies 不解决**。立刻 pivot 改 process.py 加 partial fallback：yt-dlp fail 时仍生成 URL-only .md 到 vault，标 status: download_pending，未来 retry 时扫 vault 重跑。**结果**：vault 至少有索引价值，pipeline 不阻塞，比"什么都没成"好得多。教训：发现某工具对某站突然 broken 时，**先决定 pipeline 是否能 graceful degrade，不要硬刚那个工具修**。一旦 pivot 完成，再 background 调研 stable 替代方案。
+> 例（2026-05-09 task-020 douyin pipeline）：第一次跑用真 douyin URL 测试，yt-dlp 报 "Fresh cookies needed"。我先信了 cookies 是问题，spent 10 分钟试 `--cookies-from-browser chrome/safari`——都 fail。spawn researcher 发现是 yt-dlp issue #12669 + #9667 多个用户同样报告，**底层是 JSON parse fail，cookies 不解决**。立刻 pivot 改 process.py 加 partial fallback：yt-dlp fail 时仍生成 URL-only .md 到 vault，标 status: download_pending，未来 retry 时扫 vault 重跑。**最终解**：Javen push back "URL 索引版不行我要看视频讲什么"。再调研发现可以**自己写 extractor**：Playwright headless chromium + iPhone 移动 UA → douyin 重定向到 iesdouyin 移动分享页（不需要登录）→ 抓 `<video>` 的 `src` (playwm endpoint) → curl 直接下 mp4。整条链路 30 行 Python。教训：(1) 发现某工具对某站突然 broken 时，**先决定 pipeline 是否能 graceful degrade**；(2) 即使主线工具 broken，**不一定要等它修**——很多时候 spend 1-2h 自己写一个针对该站的 minimal extractor 比等社区上游修便宜得多；(3) **mobile UA 是隐藏的"backdoor"**——很多站的反爬虫只针对 PC 网页版，mobile h5 反而宽松。
+
+---
+
+## ⑩ launchd LaunchAgent 跑 Playwright 时 chromium 行为跟 user shell 跑不一样
+
+**症状**：standalone Python 跑 Playwright headless chromium 加载某 page 完全 work，但同样代码在 launchd LaunchAgent daemon 里跑就拿不到 page 内容（比如 `<video>` element 不出现、JS 不执行完、network 请求不一样）。
+
+**真相**：macOS 的 launchd 启动的 process 虽然是 user-level (LaunchAgent)，但**没有 user 的完整 GUI / Aqua session token**。Playwright headless chromium 启动看起来 work，但实际跟 user shell 启动的 chromium **fingerprint 不同**——目标站点的 anti-bot 可能据此返回不同内容（比如不渲染视频、显示客户端推广）。
+
+**避免**：
+1. **daemon 不要直接调 Playwright** —— 检测到事件后**spawn `/bin/zsh -l -c '...'`** subprocess 跑实际 Playwright 代码。`-l` (login shell) 让子进程 inherit 完整 user session env
+2. **如果连 zsh 也不 work**：上 `osascript -e 'do shell script "..."'` —— 通过 AppleScript 让 GUI session 跑
+3. **诊断信号**：standalone 跑 OK，launchd daemon 跑同样代码 fail → 不要怀疑代码 bug，怀疑 session token / fingerprint。检查 `launchctl list` 进程是否在 Aqua session
+
+> 例（2026-05-09 task-020 daemon 跑 Playwright）：写完 douyin_extractor.py，standalone 测试一次成功，集成到 daemon 后 daemon 跑 Playwright 拿不到 douyin `<video>` element。**spent 10 min 怀疑代码 bug 后才意识到**是 launchd vs user shell 的 process tree 差异。**Fix**：改 monitor.py 的 process_file()：daemon 检测到 .txt 后不直接调 process_one，而是 `subprocess.run(['/bin/zsh', '-l', '-c', 'cd ... && python3 manual_run.py'])`。子进程里 Playwright 立刻 work，daemon 流程完整自动化。教训：launchd 里跑 GUI 相关 / browser 相关代码出问题，**第一反应改用 user shell subprocess 隔离**，不要先改代码逻辑。

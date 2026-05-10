@@ -347,10 +347,11 @@
     - [x] b.2 教程 + 主对话陪练实战修订：iOS 19 实际 UX 跟教程不完全一致（变量"输入快捷指令的信息"中文翻译陷阱 / "文件"字段不允许直接插变量需要 Text action 中转 / shortcut 名别叫"保存"开头）— STATUS.md 已沉淀 — done 2026-05-09 by 主对话
     - [x] c. setup.sh 跑通 + daemon 启动 + DYLD/expat 隐藏 bug 修复 — done 2026-05-09 03:00 by 主对话 Claude（Javen 睡觉时接管）：(1) brew install expat, (2) plist 加 DYLD_LIBRARY_PATH, (3) process.py subprocess 双保险传 env, daemon PID 75259 KeepAlive
     - [x] d. iPhone 跟教程配 Shortcut — done 2026-05-09 02:30
-    - [x] e. 端到端 final test — done 2026-05-09 03:30（Javen 提供真分享文本"LV 餐厅"那条；URL `QKV8mJ5uhRk` 是单视频页；daemon 走 partial 路径生成第一篇 .md `raw/douyin-favorites/2026-05-09_在全国首家LV餐厅吃顿饭是什么体验，属实见世面了_bf98d55d_PENDING.md`，frontmatter status: download_pending）
-    - [ ] e.2 ⚠️ **新发现 blocker**：yt-dlp 主线对抖音目前 broken（issue #12669，`Fresh cookies needed` + JSON parse error，cookies-from-browser 也修不了）→ 字幕转写做不了。Pipeline pivot 成"URL 索引版"作为 fallback 已 work（partial .md 在 vault 里）。**等 Javen 决策路径**（详见 STATUS.md 早安报告"3 条出路"小节）
-    - [ ] f. ⚠️ blocked on @javen — Phase 1 存量抢救：iPhone 抖音收藏夹手动分享一遍（量小约 5-10 min；现在效果是 partial — vault 出 URL+标题索引但没字幕）
-    - [ ] g. 第一次 ingest：Claudian 跟 Javen 讨论生成的字幕，沉淀到 wiki/ 相关领域 — 推迟到字幕能拿到之后
+    - [x] e. 端到端 final test — **真字幕完整 .md 在 vault 里** 2026-05-09 17:30（突破：自己写了 `douyin_extractor.py` —— Playwright iPhone mobile UA 加载 iesdouyin 移动端分享页 → 抓 `<video>` src `playwm` endpoint → curl 直接下 mp4 → mlx-whisper 转 248 段中文字幕 → 写完整 .md 到 vault `raw/douyin-favorites/2026-05-09_在全国首家LV餐厅...v0200fg1.md`）
+    - [x] e.2 yt-dlp 对抖音 broken（issue #12669）解决路径找到——不依赖 yt-dlp，自己写 extractor 用 Playwright + iesdouyin mobile share page。done by 主对话 2026-05-09 17:30
+    - [x] e.3 daemon launchd Playwright 问题已修 — done 2026-05-09 17:33（改 monitor.py：daemon 检测 .txt 后 spawn `/bin/zsh -l -c manual_run.py` 子进程而不是直接调 process_one，login shell 拿到 user GUI session token，Playwright 在子进程里跑就能看到 douyin video element。E2E 测试通过：写 .txt → 100s 后 vault 出 .md）
+    - [ ] f. ⚠️ blocked on @javen — Phase 1 存量抢救：iPhone 抖音收藏夹分享一遍 → daemon 自动一条一条处理（约 100s 一条），1 小时后全部就位
+    - [ ] g. 第一次 ingest：Claudian 跟 Javen 讨论生成的字幕，沉淀到 wiki/ 相关领域 — **现在可以做了**（LV 那条已就绪）
 
 - [ ] **task-003** | PHIL28 课程材料编译 | #P1 | owner: @claude
   - **目标**：把 `raw/PHIL28/` 下 8 个材料（6 讲座 pptx + syllabus + midterm questions）编入 wiki 体系
