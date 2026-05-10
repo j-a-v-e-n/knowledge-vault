@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-10 [Tab B 主对话: API key 收到 → Sonnet 30-win pilot 7.90 BPM → update report Overleaf zip 交付; e.4 + g 标 [x]]
-**当前状态**：2 进行中（task-003 + task-020）/ 0 阻塞 / **12** 待启动 / 7 已完成
+**最后更新**：2026-05-10 [daemon 03:XX: task-022 slides(10页Marp)+演讲稿+Q&A完成; task-018 b.3 + task-022 a/b/d/e 标 [x]; task-022 移阻塞列]
+**当前状态**：2 进行中（task-003 + task-020）/ 1 阻塞（task-022）/ **11** 待启动 / 7 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -263,7 +263,7 @@
     - [x] a. 主对话写代码骨架 → `MyBrain/projects/ece284-llm-ppg/`（data.py, troika_lite.py, rf_baseline.py, llm_lambda.py, react_agent.py, evaluate.py, README）— daemon 2026-05-05 确认所有文件存在
     - [x] b.1 数据下载（DATABASE/Training_data 12 subjects）— done 2026-05-04 by Tab A
     - [x] b.2 pip install scipy/numpy/scikit-learn/anthropic/mat73/tqdm — done 2026-05-04 by Tab A
-    - [ ] b.3 ⚠️ blocked on @javen — ANTHROPIC_API_KEY 仍需生成
+    - [x] b.3 ANTHROPIC_API_KEY — done 2026-05-10 by Javen（主对话提供 key → ~/.config/anthropic-keys/ece284, chmod 600, 108 chars）
     - [x] c. TROIKA-lite 实现 + 12-subject LOSO sanity check — done 2026-05-05 by Tab B (overall MAE **23.46 BPM**, best subj 4 = 6.87 / worst subj 10 = 65.06; results/troika_loso.json + 加 --loso CLI 模式)
     - [x] d. Random Forest baseline 12-subject LOSO — done 2026-05-05 by Tab B (overall MAE **10.53 BPM**, best subj 5 = 4.27 / worst subj 2 = 17.57; **比 TROIKA-lite 好 55.1%**; results/rf_loso.json with all_predictions)
     - [x] e.1 Claude λ-generator 代码 + Anthropic prompt caching — done 2026-05-05 by Tab B
@@ -345,7 +345,7 @@
     - [ ] d. （可选）如有概念不确定，主对话讨论
   - **关联**：[[COGS117_概览]]（如存在）
 
-- [ ] **task-022** | ECE284 Week 8 milestone — Project Update + 演讲 | #P0 🔥🔥 | owner: 混合（@claude 写 / @javen 提交+讲）| **deadline 5/11 update + 5/12 演讲**
+- [ ] **task-022** | ECE284 Week 8 milestone — Project Update + 演讲 | #P0 🔥🔥 | owner: 混合（@claude 写 / @javen 提交+讲）| **deadline 5/11 update + 5/12 演讲** | ⚠️ blocked on @javen — update 需提交 Canvas (5/11) + 彩排/讲 (5/12)
   - **目标**：交 Week 8 ECE284 project update report (5/11 周一 due) + 准备 5/12 周二的 in-class presentation（PPT + 演讲稿）
   - **触发**：Javen 2026-05-10 00:45 主对话告知"284 的 project update 明天 due，后天 284 还有个演讲"——比之前以为的 Week 8 (5/20) 早 9 天
   - **Definition of Done**：
@@ -369,11 +369,11 @@
       - Javen: 晚上彩排一次（朗读 + 按时间）
     - **D-0 (5/12 周二)**：演讲（教室）
   - **子任务**：
-    - [ ] a. 把 update markdown 转 LaTeX (ACM 2-col) — 主对话 5/10 推
-    - [ ] b. Render update PDF + reviewer audit
+    - [x] a. 把 update markdown 转 LaTeX (ACM 2-col) — done 2026-05-10 by Tab B 主对话（update_report.zip, ACM Large 2-column sigconf）
+    - [x] b. Render update PDF + reviewer audit — done 2026-05-10 by Tab B 主对话（reviewer fix 8 事实错误 + 3 figures; Overleaf-ready zip 交付）
     - [ ] c. ⚠️ blocked on @javen — 提交 update Canvas (5/11)
-    - [ ] d. PPT 内容大纲 + slides — 主对话 5/10-5/11 推
-    - [ ] e. 演讲稿 + Q&A 预测 — 主对话 5/11 推
+    - [x] d. PPT 内容大纲 + slides — done 2026-05-10 by daemon（slides_presentation.md, 10-page Marp, 含数据表/架构图/next steps）
+    - [x] e. 演讲稿 + Q&A 预测 — done 2026-05-10 by daemon（speech_script.md: 12-min script + 7条Q&A建议回答）
     - [ ] f. ⚠️ blocked on @javen — 彩排 + 5/12 现场讲
   - **关联**：[[ECE284 syllabus]]，task-018，`projects/ece284-llm-ppg/project_update_draft.md`
 
@@ -453,7 +453,7 @@
 
 ## 🔒 阻塞
 
-（暂无）
+- [ ] **task-022** (卡片在待启动列) | ECE284 Week 8 milestone | blocked on @javen — c: 提交 Canvas 5/11 + f: 彩排/讲 5/12 | claude 侧 a/b/d/e 全部 [x]
 
 ---
 
