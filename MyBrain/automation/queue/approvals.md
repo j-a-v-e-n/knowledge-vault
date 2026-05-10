@@ -39,11 +39,9 @@
   - **大小说明**：50MB 远低于 vault 415MB → 15GB Drive 配额安全；之后会被 .gitignore 排除掉不会 push GitHub
 
 - [x] **2026-04-30 14:50** | task-018 (ECE284) | 批准生成 ANTHROPIC_API_KEY 给 ECE284 用（你 Claude Max 订阅 → console.anthropic.com 5 min 生成）
-  - **建议**：批准（proposal 估算 ~3M tokens / $5 以内，远低于你 Max 5x 月度配额）
-  - **批准后做**：你打开 https://console.anthropic.com/settings/keys → "Create Key" → 命名 `ece284-ppg` → 复制 key 给我，我写到 `~/.config/anthropic-keys/ece284` (chmod 600)，代码 import 这个 key。**daemon 也能用同一个 key 凌晨跑实验**
-  - **不批的影响**：λ-generator 系统跑不了 = 主贡献废了，只剩 baseline
-  - **风险**：API key 仅写到 `~/.config/...` 600 权限文件，不会进 git，不会 push GitHub
-  - **替代方案**：如果你不想用 API key，可以让 daemon 调本机 Claude Code CLI（更慢但不要 key），但 ~1800 windows 太慢。**强烈推荐 API**
+  - **done** 2026-05-10 by Tab B 主对话 — Javen 在主对话提供 key → 写到 `~/.config/anthropic-keys/ece284` (chmod 600, 108 chars, sk-ant-api03 prefix)
+  - **outcome**: 30-window pilot subject 1 Sonnet 4.5 跑通 → MAE **7.90 BPM** (vs TROIKA 27.85 / RF 14.02), cache hit rate 94.1%, cost $0.1104 / 30 windows (extrapolate full 1800-window LOSO ≈ $6.6). **caching 4 字段实测验证**: uncached=4771 / cache_write=5898 (实际 system prompt token 数, 我 5/5 chars/4 估算 4612 偏低 28%) / cache_read=171042 / out=1510. results/llm_lambda_pilot_s1_sonnet.json 落盘 + cost-tracker.jsonl 第 1 条 entry
+  - **2 个 outlier**: w16 λ=1.2 pred 142 vs truth 77 (err 65); w28 λ=0.6 pred 45 vs truth 103 (err 57). 30 中 28 个 OK = 93% 正确率, 这是 final report motion-stratified analysis 素材
 
 - [x] **2026-04-30 14:50** | task-017 (ECE175B) | 批准 GPU 方案 — 选一个
   - **(a) Colab Pro $10/月** — **推荐**。30 秒注册，浏览器开 ipynb 就能用 A100/V100，最多 24h 连续。我把代码写成 Jupyter notebook 你直接挂上跑

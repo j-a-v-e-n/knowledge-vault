@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-09 03:30 [daemon dawn-shift: AI Watch 报告生成 ✅；task-018 g 草稿写完 ✅；task-017 a.2 daemon 环境 blocked]
-**当前状态**：2 进行中（task-003 + task-020）/ 0 阻塞 / 9 待启动 / 7 已完成
+**最后更新**：2026-05-10 [Tab B 主对话: API key 收到 → Sonnet 30-win pilot 7.90 BPM → update report Overleaf zip 交付; e.4 + g 标 [x]]
+**当前状态**：2 进行中（task-003 + task-020）/ 0 阻塞 / **12** 待启动 / 7 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -274,11 +274,28 @@
         - **owner mindset 主动校准**: 发现原 motion thresholds (1.5/3.0) 在 IEEE SPC 2015 实际分布 (0.85-2.26) 下永远到不了 high regime — 改成 1.3/1.7 让 LLM 真看到三档分布; 同步改 10 个 few-shot examples 的 accel_rms 数值到现实范围 + FAQ Q5 的"4.5"改成"2.1"
     - [x] e.2 cost_tracker.py 中央 logger — done 2026-05-05 by Tab B (jsonl 写 MyBrain/automation/logs/cost-tracker.jsonl, daemon-friendly entry-point `log_run(source, model, ...)`, summarize() rollup by source/model)
     - [x] e.3 Mock test 5/5 pass — done 2026-05-05 (test_caching_mock.py: 验证 4 字段累加 + 1.25/0.10/1× 三档定价 + jsonl 字段 + 82% 省钱预测 + Haiku pricing)
-    - [ ] e.4 ⚠️ blocked on @javen API key — λ-generator pilot 30 windows × subject 1 × Sonnet vs Haiku
+    - [x] e.4 Sonnet 4.5 pilot 30 windows × subject 1 — done 2026-05-10 by Tab B 主对话
+        - Javen 在主对话提供 ANTHROPIC_API_KEY → 写到 `~/.config/anthropic-keys/ece284` (chmod 600, 108 chars)
+        - **MAE 7.90 BPM** vs TROIKA (same 30 windows) 10.55 / RF (same 30 windows) 11.94 → fair: -25% vs TROIKA, -34% vs RF
+        - **caching 实测**: cache hit rate 94.1%; uncached=4771 / cache_write=5898 (实际 system prompt token, chars/4 估算 4612 偏低 28%) / cache_read=171042 / out=1510; cost $0.1104 / 30 windows → extrapolate full LOSO ≈ $6.6
+        - 2 outliers: w16 λ=1.2 pred 142 vs truth 77 (err 65); w28 λ=0.6 pred 45 vs truth 103 (err 57) — final report motion-stratified analysis 素材
+        - results/llm_lambda_pilot_s1_sonnet.json 落盘 + cost-tracker.jsonl 第 1 条 entry
+        - **Haiku 4.5 pilot 仍 pending** (next step before 全 LOSO)
     - [ ] f. 全 12 subjects LOSO 评估 → MAE 总分 + motion-level 分层 + λ appropriateness 100-window 分析 + token cost
     - [x] f.0 baselines_comparison.png/pdf — done 2026-05-05 by Tab B (双 panel: 左=per-subject TROIKA vs RF bar chart, 右=motion regime boxplot RF error: low n=508 median 3 BPM / med n=673 median 5 BPM / high n=587 median 10 BPM — final report §4 直接可用)
-    - [ ] g. Project Update report (Week 8, 2026-05-20 截止) — 进度 + 1-2 张架构图 / 初步结果图
-        - **daemon 2026-05-09**：草稿已写完 → `projects/ece284-llm-ppg/project_update_draft.md`（5 节 + 表格 + 图引用 + Next Steps）。待 Javen: ① 拿到 API key 补 λ-generator 结果 ② LaTeX 转换 ACM 2-col → 提交 Canvas
+    - [x] g. Project Update report — done 2026-05-10 by Tab B 主对话 (⚠️ deadline conflict: 看板上文 5/11 周一 vs Javen 5/10 主对话说"后天=5/12 周二"; 按保守 5/11 口径催 Javen 提交)
+        - **daemon 5/9 草稿 → 修 8 个事实错误**: window 长度 (30s→8s/1000 samples), HR band (0.67-3.33→0.4-5.0 Hz), RF features (14→4), λ range/role (混合权重→spectral subtraction weight ∈ [0.1, 3.0]), prompt fields (4→6 含 PPG top-3 + last 3 HR), motion threshold units (g→raw RMS), system prompt token (4612 估→5898 实测), deadline (5/20→5/11)
+        - **3 figures generated** (ACM-quality vector PDF):
+            - `results/architecture.pdf`: λ-generator system pipeline (PPG → 6-field summary → cached prompt → Claude Sonnet → λ → fixed pipeline → HR; 含 cost annotation)
+            - `results/baselines_comparison.pdf`: per-subject + motion regime boxplot (5/5 制作)
+            - `results/pilot_subj1_comparison.pdf`: 30-window 三系统 HR vs ground truth + λ choice over time
+        - **Overleaf-ready zip 交付**: `MyBrain/projects/ece284-llm-ppg/update_report.zip` (5 文件, 87 KB, 平铺无子目录) — Javen 上 Overleaf "New Project → Upload Project" 一键 import
+            - update_report.tex (ACM Large 2-column sigconf, 跟 final report 同模板)
+            - references.bib (6 条引用: Zhang 2015 TROIKA, LemurDx, DopFone, Anthropic prompt caching, Shah LossOfPulse, Apple Heart Study)
+            - architecture.pdf / baselines_comparison.pdf / pilot_subj1_comparison.pdf
+            - report/README_overleaf.md 给 Javen 编译 + 提交步骤 (含 2 种常见错误的解法)
+        - **AI use disclosure 段已写**（syllabus 强制要求）: 明示 code/draft AI 生成 + Javen 审 + 数字 verify 指向 results/*.json
+        - **下一步**: ① Javen Overleaf compile (10 min) ② Canvas submit ③ deadline confirm
     - [ ] h. (Stretch) Claude ReAct orchestrator + 同 LOSO 评估 → 跟 λ-generator 头对头对比
     - [ ] i. Final report (Week 10, 2026-06-05 左右) — 7-10 页 ACM Large 2-column + GitHub repo
     - [ ] j. ⚠️ blocked on @javen — 期末交报告 + Final Oral defense (Week 11)
@@ -312,6 +329,71 @@
     - [ ] h. （等 task-013 完成后）改 4 个 subagent 的 model 字段路由到 DeepSeek，再跑一次 smoke test
     - [ ] i. （观察 1 周）哪些任务 subagent 跑得好 / 哪些回退 single-agent 更好；总结到 `MyBrain/automation/docs/lessons.md`
   - **关联**：[[AI 团队设计原则]], [[超级个体_工具与杠杆]], [[claude-code-router-setup.md]]
+
+- [ ] **task-021** | COGS117 选择题作业 | #P0 🔥 | owner: @javen | **deadline 2026-05-10 (今天)**
+  - **目标**：完成 COGS117 选择题作业并提交（Canvas 5/9 晚已恢复）
+  - **触发**：Javen 2026-05-10 00:45 主对话告知"COGS117 选择题今天 due"
+  - **Definition of Done**：题做完 + 通过 Canvas 提交（或 Piazza 备份方案）
+  - **创建**：2026-05-10
+  - **🤖 AI vs Javen 分工**：
+    - ✅ **@claude 能干**：如果 Javen 把题贴过来或截屏，可帮 review / 解释概念
+    - ❌ **必须 @javen**：登 Canvas 看题 + 真正答 + 提交（学术诚信，不代答）
+  - **子任务**：
+    - [ ] a. ⚠️ blocked on @javen — 登 Canvas 找到选择题作业（Canvas 5/9 已恢复）
+    - [ ] b. 答完
+    - [ ] c. 提交
+    - [ ] d. （可选）如有概念不确定，主对话讨论
+  - **关联**：[[COGS117_概览]]（如存在）
+
+- [ ] **task-022** | ECE284 Week 8 milestone — Project Update + 演讲 | #P0 🔥🔥 | owner: 混合（@claude 写 / @javen 提交+讲）| **deadline 5/11 update + 5/12 演讲**
+  - **目标**：交 Week 8 ECE284 project update report (5/11 周一 due) + 准备 5/12 周二的 in-class presentation（PPT + 演讲稿）
+  - **触发**：Javen 2026-05-10 00:45 主对话告知"284 的 project update 明天 due，后天 284 还有个演讲"——比之前以为的 Week 8 (5/20) 早 9 天
+  - **Definition of Done**：
+    - 5/11: project_update.tex/pdf 提交 Canvas（已恢复）
+    - 5/12: 演讲 PPT + 讲稿 ready，Javen 在课堂上能流畅讲完
+  - **创建**：2026-05-10
+  - **关联 task-018 子任务 g**（已更新 deadline 引用本任务）
+  - **🤖 AI vs Javen 分工**：
+    - ✅ **@claude 主对话**：把 `project_update_draft.md` LaTeX 化（ACM 2-column）→ render PDF；写 PPT 内容大纲（Marp/Slidev/Keynote 模板）；写演讲稿要点 + Q&A 预测
+    - ✅ **writer subagent**：润色 update report 语言；整理演讲讲稿
+    - ✅ **reviewer subagent**：交付前 audit 报告事实和图表
+    - ❌ **必须 @javen**：① 提交 Canvas ② 真上台讲
+  - **三天 plan (5/10 周日 → 5/11 周一 → 5/12 周二)**：
+    - **D-2 (5/10 周日今天)**：
+      - 主对话：把 `projects/ece284-llm-ppg/project_update_draft.md` 转 LaTeX (ACM 2-column NeurIPS 模板可复用 ECE175B midterm 的)
+      - 主对话：起草 PPT 内容大纲（建议 8-12 页：问题 / 4 baselines / 当前结果 TROIKA 23.46 vs RF 10.53 / λ-generator 设计 / Next Steps）
+      - reviewer 跑一遍 update PDF
+    - **D-1 (5/11 周一)**：
+      - Javen: 早上交 update PDF
+      - 主对话：写演讲稿（15 min 标准长度，按 PPT 节奏）+ 演讲 Q&A 预测题（教授可能问 LOSO / 数据集偏差 / why LLM 等）
+      - Javen: 晚上彩排一次（朗读 + 按时间）
+    - **D-0 (5/12 周二)**：演讲（教室）
+  - **子任务**：
+    - [ ] a. 把 update markdown 转 LaTeX (ACM 2-col) — 主对话 5/10 推
+    - [ ] b. Render update PDF + reviewer audit
+    - [ ] c. ⚠️ blocked on @javen — 提交 update Canvas (5/11)
+    - [ ] d. PPT 内容大纲 + slides — 主对话 5/10-5/11 推
+    - [ ] e. 演讲稿 + Q&A 预测 — 主对话 5/11 推
+    - [ ] f. ⚠️ blocked on @javen — 彩排 + 5/12 现场讲
+  - **关联**：[[ECE284 syllabus]]，task-018，`projects/ece284-llm-ppg/project_update_draft.md`
+
+- [ ] **task-023** | 明日口语题作业 | #P0 🔥 | owner: @javen | **deadline 2026-05-11 (明天)**
+  - **目标**：完成"口语题"作业并交（Javen 2026-05-10 00:45 主对话提到，但**未指明哪门课**）
+  - **触发**：Javen 2026-05-10 主对话："cogs117选择题今天due，284 的 project update，**口语题**都是明天 due"
+  - **⚠️ 待 Javen 补充**：是哪门课的口语题？候选（按可能性）：
+    - **ECE284**（如是 oral defense / 课堂答题，但跟 task-022 5/12 演讲不是同一件事，因 Javen 单独提）
+    - **COGS117**（不太可能，本课 Notebook + Design Challenge 为主）
+    - **ECE175B**（midterm 刚交，下个 milestone Week 10 final）
+    - **其他通选课**（Javen 这季度还选了哪些课？）
+  - **Definition of Done**：题做完 + 提交 + 写在备注里实际课程
+  - **创建**：2026-05-10
+  - **🤖 AI vs Javen 分工**：
+    - ✅ **@claude**：Javen 告诉课程后，可帮看题 / 讨论 / 录音稿润色（如是 oral 录音）
+    - ❌ **必须 @javen**：自己答（不代答）+ 提交
+  - **子任务**：
+    - [ ] a. ⚠️ blocked on @javen — 告诉我是哪门课的口语题（一句话即可）
+    - [ ] b. 看题 / 准备答案
+    - [ ] c. 提交
 
 ---
 
