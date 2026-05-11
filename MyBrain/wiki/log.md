@@ -1,8 +1,10 @@
 # Wiki 操作日志
 
-## [2026-05-11] Ingest | Med-HALT 论文（跨课程 LLM 文献） + INDEX 补 Singhal MedPaLM2 漏入
+## [2026-05-11] Ingest | Med-HALT 论文 + 演讲稿（**Javen 周二 5/12 ECE284 primary lead**） + 5/10 错记修正
 
-Javen 跟 Yixian 合作 lead 一个 Med-HALT paper presentation（Part 3 + 4 由 Javen 做）。早上首次混淆 Med-HALT vs Med-PaLM 2，重新下载后发现下错（下成 Med-PaLM 2）；用 curl 从 arXiv 直接下载真正 Med-HALT PDF，按标准 ingest 流程编译。
+**🚨 关键事实更正**：5/10 Claude 误以为 Javen 周二 ECE284 primary lead 的是 [[Singhal_2025_MedPaLM2_演讲|Med-PaLM 2]]，因此编了一份 Med-PaLM 2 演讲稿（虽 log.md 记录但**该 md 文件在本机 fs 找不到——5/10 写入可能失败**）。实际上 Javen 5/12 lead 的是 **Med-HALT**，跟 Yixian Wang co-lead——Yixian 做 Part 1+2 (Slides 1-8 已完成)，Javen 做 Part 3 Results + Part 4 Discussion。
+
+Javen 5/11 凌晨主对话先 spawn researcher 抓 Med-HALT arXiv 内容（researcher 无 Write 权限，结构化数据返回主对话），主对话 curl 直接从 arXiv 下载 Med-HALT PDF，按标准 ingest 流程编译。完成后 Javen 说"这就是我周二要讲的"——触发关键事实更正 + 紧急建演讲稿。
 
 ### 文件操作
 
@@ -14,6 +16,7 @@ Javen 跟 Yixian 合作 lead 一个 Med-HALT paper presentation（Part 3 + 4 由
 | 类型 | 页面 | 位置 |
 |---|---|---|
 | source | [[Pal_2023_MedHALT]] | `notes/AI/` (镜像 raw/AI/) |
+| source | [[Pal_2023_MedHALT_演讲稿]] | `notes/ucsd/Spring 2026/ECE284/` (Week 7 5/12 演讲稿，含 4 类 discussion questions + Primary Oral Assessment 预期清单) |
 | concept | [[LLM 医疗评测]] | `wiki/医疗技术/` (跨 Med-HALT + Med-PaLM 2 提取) |
 
 ### 图片处理（5 张，PyMuPDF 2.5× zoom）
