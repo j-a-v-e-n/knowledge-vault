@@ -72,3 +72,30 @@ Over the course of the quarter, completed full hands-on autonomous vehicle build
 **Hardware:** Circuit testing & calibration (LTspice, PSpice), 3D printing
 **Languages:** English (fluent), Mandarin Chinese (native)
 
+---
+
+## ADDITIONAL PROJECTS
+
+### Personal AI Workspace System (2026–Present)
+
+*Self-initiated autonomous knowledge and productivity infrastructure*
+
+- Designed and deployed a fully autonomous AI agent system: nightly scheduled Claude-based daemon runs at 3 AM, processes task queues, generates daily AI trend reports, and triages emails without human intervention
+- Built a 4-role AI subagent team (researcher / engineer / writer / reviewer) using Claude's agent SDK with model-tier routing (Haiku for research, Sonnet for engineering/writing) — applied to two concurrent academic project pipelines
+- Engineered an end-to-end video pipeline: iOS Shortcut captures Douyin video links → macOS launchd monitor → Playwright-based extractor → local MLX-Whisper transcription → Obsidian vault Markdown notes; handles anti-bot protections without external API dependency
+- Implemented production-grade prompt caching for ECE284 LLM experiment: 94.1% cache hit rate, reduced per-run API cost from ~$0.37 to ~$0.004 (99% reduction) on 30-window pilot
+- Stack: Python, Anthropic Claude API, Playwright, MLX-Whisper, macOS launchd, Obsidian, Git
+
+> 注：这个 portfolio item 强调"AI 系统的设计者和 builder"而非仅"AI 用户"——这是 AI 公司 (Anthropic FDE / AI Solutions Engineer) 岗位最看重的 signal。面试时能描述 architecture decision + tradeoff，不只说"我用了 AI"。
+
+---
+
+## 简历修改备忘（4/28 审阅发现的强化点 — 还未全部落实）
+
+1. **Foton 实习加数字**：当前无任何量化。建议：如果 ECU 标定有测试件数量/结果 accuracy 等，加进去
+2. **ECE148 final project 加 mAP**：YOLOv8 在 recycling 检测任务上的 detection 性能数字
+3. **ECE284 项目（现在进行中）**：上面 master resume 里仍是占位符，结项后替换为真实 results（LOSO MAE / LLM vs TROIKA 对比）
+4. **Skills 加 PyTorch**：ECE175B 用到，可加；加后 ML stack 更完整
+5. **GitHub 链接**：ECE148 final project 已有 github.com/UCSD-ECEMAE-148/... 可以确认可见性；ECE284 private repo 结项 public 后加
+6. **Personal AI Workspace System** (上面已加 ✅)：这是独特的 differentiator，不同于课内项目
+

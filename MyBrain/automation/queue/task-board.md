@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-11 [批量编译抖音 8 个 AI 主题视频完成 (task-025 ✅)；含 fact-verification (3 researcher agents) + 14 新文件 (8 source + 3 concept + 2 synthesis + 1 overview)；触发 task-026 实战 follow-up (Ollama 安装试用 / Anthropic FDE watch list / 简历升级 vault portfolio)]
-**当前状态**：3 进行中（task-003 + task-020 + task-024）/ 1 阻塞（task-022）/ **12** 待启动 / **8** 已完成
+**最后更新**：2026-05-11 [daemon dawn-shift: task-026 启动，sub b/c/e 完成 (applications.md +6 watch list + resume 加 portfolio item + permissions audit 报告)；ai-watch 2026-05-11 产出 (AGIBOT GO-2 / 中国 coding 模型 / cyber offense acceleration)]
+**当前状态**：4 进行中（task-003 + task-020 + task-024 + task-026）/ 1 阻塞（task-022）/ **11** 待启动 / **8** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -54,10 +54,10 @@
     - **d) Portfolio demo materials**（@javen 主做）：录 5 min vault demo 视频 + 写 GitHub README + 草个人博客文章（不急，1 月内完成即可）
     - **e) Permissions audit**（@claude）：扫 `.claude/settings.local.json` 对照 [[2026-05-11_Claude_Code_permissions提前授权]] 的推荐配置，列 gap
   - **Definition of Done**：
-    - [ ] Ollama 装好 + Javen 跑过一个 prompt
-    - [ ] applications.md 加至少 5 个 AI 公司 watch list
-    - [ ] resume-master.md 加 vault portfolio item
-    - [ ] permissions audit 报告写完
+    - [ ] Ollama 装好 + Javen 跑过一个 prompt ⚠️ blocked on @javen
+    - [x] applications.md 加至少 5 个 AI 公司 watch list — done 2026-05-11 by daemon（加 Anthropic FDE / OpenAI / Google AI / NVIDIA / Scale AI / Together.ai 6条 watch list，含 keyword 建议）
+    - [x] resume-master.md 加 vault portfolio item — done 2026-05-11 by daemon（加 "Personal AI Workspace System" portfolio item：daemon + subagent team + douyin pipeline + caching 4项量化成果）
+    - [x] permissions audit 报告写完 — done 2026-05-11 by daemon（报告在 `automation/docs/permissions-audit-2026-05-11.md`；关键发现：settings.local.json 不存在，settings.json 缺 deny 字段和 Read/Edit 通用权限）
   - **关联**: [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] | [[AI 编码工具生态全景]] | [[本地大模型推理]] | [[AI agent 时代的团队与岗位]]
 
 - [ ] **task-011** | 每日邮箱 triage（daemon 自动扫 jacao@ucsd.edu 把重要邮件提上来） | #P0 | owner: @claude（**主对话**搭，daemon 跑）

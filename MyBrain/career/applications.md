@@ -47,6 +47,23 @@
 
 ---
 
+## 🔭 Watch List（尚未开放 / 持续监测）
+
+AI 公司方向岗位，招聘窗口开启时优先投。更新：2026-05-11 by daemon。
+
+| 公司 | 岗位方向 | 状态 | 备注 |
+|------|---------|------|------|
+| **Anthropic** | Field Developer Engineer (FDE) / AI Solutions Engineer | 👀 监测中 | $180-550K 全职；看 jobs.anthropic.com 有无实习/新增 entry-level；**最高优先级** — Javen vault AI 系统正是 FDE 核心技能展示 |
+| **OpenAI** | Solutions Engineer Intern / AI Engineer Intern | 👀 监测中 | 一般 Fall cycle（9-12 月）开；简历要加 "built multi-agent AI systems" keyword |
+| **Google DeepMind / Google AI** | Software Engineer Intern (AI) | 👀 监测中 | 竞争激烈但体量大；需要 LeetCode Hard 准备；keyword: ML infrastructure, agent systems |
+| **NVIDIA** | AI Application Engineer Intern / Developer Relations Intern | 👀 监测中 | 偏 edge AI + robotics；ECE148 / ECE175B + Jetson 经验直接命中；SD 附近有 Santa Clara 总部 |
+| **Scale AI** | ML Engineer Intern / RLHF Researcher | 👀 监测中 | 硅谷创业氛围；偏 data + evaluation；Javen AI 系统评估经验（ECE284 benchmark 框架）可用 |
+| **Together.ai / Cohere / Mistral AI** | AI Engineer Intern | 👀 监测中 | 开源模型生态；中小型 AI 公司，面试 bar 可能低于 Anthropic/OpenAI；关注 open-weight + edge 方向 |
+
+> 说明：以上均为"尚未开放或 Javen 尚未投递"的目标，仅作 pipeline 规划。窗口开启后升格到"投递列表"。
+
+---
+
 ## 备注
 
 - **精投原则**：每份花 ~30 分钟（读 JD + 微调简历 + 写定制 cover letter），不海投
