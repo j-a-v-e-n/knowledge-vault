@@ -18,6 +18,44 @@ confidence: high
 
 ---
 
+## 📑 来源说明（哪些是 paper / 哪些是我的扩展）
+
+为了让你 oral assessment 引用时不混淆，下面按 section 分类。Paper 直接论断的内容可以 attribute 给作者；标"我的扩展"的部分如果被追问"这在 paper 哪页"，应该回答"paper 没明说，这是我基于 X 的推论"，而不是 attribute 给作者。
+
+**主要忠于 paper 的 section**（数据 / 设计 / 实验结果直接来自论文）：
+- §1.1 Lyme 例子（paper Fig 2）
+- §1.2 已有 benchmark 不够（paper related work）
+- §2.1 RHT/MHT 拆分（paper 核心框架）
+- §2.2 RHT 三个 task 的挖坑机制（paper 设计）
+- §2.3 MHT 四个 task（paper 设计）
+- §2.4 Pointwise Score 公式（paper 公式）
+- §2.5 多国数据集统计（paper Table 1）
+- §3.1-3.3 三个发现的数字（paper Tables 2-3）
+- §3.4 探索性分析数字（paper Figs 5-6 + Table 4）
+- §5.1 论文承认的局限（paper §7）
+
+**我（AI）扩展的内容**（基于 paper 数据 + 业界知识做的推论，paper 没明说）：
+- §引子 "评估视角转换" 的 framing — paper 没用这个 phrasing
+- 所有**类比**：Lyme 例子里"老板拖欠工资"、Pointwise scoring 里"驾照考试"、FCT 里"销售员顾客是上帝" — paper 都没这些
+- §2.1 末尾"RHT 靠对抗训练 + **MHT 靠 RAG**" — paper 完全没提 RAG，是我加的业界共识
+- §2.2 FCT 三个临床场景（病人 / 实习医生 / 过时教材）— paper 没具体列
+- §2.3 末尾"模块化 LLaMA-2 推理 + Falcon 文献查找"架构建议 — paper 没提
+- §2.4 "Pointwise Score 可反向当 RLHF reward function" — paper 暗示但未明说，4 步操作是我加的
+- §3.1 **Instruction-tuning Paradox 三个机制假说**（Sycophancy / Knowledge Suppression / Distribution Shift）— paper §6.1 只说一句"有 detrimental effect"，没拆机制
+- §3.3 FCT 临床 implication "LLM 强化人的错误" — 我的洞察
+- §4.1 临床部署 ✅/❌/⚠️ 表 — paper §7 conclusion 只笼统说 "auxiliary use only"，具体 do/don't 是我列的
+- §4.2 训练范式变革整段 — AI 推论
+- §4.3 **跨论文 connection（Med-PaLM 2 + Obermeyer）** — paper 完全没引这两篇
+- §5.2 "论文没承认但应该承认的局限" 整段 — 我自己加的批评
+- §5.3 follow-up 研究方向 — 我自己加的
+- §6.2 Q&A 备答里的具体机制 / 假说 — 同样是我推论，不是 paper 论断
+
+**oral assessment 引用模板**：
+- 引用 paper 数据 / 设计 / 公式 → "Pal et al. (2023) 报告..."
+- 引用我的扩展 → "这是我基于 paper 数据的理解..." 或 "Paper 没明确说，但..."
+
+---
+
 ## 引子：一句话定义这篇论文的灵魂
 
 **Med-HALT 论文的本质是一次"评估视角的转换"：从"测 LLM 能不能答对题"转向"测 LLM 敢不敢说不知道"。**
@@ -112,6 +150,8 @@ Med-HALT 把"医疗 hallucination"拆成两个根本不同的能力：
 因为这是两种本质不同的失效模式：
 - RHT 失效 = 模型有相关知识但**推理误导**（被 prompt 引导走偏）
 - MHT 失效 = 模型**根本没有相关知识**但**硬生成看起来合理的内容**填空
+
+*以下"mitigation 路径"是我的扩展（paper 没明确提，特别是 RAG 是业界共识不是 paper 推荐）：*
 
 这两种失效对应不同的 mitigation 路径：
 - RHT 失效要靠**对抗训练 / 鲁棒推理**
@@ -303,6 +343,8 @@ Scoring 真正的设计 intent 是**让"我不知道"成为可优化的策略**�
 
 #### 应用层面：可以反向当 reward function
 
+*以下整段是我的扩展（paper Discussion 暗示了"诚实奖励"方向但没给具体可操作建议，4 步操作流程是我加的）：*
+
 论文 Discussion 暗示但未实证：**Pointwise Score 直接拿去做 RLHF 的 reward function**，能不能训练出更诚实的医疗 LLM？
 
 理论上是可以的——给模型一个 Pointwise Score 优化目标，它会**自然学到弃权策略**，因为弃权的期望收益高于硬答（在它不确定的题上）。
@@ -371,7 +413,9 @@ LLM 的 instruction tuning + RLHF 通常被视为"让模型更好用"的关键�
 
 #### 为什么会这样？— 三个可能的机制
 
-论文 §6.1 只说 "There is a detrimental effect on model's ability to control hallucination after instruction tuning and RLHF"——指出现象但没拆机制。**这正是 oral assessment 会追问的点**。Javen 你需要能给出可能解释：
+论文 §6.1 只说 "There is a detrimental effect on model's ability to control hallucination after instruction tuning and RLHF"——**指出现象但没拆机制**。
+
+*以下三个机制假说是我的扩展（paper 没提）。oral assessment 引用时说"我能想到几个可能的机制"，不要说"paper 提出三个机制"。*
 
 **机制假说 1：Sycophancy Bias（谄媚偏差）**
 
@@ -513,6 +557,8 @@ GPT-3.5 在 Med-HALT 上：
 
 ### 4.2 论文 implicit 提议的训练范式变革
 
+*以下整段是我的扩展。Paper §6 Discussion 只暗示需要"诚实奖励训练"，具体的 4 步实验设计和"如果成立 / 不成立"的推论是我加的。引用时说"我的一个 follow-up 想法"，不是 "paper 提出"。*
+
 Med-HALT 的 Pointwise Score 可以反向变成 RLHF 的 reward function。
 
 **具体怎么操作**：
@@ -528,6 +574,8 @@ Med-HALT 的 Pointwise Score 可以反向变成 RLHF 的 reward function。
 这是 Med-HALT 留下的最重要的 open question。
 
 ### 4.3 跨论文 connection（重点讲 2 个）
+
+*以下两个跨论文对比都是我加的——Pal 2023 paper 完全没引用 Med-PaLM 2（Singhal 2025）也没引用 Obermeyer 2019。这两条 connection 是我从 vault 你已有的笔记里 link 过来的。oral assessment 引用时说"我能想到一个有意思的对比"，不是"paper 讨论了..."。*
 
 #### Connection 1：vs Med-PaLM 2（Singhal 2025 Nature Medicine）
 
@@ -598,6 +646,8 @@ Med-HALT 覆盖了 reasoning 和 memory 两类幻觉，但**没覆盖**：
 
 ### 5.2 论文没承认但应该承认的局限
 
+*以下整节都是我的批评（paper 没有这些 self-critique）。oral assessment 如果引用，phrase 成"我读完后觉得有几个 paper 没充分讨论的局限"，不是"paper 承认了..."。这是 critical reading 的展示，教授会喜欢。*
+
 **局限 5：Instruction-tuning Paradox 因果机制不明**
 
 论文只展示现象（Chat 比 Base 差），没拆机制（为什么差？）。这影响了 actionable mitigation——如果不知道为什么，怎么修复？
@@ -611,6 +661,8 @@ LLaMA-2 70B RHT 强 MHT 弱，Falcon 40B 反之——论文报告了现象但**�
 FQT 用"land of undead + mermaid" 这种 obviously 非医学语言。但**真正的医学 fake question** 应该是 plausible-sounding 但虚构（"Janus syndrome with reverse hepatic conjugation"）。后者更难识别，更接近临床现实（pseudoscience claims、网络谣言）。
 
 ### 5.3 我能想到的 follow-up 方向（如果你做研究）
+
+*以下 6 条研究方向都是我（AI）想的，paper 没列这些。这一节标题已经写明"我能想到的"，oral assessment 引用时直接说"我自己的 follow-up 想法"。*
 
 1. **Adversarial fine-tuning**：用 Med-HALT 的 Pointwise Score 作为 reward，看能否训出更诚实的医疗 LLM
 2. **GPT-4 / Claude / Gemini 跑 Med-HALT**：补充缺失评估对象
@@ -634,6 +686,8 @@ FQT 用"land of undead + mermaid" 这种 obviously 非医学语言。但**真正
 | **7.31%** | GPT-3.5 zero-shot 准确率 | "不给 example 就是瞎答" |
 
 ### 6.2 高频被问问题 + 备答
+
+*备答里的具体机制 / 假说 / 4 个 follow-up task 都是我的扩展，paper 只给数字和现象，没拆机制。你引用时记得用"我能想到几个可能..."这种 phrasing。*
 
 **Q1: 为什么 instruction-tuning 让模型在 hallucination 控制上变差？**
 
