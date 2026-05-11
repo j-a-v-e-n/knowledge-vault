@@ -1,6 +1,6 @@
 # 知识库总目录
 
-**最后更新**：2026-05-04 | **页面总数**：67 | **最新操作**：编译 ECE284 两篇新论文 — (a) [[Tuli_2022_MenstrualTrackers]] CHI '22 印度月经追踪 app HCI critical 研究（Nussbaum capabilities approach 重设计 femtech），ECE284 内**唯一**定性 / 政治哲学维度文献；(b) [[Basavaraja_2024_LaborPrediction]] medRxiv 2024 Oura Ring + AE-LSTM 预测分娩日（前 8 天误差 < 2 天，endocrine 双轨验证），**直接延伸** [[Mason_2024_TemPredict]] 同 Oura+temp+pregnancy 路线。渲染 6 张关键图，[[消费级设备健康感知]] concept 加 2 论据 + "prediction vs capability building" 张力。前次 5-02 修复 ECE284 错位 + 提取核心 concept
+**最后更新**：2026-05-11 | **页面总数**：70 | **最新操作**：编译 [[Pal_2023_MedHALT]] (EMNLP/CoNLL 2023, Saama AI Research)——第一个专门测**LLM 在医疗领域幻觉抗性**的 benchmark；揭示 **Instruction-tuning Paradox**（LLaMA-2 70B Base 72.33% → Chat 11.26% 准确率，差 61pp）+ 闭源 ≠ 更强 + FCT 全军覆没。提取 [[LLM 医疗评测]] concept 页连通 [[Singhal_2025_MedPaLM2_演讲]]（能力评测 vs 诚实度评测两条范式互补）。渲染 5 张关键图到 attachments/AI/。同时补 5/10 漏入 INDEX 的 [[Singhal_2025_MedPaLM2_演讲]] 条目（保 cross-link 完整）。⚠️ **5/10 COGS117 Week 6（Liu 2017 / Stojnic 2023 / Lec 10/11）和 ECE284 Week 7（Ayers / Thirunavukarasu）仍未补入 INDEX，等下次 ingest 一并归并**
 
 ---
 
@@ -97,6 +97,19 @@
 - [[Garg_2025_DopFone]] — Garg et al. (2025 IMWUT)：智能手机 18 kHz Doppler 测胎心率；N=23 孕妇，AdaBoost MAE 2.1±1.3 BPM、95% LoA ±4.9 BPM（< 临床阈值 ±8 BPM），位置无关 + 用户无需训练；BMI ≥ 30 时误差升 33%
 - [[Tuli_2022_MenstrualTrackers]] — Tuli et al. (2022 CHI)：印度德里 12-65 岁 450+ 人月经追踪混合方法研究；Nussbaum central human capabilities 框架重设计 femtech——从"通过控制实现尊严"转向"通过 capability building 实现解放"；ECE284 内唯一定性 / 政治哲学维度文献
 - [[Basavaraja_2024_LaborPrediction]] — Basavaraja et al. (2024 medRxiv)：Oura Ring 连续皮肤温度 + AE-LSTM 预测分娩日；91 孕妇，自然分娩前 8 天平均误差 < 2 天，79% 在 4.6 天窗口内；endocrine（α-pregnanediol↓ + estriol/α-Preg 比值↑）双轨验证；直接延伸 [[Mason_2024_TemPredict]]
+- [[Singhal_2025_MedPaLM2_演讲]] — Singhal et al. (2025 *Nature Medicine*)：Med-PaLM 2——PaLM 2 + 医疗 fine-tune + Ensemble Refinement + Chain of Retrieval，MedQA 86.5%（超 USMLE 及格线）；ECE284 Week 7 (5/12) Javen primary lead 演讲稿（4 段 + 4 类 discussion questions）
+
+---
+
+## 🤖 AI 跨课程文献
+
+存放跨课程通用 LLM / 评测 / 基础模型相关论文，**不绑定单一课程**。原始文件在 `raw/AI/`，source 页镜像至 `notes/AI/`。
+
+### 文献笔记
+- [[Pal_2023_MedHALT]] — Pal, Umapathi & Sankarasubbu (2023 EMNLP/CoNLL, Saama AI Research)：Med-HALT——第一个专门测 LLM 医疗领域**幻觉抗性**的 benchmark；RHT (FCT/NOTA/FQT) + MHT (4 个 PubMed 检索 task) 共 7 个对抗性任务；揭示 **Instruction-tuning Paradox**（LLaMA-2 70B Base 72.33% → Chat 11.26%）+ 闭源 ≠ 更强 + FCT 全军覆没；Scoring +1/−0.25/0 奖励诚实
+
+### 核心概念
+- [[LLM 医疗评测]] — 综合两条范式：**能力评测**（MedQA/USMLE-style accuracy；Med-PaLM 2 代表）vs **诚实度评测**（对抗性 hallucination test；Med-HALT 代表）；同一模型在两类 benchmark 上的成绩还没系统报告（research gap）
 
 ---
 
@@ -105,8 +118,8 @@
 | type | 页面 |
 |------|------|
 | **overview** | [[COGS117_概览]], [[ECE175B_概览]], [[PHIL28_概览]] |
-| **concept** | [[监督学习与无监督学习]], [[自监督学习与基础模型]], [[感知窄化]], [[面孔知觉发展]], [[核心知识理论]], [[物体识别与形状感知]], [[发展研究方法]], [[统一多模态生成架构]], [[动作发展]], [[发展级联]], [[内在动机与好奇心驱动学习]], [[统计学习]], [[词语学习机制]], [[消费级设备健康感知]] |
-| **source** | [[COGS117_2026_课程大纲]], [[Love_2026_监督与无监督学习]], [[Zettersten_2026_计算模型与框架]], [[Frank_2023_数据鸿沟]], [[Cusack_2024_婴儿无助期假说]], [[Zettersten_2025_婴儿主动学习]], [[Scott_2009_面孔知觉偏差起源]], [[Johnson_2024_婴儿感知]], [[Ayzenberg_2024_视觉物体识别发展]], [[Adolph_2018_走路发展15条建议]], [[Oudeyer_2017_婴儿发展机器人]], [[Saffran_1996_统计学习]], [[Vong_2024_单童语言习得]], [[Zettersten_2026_Lecture1_课程导论与大问题]], [[Zettersten_2026_Lecture2_发展研究方法]], [[Zettersten_2026_Lecture4_发展理论]], [[Zettersten_2026_Lecture5_感知发展1]], [[Zettersten_2026_Lecture6_感知发展2]], [[Zettersten_2026_Lecture7_走路与动作发展]], [[Zettersten_2026_Lecture8_语言1与如何读论文]], [[Zettersten_2026_Lecture9_语言2]], [[Zhang_2015_TROIKA]], [[Perez_2019_AppleHeartStudy]], [[Perez_2019_AppleHeartStudy_演讲稿]], [[Shah_2025_LossOfPulse]], [[Bhamla_2017_Paperfuge]], [[Song_2024_SmartphoneMicroscope]], [[Jubran_1990_脉搏血氧仪种族偏差]], [[Obermeyer_2019_医疗算法种族偏见]], [[Luo_2026_NormWear]], [[Mason_2024_TemPredict]], [[Arakawa_2023_LemurDx]], [[Garg_2025_DopFone]], [[Tuli_2022_MenstrualTrackers]], [[Basavaraja_2024_LaborPrediction]], [[ECE175B_Lecture1a_课程导论与DGM概述]], [[ECE175B_Lecture1b_贝叶斯网络]], [[ECE175B_Lecture2_变分自编码器设计]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]], [[2026-04-20_多模态故事生成研究]], [[2026-04-27_AI任务面板自动化系统]], [[PHIL28_2026_课程大纲]], [[PHIL28_2026_期中考题清单]] |
+| **concept** | [[监督学习与无监督学习]], [[自监督学习与基础模型]], [[感知窄化]], [[面孔知觉发展]], [[核心知识理论]], [[物体识别与形状感知]], [[发展研究方法]], [[统一多模态生成架构]], [[动作发展]], [[发展级联]], [[内在动机与好奇心驱动学习]], [[统计学习]], [[词语学习机制]], [[消费级设备健康感知]], [[LLM 医疗评测]] |
+| **source** | [[COGS117_2026_课程大纲]], [[Love_2026_监督与无监督学习]], [[Zettersten_2026_计算模型与框架]], [[Frank_2023_数据鸿沟]], [[Cusack_2024_婴儿无助期假说]], [[Zettersten_2025_婴儿主动学习]], [[Scott_2009_面孔知觉偏差起源]], [[Johnson_2024_婴儿感知]], [[Ayzenberg_2024_视觉物体识别发展]], [[Adolph_2018_走路发展15条建议]], [[Oudeyer_2017_婴儿发展机器人]], [[Saffran_1996_统计学习]], [[Vong_2024_单童语言习得]], [[Zettersten_2026_Lecture1_课程导论与大问题]], [[Zettersten_2026_Lecture2_发展研究方法]], [[Zettersten_2026_Lecture4_发展理论]], [[Zettersten_2026_Lecture5_感知发展1]], [[Zettersten_2026_Lecture6_感知发展2]], [[Zettersten_2026_Lecture7_走路与动作发展]], [[Zettersten_2026_Lecture8_语言1与如何读论文]], [[Zettersten_2026_Lecture9_语言2]], [[Zhang_2015_TROIKA]], [[Perez_2019_AppleHeartStudy]], [[Perez_2019_AppleHeartStudy_演讲稿]], [[Shah_2025_LossOfPulse]], [[Bhamla_2017_Paperfuge]], [[Song_2024_SmartphoneMicroscope]], [[Jubran_1990_脉搏血氧仪种族偏差]], [[Obermeyer_2019_医疗算法种族偏见]], [[Luo_2026_NormWear]], [[Mason_2024_TemPredict]], [[Arakawa_2023_LemurDx]], [[Garg_2025_DopFone]], [[Tuli_2022_MenstrualTrackers]], [[Basavaraja_2024_LaborPrediction]], [[Singhal_2025_MedPaLM2_演讲]], [[Pal_2023_MedHALT]], [[ECE175B_Lecture1a_课程导论与DGM概述]], [[ECE175B_Lecture1b_贝叶斯网络]], [[ECE175B_Lecture2_变分自编码器设计]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]], [[2026-04-20_多模态故事生成研究]], [[2026-04-27_AI任务面板自动化系统]], [[PHIL28_2026_课程大纲]], [[PHIL28_2026_期中考题清单]] |
 | **debate** | [[争论_婴儿被动vs主动学习]], [[争论_新生儿模仿]], [[争论_先天语言vs统计学习]] |
 | **synthesis** | [[综合_医疗技术中的种族偏见]], [[AI 团队设计原则]] |
 
@@ -197,7 +210,17 @@ wiki/                           ← 知识网络（concept/debate/overview/synth
 │   ├── AI 团队设计原则.md                         ← Javen+Claude 共撰元方法论
 │   └── 超级个体_工具与杠杆.md                      ← new 2026-04-29 | QClaw 视频引发的工具/路由策略 synthesis
 └── 医疗技术/                                      ← new 2026-05-02
-    └── 消费级设备健康感知.md                      ← 7+ ECE284 来源支撑的 concept（智能手表/手机/Frugal POC 三支）
+    ├── 消费级设备健康感知.md                      ← 7+ ECE284 来源支撑的 concept（智能手表/手机/Frugal POC 三支）
+    └── LLM 医疗评测.md                             ← new 2026-05-11 (能力评测 vs 诚实度评测两条范式，Med-HALT + Med-PaLM 2 支撑)
+
+notes/AI/                       ← new 2026-05-11 (跨课程 LLM 文献)
+└── Pal_2023_MedHALT.md         ← Med-HALT benchmark 论文 source 页
+
+raw/AI/Med-HALT_Pal_2023/      ← new 2026-05-11
+├── Pal_2023_MedHALT.pdf
+├── 2023-07_Pal_MedHALT_arxiv_abstract_metadata.md
+├── 2023-07_Pal_MedHALT_arxiv_methods_framework.md
+└── 2023-07_Pal_MedHALT_arxiv_results_findings.md
 
 vault 内 system/ 下的元规则（不算 wiki 页面，但 Claude 启动时通过 MyBrain/CLAUDE.md 引用读到）：
 - MyBrain/automation/docs/lessons.md   ← debug 方法论 6 条 + checklist (new 2026-04-28)
@@ -207,7 +230,8 @@ vault 内 system/ 下的元规则（不算 wiki 页面，但 Claude 启动时通
 attachments/
 ├── ECE175B/   (18 slides)
 ├── ECE284/    (figures for 11 sources, +13 new figs from LemurDx + DopFone)
-└── COGS117/   (58 + 33 new = 91 figures: 新增 Saffran ×2 + Vong ×5 + L8 ×8 + L9 ×18)
+├── COGS117/   (58 + 33 new = 91 figures: 新增 Saffran ×2 + Vong ×5 + L8 ×8 + L9 ×18)
+└── AI/        ← new 2026-05-11 (5 figs: Pal_2023_MedHALT 框架 + Lyme 例子 + Dataset stats + Temperature + RHT/MHT 主结果)
 ```
 
 ---
@@ -293,6 +317,15 @@ attachments/
 | **18 kHz 主动声学传感** | [[Garg_2025_DopFone]] |
 | **AdaBoost 回归** | [[Garg_2025_DopFone]] |
 | **低资源医疗 / 即时诊断 POC** | [[Bhamla_2017_Paperfuge]], [[Song_2024_SmartphoneMicroscope]], [[Garg_2025_DopFone]] |
+| **LLM 医疗评测** | [[LLM 医疗评测]], [[Pal_2023_MedHALT]], [[Singhal_2025_MedPaLM2_演讲]] |
+| **LLM 幻觉评测 / Med-HALT** | [[Pal_2023_MedHALT]], [[LLM 医疗评测]] |
+| **能力评测 vs 诚实度评测** | [[LLM 医疗评测]], [[Pal_2023_MedHALT]], [[Singhal_2025_MedPaLM2_演讲]] |
+| **Med-PaLM 2 / 医疗 LLM 产品** | [[Singhal_2025_MedPaLM2_演讲]], [[LLM 医疗评测]] |
+| **Instruction-tuning Paradox** | [[Pal_2023_MedHALT]] |
+| **RHT (Reasoning Hallucination Test)** | [[Pal_2023_MedHALT]] |
+| **MHT (Memory Hallucination Test)** | [[Pal_2023_MedHALT]] |
+| **Pointwise Score / abstention reward** | [[Pal_2023_MedHALT]] |
+| **MedQA / USMLE benchmark** | [[Pal_2023_MedHALT]], [[Singhal_2025_MedPaLM2_演讲]] |
 | 深度生成模型（DGM）| [[ECE175B_概览]], [[ECE175B_Lecture1a_课程导论与DGM概述]] |
 | Bayesian Network | [[ECE175B_Lecture1a_课程导论与DGM概述]], [[ECE175B_Lecture1b_贝叶斯网络]] |
 | VAE | [[ECE175B_Lecture2_变分自编码器设计]], [[ECE175B_Lecture3_变分推断与ELBO]] |

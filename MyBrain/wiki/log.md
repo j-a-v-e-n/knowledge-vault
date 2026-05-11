@@ -1,5 +1,70 @@
 # Wiki 操作日志
 
+## [2026-05-11] Ingest | Med-HALT 论文（跨课程 LLM 文献） + INDEX 补 Singhal MedPaLM2 漏入
+
+Javen 跟 Yixian 合作 lead 一个 Med-HALT paper presentation（Part 3 + 4 由 Javen 做）。早上首次混淆 Med-HALT vs Med-PaLM 2，重新下载后发现下错（下成 Med-PaLM 2）；用 curl 从 arXiv 直接下载真正 Med-HALT PDF，按标准 ingest 流程编译。
+
+### 文件操作
+
+- `curl https://arxiv.org/pdf/2307.15343 → raw/AI/Med-HALT_Pal_2023/Pal_2023_MedHALT.pdf` (1.2MB)
+- 此前 researcher agent 已落 3 个 markdown 到 `raw/AI/Med-HALT_Pal_2023/`（abstract_metadata / methods_framework / results_findings）
+
+### 新文件清单
+
+| 类型 | 页面 | 位置 |
+|---|---|---|
+| source | [[Pal_2023_MedHALT]] | `notes/AI/` (镜像 raw/AI/) |
+| concept | [[LLM 医疗评测]] | `wiki/医疗技术/` (跨 Med-HALT + Med-PaLM 2 提取) |
+
+### 图片处理（5 张，PyMuPDF 2.5× zoom）
+
+- **attachments/AI/**（新文件夹）:
+  - `Pal_2023_MedHALT_page01_framework_overview.png` (Fig 1 Med-HALT 总体框架)
+  - `Pal_2023_MedHALT_page02_hallucination_example_lyme.png` (Fig 2 Lyme 病 GPT-3.5 自信错答)
+  - `Pal_2023_MedHALT_page04_dataset_statistics.png` (Table 1 多国医考分布 + Vocab / Q-A tokens)
+  - `Pal_2023_MedHALT_page07_temperature_variation.png` (Fig 5 Temperature 几乎不影响 accuracy)
+  - `Pal_2023_MedHALT_page08_main_results_RHT_MHT.png` (Table 2 + 3 主结果，instruction-tuning paradox 最戏剧性证据)
+
+### INDEX 更新
+
+- 头部 "最后更新" 改 2026-05-04 → 2026-05-11，页面数 67 → 70（+2 source [[Singhal_2025_MedPaLM2_演讲]] [[Pal_2023_MedHALT]] + 1 concept [[LLM 医疗评测]]）
+- 新增章节 "## 🤖 AI 跨课程文献" — 不绑定单一课程的通用 LLM / 评测 / 基础模型文献都放这里
+- ECE284 章节补入 [[Singhal_2025_MedPaLM2_演讲]]（5/10 ingest 完成但 INDEX 漏了）
+- 按类型分类: concept +1, source +2
+- 按概念快速导航: 加 10 条新概念（LLM 医疗评测 / LLM 幻觉评测 / Med-HALT / Med-PaLM 2 / Instruction-tuning Paradox / RHT / MHT / Pointwise Score / MedQA / USMLE benchmark / 能力评测 vs 诚实度评测）
+- 目录结构: 加 notes/AI/, raw/AI/Med-HALT_Pal_2023/, attachments/AI/
+
+### gaps.md 新增推测问题（4 条）
+
+- Instruction-tuning Paradox 的因果机制（RLHF 训练目标 vs chat data 分布？）
+- Med-PaLM 2 + Med-HALT cross-benchmark 评估缺失（同一模型未在两类 benchmark 同时报告）
+- LLM 推理能力和记忆能力是否真的分离（LLaMA-2 70B RHT 强但 MHT 弱；Falcon 40B 反之）
+- Med-HALT 的 scoring（+1/−0.25/0）是否能作为 RLHF reward function 训练更诚实的模型
+
+### 决策记录
+
+- **概念提取粒度**：建 [[LLM 医疗评测]] 综合概念页（跨 Med-HALT + Med-PaLM 2 双来源），**不建** "LLM 幻觉评测" 或 "RHT" / "MHT" 单独 concept 页——后者目前仅 Med-HALT 一篇支撑，未达概念阈值，先在 source 页详述
+- **跨课程文献位置**：Med-HALT 不绑 ECE284，因 Javen 5/12 自己 lead 的 ECE284 paper 是 Med-PaLM 2（不是 Med-HALT），Med-HALT 是 Javen + Yixian 合作的另一篇——课程归属待 Javen 澄清。**先放 `notes/AI/` 中性位置**，必要时再 move
+- **图表渲染策略**：21 页 PDF 只渲染 5 张关键页（不渲染全文）—— 框架图、典型例子图、Dataset 表、主结果表、temperature 探索图。次要图表（Fig 3 推理类型饼图、Fig 4 学科分布、Fig 6 few-shot、Fig 7 重复实验）未渲染，需要时补
+- **叙述风格**：严格执行"先懂再细"——发现什么 → 为什么（Lyme 病例子 + 类比"好医生承认无知"）→ 怎么证明（图表就近 `>` 引用块解读）→ 意味着什么。技术细节（公式、配置、推理类型分布）后置到 §5
+
+### ⚠️ 未补入 INDEX 的历史 ingest（**等下次 ingest 一并归并**）
+
+5/10 ingest 完成但 INDEX.md **完全没更新**——除本次顺手补的 Singhal MedPaLM2 外，以下仍缺：
+- [[Liu_2017_婴儿成本推理]] (COGS117 Week 6 Liu et al. 2017)
+- [[Stojnic_2023_常识心理BIB]] (COGS117 Week 6 Stojnic et al. 2023 BIB)
+- [[Zettersten_2026_Lecture10_主体与因果]] (COGS117 Lec 10, 5/5)
+- [[Zettersten_2026_Lecture11_因果与涌现主体]] (COGS117 Lec 11, 5/7)
+- ECE284 Week 7 secondary: Ayers / Thirunavukarasu 也未编译 source 页（不是 Javen 主 lead 但是 syllabus reading）
+
+### 待 lead 后续可能做
+
+- Javen 确认 Med-HALT 是哪门课的 reading + 是哪一周 → 把 `raw/AI/Med-HALT_Pal_2023/` 软链或 move 到 `raw/ucsd/Spring 2026/<课名>/`；`notes/AI/Pal_2023_MedHALT.md` 同步 move
+- 4 张次要图（Fig 3 / 4 / 6 / 7）按需补渲
+- 顺路补 5/10 漏入 INDEX 的 COGS117 Week 6 + ECE284 Week 7 secondary 条目
+
+---
+
 ## [2026-05-10] Ingest | COGS117 Week 6 (4 文件) + ECE284 Week 7 演讲材料 (5 文件)
 
 Javen 5/10 晚 23:31-23:34 下载新材料，主对话 spawn writer (COGS117) + researcher (ECE284 Singhal) 并行 ingest。

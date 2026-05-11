@@ -2,6 +2,13 @@
 
 ## 待回答
 
+### 2026-05-11 编译 [[Pal_2023_MedHALT]] 后新增
+
+- [ ] **Instruction-tuning Paradox 的因果机制**：[[Pal_2023_MedHALT]] 揭示 LLaMA-2 70B Base 72.33% acc → Chat 11.26%（差 61pp），但只说"detrimental effect"没拆解原因。是 RLHF 训练目标偏向"善于对话"导致"硬答"？还是 chat fine-tune data 里"假装懂"的模式被强化？需要 ablation：把 RLHF 拆成 SFT only / SFT + DPO / SFT + RLHF 三组各测 Med-HALT，定位是哪个阶段引入退化。（触发来源：编译 [[Pal_2023_MedHALT]] §6.1 时的推测）
+- [ ] **Med-PaLM 2 + Med-HALT cross-benchmark 评估缺失**：现有论文都只测一类——Med-PaLM 2 (Singhal 2025) 在 MedQA 86.5% 但未测 Med-HALT；Med-HALT (Pal 2023) 未测 Med-PaLM 系列。同一模型在两类 benchmark 上的成绩谁先报告，谁就提供了"能力评测 vs 诚实度评测的相关性 / 独立性"的关键证据。这是明显研究 gap。（触发来源：编译 [[LLM 医疗评测]] 时的跨论文对比）
+- [ ] **LLM 推理能力和记忆能力是否真的分离**：[[Pal_2023_MedHALT]] 显示 LLaMA-2 70B 在 RHT 上 72.33% (强) 但 MHT 上 8.04% (弱)；Falcon 40B 反之 (RHT 59.09% / MHT 30.36%)。这种"反向 ranking" 暗示两种 hallucination 是**独立的失效模式**。是否能用 mechanistic interpretability 工具（如 attribution patching）定位 RHT vs MHT 的神经回路差异？这能指导针对性 mitigation。（触发来源：编译 [[Pal_2023_MedHALT]] Table 2+3 对比时的观察）
+- [ ] **Med-HALT scoring 能否作为 RLHF reward function 训练更诚实的模型**：论文 Discussion 暗示但未实证。直接把 Pointwise Score（+1 / −0.25 / 0）当 reward 训练 LLaMA-2 base，能否在 Med-HALT 上拿到比 Llama-2 Chat (RLHF) 更高的 score？如果能，这就是"对抗性 benchmark 反过来变成训练信号"的工程范式。（触发来源：编译 [[Pal_2023_MedHALT]] §Conclusion）
+
 - [ ] 多模态 LLM（如 GPT-4V、Gemini）是否显著缩小了 Frank (2023) 描述的数据鸿沟？（触发来源：编译 [[Frank_2023_数据鸿沟]] 时产生的推测）
 - [ ] 如何量化"社会互动"对儿童学习效率的贡献？目前缺乏参数化框架。（触发来源：[[Frank_2023_数据鸿沟]]）
 - [ ] 自监督 vs 有监督学习的分类是否在概念上成立？LLM 的 next-word prediction 看似无监督，但训练算法本质是有监督。（触发来源：编译 [[监督学习与无监督学习]] 时产生的推测）
