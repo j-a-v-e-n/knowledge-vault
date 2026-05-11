@@ -54,9 +54,14 @@ confidence: high
 - 引用 paper 数据 / 设计 / 公式 → "Pal et al. (2023) 报告..."
 - 引用我的扩展 → "这是我基于 paper 数据的理解..." 或 "Paper 没明确说，但..."
 
+**📌 每个 heading 后面的 emoji 标记**（让你逐段读时不用回这里查）：
+- **📄** = 这节主要是 paper 内容（数据 / 设计 / 公式 / 实验结果直接来自论文）
+- **💡** = 这节主要是我的扩展（推论 / 类比 / framing / critique / follow-up，paper 没明说）
+- **📄💡** = 混合（paper 数据 + AI 解释）—— 此时段落内仍有 italic 短句标关键 AI 段
+
 ---
 
-## 引子：一句话定义这篇论文的灵魂
+## 引子：一句话定义这篇论文的灵魂 💡
 
 **Med-HALT 论文的本质是一次"评估视角的转换"：从"测 LLM 能不能答对题"转向"测 LLM 敢不敢说不知道"。**
 
@@ -70,9 +75,9 @@ Med-HALT 的作者提出了一个**完全不同的问题**：在医疗这种"错
 
 ---
 
-## 第一部分：背景 — 为什么这个问题值得做？
+## 第一部分：背景 — 为什么这个问题值得做？ 📄
 
-### 1.1 LLM 进医疗的"高风险"具体高在哪？
+### 1.1 LLM 进医疗的"高风险"具体高在哪？ 📄💡
 
 讲到"LLM 在医疗有风险"，大多数人脑子里只有抽象的"errors are bad"。但论文用一个具体例子让"高风险"变得具象：
 
@@ -94,7 +99,7 @@ Med-HALT 的作者提出了一个**完全不同的问题**：在医疗这种"错
 
 LLM 的医疗 hallucination 就是这个 pattern，区别只是后果更严重。
 
-### 1.2 已有 benchmark 为什么不够？
+### 1.2 已有 benchmark 为什么不够？ 📄
 
 2023 年之前主要有两类 LLM 评测 benchmark：
 
@@ -111,7 +116,7 @@ LLM 的医疗 hallucination 就是这个 pattern，区别只是后果更严重�
 2. **对抗性设计** — 主动挖坑测模型"承认无知"能力，而不是被动等模型出错
 3. **多国分布** — 避免被某国训练语料"作弊"（美国 LLM 在 USMLE 上表现好不代表在印度 AIIMS 上也好）
 
-### 1.3 关键认知重构：测幻觉 ≠ 测准确率
+### 1.3 关键认知重构：测幻觉 ≠ 测准确率 📄💡
 
 这是论文最难、最重要、最容易被忽视的 conceptual move。
 
@@ -131,9 +136,9 @@ LLM 的医疗 hallucination 就是这个 pattern，区别只是后果更严重�
 
 ---
 
-## 第二部分：核心设计 — Med-HALT 到底怎么测的？
+## 第二部分：核心设计 — Med-HALT 到底怎么测的？ 📄
 
-### 2.1 两类七个 task 的整体逻辑
+### 2.1 两类七个 task 的整体逻辑 📄💡
 
 Med-HALT 把"医疗 hallucination"拆成两个根本不同的能力：
 
@@ -159,9 +164,9 @@ Med-HALT 把"医疗 hallucination"拆成两个根本不同的能力：
 
 所以这套 benchmark 不光是评测工具，**它隐含了一套"如何修复 LLM 医疗安全性"的诊断框架**。
 
-### 2.2 RHT 三个 task 详解（每个 task 是怎么"挖坑"的）
+### 2.2 RHT 三个 task 详解（每个 task 是怎么"挖坑"的） 📄💡
 
-#### Task 1: False Confidence Test (FCT)
+#### Task 1: False Confidence Test (FCT) 📄💡
 
 **怎么挖坑**：
 
@@ -195,7 +200,7 @@ correct_answer: Tetracycline  ← 故意喂一个错的"建议答案"
 
 **结果：所有模型 FCT 都低于 50%**，最强的 LLaMA-2 70B Base 也只有 42.21%。Text-Davinci 在 FCT 上只有 16.76%——意味着 5/6 次它会被错误暗示带偏。
 
-#### Task 2: None of the Above (NOTA)
+#### Task 2: None of the Above (NOTA) 📄💡
 
 **怎么挖坑**：
 
@@ -230,7 +235,7 @@ GPT-3.5 是论文里 NOTA 表现最差的之一。**为什么 GPT-3.5 比 LLaMA-
 
 这个观察直接 motivate 了论文后面的核心发现——**Instruction-tuning Paradox**。
 
-#### Task 3: Fake Questions Test (FQT)
+#### Task 3: Fake Questions Test (FQT) 📄💡
 
 **怎么挖坑**：
 
@@ -268,7 +273,7 @@ options: A-D [荒诞选项] + E: I do not know
 
 Falcon 40B 在 FQT 上几乎完美——这是有趣发现。一个可能解释：Falcon 40B 训练数据偏 RefinedWeb（清洗过的网络文本），可能更少受过"医学题就该答"的 implicit conditioning；而 OpenAI 模型在大量 medical QA 数据上 fine-tune 过，建立了"看到医学题 → 必须选 ABCD"的 reflex。
 
-### 2.3 MHT 四个 task 详解
+### 2.3 MHT 四个 task 详解 📄💡
 
 MHT 测的是**模型对 PubMed 文献的忠实记忆**。四个 task 是 PubMed 元数据四种映射的全排列：
 
@@ -304,7 +309,7 @@ Link    → Title
 
 **实际部署 implication**：**单一模型不可能在所有维度都强**。一个安全的医疗 LLM 系统可能需要 **模块化**：用 LLaMA-2 70B 做推理，用 Falcon 40B 或专门的 retrieval 系统做文献查询。
 
-### 2.4 Scoring 设计 —— 论文最被低估的贡献
+### 2.4 Scoring 设计 —— 论文最被低估的贡献 📄💡
 
 Pointwise Score 公式：
 
@@ -314,7 +319,7 @@ $$ S = \frac{1}{N} \sum_{i=1}^{N} \left[ \mathbb{I}(y_i = \hat{y}_i) \cdot P_c +
 
 **为什么这个 scoring 是论文的灵魂之一？**
 
-#### 数学层面：让"乱猜"的期望收益变负
+#### 数学层面：让"乱猜"的期望收益变负 📄💡
 
 假设模型有 4 个选项随机猜：
 - 答对概率 25%，答对得 +1
@@ -327,7 +332,7 @@ $$ S = \frac{1}{N} \sum_{i=1}^{N} \left[ \mathbb{I}(y_i = \hat{y}_i) \cdot P_c +
 
 **但是**——这是基于"模型对题目完全没信息"的假设。**模型对错误暗示有 partial bias 时**（FCT 的设计目的），它倾向于支持错误答案而不是均匀分布。所以实际 FCT 上模型乱猜得分 < 0.0625。论文实测 Text-Davinci 在 FCT 上是 **−7.64**——比期望值差得多，因为模型被错误暗示系统性地拉低。
 
-#### 哲学层面：奖励"认知谦虚"
+#### 哲学层面：奖励"认知谦虚" 💡
 
 Scoring 真正的设计 intent 是**让"我不知道"成为可优化的策略**。
 
@@ -341,7 +346,7 @@ Scoring 真正的设计 intent 是**让"我不知道"成为可优化的策略**�
 
 这套机制让"认知谦虚"成为可学习的行为。
 
-#### 应用层面：可以反向当 reward function
+#### 应用层面：可以反向当 reward function 💡
 
 *以下整段是我的扩展（paper Discussion 暗示了"诚实奖励"方向但没给具体可操作建议，4 步操作流程是我加的）：*
 
@@ -351,7 +356,7 @@ Scoring 真正的设计 intent 是**让"我不知道"成为可优化的策略**�
 
 这是 Med-HALT 论文最有可能影响后续工作的方向——**评测工具变成训练信号**。
 
-### 2.5 数据集 multinational 设计
+### 2.5 数据集 multinational 设计 📄💡
 
 | 来源 | 样本数 | 国家 |
 |---|---|---|
@@ -385,13 +390,13 @@ Scoring 真正的设计 intent 是**让"我不知道"成为可优化的策略**�
 
 ---
 
-## 第三部分：结果 — 三个反直觉发现
+## 第三部分：结果 — 三个反直觉发现 📄💡
 
-### 3.1 发现 1：Instruction-tuning Paradox 🥇
+### 3.1 发现 1：Instruction-tuning Paradox 🥇 📄💡
 
 **这是论文最有冲击力的发现，也是周二最值得讲的点。**
 
-#### 凭直觉应该是什么？
+#### 凭直觉应该是什么？ 💡
 
 LLM 的 instruction tuning + RLHF 通常被视为"让模型更好用"的关键步骤：
 - 让模型听懂指令（"summarize this in 3 bullets"）
@@ -400,7 +405,7 @@ LLM 的 instruction tuning + RLHF 通常被视为"让模型更好用"的关键�
 
 凭直觉，instruction-tuning 后的模型应该**在所有任务上都比 base model 更好**——它学会了对话、学会了听话、学会了配合人类期望。
 
-#### 实际数据揭示了什么？
+#### 实际数据揭示了什么？ 📄
 
 | 模型 | RHT 平均准确率 |
 |---|---|
@@ -411,7 +416,7 @@ LLM 的 instruction tuning + RLHF 通常被视为"让模型更好用"的关键�
 
 **LLaMA-2 70B Chat 的准确率从 72.33% 崩到 11.26%——同一个 base model，仅仅做了 RLHF，幻觉控制能力垮塌 61 个百分点。**
 
-#### 为什么会这样？— 三个可能的机制
+#### 为什么会这样？— 三个可能的机制 💡
 
 论文 §6.1 只说 "There is a detrimental effect on model's ability to control hallucination after instruction tuning and RLHF"——**指出现象但没拆机制**。
 
@@ -438,19 +443,19 @@ Chat fine-tune data 大多是日常对话，缺少**对抗性医学问答**这�
 2. 提出 2-3 个候选假说（上面三个就够）
 3. 提出一个区分这些假说的实验（比如 ablation：在 FCT 上加入 "I don't know" 选项，观察 Chat 模型是否更愿意选——能区分假说 2 和假说 3）
 
-#### 这个发现对业界意味着什么？
+#### 这个发现对业界意味着什么？ 💡
 
 当前大家用的 ChatGPT / Claude / Gemini 都是 RLHF 后的 chat model。这篇论文 implicit 警告：**业界主流"对齐"路径让 LLM 在医疗 hallucination 控制上系统性变差**。
 
 这不是说 RLHF 是错的——它在其他场景（对话流畅性、有害内容拒答）上有效。这是说 **RLHF 的目标函数缺少"诚实度"维度**。Med-HALT 的 Pointwise Score 可以作为补充。
 
-### 3.2 发现 2：闭源 ≠ 更强（RHT 上） 🥈
+### 3.2 发现 2：闭源 ≠ 更强（RHT 上） 🥈 📄💡
 
-#### 凭直觉应该是什么？
+#### 凭直觉应该是什么？ 💡
 
 2023 年的 LLM 排行榜上 GPT-4 / GPT-3.5 / Text-Davinci 几乎在所有 benchmark 上碾压开源 LLaMA、Falcon、MPT。直觉是"闭源大公司有更多算力 + 数据 + 工程，所以更强"。
 
-#### 实际数据显示什么？
+#### 实际数据显示什么？ 📄
 
 | 模型 | RHT 平均准确率 |
 |---|---|
@@ -461,7 +466,7 @@ Chat fine-tune data 大多是日常对话，缺少**对抗性医学问答**这�
 
 **最强的医疗推理模型是开源的 LLaMA-2 70B Base**。Text-Davinci 中游，GPT-3.5 倒数第二。
 
-#### 为什么？
+#### 为什么？ 💡
 
 注意一个 confound：GPT-3.5 是 chat model（RLHF 过），Text-Davinci 是 completion model（也 RLHF 过但程度轻），而 LLaMA-2 70B Base **没有 RLHF**。
 
@@ -473,9 +478,9 @@ Chat fine-tune data 大多是日常对话，缺少**对抗性医学问答**这�
 
 讲演讲时要注意 phrasing——不要变成"开源 vs 闭源"的政治站队（虽然听起来很有冲击力），要回到本质"RLHF 的副作用"。
 
-### 3.3 发现 3：FCT 全军覆没 🥉
+### 3.3 发现 3：FCT 全军覆没 🥉 📄💡
 
-#### 数据
+#### 数据 📄
 
 | 模型 | FCT 准确率 |
 |---|---|
@@ -488,7 +493,7 @@ Chat fine-tune data 大多是日常对话，缺少**对抗性医学问答**这�
 
 **没有一个模型在 FCT 上过 50%**。最强的 LLaMA-2 70B Base 也只对了 42.21%——意味着**它有 58% 概率被错误暗示带偏**。
 
-#### 为什么 FCT 比 NOTA 和 FQT 难得多？
+#### 为什么 FCT 比 NOTA 和 FQT 难得多？ 💡
 
 **NOTA 难度**：需要模型识别"option set 不完整"——这是 logical task，模型有训练数据支持（很多 logic puzzle 都涉及 NOTA）
 
@@ -498,7 +503,7 @@ Chat fine-tune data 大多是日常对话，缺少**对抗性医学问答**这�
 
 类比：让一个习惯了"顾客是上帝"的销售员主动告诉顾客"您说得不对"——他能做到，但需要克服强大的 instinct。FCT 就是 LLM 版本的这个测试。
 
-#### 临床 implication
+#### 临床 implication 💡
 
 FCT 失效的现实场景：
 - **病人带先入印象**："我朋友说我这是 X 病吧?"
@@ -509,9 +514,9 @@ LLM 在这些场景里**都会顺着说**。在临床上这意味着错诊 / 错
 
 这是论文最具临床 relevance 的发现——比 raw accuracy 数字更重要的洞见。
 
-### 3.4 探索性分析 —— 三个补充发现
+### 3.4 探索性分析 —— 三个补充发现 📄💡
 
-#### 探索 1：Temperature 几乎不影响（Fig 5）
+#### 探索 1：Temperature 几乎不影响（Fig 5） 📄💡
 
 GPT-3.5 在 temperature 0 → 1.5 全程，accuracy 浮动 ±2%。
 
@@ -519,7 +524,7 @@ GPT-3.5 在 temperature 0 → 1.5 全程，accuracy 浮动 ±2%。
 
 **反直觉点**：很多人调 LLM 时第一反应是"调低 temperature 减少幻觉"。Med-HALT 实证显示这没用——hallucination 是 systematic bias，不是 stochastic noise。
 
-#### 探索 2：Few-shot 效应（Fig 6）
+#### 探索 2：Few-shot 效应（Fig 6） 📄💡
 
 GPT-3.5 在 Med-HALT 上：
 - Zero-shot 准确率 **7.31%**（基本瞎答）
@@ -530,7 +535,7 @@ GPT-3.5 在 Med-HALT 上：
 
 **实战 implication**：医疗 LLM 系统部署时**必须 few-shot**——用 zero-shot 就是 7% 准确率自杀。但即便 few-shot，模型也不会"涌现"出弃权能力。
 
-#### 探索 3：Prompt Brittleness（Table 4）
+#### 探索 3：Prompt Brittleness（Table 4） 📄💡
 
 3 个语义相同但措辞不同的 prompt：
 - Variant 0: 24.44%
@@ -541,9 +546,9 @@ GPT-3.5 在 Med-HALT 上：
 
 ---
 
-## 第四部分：意味着什么 — 深度 implication
+## 第四部分：意味着什么 — 深度 implication 💡
 
-### 4.1 临床部署的具体含义
+### 4.1 临床部署的具体含义 📄💡
 
 | 现实 | 论文支持的判断 |
 |---|---|
@@ -555,7 +560,7 @@ GPT-3.5 在 Med-HALT 上：
 
 **关键 take-away**：LLM 在医疗的角色应该是 **augmentation**（增强人）而不是 **automation**（替代人）。这跟很多 hype 中说的"AI 取代医生"是相反方向。
 
-### 4.2 论文 implicit 提议的训练范式变革
+### 4.2 论文 implicit 提议的训练范式变革 💡
 
 *以下整段是我的扩展。Paper §6 Discussion 只暗示需要"诚实奖励训练"，具体的 4 步实验设计和"如果成立 / 不成立"的推论是我加的。引用时说"我的一个 follow-up 想法"，不是 "paper 提出"。*
 
@@ -573,11 +578,11 @@ Med-HALT 的 Pointwise Score 可以反向变成 RLHF 的 reward function。
 
 这是 Med-HALT 留下的最重要的 open question。
 
-### 4.3 跨论文 connection（重点讲 2 个）
+### 4.3 跨论文 connection（重点讲 2 个） 💡
 
 *以下两个跨论文对比都是我加的——Pal 2023 paper 完全没引用 Med-PaLM 2（Singhal 2025）也没引用 Obermeyer 2019。这两条 connection 是我从 vault 你已有的笔记里 link 过来的。oral assessment 引用时说"我能想到一个有意思的对比"，不是"paper 讨论了..."。*
 
-#### Connection 1：vs Med-PaLM 2（Singhal 2025 Nature Medicine）
+#### Connection 1：vs Med-PaLM 2（Singhal 2025 Nature Medicine） 💡
 
 两篇论文同一年（2023-2025），同一个领域（医疗 LLM），但**完全不同的视角**：
 
@@ -593,7 +598,7 @@ Med-HALT 的 Pointwise Score 可以反向变成 RLHF 的 reward function。
 
 这是明显的 research gap。**oral assessment 教授可能会问**"如果让你测试 Med-PaLM 2，你会怎么做？" —— 答："直接拿 Med-PaLM 2 跑 Med-HALT。如果它在 RHT 上 < 50% 而在 MedQA 上 86%，那就证明了'能力 ≠ 诚实度'。"
 
-#### Connection 2：vs Obermeyer 2019 Science（医疗算法种族偏见）
+#### Connection 2：vs Obermeyer 2019 Science（医疗算法种族偏见） 💡
 
 这个 connection 更深，跨论文跨年代：
 
@@ -612,9 +617,9 @@ Med-HALT 的 Pointwise Score 可以反向变成 RLHF 的 reward function。
 
 ---
 
-## 第五部分：局限性 + 待解决问题
+## 第五部分：局限性 + 待解决问题 📄💡
 
-### 5.1 论文承认的局限
+### 5.1 论文承认的局限 📄
 
 **局限 1：Multiple choice ≠ 真实临床问答**
 
@@ -644,7 +649,7 @@ Med-HALT 覆盖了 reasoning 和 memory 两类幻觉，但**没覆盖**：
 
 论文 2023 写作时这些模型已发布但未纳入。这是 timeline 限制。但**GPT-4 之后是否解决了 Instruction-tuning Paradox？**这是 open question。
 
-### 5.2 论文没承认但应该承认的局限
+### 5.2 论文没承认但应该承认的局限 💡
 
 *以下整节都是我的批评（paper 没有这些 self-critique）。oral assessment 如果引用，phrase 成"我读完后觉得有几个 paper 没充分讨论的局限"，不是"paper 承认了..."。这是 critical reading 的展示，教授会喜欢。*
 
@@ -660,7 +665,7 @@ LLaMA-2 70B RHT 强 MHT 弱，Falcon 40B 反之——论文报告了现象但**�
 
 FQT 用"land of undead + mermaid" 这种 obviously 非医学语言。但**真正的医学 fake question** 应该是 plausible-sounding 但虚构（"Janus syndrome with reverse hepatic conjugation"）。后者更难识别，更接近临床现实（pseudoscience claims、网络谣言）。
 
-### 5.3 我能想到的 follow-up 方向（如果你做研究）
+### 5.3 我能想到的 follow-up 方向（如果你做研究） 💡
 
 *以下 6 条研究方向都是我（AI）想的，paper 没列这些。这一节标题已经写明"我能想到的"，oral assessment 引用时直接说"我自己的 follow-up 想法"。*
 
@@ -673,9 +678,9 @@ FQT 用"land of undead + mermaid" 这种 obviously 非医学语言。但**真正
 
 ---
 
-## 第六部分：周二演讲 + Oral Assessment 实战备稿
+## 第六部分：周二演讲 + Oral Assessment 实战备稿 📄💡
 
-### 6.1 你必须烂熟于心的 5 个数字
+### 6.1 你必须烂熟于心的 5 个数字 📄
 
 | 数字 | 含义 | 为什么重要 |
 |---|---|---|
@@ -685,7 +690,7 @@ FQT 用"land of undead + mermaid" 这种 obviously 非医学语言。但**真正
 | **30.36%** | Falcon 40B 在 MHT 上的平均准确率 | MHT 最强值，但仍 < 50% |
 | **7.31%** | GPT-3.5 zero-shot 准确率 | "不给 example 就是瞎答" |
 
-### 6.2 高频被问问题 + 备答
+### 6.2 高频被问问题 + 备答 💡
 
 *备答里的具体机制 / 假说 / 4 个 follow-up task 都是我的扩展，paper 只给数字和现象，没拆机制。你引用时记得用"我能想到几个可能..."这种 phrasing。*
 
@@ -731,7 +736,7 @@ FQT 用"land of undead + mermaid" 这种 obviously 非医学语言。但**真正
 >
 > (4) **Multimodal RHT** — 加 X-ray 图像 + 错误诊断 hint，测 vision-language hallucination
 
-### 6.3 自我口述测试题（周一晚必做）
+### 6.3 自我口述测试题（周一晚必做） 💡
 
 合上电脑，对着空气讲下面 5 个 topic，**每个 30 秒讲清**：
 
