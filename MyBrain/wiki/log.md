@@ -1,5 +1,57 @@
 # Wiki 操作日志
 
+## [2026-05-10] Ingest | COGS117 Week 6 (4 文件) + ECE284 Week 7 演讲材料 (5 文件)
+
+Javen 5/10 晚 23:31-23:34 下载新材料，主对话 spawn writer (COGS117) + researcher (ECE284 Singhal) 并行 ingest。
+
+### 文件操作（9 个文件）
+
+**COGS117 (Week 6, Liu 2017 + Stojnic 2023 + 2 lecture pdf)**:
+- `~/Downloads/Liu et al. (2017).pdf` → `raw/.../COGS117/`（保留原 Canvas 名）
+- `~/Downloads/Stojnic et al. (2023).pdf` → `raw/.../COGS117/`
+- `~/Downloads/10_agency_goals_causes.pdf` → `raw/.../COGS117/`（Lec 10, 5/5）
+- `~/Downloads/11_causes_emerging_agents.pdf` → `raw/.../COGS117/`（Lec 11, 5/7）
+
+**ECE284 (Week 7 LLMs in Medicine, 5 papers)**:
+- `~/Downloads/1774920273930_Week7_Paper2_Singhal.pdf` → `raw/.../ECE284/Singhal_2025_MedPaLM2.pdf`（重命名，Javen primary lead）
+- `~/Downloads/1774920276843_Week7_Paper4_Ayers.pdf` → `raw/.../ECE284/Ayers_2023_ChatGPT_vs_Physicians.pdf`（重命名）
+- `~/Downloads/s41591-023-02448-8.pdf` → `raw/.../ECE284/Thirunavukarasu_2023_LLMs_in_Medicine.pdf`（重命名，background review）
+- `~/Downloads/NEJMoa1901183.pdf` — 跳过（=Perez 2019 Apple Heart Study，vault 已有，Week 2 Javen 自己 lead 过的 paper）
+
+### 新文件清单（5 个 source 页 + 1 个演讲稿）
+
+| 原始 | 页面 | 位置 |
+|---|---|---|
+| Liu et al. (2017) | [[Liu_2017_婴儿成本推理]] | notes/.../COGS117/ |
+| Stojnic et al. (2023) | [[Stojnic_2023_常识心理BIB]] | 同上 |
+| Lec 10 (5/5) | [[Zettersten_2026_Lecture10_主体与因果]] | 同上 |
+| Lec 11 (5/7) | [[Zettersten_2026_Lecture11_因果与涌现主体]] | 同上 |
+| Singhal Med-PaLM 2 | [[Singhal_2025_MedPaLM2_演讲]] (含演讲 4 段 + 4 类 discussion questions) | notes/.../ECE284/ |
+
+### 图片处理（10 张，PyMuPDF 2.5× zoom）
+
+- **attachments/COGS117/**: Liu_2017_page02/03（实验设计 + 结果 boxplot）; Stojnic_2023_page02/05/07/09（BIB 六任务 / 婴儿注视 violin / 模型架构 / Z-score 对比）
+- **attachments/ECE284/**: Singhal_2025_MedPaLM2_page02/03/04/05（Fig 1 性能时间线 / Table 1 cross-dataset / Fig 2 9-axis 医生评估 / Fig 4 bedside 偏好）
+
+### 更新文件（双向链接整合）
+
+- [[COGS117_2026_课程大纲]] — Reading Quizzes 截止日从"每周五"改为"每周日"（Lec 11 announce, going forward）+ 加"📋 课程公告更新"段记录政策时间线
+
+### 待 lead 后续做
+
+- INDEX.md 更新（5 个新 source 页 + COGS117 文献条目 16 → 19）
+- gaps.md 加 4 个 concept 提取候选（见下）+ COGS117/ECE284 跨越式推测
+- 看板 task-024 (Singhal 演讲 5/12) + task-025 (本次 ingest done) — **冲突待 Javen 澄清**：task-022 (Tab B) 假设 5/12 是 own project presentation，我准备的是 Singhal paper lead，两者 5/12 时间窗冲突
+
+### Concept 提取候选
+
+- **朴素效用计算 (Naïve Utility Calculus)** — Liu 2017 + 婴儿动作理解多篇可能涉及
+- **Baby Intuitions Benchmark (BIB)** — Stojnic 2023 创建，可能成为领域标准
+- **Violation-of-Expectation (VoE) 范式** — 跨多篇 COGS117 论文使用
+- **Blicket Detector 范式** — Sobel & Gopnik 经典，Lec 11 提及
+
+---
+
 ## [2026-05-04] Ingest | ECE284 两篇新论文（Tuli 2022 femtech HCI + Basavaraja 2024 Oura 分娩预测）
 
 Javen 5/4 晚下载到 ~/Downloads 的两份 PDF，主对话识别为 ECE284 主题后执行完整 ingest pipeline。
