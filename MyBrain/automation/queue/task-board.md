@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-11 [主对话紧急派活：task-024 Med-HALT 周二 5/12 ECE284 演讲 lead (#P0, deadline 5/12 11:00 AM)；ingest 完成 + 演讲稿写完; 待 Javen 跟 Yixian 同步 + 填 Slides 9-14]
-**当前状态**：3 进行中（task-003 + task-020 + **task-024**）/ 1 阻塞（task-022）/ **11** 待启动 / 7 已完成
+**最后更新**：2026-05-11 [批量编译抖音 8 个 AI 主题视频完成 (task-025 ✅)；含 fact-verification (3 researcher agents) + 14 新文件 (8 source + 3 concept + 2 synthesis + 1 overview)；触发 task-026 实战 follow-up (Ollama 安装试用 / Anthropic FDE watch list / 简历升级 vault portfolio)]
+**当前状态**：3 进行中（task-003 + task-020 + task-024）/ 1 阻塞（task-022）/ **12** 待启动 / **8** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -44,6 +44,21 @@
 ---
 
 ## 📥 待启动
+
+- [ ] **task-026** | 抖音 AI 视频编译 follow-up — Ollama 装 + AI 求职策略落地 + 简历升级 | #P1 | owner: 混合（@javen 决策 + @claude 协助）
+  - **触发**：task-025 完成 ([[2026-05-11_AI主题视频整理_内容地图]]) → 产出 [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] 决策框架。这条 task 落地框架里的 action items
+  - **目标拆分**：
+    - **a) 工具体验**（@javen）：装 Ollama + 跑 `ollama pull deepseek-coder:6.7b` 测试本地推理体验（30 min）
+    - **b) Watch list 扩充**（@claude 协助）：在 `MyBrain/career/applications.md` 加 Anthropic FDE / OpenAI Solutions Engineer / Google AI Engineer Intern / NVIDIA AI Application 等 watch list（10 min）
+    - **c) 简历升级**（@claude 协助）：在 `MyBrain/career/resume-master.md` 加 "Personal AI Workspace System" portfolio item（用 [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] §4.1 的 framing 模板）
+    - **d) Portfolio demo materials**（@javen 主做）：录 5 min vault demo 视频 + 写 GitHub README + 草个人博客文章（不急，1 月内完成即可）
+    - **e) Permissions audit**（@claude）：扫 `.claude/settings.local.json` 对照 [[2026-05-11_Claude_Code_permissions提前授权]] 的推荐配置，列 gap
+  - **Definition of Done**：
+    - [ ] Ollama 装好 + Javen 跑过一个 prompt
+    - [ ] applications.md 加至少 5 个 AI 公司 watch list
+    - [ ] resume-master.md 加 vault portfolio item
+    - [ ] permissions audit 报告写完
+  - **关联**: [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] | [[AI 编码工具生态全景]] | [[本地大模型推理]] | [[AI agent 时代的团队与岗位]]
 
 - [ ] **task-011** | 每日邮箱 triage（daemon 自动扫 jacao@ucsd.edu 把重要邮件提上来） | #P0 | owner: @claude（**主对话**搭，daemon 跑）
   - **目标**：daemon 每天扫 Javen 邮箱过去 24h 邮件，按规则筛选重要的（招聘回复 / 学校重要通知 / 导师联系），写到 vault 让 Javen 早上一起来 5 分钟知道"今天有什么要处理"
@@ -479,6 +494,19 @@
 ---
 
 ## ✅ 已完成
+
+- [x] **task-025** | 抖音 8 个 AI 主题视频批量编译 (Javen "8 小时全身心扎进 AI" 指令) | #P0 | owner: @claude | done 2026-05-11
+  - **触发**：Javen 5/11 凌晨指令"对每个内容保持充分的好奇心和积极性...8 小时全部的事...极度推荐发散"
+  - **执行**：
+    - 读取 8 个 untitled.md 字幕（projects/douyin-favorites-pipeline/）
+    - 主题分类 (Claude Code 生态 / DeepSeek 生态 / AI 应用工作流 / 团队协作)
+    - **spawn 3 个 researcher agent 并行**做事实验证（Claude Code 大会 + DeepSeek 项目 + AI 岗位）
+    - 编译 14 个新文件：8 source + 3 concept + 2 synthesis + 1 overview
+    - 关键 verified 事实：Code with Claude 2026 大会真实 5/6 SF；DeepSeek-TUI 24.7k stars by Hunter Bown；Antirez ds4 真存在；Anthropic FDE $180-550K 真招聘；CodeBanana 真出门问问 2024
+    - 关键 flagged 不实：SEQUENCE OS¹ 未找到 commercial product
+    - 更新 INDEX (页面数 71 → 85) / log.md / gaps.md (+9 新推测问题)
+  - **outcome**：vault AI 主题资产完整化；[[综合_AI浪潮下中国留学生的工具选型与岗位选择]] 给 Javen 提供 12 月 timeline；触发 task-026 落地 follow-up
+
 
 - [x] **task-006** | 部署 AI Watch v2（每日 AI 趋势监测 daemon skill） | #P1 | owner: @claude | done 2026-05-06
   - **完成**：全部 7 个子任务 [x]。skill 部署到 `.claude/skills/ai-watch/SKILL.md`；daemon 持续产出每日报告（04-29 至今）；系统稳定运行无 Javen 不满意反馈。

@@ -2,6 +2,18 @@
 
 ## 待回答
 
+### 2026-05-11 抖音 AI 主题视频编译后新增（8 视频 + 跨视频综合）
+
+- [ ] **Instruction-tuning Paradox 的修复路径**：[[Pal_2023_MedHALT]] 揭示 RLHF chat 模型 hallucination 控制比 base 差。如果用 Med-HALT Pointwise Score（+1/−0.25/0）作为 RLHF reward，能否同时保持对话流畅和诚实抗性？跨"医疗 LLM 评测"+"agent 自主度"两个 domain 的 connection。（触发：编译 [[Pal_2023_MedHALT]] + [[2026-05-11_Claude_Code_新功能8项]] 的 Auto-Permission 设计）
+- [ ] **DeepSeek 在美国 enterprise 的合规命运**：DeepSeek API + 模型在中美数据 / 国家安全 dispute 加剧时是否会被禁用？类似 TikTok 禁令风险。如果禁用，本地推理路径（Antirez ds4 / Ollama + 量化 DeepSeek）能否独立存活？（触发：编译 [[2026-05-11_DeepSeek_TUI登顶GitHub]] + [[2026-05-11_Antirez_4000行C本地推理]]）
+- [ ] **"AI 同事"概念被 union / labor law 怎么接纳**：当 agent 进入团队（CodeBanana 模式），它不能像人类员工"负责任"。出 production bug 责任在开发者 / 工具厂商 / 训模型公司之间怎么分？是否需要类似"AI agent operator license"？（触发：编译 [[2026-05-11_CodeBanana_agent团队协作]]）
+- [ ] **Apple vs NVIDIA 在 AI workstation 市场的长期 trajectory**：M3 Ultra 512GB unified memory 让消费 Mac 跑 1.6T MoE 模型——这优势能持续多久？NVIDIA B100/B200 + DGX 反击策略？（触发：编译 [[2026-05-11_Antirez_4000行C本地推理]] + [[本地大模型推理]]）
+- [ ] **MCP standard 的 lock-in 风险**：MCP 是 Anthropic 提出，OpenAI / Google 跟进意愿？如果 MCP 成 de facto standard，Anthropic 锁定 agent tool 生态？反过来如果 OpenAI 推竞争 protocol，碎片化伤所有人？（触发：[[2026-05-11_Claude_Code_新功能8项]]）
+- [ ] **应届直进 Anthropic FDE 的真实概率**：历史 case 数？通过 Anthropic intern 跨过去 vs full-time 直进比例？中国留学生 H1B 在 FDE 角色 sponsorship 成功率？（触发：[[2026-05-11_AI落地咨询师岗位预测]] + [[综合_AI浪潮下中国留学生的工具选型与岗位选择]]）
+- [ ] **Agent IDE 的下一代 form factor**：当前 IDE (VS Code / Vim) 都是给人类用的——agent 团队协作需要什么样的新 UI？谁先定义这种 UI = 下一代 winner？（触发：[[综合_2026年AI工具栈的三重转变]] §6.1）
+- [ ] **"AI 落地" 国内 vs 美国 long-term trajectory**：美国 enterprise 市场更成熟 vs 国内基数更大，5 年后哪个 market 更香？Javen 这种"留美 vs 回国"的 strategic 决策点？（触发：[[AI agent 时代的团队与岗位]]）
+- [ ] **多 agent context alignment 的工程解**：CodeBanana 描述的问题（不同 agent 看到不同版本事实）—— 是 RAG ground truth source-of-truth 强制？还是 agent 间 challenge 机制？目前是 open research（触发：[[2026-05-11_CodeBanana_agent团队协作]]）
+
 ### 2026-05-11 编译 [[Pal_2023_MedHALT]] 后新增
 
 - [ ] **Instruction-tuning Paradox 的因果机制**：[[Pal_2023_MedHALT]] 揭示 LLaMA-2 70B Base 72.33% acc → Chat 11.26%（差 61pp），但只说"detrimental effect"没拆解原因。是 RLHF 训练目标偏向"善于对话"导致"硬答"？还是 chat fine-tune data 里"假装懂"的模式被强化？需要 ablation：把 RLHF 拆成 SFT only / SFT + DPO / SFT + RLHF 三组各测 Med-HALT，定位是哪个阶段引入退化。（触发来源：编译 [[Pal_2023_MedHALT]] §6.1 时的推测）

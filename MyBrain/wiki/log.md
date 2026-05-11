@@ -1,5 +1,89 @@
 # Wiki 操作日志
 
+## [2026-05-11] Ingest | 抖音 8 个 AI 主题视频深度编译（Javen "8 小时全身心扎进 AI"指令）
+
+Javen 5/11 主对话明确指令：
+> "对每个内容保持充分的好奇心和积极性...对里面提到的内容有极强的求知欲和探索欲...8 小时全部的事...极度推荐发散...不要怕"
+
+**核心 reframe**: 不是被动总结，是**主动深入研究 + 事实验证 + 跨视频综合 + 给 Javen 实战 actionable**。
+
+### 来源
+
+8 个 untitled.md 在 `MyBrain/projects/douyin-favorites-pipeline/`（Obsidian 默认命名未改）：
+- Untitled.md ~ Untitled 7.md（共 8 个真实有内容的字幕，跨 4 个主题群）
+
+### 调研方法（3 个 researcher agent 并行验证）
+
+| Agent | 调研主题 | 关键 verified 事实 |
+|---|---|---|
+| Agent-1 | Claude Code 生态 + Code with Claude 大会 + 竞品 | 大会 5/6 SF 真实；Claude Code 大部分新功能已 GA；竞品 Cursor / Cline / Codex CLI / Devin 详细对比 |
+| Agent-2 | DeepSeek 模型 + DeepSeek TUI + Antirez | DeepSeek V4 Pro/Flash 真存在 1M context；DeepSeek-TUI 由 Hunter Bown 真做 24.7k stars；Antirez ds4 GitHub 真有 5/7 发布 5000+ 行混合 C/Metal |
+| Agent-3 | CodeBanana + AI 落地岗位 + SEQUENCE OS | CodeBanana 真出门问问 2024 + 2026 接入 Gemini 3；Anthropic FDE $180-550K 真招聘；国内 AI 应用工程师缺口 100w+；SEQUENCE OS 未找到商业 product |
+
+### 新建文件清单（14 个）
+
+#### Source 页（8 个，notes/douyin-favorites/）
+
+| # | 主题 | 文件名 |
+|---|------|--------|
+| A1 | Claude Code 新功能 | `2026-05-11_Claude_Code_新功能8项.md` |
+| A2 | Claude Code permissions | `2026-05-11_Claude_Code_permissions提前授权.md` |
+| B1 | DeepSeek TUI | `2026-05-11_DeepSeek_TUI登顶GitHub.md` |
+| B2 | Antirez 本地推理 | `2026-05-11_Antirez_4000行C本地推理.md` |
+| C1 | AI 落地咨询师岗位 | `2026-05-11_AI落地咨询师岗位预测.md` |
+| C2 | SEQUENCE OS¹ | `2026-05-11_SEQUENCE_OS系统级应用.md` |
+| C3 | Codex 三件套做 PPT | `2026-05-11_Codex三件套做PPT.md` |
+| D1 | CodeBanana 团队协作 | `2026-05-11_CodeBanana_agent团队协作.md` |
+
+#### Concept 页（3 个，wiki/AI/ 新文件夹）
+
+- `wiki/AI/AI 编码工具生态全景.md` — 5 条主线 + 6 个 use case 选型 + 4 大趋势
+- `wiki/AI/本地大模型推理.md` — 4 个 enabler + 工具栈对比 + 经济学
+- `wiki/AI/AI agent 时代的团队与岗位.md` — agent 进入团队心智模型 + FDE/AI App Engineer 岗位画像 + 三条 path 对比
+
+#### Synthesis 页（2 个，wiki/综合/）
+
+- `综合_2026年AI工具栈的三重转变.md` — agent 化 + 本地化 + 团队化的统一叙事 + 三转变互相强化的 loop + 3-5 年 forward looking
+- `综合_AI浪潮下中国留学生的工具选型与岗位选择.md` — **给 Javen 的 personalized 决策框架**（B+C 双线并行求职 + vault 系统包装成 portfolio + 12 月 timeline + 关键 metric）
+
+#### Overview 页（1 个）
+
+- `notes/douyin-favorites/2026-05-11_AI主题视频整理_内容地图.md` — 8 视频内容地图 + 主线观察 + 调研策略 + 待验证 claim 清单
+
+### INDEX 更新
+
+- 头部摘要 + 页面总数 71 → **85**（+14）
+- 新章节 "📱 抖音 AI 视频深度整理"（位于 Web Research 后）
+- 按类型分类: concept +3, source +8, synthesis +2
+- 按概念快速导航: +9 条新条目（Claude Code / DeepSeek 生态 / Anthropic FDE / AI agent 团队协作 / 本地推理 / Multi-agent 编排 / Cursor等竞品 / 三重转变 / AI Application Engineer）
+
+### gaps.md 新增推测问题（待添加）
+
+- Instruction-tuning Paradox 是否能反向用 Med-HALT 风格 reward 修复？跨论文 connection
+- DeepSeek 在美国 enterprise 的合规命运（类似 TikTok 禁令风险）
+- "AI 同事"概念被 union / labor law 怎么接纳
+- Apple vs NVIDIA 在 AI workstation 市场的 long-term trajectory
+- MCP standard 的 lock-in 风险
+- 应届进 Anthropic FDE 的真实概率
+- 中国留学生 H1B sponsorship 在 FDE 类岗位的具体可行性
+
+### 决策记录
+
+- **不 move 原 untitled 文件**：projects/douyin-favorites-pipeline/ 是 Javen 自己实验区，不算 raw；source 页 sources 字段直接指向 projects/ 下的原文件
+- **不污染 raw/**：raw/ 是事实源，projects/ 内容自由整理
+- **未编译 SEQUENCE OS 为 wiki concept**：仅做 source 页，confidence: low，因产品真实性未 verified
+- **未提取 "Codex 三件套" 为单独 concept**：因为这是产品 use case 而非普适概念，留 source 页够
+- **重点用 Javen vault 系统作为 portfolio 反复引用**：在多个 source 页 + concept 页 + synthesis 页里把 vault 系统 frame 成 "engineering case study"，提升 Javen 简历 leverage
+
+### 待 lead 后续可能做
+
+- 把 [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] 里的 action items 落地到 task-board
+- 装 Ollama + 试 DeepSeek TUI（如果 Javen 决定）
+- 在 `MyBrain/career/applications.md` 加 Anthropic FDE / Google AI Engineer 等 watch list
+- 在 `MyBrain/career/resume-master.md` 加 "Personal AI Workspace System" portfolio item
+
+---
+
 ## [2026-05-11] Ingest | Med-HALT 论文 + 演讲稿（**Javen 周二 5/12 ECE284 primary lead**） + 5/10 错记修正
 
 **🚨 关键事实更正**：5/10 Claude 误以为 Javen 周二 ECE284 primary lead 的是 [[Singhal_2025_MedPaLM2_演讲|Med-PaLM 2]]，因此编了一份 Med-PaLM 2 演讲稿（虽 log.md 记录但**该 md 文件在本机 fs 找不到——5/10 写入可能失败**）。实际上 Javen 5/12 lead 的是 **Med-HALT**，跟 Yixian Wang co-lead——Yixian 做 Part 1+2 (Slides 1-8 已完成)，Javen 做 Part 3 Results + Part 4 Discussion。

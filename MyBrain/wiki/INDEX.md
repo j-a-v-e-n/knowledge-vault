@@ -1,6 +1,6 @@
 # 知识库总目录
 
-**最后更新**：2026-05-11 | **页面总数**：71 | **最新操作**：编译 [[Pal_2023_MedHALT]] (EMNLP/CoNLL 2023, Saama AI Research)——第一个专门测**LLM 在医疗领域幻觉抗性**的 benchmark；揭示 **Instruction-tuning Paradox**（LLaMA-2 70B Base 72.33% → Chat 11.26% 准确率，差 61pp）+ 闭源 ≠ 更强 + FCT 全军覆没。提取 [[LLM 医疗评测]] concept 页（能力评测 vs 诚实度评测两条范式互补）。渲染 5 张关键图到 attachments/AI/。**🚨 关键事实更正：Javen 周二 5/12 ECE284 primary lead 的是 Med-HALT（co-lead with Yixian），不是 Med-PaLM 2** —— 5/10 编译的 Singhal_2025_MedPaLM2_演讲.md 是误会下的产物，已建 [[Pal_2023_MedHALT_演讲稿]] 替代
+**最后更新**：2026-05-11 | **页面总数**：85 | **最新操作**：批量编译 8 个抖音 AI 主题视频（Javen 喂入 8 个 Untitled.md 字幕）— Claude Code 8 项新功能 / Claude Code permissions / DeepSeek TUI 登顶 GitHub / Antirez 本地推理 / AI 落地咨询师岗位 / CodeBanana / SEQUENCE OS / Codex 三件套 PPT。spawn 3 个 researcher 并行调研验证事实（Code with Claude 2026 大会真实存在 5/6 SF；DeepSeek-TUI 真 24.7k stars 由 Hunter Bown 做；Antirez ds4 GitHub 真有 5/7 发布；Anthropic FDE 真招聘 $180-550K；CodeBanana 真出门问问 2024 发布）。新增 8 source + 3 concept + 2 synthesis + 1 overview 总共 **14 个新页面**。前序操作：5/12 ECE284 Med-HALT 编译 + 演讲稿
 
 > ⚠️ **当前 vault 状态注意**：
 > - `notes/.../ECE284/Singhal_2025_MedPaLM2_演讲.md` 在本机 fs 上**找不到**——可能 5/10 写入未成功落到 Google Drive，或同步延迟；Javen 需手动确认。如不存在则视为 5/10 的 ingest 部分 fail（PDF 和 4 张图 attachment 都成功，演讲稿 md 未落盘）
@@ -31,6 +31,33 @@
 
 - [[2026-04-20_多模态故事生成研究]] — ECE175B HW1 调研：统一多模态生成架构现状（Transfusion / Chameleon / DiffuStory / Infinite-Story），抓取自 5 个权威来源（arXiv / Elsevier / AAAI）
 - [[2026-04-27_AI任务面板自动化系统]] — 思瑶视频字幕：五层架构 AI agent 任务看板系统，事件驱动调度（fswatch + launchd），blocked on 用户授权机制，注意力分配规则适配 ADHD
+
+---
+
+## 📱 抖音 AI 视频深度整理
+
+Javen 收藏并喂入 vault 的抖音 AI 主题视频字幕，**编译时附事实验证**（spawn researcher 调研真实背景）。原始字幕在 `projects/douyin-favorites-pipeline/Untitled*.md`，编译至 `notes/douyin-favorites/`。
+
+### 2026-05-11 第一批（8 视频）
+
+#### 主题群 A：Claude Code 生态
+- [[2026-05-11_Claude_Code_新功能8项]] — Anthropic Dickson Tsai 在 Code with Claude 2026 大会（5/6 SF, verified）公布 Claude Code 8 项新功能；从终端工具向 Agent 平台转变；含 Remote Control / Auto-Permission / Worktrees / Routines / Multi-Agent Code Review
+- [[2026-05-11_Claude_Code_permissions提前授权]] — `settings.local.json` permissions 字段精确控制；跟 Auto-Permission Mode 互补；附 Javen vault deny/allow 推荐配置
+
+#### 主题群 B：DeepSeek 生态 + 本地推理
+- [[2026-05-11_DeepSeek_TUI登顶GitHub]] — 美国法学生 Hunter Bown 做的 Rust 终端 AI 编码工具（24.7k stars, verified），围绕 DeepSeek V4 深度优化；RLM 子 agent 编排 + 三模式（Plan/Agent/YOLO）
+- [[2026-05-11_Antirez_4000行C本地推理]] — Redis 作者 5000 行 C+Metal 把 DeepSeek V4 Flash 跑在 M3 Max（26.68 t/s 验证）；MoE 量化 + SSD-as-RAM + 无 framework；"大模型护城河叙事崩塌"
+
+#### 主题群 C：AI 应用 / 工作流
+- [[2026-05-11_AI落地咨询师岗位预测]] — 抖音预测的"AI 落地咨询师"已是现实；美国 Anthropic FDE 真实招聘 $180-550K verified；国内 AI 应用工程师月薪 2.4-50w+，人才缺口 100w+
+- [[2026-05-11_SEQUENCE_OS系统级应用]] — ⚠️ 产品真实性未验证（researcher 未找到商业 product），但视频描述的 7 大能力 framework 是当前业内真实 design direction；可作 vault 系统升级 checklist
+- [[2026-05-11_Codex三件套做PPT]] — OpenAI Codex 总导演 + image2 视觉素材 + presentation 插件做可编辑 .pptx；vs Gamma / Tome 输出真 .pptx 是 differentiator
+
+#### 主题群 D：AI 团队协作
+- [[2026-05-11_CodeBanana_agent团队协作]] — 出门问问 2024 发布（已接入 Gemini 3 verified）；人 + agent 团队协作工作流；三入口（Private Ask / Discussion / Team Agent）+ agent 跨项目"邀请"模式
+
+#### 内容地图
+- [[2026-05-11_AI主题视频整理_内容地图]] — 8 视频内容地图 + 三重转变叙事 + 调研策略 + 给 Javen 的 actionable 维度
 
 ---
 
@@ -123,10 +150,10 @@
 | type | 页面 |
 |------|------|
 | **overview** | [[COGS117_概览]], [[ECE175B_概览]], [[PHIL28_概览]] |
-| **concept** | [[监督学习与无监督学习]], [[自监督学习与基础模型]], [[感知窄化]], [[面孔知觉发展]], [[核心知识理论]], [[物体识别与形状感知]], [[发展研究方法]], [[统一多模态生成架构]], [[动作发展]], [[发展级联]], [[内在动机与好奇心驱动学习]], [[统计学习]], [[词语学习机制]], [[消费级设备健康感知]], [[LLM 医疗评测]] |
+| **concept** | [[监督学习与无监督学习]], [[自监督学习与基础模型]], [[感知窄化]], [[面孔知觉发展]], [[核心知识理论]], [[物体识别与形状感知]], [[发展研究方法]], [[统一多模态生成架构]], [[动作发展]], [[发展级联]], [[内在动机与好奇心驱动学习]], [[统计学习]], [[词语学习机制]], [[消费级设备健康感知]], [[LLM 医疗评测]], [[AI 编码工具生态全景]], [[本地大模型推理]], [[AI agent 时代的团队与岗位]] |
 | **source** | [[COGS117_2026_课程大纲]], [[Love_2026_监督与无监督学习]], [[Zettersten_2026_计算模型与框架]], [[Frank_2023_数据鸿沟]], [[Cusack_2024_婴儿无助期假说]], [[Zettersten_2025_婴儿主动学习]], [[Scott_2009_面孔知觉偏差起源]], [[Johnson_2024_婴儿感知]], [[Ayzenberg_2024_视觉物体识别发展]], [[Adolph_2018_走路发展15条建议]], [[Oudeyer_2017_婴儿发展机器人]], [[Saffran_1996_统计学习]], [[Vong_2024_单童语言习得]], [[Zettersten_2026_Lecture1_课程导论与大问题]], [[Zettersten_2026_Lecture2_发展研究方法]], [[Zettersten_2026_Lecture4_发展理论]], [[Zettersten_2026_Lecture5_感知发展1]], [[Zettersten_2026_Lecture6_感知发展2]], [[Zettersten_2026_Lecture7_走路与动作发展]], [[Zettersten_2026_Lecture8_语言1与如何读论文]], [[Zettersten_2026_Lecture9_语言2]], [[Zhang_2015_TROIKA]], [[Perez_2019_AppleHeartStudy]], [[Perez_2019_AppleHeartStudy_演讲稿]], [[Shah_2025_LossOfPulse]], [[Bhamla_2017_Paperfuge]], [[Song_2024_SmartphoneMicroscope]], [[Jubran_1990_脉搏血氧仪种族偏差]], [[Obermeyer_2019_医疗算法种族偏见]], [[Luo_2026_NormWear]], [[Mason_2024_TemPredict]], [[Arakawa_2023_LemurDx]], [[Garg_2025_DopFone]], [[Tuli_2022_MenstrualTrackers]], [[Basavaraja_2024_LaborPrediction]], [[Singhal_2025_MedPaLM2_演讲]], [[Pal_2023_MedHALT]], [[Pal_2023_MedHALT_演讲稿]], [[ECE175B_Lecture1a_课程导论与DGM概述]], [[ECE175B_Lecture1b_贝叶斯网络]], [[ECE175B_Lecture2_变分自编码器设计]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]], [[2026-04-20_多模态故事生成研究]], [[2026-04-27_AI任务面板自动化系统]], [[PHIL28_2026_课程大纲]], [[PHIL28_2026_期中考题清单]] |
 | **debate** | [[争论_婴儿被动vs主动学习]], [[争论_新生儿模仿]], [[争论_先天语言vs统计学习]] |
-| **synthesis** | [[综合_医疗技术中的种族偏见]], [[AI 团队设计原则]] |
+| **synthesis** | [[综合_医疗技术中的种族偏见]], [[AI 团队设计原则]], [[综合_2026年AI工具栈的三重转变]], [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] |
 
 ---
 
@@ -323,6 +350,15 @@ attachments/
 | **AdaBoost 回归** | [[Garg_2025_DopFone]] |
 | **低资源医疗 / 即时诊断 POC** | [[Bhamla_2017_Paperfuge]], [[Song_2024_SmartphoneMicroscope]], [[Garg_2025_DopFone]] |
 | **LLM 医疗评测** | [[LLM 医疗评测]], [[Pal_2023_MedHALT]], [[Pal_2023_MedHALT_演讲稿]], [[Singhal_2025_MedPaLM2_演讲]] |
+| **Claude Code** | [[2026-05-11_Claude_Code_新功能8项]], [[2026-05-11_Claude_Code_permissions提前授权]], [[AI 编码工具生态全景]], [[综合_2026年AI工具栈的三重转变]] |
+| **DeepSeek 生态** | [[2026-05-11_DeepSeek_TUI登顶GitHub]], [[2026-05-11_Antirez_4000行C本地推理]], [[本地大模型推理]] |
+| **Anthropic FDE / AI 落地岗位** | [[2026-05-11_AI落地咨询师岗位预测]], [[AI agent 时代的团队与岗位]], [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] |
+| **AI agent 团队协作** | [[2026-05-11_CodeBanana_agent团队协作]], [[AI agent 时代的团队与岗位]] |
+| **本地大模型推理** | [[本地大模型推理]], [[2026-05-11_Antirez_4000行C本地推理]] |
+| **Multi-agent 编排 (Sub-agent)** | [[AI 团队设计原则]], [[2026-05-11_Claude_Code_新功能8项]], [[2026-05-11_DeepSeek_TUI登顶GitHub]] |
+| **Cursor / Cline / Codex CLI / Devin** | [[AI 编码工具生态全景]], [[综合_2026年AI工具栈的三重转变]] |
+| **2026 年 AI 工具栈三重转变** | [[综合_2026年AI工具栈的三重转变]] |
+| **AI Application Engineer / 美国 vs 国内** | [[综合_AI浪潮下中国留学生的工具选型与岗位选择]], [[AI agent 时代的团队与岗位]] |
 | **LLM 幻觉评测 / Med-HALT** | [[Pal_2023_MedHALT]], [[LLM 医疗评测]] |
 | **能力评测 vs 诚实度评测** | [[LLM 医疗评测]], [[Pal_2023_MedHALT]], [[Singhal_2025_MedPaLM2_演讲]] |
 | **Med-PaLM 2 / 医疗 LLM 产品** | [[Singhal_2025_MedPaLM2_演讲]], [[LLM 医疗评测]] |
