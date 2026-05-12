@@ -509,6 +509,25 @@ open -R "$FILE"
 - 引用任何"已知数字"（你"记得"看过的）——必须立刻翻回原始来源
 - 帮 Javen 准备 oral assessment / 面试时引用论文 / 项目数字
 
+**🚨 二手 source 不可信原则**（2026-05-11 update）：
+
+**绝对不要**用 vault 里的 secondary sources（source 页、raw markdown abstract、wiki 总结）做 paper attribution 的最终 verification。这些都可能是**之前 ingest 时 Claude 自己加的扩展**而不是 paper 原话——会让本次 Claude 继承前任的幻觉 attribution。
+
+**正确流程**：
+
+1. **PDF 是 ground truth**——`Read paper.pdf` 直接读 paper 原文是唯一可信的 attribution 来源
+2. **Vault 里 source 页 / raw markdown / wiki**——这些都是 reading notes，**可能含 AI 扩展**。**不可作为 paper 内容的最终验证**
+3. **任何 PPT 标 📄 "paper acknowledges X" / "paper says X" / "paper proposes X" 之前**，**必须打开 paper PDF 逐字 verify** that exact claim 在 paper 哪一页 / 哪一节出现
+4. **找不到原文支持的 attribution → 一律降级到 💡 (my reading)**，不强行 attribute 给 paper
+
+**示例（2026-05-11 触发）**:
+
+Slide 14 Pal et al. 2023 attribution 错误：
+- 我 PPT 标 "📄 Paper acknowledges: Pointwise Score as training signal" — 实际 paper §8 Conclusion 完全没说这句话，是我之前 ingest 时 source 页里加的扩展。
+- 我 PPT 标 "📄 Paper acknowledges: GPT-4 / Claude not tested" — 实际 paper §5.1 Baseline Models 列了 Text-Davinci/GPT-3.5/Falcon/MPT/Llama-2，**完全不提 GPT-4/Claude**——paper 没把这框成 limitation。
+
+**指令出处**：2026-05-11 Javen "你再去看 essay 吧，这不能有马虎" — 触发因 Javen 看 Slide 14 时直接问 "文章提到了 gpt4 和 claude 了？" 暴露我之前用 vault source 页 (含 AI 扩展) 做 paper attribution，而不是直接读 paper PDF。
+
 用户自称"不是特别会用 AI"，希望我主动指出更优方案，而不是只被动执行。
 
 **触发场景：**

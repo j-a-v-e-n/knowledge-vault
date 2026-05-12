@@ -548,25 +548,29 @@ def main():
     slide = new_slide(prs)
     add_title(slide, "Limitations & Open Questions")
 
-    # Left column: paper acknowledged
+    # Left column: paper acknowledged — plain English, no jargon, no §XX
     add_multi_line(
         slide,
         [
             ("📄 Paper acknowledges", 24, True, NAVY, False),
             ("", 14, False, BLACK, False),
-            ("1. MCQ ≠ free-form clinical Q&A", 20, False, BLACK, False),
-            ("", 8, False, BLACK, False),
-            ("2. Only 7 tasks (no planning / multimodal)", 20, False, BLACK, False),
-            ("", 8, False, BLACK, False),
-            ("3. Prompt brittleness unsolved", 20, False, BLACK, False),
-            ("", 8, False, BLACK, False),
-            ("4. GPT-4 / Claude not tested", 20, False, BLACK, False),
-            ("    (publication timing)", 18, False, GREY, True),
+            ("1. Prompt brittleness", 22, True, BLACK, False),
+            ("    Same question, different wording", 18, False, GREY, True),
+            ("    → different answer.", 18, False, GREY, True),
+            ("", 16, False, BLACK, False),
+            ("2. Temperature doesn't help", 22, True, BLACK, False),
+            ("    Adjusting randomness doesn't fix", 18, False, GREY, True),
+            ("    hallucination. Issue is deeper.", 18, False, GREY, True),
+            ("", 16, False, BLACK, False),
+            ("3. Examples in prompt don't fix it", 22, True, BLACK, False),
+            ("    Show the model 5 sample Q&As", 18, False, GREY, True),
+            ("    before asking → only 25% accuracy.", 18, False, GREY, True),
+            ("    Random guess on 4 options = 25%.", 18, False, GREY, True),
         ],
-        left=0.6,
+        left=0.5,
         top=1.4,
-        width=6.0,
-        height=5.5,
+        width=6.2,
+        height=5.8,
     )
 
     # Vertical separator line
@@ -576,25 +580,28 @@ def main():
     sep.line.color.rgb = LIGHT_GREY
     sep.line.width = Pt(1.5)
 
-    # Right column: my open questions
+    # Right column: my open questions — plain English, no §XX, no jargon
     add_multi_line(
         slide,
         [
             ("💡 My open questions", 24, True, NAVY, False),
             ("", 14, False, BLACK, False),
-            ("5. IT-Paradox: paper shows", 20, False, BLACK, False),
-            ('   "what" not "why" — needs ablation', 20, False, GREY, True),
-            ("", 12, False, BLACK, False),
-            ("6. Med-PaLM 2 NOT Med-HALT-ed", 20, False, BLACK, False),
-            ("    — clear research gap", 20, False, GREY, True),
-            ("", 12, False, BLACK, False),
-            ("7. Pointwise Score → RLHF reward", 20, False, BLACK, False),
-            ("    function?  (train honest LLMs)", 20, False, GREY, True),
+            ("4. Why does RLHF hurt?", 22, True, BLACK, False),
+            ("    Paper shows Chat worse than Base —", 18, False, GREY, True),
+            ("    but never explains the mechanism.", 18, False, GREY, True),
+            ("", 16, False, BLACK, False),
+            ("5. Frontier models untested", 22, True, BLACK, False),
+            ("    Paper tests 2023 models only.", 18, False, GREY, True),
+            ("    GPT-4, Claude, Med-PaLM 2 — unknown.", 18, False, GREY, True),
+            ("", 16, False, BLACK, False),
+            ("6. Use scoring as training signal?", 22, True, BLACK, False),
+            ("    What if +1 / −0.25 / 0 becomes a", 18, False, GREY, True),
+            ("    reward to train honest LLMs?", 18, False, GREY, True),
         ],
-        left=7.1,
+        left=7.0,
         top=1.4,
-        width=6.0,
-        height=5.5,
+        width=6.2,
+        height=5.8,
     )
 
     # ═══════════════════════════════════════════════════════════════
