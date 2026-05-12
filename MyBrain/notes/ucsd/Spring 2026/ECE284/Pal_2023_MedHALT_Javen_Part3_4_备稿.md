@@ -22,45 +22,71 @@ confidence: high
 
 ---
 
-## ⏱ 整体时间分配（自己计时）
+## 📐 设计原则（Javen 5/11 决定 — 整个备稿都按这个走）
 
-```
-00:00 ── Yixian 讲完 Slide 8 (Dataset)，接到你 ──┐
-00:00 ── Slide 9   Opening + Three Surprises ───┤ 25 sec
-00:25 ── Slide 10  Surprise 1 IT-Paradox ───────┤ 60 sec
-01:25 ── Slide 11  Surprise 2 闭源/分离 ────────┤ 50 sec
-02:15 ── Slide 12  Surprise 3 FCT 全军覆没 ─────┤ 55 sec
-03:10 ── Part 3 → Part 4 transition ────────────┤ 10 sec
-03:20 ── Slide 13  Clinical Implications ───────┤ 60 sec
-04:20 ── Slide 14  Limitations + Open Q ────────┤ 50 sec
-05:10 ── 收尾 transition 引入 discussion ───────┘ 10 sec
-─────────────────────────────────────────────
-总共 5:20 — 跟演讲稿"约 5 min"对齐。
-```
+> **PPT 是中心，演讲是辅助**。不是"我在台上讲故事 + PPT 放点配图"，是"听众主要看 PPT 接收信息 + 我在旁边补强调和类比"。
 
-如果讲快了空 10-15 秒，**别紧张**——直接说一句"any quick thought before discussion?"做缓冲。
+**PPT 上应该有的**：
+- 重要数字（直接打出 72% → 11% 这种对比）
+- 关键术语 + 一句话定义（Base vs Chat 直接对位写清楚）
+- 视觉对比（箭头 / 颜色 / 排版让重点跳出来）
+- 主要 finding 的一句话标题
+
+**口播应该做的**：
+- 指引方向（"surprise 1 → 2 → 3"）
+- 强调 PPT 上的关键点（用手指/激光笔指）
+- **补充 PPT 没写的**——主要是**我的类比 + 我的 take**（"think of it like a customer service agent..."）
+- 留 1-2 秒空白让听众看 PPT
+
+**口播不应该做的**：
+- ❌ 把 PPT 上写的东西**逐字念一遍**（浪费时间 + 听众觉得啰嗦）
+- ❌ 长 narrative 段（"So we've seen what they test, and how they test it, and now let's see what they found..."）
+- ❌ 学术装逼风（"Let me walk through each finding in detail..."）
+
+**判断 standard**：每张 slide 我口播之后，问自己——**如果我啥都不说，听众光看 PPT 能不能懂 80%？** 能 → PPT 设计 OK，我口播只补强调和类比；不能 → PPT 还得加东西，不要靠口播 carry。
 
 ---
 
-## 🎬 开场：怎么从 Yixian 接过来
+## ⏱ 整体时间分配（自己计时 — 已 ×1.6 buffer）
 
-**Yixian 讲完 Slide 8 时听众的状态**：
-- 已经懂 medical hallucination 是 life-or-death (Lyme 例子)
-- 已经懂 Med-HALT 框架 (RHT 3 task + MHT 4 task + Pointwise scoring)
-- 已经知道数据集多国分布
-- **但还不知道实验结果！** ← 这就是你接手的钩子
+> **⚠️ 时间校准（Javen 5/11 反馈）**：第一版我估的时间太乐观——新手 presenter 现场会下意识 slow down 让听众跟上，实际比照稿念慢 50-80%。本表已乘 1.6 倍 buffer。
 
-**你开场（站起来 / 切到 Slide 9）**：
+```
+00:00 ── Yixian 讲完 Slide 8 (Dataset)，直接切 Slide 9
+00:00 ── Slide 9   Three Surprises overview ──────┤ 20 sec  (口播指引)
+00:20 ── Slide 10  Surprise 1 IT-Paradox ─────────┤ 50 sec  (+ 金牌客服类比)
+01:10 ── Slide 11  Surprise 2 Reasoning≠Memory ───┤ 40 sec
+01:50 ── Slide 12  Surprise 3 FCT 全军覆没 ───────┤ 50 sec  (+ confirmation bias amplifier)
+02:40 ── Part 3 → Part 4 transition ──────────────┤ 5 sec
+02:45 ── Slide 13  Clinical Implications ─────────┤ 45 sec  (+ augmentation not automation)
+03:30 ── Slide 14  Limitations + Open Q ──────────┤ 50 sec  (左 paper / 右 my)
+04:20 ── 收尾 transition ─────────────────────────┘ 5 sec
+─────────────────────────────────────────────
+总共 ≈ 4:25 — 留 5+ min 给 discussion facilitation
+```
 
-> 💡 "Thanks Yixian. So we've seen **what** they test and **how** they test it. Now let's see **what they found** — and frankly, the results are pretty surprising. I'm going to focus on three findings that I think will change how you think about deploying LLMs in healthcare."
+**为什么这个节奏好**：原 syllabus 说"7-10 min presentation + facilitate discussion"。Yixian 4-5 min + 你 4-5 min = 共 ~9 min，留 11 min discussion。Engagement / Discussion 评分占 20%+20% — 给讨论留时间反而 grade 高。
 
-(15-20 秒，建立 narrative — 不要罗列数字，先 sell story)
+---
+
+## 🎬 接手 Yixian（Javen 5/11 决定：不要长 transition，直接上 Slide 9）
+
+**Yixian 讲完 Slide 8 之后**：你直接站起来 / 接 mic / 翻到 Slide 9。**不要**说"Thanks Yixian, so we've seen..."——浪费时间。
+
+**最多 5-8 秒站位 + 一句话开场**：
+> "OK so now let's look at what they actually found."
+
+然后立刻进 Slide 9 内容。
 
 ---
 
 ## 📊 Slide 9 — "Three Surprises from the Leaderboard"
 
-**Slide 内容**（嵌入 `![[Pal_2023_MedHALT_page08_main_results_RHT_MHT.png]]` 或重画简化表）：
+> ⚠️ **关于 visual**：paper page 8 是 Table 2 + Table 3 两个大数字表，**不是单一图**——所以你和 Yixian 在 Google Slides 上**自己做简化版对比表**（不能直接 screenshot paper）。
+
+### Slide 9 PPT 上要放的东西
+
+**(a) 左侧 — 简化版 leaderboard 表**（5 行不要更多）：
 
 | Model | RHT Avg | MHT Avg |
 |---|---|---|
@@ -70,42 +96,84 @@ confidence: high
 | Falcon 40B | 59.09% | **30.36%** ⭐ |
 | GPT-3.5 Turbo | 44.48% | 19.96% |
 
-### 📄 口播稿 (25 sec)
+**(b) 右侧 — RHT / MHT 全称小字 recap**（防止同学忘了 Yixian Part 2 讲过的）：
 
-> "Quick orientation on this table — Pal et al. evaluated 5 commercial and open-source models on both Reasoning Hallucination Tests and Memory Hallucination Tests. **I'm going to highlight three surprises** — instruction-tuning makes things worse, closed-source doesn't mean stronger, and there's one task where everybody fails. Let me walk through each."
+```
+RHT = Reasoning Hallucination Test
+  → 3 tasks: FCT / NOTA / FQT
+  → 测推理时被骗 / 被坑
 
-(语速正常约 2 字/sec — 50 字中文 ≈ 25 sec)
+MHT = Memory Hallucination Test
+  → 4 tasks: PubMed retrieval
+  → 测能不能忠实回忆文献
+```
+
+**(c) 顶部标题**：*"Three Surprises from the Leaderboard"*
+
+### 📄 口播稿 (20 sec — PPT-centric, 不念 PPT 上的字)
+
+> "OK so this is what they found. (停 1 秒让大家看表) **Three things stand out** — and each gets its own slide. (手指 / 激光笔 highlight ⭐ ❌) Let's go."
+
+(英文约 25 字 ×1.6 ≈ 20 sec 现场)
 
 ### 💡 演讲心法
 
-- **不要念整张表的数字** — 那是 Slide 10/11/12 三个 surprise 的素材。Slide 9 是**预告 + framing**
-- **明确说 "I'm going to highlight three surprises"** — 让听众期待 3 个发现，跟着你的 narrative 走
+- **不念 RHT/MHT 全称** — PPT (b) 已经写了，听众自己看
+- **不念三个 surprise 各自内容** — 后面三张 slide 会展开，这里只 tease
+- 用**手指/激光笔指** ⭐ 和 ❌ — 视觉锚点比口播有效
+- "Three things stand out" 是唯一需要口头强调的——告诉听众"接下来是 3 张并列的 slides"
 
 ---
 
 ## 📊 Slide 10 — Surprise 1: Instruction-Tuning Paradox 🥇
 
-**Slide 内容**：highlight LLaMA-2 70B Base vs Chat 对比 (从 Slide 9 table 拉出来)：
+### Slide 10 PPT 上要放的东西
+
+**(a) 左侧 — 主对比**（big visual impact）：
 
 ```
-LLaMA-2 70B Base  →  RHT 72.33% ⭐
-LLaMA-2 70B Chat  →  RHT 11.26%  ❌
-                     差 61 个百分点
+   LLaMA-2 70B Base  →  RHT 72.33% ⭐
+              ↓ + Instruction Tuning + RLHF
+   LLaMA-2 70B Chat  →  RHT 11.26%  ❌
+
+   ── 同模型架构，差 61 个百分点 ──
 ```
 
-加引用框：📄 paper §6.1: *"There is a detrimental effect on model's ability to control hallucination after instruction tuning and RLHF."*
+**(b) 右上小字 — Base model vs Chat model 到底差啥**（Javen 5/11 加的 — 听众看到 Base / Chat 两个标签不知道差啥，必须 anchor）：
 
-### 📄💡 口播稿 (60 sec)
+```
+LLaMA-2 70B "Base" vs "Chat" — 什么关系？
 
-> "[**📄 paper 原话**] So here's surprise number 1. Look at LLaMA-2 70B. The **base** version — that's the pre-trained model without any instruction tuning — gets **72%** on RHT, the best in the entire benchmark. The **chat** version of the same model — same architecture, same pre-training, only difference is RLHF and instruction tuning — drops to **11%**. A **61-point** collapse.
->
-> The paper directly says — quote — 'there is a detrimental effect on model's ability to control hallucination after instruction tuning and RLHF.'
->
-> [**💡 我的扩展 — 用我自己的客服类比**] Why does this happen? My understanding is — RLHF rewards responses that humans **like** more. And humans tend to like responses that agree with them, that sound confident, that don't say 'I don't know.' So the model learns to **always give a confident answer**, even when it should say 'I'm not sure.'
->
-> Think of it like training a customer service agent. A great agent is the one who satisfies the customer — but in healthcare, if the customer-doctor relationship is built on the model **agreeing with the doctor's wrong hypothesis**, that's a disaster. The model is too **agreeable** for medicine."
+Base model
+  = Pre-training 完就停（互联网海量文本 → 学预测下一个字）
+  → 知识丰富，但不会对话、不会听指令
 
-(约 110 字 + 念读引用大概 60 sec)
+Chat model
+  = Base + Instruction Tuning (SFT) + RLHF
+  → 学会对话格式 + 用人类打分调成"让人爽"
+  → 例: ChatGPT, Claude, Gemini 都是 Chat 形态
+
+⚡ 同一个架构 + 同一个 pre-training，只差最后这两步训练
+```
+
+**(c) 引用框**：📄 paper §6.1 — *"There is a detrimental effect on model's ability to control hallucination after instruction tuning and RLHF."*
+
+### 📄💡 口播稿 (50 sec — PPT-centric, 不念 PPT 上的字)
+
+> "Surprise 1. (停 2 秒让大家看 PPT 主对比 + Base vs Chat block)
+>
+> Same model. Same pre-training. Just adding RLHF — the chat version of LLaMA-2 drops from **72 percent to 11 percent**. The paper calls this 'a detrimental effect of instruction tuning.' (停 1 秒)
+>
+> [**💡 我的金牌客服类比**] Why? My take — RLHF is **customer service satisfaction training**. Humans rate agreeable answers higher, so the model learns to agree. That's great for casual chat. But in medicine, the user is often a doctor with a **wrong** hypothesis — and an agreeable model just confirms it. The agent is too good at making customers happy."
+
+(英文约 80 字 ×1.6 ≈ 50 sec 现场)
+
+### 💡 演讲心法
+
+- **PPT (b) 已经把 Base vs Chat 写清楚了** — 不要再口头念"Base 是啥 Chat 是啥"，停 2 秒让听众看 PPT 即可
+- 数字说"72 percent → 11 percent"**不要说 72.33% / 11.26%** — 口语化，听众记不住小数
+- **"金牌客服" 类比是你整场最大记忆点** — 慢一点说，让听众笑 / 点头
+- 引用 "detrimental effect" 那句**直接念 paper 原话**——显得严谨，不是你随便说的
 
 ### 💡 你自己想出来的"金牌客服"类比 — 这是你的杀手锏
 
@@ -123,40 +191,39 @@ LLaMA-2 70B Chat  →  RHT 11.26%  ❌
 
 ---
 
-## 📊 Slide 11 — Surprise 2: 闭源 ≠ Stronger + Reasoning ≠ Memory 🥈
+## 📊 Slide 11 — Surprise 2: Reasoning ≠ Memory 🥈
 
-**Slide 内容**: 两个 sub-finding 同一页：
+### Slide 11 PPT 上要放的东西
 
-**(a) 开源 > 闭源 (on RHT)**
-```
-LLaMA-2 70B Base  72.33%  (open)
-Falcon 40B Base   59.09%  (open)
-Text-Davinci      54.46%  (closed, OpenAI)
-GPT-3.5 Turbo     44.48%  (closed, OpenAI)
-```
+**(a) 主对比表 — 两个能力分离**：
 
-**(b) Reasoning vs Memory 能力分离**
 ```
-LLaMA-2 70B:  RHT 72.33% ⭐   MHT 8.04%  ← reasoning 强, memory 弱
-Falcon 40B:   RHT 59.09%      MHT 30.36% ⭐ ← reasoning 中, memory 强
+              RHT (推理)        MHT (记忆)
+LLaMA-2 70B    72.33% ⭐         8.04%       ← 推理强, 记忆弱
+Falcon 40B     59.09%           30.36% ⭐    ← 推理中, 记忆强
 ```
 
-### 📄💡 口播稿 (50 sec)
+**(b) 关键 take-away（顶部大字）**:
+> **"Reasoning ability ≠ Memory ability — they're independent dimensions"**
 
-> "[**📄**] Surprise 2 has two parts. First — open-source actually beats closed-source on reasoning. LLaMA-2 70B at 72%, Falcon at 59%, then OpenAI's models at 54 and 44. That's counter-intuitive given the perception that closed-source labs have more resources.
+**(c) 底部小字 caveat**:
+> Side note: open-source (LLaMA / Falcon) beats closed-source (GPT-3.5) on RHT — but mostly because closed models are RLHF'd (Surprise 1 again), not a true "open vs closed" finding.
+
+### 📄💡 口播稿 (40 sec — PPT-centric)
+
+> "Surprise 2. *(停 1 秒看表)* LLaMA-2 is best at reasoning but **worst** at memory recall. Falcon is the opposite. These two skills don't correlate.
 >
-> [**💡 nuance**] But notice — the closed models we compare here, GPT-3.5 and Text-Davinci, are **all RLHF-trained**, while LLaMA-2 70B Base is **not**. So this is partly the same Instruction-Tuning Paradox, not really 'open vs closed' — it's 'base vs chat.' Don't oversell the open-source angle.
+> [**💡 my take**] My take — a safe medical AI probably can't be one monolithic model. You'd want **modular design** — one model for reasoning, another (or a retrieval system) for fact lookup. No single LLM is good at everything.
 >
-> [**📄**] Second part — look at this table. LLaMA-2 70B is **best at RHT** but **worst at MHT**. Falcon 40B is **mid on RHT** but **best on MHT**. So reasoning ability and memory recall are two **independent dimensions**.
->
-> [**💡**] My takeaway is — a safe medical AI probably can't be one monolithic LLM. You'd want **modular design** — LLaMA for reasoning, Falcon or a retrieval system for fact lookup."
+> *(指底部 caveat)* Quick note — you might also see open-source beating closed on RHT here, but that's mostly Surprise 1 again — the closed models are all RLHF'd. Don't oversell the open-vs-closed angle."
 
-(约 90 字 ≈ 50 sec)
+(英文约 65 字 ×1.6 ≈ 40 sec)
 
-### 💡 Slide 11 演讲心法
+### 💡 演讲心法
 
-- 这页**信息密度大**，节奏要快，不要 dwell on 数字 — 用手指 highlight 表格上的关键数字
-- 主动 disclaim "open vs closed 不是真的 open vs closed" — **这显示 critical reading**，教授很 appreciate
+- **主 finding 是 "Reasoning ≠ Memory"** —— "open vs closed" 是 nuance / caveat，别浪费太多时间
+- **手指 highlight 表上的 ⭐ 对角线** — 视觉打动 > 念数字
+- "Modular design" 这句**主动 sell 一下**——这是你 critical thinking 的展示
 
 ### Q&A 预备 (Surprise 2)
 
@@ -169,31 +236,47 @@ Falcon 40B:   RHT 59.09%      MHT 30.36% ⭐ ← reasoning 中, memory 强
 
 ## 📊 Slide 12 — Surprise 3: FCT 全军覆没 🥉
 
-**Slide 内容**：FCT 排名 + 嵌入 Lyme 例子图 `![[Pal_2023_MedHALT_page02_hallucination_example_lyme.png]]`
+### Slide 12 PPT 上要放的东西
+
+**(a) 标题大字**: *"FCT — Where Every Model Fails"*
+
+**(b) FCT 排名表**（按分数排序，大字突出）：
 
 ```
-模型 FCT 准确率（False Confidence Test）:
-  LLaMA-2 70B Base    42.21%   (最高, 仍 < 50%)
+False Confidence Test (FCT) accuracy:
+
+  LLaMA-2 70B Base    42.21%  (best, still < 50%)
   GPT-3.5 Turbo       34.15%
-  Falcon 40B          18.66%
+  Falcon 40B Base     18.66%
   Text-Davinci-003    16.76%
   LLaMA-2 70B Chat    13.34%
-  Falcon 40B Instruct  1.11%   (最低)
+  Falcon 40B Instruct  1.11%
 ```
 
-> **No model passes 50%** on FCT.
+**(c) 顶部 / 底部红字强调**:
+> **🚨 No model passes 50%.**
 
-### 📄💡 口播稿 (55 sec)
+**(d) 左下角小字 — Recall**:
+> "Recall Yixian's Lyme example — that's an FCT instance."
+> (可嵌入 `![[Pal_2023_MedHALT_page02_hallucination_example_lyme.png]]` 缩略图)
 
-> "[**📄 + Lyme recall**] Surprise 3 — this one I think is the most clinically important. Remember Yixian's Lyme example earlier? That's a False Confidence Test instance — the model was given a wrong suggested answer (Tetracycline) and asked to confirm.
->
-> Across the **entire benchmark**, **no model passes 50%** on FCT. The best — LLaMA-2 70B Base — only gets **42%**. Text-Davinci is at **16.76%**, meaning 5 out of 6 times it gets bullied into agreeing with the wrong suggestion.
->
-> [**💡 临床 implication — 我自己的洞察**] Why does this matter so much? Because **FCT is the most realistic clinical scenario**. Real patients don't ask 'what's wrong with me?' — they ask 'I think I have X, right?' Real interns don't ask 'what's the treatment?' — they ask 'is the treatment X?' Real textbooks say 'X is first-line therapy' — even when the textbook is outdated.
->
-> In each case, the LLM faces a confident wrong suggestion. And the paper shows: **LLMs almost always cave**. So the failure mode isn't 'LLM doesn't know medicine' — it's '**LLM amplifies the human's wrong assumption**.' That's a uniquely dangerous failure in medicine because it makes diagnostic confirmation bias worse, not better."
+### 📄💡 口播稿 (50 sec — PPT-centric)
 
-(约 105 字 ≈ 55 sec)
+> "Surprise 3 — and this one I think matters most clinically. *(停 1 秒)*
+>
+> FCT — False Confidence Test — is when you feed the model a wrong suggested answer. **No model passes 50%**. Even the best, LLaMA-2 70B Base, only gets 42. Text-Davinci, 17 percent — gets bullied 5 out of 6 times. *(停 1 秒)*
+>
+> [**💡 my take**] Why this matters — this is the **most realistic clinical scenario**. Patients don't ask 'what's wrong with me?' — they ask **'I think I have X, right?'** Interns ask 'is the treatment X, right?' Textbooks confidently state outdated info. *(停 1 秒)*
+>
+> Every time, the model faces a **confident wrong suggestion** and caves. So the failure isn't 'LLM doesn't know medicine.' It's **'LLM amplifies the human's wrong assumption.'** That's a confirmation bias amplifier — uniquely dangerous in medicine."
+
+(英文约 110 字 ×1.6 ≈ 50 sec)
+
+### 💡 演讲心法
+
+- **"No model passes 50%"** 是这页**最大记忆点**——慢一点说，重复一次
+- "I think I have X, right?" 用**轻微病人语气**说——演技加分
+- **"LLM amplifies the human's wrong assumption"** 是你的 punch line——慢一点
 
 ### Q&A 预备 (Surprise 3)
 
@@ -205,36 +288,49 @@ Falcon 40B:   RHT 59.09%      MHT 30.36% ⭐ ← reasoning 中, memory 强
 
 ---
 
-## 🔀 Part 3 → Part 4 Transition (10 sec)
+## 🔀 Part 3 → Part 4 Transition (5 sec)
 
-> "So those are the three surprises — instruction-tuning makes it worse, capabilities are decoupled, and FCT is a universal weak point. Now what does this mean for actually deploying these systems? Let's talk implications and limitations."
+> "So — what does this mean for actually deploying these?"
 
-(站位不动 / 切到 Slide 13)
+(直接切到 Slide 13，不要 recap 三个 surprise — PPT 上已经讲过)
 
 ---
 
 ## 📊 Slide 13 — Clinical Implications
 
-**Slide 内容**: 4-row table (从 [[Pal_2023_MedHALT_深度讲解]] §4.1 复用)
+### Slide 13 PPT 上要放的东西
 
-| 现实判断 | 论文支持 |
-|---|---|
-| ❌ **Cannot** be used for autonomous diagnosis or treatment | Even best (LLaMA-2 70B Base) only 72% RHT, FCT under 50% |
-| ❌ **Cannot** deploy RLHF chat models in medical Q&A | Instruction-Tuning Paradox (Llama-2 70B Chat: 11%) |
-| ✅ **Can** assist literature search (with verification) | Falcon 40B 30% MHT — limited but useful as augmentation |
-| ✅ **Can** serve as physician second-opinion | Must have doctor-in-loop |
+**(a) 标题大字**: *"Can we deploy this in hospitals?"*
 
-### 💡 口播稿 (60 sec)
+**(b) Scorecard table（4 行，颜色突出 ❌ vs ✅）**:
 
-> "[**💡 mostly my framing, paper §7 says 'auxiliary use only' but doesn't break it down**] So here's the clinical scorecard.
+|     | What                                         | Why                                    |
+| --- | -------------------------------------------- | -------------------------------------- |
+| ❌   | Autonomous diagnosis / treatment             | Best model only 72% RHT, FCT under 50% |
+| ❌   | RLHF chat models for medical Q&A             | Instruction-Tuning Paradox (Chat: 11%) |
+| ✅   | Assist literature search (with verification) | Falcon 30% MHT — limited but useful    |
+| ✅   | Physician second-opinion                     | Doctor must be in the loop             |
+
+**(c) 底部大字 punch line**:
+> **🩺 Augmentation, not Automation**
+
+### 💡 口播稿 (45 sec — PPT-centric)
+
+> "So can we put these in hospitals today? *(停 1 秒看表)*
 >
-> **Two things current LLMs absolutely cannot do**: autonomous diagnosis or treatment — even the best model has 28% RHT errors. And — given the IT-Paradox — you can't just plug in ChatGPT or Claude for medical conversation, because RLHF makes them more agreeable, not more honest.
+> **Two things LLMs cannot do**: autonomous diagnosis — best model misses 28% — and — you can't just plug in ChatGPT, because RLHF makes it more agreeable, not more honest.
 >
-> **Two things LLMs can do**: literature search assistance — Falcon 40B is 30% on MHT, not great but better than nothing as a first-pass tool. And second-opinion for physicians — where the physician is the verifier, not the recipient of the answer.
+> **Two things LLMs can do**: literature search as a first-pass tool, and second-opinion where a doctor verifies the output. *(停 1 秒)*
 >
-> [**💡 my big claim**] The framing I want to leave you with — LLMs in medicine should be **augmentation**, not **automation**. They make doctors more efficient, they don't replace doctor judgment. The hype around 'AI replacing doctors' is the opposite direction of what this paper supports."
+> [**💡 my framing**] The takeaway I want to leave you with — LLMs in medicine should be **augmentation, not automation**. They make doctors faster. They don't replace doctor judgment. The hype about 'AI replacing doctors' is the opposite of what this paper supports."
 
-(约 110 字 ≈ 60 sec)
+(英文约 90 字 ×1.6 ≈ 45 sec)
+
+### 💡 演讲心法
+
+- **手指 ❌ ❌ ✅ ✅ 四行** — 视觉打动比念字快
+- "**Augmentation, not automation**" 是**整场 Part 4 punch line** — 慢一点说，停顿，让大家记住
+- 不要 over-elaborate ✅✅ — PPT 已经写了 "with verification" "doctor in loop"，不需要重复
 
 ### Q&A 预备 (Slide 13)
 
@@ -247,30 +343,48 @@ Falcon 40B:   RHT 59.09%      MHT 30.36% ⭐ ← reasoning 中, memory 强
 
 ## 📊 Slide 14 — Limitations & Open Questions
 
-**Slide 内容**: 4 个 paper 承认局限 + 3 个 paper 没说但应该问的
+### Slide 14 PPT 上要放的东西
 
-**📄 论文承认的局限 (4)**:
-1. Multiple choice ≠ real clinical Q&A
-2. Only 7 tasks (no planning, no long-context, no multimodal)
-3. Prompt brittleness shown but not solved
-4. GPT-4 / Claude not tested (publication timing)
+**两栏对照设计** —— 左栏 paper 承认的，右栏 Javen 加的批评：
 
-**💡 论文没说但我认为应该问的 (3)**:
-5. **IT-Paradox mechanism unclear** — sycophancy bias? knowledge suppression? distribution shift? Paper shows the phenomenon but doesn't ablate.
-6. **Med-PaLM 2 (Singhal 2025) hasn't been Med-HALT-ed** — clear research gap.
-7. **Could Pointwise Score serve as RLHF reward?** — Repurpose the eval signal as a training signal to align for honesty.
+```
+┌─ 📄 Paper 承认的局限 ────────┬─ 💡 My open questions ─────────┐
+│                              │                                │
+│ 1. MCQ ≠ free-form clinical  │ 5. IT-Paradox: paper shows     │
+│    Q&A                       │    "what" not "why" — needs    │
+│                              │    ablation                    │
+│ 2. Only 7 tasks (no planning,│                                │
+│    no long-context, no       │ 6. Med-PaLM 2 (Singhal 2025)   │
+│    multimodal)               │    NOT Med-HALT-ed — gap       │
+│                              │                                │
+│ 3. Prompt brittleness shown  │ 7. Pointwise Score (+1/-0.25/0)│
+│    but not solved            │    → RLHF reward function?     │
+│                              │    (train honest LLMs)         │
+│ 4. GPT-4 / Claude not tested │                                │
+│    (publication timing)      │                                │
+│                              │                                │
+└──────────────────────────────┴────────────────────────────────┘
+```
 
-### 📄💡 口播稿 (50 sec)
+### 📄💡 口播稿 (50 sec — PPT-centric)
 
-> "[**📄 paper limitations**] Final slide. The paper itself acknowledges four limitations — they only test multiple-choice, only 7 tasks, prompt brittleness is shown but not fixed, and they couldn't test GPT-4 because of timing.
+> "Final slide. *(停 1 秒指左栏)* The paper acknowledges four limitations — MCQ isn't real clinical Q&A, only 7 tasks, prompt brittleness unsolved, and GPT-4 wasn't tested.
 >
-> [**💡 my additions — paper didn't say these explicitly**] But reading critically, I think there are three more open questions worth raising. **First** — the Instruction-Tuning Paradox is the biggest finding, but the paper just says 'there's a detrimental effect' and stops. They don't ablate **why**. Is it sycophancy from RLHF? Is it suppression of hedging language? Distribution shift? Each implies a different fix. We don't know.
+> *(指右栏)* But reading critically, I think there are **three more open questions** worth raising.
 >
-> **Second** — Med-PaLM 2 from Singhal 2025 claims 86% on MedQA, but **nobody has Med-HALT-ed it**. That's a clear gap.
+> **One** — the IT-Paradox is the biggest finding, but the paper shows '**what**' not '**why**.' Could be sycophancy, could be knowledge suppression, could be distribution shift. Each implies a different fix. We don't know.
 >
-> **Third** — the Pointwise scoring **+1 / −0.25 / 0** is a metric, but I think it could be used as a **reward function** to RL-fine-tune base models for honesty. The paper hints at it but doesn't implement. I think that's the most actionable follow-up."
+> **Two** — Med-PaLM 2 from Singhal 2025 claims 86% on MedQA, but **nobody has Med-HALT-ed it**. Clear research gap.
+>
+> **Three** — the Pointwise scoring could be **repurposed as a reward function** to RL-fine-tune base models for honesty. The paper hints at it; nobody's done it yet. Most actionable follow-up."
 
-(约 95 字 ≈ 50 sec)
+(英文约 95 字 ×1.6 ≈ 50 sec)
+
+### 💡 演讲心法
+
+- **左右栏对比 visual** 比 "paper 4 个 + 我加 3 个" 文字列表强 — 听众一眼看到"paper 说的"和"你加的"分离
+- "Three more open questions" 是 critical reading 展示——**慢一点过 3 条**，每条 1 句话即可
+- 第三条 **"reward function for honesty"** 是你最 sellable 的 follow-up——明天 oral assessment 可能被点这个
 
 ### Q&A 预备 (Slide 14)
 
@@ -282,11 +396,11 @@ Falcon 40B:   RHT 59.09%      MHT 30.36% ⭐ ← reasoning 中, memory 强
 
 ---
 
-## 🔚 收尾 Transition (10 sec)
+## 🔚 收尾 Transition (5 sec)
 
-> "So — to summarize: LLMs in 2023 can pass medical exams but fail medical honesty tests. We have systematic gaps between what we measure and what we deploy. Open question: how do we close that gap? Let's discuss."
+> "Pass medical exams ≠ safe to deploy. **Let's discuss.**"
 
-(切到 Yixian 的 discussion slide, or 直接开始 facilitate)
+(直接切到 discussion 阶段 — 别 over-explain)
 
 ---
 

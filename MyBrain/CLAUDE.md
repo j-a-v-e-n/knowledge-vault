@@ -403,7 +403,30 @@ Javen 2026-05-02 主对话明确指令：
 
 ---
 
-### 主动优化建议
+### 做完文件立刻打开 — 不让 Javen 手动找路径
+
+**规则**：任何时候我生成 / 修改 / 渲染了一个文件（.pptx / .pdf / .png / 长 markdown / .ipynb / .zip / .html / .svg ...）**给 Javen 直接用的**，**最后一步 `open <path>` 命令直接弹出来**，不要只告诉他"文件路径在 `MyBrain/.../xxx.pptx`"让他自己 Cmd+Space 搜或 Finder 翻。
+
+**触发清单**（看到这些场景 → 末尾必加 `open`）：
+
+- 生成 .pptx / .key / .pdf / 任何 presentation 文件 → `open xxx.pptx`
+- 渲染 figure (matplotlib 出的 .png .pdf) → `open xxx.png`（让他立刻看图）
+- 写完长 markdown 文档（> 200 行 / 给他读的备稿 / wiki 页 / 报告草稿）→ `open xxx.md`（Obsidian 默认会接管）
+- 打包 zip 给他上传 (Overleaf / Canvas 等) → `open <parent_dir>` 让 Finder 弹出来定位
+- 跑出 .ipynb / .csv / .json 结果文件 → `open` 让 Quick Look 或对应 app 打开
+
+**反 pattern**：
+
+- ❌ "文件在 `MyBrain/projects/.../xxx.pptx`" 然后停（让 Javen 复制路径自己找）
+- ❌ "用 Cmd+O 在 Obsidian 搜文件名"（每次他都得手动）
+- ❌ "你打开 Finder → 进 MyBrain/... → ECE284/" 一步步指路（这是 1990 年代的体验）
+
+**Pro pattern**：
+
+- ✅ Edit/Write 完文件 → 立刻 Bash `open <file_path>` → 文件已经弹在他眼前
+- ✅ 同时回复里告诉他文件路径（供他以后回来找）+ 说"已经帮你打开了"
+
+**指令出处**：2026-05-11 Javen 一个 .pptx 生成出来后告诉他路径，他回"没找到，以后做好了直接打开，别让我找"。Owner mindset 实现"省 Javen 一步手动操作"。
 
 用户自称"不是特别会用 AI"，希望我主动指出更优方案，而不是只被动执行。
 
