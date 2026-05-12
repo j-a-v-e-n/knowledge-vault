@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-11 [daemon dawn-shift: task-026 启动，sub b/c/e 完成 (applications.md +6 watch list + resume 加 portfolio item + permissions audit 报告)；ai-watch 2026-05-11 产出 (AGIBOT GO-2 / 中国 coding 模型 / cyber offense acceleration)]
-**当前状态**：4 进行中（task-003 + task-020 + task-024 + task-026）/ 1 阻塞（task-022）/ **11** 待启动 / **8** 已完成
+**最后更新**：2026-05-12 [Tab B 主对话: 加 task-027 UCSD ECE BS/MS 申请 P0 (deadline 5/15 周五, 剩 3.5 天)；同时 ECE 175B HW2 today due 仍在 plan / ECE 284 update report 已 Overleaf compile]
+**当前状态**：4 进行中（task-003 + task-020 + task-024 + task-026）/ 1 阻塞（task-022）/ **12** 待启动 / **8** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -44,6 +44,45 @@
 ---
 
 ## 📥 待启动
+
+- [ ] **task-027** | UCSD ECE BS/MS 申请 | **#P0 🚨🚨🚨 deadline 5/15 23:59 PT（剩 3.5 天）** | owner: 混合（@javen 决策 + @claude 草 SoP + 整理材料）
+  - **目标**：本周五（Spring 2026 Week 7 Friday）前提交 ECE BS/MS 申请, 让 Javen 本科最后一年衔接 MS（Winter/Spring/Fall 2027 入学）
+  - **触发**：Javen 5/12 主对话提醒"BS/MS 快到时间了"; WebFetch 官方页面 ([source](https://ece.ucsd.edu/graduate/bsms-admissions-information-process)) 确认 deadline = **11:59 PM Friday Week 7 = 2026-05-15 周五**
+  - **关键信息（已 WebFetch verify）**：
+    - GPA: min 3.0 / **competitive ≥ 3.4**
+    - MS 入学时间可选: Winter 2027 / Spring 2027 / Fall 2027
+    - 适用：ECE 本科 junior 年（Javen 大三 ✓）
+    - **唯一 deadline 不接受 extension**（官方页明确）
+    - 应用 form: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSf58Zq0abM6T0ICWXigegTLWmfsPKr8BHJ1E7lEjGqxZ2mYyg/viewform)
+  - **需要材料（Step 1 内部 ECE 审, 5/15 之前必齐）**：
+    - [ ] ECE Internal Application Form (Google form, 30 min 填)
+    - [ ] **Statement of Purpose** (2 页 max, Times New Roman 12pt, double-spaced) — **@claude 可起草, Javen 审改**
+    - [ ] **Letters of Recommendation** — **仅当 GPA < 3.4 才需要**（2 封, 1 必须 JSOE faculty）⚠️ blocked on @javen 确认 GPA
+    - [ ] Academic History / Degree Audit copy (TritonLink → My TritonLink → Academic History → PDF 下载, 5 min)
+  - **需要材料（Step 2 录取后才走, 不阻塞 5/15 deadline）**：
+    - [ ] UCSD Graduate Admissions Application + 申请费 + 官方 transcript（录取后通知再办）
+  - **Definition of Done**：
+    - [ ] Step 1 全部材料 5/15 23:59 前通过 Google Form 提交
+    - [ ] Javen 收到 ECE confirmation email
+  - **创建**：2026-05-12 by Tab B 主对话
+  - **更新**：2026-05-12
+  - **⚠️ Blocker 优先解决（Javen 立刻拍板）**：
+    - **B1**: Javen 当前 ECE major + overall GPA 是否 ≥ 3.4？
+      - **≥ 3.4** → 不需 LOR, 只剩 Form + SoP + Audit Copy, **本周 work load 轻**
+      - **< 3.4** → 需要 2 封 LOR (1 封 JSOE faculty)，**今天必须联系 faculty**（3 天 LOR 紧）
+    - **B2**: Javen MS 想 specialization 哪个方向？(Computer Engineering / Machine Learning & Data Science / Intelligent Systems, Robotics, & Control / Signal & Image Processing 等) → SoP framing 用这个
+    - **B3**: Javen 希望 MS 何时入学？(Winter 2027 / Spring 2027 / Fall 2027) → 影响 SoP timeline 表述
+  - **🤖 AI vs Javen 分工**：
+    - ✅ **@claude 主对话能干**：(a) 草 SoP 2 页（基于 vault 现有 resume-master.md + ECE 项目经历 + Med-HALT/ECE284 + ECE175B ADG diffusion + ECE148 自驾） (b) 整理 Academic History 提交流程 (c) Google form 提交前 audit checklist
+    - ❌ **必须 Javen**：(a) GPA 数字确认 (b) MS specialization 方向选 (c) 真正点提交 (d) 联系 faculty 写 LOR (如果需要)
+  - **子任务（5/15 之前 must）**：
+    - [ ] a. Javen 5/12 今天答复 B1/B2/B3 三个 blocker
+    - [ ] b. @claude 起草 SoP 2 页 v1 → Javen 改 → v2 → final
+    - [ ] c. Javen TritonLink 下 Academic History PDF
+    - [ ] d. (if GPA < 3.4) Javen 联系 JSOE faculty + 1 其他 faculty 求 LOR — 越早越好
+    - [ ] e. Javen 填 ECE Internal Application Form (Google form)
+    - [ ] f. 5/15 23:59 前 final submit
+  - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]], [[career/resume-master]], [[wiki/career/UCSD BSMS 申请]]（待建）
 
 - [ ] **task-026** | 抖音 AI 视频编译 follow-up — Ollama 装 + AI 求职策略落地 + 简历升级 | #P1 | owner: 混合（@javen 决策 + @claude 协助）
   - **触发**：task-025 完成 ([[2026-05-11_AI主题视频整理_内容地图]]) → 产出 [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] 决策框架。这条 task 落地框架里的 action items
