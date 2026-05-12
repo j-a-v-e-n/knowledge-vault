@@ -243,13 +243,13 @@ def main():
         [
             ("LLaMA-2 70B Base", 26, True, BLACK, False),
             ("", 12, False, BLACK, False),
-            ("RHT  72%  ⭐", 60, True, GREEN, False),
+            ("RHT  72.33%  ⭐", 54, True, GREEN, False),
             ("", 10, False, BLACK, False),
             ("↓  + Instruction Tuning + RLHF", 22, True, RED, False),
             ("", 10, False, BLACK, False),
             ("LLaMA-2 70B Chat", 26, True, BLACK, False),
             ("", 12, False, BLACK, False),
-            ("RHT  11%  ❌", 60, True, RED, False),
+            ("RHT  11.26%  ❌", 54, True, RED, False),
             ("", 14, False, BLACK, False),
             ("── Same architecture, 61-point drop ──", 22, True, NAVY, False),
         ],
@@ -272,6 +272,11 @@ def main():
             ("", 12, False, BLACK, False),
             ("Chat model", 22, True, BLACK, False),
             ("  = Base + SFT + RLHF", 20, False, BLACK, False),
+            ("    • SFT = Supervised Fine-Tuning", 17, False, GREY, True),
+            ("       (teaches conversation format)", 16, False, GREY, True),
+            ("    • RLHF = Reinforcement Learning", 17, False, GREY, True),
+            ("       from Human Feedback", 17, False, GREY, True),
+            ("       (tunes for human preference)", 16, False, GREY, True),
             ("  → ChatGPT, Claude, Gemini are Chat models", 20, False, GREY, True),
             ("", 14, False, BLACK, False),
             ("⚡ Same architecture + same pre-training", 20, True, AMBER, False),
@@ -341,8 +346,8 @@ def main():
         cell.fill.fore_color.rgb = RGBColor(0xF0, 0xF4, 0xFA)
 
     table_data = [
-        ("LLaMA-2 70B", "72%  ⭐\n(strong reasoning)", "8%\n(weak memory)"),
-        ("Falcon 40B", "59%\n(mid reasoning)", "30%  ⭐\n(strong memory)"),
+        ("LLaMA-2 70B", "72.33%  ⭐\n(strong reasoning)", "8.04%\n(weak memory)"),
+        ("Falcon 40B", "59.09%\n(mid reasoning)", "30.36%  ⭐\n(strong memory)"),
     ]
     for i, row in enumerate(table_data, start=1):
         for j, val in enumerate(row):
@@ -424,12 +429,12 @@ def main():
         [
             ("False Confidence Test (FCT) accuracy:", 22, True, NAVY, False),
             ("", 12, False, BLACK, False),
-            ("LLaMA-2 70B Base       42%   (best)", 26, True, GREEN, False),
-            ("GPT-3.5 Turbo          34%", 24, False, BLACK, False),
-            ("Falcon 40B Base        19%", 24, False, BLACK, False),
-            ("Text-Davinci-003       17%", 24, False, BLACK, False),
-            ("LLaMA-2 70B Chat       13%", 24, False, BLACK, False),
-            ("Falcon 40B Instruct     1%   (worst)", 26, True, RED, False),
+            ("LLaMA-2 70B Base       42.21%   (best)", 24, True, GREEN, False),
+            ("GPT-3.5 Turbo          34.15%", 22, False, BLACK, False),
+            ("Falcon 40B Base        18.66%", 22, False, BLACK, False),
+            ("Text-Davinci-003       16.76%", 22, False, BLACK, False),
+            ("LLaMA-2 70B Chat       13.34%", 22, False, BLACK, False),
+            ("Falcon 40B Instruct     1.11%   (worst)", 24, True, RED, False),
         ],
         left=0.6,
         top=2.4,
@@ -473,9 +478,9 @@ def main():
 
     # 4 row scorecard
     scorecard = [
-        ("❌", RED, "Autonomous diagnosis / treatment", "Best model only 72% RHT, FCT under 50%", LIGHT_RED),
-        ("❌", RED, "RLHF chat models for medical Q&A", "Instruction-Tuning Paradox (Chat: 11%)", LIGHT_RED),
-        ("✅", GREEN, "Literature search assist (with verification)", "Falcon 30% MHT — limited but useful", LIGHT_GREEN),
+        ("❌", RED, "Autonomous diagnosis / treatment", "Best model only 72.33% RHT, FCT under 50%", LIGHT_RED),
+        ("❌", RED, "RLHF chat models for medical Q&A", "Instruction-Tuning Paradox (Chat: 11.26%)", LIGHT_RED),
+        ("✅", GREEN, "Literature search assist (with verification)", "Falcon 40B 30.36% MHT — limited but useful", LIGHT_GREEN),
         ("✅", GREEN, "Physician second-opinion", "Doctor must be in the loop", LIGHT_GREEN),
     ]
 
@@ -619,7 +624,7 @@ def main():
                 False,
             ),
             (
-                "from this paper would worry you the MOST — the 17% FCT score,",
+                "from this paper would worry you the MOST — the 16.76% FCT score,",
                 22,
                 False,
                 BLACK,

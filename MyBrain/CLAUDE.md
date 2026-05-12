@@ -428,6 +428,87 @@ Javen 2026-05-02 主对话明确指令：
 
 **指令出处**：2026-05-11 Javen 一个 .pptx 生成出来后告诉他路径，他回"没找到，以后做好了直接打开，别让我找"。Owner mindset 实现"省 Javen 一步手动操作"。
 
+**🚨 Robust open pattern（2026-05-11 update — `open` 不够稳定，必须用 osascript 强制 activate）**：
+
+`open -a "App" file.pptx` 在 macOS 26 + Google Drive 同步盘上**经常 exit 0 但 app 没真弹前台**。Javen 第一次报 "没找到" + 第二次报 "再打开，不要让我重复说"——这就是 root cause。
+
+**禁止只用** `open` 命令（unreliable）。**必须用 osascript 控制 app**：
+
+```bash
+# 对 .pptx (Keynote)
+PPT="<absolute path>"
+osascript \
+  -e "tell application \"Keynote\" to activate" \
+  -e "tell application \"Keynote\" to open POSIX file \"$PPT\"" \
+  -e "tell application \"Keynote\" to activate"
+
+# 对 .pdf (Preview)
+PDF="<absolute path>"
+osascript \
+  -e "tell application \"Preview\" to activate" \
+  -e "tell application \"Preview\" to open POSIX file \"$PDF\""
+
+# 对 .md (Obsidian — 用 obsidian:// URL scheme)
+open "obsidian://open?vault=知识库&file=<relative-path-without-md>"
+
+# 对 .png / .jpg (Preview)
+osascript -e "tell application \"Preview\" to open POSIX file \"$IMG\"" \
+          -e "tell application \"Preview\" to activate"
+
+# Fallback (任何文件): reveal in Finder
+open -R "$FILE"
+```
+
+**Activate 调用 2 次的诀窍**：先 activate 让 app 启动 → open 文件 → 再 activate 一次强制 bring to front（防止 app 启动慢时 open 命令把它推到 background）。
+
+**绝对禁忌**：
+
+- ❌ 只用 `open file.pptx` 就以为 done（exit 0 ≠ app 真弹出来）
+- ❌ 等 Javen 说"没看到"才补救——他凭印象 trust 我说"已打开"
+- ❌ 不 verify activate 是否成功就 reply "已打开"
+
+---
+
+### 论文 / 数据数字 — 零容忍准确率
+
+**最高优先级 quality rule。任何出现在 Javen 交付物（PPT / report / slide / 论文 / 课堂 handout）上的数字必须跟权威来源（paper Table / 数据集真实值 / 实验 log）一字一字对应。**
+
+**绝对禁止**：
+
+- ❌ **Rounding 论文小数**：paper Table 写 72.33%，PPT 上**不能写 "72%"**——必须 **72.33%**
+- ❌ **凭印象写数字**：哪怕"差不多就这样"，每个数字都必须 **逐字 verify against source**
+- ❌ **Hallucinate 不存在的数字**：paper 没列的数字（比如某 ablation 没跑过的格子）**绝不编**——写"not reported"或省略
+- ❌ **使用 source 页 / wiki 的二手数据没 cross-check 原始 paper**：source 页可能也有 typo / 转写错误
+- ❌ **PPT 上用整数，口播里说小数**或反之——format 可以不同但**精度必须一致**（如果 paper 是小数，PPT 用小数）
+
+**强制流程**（每张含数字的 slide / 每段含数字的 report）：
+
+1. **拿原始来源**（paper PDF / 实验 JSON / 数据库表）逐个 cross-check
+2. **不信 secondary source**（source 页 / wiki / 网友总结）——必须回到 raw paper
+3. **每个数字写下来时 mentally trace**："这个 72.33 来自 Table 2 LLaMA-2 70B Avg Acc 列"
+4. **如果 paper 自身不一致**（如 Med-HALT §6 文字 42.46% vs Table 3 30.36%）→ 用 **Table 数字**（数据为准），并在备稿/Q&A 备答里 flag 这个矛盾让 Javen 知道
+
+**反 pattern**：
+
+- ❌ "72%" / "11%" 这种 round 到整数的数字出现在 PPT 上 — Javen 视为不准确
+- ❌ AI 自己加 ⭐ ❌ emoji 暗示某数字"最好/最差"时 **必须 verify 它真是表里最高/最低**，不能凭印象
+- ❌ "X improvement Y%" 这种比率必须能从 paper 数字算出来（如 "55.1% RF improvement over TROIKA" 必须 = (23.46-10.53)/23.46 实测）
+
+**Pro pattern**：
+
+- ✅ 任何 deliverable 上线前，**最后一步**用 paper PDF / 原始数据**逐数字 audit**
+- ✅ 写完后自查："如果教授现在打开 paper Table 跟我 slide 对，每个数字会不会被抓 mismatch"
+- ✅ 不确定的数字**省掉**，不要凑——少几个数字 ok，错一个数字 not ok
+- ✅ paper 自身有不一致时，PPT 用 Table 数字 + 备稿 Q&A 备答记录"如果被问 §6 文字数字怎么答"
+
+**指令出处**：2026-05-11 Javen "我很严肃的说一件事，你给出的所有数据，不能有任何不准确！论文里的数据是什么 ppt 里就是什么，这个是零容忍！" 触发因 PPT 第一版我把 paper 72.33% / 11.26% / 18.66% rounded 成 72% / 11% / 19%。**这是 quality 高压线，比任何"省时间 / 用户体验"考量都高优先级**。
+
+**预防触发**：以下情境强制走 audit 流程——
+- 制作 PPT / slide / poster
+- 写 report / paper / report draft
+- 引用任何"已知数字"（你"记得"看过的）——必须立刻翻回原始来源
+- 帮 Javen 准备 oral assessment / 面试时引用论文 / 项目数字
+
 用户自称"不是特别会用 AI"，希望我主动指出更优方案，而不是只被动执行。
 
 **触发场景：**
