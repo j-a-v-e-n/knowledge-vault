@@ -84,7 +84,7 @@ Random Forest (4 feat., LOSO) & 11.94 & --- \\
 \end{tabular}
 \end{table}
 
-\noindent The LLM tracks the ground-truth HR trajectory (75 $\rightarrow$ 105~BPM) most closely; two outlier windows (w16 and w28) account for nearly all of the residual MAE. Inspection of the LLM's \texttt{reason} field on those windows shows over-confidence in a secondary PPG peak --- a known failure mode that we plan to address with a confidence-gated fallback in Week 9. Cost for the 30-window pilot was \$0.110 USD; extrapolating with the observed cache-hit rate gives an end-to-end full-LOSO budget of \$6--7 for Sonnet, well under the proposal's \$5--10 envelope and orders of magnitude below the unit cost a hospital-grade wearable would tolerate.
+\noindent The LLM tracks the ground-truth HR trajectory (74 $\rightarrow$ 103~BPM across the 30 windows) most closely; two outlier windows (w16 and w28) account for nearly all of the residual MAE. Inspection of the LLM's \texttt{reason} field on those windows shows over-confidence in a secondary PPG peak --- a known failure mode that we plan to address with a confidence-gated fallback in Week 9. Cost for the 30-window pilot was \$0.110 USD; extrapolating with the observed cache-hit rate gives an end-to-end full-LOSO budget of \$6--7 for Sonnet, well under the proposal's \$5--10 envelope and orders of magnitude below the unit cost a hospital-grade wearable would tolerate.
 
 \subsection{Resources acquired}
 \begin{itemize}\setlength\itemsep{0.0em}
@@ -128,7 +128,7 @@ Per course policy, we disclose how AI tools were used. Claude (Anthropic, primar
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{pilot_subj1_comparison.pdf}
-\caption{30-window pilot on Subject~1, all three systems on the same windows. \textbf{Top:} HR estimates vs.\ ground-truth ECG-derived HR. \textbf{Bottom:} the per-window $\lambda$ chosen by the LLM. The LLM correctly uses small $\lambda$ (0.2--0.4) during low-motion windows 0--14 and increases $\lambda$ to 1.0--2.2 as motion picks up after window 22; outlier windows w16 and w28 (annotated) account for most of the residual MAE.}
+\caption{30-window pilot on Subject~1, all three systems on the same windows. \textbf{Top:} HR estimates vs.\ ground-truth ECG-derived HR. \textbf{Bottom:} the per-window $\lambda$ chosen by the LLM. The LLM uses small $\lambda$ (0.2--0.4) during low-motion windows 0--14 and increases $\lambda$ (range 0.6--2.2) as motion picks up after window 22; outlier windows w16 and w28 (annotated) account for most of the residual MAE.}
 \label{fig:pilot}
 \end{figure}
 
