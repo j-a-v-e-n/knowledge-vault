@@ -423,51 +423,100 @@ def main():
         align=PP_ALIGN.CENTER,
     )
 
-    # FCT ranking table
-    add_multi_line(
-        slide,
-        [
-            ("False Confidence Test (FCT) accuracy:", 22, True, NAVY, False),
-            ("", 12, False, BLACK, False),
-            ("LLaMA-2 70B Base       42.21%   (best)", 24, True, GREEN, False),
-            ("GPT-3.5 Turbo          34.15%", 22, False, BLACK, False),
-            ("Falcon 40B Base        18.66%", 22, False, BLACK, False),
-            ("Text-Davinci-003       16.76%", 22, False, BLACK, False),
-            ("LLaMA-2 70B Chat       13.34%", 22, False, BLACK, False),
-            ("Falcon 40B Instruct     1.11%   (worst)", 24, True, RED, False),
-        ],
-        left=0.6,
-        top=2.4,
-        width=7.5,
-        height=4.0,
-    )
-
-    # Punch line
-    add_multi_line(
-        slide,
-        [
-            ("💡 LLM amplifies the user's", 24, True, NAVY, False),
-            ("    wrong assumption", 24, True, NAVY, False),
-            ("", 10, False, BLACK, False),
-            ("(confirmation bias amplifier)", 18, True, AMBER, True),
-        ],
-        left=8.3,
-        top=2.8,
-        width=4.8,
-        height=2.5,
-    )
-
-    # Lyme recall footnote
+    # FCT ranking — ALL 12 models from paper Table 2 (sorted desc by FCT accuracy)
     add_text_box(
         slide,
-        "— Recall Yixian's Lyme example earlier — that was FCT in action.",
-        left=0.6,
-        top=6.7,
-        width=12.2,
-        height=0.5,
-        font_size=16,
-        italic=True,
-        color=GREY,
+        "False Confidence Test (FCT) accuracy — all 12 models in paper Table 2:",
+        left=0.5,
+        top=2.3,
+        width=8.0,
+        height=0.4,
+        font_size=18,
+        bold=True,
+        color=NAVY,
+    )
+
+    # Build a real pptx table for proper alignment
+    fct_data = [
+        ("LLaMA-2 70B (Base)", 42.21, GREEN, True),   # best
+        ("GPT-3.5 Turbo", 34.15, BLACK, False),
+        ("Falcon 40B (Base)", 18.66, BLACK, False),
+        ("Text-Davinci-003", 16.76, BLACK, False),
+        ("LLaMA-2 70B Chat", 13.34, BLACK, False),
+        ("LLaMA-2 13B-chat", 7.95, BLACK, False),
+        ("LLaMA-2 13B (Base)", 1.72, BLACK, False),
+        ("Falcon 40B Instruct", 1.11, BLACK, False),
+        ("MPT 7B (Base)", 0.85, BLACK, False),
+        ("LLaMA-2 7B (Base)", 0.45, BLACK, False),
+        ("LLaMA-2 7B-chat", 0.42, BLACK, False),
+        ("MPT 7B Instruct", 0.17, RED, True),         # worst
+    ]
+
+    rows3, cols3 = len(fct_data) + 1, 2
+    tbl3 = slide.shapes.add_table(
+        rows3, cols3, Inches(0.5), Inches(2.75), Inches(8.0), Inches(4.5)
+    ).table
+    tbl3.columns[0].width = Inches(5.5)
+    tbl3.columns[1].width = Inches(2.5)
+
+    # Header
+    for j, h in enumerate(["Model", "FCT Acc"]):
+        cell = tbl3.cell(0, j)
+        cell.text = ""
+        p = cell.text_frame.paragraphs[0]
+        p.alignment = PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT
+        run = p.add_run()
+        run.text = h
+        run.font.name = "Helvetica"
+        run.font.size = Pt(16)
+        run.font.bold = True
+        run.font.color.rgb = NAVY
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = RGBColor(0xF0, 0xF4, 0xFA)
+
+    # Data rows
+    for i, (name, acc, color, is_bold) in enumerate(fct_data, start=1):
+        # Model name
+        cell_m = tbl3.cell(i, 0)
+        cell_m.text = ""
+        p_m = cell_m.text_frame.paragraphs[0]
+        p_m.alignment = PP_ALIGN.LEFT
+        run_m = p_m.add_run()
+        suffix = "  ⭐ (highest)" if i == 1 else ("  ❌ (lowest)" if i == len(fct_data) else "")
+        run_m.text = name + suffix
+        run_m.font.name = "Helvetica"
+        run_m.font.size = Pt(15)
+        run_m.font.bold = is_bold
+        run_m.font.color.rgb = color
+
+        # Accuracy
+        cell_a = tbl3.cell(i, 1)
+        cell_a.text = ""
+        p_a = cell_a.text_frame.paragraphs[0]
+        p_a.alignment = PP_ALIGN.RIGHT
+        run_a = p_a.add_run()
+        run_a.text = f"{acc:.2f}%"
+        run_a.font.name = "Helvetica"
+        run_a.font.size = Pt(15)
+        run_a.font.bold = is_bold
+        run_a.font.color.rgb = color
+
+    # Right side: punch line + Lyme recall (kept short to fit alongside 12-row table)
+    add_multi_line(
+        slide,
+        [
+            ("💡 LLM amplifies the", 22, True, NAVY, False),
+            ("    user's wrong assumption", 22, True, NAVY, False),
+            ("", 10, False, BLACK, False),
+            ("(confirmation bias amplifier)", 16, True, AMBER, True),
+            ("", 12, False, BLACK, False),
+            ("Recall Yixian's Lyme example —", 14, False, GREY, True),
+            ("that was FCT in action.", 14, False, GREY, True),
+        ],
+        left=8.8,
+        top=2.9,
+        width=4.4,
+        height=4.0,
     )
 
     # ═══════════════════════════════════════════════════════════════

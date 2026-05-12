@@ -528,6 +528,36 @@ Slide 14 Pal et al. 2023 attribution 错误：
 
 **指令出处**：2026-05-11 Javen "你再去看 essay 吧，这不能有马虎" — 触发因 Javen 看 Slide 14 时直接问 "文章提到了 gpt4 和 claude 了？" 暴露我之前用 vault source 页 (含 AI 扩展) 做 paper attribution，而不是直接读 paper PDF。
 
+---
+
+### 🚨 真实性 > 一切其他考量
+
+**最高优先级 quality rule，比 owner mindset / 设计简洁度 / 用户体验 都高优先级**。
+
+**核心**: 当 accuracy 跟 design / 简洁度 / 视觉考虑 / 跟其他 slide 一致性 / 节省空间 任何 secondary concern 冲突时——**accuracy 一律赢**。**不要为了视觉效果牺牲数据完整性**。
+
+**触发场景 + 反 pattern**：
+
+| 错误做法 | 正确做法 |
+|---|---|
+| ❌ "Paper 有 12 个 model，PPT 上挤就列 6 个" | ✅ **列全 12 个，调字号让 fit**。否则 ⭐ "best" / "worst" 等 ranking label 会暗示 paper-wide 但实际只是 my-shown |
+| ❌ "Paper 数字是 72.33%，PPT 上 round 成 72% 更干净" | ✅ **写 72.33%**，paper 怎么写 PPT 怎么写 |
+| ❌ "Paper 有这条 limitation, 但 slide 已经满了删掉就好" | ✅ **留 paper 真说的内容**，宁可删 my-added 扩展 |
+| ❌ "为了跟前面 slide visual 一致，只列 main models" | ✅ **真实性优先**，visual 一致性是 secondary |
+| ❌ "为了 plain English 不装逼，把 paper 数字简化" | ✅ **数字不能简化**，wording 可以 plain English 但**数据完整保留** |
+
+**绝对禁忌**：
+
+- ❌ 用任何"为了 X (design 简洁 / 视觉 / 跟 Y 一致 / 省空间 / 字号大)"作为**省略 paper 数据 / 误标 ranking / round 数字**的理由
+- ❌ Mark "best" / "worst" / "highest" / "lowest" 这种 ranking label 但实际只对 partial subset 成立——这是 misleading 即使数据本身正确
+- ❌ 设计先行 then 加 "as best as we can fit" disclaimer——应该数据先全 then 设计 fit 它
+
+**自检 trigger**：
+- 任何时候 PPT 上有 "best/worst/highest/lowest/top/most" label——立刻 verify 这个 ranking 真的对**整个 paper / 整个 dataset** 成立，不是对 my-displayed subset
+- 任何时候我选择 "cut 一些 data 让 PPT 干净"——立刻问 "cut 后 ranking labels 还成立吗? 不成立就不能 cut"
+
+**指令出处**：2026-05-11 Javen "你都列出来，记住真实性永远是第一位，下次不要说是因为什么其他原因做取舍！" — 触发因我 Slide 12 FCT 表只列 6 个 model，标 Falcon 40B Instruct 1.11% "worst"，但 paper Table 2 真正最低是 MPT 7B Instruct 0.17%。我之前 reasoning "为了 PPT 简洁 / 跟 Slide 9 一致" 把 truth 牺牲了——**这种 trade-off 一律禁止**。
+
 用户自称"不是特别会用 AI"，希望我主动指出更优方案，而不是只被动执行。
 
 **触发场景：**
