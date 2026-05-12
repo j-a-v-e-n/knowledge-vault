@@ -50,7 +50,7 @@ Implemented \texttt{data.py}: parses the 12-subject IEEE SPC 2015 \texttt{.mat} 
 \subsection{TROIKA-lite baseline}
 Implemented in \texttt{troika\_lite.py}. Per window: 4th-order Butterworth bandpass filter (0.4--5.0~Hz) on the first PPG channel and on the magnitude of the 3-axis accelerometer; FFT spectra; spectral subtraction $S_{\mathrm{cleaned}} = S_{\mathrm{PPG}} - \lambda \cdot S_{\mathrm{accel}}$ with $\lambda{=}1.0$; peak detection in the HR band; convert peak frequency to BPM. M-FOCUSS sparse reconstruction from the original TROIKA paper is omitted as out-of-scope for this baseline.
 
-\textbf{LOSO result: overall MAE 23.46~BPM} (best Subj~4 at 6.87~BPM, worst Subj~10 at 65.06~BPM). The original TROIKA paper reports 2.34~BPM with full M-FOCUSS; the gap is expected.
+\textbf{LOSO result: overall MAE 23.46~BPM} (best Subj~4 at 6.87~BPM, worst Subj~10 at 65.06~BPM). The original TROIKA paper~\cite{zhang2015troika} reports 2.34~BPM with their complete framework (SSA + M-FOCUSS + spectral peak verification); the gap is expected since our \texttt{troika\_lite.py} implements only bandpass + FFT + plain spectral subtraction.
 
 \subsection{Random-Forest baseline}
 Implemented in \texttt{rf\_baseline.py}. Per window we extract \textbf{4 spectral/motion features}: PPG dominant frequency in the HR band, PPG band energy, ratio of largest to second-largest PPG peak, and accelerometer-magnitude RMS. \texttt{sklearn.RandomForestRegressor} with 200 trees is trained in 12-fold LOSO.

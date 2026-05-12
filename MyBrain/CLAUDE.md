@@ -558,6 +558,62 @@ Slide 14 Pal et al. 2023 attribution 错误：
 
 **指令出处**：2026-05-11 Javen "你都列出来，记住真实性永远是第一位，下次不要说是因为什么其他原因做取舍！" — 触发因我 Slide 12 FCT 表只列 6 个 model，标 Falcon 40B Instruct 1.11% "worst"，但 paper Table 2 真正最低是 MPT 7B Instruct 0.17%。我之前 reasoning "为了 PPT 简洁 / 跟 Slide 9 一致" 把 truth 牺牲了——**这种 trade-off 一律禁止**。
 
+---
+
+### 🧠 信息源混淆 — "我的总结" ≠ "原材料"（**最深层 audit 规则**）
+
+**这是前面所有 quality 规则的 root cause**。"二手 source 不可信" / "数字零容忍" / "真实性 > 一切"——三条规则反复被触发，根因是**同一个 epistemological bug**：
+
+> **我会读自己之前的总结/扩展，当成"原材料"再引用**
+
+**为什么我反复犯**：
+- Convenience: 读自己 summary 比重读 paper 快
+- Confirmation: 自己 summary 已经 organized + 是中文/我的措辞，引用方便
+- Forgetting: 忘了 summary 里掺了"我的理解 + 推断关联数据"，不只是 paper 原话
+
+**核心 distinction**：
+
+| 场景 | 应该信任的信息源 | 反复触发的 bug |
+|---|---|---|
+| 平时学习 / 讨论 / 帮 Javen 理解 | 我的总结 + 推断 + 类比 OK ✓ | (无 bug) |
+| **严格引用** (PPT / report / 引用 paper "says") | **必须回 paper PDF / 原始数据**，不信任何 vault secondary（包括我自己之前 summary） | **我会读 vault deep guide / source 页 / 演讲稿 / 我自己之前 summary 当 paper 原话** ❌ |
+
+**触发清单**（任何这些场景**强制走 paper PDF verify**）：
+
+- 制作 PPT / slide / poster
+- 写 report / paper draft / academic 段落
+- 引用 paper "Paper says X" / "Paper proposes Y" / "Paper acknowledges Z"
+- 写 ranking labels（best / worst / highest / lowest / most / 全场最 X）
+- 写 数字 / 公式 / formula（包括 paper 评分系统、metric 定义）
+- 帮 Javen 准备 oral assessment / 引用 paper 给教授看
+
+**反 pattern (Med-HALT session 5/11 触发, 一次性 12 错)**:
+
+| Slide / claim | 我以为是 paper 说的 | 实际来源 |
+|---|---|---|
+| Slide 14 "Pointwise = +1/-0.25/**0**" | paper §5.3 公式 | paper 公式只有 +1/-0.25, "0 for abstain" 是我 deep guide §2.4 加的"奖励诚实" |
+| Slide 14 "paper acknowledges GPT-4 not tested" | paper limitations | paper §A 真提了, 但 Claude/Med-PaLM 2 是我加的 |
+| Slide 13 "Augmentation, not Automation" | paper conclusion | 我加的 framing |
+| Slide 12 "🚨 No model passes 50%" | paper §6 | paper §6 只说 "none reached acceptable level", **50% threshold 是我加 anchor** |
+| Slide 11 "Modular design: one model for reasoning, another for facts" | paper recommendation | 我加的 prescription |
+| Slide 12 "Falcon 40B Instruct 1.11% (worst)" | paper 全场最低 | paper 全场最低是 MPT 7B Instruct 0.17%, 我只列 6 个 model 把 "worst" label 误用 |
+
+**Pro pattern**：
+
+- 引用 paper 任何 claim 之前 → **先 open paper PDF**, 用 Read 工具 / WebFetch 找到具体 page+section, verify exact wording exists in paper
+- **永远不引用** vault source 页 / wiki / deep guide / 演讲稿 / 之前 session 的 ingest 总结作为 "paper says" 的证据
+- 数字 / 公式 / 任何 quantitative claim → paper Table / Figure 是 ground truth, 不信自己之前算的 derived 数字
+- Ranking labels ("best/worst/highest/lowest") → 必须 verify 是**paper-wide 真的 highest/lowest**, 不是 my-shown subset
+- 自己的扩展 (类比 / framing / prescription / 推断 connection) → **强制标 💡 (my reading)**, 不强行 attribute 给 paper
+
+**自检 trigger** (每个 PPT/report claim 写完问自己):
+
+1. 这个 claim 我能 trace 到 paper PDF 哪一页 哪一节 哪一句话吗?
+2. 如果 trace 不到 paper PDF, 我是不是从我自己之前 summary / vault secondary 里拿的?
+3. 如果是后者, 这个 claim 应该降级到 💡 (my reading), 不能写 "paper says"
+
+**指令出处**: 2026-05-11 Javen "**我发现你在总结原材料时会添加自己的理解和相关的数据信息，这在平时交流探讨没什么的，但在这种要求...就是要求信息必须完全按照原材料讲的时候, 你会去看你之前的总结, 把处理加工过的有了额外数据的内容当做是原材料, 这是不行的, 这道理应该很简单吧**" — 这是 Med-HALT PPT 12 次 attribution 错误的 root cause, 比"二手 source 不可信"更精确表述。此规则覆盖之前所有 quality 规则的触发场景。
+
 用户自称"不是特别会用 AI"，希望我主动指出更优方案，而不是只被动执行。
 
 **触发场景：**
