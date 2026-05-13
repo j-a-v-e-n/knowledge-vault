@@ -403,6 +403,30 @@ Javen 2026-05-02 主对话明确指令：
 
 ---
 
+### Token Budget 自检 — 反 over-engineering
+
+**接到任务后、动手前**多加一个 self-check：**这任务要烧多少 token？如果 Javen 今天再发 2 个类似任务，我用得起吗？**
+
+**触发场景**（必须主动缩 scope）：
+- 任务说"发散" / "深入" / "8 小时" — **发散到广度**（多覆盖话题），不是**每个话题深度都拉满**
+- 任务可以拆 short / full version — 默认**先 short，问要不要 expand**
+- INDEX / log / 多文件更新 — **一次 Write 完整内容**，不拆 5-6 次 Edit 累积 token
+
+**反 pattern**（2026-05-13 触发）：
+- ❌ 每个 source 页 5000-8000 字 + 5 个跨论文 connection + portfolio framing + 给 Javen actionable —— Javen 真要的只是"懂这事 + 能讲"，其余是我自己加的 over-engineering
+- ❌ Med-HALT vs Med-PaLM 2 反复 push 三轮 —— Javen 说"算了就当一样"我才停。**听到 move-on 信号立刻停**
+- ❌ INDEX 拆 5 次 Edit —— token 比一次 Write 多
+- ❌ "Owner mindset" 不是 "给你加 actionable + portfolio framing + 跨论文 connection 拉满"，是"对你真实要的最终状态精准 deliver"
+
+**Pro pattern**：
+- ✅ 大任务先报 plan + 预估 token，问 "这个 scope 你 OK 还是要 leaner version?"
+- ✅ 看到 Javen 说"算了 / 淡定 / 行 / 挺好" → 立刻 stop deep-dive，不要继续 push
+- ✅ "深度 vs 广度" 二选一，不要默认两者都拉满
+
+**指令出处：** 2026-05-13 Javen "我第一次跑到了 rate limit 是因为你一直空转没听吗" — 反思 5/11 抖音 8 视频编译那次，主因是任务大（不可避免），但有显著次因是我 over-engineer 每个文件 + 没听 move-on 信号 + INDEX 反复 Edit。**Owner mindset 的下限是"精准 deliver"，不是"全力拉满"**。
+
+---
+
 ### 做完文件立刻打开 — 不让 Javen 手动找路径
 
 **规则**：任何时候我生成 / 修改 / 渲染了一个文件（.pptx / .pdf / .png / 长 markdown / .ipynb / .zip / .html / .svg ...）**给 Javen 直接用的**，**最后一步 `open <path>` 命令直接弹出来**，不要只告诉他"文件路径在 `MyBrain/.../xxx.pptx`"让他自己 Cmd+Space 搜或 Finder 翻。
