@@ -427,35 +427,6 @@
   "colab": {
    "gpuType": "T4",
    "provenance": []
-  },
-  "kaggle": {
-   "accelerator": "nvidiaTeslaT4",
-   "colab": {
-    "provenance": []
-   },
-   "kernelspec": {
-    "display_name": "Python 3",
-    "language": "python",
-    "name": "python3"
-   },
-   "language_info": {
-    "name": "python"
-   },
-   "isInternetEnabled": true,
-   "language": "python",
-   "sourceType": "notebook",
-   "isGpuEnabled": true,
-   "dataSources": [
-    {
-     "sourceId": "17810",
-     "sourceType": "datasetVersion",
-     "datasetId": "17810"
-    }
-   ],
-   "competitions": [],
-   "dataset_sources": [
-    "paultimothymooney/chest-xray-pneumonia"
-   ]
   }
  },
  "nbformat": 4,
