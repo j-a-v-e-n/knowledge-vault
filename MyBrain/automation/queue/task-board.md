@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-12 [Tab B 主对话: 加 task-027 UCSD ECE BS/MS 申请 P0 (deadline 5/15 周五, 剩 3.5 天)；同时 ECE 175B HW2 today due 仍在 plan / ECE 284 update report 已 Overleaf compile]
-**当前状态**：4 进行中（task-003 + task-020 + task-024 + task-026）/ 1 阻塞（task-022）/ **12** 待启动 / **8** 已完成
+**最后更新**：2026-05-13 [daemon dawn-shift: task-027 SoP v1 起草完成 (career/sop-bsms-v1.md)；B1 GPA=3.61 确认无需 LOR；B2/B3 仍待 Javen 填写]
+**当前状态**：5 进行中（task-003 + task-020 + task-024 + task-026 + **task-027**）/ 1 阻塞（task-022）/ **11** 待启动 / **8** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -45,7 +45,7 @@
 
 ## 📥 待启动
 
-- [ ] **task-027** | UCSD ECE BS/MS 申请 | **#P0 🚨🚨🚨 deadline 5/15 23:59 PT（剩 3.5 天）** | owner: 混合（@javen 决策 + @claude 草 SoP + 整理材料）
+- [ ] **task-027** 🚧 | UCSD ECE BS/MS 申请 | **#P0 🚨🚨🚨 deadline 5/15 23:59 PT（剩 2 天）** | owner: 混合（@javen 决策 + @claude 草 SoP + 整理材料）| **更新：2026-05-13**
   - **目标**：本周五（Spring 2026 Week 7 Friday）前提交 ECE BS/MS 申请, 让 Javen 本科最后一年衔接 MS（Winter/Spring/Fall 2027 入学）
   - **触发**：Javen 5/12 主对话提醒"BS/MS 快到时间了"; WebFetch 官方页面 ([source](https://ece.ucsd.edu/graduate/bsms-admissions-information-process)) 确认 deadline = **11:59 PM Friday Week 7 = 2026-05-15 周五**
   - **关键信息（已 WebFetch verify）**：
@@ -76,8 +76,8 @@
     - ✅ **@claude 主对话能干**：(a) 草 SoP 2 页（基于 vault 现有 resume-master.md + ECE 项目经历 + Med-HALT/ECE284 + ECE175B ADG diffusion + ECE148 自驾） (b) 整理 Academic History 提交流程 (c) Google form 提交前 audit checklist
     - ❌ **必须 Javen**：(a) GPA 数字确认 (b) MS specialization 方向选 (c) 真正点提交 (d) 联系 faculty 写 LOR (如果需要)
   - **子任务（5/15 之前 must）**：
-    - [ ] a. Javen 5/12 今天答复 B1/B2/B3 三个 blocker
-    - [ ] b. @claude 起草 SoP 2 页 v1 → Javen 改 → v2 → final
+    - [ ] a. Javen 答复 B1/B2/B3 三个 blocker — **B1 已由 daemon 5/13 从 resume-master.md 确认：GPA=3.61 ≥ 3.4，无需 LOR**；B2（专业方向）+ B3（入学季）仍待 Javen 回复
+    - [x] b. @claude 起草 SoP 2 页 v1 — done 2026-05-13 by daemon（`career/sop-bsms-v1.md`，约 580 字，GPA/项目数字全部 from verified sources；[SPECIALIZATION_DIRECTION] + [ENTRY_QUARTER] + [FACULTY/LAB] 共 3 个 placeholder 等 Javen 填）
     - [ ] c. Javen TritonLink 下 Academic History PDF
     - [ ] d. (if GPA < 3.4) Javen 联系 JSOE faculty + 1 其他 faculty 求 LOR — 越早越好
     - [ ] e. Javen 填 ECE Internal Application Form (Google form)

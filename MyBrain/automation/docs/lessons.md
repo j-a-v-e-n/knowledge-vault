@@ -172,3 +172,32 @@
 3. **诊断信号**：standalone 跑 OK，launchd daemon 跑同样代码 fail → 不要怀疑代码 bug，怀疑 session token / fingerprint。检查 `launchctl list` 进程是否在 Aqua session
 
 > 例（2026-05-09 task-020 daemon 跑 Playwright）：写完 douyin_extractor.py，standalone 测试一次成功，集成到 daemon 后 daemon 跑 Playwright 拿不到 douyin `<video>` element。**spent 10 min 怀疑代码 bug 后才意识到**是 launchd vs user shell 的 process tree 差异。**Fix**：改 monitor.py 的 process_file()：daemon 检测到 .txt 后不直接调 process_one，而是 `subprocess.run(['/bin/zsh', '-l', '-c', 'cd ... && python3 manual_run.py'])`。子进程里 Playwright 立刻 work，daemon 流程完整自动化。教训：launchd 里跑 GUI 相关 / browser 相关代码出问题，**第一反应改用 user shell subprocess 隔离**，不要先改代码逻辑。
+
+---
+
+## ⑪ Claude Code SDK subagent 状态在内存里，磁盘上没 status 字段——session 一卡只能重启
+
+**症状**：spawn 多个 subagent (e.g. 4-6 个 design / synthesizer / reviewer) 全部 task-notification 回来标 `completed`、`TaskOutput` 也都返回 `No task found with ID: ...`，但 **Stop hook 持续报 `Background subagents are still running`**，导致 turn 无法干净结束——AI 被迫输出 `.` 顶住循环，user 必须 esc 打断才能给新指令。
+
+**真相**：SDK 把 "active subagents" 这个 map 存在 **Claude Code Node.js 进程的 in-memory state** 里。磁盘 `~/.claude/projects/<vault>/<sid>/subagents/agent-*.meta.json` **只存 `{agentType, description}` 两个字段，没有 `status`**——所以从外部改文件清不了 phantom state。Spawn 多个 agent 时 SDK 有 race condition，某个 agent 的 completion 没正确 dec 计数器，map 里残留"幽灵" entry，但实际 task ID 已被 GC。**这是 SDK 层 bug，不是 user-defined hook 的错**（`~/.claude/settings.json` 里没有 hooks）。
+
+**避免 / 应急**：
+1. **同 turn 内 spawn agent 上限**：≤ 4 个并行 + 1 个 synthesizer + 1 个 reviewer = **总数 ≤ 6**。超过这个数 race condition 概率显著上升。可拆成两 turn（第一 turn spawn 调研 agent，第二 turn 才 spawn synthesizer）
+2. **检测**：发现 `TaskOutput` 对所有已知 task ID 都返 `No task found`，但 Stop hook 仍报 `Background subagents are still running` → 100% 是 phantom state，**不要再 retry TaskOutput / TaskStop，没用**
+3. **唯一干净 fix = 重启 Claude Code session**——但前提是 user 已经拿到他要的产出（产出已落盘到 vault，不会丢）
+4. **不能 kill 当前 PID**：`ps aux | grep claude` 找到 `claude --output-format stream-json` 那个 process 就是当前 session，kill 它 = 断当前对话
+5. **僵尸进程清理**：长时间用 Claude Code 会累积旧 session 进程（每个 ~75MB RSS），定期 `ps aux | grep "claude.*stream-json"` 查，对**不是当前 PID** 的旧 PID 跑 `kill <pid>` 回收内存
+
+> 例（2026-05-12 wiki/AI ingest meta-design pipeline）：spawn 4 parallel design agent (A reliability / B multi-agent / C industry SOTA / D Javen-fit) + 1 writer synthesizer + 1 reviewer = **6 agents**。全部 completed task-notification 回来，但 Stop hook 持续报 background running。Try `TaskOutput task_id=... block=false` 对 6 个 ID 全部 `No task found`。Try `TaskStop` 同样 No task found。Read meta.json 发现磁盘上只有 type+desc 字段——内存状态外部清不了。**结果**：被迫输出 `.` 顶住 Stop hook 几百轮，user esc 打断后才能继续。教训：(1) **spawn agent 数有隐形上限** ≈ 6，超了触发 race condition；(2) **现象是症状**——AI 看起来"罢工"实际是 SDK 不让 turn 结束；(3) **预防**：复杂 meta-design pipeline 拆成 ≤ 2 个 turn，每 turn ≤ 4 agent。
+
+**Workaround 命令**（user 端用）：
+
+```bash
+# 查所有 Claude Code session 进程
+ps aux | grep "claude.*stream-json" | grep -v grep
+
+# 清非当前的僵尸进程（替换 PIDs 为查到的旧 PID）
+kill <PID1> <PID2> ...
+
+# 重启 Claude Code = 让当前 session 自然结束后开新窗口
+```

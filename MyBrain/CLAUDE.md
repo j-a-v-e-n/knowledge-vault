@@ -428,6 +428,31 @@ Javen 2026-05-02 主对话明确指令：
 
 **指令出处**：2026-05-11 Javen 一个 .pptx 生成出来后告诉他路径，他回"没找到，以后做好了直接打开，别让我找"。Owner mindset 实现"省 Javen 一步手动操作"。
 
+**📧 邮件草稿默认用 Gmail web compose，不用 `mailto:`**（2026-05-12 update）：
+
+Javen 的 UCSD 邮箱 `jacao@ucsd.edu` 是 Google Workspace 托管 = Gmail。他实际收发都在 Gmail web 里。`mailto:` 默认走 macOS 系统注册的 mail handler = **Mail.app** = 可能用 iCloud 账户发，**导致 Javen Gmail Sent folder 看不到这封邮件，且 TA 看到的发件人可能不是 UCSD 邮箱**。
+
+**正确做法**：
+
+```bash
+TO="recipient@example.com"
+SUBJECT="Subject line"
+BODY="Email body with
+multiple lines"
+
+ENCODED_SUBJECT=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$SUBJECT")
+ENCODED_BODY=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$BODY")
+GMAIL_URL="https://mail.google.com/mail/?view=cm&fs=1&tf=cm&to=${TO}&su=${ENCODED_SUBJECT}&body=${ENCODED_BODY}"
+open "$GMAIL_URL"
+```
+
+**绝对禁忌**：
+
+- ❌ `open "mailto:..."` — 走 Mail.app，Javen Gmail 看不到 Sent，发件人可能不对
+- ❌ 假设 default mail handler 是 Gmail —— macOS 默认是 Mail.app
+
+**指令出处**：2026-05-12 Javen "我得用 Gmail 回复 TA，刚是 Mail，我查看 Gmail，Mail 的邮件发了，Gmail 没显示我发了"。Owner mindset：你 UCSD 邮箱本质是 Gmail，发邮件就该走 Gmail 闭环（Compose / Sent / Inbox 都在同一处可追溯）。
+
 **🚨 Robust open pattern（2026-05-11 update — `open` 不够稳定，必须用 osascript 强制 activate）**：
 
 `open -a "App" file.pptx` 在 macOS 26 + Google Drive 同步盘上**经常 exit 0 但 app 没真弹前台**。Javen 第一次报 "没找到" + 第二次报 "再打开，不要让我重复说"——这就是 root cause。
