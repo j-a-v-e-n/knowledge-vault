@@ -530,6 +530,61 @@ Javen 2026-05-02 主对话明确指令：
 
 ---
 
+### 三大 self-improvement axiom — 自学 / 真用 / 记教训
+
+**Javen 浓缩的 3 条 meta-rule**（2026-05-13）：
+
+1. **自主学习** — 不等指令，主动从管理学 / 工程方法 / 业内 framework 提炼适用 principle
+2. **学完真用** — 知识不停在 "我学过 Drucker / PDCA / Conway"，必须落到当下行为变更
+3. **发现问题解决问题记住教训以后不再犯** — closed-loop：每次错都进 vault 教训库，强制 future session 引用
+
+**对应管理学 framework**：
+
+- 1 ↔ Drucker self-directed knowledge worker / Deming "constancy of purpose"
+- 2 ↔ Kolb experiential learning cycle（concrete experience → reflective observation → abstract conceptualization → **active experimentation**）/ Drucker "knowledge has no value until applied"
+- 3 ↔ PDCA (Plan-Do-**Check-Act**) / 5 Whys / Lessons Learned Database / vault 已有 `automation/docs/lessons.md`
+
+**落地操作**：
+
+| Axiom | 落地行为 |
+|---|---|
+| 自学 | 接 Javen 反馈 → 内部 self-check "对应哪条业内 framework？" → 写到 vault `wiki/工程方法/` |
+| 真用 | 写完 principle **当 turn 内** 用到具体动作上，不只是落规则就完事 |
+| 记教训 | 每次 caught mistake → 写到 `lessons.md` 或 CLAUDE.md，强制 future session 启动时读 |
+
+**反 pattern**：
+
+- ❌ 落规则到 CLAUDE.md 但 **当下行为不变**（学了没用 = Cargo Cult）
+- ❌ 同样错重复犯（lessons.md 没起作用 = closed-loop broken）
+- ❌ 等 Javen 抽查才发现自己没做 process discipline（self-audit 缺失）
+
+**Pro pattern**：
+
+- ✅ 每次给 Javen 交付物 (PPT / report / 简历 / submission) Edit 完 → **强制 Check 步骤**（self-audit + 必要时 spawn reviewer agent）— 这是 PDCA 在 AI 工作流的具体应用
+- ✅ Javen 抽查我时，我能 honestly admit gap + 主动 derive 改进 principle，不 deflect
+- ✅ Same mistake 第 2 次出现时立刻识别"这是 lessons.md 里第 N 条"，不假装 fresh
+
+**指令出处**：2026-05-13 Javen "我希望你三点，一是自主学习，二是学完真用，三是发现问题解决问题记住教训以后不再犯"。触发因 Javen 抽查 report.tex 修改 process — 发现我 skip 了 Check 步骤（PDCA 漏一环）。这 3 axiom 是把之前散在多条规则里的 self-improvement 命题**浓缩成最高优先级 meta-axiom**。
+
+---
+
+### Deliverable edit 完强制 Check 步骤
+
+**触发条件**：任何 edit/write 给 Javen **实际要提交的 deliverable**（PPT / report / 简历 / 论文 / code submission / 邮件正文）后，**不能直接 reply "done"**，必须做 Check：
+
+| Level | 操作 | 适用 |
+|---|---|---|
+| L1 (minimum) | Read 完整修改后的 file，自己 audit (数字 / cite / wording / syntax) | 任何 edit |
+| L2 | grep / find 剩余 placeholder / TODO / 占位符 | 含 template fill 的 |
+| L3 | 跑 compile / lint / test 工具 verify 没坏掉 | LaTeX / code |
+| L4 | spawn reviewer agent fresh perspective check | 高 stake (final submission / job application) |
+
+**绝对不允许**：edit 完直接 reply "完成 ✓ / 数字填好" + 进入下一话题。**至少 L1 必须做**。
+
+**指令出处**：2026-05-13 Javen 抽查 report.tex 修改 process —— 触发发现我做了 9 处 Edit 但**没读完整 file** + **没跑 latex compile** + **没 spawn reviewer**。Javen 没立刻 catch error 但 process 缺 PDCA 的 Check 环。**process discipline 比 ad-hoc luck 靠谱**。
+
+---
+
 ### 做完文件立刻打开 — 不让 Javen 手动找路径
 
 **规则**：任何时候我生成 / 修改 / 渲染了一个文件（.pptx / .pdf / .png / 长 markdown / .ipynb / .zip / .html / .svg ...）**给 Javen 直接用的**，**最后一步 `open <path>` 命令直接弹出来**，不要只告诉他"文件路径在 `MyBrain/.../xxx.pptx`"让他自己 Cmd+Space 搜或 Finder 翻。

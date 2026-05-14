@@ -57,20 +57,22 @@ per-pixel Bernoulli logits.
   \;+\; \beta \cdot \underbrace{D_{\mathrm{KL}}\!\bigl(q_\phi(z\!\mid\!x)\,\|\,\mathcal{N}(0,I)\bigr)}_{\text{KL regularization}}\,,
 \end{equation}
 where $\beta$ is linearly annealed from $0$ to $1$ over the first $10$ epochs (KL warmup).
-The total network has $\mathbf{NPARAMS}$\,M parameters.
+The total network has $2.96$\,M parameters.
 
-\paragraph{Data and training.} We pool all $\mathbf{NIMAGES}$ chest X-ray images
+\paragraph{Data and training.} We pool all $5{,}856$ chest X-ray images
 (train + val + test splits, both classes) and treat them as a single unsupervised set, as
 the VAE does not need pneumonia labels. Images are converted to grayscale and resized to
 $64{\times}64$. Training uses AdamW ($lr=2{\times}10^{-3}$, $wd=10^{-5}$), batch size 128,
 gradient clipping at norm 5, for $30$ epochs on a single NVIDIA T4 GPU
-(wall time $\mathbf{WALLTIME}$\,min). Code: see \texttt{train\_vae\_chest\_xray.py}.
+(wall time $18.0$\,min). Code: see \texttt{train\_vae\_chest\_xray.py}.
 
-\paragraph{Evaluation.} We follow the
-PyTorch-Ignite recipe~\cite{ignite_gan_eval} for FID/IS: 1{,}000 samples are drawn from the
-prior $\mathcal{N}(0,I)$, decoded, replicated to $3$ channels, and bilinearly upsampled
-to $299{\times}299$ for InceptionV3 features. The reference set is $1{,}000$ randomly
-selected real chest X-rays under the same pre-processing.
+\paragraph{Evaluation.} We compute Fr\'echet Inception Distance (FID)~\cite{heusel2017}
+and Inception Score (IS)~\cite{salimans2016}: $1{,}000$ samples are drawn from the prior
+$\mathcal{N}(0,I)$, decoded, replicated to $3$ channels, bilinearly upsampled to
+$299{\times}299$, and ImageNet-normalized for InceptionV3. The reference set is $1{,}000$
+randomly selected real chest X-rays under the same pre-processing. Features come from the
+$2048$-d pool layer; FID uses \texttt{scipy.linalg.sqrtm}; IS computes
+$\exp\!\left(\mathbb{E}_x \mathrm{KL}\!\left(p(y\!\mid\!x)\,\|\,p(y)\right)\right)$ over $1{,}000$ logit softmaxes.
 
 \section{Results}
 
@@ -90,8 +92,8 @@ Batch size & $128$ \\
 Epochs & $30$ (KL warmup over first 10) \\
 Optimizer & AdamW, $lr=2{\times}10^{-3}$, $wd=10^{-5}$ \\
 Loss & per-pixel BCE\,+\,$\beta\,\cdot$\,KL, $\beta_{\max}=1$ \\
-Training images & $\mathbf{NIMAGES}$ \\
-Parameters & $\mathbf{NPARAMS}$\,M \\
+Training images & $5{,}856$ \\
+Parameters & $2.96$\,M \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -119,8 +121,8 @@ stabilizes, indicating the model uses the latent code without collapsing.
 \toprule
 Metric & Value \\
 \midrule
-Inception Score (IS) & $\mathbf{ISVAL}$ \\
-Fr\'echet Inception Distance (FID) & $\mathbf{FIDVAL}$ \\
+Inception Score (IS) & $1.63$ \\
+Fr\'echet Inception Distance (FID) & $216.01$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -139,9 +141,9 @@ washed out --- a known limitation of vanilla VAEs at $64{\times}64$ resolution.
 
 \section{Discussion}
 The relatively high FID and modest IS reflect two well-known VAE properties: (i) the
-Gaussian decoder assumption induces blurry reconstructions, and (ii) a single global
-$z\in\mathbb{R}^{128}$ struggles to represent the high-frequency texture of X-ray
-projections. A natural extension is to replace the decoder with a hierarchical or
+factorized per-pixel Bernoulli likelihood encourages mean-pixel predictions, inducing
+blurry reconstructions, and (ii) a single global $z\in\mathbb{R}^{128}$ struggles to
+represent the high-frequency texture of X-ray projections. A natural extension is to replace the decoder with a hierarchical or
 autoregressive variant (e.g., VQ-VAE\,+\,PixelCNN, or NVAE) and/or pair the VAE with a
 diffusion refiner; such hybrids consistently improve FID by an order of magnitude on
 medical-imaging benchmarks. Within this homework's scope, the implementation establishes
@@ -155,7 +157,8 @@ debugging suggestions; all model design choices and analyses are my own.
 \begin{thebibliography}{9}
 \bibitem{kingma2014} Kingma, D.P., \& Welling, M. (2014). Auto-Encoding Variational Bayes. \textit{ICLR}.
 \bibitem{kermany2018} Kermany, D.S. et al. (2018). Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning. \textit{Cell}, 172(5):1122--1131.
-\bibitem{ignite_gan_eval} PyTorch-Ignite. GAN Evaluation: FID \& IS. \url{https://pytorch-ignite.ai/blog/gan-evaluation-with-fid-and-is/}
+\bibitem{heusel2017} Heusel, M. et al. (2017). GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium. \textit{NeurIPS}.
+\bibitem{salimans2016} Salimans, T. et al. (2016). Improved Techniques for Training GANs. \textit{NeurIPS}.
 \end{thebibliography}
 
 \end{document}
