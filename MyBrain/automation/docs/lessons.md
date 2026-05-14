@@ -175,6 +175,25 @@
 
 ---
 
+## ⑫ Background Python job — 必须 `-u` + 启动 5 min 内 verify first output
+
+**症状**：spawn 一个 long-running Python script 到 background，log 文件迟迟无新输出，process 看着 alive 但实际不动。
+
+**真相**：两个独立 root cause 一起 conflate:
+1. Python `print()` 写到 redirected stdout 是 **block-buffered**（8KB+ 才 flush），`>` redirect / pipe 都触发。log 看似 stuck 实则 buffer 没 flush — 进程是在跑的
+2. 真长任务卡在 API call / network blocking 上，process alive 但 CPU 0%
+
+不区分这两个 → 不知道该 wait 还是 kill restart。
+
+**避免**：
+- 启动 background Python 永远用 `python3 -u` flag 或 `PYTHONUNBUFFERED=1` env
+- **启动后 5-10 分钟内必须 verify first output 出现在 log** —— 不出现立刻 abort + 诊断，不能放着等几十分钟才发现 stuck
+- Monitor pattern 不要 match per-iteration log line（如 `s\d+ w\d+`）—— N 个 events 刷屏 + Monitor 自动停。只 match milestone（subject summary / error / final）
+
+> 例（2026-05-14 ECE284 LLM full LOSO）：第一版命令没 `-u`，log 1 小时只 `[start]` 一行，process CPU 0% 跑 40 分钟。Kill 后用 `python3 -u` 立刻看到 first window output。同时一个错：monitor pattern 包含 `s\d+ w\d+` → 每个 window 都 push 一个 notification，瞬间刷屏被自动 stop。
+
+---
+
 ## ⑪ Claude Code SDK subagent 状态在内存里，磁盘上没 status 字段——session 一卡只能重启
 
 **症状**：spawn 多个 subagent (e.g. 4-6 个 design / synthesizer / reviewer) 全部 task-notification 回来标 `completed`、`TaskOutput` 也都返回 `No task found with ID: ...`，但 **Stop hook 持续报 `Background subagents are still running`**，导致 turn 无法干净结束——AI 被迫输出 `.` 顶住循环，user 必须 esc 打断才能给新指令。
