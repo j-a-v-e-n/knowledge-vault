@@ -585,6 +585,31 @@ Javen 2026-05-02 主对话明确指令：
 
 ---
 
+### Submission / deliverable requirement 必须先 verify ground truth
+
+**规则**：任何涉及 "什么要交 / deadline / 格式 / 评分标准" 的问题，**先 Read 权威源（README / syllabus / 邮件 / Canvas page）verify，再答**。**禁止 hedge** ("如果要 ... 就 ...")，**禁止凭印象推测**。
+
+**正确流程**：
+
+1. 听到 submission requirement 问题（"作业要不要交 X？/ deadline 是 ?/ format ?"）
+2. **立刻 Read** README_提交指南.md / syllabus.md / 课程页面 verify
+3. 用 verified fact 答，**不 hedge**
+
+**反 pattern**：
+
+- ❌ "如果作业要 code 也一起交"（hedge）—— 把 verify 责任推给 Javen
+- ❌ 凭印象答"应该要 / 不要"——没看权威源
+- ❌ "通常这类作业..."（general claim 代替 specific verify）
+
+**Pro pattern**：
+
+- ✅ "README L14 明确写 '只交 PDF'，code 不交"（verified + cite 出处）
+- ✅ 不确定时 → Read 权威源 → 再答（10 秒 verify > 推测 5 次错 1 次）
+
+**指令出处**：2026-05-13 Javen "你刚刚不是说这个作业要 code 吗？" —— 触发因我之前 hedge "如果要 code 也一起交"，没主动 verify README_提交指南。**Submission 信息是 hard fact，hedge 等于不准确**。同源原则：跟"二手 source 不可信"一样，权威源就在 vault 里，没理由不读直接答。
+
+---
+
 ### 做完文件立刻打开 — 不让 Javen 手动找路径
 
 **规则**：任何时候我生成 / 修改 / 渲染了一个文件（.pptx / .pdf / .png / 长 markdown / .ipynb / .zip / .html / .svg ...）**给 Javen 直接用的**，**最后一步 `open <path>` 命令直接弹出来**，不要只告诉他"文件路径在 `MyBrain/.../xxx.pptx`"让他自己 Cmd+Space 搜或 Finder 翻。
