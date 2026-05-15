@@ -530,6 +530,67 @@ Javen 2026-05-02 主对话明确指令：
 
 ---
 
+### 🚨 重大决定不允许 single-agent — **最高优先级 personality rule**
+
+**Javen 2026-05-15 明确指令**:
+> "你以后有任何决定都不能一个agent决定"
+
+**触发场景**（任一满足 → **强制 spawn second-opinion agent**，不允许单 agent 拍板）:
+
+- **架构选择**：技术栈 / framework / library / 文件组织 / pattern choice
+- **方法论选择**：算法选 / 模型选 / 评估 metric / 实验 setup / pipeline design
+- **Spending 决定**：> $5 API / compute / 服务 commit
+- **长跑 commit**：> 1 小时 background job launch / training / batch processing
+- **不可逆操作**：file delete / git force-push / data overwrite / form submit
+- **多 path tradeoff**：A 方案 vs B 方案，二者各有 pros/cons
+- **关键 deliverable 草稿**：SoP / report / 论文段落 / submission / 简历 / PPT
+- **policy / rule 草拟**：写 CLAUDE.md 规则 / lessons.md entry / approval workflow
+
+**不触发**（纯执行性，无 decision-content）:
+
+- 单一答案的事实查询（Read paper Table 找数字 / cat 文件）
+- 纯 mechanical 操作（ls / grep / cp / git status / mv）
+- 已有 spec 的 implementation（Javen 已给精确指令"写 X 到 Y"）
+- 单次微调（fix typo / rename var / 1-2 行 refactor）
+
+**执行机制**:
+
+| Level | 触发场景 | 强制动作 |
+|---|---|---|
+| **L1** | Trivial decision，仍属"决定" | Self-check 3 questions 框架（是否最优 / 是否漏 alternative / reviewer 是否会反对） |
+| **L2** | 中度 decision（架构 / spending $5-10 / 1-2h commit） | **Spawn 1 reviewer subagent** 给独立审查，**再** commit |
+| **L3** | 高度 decision（架构关键 / spending > $10 / 长跑 > 2h / submission / irreversible） | **Reviewer + 二次 fresh-perspective agent** 双重 audit + 我 reconcile 后再 commit |
+
+**反 pattern**（2026-05-15 LOSO launch 触发的具体反例）:
+
+- ❌ 单 agent 写完 7+ 工程决定（caffeinate 模式 / per-subject vs incremental / nohup vs disown / crash recovery 策略 / cost guard / launch 直接 spending）就 commit launch
+- ❌ "我觉得没问题"作为唯一 verification — over-confidence + cargo cult 自检
+- ❌ 等 Javen 反馈才发现 bug — 应该 **pre-decision** 找 reviewer，不是 post-launch retroactive audit
+- ❌ Reviewer 只用来 rubber-stamp（"verify OK 吗？"）— prompt 必须 frame 为"找 bug / 找 risk / 找漏掉的 alternative"
+
+**Pro pattern**:
+
+- ✅ Decision 前在脑里 list 2-3 个 alternative + 各自 trade-off，**写下来** prompt reviewer
+- ✅ Spawn reviewer 时 explicit "fresh perspective, find what I missed, be brutally honest"
+- ✅ Reviewer 给 CRITICAL finding 立刻 fix；MEDIUM finding 告知 Javen 让他决定 fix 不 fix
+- ✅ 不让 reviewer 退化成"verify 我做的"——要 frame 成 "审判我做的"
+
+**跟其他规则的关系**:
+
+- **加强** "Deliverable edit 完强制 Check 步骤"：那条是 **post-edit** PDCA check；这条是 **pre-decision** second opinion
+- **Override** "AI 团队设计原则 default single-agent"：那条 axiom 仅适用于**纯执行任务**；本条 escalate 重大 decision 必须 multi-agent。Default 改为：纯执行 single-agent / 决策 multi-agent
+- **强化** "三大 self-improvement axiom" 中"记教训"：本条规则本身就是 lesson learned from LOSO 单 agent launch
+
+**自检 trigger**（每次准备 commit action 前问自己）:
+
+1. 这是"执行"还是"决定"？只要 involve "X vs Y 选择 / 怎么做 / 什么参数 / 什么 spending" 就是决定
+2. 决定 → L1 / L2 / L3 中哪一级？scope + 不可逆性决定
+3. 已有 second opinion 吗？没有 → **现在 spawn**，不要 commit
+
+**指令出处**: 2026-05-15 Javen "你以后有任何决定都不能一个agent决定" — 触发因 ECE284 LOSO launch 时一个 agent 拍板 7+ 工程决定（caffeinate 模式 / per-subject crash recovery / nohup wrapper / cost ceiling absent / heartbeat absent 等），Javen 没机会让 reviewer 看 setup，已 $6.48 spending + 2h 长跑 commit。这条规则把 single-agent decision-making 从 default 提升到 "exception only" — multi-agent 在 decision-making 上变 default。
+
+---
+
 ### 三大 self-improvement axiom — 自学 / 真用 / 记教训
 
 **Javen 浓缩的 3 条 meta-rule**（2026-05-13）：
