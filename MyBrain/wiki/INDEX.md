@@ -1,6 +1,6 @@
 # 知识库总目录
 
-**最后更新**：2026-05-11 | **页面总数**：85 | **最新操作**：批量编译 8 个抖音 AI 主题视频（Javen 喂入 8 个 Untitled.md 字幕）— Claude Code 8 项新功能 / Claude Code permissions / DeepSeek TUI 登顶 GitHub / Antirez 本地推理 / AI 落地咨询师岗位 / CodeBanana / SEQUENCE OS / Codex 三件套 PPT。spawn 3 个 researcher 并行调研验证事实（Code with Claude 2026 大会真实存在 5/6 SF；DeepSeek-TUI 真 24.7k stars 由 Hunter Bown 做；Antirez ds4 GitHub 真有 5/7 发布；Anthropic FDE 真招聘 $180-550K；CodeBanana 真出门问问 2024 发布）。新增 8 source + 3 concept + 2 synthesis + 1 overview 总共 **14 个新页面**。前序操作：5/12 ECE284 Med-HALT 编译 + 演讲稿
+**最后更新**：2026-05-15 | **页面总数**：87 | **最新操作**：编译 2 篇 COGS117 Week 7 文献 — [[Shafto_2012_社会学习贝叶斯框架]] (Bayesian formal model of social learning，3 个 context 区分) + [[Herrmann_2007_文化智力假说]] (PCTB 跨物种比较实证支持 Cultural Intelligence Hypothesis)；前序 5/14 BS/MS SoP final + degree-progress.md 编译，5/11 抖音 8 视频批量编译（Javen 喂入 8 个 Untitled.md 字幕）— Claude Code 8 项新功能 / Claude Code permissions / DeepSeek TUI 登顶 GitHub / Antirez 本地推理 / AI 落地咨询师岗位 / CodeBanana / SEQUENCE OS / Codex 三件套 PPT。spawn 3 个 researcher 并行调研验证事实（Code with Claude 2026 大会真实存在 5/6 SF；DeepSeek-TUI 真 24.7k stars 由 Hunter Bown 做；Antirez ds4 GitHub 真有 5/7 发布；Anthropic FDE 真招聘 $180-550K；CodeBanana 真出门问问 2024 发布）。新增 8 source + 3 concept + 2 synthesis + 1 overview 总共 **14 个新页面**。前序操作：5/12 ECE284 Med-HALT 编译 + 演讲稿
 
 > ⚠️ **当前 vault 状态注意**：
 > - `notes/.../ECE284/Singhal_2025_MedPaLM2_演讲.md` 在本机 fs 上**找不到**——可能 5/10 写入未成功落到 Google Drive，或同步延迟；Javen 需手动确认。如不存在则视为 5/10 的 ingest 部分 fail（PDF 和 4 张图 attachment 都成功，演讲稿 md 未落盘）
@@ -104,6 +104,8 @@ Javen 收藏并喂入 vault 的抖音 AI 主题视频字幕，**编译时附事�
 - [[Oudeyer_2017_婴儿发展机器人]] — Oudeyer (2017 WIREs)：被动动态步行机、Playground 实验、好奇心形式化为"学习进步最大化"
 - [[Saffran_1996_统计学习]] — Saffran, Aslin & Newport (1996 Science)：8月婴儿仅 2 分钟人造连续音流 → 用 transitional probability 切出"词" vs "非词" vs "部分词"；统计学习范式奠基
 - [[Vong_2024_单童语言习得]] — Vong, Wang, Orhan & Lake (2024 Science)：CVCL 模型 + SAYcam-S（一个孩子 6-25 月 61h 视频/600,000 帧）→ 学到 22 个 word-referent 映射 + 零样本泛化（Brenden Lake 实验室）
+- [[Shafto_2012_社会学习贝叶斯框架]] — Shafto, Goodman & Frank (2012 PPS)：Bayesian framework formalizing 3 social learning context (physical evidence / goal-directed / communicative)；Bob's Box + Tim's Toy demonstration；解释 over-imitation + pedagogical narrowing
+- [[Herrmann_2007_文化智力假说]] — Herrmann, Call, Hernández-Lloreda, Hare & Tomasello (2007 Science)：PCTB 16 task 测 106 chimp + 32 orang + 105 children (2.5y)；physical cog 人 ≈ 黑猩猩 (0.68)，social cog 人 ≫ ape (0.74 vs 0.36)；Social Learning 0.86 vs 0.10；effect size η²=0.72 social vs 0.14 physical
 
 ### 理论辩论
 - [[争论_婴儿被动vs主动学习]] — Cusack vs Zettersten 四大矛盾点对照 + 感知/动作发展证据的延伸

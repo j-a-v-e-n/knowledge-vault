@@ -1,6 +1,29 @@
 # Wiki 操作日志
 
-## [2026-05-11] Ingest | 抖音 8 个 AI 主题视频深度编译（Javen "8 小时全身心扎进 AI"指令）
+## [2026-05-15] Ingest | COGS117 Week 7 两篇核心文献（Javen "我刚下了两个 Cogs 117 的 PDF 编译"）
+
+### 来源
+- `raw/ucsd/Spring 2026/COGS117/Shafto et al. (2012).pdf` — Perspectives on Psychological Science 7(4), 341-351
+- `raw/ucsd/Spring 2026/COGS117/herrmann_et_al_2007.pdf` — Science 317(5843), 1360-1366
+
+### 新建文件清单
+- 新建 source 页：[[Shafto_2012_社会学习贝叶斯框架]] (Week 7 syllabus 核心阅读) — Bayesian framework，3 种 social learning context (physical / goal-directed / communicative)；Bob's Box + Tim's Toy demonstration；Eq. 1-3 公式 + Appendix B 数学推导验证 verbatim；包含 Goodman 2009 / Bonawitz 2011 / Xu & Tenenbaum 2007 三个实证 + 与 Csibra-Gergely Natural Pedagogy 关系
+- 新建 source 页：[[Herrmann_2007_文化智力假说]] — PCTB 16 task × 3 物种 (106 chimp / 32 orang / 105 children) 详细数据 Table 2 verbatim；物理 cog 人 ≈ 黑猩猩 (0.68 vs 0.68) vs 社会 cog 人 ≫ ape (0.74 vs 0.36)；Social Learning effect size η²=0.76 巨大；包含 Tool use chimp 0.74 > human 0.23 反 case；paper 自己 4 条 caveat 全记
+
+### 更新文件
+- [[COGS117_概览]] — 文献笔记列表加 2 条
+- [[INDEX.md]] — 文献笔记区加 2 条 + 顶部最新操作更新；统计 85 → 87 页
+
+### 关键 cross-link
+- Shafto 框架与 [[Saffran_1996_统计学习]] 形成对比（统计 evidence-only vs 社会 actor reasoning）
+- Herrmann 与 [[Vong_2024_单童语言习得]] 共同支持"social learning is human-specific developmental cornerstone"
+- 两篇共同 inform [[争论_婴儿被动vs主动学习]]（主动 social learning 侧）
+
+### 没新建 concept 页
+- "Cultural Intelligence Hypothesis"暂时不 promote 成 concept 页 — paper-specific 假说，等多文献时再 promote
+- "Pedagogical Bayesian Learning"同理 — 单篇 framework，目前留作 source
+
+
 
 Javen 5/11 主对话明确指令：
 > "对每个内容保持充分的好奇心和积极性...对里面提到的内容有极强的求知欲和探索欲...8 小时全部的事...极度推荐发散...不要怕"

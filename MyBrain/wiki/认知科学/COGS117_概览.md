@@ -109,6 +109,8 @@ priority: active
 - [[Oudeyer_2017_婴儿发展机器人]] — Week 4：发展机器人视角，内在动机形式化
 - [[Saffran_1996_统计学习]] — Week 5：Science 1996 经典；8月婴儿仅 2 分钟统计学习切词；统计学习范式奠基
 - [[Vong_2024_单童语言习得]] — Week 5：Science 2024 现代证据；CVCL + SAYcam-S 单孩 61h 学 22 个 word-referent 映射
+- [[Shafto_2012_社会学习贝叶斯框架]] — Week 7：Bayesian formal framework，区分 physical evidence / goal-directed / communicative 三种 social learning context；Bob's Box + Tim's Toy 两个 demonstration
+- [[Herrmann_2007_文化智力假说]] — Cultural Intelligence Hypothesis：106 chimp + 32 orang + 105 children 跨 16 task 对比；物理 cog 人 ≈ 黑猩猩 (0.68)，社会 cog 人 ≫ ape (0.74 vs 0.36)
 
 ### 概念与争论
 - [[监督学习与无监督学习]] — 课程的核心学习理论基础
