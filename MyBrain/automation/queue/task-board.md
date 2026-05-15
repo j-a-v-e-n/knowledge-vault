@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-13 [daemon dawn-shift: task-027 SoP v1 起草完成 (career/sop-bsms-v1.md)；B1 GPA=3.61 确认无需 LOR；B2/B3 仍待 Javen 填写]
-**当前状态**：5 进行中（task-003 + task-020 + task-024 + task-026 + **task-027**）/ 1 阻塞（task-022）/ **11** 待启动 / **8** 已完成
+**最后更新**：2026-05-15 [daemon dawn-shift: ai-watch 写完；task-027 DEADLINE TODAY 5/15 23:59 — 标 blocked，Javen 必须今天完成 B2/B3+Form+Submit；email-triage ❌ Gmail MCP daemon 上下文不可用]
+**当前状态**：5 进行中（task-003 + task-020 + task-024 + task-026 + **task-027**）/ 2 阻塞（task-022 + **task-027 🚨TODAY**）/ **10** 待启动 / **8** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -527,6 +527,8 @@
 ---
 
 ## 🔒 阻塞
+
+- [ ] **task-027** 🚨🚨🚨 (卡片在待启动列) | UCSD ECE BS/MS 申请 | **DEADLINE TODAY 2026-05-15 23:59 PT** | blocked on @javen — 今天必须完成：(1) 告诉 Claude B2(MS 专业方向) + B3(入学季) → 填写 sop-bsms-v1.md 里的 [SPECIALIZATION_DIRECTION] + [ENTRY_QUARTER] + [FACULTY/LAB]；(2) TritonLink 下 Academic History PDF；(3) 填并提交 Google Form | @claude 侧 a/b 全 [x]（SoP v1 在 career/sop-bsms-v1.md）
 
 - [ ] **task-022** (卡片在待启动列) | ECE284 Week 8 milestone | blocked on @javen — c: 提交 Canvas 5/11 + f: 彩排/讲 5/12 | claude 侧 a/b/d/e 全部 [x]
 
