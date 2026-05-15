@@ -175,6 +175,29 @@
 
 ---
 
+## ⑬ Personal-commitment 类决策 AI 不擅自做 — Faculty 名字 / target school / 合作伙伴
+
+**症状**：写 SoP / cover letter / 个人 essay 时，AI 帮用户挑了 specific 教授名字 / 公司名字 / 合作伙伴 commitment，写进 deliverable 没经用户 explicit confirm。
+
+**真相**：这些是 **personal commitment 类决策**——用户在跟外部世界 publicly 表态 "我跟 X 有 alignment / 我想 join Y / 我尊重 Z"。AI 没有用户的 personal preference / 长期 plan / unstated 信息，**做出来的 commitment 是 hallucinated alignment**。即便 AI 调研 ground truth verify了 X 确实 fit profile，最终选择仍是用户的 personal decision。
+
+**避免**：
+- 任何 SoP / cover letter / essay 涉及 **specific person name / specific lab / specific company commitment** 时，default 留 placeholder `[FACULTY/LAB]` + flag "需 Javen confirm 加哪个 / 不加"
+- 给 candidate list 让用户选，**不要 default 选 1 个**写进 deliverable
+- "推荐 top 1 候选" 时 explicit 说 "我推荐 X，但你 confirm 后我才填" — 不能默认 silence-implies-consent
+
+**反 pattern**:
+- ❌ Researcher 给 5 个候选 → 我推荐 #1 → 用户没明确反对 → 我假设 implicit OK → 写进 SoP
+- ❌ "I'll add Prof. X by default, change if you want" — 这是 opt-out 不是 opt-in，错的
+
+**Pro pattern**:
+- ✅ "I recommend candidate #3 — confirm A/B/C/D before I write it in"
+- ✅ Faculty / school / company / 合作 commitment 永远 explicit ask before write
+
+**指令出处**：2026-05-14 Javen "你已经替我选了教授了？？？" — 触发因 v4 SoP 我默认填了 Atanasov 名字（researcher 推荐 + 我推荐 top + Javen 没 explicit confirm 但也没 reject）。Javen reframe 让我看清这是 **personal commitment** 性质决策 AI 越界. 这条违反 owner mindset "需 Javen 决定的事写 blocked on @javen，不擅自决定"。
+
+---
+
 ## ⑫ Background Python job — 必须 `-u` + 启动 5 min 内 verify first output
 
 **症状**：spawn 一个 long-running Python script 到 background，log 文件迟迟无新输出，process 看着 alive 但实际不动。
