@@ -1,0 +1,1275 @@
+{
+  "results": [
+    {
+      "subject": 3,
+      "window": 0,
+      "hr_truth": 104.0555,
+      "hr_pred": 105.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, no prior, PPG 2nd peak 1.75Hz (105BPM) likely true HR",
+      "abs_err": 0.944500000000005
+    },
+    {
+      "subject": 3,
+      "window": 1,
+      "hr_truth": 104.2781,
+      "hr_pred": 105.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.87), PPG peak 105BPM matches prior exactly",
+      "abs_err": 0.7219000000000051
+    },
+    {
+      "subject": 3,
+      "window": 2,
+      "hr_truth": 102.0408,
+      "hr_pred": 105.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.87), PPG peak 105BPM matches prior exactly",
+      "abs_err": 2.9591999999999956
+    },
+    {
+      "subject": 3,
+      "window": 3,
+      "hr_truth": 98.2533,
+      "hr_pred": 97.5,
+      "lambda": 0.4,
+      "reason": "regime A, low motion (0.87), accel 2Hz outside PPG dominant 1.6Hz, prior HR ~105 matches PPG secondary peak",
+      "abs_err": 0.7532999999999959
+    },
+    {
+      "subject": 3,
+      "window": 4,
+      "hr_truth": 94.2857,
+      "hr_pred": 90.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, PPG peak 90BPM coherent with HR drop from 105",
+      "abs_err": 4.285700000000006
+    },
+    {
+      "subject": 3,
+      "window": 5,
+      "hr_truth": 94.3396,
+      "hr_pred": 90.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, PPG peak 90BPM matches HR downtrend (105\u219290), accel weak",
+      "abs_err": 4.339600000000004
+    },
+    {
+      "subject": 3,
+      "window": 6,
+      "hr_truth": 95.6429,
+      "hr_pred": 97.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.87), PPG peak 98BPM matches prior trend ~90-98",
+      "abs_err": 1.8571000000000026
+    },
+    {
+      "subject": 3,
+      "window": 7,
+      "hr_truth": 96.2567,
+      "hr_pred": 97.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.87), PPG peak 98BPM matches prior trend 90\u219298",
+      "abs_err": 1.243300000000005
+    },
+    {
+      "subject": 3,
+      "window": 8,
+      "hr_truth": 95.2381,
+      "hr_pred": 97.5,
+      "lambda": 0.4,
+      "reason": "regime A, low motion (0.87), PPG peak 98BPM matches prior trend, accel 1.9Hz minimal overlap",
+      "abs_err": 2.261899999999997
+    },
+    {
+      "subject": 3,
+      "window": 9,
+      "hr_truth": 91.7686,
+      "hr_pred": 90.0,
+      "lambda": 0.4,
+      "reason": "regime A, low motion (0.87), accel 1.9Hz outside PPG dominant 1.5Hz, prior ~98BPM suggests HR closer to 98-100",
+      "abs_err": 1.7686000000000064
+    },
+    {
+      "subject": 3,
+      "window": 10,
+      "hr_truth": 91.4634,
+      "hr_pred": 90.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.87), PPG peak 90BPM matches last HR, accel 1.9Hz outside",
+      "abs_err": 1.463399999999993
+    },
+    {
+      "subject": 3,
+      "window": 11,
+      "hr_truth": 90.9592,
+      "hr_pred": 90.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.86), accel 2.75Hz far from PPG 1.5Hz, prior converged to 90BPM",
+      "abs_err": 0.9591999999999956
+    },
+    {
+      "subject": 3,
+      "window": 12,
+      "hr_truth": 89.1892,
+      "hr_pred": 90.0,
+      "lambda": 0.2,
+      "reason": "regime A, low motion (0.87), accel 3.4Hz outside HR band, PPG peak 90BPM matches prior",
+      "abs_err": 0.8108000000000004
+    },
+    {
+      "subject": 3,
+      "window": 13,
+      "hr_truth": 84.6501,
+      "hr_pred": 82.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.87), accel 2.9Hz far from PPG 1.4Hz, prior 90BPM",
+      "abs_err": 2.150099999999995
+    },
+    {
+      "subject": 3,
+      "window": 14,
+      "hr_truth": 83.7054,
+      "hr_pred": 82.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, PPG peak 82BPM matches HR prior trend, accel minimal overlap",
+      "abs_err": 1.2053999999999974
+    },
+    {
+      "subject": 3,
+      "window": 15,
+      "hr_truth": 86.0271,
+      "hr_pred": 82.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.98), accel 2.25Hz far from PPG 1.38Hz, prior confirms 82BPM",
+      "abs_err": 3.5271000000000043
+    },
+    {
+      "subject": 3,
+      "window": 16,
+      "hr_truth": 90.1639,
+      "hr_pred": 82.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (1.0), PPG peak 82BPM matches prior exactly, accel 1.75Hz distant",
+      "abs_err": 7.663899999999998
+    },
+    {
+      "subject": 3,
+      "window": 17,
+      "hr_truth": 93.361,
+      "hr_pred": 90.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, PPG peak 90BPM coherent with prior ~82, accel 2Hz outside",
+      "abs_err": 3.361000000000004
+    },
+    {
+      "subject": 3,
+      "window": 18,
+      "hr_truth": 95.0461,
+      "hr_pred": 97.5,
+      "lambda": 0.4,
+      "reason": "regime A, low motion, accel 2.6Hz outside prior HR~85, PPG 98BPM plausible upramp",
+      "abs_err": 2.4539000000000044
+    },
+    {
+      "subject": 3,
+      "window": 19,
+      "hr_truth": 97.1922,
+      "hr_pred": 97.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.6Hz overlaps PPG peak 2, prior HR uptrend 82\u219297 supports 98BPM",
+      "abs_err": 0.3078000000000003
+    },
+    {
+      "subject": 3,
+      "window": 20,
+      "hr_truth": 99.4475,
+      "hr_pred": 97.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.625Hz overlaps PPG dom exactly, prior HR ~97BPM suggests true HR at secondary peak 1.625Hz (98BPM)",
+      "abs_err": 1.9475000000000051
+    },
+    {
+      "subject": 3,
+      "window": 21,
+      "hr_truth": 101.6949,
+      "hr_pred": 75.0,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.625Hz exactly overlaps PPG dom, true HR likely 1.75Hz (105BPM) near prior ~98",
+      "abs_err": 26.694900000000004
+    },
+    {
+      "subject": 3,
+      "window": 22,
+      "hr_truth": 103.1746,
+      "hr_pred": 105.0,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.6Hz overlaps PPG top-2, prior unstable/low, true HR likely 75BPM (peak 3)",
+      "abs_err": 1.825400000000002
+    },
+    {
+      "subject": 3,
+      "window": 23,
+      "hr_truth": 104.1667,
+      "hr_pred": 75.0,
+      "lambda": 1.0,
+      "reason": "regime C, prior wildly inconsistent [97,75,105], accel=PPG=150Hz overlap, default neutral",
+      "abs_err": 29.166700000000006
+    },
+    {
+      "subject": 3,
+      "window": 24,
+      "hr_truth": 105.2916,
+      "hr_pred": 105.0,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.5Hz overlaps PPG dom exactly, prior unstable [75,105,75], true HR likely at peak2 (75BPM) or peak3 (105BPM)",
+      "abs_err": 0.2916000000000025
+    },
+    {
+      "subject": 3,
+      "window": 25,
+      "hr_truth": 107.0252,
+      "hr_pred": 105.0,
+      "lambda": 1.8,
+      "reason": "regime B-strong, accel 2.5Hz overlaps PPG dom exactly, prior oscillates [105,75,105] suggesting contamination, subtract to expose secondary peak 1.75Hz (105BPM)",
+      "abs_err": 2.025199999999998
+    },
+    {
+      "subject": 3,
+      "window": 26,
+      "hr_truth": 108.2131,
+      "hr_pred": 75.0,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.5Hz overlaps PPG dom exactly, prior HR ~105 suggests true peak at 1.25Hz (75BPM up to 105), subtract to expose secondary",
+      "abs_err": 33.2131
+    },
+    {
+      "subject": 3,
+      "window": 27,
+      "hr_truth": 109.0604,
+      "hr_pred": 105.0,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.5Hz overlaps PPG dom exactly, prior ~95BPM suggests true HR near secondary peak 1.25Hz (75BPM)",
+      "abs_err": 4.060400000000001
+    },
+    {
+      "subject": 3,
+      "window": 28,
+      "hr_truth": 109.4891,
+      "hr_pred": 75.0,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.5Hz overlaps PPG 2nd peak, prior unstable [105,75,105], PPG 1.25Hz (75BPM) dominant",
+      "abs_err": 34.48909999999999
+    },
+    {
+      "subject": 3,
+      "window": 29,
+      "hr_truth": 110.2941,
+      "hr_pred": 75.0,
+      "lambda": 1.8,
+      "reason": "regime B-strong, accel 2.5Hz overlaps PPG dom exactly, prior erratic [75,105,75], likely true HR at 3rd peak 1.25Hz (75BPM)",
+      "abs_err": 35.2941
+    },
+    {
+      "subject": 3,
+      "window": 30,
+      "hr_truth": 111.7021,
+      "hr_pred": 112.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.625Hz overlaps PPG dom exactly, prior HR ~75BPM matches PPG peak-2 at 1.875Hz (113BPM), aggressive subtract to expose true HR",
+      "abs_err": 0.7978999999999985
+    },
+    {
+      "subject": 3,
+      "window": 31,
+      "hr_truth": 113.0248,
+      "hr_pred": 112.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.625Hz overlaps PPG dom exactly, prior jumps 75\u2192113 suggests upramp, true HR likely at 1.875Hz (113BPM) peak",
+      "abs_err": 0.524799999999999
+    },
+    {
+      "subject": 3,
+      "window": 32,
+      "hr_truth": 114.5038,
+      "hr_pred": 112.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.625Hz overlaps PPG dom, prior HR ~113BPM suggests true peak at 1.875Hz (113BPM)",
+      "abs_err": 2.0037999999999982
+    },
+    {
+      "subject": 3,
+      "window": 33,
+      "hr_truth": 114.8796,
+      "hr_pred": 112.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.625Hz overlaps PPG dom exactly, prior HR ~113 suggests true peak at 1.875Hz (113BPM)",
+      "abs_err": 2.3795999999999964
+    },
+    {
+      "subject": 3,
+      "window": 34,
+      "hr_truth": 115.5031,
+      "hr_pred": 112.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.625Hz overlaps PPG dom exactly, prior HR ~112 suggests true peak at 1.875Hz (113BPM)",
+      "abs_err": 3.0031000000000034
+    },
+    {
+      "subject": 3,
+      "window": 35,
+      "hr_truth": 115.8599,
+      "hr_pred": 112.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.625Hz exactly overlaps PPG dom, prior HR ~113 suggests true peak at 1.875Hz (113BPM), strong subtract",
+      "abs_err": 3.359899999999996
+    },
+    {
+      "subject": 3,
+      "window": 36,
+      "hr_truth": 116.0221,
+      "hr_pred": 112.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.625Hz overlaps PPG dom exactly, prior HR ~113BPM suggests true peak is 1.875Hz (113BPM), subtract to expose",
+      "abs_err": 3.5220999999999947
+    },
+    {
+      "subject": 3,
+      "window": 37,
+      "hr_truth": 116.0221,
+      "hr_pred": 112.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.625Hz exactly overlaps PPG dom, prior HR ~113 suggests true peak is 1.875Hz secondary",
+      "abs_err": 3.5220999999999947
+    },
+    {
+      "subject": 3,
+      "window": 38,
+      "hr_truth": 116.2791,
+      "hr_pred": 120.0,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.625Hz overlaps PPG dom exactly, prior HR ~113BPM suggests true peak is 2nd (120BPM)",
+      "abs_err": 3.7209000000000003
+    },
+    {
+      "subject": 3,
+      "window": 39,
+      "hr_truth": 117.0569,
+      "hr_pred": 120.0,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.625Hz overlaps PPG dom exactly, prior HR ~115, true HR likely at 2nd peak (120BPM)",
+      "abs_err": 2.943100000000001
+    },
+    {
+      "subject": 3,
+      "window": 40,
+      "hr_truth": 117.3097,
+      "hr_pred": 120.0,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.625Hz overlaps PPG dom, prior HR ~120 suggests true peak at 2.0Hz (120BPM)",
+      "abs_err": 2.6902999999999935
+    },
+    {
+      "subject": 3,
+      "window": 41,
+      "hr_truth": 117.6778,
+      "hr_pred": 82.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.75Hz exactly matches PPG 2nd peak (harmonic), prior HR ~120 suggests true peak at 2.0Hz (120BPM), strong subtract",
+      "abs_err": 35.177800000000005
+    },
+    {
+      "subject": 3,
+      "window": 42,
+      "hr_truth": 118.5458,
+      "hr_pred": 120.0,
+      "lambda": 1.8,
+      "reason": "regime B-strong, accel 2.75Hz overlaps PPG dom exactly, prior unstable but ~120, true HR likely secondary peak 82.5 or 120",
+      "abs_err": 1.4542000000000002
+    },
+    {
+      "subject": 3,
+      "window": 43,
+      "hr_truth": 119.6809,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B-strong, accel 2.75Hz overlaps PPG dom exactly, prior unstable [120,82,120], true HR likely at 2nd peak 82.5BPM (1.375Hz)",
+      "abs_err": 37.180899999999994
+    },
+    {
+      "subject": 3,
+      "window": 44,
+      "hr_truth": 121.7532,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B-strong, accel 2.75Hz overlaps PPG dom exactly, prior erratic suggests contamination, secondary PPG peak 1.375Hz (83BPM) matches stable prior 82.5",
+      "abs_err": 39.25320000000001
+    },
+    {
+      "subject": 3,
+      "window": 45,
+      "hr_truth": 124.6106,
+      "hr_pred": 127.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.75Hz overlaps PPG 2nd peak (harmonic), true HR ~82BPM (matches prior), strong subtract",
+      "abs_err": 2.889399999999995
+    },
+    {
+      "subject": 3,
+      "window": 46,
+      "hr_truth": 126.4489,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B, high motion, accel 2.75Hz overlaps PPG 2nd peak, prior erratic but PPG 1st peak 82BPM stable",
+      "abs_err": 43.948899999999995
+    },
+    {
+      "subject": 3,
+      "window": 47,
+      "hr_truth": 128.4797,
+      "hr_pred": 127.5,
+      "lambda": 1.0,
+      "reason": "regime C, prior oscillates wildly [82->127->82], PPG peaks similar mag, default neutral",
+      "abs_err": 0.9797000000000082
+    },
+    {
+      "subject": 3,
+      "window": 48,
+      "hr_truth": 130.2349,
+      "hr_pred": 82.5,
+      "lambda": 1.0,
+      "reason": "regime C, prior oscillates wildly [127.5,82.5,127.5], sensor unstable, default neutral",
+      "abs_err": 47.73490000000001
+    },
+    {
+      "subject": 3,
+      "window": 49,
+      "hr_truth": 132.1586,
+      "hr_pred": 82.5,
+      "lambda": 1.0,
+      "reason": "regime C, prior oscillates wildly [82\u2192127\u219282], PPG peaks similar mag, default neutral",
+      "abs_err": 49.65860000000001
+    },
+    {
+      "subject": 3,
+      "window": 50,
+      "hr_truth": 134.0694,
+      "hr_pred": 135.0,
+      "lambda": 1.0,
+      "reason": "regime C, prior HR inconsistent [128\u219283\u219283], all PPG peaks similar mag, default neutral",
+      "abs_err": 0.9305999999999983
+    },
+    {
+      "subject": 3,
+      "window": 51,
+      "hr_truth": 135.6383,
+      "hr_pred": 135.0,
+      "lambda": 1.2,
+      "reason": "regime B, sharp HR upramp 82\u2192135BPM, accel 2.9Hz overlaps PPG peak-3, subtract to preserve 135BPM dominant",
+      "abs_err": 0.6382999999999868
+    },
+    {
+      "subject": 3,
+      "window": 52,
+      "hr_truth": 137.2443,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.9Hz overlaps PPG peak-3, prior unstable but PPG dom 82BPM plausible; subtract to preserve dom",
+      "abs_err": 54.74430000000001
+    },
+    {
+      "subject": 3,
+      "window": 53,
+      "hr_truth": 139.0319,
+      "hr_pred": 82.5,
+      "lambda": 0.4,
+      "reason": "regime A, accel 2.9Hz outside plausible HR band (172BPM impossible stride), PPG 1.4Hz=82BPM matches latest prior",
+      "abs_err": 56.53190000000001
+    },
+    {
+      "subject": 3,
+      "window": 54,
+      "hr_truth": 141.0658,
+      "hr_pred": 82.5,
+      "lambda": 0.8,
+      "reason": "regime B, accel 2.9Hz matches PPG 2nd harmonic not dom, PPG 82BPM consistent w/ prior",
+      "abs_err": 58.565799999999996
+    },
+    {
+      "subject": 3,
+      "window": 55,
+      "hr_truth": 143.3602,
+      "hr_pred": 82.5,
+      "lambda": 0.7,
+      "reason": "regime B, accel 2.9Hz far from PPG 1.4Hz (82BPM matches prior), light subtract",
+      "abs_err": 60.86019999999999
+    },
+    {
+      "subject": 3,
+      "window": 56,
+      "hr_truth": 145.7055,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B, high motion, accel 2.9Hz overlaps PPG 2nd peak, prior HR ~82 matches dominant",
+      "abs_err": 63.2055
+    },
+    {
+      "subject": 3,
+      "window": 57,
+      "hr_truth": 147.5155,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.9Hz overlaps PPG 2nd peak, prior HR ~82 matches PPG dom 1.4Hz, strong subtract to preserve true HR",
+      "abs_err": 65.0155
+    },
+    {
+      "subject": 3,
+      "window": 58,
+      "hr_truth": 148.9028,
+      "hr_pred": 150.0,
+      "lambda": 2.3,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom exactly, prior HR ~82BPM suggests true peak is 3rd (1.375Hz=82BPM), aggressive subtract",
+      "abs_err": 1.0971999999999866
+    },
+    {
+      "subject": 3,
+      "window": 59,
+      "hr_truth": 149.3711,
+      "hr_pred": 82.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom, prior jump 82\u2192150 suggests upramp, true HR likely 1.375Hz (83BPM) peak",
+      "abs_err": 66.87110000000001
+    },
+    {
+      "subject": 3,
+      "window": 60,
+      "hr_truth": 149.0066,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.875Hz overlaps PPG dom exactly, prior unstable [82,150,82], true HR likely 82.5 (peak 2)",
+      "abs_err": 66.50659999999999
+    },
+    {
+      "subject": 3,
+      "window": 61,
+      "hr_truth": 148.8423,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.9Hz far from PPG 1.4Hz (82BPM), prior shows stabilization at ~82, light subtraction",
+      "abs_err": 66.3423
+    },
+    {
+      "subject": 3,
+      "window": 62,
+      "hr_truth": 148.1888,
+      "hr_pred": 82.5,
+      "lambda": 1.2,
+      "reason": "regime B, high motion but accel 2.9Hz distant from PPG 1.4Hz, prior HR ~82 stable",
+      "abs_err": 65.68879999999999
+    },
+    {
+      "subject": 3,
+      "window": 63,
+      "hr_truth": 147.541,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.9Hz far from PPG 1.4Hz (82BPM matches prior), light subtraction",
+      "abs_err": 65.041
+    },
+    {
+      "subject": 3,
+      "window": 64,
+      "hr_truth": 147.5155,
+      "hr_pred": 82.5,
+      "lambda": 0.7,
+      "reason": "regime B, accel 2.9Hz far from PPG 1.4Hz (82BPM matches prior), high motion but no overlap",
+      "abs_err": 65.0155
+    },
+    {
+      "subject": 3,
+      "window": 65,
+      "hr_truth": 147.363,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.875Hz overlaps PPG 2nd peak, prior HR stable ~82BPM matches dominant",
+      "abs_err": 64.863
+    },
+    {
+      "subject": 3,
+      "window": 66,
+      "hr_truth": 147.6684,
+      "hr_pred": 82.5,
+      "lambda": 0.8,
+      "reason": "regime B, accel 2.9Hz far from PPG dom 1.4Hz, prior stable at 82BPM matches PPG peak",
+      "abs_err": 65.16839999999999
+    },
+    {
+      "subject": 3,
+      "window": 67,
+      "hr_truth": 148.4375,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.9Hz far from PPG 1.4Hz (82BPM matches prior), light subtract",
+      "abs_err": 65.9375
+    },
+    {
+      "subject": 3,
+      "window": 68,
+      "hr_truth": 149.5278,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.75Hz far from PPG 1.375Hz (82BPM matches prior), light subtract",
+      "abs_err": 67.02780000000001
+    },
+    {
+      "subject": 3,
+      "window": 69,
+      "hr_truth": 150.4752,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.75Hz far from PPG 1.375Hz (82BPM matches prior), light subtraction",
+      "abs_err": 67.9752
+    },
+    {
+      "subject": 3,
+      "window": 70,
+      "hr_truth": 151.2739,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.75Hz is 2x harmonic of PPG 1.375Hz, prior HR stable at 82BPM, light subtraction to preserve true HR",
+      "abs_err": 68.7739
+    },
+    {
+      "subject": 3,
+      "window": 71,
+      "hr_truth": 152.0811,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.75Hz far from PPG 1.38Hz (82BPM matches prior), light subtraction",
+      "abs_err": 69.58109999999999
+    },
+    {
+      "subject": 3,
+      "window": 72,
+      "hr_truth": 152.7331,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.75Hz is harmonic of PPG 1.375Hz, prior stable at 82.5BPM matches PPG dom",
+      "abs_err": 70.23310000000001
+    },
+    {
+      "subject": 3,
+      "window": 73,
+      "hr_truth": 153.5312,
+      "hr_pred": 82.5,
+      "lambda": 0.7,
+      "reason": "regime B, accel 2.75Hz far from PPG 1.375Hz (82BPM matches prior), light subtract",
+      "abs_err": 71.03120000000001
+    },
+    {
+      "subject": 3,
+      "window": 74,
+      "hr_truth": 153.6885,
+      "hr_pred": 82.5,
+      "lambda": 0.6,
+      "reason": "regime B, accel 2.75Hz far from PPG 1.38Hz (82BPM matches prior), light subtraction",
+      "abs_err": 71.1885
+    },
+    {
+      "subject": 3,
+      "window": 75,
+      "hr_truth": 153.5312,
+      "hr_pred": 82.5,
+      "lambda": 0.5,
+      "reason": "regime A/B, medium motion but accel 2.75Hz far from PPG 1.375Hz, prior stable at 82.5BPM matches PPG dominant, light subtraction",
+      "abs_err": 71.03120000000001
+    },
+    {
+      "subject": 3,
+      "window": 76,
+      "hr_truth": 153.0612,
+      "hr_pred": 75.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, accel 2.75Hz far from PPG 1.25Hz (75BPM), prior 82.5BPM consistent",
+      "abs_err": 78.06120000000001
+    },
+    {
+      "subject": 3,
+      "window": 77,
+      "hr_truth": 151.919,
+      "hr_pred": 52.5,
+      "lambda": 0.4,
+      "reason": "regime A, low motion, accel 2Hz outside prior HR ~80BPM band, light subtraction",
+      "abs_err": 99.41900000000001
+    },
+    {
+      "subject": 3,
+      "window": 78,
+      "hr_truth": 150.7937,
+      "hr_pred": 150.0,
+      "lambda": 1.0,
+      "reason": "regime C, prior drifting wildly (82\u219275\u219252), PPG peaks ambiguous (150 vs 60), sensor failure",
+      "abs_err": 0.7937000000000012
+    },
+    {
+      "subject": 3,
+      "window": 79,
+      "hr_truth": 149.8423,
+      "hr_pred": 150.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (1.02), prior unreliable (75\u219253\u2192150), PPG peak 150BPM dominant+clean",
+      "abs_err": 0.1577000000000055
+    },
+    {
+      "subject": 3,
+      "window": 80,
+      "hr_truth": 149.0586,
+      "hr_pred": 150.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (1.0), PPG peak 150BPM matches last 2 HR estimates, minimal subtraction",
+      "abs_err": 0.9413999999999874
+    },
+    {
+      "subject": 3,
+      "window": 81,
+      "hr_truth": 148.4375,
+      "hr_pred": 150.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.99), PPG peak 150BPM matches HR prior perfectly",
+      "abs_err": 1.5625
+    },
+    {
+      "subject": 3,
+      "window": 82,
+      "hr_truth": 147.5155,
+      "hr_pred": 150.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.985), PPG peak 150BPM matches prior exactly, accel 120BPM non-overlapping",
+      "abs_err": 2.484499999999997
+    },
+    {
+      "subject": 3,
+      "window": 83,
+      "hr_truth": 146.5798,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.98), PPG peak 142BPM near prior 150BPM, accel 120BPM non-overlapping",
+      "abs_err": 4.079800000000006
+    },
+    {
+      "subject": 3,
+      "window": 84,
+      "hr_truth": 145.6311,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.98), PPG peak 142BPM matches prior trend, accel 2Hz distant",
+      "abs_err": 3.1311000000000035
+    },
+    {
+      "subject": 3,
+      "window": 85,
+      "hr_truth": 144.8498,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.97), PPG peak 142BPM matches prior [150,142.5,142.5], accel 2Hz non-overlapping",
+      "abs_err": 2.3497999999999877
+    },
+    {
+      "subject": 3,
+      "window": 86,
+      "hr_truth": 144.2308,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.97), PPG peak 142BPM matches prior exactly, accel 2Hz distant",
+      "abs_err": 1.730799999999988
+    },
+    {
+      "subject": 3,
+      "window": 87,
+      "hr_truth": 143.6492,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.96), PPG peak 142BPM matches prior exactly",
+      "abs_err": 1.1492000000000075
+    },
+    {
+      "subject": 3,
+      "window": 88,
+      "hr_truth": 143.0085,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, PPG peak 142BPM matches prior exactly, accel 120BPM distinct",
+      "abs_err": 0.508499999999998
+    },
+    {
+      "subject": 3,
+      "window": 89,
+      "hr_truth": 141.8067,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.96), PPG peak 142BPM matches HR prior exactly",
+      "abs_err": 0.6932999999999936
+    },
+    {
+      "subject": 3,
+      "window": 90,
+      "hr_truth": 140.625,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, PPG peak 142BPM matches prior perfectly, accel 2Hz distant",
+      "abs_err": 1.875
+    },
+    {
+      "subject": 3,
+      "window": 91,
+      "hr_truth": 139.9561,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.95), PPG peak 142BPM matches prior exactly, accel 120BPM distinct",
+      "abs_err": 2.543900000000008
+    },
+    {
+      "subject": 3,
+      "window": 92,
+      "hr_truth": 138.8889,
+      "hr_pred": 142.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.96), PPG peak 142BPM matches prior perfectly",
+      "abs_err": 3.6110999999999933
+    },
+    {
+      "subject": 3,
+      "window": 93,
+      "hr_truth": 138.1365,
+      "hr_pred": 135.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.97), PPG peak 135BPM near prior 142.5, accel 2Hz non-overlapping",
+      "abs_err": 3.1365000000000123
+    },
+    {
+      "subject": 3,
+      "window": 94,
+      "hr_truth": 136.6559,
+      "hr_pred": 135.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.98), PPG peak 135BPM matches recent prior, accel 120BPM non-overlapping",
+      "abs_err": 1.6559000000000026
+    },
+    {
+      "subject": 3,
+      "window": 95,
+      "hr_truth": 135.4942,
+      "hr_pred": 135.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.99), PPG peak 135BPM matches prior [142,135,135], minimal subtraction",
+      "abs_err": 0.4942000000000064
+    },
+    {
+      "subject": 3,
+      "window": 96,
+      "hr_truth": 134.0694,
+      "hr_pred": 135.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (1.0), PPG peak 135BPM matches prior perfectly",
+      "abs_err": 0.9305999999999983
+    },
+    {
+      "subject": 3,
+      "window": 97,
+      "hr_truth": 133.3682,
+      "hr_pred": 30.0,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, PPG peak at 2.25Hz (135BPM) matches prior exactly, accel 2Hz adjacent",
+      "abs_err": 103.3682
+    },
+    {
+      "subject": 3,
+      "window": 98,
+      "hr_truth": 132.5364,
+      "hr_pred": 30.0,
+      "lambda": 1.2,
+      "reason": "regime B, prior=[135,135,30] contaminated, accel 2Hz overlaps PPG 2nd peak (135BPM), subtract to recover HR~135",
+      "abs_err": 102.53639999999999
+    },
+    {
+      "subject": 3,
+      "window": 99,
+      "hr_truth": 131.3079,
+      "hr_pred": 127.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, prior unreliable [135,30,30], PPG peaks 128/60/135 BPM all strong, dominant 128BPM plausible",
+      "abs_err": 3.8078999999999894
+    },
+    {
+      "subject": 3,
+      "window": 100,
+      "hr_truth": 130.5767,
+      "hr_pred": 127.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (1.2), PPG peak 128BPM dominant (mag 34900), prior corrupted (30/30/127.5); trust current PPG",
+      "abs_err": 3.076699999999988
+    },
+    {
+      "subject": 3,
+      "window": 101,
+      "hr_truth": 129.1712,
+      "hr_pred": 127.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.625Hz overlaps PPG 3rd peak, recent HR ~128BPM matches PPG dominant",
+      "abs_err": 1.671199999999999
+    },
+    {
+      "subject": 3,
+      "window": 102,
+      "hr_truth": 127.2534,
+      "hr_pred": 127.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.75Hz overlaps PPG dom exactly, prior HR ~128 suggests true HR at 2nd peak 127.5BPM",
+      "abs_err": 0.24660000000000082
+    },
+    {
+      "subject": 3,
+      "window": 103,
+      "hr_truth": 125.6545,
+      "hr_pred": 82.5,
+      "lambda": 1.8,
+      "reason": "regime B-strong, accel 2.75Hz overlaps PPG dom exactly, prior HR ~128 suggests true peak is 2nd (2.625Hz=158BPM) within physio ramp",
+      "abs_err": 43.1545
+    },
+    {
+      "subject": 3,
+      "window": 104,
+      "hr_truth": 125.1303,
+      "hr_pred": 82.5,
+      "lambda": 0.8,
+      "reason": "regime B, accel 2.9Hz far from PPG peaks, prior HR ~127 matches PPG 1.4Hz (83BPM)",
+      "abs_err": 42.630300000000005
+    },
+    {
+      "subject": 3,
+      "window": 105,
+      "hr_truth": 126.3158,
+      "hr_pred": 127.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz above PPG band, prior unstable (127\u219282 drift), PPG peaks clustered 90-128BPM, moderate subtract to preserve 128BPM",
+      "abs_err": 1.1842000000000041
+    },
+    {
+      "subject": 3,
+      "window": 106,
+      "hr_truth": 129.1712,
+      "hr_pred": 90.0,
+      "lambda": 0.6,
+      "reason": "regime B, accel 3Hz outside PPG cluster (1.5-2.1Hz), prior unstable [82\u2192128], PPG peaks coherent ~90-128BPM, light subtraction",
+      "abs_err": 39.1712
+    },
+    {
+      "subject": 3,
+      "window": 107,
+      "hr_truth": 132.0132,
+      "hr_pred": 90.0,
+      "lambda": 0.7,
+      "reason": "regime B, accel 3Hz far from PPG 1.5Hz (90BPM), prior erratic but PPG peak coherent, light subtraction",
+      "abs_err": 42.01320000000001
+    },
+    {
+      "subject": 3,
+      "window": 108,
+      "hr_truth": 133.9286,
+      "hr_pred": 135.0,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz adjacent to PPG, prior inconsistent (127\u219290 drop suspect), PPG peak 135BPM plausible, moderate subtract",
+      "abs_err": 1.0714000000000112
+    },
+    {
+      "subject": 3,
+      "window": 109,
+      "hr_truth": 135.3503,
+      "hr_pred": 135.0,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.875Hz overlaps PPG peak-2, prior shows sharp HR jump 90\u2192135, subtract to preserve 135BPM",
+      "abs_err": 0.3503000000000043
+    },
+    {
+      "subject": 3,
+      "window": 110,
+      "hr_truth": 136.6559,
+      "hr_pred": 135.0,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom exactly, prior HR ~135 suggests true HR at 2nd peak 2.25Hz (135BPM)",
+      "abs_err": 1.6559000000000026
+    },
+    {
+      "subject": 3,
+      "window": 111,
+      "hr_truth": 137.8958,
+      "hr_pred": 135.0,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom exactly, prior ~135BPM suggests true HR at 2nd peak 135BPM (2.25Hz)",
+      "abs_err": 2.8958000000000084
+    },
+    {
+      "subject": 3,
+      "window": 112,
+      "hr_truth": 139.3443,
+      "hr_pred": 142.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.9Hz overlaps PPG dom exactly, prior HR ~135 suggests true peak at 2.4Hz (143BPM), high motion",
+      "abs_err": 3.155699999999996
+    },
+    {
+      "subject": 3,
+      "window": 113,
+      "hr_truth": 140.4787,
+      "hr_pred": 142.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom exactly, true HR ~140 (peak 2 at 2.375Hz matches prior)",
+      "abs_err": 2.0212999999999965
+    },
+    {
+      "subject": 3,
+      "window": 114,
+      "hr_truth": 141.8067,
+      "hr_pred": 142.5,
+      "lambda": 1.6,
+      "reason": "regime B, high motion, accel 2.9Hz overlaps PPG peak-2, prior HR ~140 matches PPG dom 142BPM",
+      "abs_err": 0.6932999999999936
+    },
+    {
+      "subject": 3,
+      "window": 115,
+      "hr_truth": 142.7061,
+      "hr_pred": 142.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz adjacent to PPG secondary peak, prior HR stable at 142BPM matches PPG dominant",
+      "abs_err": 0.20609999999999218
+    },
+    {
+      "subject": 3,
+      "window": 116,
+      "hr_truth": 143.6492,
+      "hr_pred": 142.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz adjacent to PPG secondary peak, prior HR stable at 142BPM matches dominant",
+      "abs_err": 1.1492000000000075
+    },
+    {
+      "subject": 3,
+      "window": 117,
+      "hr_truth": 144.385,
+      "hr_pred": 142.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz adjacent to PPG secondary peak, prior HR stable at 143BPM matches PPG dominant",
+      "abs_err": 1.884999999999991
+    },
+    {
+      "subject": 3,
+      "window": 118,
+      "hr_truth": 145.0054,
+      "hr_pred": 142.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz adjacent to PPG, prior HR stable at 142.5BPM matches PPG dom",
+      "abs_err": 2.5054000000000087
+    },
+    {
+      "subject": 3,
+      "window": 119,
+      "hr_truth": 145.4741,
+      "hr_pred": 142.5,
+      "lambda": 0.8,
+      "reason": "regime B, accel 2.9Hz distinct from PPG 2.4Hz, prior HR stable at 143BPM",
+      "abs_err": 2.974099999999993
+    },
+    {
+      "subject": 3,
+      "window": 120,
+      "hr_truth": 145.7883,
+      "hr_pred": 142.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz adjacent to PPG dom 2.4Hz, prior HR stable at 143BPM",
+      "abs_err": 3.2882999999999925
+    },
+    {
+      "subject": 3,
+      "window": 121,
+      "hr_truth": 146.4543,
+      "hr_pred": 90.0,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz directly overlaps PPG peak-2, prior HR ~143 suggests true peak masked by motion",
+      "abs_err": 56.45429999999999
+    },
+    {
+      "subject": 3,
+      "window": 122,
+      "hr_truth": 147.0588,
+      "hr_pred": 150.0,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz adjacent to PPG secondary peak, prior ~143BPM supports PPG dom 150BPM",
+      "abs_err": 2.941200000000009
+    },
+    {
+      "subject": 3,
+      "window": 123,
+      "hr_truth": 148.1289,
+      "hr_pred": 150.0,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.875Hz overlaps PPG dom exactly, prior wildly inconsistent; strong subtract to expose secondary peak at 2.5Hz (150BPM) matching last valid estimate",
+      "abs_err": 1.8711000000000126
+    },
+    {
+      "subject": 3,
+      "window": 124,
+      "hr_truth": 149.2147,
+      "hr_pred": 150.0,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.9Hz overlaps PPG dom exactly, prior HR ~150BPM matches 2nd peak at 2.5Hz (150BPM)",
+      "abs_err": 0.7853000000000065
+    },
+    {
+      "subject": 3,
+      "window": 125,
+      "hr_truth": 151.1135,
+      "hr_pred": 150.0,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom exactly, prior HR ~150 suggests true HR at secondary peak 2.5Hz (150BPM)",
+      "abs_err": 1.1134999999999877
+    },
+    {
+      "subject": 3,
+      "window": 126,
+      "hr_truth": 152.897,
+      "hr_pred": 150.0,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom exactly, high motion, prior HR 150BPM suggests true peak at 2.5Hz",
+      "abs_err": 2.8969999999999914
+    },
+    {
+      "subject": 3,
+      "window": 127,
+      "hr_truth": 155.4404,
+      "hr_pred": 157.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom exactly, prior HR ~150BPM, true HR likely at 2nd peak 158BPM",
+      "abs_err": 2.059599999999989
+    },
+    {
+      "subject": 3,
+      "window": 128,
+      "hr_truth": 157.2327,
+      "hr_pred": 157.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz overlaps PPG dom exactly, prior HR ~152BPM suggests true HR at 2nd peak 2.625Hz (158BPM)",
+      "abs_err": 0.26730000000000587
+    },
+    {
+      "subject": 3,
+      "window": 129,
+      "hr_truth": 158.5624,
+      "hr_pred": 157.5,
+      "lambda": 2.2,
+      "reason": "regime B-strong, accel 2.875Hz exactly overlaps PPG dom, prior HR ~157, subtract to expose secondary peak at 2.625Hz (158BPM)",
+      "abs_err": 1.0623999999999967
+    },
+    {
+      "subject": 3,
+      "window": 130,
+      "hr_truth": 159.7363,
+      "hr_pred": 157.5,
+      "lambda": 1.6,
+      "reason": "regime B, high motion, accel 2.875Hz adjacent to PPG, prior HR ~158 stable, moderate subtraction preserves dom peak",
+      "abs_err": 2.2363
+    },
+    {
+      "subject": 3,
+      "window": 131,
+      "hr_truth": 160.0854,
+      "hr_pred": 157.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.9Hz adjacent to PPG dom 2.6Hz, prior stable ~158BPM, moderate subtract preserves HR peak",
+      "abs_err": 2.585399999999993
+    },
+    {
+      "subject": 3,
+      "window": 132,
+      "hr_truth": 160.4278,
+      "hr_pred": 157.5,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.75Hz adjacent to PPG 2.63Hz, prior HR stable ~158, moderate subtract to preserve dominant",
+      "abs_err": 2.9277999999999906
+    },
+    {
+      "subject": 3,
+      "window": 133,
+      "hr_truth": 160.387,
+      "hr_pred": 157.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.75Hz overlaps PPG dom exactly, prior HR ~158 suggests true HR near 2nd peak 158BPM",
+      "abs_err": 2.8870000000000005
+    },
+    {
+      "subject": 3,
+      "window": 134,
+      "hr_truth": 159.7444,
+      "hr_pred": 157.5,
+      "lambda": 1.8,
+      "reason": "regime B, accel 2.75Hz directly overlaps PPG dom, prior HR ~158 suggests true peak at 2.625Hz (158BPM)",
+      "abs_err": 2.244400000000013
+    },
+    {
+      "subject": 3,
+      "window": 135,
+      "hr_truth": 158.8983,
+      "hr_pred": 75.0,
+      "lambda": 1.2,
+      "reason": "regime B, accel 2.75Hz exactly overlaps PPG dom, prior HR ~158 suggests true HR nearby, moderate subtraction to preserve coherent HR",
+      "abs_err": 83.8983
+    },
+    {
+      "subject": 3,
+      "window": 136,
+      "hr_truth": 157.7287,
+      "hr_pred": 157.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (1.13), PPG 158BPM dominant peak matches prior 157.5; accel 2.1Hz doesn't overlap",
+      "abs_err": 0.22870000000000346
+    },
+    {
+      "subject": 3,
+      "window": 137,
+      "hr_truth": 157.0681,
+      "hr_pred": 157.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion, PPG dom 158BPM strong (35k mag), accel 1.9Hz distant",
+      "abs_err": 0.43190000000001305
+    },
+    {
+      "subject": 3,
+      "window": 138,
+      "hr_truth": 156.9038,
+      "hr_pred": 157.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.99), PPG peak 158BPM matches prior [157.5,157.5], accel 2Hz distant",
+      "abs_err": 0.5962000000000103
+    },
+    {
+      "subject": 3,
+      "window": 139,
+      "hr_truth": 156.5762,
+      "hr_pred": 157.5,
+      "lambda": 0.3,
+      "reason": "regime A, low motion (0.96), PPG peak 158BPM matches prior exactly, accel 1.9Hz far from dominant",
+      "abs_err": 0.9238
+    }
+  ],
+  "usage": {
+    "model": "claude-sonnet-4-5",
+    "n_calls": 140,
+    "tokens_in_uncached": 22371,
+    "tokens_in_cache_write": 0,
+    "tokens_in_cache_read": 825720,
+    "tokens_out": 7076,
+    "total_tokens_in": 848091,
+    "cost_usd": 0.42096900000000004,
+    "cache_hit_rate": 0.9736219344386392
+  }
+}
