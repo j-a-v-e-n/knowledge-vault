@@ -10,7 +10,7 @@
 
 **Statement of Purpose**
 
-In ECE 148, I learned that a software bug doesn't stay on the screen — it shows up in the real world as a car drifting past its waypoint. Two donkey cars with the same chassis behave completely differently based on the software stack running on them. That is when I understood that in robotics, theory is not optional: it decides whether the physical thing works at all.
+I am applying to UCSD's ECE BS/MS program in Intelligent Systems, Robotics, and Control. The moment that crystallized this direction came in ECE 148, when I learned that a software bug doesn't stay on the screen — it shows up in the real world as a car drifting past its waypoint. Two donkey cars with the same chassis behave completely differently based on the software stack running on them. That is when I understood that in robotics, theory is not optional: it decides whether the physical thing works at all.
 
 The interest in this kind of soft-hardware boundary did not start in lecture. The summer after my sophomore year I interned at an automotive plant in China, where I spent a few weeks on the floor of an assembly line and in the integration lab. Watching how mechanical, electrical, and software systems had to agree before a vehicle moved at all clarified what I wanted to do — not pure hardware, not pure machine learning, but the place where they have to fit together.
 
