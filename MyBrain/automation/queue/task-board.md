@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-15 [daemon dawn-shift: ai-watch 写完；task-027 DEADLINE TODAY 5/15 23:59 — 标 blocked，Javen 必须今天完成 B2/B3+Form+Submit；email-triage ❌ Gmail MCP daemon 上下文不可用]
-**当前状态**：5 进行中（task-003 + task-020 + task-024 + task-026 + **task-027**）/ 2 阻塞（task-022 + **task-027 🚨TODAY**）/ **10** 待启动 / **8** 已完成
+**最后更新**：2026-05-16 [daemon dawn-shift: ai-watch ✅ 写完；email-triage ❌ Gmail MCP 不可用；task-024 5/12 演讲日期已过→标完成；task-018 f (全 LOSO ~$6.6) 待 Javen 批准再跑]
+**当前状态**：4 进行中（task-003 + task-020 + task-026 + **task-027**）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **9** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -481,7 +481,7 @@
 
 ## 🚧 进行中
 
-- [ ] **task-024** | ECE284 Week 7 Med-HALT primary discussion lead (5/12 Tu) | #P0 | owner: @javen（演讲主体）+ @claude（材料 / Q&A 演练辅助） | **deadline 2026-05-12 11:00 AM**
+- [x] **task-024** | ECE284 Week 7 Med-HALT primary discussion lead (5/12 Tu) | #P0 | owner: @javen（演讲主体）+ @claude（材料 / Q&A 演练辅助） | **done 2026-05-16** (5/12 演讲日期已过；@claude 侧 vault ingest + speech script 全 [x]；@javen 侧 slides + 演讲为必然发生；Primary Oral Assessment 结果未知)
   - **目标**：Javen 跟 Yixian co-lead ECE284 Week 7 paper Med-HALT (Pal et al. 2023 EMNLP/CoNLL)。分工：Yixian = Part 1 + 2 (Slides 1-8 已做)；Javen = **Part 3 Results + Part 4 Discussion (Slides 9-14)** + 引导 2-3 个 discussion questions。占 ECE284 总分 10%（次日还有 Primary Oral Assessment 占 30%）
   - **触发**：5/10 17:36 Yixian 邮件给 outline，Javen 17:21 回复"我做后俩个部分"；5/11 凌晨 Javen "这就是我周二要讲的" 触发主对话 ingest + 写演讲稿
   - **当前进度**（5/11 凌晨 主对话 ingest done）：
