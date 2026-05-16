@@ -297,3 +297,54 @@ Do NOT summarize. Do NOT skip items. Show every single item in the list verbatim
 > 例（2026-05-15 task-028 暑期赚钱）：上半 turn 我 default Javen 是 F-1 国际生（vault 中文 + 国内文化 cue），整个 30+ 渠道 strategy 按 F-1 严格 filter, 写出 5000+ words wiki + 3 条 approvals + task-board task-028。下半 turn Javen 一句"我是美国籍" → 整个 strategy invalidated（Mercor / Toptal / Upwork / 中国平台都从 RED 翻 GREEN, ranking 重做, approvals 3 条作废, wiki 重写）。**Root cause：vault 没有 citizenship fact + 我没 verify 就 default**。Fix: 建 `MyBrain/career/profile-facts.md` + CLAUDE.md link + 未来 session 必读。
 
 **跟 "持久记忆协议" 的关系**：那条规则说"听到 fact 立刻 commit"，这条强化"**听不到也要主动 ask + commit，不要默认推测**"。
+
+---
+
+## ⑪ Skill assessment 必须用 spectrum 不能用 binary ✅/⚠️/❌
+
+**症状**：给 user 评估"你够格 platform X 吗" 时用 ✅ / ⚠️ / ❌ 标签 → user 看着像系统评估实际是 keyword matching：vault 简历列"PyTorch" → ✅ 掌握。User 后来追问 "Mercor $85/hr 不可能没 strict bar，你怎么判断我达到要求"，发现 AI **完全没真 evaluate**。
+
+**真相**：Skill 是 5 级 spectrum (Dreyfus: Novice → Advanced Beginner → Competent → Proficient → Expert)，不是 binary。区别极大：
+- "Sklearn fit_predict 跑过" (L1 Novice) vs "能复现 paper 数字 within 5%" (L3 Competent) vs "能 design novel architecture for new constraint" (L4 Proficient)
+- 简历列 "PyTorch / LLM / Computer Vision" → 落在 L1-L5 任何一档都可能。AI 看到 keyword 默认 L4+ 是**严重 over-fitting on noise**。
+
+**为什么 AI 容易犯**：
+- Convenience: keyword matching 比真 evaluate 简单（不要看代码 quality, 不要 ask depth question）
+- Cargo cult: 标 ✅ / ⚠️ / ❌ 显得 "已评估"，实际无内容
+- 安慰本能：default 高估让 user 看着舒服
+
+**避免**：
+
+1. **任何 skill assessment 必须 spec out spectrum**：
+   - L1 Novice: 具体长啥样（教科书跑通 / hardcode / 无 reproducibility 意识）
+   - L2 Advanced Beginner: ...
+   - L3 Competent: ...
+   - L4 Proficient: ...
+   - L5 Expert: ...
+2. **不用 binary ✅/⚠️/❌ 标签**——用 "L2 高 → L3 低" 这种 spectrum 位置 + 具体 evidence
+3. **必须 cite 具体 evidence**："你 ECE 175B 能跑 diffusion 但**没** public reproduce paper 数字" — 不只列 keyword
+4. **跟平台 verified real bar 对比**：Mercor 通过者中位 8 年企业 → undergrad senior 距离多远要明说
+5. **honest gap 评估**："你距 Mercor 真实 bar = 2-3 个完整 project + 1-2 年企业经验" — 不要 hedge
+
+**反 pattern**：
+
+- ❌ "你 ✅ 直接 apply" → 没说为什么 ✅
+- ❌ "已具备：PyTorch / LLM / Computer Vision" → 这是 keyword 列表不是 evaluation
+- ❌ "ECE 175B/284/148 fit Mercor" → 没 verify Mercor 真实 bar
+- ❌ "你应该够 Mercor" 给 user 错信心 → user 投入时间 apply 失败 → 6 月 cooldown 浪费
+
+**Pro pattern**：
+
+- ✅ "你在 Dreyfus L2 高 → L3 低 之间。证据 (a) ECE 175B 笔记数学 solid (b) 但 0 public reproduce paper 数字 (c) 0 production code"
+- ✅ "Mercor 真实通过中位 8 年企业经验 — 你距 gap = 2-3 个完整 project + 1-2 年企业"
+- ✅ 给 user 自评 framework (3 questions: 能解释 / 能复现 / 能改进 → 定 level)
+- ✅ user 真正听完后能自己判断要不要花时间 apply
+
+**指令出处**：2026-05-15 Javen "Mercor 那么高工资肯定是有原因的，竞争肯定强 ... 你是怎么判断我就是达到要求的 ... 是我自知还是说你安慰我，或者说你忽略了掌握的程度"。触发因我在 [[平台深度与技能路径_2026]] 用 "Javen 当前 fit ✅ 直接 apply" 这种 binary 评估，没区分 Dreyfus level，user 戳破。Spawn 3 agent 重做评估后得 honest answer：Javen 在 L2-L3，距 Mercor 真实 bar (8 年企业经验中位通过者) 巨大 gap。
+
+**跟 ④/⑨ 的关系**：
+- ④ 研究精度（问题空间 vs 解决空间） — 答 user 问的边界
+- ⑨ List 完整性 — verbatim 不 summarize
+- ⑪ Skill spectrum — assessment 必须分级 + cite evidence 不 binary
+
+三条都关乎"answer quality 的不同维度"。⑪ 最深层 — 影响 long-term decision (career path, learning investment, application strategy)，错了 user 浪费数月时间。
