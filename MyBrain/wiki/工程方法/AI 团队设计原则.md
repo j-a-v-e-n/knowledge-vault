@@ -215,6 +215,9 @@ priority: active
 **Javen 个人洞察**（本文档的 axiom 起点）：
 - 2026-04-28 主对话：AI=员工 + 团队管理是通用学问
 
+**外部 anecdotal evidence（短视频 vs 业内实证）**：
+- [[Multi-Agent 常见误解 — 视频声明 vs 业内实证]] — 抖音视频"太阳李博良"讲了 3 个 multi-agent 声明，跟 Anthropic 官方 / OpenAI Swarm 文档 / arXiv 2503.13657（79% multi-agent fail 来自 cascading errors）逐条对账。**核心发现**：作者"单 agent 单任务最稳"的直觉跟本文档"默认 single-agent"一致，但他对 OpenAI Swarm 的"每个 agent 跑整个 task"理解错——Swarm 实际是 sequential handoff。Javen 现有 4-subagent 架构属于严格 handoff 型，**不触发**视频 claim 的失败模式
+
 ---
 
 > **使用建议**：每次设计新 agent / 改动 daemon prompt / 加新 skill 之前，**先翻这页确认设计落到哪条原则上**。如果落不到任何一条，要么需求被过度复杂化（退回简单方案），要么本文档需要更新（加新原则）。

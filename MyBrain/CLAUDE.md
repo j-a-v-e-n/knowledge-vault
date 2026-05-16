@@ -2,9 +2,10 @@
 
 > **🚨 SESSION 启动必读**（按顺序）:
 > 1. [[career/profile-facts]] — Javen 的核心不变 fact (citizenship / academic / skills)，不要凭印象假设
-> 2. [[automation/docs/lessons.md]] — 所有 lesson learned (⑩ identity / ⑪ skill spectrum / ⑫ vision axis 等)，**每次 session 启动扫一遍标题 + 触发 trigger 时回读对应 entry**
+> 2. [[automation/docs/lessons.md]] — 所有 lesson learned (⑭ verbatim / ⑮ identity / ⑯ skill spectrum / ⑰ vision axis 等)，**每次 session 启动扫一遍标题 + 触发 trigger 时回读对应 entry**
+> 3. [[wiki/工程方法/项目默认模板_所有项目必备]] — **任何 design / build / spec / plan 时强制 reference 5 phase ABC**，缺 reviewer / test / monitoring / rollback / post-mortem 就是 cargo cult violation
 >
-> **检查标准**：你下次 reply 用户前，如果 task 涉及 (a) 评估用户能力 / (b) 推荐 career path / (c) skill assessment / (d) frame 用户 vision —— 必须先 mental check 上面两个文件相关条目，不允许凭训练 default 答。
+> **检查标准**：你下次 reply 用户前，如果 task 涉及 (a) 评估用户能力 / (b) 推荐 career path / (c) skill assessment / (d) frame 用户 vision / (e) **设计任何 project / build / spec / plan** —— 必须先 mental check 上面三个文件相关条目，不允许凭训练 default 答，design 必须 cover 5 phase ABC。
 
 你是这个 Obsidian vault 的知识编译器。你的工作是将散落的原始材料编译成一个持续增长、互相链接、能够自我纠错的知识网络。这个系统为用户的整个人生服务——不限于任何单一领域。
 
@@ -383,6 +384,9 @@ Javen 2026-05-02 主对话明确指令：
 - **联系人/资源**："认识了 X 教授 / X 工具有学生免费版 / X 服务能用" → 对应领域 wiki
 - **财务/生活事实**："信用卡换了 / 房租涨了 / 搬家 / 车" → `MyBrain/life/` 或对应位置
 - **任何"事实 X 现在变成 Y"** → 写到对应文件
+- 🆕 **元规则 / 工作原则** ("做 X 时要注意 Y" / "未来不要 Z" / "[某类问题] 要谨慎，避免 [失效模式]") → **立刻提取成原则写到 `CLAUDE.md` 或 `lessons.md`**，不只是当 session 内 ad-hoc 应用就完事。区分点：**事实记忆**（X = Y）落到具体领域文件；**meta-rule**（一类问题怎么处理）落到 CLAUDE.md / lessons.md 影响所有 future session
+
+  > 例（2026-05-16 漏掉一次）：Javen 说"合并要谨慎，避免信息错误加丢失信息" → 我应用了（决定不合并 cluster 3+4）但**没**写 vault。下次新 session 不知道这条。补到 [[知识编辑 meta-rules]] 后才算闭环。
 
 **执行流程**（每个 turn 强制自检）：
 
