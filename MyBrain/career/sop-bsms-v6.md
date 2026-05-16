@@ -34,6 +34,7 @@ In graduate study, I want to strengthen the theoretical core that will let me co
 | "Why UCSD" strong (~25-30% weight) | ✅ Para 5 ~135 words |
 | Closer strong (not generic "still figuring out") | ✅ "grow into an engineer who can not only implement intelligent systems, but also understand and design them from first principles" |
 | GPA 3.61 + June 2027 BS + Fall 2027 MS | ✅ |
+| ⚠️ NOTE: 5/14 实际提交 timeline = June 2027 / Fall 2027（保留作 record）；Javen 5/15 plan 改成 Winter 2027 / Spring 2027 — **跟提交版不一致**，等 follow-up（见 inbox/auto-memory.md 5/15 entry） | — |
 | EC80 + ECE 276A/272A/271A 课号 | ✅ |
 | 汽车厂实习 background | ✅ |
 | 装猫画虎 self-awareness | ✅ "I was often using the underlying mathematics... more than truly deriving or understanding it" |

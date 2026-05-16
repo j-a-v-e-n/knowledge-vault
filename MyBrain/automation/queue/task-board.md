@@ -46,11 +46,11 @@
 ## 📥 待启动
 
 - [ ] **task-027** 🚧 | UCSD ECE BS/MS 申请 | **#P0 🚨🚨🚨 deadline 5/15 23:59 PT（剩 2 天）** | owner: 混合（@javen 决策 + @claude 草 SoP + 整理材料）| **更新：2026-05-13**
-  - **目标**：本周五（Spring 2026 Week 7 Friday）前提交 ECE BS/MS 申请, 让 Javen 本科最后一年衔接 MS（Winter/Spring/Fall 2027 入学）
+  - **目标**：本周五（Spring 2026 Week 7 Friday）前提交 ECE BS/MS 申请, 让 Javen Winter 2027 毕业后衔接 Spring 2027 MS 入学（**Javen 5/15 plan update**: 从原 June 2027 / Fall 2027 改成提前一学期）
   - **触发**：Javen 5/12 主对话提醒"BS/MS 快到时间了"; WebFetch 官方页面 ([source](https://ece.ucsd.edu/graduate/bsms-admissions-information-process)) 确认 deadline = **11:59 PM Friday Week 7 = 2026-05-15 周五**
   - **关键信息（已 WebFetch verify）**：
     - GPA: min 3.0 / **competitive ≥ 3.4**
-    - MS 入学时间可选: Winter 2027 / Spring 2027 / Fall 2027
+    - MS 入学时间: **Spring 2027** (Javen 5/15 confirmed — Winter 2027 毕业 + Spring 2027 MS，提前一学期方案；原 Fall 2027 plan 已废)
     - 适用：ECE 本科 junior 年（Javen 大三 ✓）
     - **唯一 deadline 不接受 extension**（官方页明确）
     - 应用 form: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSf58Zq0abM6T0ICWXigegTLWmfsPKr8BHJ1E7lEjGqxZ2mYyg/viewform)
@@ -71,7 +71,7 @@
       - **≥ 3.4** → 不需 LOR, 只剩 Form + SoP + Audit Copy, **本周 work load 轻**
       - **< 3.4** → 需要 2 封 LOR (1 封 JSOE faculty)，**今天必须联系 faculty**（3 天 LOR 紧）
     - **B2**: Javen MS 想 specialization 哪个方向？(Computer Engineering / Machine Learning & Data Science / Intelligent Systems, Robotics, & Control / Signal & Image Processing 等) → SoP framing 用这个
-    - **B3**: Javen 希望 MS 何时入学？(Winter 2027 / Spring 2027 / Fall 2027) → 影响 SoP timeline 表述
+    - **B3**: ✅ resolved 2026-05-15 — Javen 选 **Spring 2027 入学** (Winter 2027 毕业 → 提前一学期方案)
   - **🤖 AI vs Javen 分工**：
     - ✅ **@claude 主对话能干**：(a) 草 SoP 2 页（基于 vault 现有 resume-master.md + ECE 项目经历 + Med-HALT/ECE284 + ECE175B ADG diffusion + ECE148 自驾） (b) 整理 Academic History 提交流程 (c) Google form 提交前 audit checklist
     - ❌ **必须 Javen**：(a) GPA 数字确认 (b) MS specialization 方向选 (c) 真正点提交 (d) 联系 faculty 写 LOR (如果需要)
@@ -178,7 +178,7 @@
 
 - [ ] **task-009** | 投简历（2026 夏季实习季）| #P0 | owner: 混合（@claude 起草 + @javen 决策与投递）
   - **目标**：把简历投到合适的 ML/CV/Robotics/Embedded 实习机会；允许针对特定公司/岗位微调简历（不强制）
-  - **背景**：Javen 大三，2027-06 毕业。2026 夏季实习是 junior-summer 关键机会，**申请窗口现在到 5 月**（很多公司 4 月底/5 月初截止）。简历目前在 `MyBrain/inbox/Javen_Cao_Resume.pdf`（一稿：Foton 内燃机实习 + ECE148 自驾小车 + ECE284 进行中）。痛点：没纯 ML/AI 实习经验、没 GitHub 高星、没 demo 部署技能（task-006 AI Watch 长远会帮补这些）
+  - **背景**：Javen 大三，**2027 Winter 毕业**（5/15 更新：原 2027-06，现提前一学期；衔接 Spring 2027 MS）。2026 夏季实习是 junior-summer 关键机会，**申请窗口现在到 5 月**（很多公司 4 月底/5 月初截止）。简历目前在 `MyBrain/inbox/Javen_Cao_Resume.pdf`（一稿：Foton 内燃机实习 + ECE148 自驾小车 + ECE284 进行中）。痛点：没纯 ML/AI 实习经验、没 GitHub 高星、没 demo 部署技能（task-006 AI Watch 长远会帮补这些）
   - **Definition of Done**（recurring 任务，按阶段算）：
     - Spring 2026 末：投递策略 + 目标公司清单 + 主版本简历定稿
     - 第一批投出 20 份（精投）或 50 份（海投）

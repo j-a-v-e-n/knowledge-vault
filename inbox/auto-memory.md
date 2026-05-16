@@ -30,6 +30,43 @@ Javen paste 一段「macOS 中文语音输入 + 不用 Claude voice mode」的�
 
 **隐含偏好**："不要用 Claude 的 voice mode" 可能是 Javen 自己的工具偏好——但 prompt 不清晰，没自动写到 CLAUDE.md。
 
+## 2026-05-15 (UPDATED retrospective — important)
+
+⚠️ **Plan vs 实际提交 SoP 不一致**：
+
+- Javen 5/14 23:59 之前**已提交** BS/MS application（5/15 主对话发现：Form 显示 "You've already responded"）
+- **5/14 提交版 SoP timeline = "June 2027 BS / Fall 2027 MS"**（v6 / sop-bsms-final.md 均为此 timeline）
+- **Javen 5/15 真实 plan = "Winter 2027 BS / Spring 2027 MS"**（提前一学期）
+- **不一致，Google Form 已锁不可改**
+
+**5/15 session 误改 vault（已 revert）**：
+- 误以为 SoP 还能改，把 v6 timeline 从 June/Fall 改成 Winter/Spring
+- ✅ 已 revert v6 paragraph 6 + checklist 回到 "June 2027 / Fall 2027" reflect 实际提交版本
+
+**task-board 仍有不一致**（待 Javen 决定 follow-up 后再 align）：
+- task-027 目标/关键信息/子任务 B3 仍写 "Spring 2027 MS"
+- task-009 背景毕业时间也写 "Winter 2027"
+
+**Javen 5/15 选 A** — 想 Spring 2027 开始 MS。
+
+**FAQ 政策已 verified（5/15 WebFetch）**：UCSD ECE BSMS FAQ 明文允许 entry quarter 改动:
+> "If I can complete my undergraduate program earlier than I expected, ... can I change my M.S. program starting quarter? Yes, we understand that plans may change. Please notify us as soon as possible. You will need to email us at least one quarter before your undergraduate program completion quarter."
+> (source: https://www.ece.ucsd.edu/graduate/bsms-frequently-asked-questions-page)
+
+**行动**: Email `ecebsmsadmissions@ucsd.edu` 改 entry quarter Fall 2027 → Spring 2027
+- Email draft 已写到 `MyBrain/career/email-drafts/2026-05-15_bsms-entry-quarter-update.md`
+- 政策 deadline: 至少 Fall 2026 quarter 之前（>4 个月窗口，时间充裕）
+- FAQ 推荐 timing: "as soon as possible" → 现在发
+
+**等 Javen 发送 + admissions 回复后**:
+- 落盘 admissions confirm 邮件
+- task-board.md task-027/009 可正式 align "Spring 2027 entry"
+- 此时 vault 跟 ground truth 完全一致
+
+**老 sop-bsms-v2.md 也被改过**（5/14-5/15 session 误改 timeline 成 Winter/Spring）——v2 是 backup 未提交不影响 application，但 vault 一致性建议也 revert。
+
+**lesson 触发**: 5/15 session 没先 verify "SoP 是否已提交" 就改 vault → ground truth 跟 vault 短暂不一致。新规则：**操作任何"已提交/已 finalized 文件"前必须先 verify 是否 immutable**——记入 `MyBrain/automation/docs/lessons.md`。
+
 ---
 
 ## 示例格式
