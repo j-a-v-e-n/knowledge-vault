@@ -243,3 +243,26 @@ kill <PID1> <PID2> ...
 
 # 重启 Claude Code = 让当前 session 自然结束后开新窗口
 ```
+
+---
+
+## ⑨ WebFetch 拿 enumerated list 必须强制 verbatim 不允许 summarize
+
+**症状**：用 WebFetch 问"list X 上有哪些 item"，LLM 内部 summarize 时**漏项**，给的 partial list 看起来 complete，但其实丢了关键 entry。下游基于这个 partial list 答错。
+
+**真相**：WebFetch 内部用小模型处理 HTML 然后用 prompt 提问。小模型 default "concise summary" 模式——看到长 list 会**摘选 salient subset**，不主动给完整 enumeration。"Quote exact text" 这种 prompt 不够强制——它对 prose 段落有效，但对长 bullet/comma list 仍可能截断。
+
+**避免**：WebFetch 任何涉及**完整 enumerated list / clause** 时，prompt 必须 explicit：
+
+```
+Show me the EXACT, COMPLETE text of [list X]. 
+Do NOT summarize. Do NOT skip items. Show every single item in the list verbatim.
+```
+
+这个 anti-omission 措辞比 "quote exact text" 强。
+
+**适用范围**：approved course list / eligible model list / requirement enumeration / supported features list / policy clause 全文 / 任何"我要看完整 list" 的场景。
+
+> 例（2026-05-15 Warren Area Study）：第一次 WebFetch warren area-studies.html prompt "Find rules... Quote exact text" → LLM 返回 SS Area Study list **只 11 个 discipline**（漏了 COGS / 14 个其他）。Javen catch "COGS 算, 你没好好找"。第二次 prompt 改 "Show me the EXACT, COMPLETE text... Do NOT summarize" → LLM 返回完整 **25 个 discipline list 含 Cognitive Science**。这种漏 list 项的错最隐蔽——partial list 看起来 authoritative，下游基于它出邮件 / 答 Javen 都是错的。
+
+**跟 ④ "研究的精度" 的关系**：④ 说**问题边界**（problem vs solution space），这条说 **answer completeness**（item-level enumeration）——两个独立维度，都要 cover。

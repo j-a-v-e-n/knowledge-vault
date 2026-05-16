@@ -138,6 +138,8 @@ EC27 共 8 个 track 可选；javen 选 **ML and Controls**（audit page 4-5）�
 
 **TE ∩ Warren Area Study**：**禁止**。Warren GE 页 (warren.ucsd.edu/academics/general-education/area-studies.html) 明确："Upper-division major or minor courses may not overlap with Area Study or other general education requirements." → 一门 COGS UD **不能**同时算 ECE TE + Warren SS Area Study，只能算一个。
 
+**COGS UD 算 SS Area Study (verified 2026-05-15)**：Warren area-studies 完整 SS list **明确包含 Cognitive Science**（25 disciplines 完整 list：African American Studies, Anti-Racism, Asian American and Pacific Islander Studies, Anthropology, Chicanx and Latinx, **Cognitive Science**, Communication, Critical Gender Studies, Chinese Studies, Economics, Education Sciences, Environmental Studies, Ethnic Studies, European Studies, Human Developmental Sciences, Japanese Studies, Latin American Studies, Law and Society, Linguistics/General, Middle East Studies, Perspectives of Social Science, Political Science, Psychology, Sociology, Urban Studies and Planning）→ **COGS 117 / COGS 153 直接算 SS Area Study UD**，不需要 petition。Javen 上的两门 cogs 课已经满足 SS Area Study 的 2 UD 部分中的 1-2 门。
+
 **Formal Skills ∩ major**：**允许重叠**（Warren GE 页"Formal Skills"section 明文 "Courses may overlap with your major, minor, or other general education requirements"）→ MATH 109 既算 TE 又算 Formal Skills 是 OK 的。
 
 ## WIP (Spring 2026 + Summer 2026)

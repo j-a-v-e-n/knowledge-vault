@@ -23,7 +23,7 @@ Outside of class, I have built and run my own AI agent system. It wakes up every
 
 UCSD's ECE Master's program is my first choice because the faculty here work on exactly the directions I want to pursue, particularly [SPECIFIC FACULTY/LAB — 可选，等我调研后填; 1-2 个教授名字]. Staying at UCSD also lets me continue the work I have already started, especially the ECE 284 project, which I believe has a real shot at a publishable result if I can finish the full evaluation.
 
-I expect to complete my B.S. in June 2027 and plan to begin the M.S. program in **Fall 2027**, the academic term immediately following my undergraduate completion.
+I expect to complete my B.S. in **Winter 2027** and plan to begin the M.S. program in **Spring 2027**, the academic term immediately following my undergraduate completion.
 
 I am excited to keep building practical AI systems at UCSD and to contribute to its research community.
 
