@@ -39,6 +39,24 @@ EC27 共 8 个 track 可选；javen 选 **ML and Controls**（audit page 4-5）�
 | Technical Electives (TE) | **4 门**（目前已有 2：ECE 148 + MATH 109 WIP） | 见下方 candidate list |
 | UD Units in Major | 4 units | 任一 UD ECE 自动覆盖 |
 
+## TE 接受范围 (verified 2026-05-15)
+
+来源：catalog.ucsd.edu/curric/ECE-ug.html + ece.ucsd.edu/undergraduate/undergraduate-programs/electives + special-studies-courses-197-198-199。
+
+| 类别 | 算 TE? | 政策原文 / 注意 |
+|---|---|---|
+| ECE UD undergrad (100-level) | ✓ | 在 approved Google Sheet 上的才算（list 不公开，去 ECE undergrad office 拿）|
+| **ECE grad 200-level**（269 / 271A/B / 272A / 276A/B 等）| ✓ | "ECE graduate classes may count towards elective requirements" |
+| ECE 290 / 298 / 299 / grad seminars | ✗ | 明文排除："290, 298, 299 or graduate level seminars will not count" |
+| **ECE 198 / 199**（Independent Study）| ✓ 但有 cap | "at most 4 units of 197-199 may be used for elective credit" → **最多 1 门**(4 units)|
+| ECE 197 | ✗ TE / ✓ Pro Elective | "197 will ONLY count towards the Professional Electives" |
+| 非 ECE engineering / math / physics UD | ✓ | catalog: "four upper-division engineering, math, or physics courses" — 需在 approved list |
+| 非 ECE bio / chem | 仅 2 LD slot | catalog: 仅 "two upper-division or lower-division" slot 可放 bio/chem |
+| **COGS / 其他社科 UD** | ⚠️ 默认不算 | COGS 不是"engineering / math / physics"——需 ECE office 单独 approve（如 COGS118A ML 可能被批，需问） |
+| MATH 109 (UD math) | ✓ | 直接 fit "math" + UD |
+
+**Grad ECE 课的取舍**：grad ECE 200-level 算 TE → 用了就**用掉**，不能再 BS/MS transfer（transfer 只接受未填任何 BS 要求的 "Elective Courses" section 课程）。所以 grad 课用在 TE 槽 vs 留给 MS transfer 是 trade-off。
+
 ## 还可上的 undergrad ECE 专业课（ML/Controls 方向，没上过）
 
 按 ML & Controls track 兴趣相关度排序：
@@ -110,10 +128,17 @@ EC27 共 8 个 track 可选；javen 选 **ML and Controls**（audit page 4-5）�
 ## Warren College + University 还缺
 
 - **AHI**: 1 门（POLI 27 / HILD 7B/7C / ETHN 1B 等）
-- **DEI**: 1 门（可能跟 Warren area 或 AHI 重叠）
+- **DEI**: 1 门
 - **Warren Humanities/Fine Arts Area Study**: 3 门（≥2 UD）
 - **Warren Social Science Area Study**: 3 门（≥2 UD）
-- ⚠️ 这两个 Area 不能跟 Humanities / Perspectives of Social Science 合并
+
+### 重叠规则 (verified 2026-05-15)
+
+**AHI ∩ DEI（同一门课双算）**：UCSD catalog + Senate + Warren u-reqs 页面均**未明确说 yes/no**。DEI 政策 (Warren u-reqs.html) 写 "This course may overlap with the major, minor, or general education requirements"——**未列 AHI**。AHI 是 university requirement 不是 GE，所以 DEI 的明文允许范围没 cover AHI。**实务上**：UCSD 学生常用 ETHN 1 / HILD 7B / HILD 7C 等出现在 AHI + DEI **两个 approved list 上**的课同时打两个勾——但**没书面背书**。**操作**：advisor 当面 confirm + 选课时确认该课同时出现在两 list。
+
+**TE ∩ Warren Area Study**：**禁止**。Warren GE 页 (warren.ucsd.edu/academics/general-education/area-studies.html) 明确："Upper-division major or minor courses may not overlap with Area Study or other general education requirements." → 一门 COGS UD **不能**同时算 ECE TE + Warren SS Area Study，只能算一个。
+
+**Formal Skills ∩ major**：**允许重叠**（Warren GE 页"Formal Skills"section 明文 "Courses may overlap with your major, minor, or other general education requirements"）→ MATH 109 既算 TE 又算 Formal Skills 是 OK 的。
 
 ## WIP (Spring 2026 + Summer 2026)
 - SP26 COGS117 (Babies, Brains, Machines) — **P/NP，不算 major GPA**
