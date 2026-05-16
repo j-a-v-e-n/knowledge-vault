@@ -88,22 +88,24 @@
     - [ ] j. Winter 2027 quarter 填 Step 2 Graduate Admissions Application（entry quarter = Spring 2027）
   - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]], [[career/resume-master]], [[wiki/career/UCSD BSMS 申请]]（待建）
 
-- [ ] **task-028** | 暑期 2026 一人挣钱渠道探索（freelance / 竞赛 / 校内 / 自研）| #P1 | owner: 混合（@claude 主调研 + @javen 决策选哪条路 + 执行）| 创建 2026-05-15
+- [ ] **task-028** | 暑期 2026 一人挣钱渠道探索（freelance / 竞赛 / 校内 / 自研）| #P1 | owner: 混合（@claude 主调研 + @javen 决策选哪条路 + 执行）| 创建 2026-05-15 | **2026-05-15 update: v2 重做 — Javen US citizen, 无 F-1 限制**
   - **触发**：Javen 5/15 主对话"暑期没事情，想探索一人挣钱渠道，认真对待一步一步做"
-  - **目标**：产出一份 vault 永久资产 [[wiki/career/summer-income-exploration]]——按 F-1 visa 合法性 + 技能匹配 + ROI 排序的渠道地图，含"本周可启动" plan
-  - **关键约束**（必须先框）：
-    - F-1 visa: 校外独立合同 / Upwork US client 多数律师认为**违规**；prize-based (Kaggle / hackathon / OSS bounty) 多数律师认为**合法**；校内 work 100% 合法；CPT 需要 internship-required course (summer 已 enroll COGS153/MATH109 但**不 unlock CPT**)
-    - 时间预算: 暑期 ≈ 10 周 (June-Aug)
+  - **目标**：产出一份 vault 永久资产 [[wiki/career/暑期赚钱探索_2026]]——按 ROI × 技能匹配 × 时间预算排序的渠道地图，含"本周可启动" plan
+  - **关键约束**（v2 简化版）：
+    - **US citizen**: 所有合法 US/海外 work 都可做（v1 F-1 假设作废，落 [[career/profile-facts]]）
+    - 税务: contractor income 1099-NEC + self-employment tax 15.3%
+    - 时间预算: 10 周；onboarding 2-4 周扣后实际 active 6-7 周
     - 技能存量: ML / Robotics / Python / LLM / Computer Vision
-    - 机会成本: vs 准备 2026 秋招 / Anduril&Qualcomm 后续面试 / portfolio project
+    - 机会成本: vs 8 月底切秋招准备
   - **AI vs Javen 分工**：
     - ✅ **@claude 主对话能干**：(a) 3 parallel research agent 调研 freelance / prize / 校内+自研 三类渠道 (b) reconcile 出排序 (c) 落盘 wiki/career/summer-income-exploration.md (d) 给 "本周启动 plan"
     - ❌ **必须 Javen**：(a) 决定选哪个渠道 (b) 注册账号 / 填资料 (c) 提交 application (d) 跟 ECE undergrad office 或 UCSD ISPO 当面 confirm F-1 边界
   - **子任务**：
-    - [x] a. spawn 3 agents 调研 — in progress 2026-05-15
-    - [ ] b. reconcile + 写 vault 主页面
-    - [ ] c. 给 Javen 本周 starter plan
-    - [ ] d. Javen 选定主渠道后回 task-board 标 active
+    - [x] a. spawn 3 agents 调研 — done 2026-05-15（freelance/prize/校内+自研 3 类全覆盖）
+    - [x] b. reconcile + 写 vault 主页面 — done 2026-05-15 ([[wiki/career/暑期赚钱探索_2026]])
+    - [x] c. 给 Javen 本周 starter plan — done 2026-05-15（Day 1-7 plan in wiki page §3）
+    - [ ] d. Javen 选定 income target + 是否跑 ISPO + 是否要 @claude 起草 faculty outreach 邮件 batch — ⚠️ blocked on @javen 决定
+    - [ ] e. (faculty RA 出 outcome 后) Javen 切到主力 plan 或备选 plan
   - **Definition of Done**：
     - [x] vault 有 [[wiki/career/summer-income-exploration]] 含 ≥10 个具体渠道 + F-1 visa annotation + 真实收入区间 + 启动步骤
     - [ ] Javen 选定 1-2 个 primary 渠道并启动

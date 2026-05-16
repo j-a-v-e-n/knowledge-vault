@@ -266,3 +266,34 @@ Do NOT summarize. Do NOT skip items. Show every single item in the list verbatim
 > 例（2026-05-15 Warren Area Study）：第一次 WebFetch warren area-studies.html prompt "Find rules... Quote exact text" → LLM 返回 SS Area Study list **只 11 个 discipline**（漏了 COGS / 14 个其他）。Javen catch "COGS 算, 你没好好找"。第二次 prompt 改 "Show me the EXACT, COMPLETE text... Do NOT summarize" → LLM 返回完整 **25 个 discipline list 含 Cognitive Science**。这种漏 list 项的错最隐蔽——partial list 看起来 authoritative，下游基于它出邮件 / 答 Javen 都是错的。
 
 **跟 ④ "研究的精度" 的关系**：④ 说**问题边界**（problem vs solution space），这条说 **answer completeness**（item-level enumeration）——两个独立维度，都要 cover。
+
+---
+
+## ⑩ User identity fact 必须 verify，不能凭印象 default
+
+**症状**：基于"看起来像 X"假设 user 一个核心 identity fact（国籍 / 婚姻状态 / 工作状态 / 是否有 driver license / 是否有医保 etc.），整个 strategy 围绕该假设展开。User 后来 correct → 整个 strategy invalidated。
+
+**真相**：AI session 启动时没有 user 完整 profile。Vault 里有 partial fact 但散落（degree-progress 写 "UCSD international" 但不一定指 visa 状态，可能 "international student in heritage" 或就是 admission 用语）。**凭印象 default 的 risk 是 cargo cult — 看起来在用户视角思考，实际只是 pattern matching 上下文 cue**。
+
+**避免**：
+
+1. **建 vault single source of truth**：`MyBrain/career/profile-facts.md` 列所有"不变 fact"（citizenship, residency, marital, insurance, vehicle, dependents, visa）, **session start 必读**
+2. **CLAUDE.md 顶部** link 这个 file，确保每次 session reload 都看到
+3. **任何 strategy / advice 基于某个 identity fact 时**：(a) 优先 read profile-facts (b) 找不到 → **明确问 user**，不要 default 假设
+4. **assumption transparency**: 给 strategy 时 explicit 列 "假设：X is true" + "如果 X 不真，整个策略调整"——让 user 一眼看出哪些前提需要 verify
+
+**反 pattern**:
+
+- ❌ 看 vault 用中文 → default user 是中国留学生 → default F-1 visa → 整个 30+ 渠道按 F-1 filter
+- ❌ Pattern-match cue（UCSD international student page / 中文 vault / 英文 resume 偏中国名字）→ 推断 → 直接当 fact 用
+- ❌ User correct 后只 fix 表面（"哦 US citizen 那就不用 F-1 filter"），不 fix 根因（vault 没记录 identity fact, future Claude 还会犯）
+
+**Pro pattern**:
+
+- ✅ 接到任何"基于 user 身份的 task"（career / health / legal / immigration / insurance / tax）→ 先 read `profile-facts.md`，找不到 → **explicitly ask user**
+- ✅ User 答了关键 identity fact → **本 turn 内** commit 到 `profile-facts.md`，不要等他下次问才记
+- ✅ Strategy doc 顶部 list "假设清单" + 哪些 fact source
+
+> 例（2026-05-15 task-028 暑期赚钱）：上半 turn 我 default Javen 是 F-1 国际生（vault 中文 + 国内文化 cue），整个 30+ 渠道 strategy 按 F-1 严格 filter, 写出 5000+ words wiki + 3 条 approvals + task-board task-028。下半 turn Javen 一句"我是美国籍" → 整个 strategy invalidated（Mercor / Toptal / Upwork / 中国平台都从 RED 翻 GREEN, ranking 重做, approvals 3 条作废, wiki 重写）。**Root cause：vault 没有 citizenship fact + 我没 verify 就 default**。Fix: 建 `MyBrain/career/profile-facts.md` + CLAUDE.md link + 未来 session 必读。
+
+**跟 "持久记忆协议" 的关系**：那条规则说"听到 fact 立刻 commit"，这条强化"**听不到也要主动 ask + commit，不要默认推测**"。

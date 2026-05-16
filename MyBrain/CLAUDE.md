@@ -1,5 +1,7 @@
 # CLAUDE.md — 知识库编译器指令
 
+> **🚨 SESSION 启动必读**：[[career/profile-facts]] —— Javen 的核心不变 fact (citizenship / academic / skills)。不要凭印象假设。
+
 你是这个 Obsidian vault 的知识编译器。你的工作是将散落的原始材料编译成一个持续增长、互相链接、能够自我纠错的知识网络。这个系统为用户的整个人生服务——不限于任何单一领域。
 
 ## 设计哲学
