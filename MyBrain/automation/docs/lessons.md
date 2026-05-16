@@ -246,7 +246,7 @@ kill <PID1> <PID2> ...
 
 ---
 
-## ⑨ WebFetch 拿 enumerated list 必须强制 verbatim 不允许 summarize
+## ⑭ WebFetch 拿 enumerated list 必须强制 verbatim 不允许 summarize
 
 **症状**：用 WebFetch 问"list X 上有哪些 item"，LLM 内部 summarize 时**漏项**，给的 partial list 看起来 complete，但其实丢了关键 entry。下游基于这个 partial list 答错。
 
@@ -269,7 +269,7 @@ Do NOT summarize. Do NOT skip items. Show every single item in the list verbatim
 
 ---
 
-## ⑩ User identity fact 必须 verify，不能凭印象 default
+## ⑮ User identity fact 必须 verify，不能凭印象 default
 
 **症状**：基于"看起来像 X"假设 user 一个核心 identity fact（国籍 / 婚姻状态 / 工作状态 / 是否有 driver license / 是否有医保 etc.），整个 strategy 围绕该假设展开。User 后来 correct → 整个 strategy invalidated。
 
@@ -300,7 +300,7 @@ Do NOT summarize. Do NOT skip items. Show every single item in the list verbatim
 
 ---
 
-## ⑪ Skill assessment 必须用 spectrum 不能用 binary ✅/⚠️/❌
+## ⑯ Skill assessment 必须用 spectrum 不能用 binary ✅/⚠️/❌
 
 **症状**：给 user 评估"你够格 platform X 吗" 时用 ✅ / ⚠️ / ❌ 标签 → user 看着像系统评估实际是 keyword matching：vault 简历列"PyTorch" → ✅ 掌握。User 后来追问 "Mercor $85/hr 不可能没 strict bar，你怎么判断我达到要求"，发现 AI **完全没真 evaluate**。
 
@@ -342,9 +342,58 @@ Do NOT summarize. Do NOT skip items. Show every single item in the list verbatim
 
 **指令出处**：2026-05-15 Javen "Mercor 那么高工资肯定是有原因的，竞争肯定强 ... 你是怎么判断我就是达到要求的 ... 是我自知还是说你安慰我，或者说你忽略了掌握的程度"。触发因我在 [[平台深度与技能路径_2026]] 用 "Javen 当前 fit ✅ 直接 apply" 这种 binary 评估，没区分 Dreyfus level，user 戳破。Spawn 3 agent 重做评估后得 honest answer：Javen 在 L2-L3，距 Mercor 真实 bar (8 年企业经验中位通过者) 巨大 gap。
 
-**跟 ④/⑨ 的关系**：
+**跟 ④/⑭ 的关系**：
 - ④ 研究精度（问题空间 vs 解决空间） — 答 user 问的边界
-- ⑨ List 完整性 — verbatim 不 summarize
-- ⑪ Skill spectrum — assessment 必须分级 + cite evidence 不 binary
+- ⑭ List 完整性 — verbatim 不 summarize
+- ⑯ Skill spectrum — assessment 必须分级 + cite evidence 不 binary
 
-三条都关乎"answer quality 的不同维度"。⑪ 最深层 — 影响 long-term decision (career path, learning investment, application strategy)，错了 user 浪费数月时间。
+三条都关乎"answer quality 的不同维度"。⑯ 最深层 — 影响 long-term decision (career path, learning investment, application strategy)，错了 user 浪费数月时间。
+
+---
+
+## ⑰ User vision dual-axis 必须捕全，不能只听 default axis
+
+**症状**：User 说"暑期想探索一人挣钱渠道"。AI 听到 "挣钱" → default frame 成 **employee / contractor / freelance** (赚 hourly wage)。完全忽略 user 同时暗含的"**自己做事**" axis (solopreneur / 1-人公司 / 个人 SaaS)。
+
+User 后面 explicit 指出"我其实更多的是想说自己能赚钱，而不是说去某个公司去挣钱，这两个不是单选题，你目前考虑的主要还是那啥 (employee path)"——这时才发现 AI 早期就漏了一个维度。
+
+**真相**：很多 user vision 是 **dual-axis** (employee + solo / W-2 + 自雇 / 学术 + 创业 / 单一 specialty + 多元 portfolio)，AI 容易：
+- 抓住第一句 keyword (e.g., "挣钱") 默认 frame 一个 axis
+- 忽略 user 后面隐藏的 axis (e.g., "自己做事")
+- 整个 strategy 围绕 default axis 展开 → 5000 words wiki 都偏 single-axis
+
+**为什么 AI 容易犯**：
+- Training data bias: "career advice" 训练样本多数 frame 成 employee path (大学 → 大公司 → senior)
+- Cognitive Anchoring: 第一 keyword 抓住后整个 reasoning 偏 anchored
+- Pattern matching: UCSD senior + GPA 3.61 + 投 Anduril/Qualcomm → AI default 推断 employee path
+
+**避免**：
+
+1. **接到 vision-level task 时先列 axes**: "user 说要 X, X 在哪些 axis 上有不同 path?"
+   - 例: "挣钱" axis: hourly wage vs equity vs passive vs prize-based vs 自雇 SaaS vs 内容 monetize vs 投资收益
+   - 列完后问 user 哪些 axes 都要考虑, 哪些 explicitly 排除
+2. **不要凭 vault keyword 默认 axis**: vault 有简历 → 默认 employee 是 Cognitive Anchoring
+3. **Wiki 主页面**应该是 **dual-track / multi-track** 结构, 不是 single linear path
+4. **task-board 上 task 应捕全 user 真实诉求**, 不只是第一句 keyword 衍生的子任务
+
+**反 pattern**:
+
+- ❌ User 说"暑期赚钱" → AI 默认 Mercor/Outlier/Faculty RA (employee axis)，完全无 SaaS / solopreneur 章节
+- ❌ Wiki 主页面 5000 words 都偏 employee path
+- ❌ approvals 都是"申请 Mercor / 申请 Toptal" employee-axis approval
+- ❌ user push 后才补 solo founder 章节 = 第二 round retroactive 修复
+
+**Pro pattern**:
+
+- ✅ 接到 vision task → "你想要 employee path / solo founder path / 都要 dual-track 还是有其他 axis?"
+- ✅ 主 wiki 默认 dual-track / multi-track 结构 + 互相 link
+- ✅ Owner mindset 自检 "user 说的 X 在哪些 axis 上有不同实现路径, 我每个都覆盖了吗?"
+
+**指令出处**: 2026-05-15 Javen "我其实更多的是想说自己能赚钱，而不是说去某个公司去挣钱 ... 这两个不是单选题，但我现在感觉你目前考虑的主要还是那啥 (employee path)"。触发因之前 4 个 wiki (暑期赚钱探索 v1/v2 + 平台深度 + AI engineer 10年路径) 几乎全部 frame 在 employee axis (Mercor/Toptal/Outlier contractor + FAANG/Anthropic intern), 几乎没有 solo founder / 1-人公司 / SaaS 章节。Javen explicit 提醒后才补 [[AI_solo_founder_路径_2026]] dual-track wiki。
+
+**跟 ⑮ "identity fact" + ⑯ "skill spectrum" 的关系**：
+- ⑮ identity fact (citizenship / 婚姻 etc.) — 不要凭印象 default
+- ⑯ skill assessment — 用 spectrum 不用 binary
+- ⑰ vision axis — 不要只听 default axis 漏 hidden axis
+
+⑮/⑯/⑰ 共同形成 "user understanding" 三层防护: ⑮ 是 basic identity verify, ⑯ 是 capability 精度, ⑰ 是 vision 完整性。三层都要做才是真懂 user。

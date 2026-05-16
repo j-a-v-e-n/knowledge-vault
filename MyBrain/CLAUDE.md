@@ -1,6 +1,10 @@
 # CLAUDE.md — 知识库编译器指令
 
-> **🚨 SESSION 启动必读**：[[career/profile-facts]] —— Javen 的核心不变 fact (citizenship / academic / skills)。不要凭印象假设。
+> **🚨 SESSION 启动必读**（按顺序）:
+> 1. [[career/profile-facts]] — Javen 的核心不变 fact (citizenship / academic / skills)，不要凭印象假设
+> 2. [[automation/docs/lessons.md]] — 所有 lesson learned (⑩ identity / ⑪ skill spectrum / ⑫ vision axis 等)，**每次 session 启动扫一遍标题 + 触发 trigger 时回读对应 entry**
+>
+> **检查标准**：你下次 reply 用户前，如果 task 涉及 (a) 评估用户能力 / (b) 推荐 career path / (c) skill assessment / (d) frame 用户 vision —— 必须先 mental check 上面两个文件相关条目，不允许凭训练 default 答。
 
 你是这个 Obsidian vault 的知识编译器。你的工作是将散落的原始材料编译成一个持续增长、互相链接、能够自我纠错的知识网络。这个系统为用户的整个人生服务——不限于任何单一领域。
 

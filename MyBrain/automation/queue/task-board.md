@@ -88,29 +88,30 @@
     - [ ] j. Winter 2027 quarter 填 Step 2 Graduate Admissions Application（entry quarter = Spring 2027）
   - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]], [[career/resume-master]], [[wiki/career/UCSD BSMS 申请]]（待建）
 
-- [ ] **task-028** | 暑期 2026 一人挣钱渠道探索（freelance / 竞赛 / 校内 / 自研）| #P1 | owner: 混合（@claude 主调研 + @javen 决策选哪条路 + 执行）| 创建 2026-05-15 | **2026-05-15 update: v2 重做 — Javen US citizen, 无 F-1 限制**
-  - **触发**：Javen 5/15 主对话"暑期没事情，想探索一人挣钱渠道，认真对待一步一步做"
-  - **目标**：产出一份 vault 永久资产 [[wiki/career/暑期赚钱探索_2026]]——按 ROI × 技能匹配 × 时间预算排序的渠道地图，含"本周可启动" plan
-  - **关键约束**（v2 简化版）：
-    - **US citizen**: 所有合法 US/海外 work 都可做（v1 F-1 假设作废，落 [[career/profile-facts]]）
-    - 税务: contractor income 1099-NEC + self-employment tax 15.3%
-    - 时间预算: 10 周；onboarding 2-4 周扣后实际 active 6-7 周
-    - 技能存量: ML / Robotics / Python / LLM / Computer Vision
-    - 机会成本: vs 8 月底切秋招准备
+- [ ] **task-028** | 暑期 2026 → 长期 AI 路径（个人公司 + 打工 dual-track）| #P1 | owner: 混合（@claude 主调研 + @javen 决策 + 执行）| 创建 2026-05-15 | **2026-05-16 update v3: dual-track 重做 — Javen 明确不想只走 employee, 要 solo founder path 同时考虑 + 长期 (10+ 年) 不是短期 summer**
+
+  - **v1 → v2 → v3 演进**：v1 F-1 假设错（Javen US citizen）→ v2 employee-only Mercor 路径过乐观 (Javen Dreyfus L2-L3, 距 Mercor 真实 bar 巨大) → v3 dual-track (Track A employee + Track B solo founder)
+  - **3 个 wiki 主页面**（**推进本 task 时强制必读，不允许凭训练 default 答**）：
+    - [[wiki/career/AI_engineer_10年路径_2026]] — Track A (employee, FAANG/Anthropic intern → full-time)
+    - [[wiki/career/AI_solo_founder_路径_2026]] — Track B (solo founder + 个人公司, 含 3 个具体 candidate project)
+    - [[wiki/career/平台深度与技能路径_2026]] — Mercor/Toptal 真实门槛（已 correct 之前过乐观评估）
   - **AI vs Javen 分工**：
-    - ✅ **@claude 主对话能干**：(a) 3 parallel research agent 调研 freelance / prize / 校内+自研 三类渠道 (b) reconcile 出排序 (c) 落盘 wiki/career/summer-income-exploration.md (d) 给 "本周启动 plan"
-    - ❌ **必须 Javen**：(a) 决定选哪个渠道 (b) 注册账号 / 填资料 (c) 提交 application (d) 跟 ECE undergrad office 或 UCSD ISPO 当面 confirm F-1 边界
-  - **子任务**：
-    - [x] a. spawn 3 agents 调研 — done 2026-05-15（freelance/prize/校内+自研 3 类全覆盖）
-    - [x] b. reconcile + 写 vault 主页面 — done 2026-05-15 ([[wiki/career/暑期赚钱探索_2026]])
-    - [x] c. 给 Javen 本周 starter plan — done 2026-05-15（Day 1-7 plan in wiki page §3）
-    - [ ] d. Javen 选定 income target + 是否跑 ISPO + 是否要 @claude 起草 faculty outreach 邮件 batch — ⚠️ blocked on @javen 决定
-    - [ ] e. (faculty RA 出 outcome 后) Javen 切到主力 plan 或备选 plan
-  - **Definition of Done**：
-    - [x] vault 有 [[wiki/career/summer-income-exploration]] 含 ≥10 个具体渠道 + F-1 visa annotation + 真实收入区间 + 启动步骤
-    - [ ] Javen 选定 1-2 个 primary 渠道并启动
-    - [ ] (6 月底 review) 第一笔实际收入到账或明确放弃该渠道
-  - **关联**：[[career/applications.md]]（求职 in flight）+ [[career/degree-progress.md]]（summer enroll status）
+    - ✅ **@claude 主对话能干**：(a) 3 个 candidate project Discovery 阶段材料 (b) MVP spec / build plan / stack 选择 (c) Fall internship batch application 材料 (d) Build-in-public Twitter content batch
+    - ❌ **必须 Javen**：(a) 选 A/B/C project (b) 选 dual-track 比例 (c) 真做 user interview (Marty Cagan: discovery 必须人做) (d) 真 ship / publish
+  - **子任务**（v3）：
+    - [x] a. 6 个 parallel agent 调研完成 (3 round x 6 agent total) — done 2026-05-15
+    - [x] b. 3 个 wiki 主页面落盘 — done 2026-05-15
+    - [ ] c. Javen 决定 dual-track 比例 (50/50 / 70A30B / 30A70B) — ⚠️ blocked on @javen
+    - [ ] d. Javen 选 1 个 candidate project (A: Researcher Workspace / B: Vertical Diffusion / C: LLM Eval B2B) — ⚠️ blocked on @javen
+    - [ ] e. @claude 起草 Project Discovery materials (user interview script + 1-pager spec) — pending Javen 选 project
+    - [ ] f. @claude 起草 Fall internship batch materials (Track A 兜底) — 见 approvals.md
+    - [ ] g. (60-day review 7/14) Javen 评估 Track B traction → adjust dual-track 比例
+  - **Definition of Done**（v3）：
+    - [x] vault 有 3 个 wiki (10年路径 + solo founder + 平台深度) 共 verified industry sources cite
+    - [ ] Javen 选定 dual-track 比例 + 1 个 project (Track B)
+    - [ ] (6 月底 review) Project MVP launched + first user signup
+    - [ ] (Aug review) MRR / Fall internship outcome 评估 → adjust 长期 plan
+  - **关联**：[[career/profile-facts]] + [[career/applications.md]] + [[career/degree-progress.md]]
 
 - [ ] **task-026** | 抖音 AI 视频编译 follow-up — Ollama 装 + AI 求职策略落地 + 简历升级 | #P1 | owner: 混合（@javen 决策 + @claude 协助）
   - **触发**：task-025 完成 ([[2026-05-11_AI主题视频整理_内容地图]]) → 产出 [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] 决策框架。这条 task 落地框架里的 action items

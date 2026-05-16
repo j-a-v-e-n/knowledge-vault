@@ -13,24 +13,24 @@
 
 ## ⏳ 待审批
 
-### 2026-05-15 — task-028 暑期赚钱探索（v2, US citizen 重做）
+### 2026-05-15 — task-028 dual-track 长期 AI 路径（v3 重做）
 
-> v1 三条 F-1 specific approvals **作废**（Javen 是 US citizen，无 visa 限制）。v2 重新提：
+> v2 三条 approvals **再次作废**（Javen 评 v2 employee path 过乐观 + 没接住 solo founder vision）。v3 dual-track 重新提：
 
-- [ ] **2026-05-15 主对话** | task-028 | 批准 @claude 起草 Mercor + Toptal application 材料（基于 [[resume-master]] + ECE 项目）？
-  - **建议**：批准（Tier 1 主推；onboarding 3-6 周，越早 apply 越好；通过后即使不主推也是 unlock future option）
-  - **批准后做**：@claude (a) 写 Mercor profile（ML domain emphasis + 175B/284 项目）(b) 起草 Toptal 5 阶段筛选准备材料 (c) 列 application checklist 给 Javen
-  - **不批的影响**：Tier 1 高时薪 contractor 通道空着，10 周 window 缩水
+- [ ] **2026-05-15 主对话** | task-028 | 批准 @claude 起草 Project Discovery materials (Javen 选定 A/B/C 后)：(a) 5 个用户 interview script (b) 1-pager spec template (c) MVP feature priority sheet (d) competitor matrix?
+  - **建议**：批准（Track B 必须先 discovery 再 build，Marty Cagan + Pieter Levels 都强调）
+  - **批准后做**：等 Javen 选定 project A/B/C → @claude 出 4 个材料 → Javen 用来做 user interview
+  - **不批的影响**：Track B 直接进 build 跳过 discovery → 大概率 build 错东西
 
-- [ ] **2026-05-15 主对话** | task-028 | 批准 @claude 起草 5-8 个 UCSD faculty RA outreach 邮件 batch？
-  - **建议**：批准 if 选 Strategy B 或 C（portfolio/paper 路径需要）；不批 if 选 Strategy A（max income, contractor 主力）
-  - **批准后做**：@claude 列 8 个 ECE/CSE/CogSci faculty target → 每人 50-100 word 个性化邮件 → 批量打开 Gmail compose 8 封让 Javen 一键发
-  - **不批的影响**：Faculty RA 路径不走，专心 contractor + competition
+- [ ] **2026-05-15 主对话** | task-028 | 批准 @claude 起草 Fall internship batch application materials (Track A 兜底)：Anthropic / OpenAI / Google DeepMind / Meta AI / NVIDIA / Scale AI ML intern 简历定制 + cover letter？
+  - **建议**：批准（dual-track 兜底；solo MVP 失败概率 54-80%，Track A 兜底必须）
+  - **批准后做**：@claude (a) 定制 6 个 ML intern resume (强调 ECE 175B/284/148) (b) 6 个 cover letter (c) 申请 deadline tracker
+  - **不批的影响**：Track A 兜底失，万一 solo 失败 8 月底切秋招太晚
 
-- [ ] **2026-05-15 主对话** | task-028 | 批准 @claude 起草 Codementor mentor profile（AI/ML expert 定位, $80-120/hr 起价）？
-  - **建议**：批准（profile-only，无 commitment；listed 后等 client request，零成本）
-  - **批准后做**：@claude 写 Codementor profile（headline + bio + expertise tags + project portfolio link）
-  - **不批的影响**：少一条 passive lead 来源
+- [ ] **2026-05-15 主对话** | task-028 | 批准 @claude 起草 Build-in-public Twitter/X content batch（每周 2-3 条 post，build process + MRR update）?
+  - **建议**：批准（Pieter / Marc Lou / Tony Dinh 都背书；distribution 跟 product 同等重要）
+  - **批准后做**：@claude 起草 8 周内容 calendar (每周 2-3 posts)，包含 build update / lesson learned / MRR share template
+  - **不批的影响**：Project launch 后无 organic distribution channel
 
 ---
 
