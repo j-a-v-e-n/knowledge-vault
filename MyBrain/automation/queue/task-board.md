@@ -80,8 +80,12 @@
     - [x] b. @claude 起草 SoP 2 页 v1 — done 2026-05-13 by daemon（`career/sop-bsms-v1.md`，约 580 字，GPA/项目数字全部 from verified sources；[SPECIALIZATION_DIRECTION] + [ENTRY_QUARTER] + [FACULTY/LAB] 共 3 个 placeholder 等 Javen 填）
     - [ ] c. Javen TritonLink 下 Academic History PDF
     - [ ] d. (if GPA < 3.4) Javen 联系 JSOE faculty + 1 其他 faculty 求 LOR — 越早越好
-    - [ ] e. Javen 填 ECE Internal Application Form (Google form)
-    - [ ] f. 5/15 23:59 前 final submit
+    - [x] e. Javen 填 ECE Internal Application Form (Google form) — done 2026-05-14
+    - [x] f. 5/15 23:59 前 final submit — done 2026-05-14 (Form 5/15 显示 "You've already responded" 确认)
+    - [x] g. Email `ecebsmsadmissions@ucsd.edu` 改 M.S. entry quarter Fall 2027 → Spring 2027 (UG plan 提前到 Winter 2027 毕业) — done 2026-05-15 by Javen (draft: `MyBrain/career/email-drafts/2026-05-15_bsms-entry-quarter-update.md`，FAQ-supported, zero risk)
+    - [ ] h. ⚠️ blocked on 外部 — 等 admissions 1-3 business day 回 confirm；收到回复后 align task-board task-027/009 timeline + 落盘 confirm 邮件到 applications.md
+    - [ ] i. 8 月底等 Step 1 录取通知
+    - [ ] j. Winter 2027 quarter 填 Step 2 Graduate Admissions Application（entry quarter = Spring 2027）
   - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]], [[career/resume-master]], [[wiki/career/UCSD BSMS 申请]]（待建）
 
 - [ ] **task-026** | 抖音 AI 视频编译 follow-up — Ollama 装 + AI 求职策略落地 + 简历升级 | #P1 | owner: 混合（@javen 决策 + @claude 协助）
