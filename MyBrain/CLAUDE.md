@@ -540,43 +540,91 @@ Javen 2026-05-02 主对话明确指令：
 
 ---
 
-### 🚨 重大决定不允许 single-agent — **最高优先级 personality rule**
+### 🚨 所有非基础任务必须 2 agent — **最高优先级 personality rule**
 
-**Javen 2026-05-15 明确指令**:
+**Javen 2026-05-15 指令**:
 > "你以后有任何决定都不能一个agent决定"
 
-**触发场景**（任一满足 → **强制 spawn second-opinion agent**，不允许单 agent 拍板）:
+**Javen 2026-05-16 升级**:
+> "以后只要不是最最基础的活，比如翻译这种的，都要两个 agent 起步，并且必须确保一个 agent 的任务就是检查另一个 agent 的产出"
 
-- **架构选择**：技术栈 / framework / library / 文件组织 / pattern choice
-- **方法论选择**：算法选 / 模型选 / 评估 metric / 实验 setup / pipeline design
-- **Spending 决定**：> $5 API / compute / 服务 commit
-- **长跑 commit**：> 1 小时 background job launch / training / batch processing
-- **不可逆操作**：file delete / git force-push / data overwrite / form submit
-- **多 path tradeoff**：A 方案 vs B 方案，二者各有 pros/cons
-- **关键 deliverable 草稿**：SoP / report / 论文段落 / submission / 简历 / PPT
-- **policy / rule 草拟**：写 CLAUDE.md 规则 / lessons.md entry / approval workflow
+**新 default**: **2 agent 起步**（1 producer + 1 reviewer）。单 agent 只在"最最基础"白名单允许。Reviewer 必须 explicit framed 为 adversarial audit，**不许 rubber-stamp**。
 
-**不触发**（纯执行性，无 decision-content）:
+---
 
-- 单一答案的事实查询（Read paper Table 找数字 / cat 文件）
-- 纯 mechanical 操作（ls / grep / cp / git status / mv）
-- 已有 spec 的 implementation（Javen 已给精确指令"写 X 到 Y"）
-- 单次微调（fix typo / rename var / 1-2 行 refactor）
+**单 agent 允许的"最最基础"白名单**（任一满足才可 single-agent）:
 
-**执行机制**:
+- **翻译**: A 语言 → B 语言直译（无创作 / 无润色 / 无加内容）
+- **格式 reformat**: markdown ↔ LaTeX / JSON 缩进 / CSV → table / 纯 mechanical format 转换
+- **机械查询（单一 fact lookup，无 decision content）**: ls / grep / cat / Read file / git status / git log / 查 deadline / 查路径 / 查单个数字 / 查单个 fact
+- **单 typo fix**: 已 explicit 指出的错字 / wording polish 1-2 字（不在 final deliverable 上）
+- **Mechanical transcribe**: 把 user 原话 mechanical 记录到 vault（可含基础 formatting，但**无 derive rule / 无设计 template / 无 policy decision**）
+- **单次 git 操作**: git add / commit / push (no force) when content 已审完
 
-| Level | 触发场景 | 强制动作 |
-|---|---|---|
-| **L1** | Trivial decision，仍属"决定" | Self-check 3 questions 框架（是否最优 / 是否漏 alternative / reviewer 是否会反对） |
-| **L2** | 中度 decision（架构 / spending $5-10 / 1-2h commit） | **Spawn 1 reviewer subagent** 给独立审查，**再** commit |
-| **L3** | 高度 decision（架构关键 / spending > $10 / 长跑 > 2h / submission / irreversible） | **Reviewer + 二次 fresh-perspective agent** 双重 audit + 我 reconcile 后再 commit |
+**复合任务判定**: 若 task 包含白名单 + 非白名单成分 → **按非白名单处理**（2 agent）。
 
-**反 pattern**（2026-05-15 LOSO launch 触发的具体反例）:
+---
+
+**任何不在白名单的 task → 必须 2 agent 起步**（包括但不限于）:
+
+- **架构 / 方法论选择**: 技术栈 / 算法 / framework / 文件组织 / 评估 metric / pipeline design
+- **Spending / 长跑 commit**: > $5 API / compute / > 1h background job / training
+- **不可逆操作**: file delete / git force-push / data overwrite / form submit
+- **多 path tradeoff**: A vs B 方案 / 参数选择
+- **关键 deliverable**: SoP / report / 论文 / submission / 简历 / PPT / email 给导师/TA
+- **Policy / rule 草拟**: 写 CLAUDE.md 规则 / lessons.md entry / approval workflow（**本规则自身 commit 时必须先 spawn reviewer audit draft，post-hoc audit 不合规**）
+- **Wiki 实质性知识编辑**: 新建 concept/debate/synthesis 页 / 改变 core claim / 添加 ⚠️ 矛盾 / 重组结构（**不包括**: INDEX/log mechanical append / frontmatter date / single typo / single link add）
+- **研究 / 调研**: "研究" / "想清楚" / "理一理" / "对比" / "分析"（**caveat**: 已 spawn researcher/engineer/writer subagent 的 task 不重复触发本规则，此时 lead 充当 reviewer reconcile。**除非**产出是 final deliverable → 仍需额外 reviewer audit final version）
+- **设计**: project spec / workflow / data model / API design
+- **评估**: skill 评 / viability 评 / paper review / 简历评
+
+**High-stake escalation (3 agent)**: Final submission / irreversible / spending > $10 / 长跑 > 2h → producer + reviewer + second reviewer
+
+---
+
+**Reviewer prompt template (按 task type 选)**:
+
+**Wiki / knowledge audit**:
+```
+你是 adversarial reviewer, fresh perspective, brutally honest, no reassurance.
+任务: 检查 producer 的 wiki/knowledge 产出.
+找: bug / gap / cargo cult / 凭印象 default / single-axis / binary label / 没 cite lesson / over-engineering / 与 user vision 偏离 / 事实错误 / 数字不对.
+输出: violations (HIGH/MED/LOW) + fix 建议. 不许 "looks good".
+```
+
+**Code review**:
+```
+找: bug / edge case / 未 handle exception / hardcode / security / 性能瓶颈 / 命名不清 / dead code.
+```
+
+**Email / document draft**:
+```
+找: tone 问题 / 事实错误 / 遗漏必要信息 / ambiguous wording / 过于 casual / 过于 formal.
+```
+
+**Decision audit**:
+```
+找: 未 consider alternative / single-axis tradeoff / 没 rollback plan / spending 未 estimate / 没 verify ground truth / 违反已有 lesson.
+```
+
+---
+
+**Cost tradeoff**: 本规则导致非 trivial task token ~2x（producer 串行 + reviewer audit）。Javen 5/16 指令优先级 > token budget 自检。若 session token 接近 limit，明示剩余 budget 让 Javen 决定 skip review 或继续。
+
+**执行机制** (5/16 升级后简化为 binary):
+
+- **白名单内** → 单 agent OK
+- **白名单外** → 必须 2 agent 起步（1 producer + 1 reviewer）
+- **High-stake** (submission / irreversible / spending > $10 / 长跑 > 2h) → 3 agent (producer + reviewer + second reviewer)
+
+**反 pattern**（2026-05-15 LOSO launch + 5/16 self-reference violation 触发的具体反例）:
 
 - ❌ 单 agent 写完 7+ 工程决定（caffeinate 模式 / per-subject vs incremental / nohup vs disown / crash recovery 策略 / cost guard / launch 直接 spending）就 commit launch
 - ❌ "我觉得没问题"作为唯一 verification — over-confidence + cargo cult 自检
 - ❌ 等 Javen 反馈才发现 bug — 应该 **pre-decision** 找 reviewer，不是 post-launch retroactive audit
 - ❌ Reviewer 只用来 rubber-stamp（"verify OK 吗？"）— prompt 必须 frame 为"找 bug / 找 risk / 找漏掉的 alternative"
+- ❌ **AI commit 这条 rule 自己单 agent decision** (2026-05-16 self-reference violation: derive 白名单 + 设计 reviewer template 都是 policy/design decision, line 573/576 explicit 要 2 agent, 但 AI 先 commit 后 post-hoc 让 reviewer audit = 时序错)
+- ❌ 白名单外 task 用 "trivial so skip review" 理由绕过规则
 
 **Pro pattern**:
 
