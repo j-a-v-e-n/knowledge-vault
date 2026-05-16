@@ -88,6 +88,28 @@
     - [ ] j. Winter 2027 quarter 填 Step 2 Graduate Admissions Application（entry quarter = Spring 2027）
   - **关联**：[[wiki/工程方法/超级个体_工具与杠杆]], [[career/resume-master]], [[wiki/career/UCSD BSMS 申请]]（待建）
 
+- [ ] **task-028** | 暑期 2026 一人挣钱渠道探索（freelance / 竞赛 / 校内 / 自研）| #P1 | owner: 混合（@claude 主调研 + @javen 决策选哪条路 + 执行）| 创建 2026-05-15
+  - **触发**：Javen 5/15 主对话"暑期没事情，想探索一人挣钱渠道，认真对待一步一步做"
+  - **目标**：产出一份 vault 永久资产 [[wiki/career/summer-income-exploration]]——按 F-1 visa 合法性 + 技能匹配 + ROI 排序的渠道地图，含"本周可启动" plan
+  - **关键约束**（必须先框）：
+    - F-1 visa: 校外独立合同 / Upwork US client 多数律师认为**违规**；prize-based (Kaggle / hackathon / OSS bounty) 多数律师认为**合法**；校内 work 100% 合法；CPT 需要 internship-required course (summer 已 enroll COGS153/MATH109 但**不 unlock CPT**)
+    - 时间预算: 暑期 ≈ 10 周 (June-Aug)
+    - 技能存量: ML / Robotics / Python / LLM / Computer Vision
+    - 机会成本: vs 准备 2026 秋招 / Anduril&Qualcomm 后续面试 / portfolio project
+  - **AI vs Javen 分工**：
+    - ✅ **@claude 主对话能干**：(a) 3 parallel research agent 调研 freelance / prize / 校内+自研 三类渠道 (b) reconcile 出排序 (c) 落盘 wiki/career/summer-income-exploration.md (d) 给 "本周启动 plan"
+    - ❌ **必须 Javen**：(a) 决定选哪个渠道 (b) 注册账号 / 填资料 (c) 提交 application (d) 跟 ECE undergrad office 或 UCSD ISPO 当面 confirm F-1 边界
+  - **子任务**：
+    - [x] a. spawn 3 agents 调研 — in progress 2026-05-15
+    - [ ] b. reconcile + 写 vault 主页面
+    - [ ] c. 给 Javen 本周 starter plan
+    - [ ] d. Javen 选定主渠道后回 task-board 标 active
+  - **Definition of Done**：
+    - [x] vault 有 [[wiki/career/summer-income-exploration]] 含 ≥10 个具体渠道 + F-1 visa annotation + 真实收入区间 + 启动步骤
+    - [ ] Javen 选定 1-2 个 primary 渠道并启动
+    - [ ] (6 月底 review) 第一笔实际收入到账或明确放弃该渠道
+  - **关联**：[[career/applications.md]]（求职 in flight）+ [[career/degree-progress.md]]（summer enroll status）
+
 - [ ] **task-026** | 抖音 AI 视频编译 follow-up — Ollama 装 + AI 求职策略落地 + 简历升级 | #P1 | owner: 混合（@javen 决策 + @claude 协助）
   - **触发**：task-025 完成 ([[2026-05-11_AI主题视频整理_内容地图]]) → 产出 [[综合_AI浪潮下中国留学生的工具选型与岗位选择]] 决策框架。这条 task 落地框架里的 action items
   - **目标拆分**：
