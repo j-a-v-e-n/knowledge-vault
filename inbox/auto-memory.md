@@ -35,7 +35,15 @@ Javen paste 一段「macOS 中文语音输入 + 不用 Claude voice mode」的�
 ⚠️ **Plan vs 实际提交 SoP 不一致**：
 
 - Javen 5/14 23:59 之前**已提交** BS/MS application（5/15 主对话发现：Form 显示 "You've already responded"）
-- **5/14 提交版 SoP timeline = "June 2027 BS / Fall 2027 MS"**（v6 / sop-bsms-final.md 均为此 timeline）
+- **5/14 实际提交版 SoP = `sop-bsms-final.md`**（不是 v6 — 5/16 Form receipt verified）
+  - Specialization: **Intelligent Systems, Robotics & Control (Impacted)** (不是 v6 的 Machine Learning & Data Science)
+  - Faculty mentioned: **Prof. Nikolay Atanasov** (v6 frontmatter 说 no faculty — 但实际提交版 final.md 有 Atanasov)
+  - Entry Quarter selected: **Fall 2027**
+  - PID: A17806950
+  - GPA: 3.609 cumulative / 3.377 major (cumulative ≥ 3.4 → no LOR needed; major 3.377 < 3.4 但 OR 条件满足)
+  - Senior Year Course Plan: Fall 2026 (ECE 107/153/176/COGS) + Winter 2027 (ECE 190/AHI/MATH 180A/ECE 188) + Spring 2027 (MATH 180B/ECE 191/ECE 199)
+- **Course plan 跟新 plan 冲突 — surface to Javen**: 5/16 5/16 报告 surface Spring 2027 还有 3 门课 vs Winter 2027 毕业不一致，admissions 可能 push back
+- **5/14 提交版 SoP timeline = "June 2027 BS / Fall 2027 MS"**（基于 final.md 内容）
 - **Javen 5/15 真实 plan = "Winter 2027 BS / Spring 2027 MS"**（提前一学期）
 - **不一致，Google Form 已锁不可改**
 
