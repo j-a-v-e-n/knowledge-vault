@@ -71,9 +71,17 @@ if [[ "$SHOULD_LOG" == "true" ]]; then
   # Extract optional fields (additive schema, max 200 chars each)
   SUBAGENT_TYPE=$(echo "$INPUT" | jq -r '.tool_input.subagent_type // ""' 2>/dev/null)
   DESCRIPTION_RAW=$(echo "$INPUT" | jq -r '.tool_input.description // ""' 2>/dev/null)
-  DESCRIPTION="${DESCRIPTION_RAW:0:200}"
+  if [[ -n "$DESCRIPTION_RAW" ]]; then
+    DESCRIPTION="${DESCRIPTION_RAW:0:200}"
+  else
+    DESCRIPTION=""
+  fi
   BASH_COMMAND_RAW=$(echo "$INPUT" | jq -r '.tool_input.command // ""' 2>/dev/null)
-  BASH_COMMAND="${BASH_COMMAND_RAW:0:200}"
+  if [[ -n "$BASH_COMMAND_RAW" ]]; then
+    BASH_COMMAND="${BASH_COMMAND_RAW:0:200}"
+  else
+    BASH_COMMAND=""
+  fi
 
   # Build base JSON object
   jq -nc \
