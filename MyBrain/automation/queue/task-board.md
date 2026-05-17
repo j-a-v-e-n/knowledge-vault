@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-16 [daemon dawn-shift: ai-watch ✅ 写完；email-triage ❌ Gmail MCP 不可用；task-024 5/12 演讲日期已过→标完成；task-018 f (全 LOSO ~$6.6) 待 Javen 批准再跑]
-**当前状态**：4 进行中（task-003 + task-020 + task-026 + **task-027**）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **9** 已完成
+**最后更新**：2026-05-17 [daemon dawn-shift: ai-watch ✅ 写完；email-triage ❌ Gmail MCP 不可用；task-024 已 done→待手动移 ✅ 列；看板所有可行项均 blocked on @javen 或外部]
+**当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成（含 task-024 物理仍在进行中列，需手动移）
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
