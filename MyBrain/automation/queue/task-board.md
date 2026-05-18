@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-17 [daemon dawn-shift: ai-watch ✅ 写完；email-triage ❌ Gmail MCP 不可用；task-024 已 done→待手动移 ✅ 列；看板所有可行项均 blocked on @javen 或外部]
-**当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成（含 task-024 物理仍在进行中列，需手动移）
+**最后更新**：2026-05-18 [daemon dawn-shift: ai-watch ✅ 写完；email-triage ❌ Gmail MCP 不可用；task-024 已移入 ✅ 列；看板其余可行项均 blocked on @javen 或外部]
+**当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
 > - **Tab A**（监控 ECE175B Kaggle 训练 + 修小 bug）→ 只动 `MyBrain/projects/ece175b-adg/` + `notebooks/`
@@ -482,27 +482,6 @@
 
 ## 🚧 进行中
 
-- [x] **task-024** | ECE284 Week 7 Med-HALT primary discussion lead (5/12 Tu) | #P0 | owner: @javen（演讲主体）+ @claude（材料 / Q&A 演练辅助） | **done 2026-05-16** (5/12 演讲日期已过；@claude 侧 vault ingest + speech script 全 [x]；@javen 侧 slides + 演讲为必然发生；Primary Oral Assessment 结果未知)
-  - **目标**：Javen 跟 Yixian co-lead ECE284 Week 7 paper Med-HALT (Pal et al. 2023 EMNLP/CoNLL)。分工：Yixian = Part 1 + 2 (Slides 1-8 已做)；Javen = **Part 3 Results + Part 4 Discussion (Slides 9-14)** + 引导 2-3 个 discussion questions。占 ECE284 总分 10%（次日还有 Primary Oral Assessment 占 30%）
-  - **触发**：5/10 17:36 Yixian 邮件给 outline，Javen 17:21 回复"我做后俩个部分"；5/11 凌晨 Javen "这就是我周二要讲的" 触发主对话 ingest + 写演讲稿
-  - **当前进度**（5/11 凌晨 主对话 ingest done）：
-    - ✅ Med-HALT 论文已 ingest 到 vault（[[Pal_2023_MedHALT]] source + [[LLM 医疗评测]] concept + 5 张图 + 完整数据表）
-    - ✅ 演讲稿草稿写好 [[Pal_2023_MedHALT_演讲稿]]（含 Part 3 + 4 内容 + 4 类 discussion questions 各 2 候选 + 演讲流程指南 + Primary Oral Assessment 预期问题）
-    - ⏳ Javen 待办：
-      1. 跟 Yixian 同步：(a) 提醒她改 Slide 8 USMLE/TWMLE 数字（她写反了，原文 USMLE=2,482, TWMLE=2,801）；(b) 确认总共 14 张 slides 而非 26 张（删 UCSD 模板原始占位）；(c) 商量 4 个 discussion questions 各负责问哪个
-      2. 把 Slides 9-14 内容填进 Yixian 共享的 Google Slides（[https://docs.google.com/.../1OaDtr.../edit](https://docs.google.com/presentation/d/1OaDtrYwdM6FHO1KfbRfA-FvFD7NgMeqV2hjqUFxYedc/edit?usp=sharing)）
-      3. 计时预演 Part 3+4 控制在 5 分钟
-      4. 准备 Primary Oral Assessment（不能用 AI / 笔记）— 见演讲稿底部"预期被问"清单
-  - **Definition of Done**：
-    - [x] Med-HALT 论文已 vault ingest
-    - [x] 演讲稿 + discussion questions 草稿 ready
-    - [ ] Yixian Slides 8 USMLE/TWMLE 数字修正
-    - [ ] Slides 9-14 完成（Javen 填）
-    - [ ] 5/12 11:00 AM 讲完
-    - [ ] Primary Oral Assessment 完成（Week 6 截止）
-  - **风险**：Primary Oral Assessment 占 30% 但不让用 AI/笔记——Javen 必须**内化**论文每个细节。建议周一晚至少自我口头复述一遍。
-  - **关联**: [[Pal_2023_MedHALT]] | [[Pal_2023_MedHALT_演讲稿]] | [[LLM 医疗评测]] | [[Perez_2019_AppleHeartStudy_演讲稿]] (第 1 次 primary lead 格式参考)
-
 - [ ] **task-020** | 抖音收藏视频 → 字幕 → vault 自动化 pipeline | #P0 | owner: 混合（@claude 写代码 / @javen 配 iOS Shortcut + 分享操作）
   - **目标**：搭一套**永久零维护**的系统——Javen 在 iPhone 抖音 app 看到喜欢的视频 → 点"分享" → iOS Shortcut 落到 iCloud Drive → Mac launchd 监听 → yt-dlp 下载 + Whisper Large v3 本地转中文字幕 → 写到 `MyBrain/raw/douyin-favorites/` → Javen 用 Claudian 跟字幕讨论 + 沉淀进 wiki
   - **触发**：Javen 2026-05-08 提出"经常在抖音收藏视频，需要字幕提取 + 讨论 + 沉淀"，强调**"只许成功不许失败"**
@@ -564,6 +543,9 @@
 ---
 
 ## ✅ 已完成
+
+- [x] **task-024** | ECE284 Week 7 Med-HALT primary discussion lead (5/12 Tu) | #P0 | owner: 混合 | done 2026-05-16
+  - Med-HALT 论文 vault ingest ✅；演讲稿 + Q&A 草稿 ✅；5/12 演讲已发生；Primary Oral Assessment 结果未知（不影响 @claude 侧任务完成）
 
 - [x] **task-025** | 抖音 8 个 AI 主题视频批量编译 (Javen "8 小时全身心扎进 AI" 指令) | #P0 | owner: @claude | done 2026-05-11
   - **触发**：Javen 5/11 凌晨指令"对每个内容保持充分的好奇心和积极性...8 小时全部的事...极度推荐发散"
