@@ -68,22 +68,8 @@ if [[ "$SHOULD_LOG" == "true" ]]; then
   SESSION=$(echo "$INPUT" | jq -r '.session_id // ""' 2>/dev/null)
   CWD=$(echo "$INPUT" | jq -r '.cwd // ""' 2>/dev/null)
 
-  # Extract optional fields (additive schema, max 200 chars each)
-  SUBAGENT_TYPE=$(echo "$INPUT" | jq -r '.tool_input.subagent_type // ""' 2>/dev/null)
-  DESCRIPTION_RAW=$(echo "$INPUT" | jq -r '.tool_input.description // ""' 2>/dev/null)
-  if [[ -n "$DESCRIPTION_RAW" ]]; then
-    DESCRIPTION="${DESCRIPTION_RAW:0:200}"
-  else
-    DESCRIPTION=""
-  fi
-  BASH_COMMAND_RAW=$(echo "$INPUT" | jq -r '.tool_input.command // ""' 2>/dev/null)
-  if [[ -n "$BASH_COMMAND_RAW" ]]; then
-    BASH_COMMAND="${BASH_COMMAND_RAW:0:200}"
-  else
-    BASH_COMMAND=""
-  fi
-
-  # Build base JSON object
+  # Extract optional fields from INPUT directly (let jq handle truncation)
+  # Build JSON object with optional fields, truncate in jq (first 200 chars)
   jq -nc \
     --arg ts "$TIMESTAMP" \
     --arg event "$EVENT" \
@@ -91,9 +77,7 @@ if [[ "$SHOULD_LOG" == "true" ]]; then
     --arg file "$FILE_PATH" \
     --arg session "$SESSION" \
     --arg cwd "$CWD" \
-    --arg subagent_type "$SUBAGENT_TYPE" \
-    --arg description "$DESCRIPTION" \
-    --arg bash_command "$BASH_COMMAND" \
+    --argjson input "$INPUT" \
     '{
       ts: $ts,
       event: $event,
@@ -101,9 +85,9 @@ if [[ "$SHOULD_LOG" == "true" ]]; then
       file: $file,
       session: $session,
       cwd: $cwd
-    } + (if $subagent_type != "" then {subagent_type: $subagent_type} else {} end)
-      + (if $description != "" then {description: $description} else {} end)
-      + (if $bash_command != "" then {bash_command: $bash_command} else {} end)
+    } + (if ($input.tool_input.subagent_type // "") != "" then {subagent_type: ($input.tool_input.subagent_type // "")[0:200]} else {} end)
+      + (if ($input.tool_input.description // "") != "" then {description: ($input.tool_input.description // "")[0:200]} else {} end)
+      + (if ($input.tool_input.command // "") != "" then {bash_command: ($input.tool_input.command // "")[0:200]} else {} end)
     ' \
     >> "$LOG_FILE" 2>/dev/null
 fi

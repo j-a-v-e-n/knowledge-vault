@@ -1,13 +1,20 @@
 ---
-title: 2-week test plan v2 — CLAUDE.md 5/16 rule self-enforcement (external ground truth)
+title: 2-week test plan v3 — CLAUDE.md 5/16 rule self-enforcement (deployed, test starts 5/20)
 type: overview
-tags: [test-plan, self-supervision, measurement, audit-log-based]
+tags: [test-plan, self-supervision, measurement, audit-log-based, deployed]
 created: 2026-05-16
-updated: 2026-05-16
+updated: 2026-05-18
 confidence: high
 priority: active
-status: REVISED v2 (after reviewer audit found 6 CRITICAL + 5 MAJOR) — awaiting 2nd reviewer audit before Javen approve
-note: v1 self-report based → reviewer catch self-report AI-gameable + 假设 conversation transcript 存在 (不存在). v2 用 external audit.sh log as ground truth.
+status: DEPLOYED — infra built 5/16-5/19, test period 5/20-6/3 (2 weeks)
+test_period_start: 2026-05-20
+test_period_end: 2026-06-03
+infra_build_period: 2026-05-16 to 2026-05-19 (audit.sh modified + test-plan-metrics.sh written + smoke tested)
+note: |
+  ⚠️ 数据 interpretation caveat: 5/16-5/19 期间 compliance rate = 0% — 不是 baseline，
+  那是 engineer build infra 自身活动 (22 writes 全来自 engineer 这次 task)。
+  Real baseline 从 5/20 Javen 正常用 vault 开始 measure。
+  Mid-week check: 5/26; End-week: 6/2; Postmortem due: 6/5.
 ---
 
 # 2-Week Test Plan v2 — External Audit Log Ground Truth
