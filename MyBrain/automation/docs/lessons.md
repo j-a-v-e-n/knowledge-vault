@@ -397,3 +397,148 @@ User 后面 explicit 指出"我其实更多的是想说自己能赚钱，而不�
 - ⑰ vision axis — 不要只听 default axis 漏 hidden axis
 
 ⑮/⑯/⑰ 共同形成 "user understanding" 三层防护: ⑮ 是 basic identity verify, ⑯ 是 capability 精度, ⑰ 是 vision 完整性。三层都要做才是真懂 user。
+
+## ⑱ Long-run job 必须 per-window/per-step 写 cost + state，不依赖 final summary 累加
+
+**症状**：ECE284 LOSO 5/15 跑完 12 subjects 全部 1768 windows 0 NaN，但 sum `usage_summary()` cost 只 $1.87（Subj 6-12 全报 `n_calls=0 / cost=$0`），实际 ~$5.30。
+
+**根因**：`LambdaGenerator` 实例 in-memory counters (`n_calls / tokens_in_uncached / tokens_in_cache_read / cost_usd`) 在 multi-subject shell loop 间因 python3 process restart 而 reset，但 final dump 只在 process 末尾发生一次 → 只 Subj 1-5 + 部分 Subj 6 的 counter 留下来，后面 subject 写 0。
+
+**避免**：
+
+1. **Per-window 写 cost + tokens**：每个 API call 完成后立刻 update 一个累加 JSON file（`results/cost_running.json`），不依赖 process 末尾 dump
+2. **Cross-process state in persistent storage**：shell loop 启动每个 python3 process 都从同一 JSON 读 + 写，不靠 in-memory counter
+3. **Run completion sanity check**：跑完 12 subjects 看 `sum(cost_per_subject) ≈ 12 × average` — 任何 subject 报 0 就是 bug 信号
+
+**反 pattern**：
+
+- ❌ 假设单 process 的 in-memory state 在 multi-process 间持久
+- ❌ Final summary dump 一次而不是 incremental write
+- ❌ "0 个 API error 就一切 OK"——cost tracking bug 不影响 MAE 但影响后续 cost analysis
+
+**Pro pattern**：
+
+- ✅ Long-run job 用 append-only log + periodic snapshot
+- ✅ Each iteration 写 1 行结构化 fact (window + cost + tokens + timing)
+- ✅ Post-run sanity check 跑前先列 expected ranges
+
+**指令出处**：2026-05-15 ECE284 LOSO reviewer #2 audit 发现 cost reporting $1.87 是 bug，实际 ~$5.30。不影响 MAE 但影响 final report cost analysis 准确性。
+
+---
+
+## ⑲ Pilot 选样必须 cover dataset variability，不能用 first-N 当 representative
+
+**症状**：ECE284 LOSO pilot 用 Subj1 前 30 windows MAE 7.71，整 12-subject 全 1768 windows MAE 22.63。Same Subj1 全 148 windows MAE 28.44（前 30 windows 7.71 vs 后 118 windows 33.72 — **4.37× 恶化**）。SoP 5/14 时基于 pilot 数据宣传 "promising 7.90 BPM" — full LOSO 显示 misleading。
+
+**根因**：Subj1 前 30 windows 是 dataset 中**低 motion 偶然窗口**（每个 subject 实验前期通常静态采集 baseline，后面才进入剧烈运动）。Pilot 选 "first 30 windows" = 选到**不代表全 dataset variability** 的 sample。
+
+**避免**：
+
+1. **Stratified pilot sample**：从 dataset 不同 segment 抽 — 前/中/后均匀，或按某 covariate (motion level / subject / time) 分层抽
+2. **Cross-subject pilot**：测 1 subject all windows + 12 subject first window，比测 1 subject first 30 更能 reveal variability
+3. **Variance reporting**：pilot 报 mean ± SD 必须，不只 mean — 大 SD 是 generalization warning
+4. **不公开 quote pilot 数字 outside-context** until full eval done — 至少加 "preliminary on N=30 from 1 subject, low-motion regime; full eval pending"
+
+**反 pattern**：
+
+- ❌ "First 30 windows" pilot 当 generalization indicator → 见 ECE284 SoP 7.90 promotion
+- ❌ Pilot 单 subject 单 condition → 全 dataset 12 subject × multiple motion regimes 不可外推
+- ❌ Pilot success 后跳过 full eval 直接 commit framing → 完整数据 contradict 不可逆
+
+**Pro pattern**：
+
+- ✅ Pilot design 时 explicit ask "this sample 真代表 full dataset variability?" 不代表 → resample
+- ✅ Pilot 数字始终带 caveat "preliminary, N=X, 不代表 full generalization"
+- ✅ Full eval 完成前不公开 commit pilot framing 到 high-stakes deliverable (SoP / report)
+
+**指令出处**：2026-05-15 ECE284 reviewer #2 audit + Javen SoP v6 written based on pilot 7.90 BPM。Full LOSO 5/15 显示 negative result (22.63 BPM ≈ TROIKA 23.46)，pilot framing 部分 misleading。Lesson 直接关联 lesson ⑭ "数字真实性" — pilot 数字 quote 时必须带 N/scope/caveat。
+
+---
+
+## ⑳ Multi-agent reviewer 比 single self-audit 更全面 — 2+ reviewer 不重叠率高
+
+**症状**：ECE284 LOSO 5/15 spawn 2 个 reviewer 独立 audit:
+- **Reviewer #1** (launcher robustness pre-run): 4 medium findings — per-subject crash recovery / API retry / cost ceiling / caffeinate stability
+- **Reviewer #2** (result integrity post-run): 4 medium findings — cost accounting bug / pilot generalization fallacy / no cost guard / per-subject 0-call bug
+- **重叠**: 只 1 个 (cost ceiling / cost guard 部分重叠)
+- **独立 finding**: 各自 3 个 unique
+
+如果只 spawn 1 个 reviewer，会漏掉另 3 个 unique finding。
+
+**根因**：Single reviewer 的 attention 有 prior bias (input prompt frame 它的 focus)。Different prompt frames → different focus areas → independent findings。
+
+**避免**：
+
+1. **High-stakes architecture / deliverable** spawn **2+ reviewer 各 focus 不同 angle**
+   - Pre-run audit (architecture / robustness)
+   - Post-run audit (result integrity / data sanity)
+   - Truthfulness audit (numbers verbatim / cite accuracy)
+2. **Prompt 不同 frame** — 不让 reviewer 都用同 prompt 否则同 bias
+3. **Reconcile**: 主对话 merge findings + prioritize critical → fix → 再 spawn 1 个 audit fix
+
+**反 pattern**：
+
+- ❌ 1 reviewer cover "all aspects" — attention focus 必漏
+- ❌ 同 prompt spawn 多 reviewer — 同 bias 同盲点
+- ❌ Skip review for "trivial" architecture decisions — 累积起来 single-agent 大量 commit
+
+**Pro pattern**：
+
+- ✅ Architecture decision: spawn 2 reviewer different angle (robustness + truthfulness)
+- ✅ Deliverable submission: spawn 1 reviewer specifically "find what's missing / over-claimed"
+- ✅ Reviewer 之间 不传 context — 各自 fresh perspective
+
+**指令出处**：2026-05-15 ECE284 LOSO 2 reviewer audit 数据：4+4 findings 重叠率 ~12.5% (1/8)，3 unique 各。验证 multi-reviewer 不冗余而是互补。
+
+---
+
+## ㉑ Negative result 在 paper writing 必须主动 framing，不能默认 positive 框架
+
+**症状**：ECE284 LOSO 跑完 Sonnet MAE 22.63 ≈ TROIKA 23.46 (2.15× worse than RF 10.53). 这是 negative finding (LLM-as-parameter-generator 不胜过 simple ML)。但 paper writing 默认假设 "我提出新方法，新方法 work" framing — negative 不会自然出现在 default report skeleton。
+
+**根因**：
+
+- Academic paper convention 偏 publication bias positive
+- Default report sections (Method → Results → Discussion) assume positive
+- 学生写 negative paper 心理 default reframe 为 "我的方法 work 在某 subset" cherry-pick → 不诚实
+
+**避免**：
+
+1. **接 negative result 主动 reframe**：从 "我的方法 work 吗" → "**我证明了什么**"
+   - 例: "LLM-as-parameter-generator 在 PPG HR 估计**不胜过** supervised ML" 是 finding
+   - 不是 "我的方法 perform 不好 should pivot"
+2. **跟 successful negative-result paper 借 template**:
+   - Sakana AI Scientist negative finding paper 可作范式
+   - Med-HALT (Pal 2023) framing "**proving** hallucination resistance limit" 是 positive framing of negative finding
+3. **Discussion section 重点写 "**so what**"**：
+   - Interpretability vs performance trade-off
+   - 哪些 task LLM 真适合 vs 不适合
+   - Future work direction based on negative finding
+4. **数字诚实**：不 cherry-pick 子 subject 把 negative 改成 mixed result
+
+**反 pattern**：
+
+- ❌ Pivot 跑 ablation 找一个 LLM win 的 subset (cherry-pick)
+- ❌ Hide negative behind "preliminary results" / "in progress"
+- ❌ Default report skeleton 假设 positive，强行 contort 结果
+
+**Pro pattern**：
+
+- ✅ Explicit negative framing in Abstract + Introduction + Conclusion
+- ✅ Limitations section + Future work 都基于 negative finding 写
+- ✅ Title 直接 reflect negative ("Benchmarking ... shows X does **not** outperform Y for this task")
+
+**指令出处**：2026-05-15 ECE284 LOSO finding (Sonnet 22.63 vs RF 10.53)，reviewer #2 给的 framing "interpretability vs performance trade-off"；Sakana AI Scientist 验证 negative-result paper 同样 publishable。
+
+---
+
+## ⑱-㉑ 共同的元 pattern: "long-run / pilot / single-agent / positive bias" 都是 default 假设需要 explicit 推翻
+
+四个 lessons 一起形成 **"hidden default" 警告**：
+
+- ⑱ Default: in-memory state 在 process 间持久 → 真相: 不持久，必须 explicit persist
+- ⑲ Default: first-N 是 representative sample → 真相: 不是，必须 stratified
+- ⑳ Default: 1 reviewer cover all → 真相: 不 cover，必须 multi-angle
+- ㉑ Default: paper finding 是 positive → 真相: negative 同样 valuable，必须主动 reframe
+
+**共同教训**: AI 接到 task 时**先识别自己的 hidden default** 再 commit action。如果 default 没显式 verified → 大概率出错。
