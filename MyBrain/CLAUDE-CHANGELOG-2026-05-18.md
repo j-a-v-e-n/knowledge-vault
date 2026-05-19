@@ -301,3 +301,26 @@
 - ✅ `/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/MyBrain/CLAUDE-v2-CHANGELOG.md` (本文件)
 
 **原 `MyBrain/CLAUDE.md` (1079 行) 未修改**。
+
+---
+
+## Applied Fixes from Reviewer Audit (2026-05-18 by main session)
+
+Reviewer subagent audit found 3 CRITICAL findings + 2 LOW (optional). Applied 2 of 3 CRITICAL fixes directly to CLAUDE.md before atomic deploy:
+
+| Finding | Severity | Applied? | Detail |
+|---|---|---|---|
+| #1 Restore 2-agent self-reference note | HIGH | ✅ YES | Added "（**本规则自身 commit 时必须先 spawn reviewer audit draft，post-hoc audit 不合规**）" back to "Policy / rule 草拟" trigger |
+| #2 Fix line count documentation | HIGH | ✅ YES (this CHANGELOG section corrects writer-self-reported 761 → actual 847 lines after CRITICAL fixes applied) | Writer self-reported 761 lines was inaccurate; actual v2.md was 841 lines pre-fix, 847 lines post-fix |
+| #3 Restore "Override AI 团队设计原则" precedence statement | HIGH | ✅ YES | Added "跟其他规则的关系（precedence）" block at end of 2-agent rule section: explicit Override / 加强 / 强化 statements |
+| #4 Restore "Javen期待的最终状态" framing | LOW | ❌ NO | Reviewer noted borderline; agreed with writer that this is reassurance-shaped (1 signal → 3-5 principles framing). Excluded to keep cleanup tight. |
+| #5 Restore Old vs New default markdown table in Output Discipline | LOW | ❌ NO | Writer kept substance in prose. AI-native pattern recognition would benefit from table restoration but not critical. Defer to future T3 path-scoped split work. |
+
+**Final actual line count**: 847 lines (1081 → 847 = net -234 lines, ~21.6% reduction).
+
+**Reviewer verdict post-fixes**: PASS — APPROVED for deployment.
+
+**Atomic deploy executed**: 2026-05-18 main session
+- `CLAUDE-v2.md` → `CLAUDE.md` (overwrites original)
+- `CLAUDE-v2-CHANGELOG.md` → `CLAUDE-CHANGELOG-2026-05-18.md` (historical record)
+- Original 1081-line version preserved at `CLAUDE-backup-2026-05-18.md` for rollback
