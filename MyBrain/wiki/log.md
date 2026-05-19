@@ -1,5 +1,33 @@
 # Wiki 操作日志
 
+## [2026-05-18] Ingest | ECE284 数字公共卫生监测主题 3 文献（Javen "编译下的 pdf，是 ece284 的论文，刚下的，一共三个"）
+
+### 来源
+- `raw/ucsd/Spring 2026/ECE284/CD013699.pdf` — Cochrane DSR 2020;Issue 8;CD013699
+- `raw/ucsd/Spring 2026/ECE284/nihms-1569235.pdf` — Lancet Digital Health 2020;2(2):e85-e93
+- `raw/ucsd/Spring 2026/ECE284/3378393.3402260.pdf` — ACM SIGCAS COMPASS '20
+
+### 新建文件清单（3 source 页）
+- [[Anglemyer_2020_数字接触追踪Cochrane综述]] — Cochrane rapid review on digital contact tracing in epidemics；12 篇研究全 verbatim methodology + 9 key questions + ROBINS-I/GRADE-CERQual evidence certainty；Kucharski + Ferretti modelling 数字逐字（18-26% vs 35-53% R_eff reduction）；Danquah/Helmich/Ha cohort 数字（2x-3.5x more contacts）；Adoption gap reality (70-80% willing → <25% actual)；equity 红线
+- [[Radin_2020_Fitbit流感监测]] — Topol team Lancet Digital Health；47,249 Fitbit users + 13.3M measurements；negative binomial model 完整 formula + cyclic validation；Pearson r 各 state verbatim (CA +32.9%, NY +6.3%)；Karjalainen + Thompson 引用 (RHR +8.5-14.1 bpm per 1°C)；lead vs lag analysis caveat 关键 framing
+- [[Minakshi_2020_智能手机蚊媒识别]] — USF + IRV2 transfer learning 完整 6 个 architecture table verbatim (Genus + 3 per-genus + species-only)；25,867 image augmentation 流程；Validation vs Test accuracy 全部 verbatim Table 7+8；feature map heatmap 验证 (thorax/wings/abdomen/legs) + phylogenetic tree relevance；dying field framing
+
+### 更新文件
+- [[INDEX.md]] — 文献区加 3 条 + 顶部最新操作更新；统计 87 → 90 页
+- [[log.md]] — 本 entry
+
+### 关键 cross-link
+- 3 篇组成"digital public health surveillance 三视角": contact graph (Anglemyer) / population physiological (Radin) / vector morphology (Minakshi)
+- 跟 [[消费级设备健康感知]] concept 强对接 (Radin + Minakshi 都加深 population-level evidence)
+- 跟 [[Anglemyer_2020_数字接触追踪Cochrane综述]] 给 [[Perez_2019_AppleHeartStudy]] 提供 adoption gap 对照
+- Minakshi 跟 [[Song_2024_SmartphoneMicroscope]] 形成"smartphone PH 自动化"对子
+
+### 没新建 concept 页（按规则）
+- "数字公共卫生监测" 暂不 promote 成独立 concept — 现有 [[消费级设备健康感知]] 可 absorb；等更多 surveillance paper 出现再 promote
+- "Smartphone PH 自动化" 同理 — Minakshi + Song + Bhamla + Garg 4 paper 可能 future promote
+
+---
+
 ## [2026-05-15] Ingest | COGS117 Week 7 两篇核心文献（Javen "我刚下了两个 Cogs 117 的 PDF 编译"）
 
 ### 来源
