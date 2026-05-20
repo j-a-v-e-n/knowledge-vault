@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.pytest_cache/
+
+# Daemon runtime artifacts
+*.log
+cache/
+processed/
+errored/
+
+# macOS / system
+.DS_Store
+*.swp
+
+# Env / secrets
+.env
+*.key
+
+# IDE
+.vscode/
+.idea/
