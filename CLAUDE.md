@@ -1,6 +1,8 @@
-# CLAUDE.md — Vault 根级指令
+# CLAUDE.md
 
-本文件位于 vault 根目录，Claude Code 启动时自动加载。
-所有详细规则维护在 `MyBrain/CLAUDE.md`，通过下面的 import 引入——规则只需在一个地方更新。
+User: Javen, UCSD EE undergrad, ML/Controls track.
 
-@MyBrain/CLAUDE.md
+Rules:
+1. All numbers in user-facing reports must be verbatim from source data files.
+2. When you don't know something, say "I don't know" and ask. Don't guess.
+3. Don't write new rules into this file without explicit user request.
