@@ -33,6 +33,11 @@ HR_BAND_LOW = 0.4                       # HR 频段下界 Hz (= 24 BPM)
 HR_BAND_HIGH = 5.0                      # HR 频段上界 Hz (= 300 BPM)
 NFFT = 4096                             # periodogram zero-padding
 
+# ---- HR tracking tunables (调参 round-by-round) ----
+COLD_START_N = 10                       # 前 N 个窗口不用 tracking, 全频段最大值
+ENERGY_THRESHOLD = 0.5                  # tracking peak 能量 / global max 比值 < 此阈值 → fallback
+MAX_JUMP_BPM = 20                       # tracking band 半宽 (BPM)
+
 
 # ===================================================================
 # 1. Bandpass filter
@@ -48,23 +53,28 @@ def bandpass_filter(signal, lowcut=0.4, highcut=5.0, fs=125, order=4):
 # 2. Single-window HR estimate
 # ===================================================================
 def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0,
-                            prev_hr=None, max_jump_bpm=15):
+                            prev_hr=None, max_jump_bpm=15,
+                            cold_start_active=False, energy_threshold=0.5):
     """Estimate HR for one window via PPG-vs-accel spectral subtraction.
 
     Args:
-        ppg_window:       (W,)  PPG ch1, length 1000 expected (8 s @ 125 Hz)
-        accel_xyz_window: (3,W) accel X/Y/Z over same window
-        fs:               sampling rate Hz
-        lam:              subtraction weight (cleaned = ppg - lam * coef * accel)
-        prev_hr:          previous window HR estimate (BPM) for tracking, or None
-        max_jump_bpm:     max allowed |HR - prev_hr| (BPM) within tracking band
+        ppg_window:        (W,)  PPG ch1, length 1000 expected (8 s @ 125 Hz)
+        accel_xyz_window:  (3,W) accel X/Y/Z over same window
+        fs:                sampling rate Hz
+        lam:               subtraction weight (cleaned = ppg - lam * coef * accel)
+        prev_hr:           previous window HR estimate (BPM) for tracking, or None
+        max_jump_bpm:      max allowed |HR - prev_hr| (BPM) within tracking band
+        cold_start_active: True → 强制忽略 prev_hr, 用全频段最大值 (前 N 窗冷启动)
+        energy_threshold:  tracking peak 能量 < threshold * global max 时 fallback
+                           到全频段最大值 (self-correction)
 
     Returns:
         (hr_bpm or np.nan, debug_dict)
         debug_dict keys: ppg_filt, accel_mag_filt, freqs,
                          ppg_power, accel_power, cleaned_power, coef, peak_freq,
                          prev_hr_used, tracking_band_low_hz, tracking_band_high_hz,
-                         tracking_fallback_used.
+                         tracking_fallback_used, cold_start_active,
+                         energy_threshold_used.
     """
     # --- 1. PPG bandpass ---
     ppg_filt = bandpass_filter(
@@ -97,8 +107,12 @@ def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0,
 
     cleaned_power = np.maximum(ppg_power - lam * coef * accel_power, 0.0)
 
-    # Pre-compute tracking band (Hz) for debug_dict (None when no prev_hr)
-    has_prev = (prev_hr is not None) and (not np.isnan(prev_hr))
+    # cold_start_active=True → 视作没有 prev_hr (强制 cold start)
+    has_prev = (
+        (not cold_start_active)
+        and (prev_hr is not None)
+        and (not np.isnan(prev_hr))
+    )
     if has_prev:
         tracking_band_low_hz = float((prev_hr - max_jump_bpm) / 60.0)
         tracking_band_high_hz = float((prev_hr + max_jump_bpm) / 60.0)
@@ -119,6 +133,8 @@ def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0,
         "tracking_band_low_hz": tracking_band_low_hz,
         "tracking_band_high_hz": tracking_band_high_hz,
         "tracking_fallback_used": False,
+        "cold_start_active": bool(cold_start_active),
+        "energy_threshold_used": float(energy_threshold),
     }
 
     hr_band_mask = (freqs >= HR_BAND_LOW) & (freqs <= HR_BAND_HIGH)
@@ -129,10 +145,14 @@ def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0,
     if len(peaks) == 0:
         return np.nan, debug_dict
 
+    # 全频段最大 peak (always computed; used for cold start, fallback, self-correction)
+    global_best_idx = peaks[int(np.argmax(cleaned_band[peaks]))]
+    global_best_energy = float(cleaned_band[global_best_idx])
+
     # ---- Peak selection: HR tracking from prev_hr (if available) ----
     if not has_prev:
-        # 无 prev_hr → 全频段最大值 (cold start / 上一窗 NaN)
-        best_peak_idx = peaks[int(np.argmax(cleaned_band[peaks]))]
+        # Cold start / 上一窗 NaN → 全频段最大值
+        best_peak_idx = global_best_idx
     else:
         peak_freqs_hz = freqs_band[peaks]
         in_band = (
@@ -141,12 +161,19 @@ def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0,
         )
         valid_peaks = peaks[in_band]
         if len(valid_peaks) > 0:
-            best_peak_idx = valid_peaks[
+            tracking_best_idx = valid_peaks[
                 int(np.argmax(cleaned_band[valid_peaks]))
             ]
+            tracking_best_energy = float(cleaned_band[tracking_best_idx])
+            # Self-correction: tracking peak 能量太弱 → fallback 到全频段最大值
+            if tracking_best_energy < energy_threshold * global_best_energy:
+                best_peak_idx = global_best_idx
+                debug_dict["tracking_fallback_used"] = True
+            else:
+                best_peak_idx = tracking_best_idx
         else:
             # tracking band 内无 peak → fallback 全频段最大值
-            best_peak_idx = peaks[int(np.argmax(cleaned_band[peaks]))]
+            best_peak_idx = global_best_idx
             debug_dict["tracking_fallback_used"] = True
 
     peak_freq = float(freqs_band[best_peak_idx])
@@ -176,12 +203,16 @@ def run_subject(subj_id, type_id="01", lam=1.0):
         if end > sig.shape[1]:
             hr_estimates.append(np.nan)
             continue                     # 越界 → 不更新 prev_hr
+        cold_start_active = (i < COLD_START_N)
         hr, _ = estimate_hr_one_window(
             sig[1, start:end],          # PPG ch1
             sig[3:6, start:end],        # accel XYZ
             fs=FS,
             lam=lam,                    # 显式传 lam, 不依赖默认值
             prev_hr=prev_hr,            # HR tracking from prev window
+            max_jump_bpm=MAX_JUMP_BPM,  # tracking band 半宽
+            cold_start_active=cold_start_active,
+            energy_threshold=ENERGY_THRESHOLD,
         )
         hr_estimates.append(hr)
         if not np.isnan(hr):

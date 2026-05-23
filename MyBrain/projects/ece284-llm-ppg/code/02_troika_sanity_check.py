@@ -19,6 +19,9 @@ from troika_lite import (
     SHIFT_SAMPLES,
     HR_BAND_LOW,
     HR_BAND_HIGH,
+    COLD_START_N,
+    ENERGY_THRESHOLD,
+    MAX_JUMP_BPM,
     estimate_hr_one_window,
     run_subject,
 )
@@ -38,6 +41,9 @@ LAM = 1.0
 
 print("=" * 62)
 print(f"Step 1: run_subject({SUBJ_ID!r}, {TYPE_ID!r}, lam={LAM})")
+print(f"       COLD_START_N={COLD_START_N}  "
+      f"ENERGY_THRESHOLD={ENERGY_THRESHOLD}  "
+      f"MAX_JUMP_BPM={MAX_JUMP_BPM}")
 print("=" * 62)
 
 result = run_subject(SUBJ_ID, type_id=TYPE_ID, lam=LAM)
@@ -87,14 +93,21 @@ else:
     if isinstance(prev_hr_in, float) and np.isnan(prev_hr_in):
         prev_hr_in = None
 
+cold_start_active = (WINDOW_IDX < COLD_START_N)
 hr_est, debug = estimate_hr_one_window(
     ppg_window_raw, accel_window_raw, fs=FS, lam=LAM,
     prev_hr=prev_hr_in,
+    max_jump_bpm=MAX_JUMP_BPM,
+    cold_start_active=cold_start_active,
+    energy_threshold=ENERGY_THRESHOLD,
 )
 
 print(f"window samples:    [{start}, {end})")
 print(f"window time:       [{start/FS:.2f}, {end/FS:.2f}) s")
 print(f"ground truth HR:   {gt_hr:.2f} BPM  ({gt_freq_hz:.4f} Hz)")
+print(f"cold_start_active: {debug['cold_start_active']}  "
+      f"(WINDOW_IDX={WINDOW_IDX} vs COLD_START_N={COLD_START_N})")
+print(f"energy_threshold:  {debug['energy_threshold_used']}")
 prev_hr_used = debug["prev_hr_used"]
 if prev_hr_used is None:
     print("prev_hr_used:      None (cold start / prev was NaN)")
