@@ -50,6 +50,29 @@ def bandpass_filter(signal, lowcut=0.4, highcut=5.0, fs=125, order=4):
 
 
 # ===================================================================
+# 1b. HR-band coupling coefficient (reusable; method C calls this)
+# ===================================================================
+def compute_coupling_coef(ppg_power, accel_power, freqs):
+    """Least-squares regression of PPG PSD onto accel PSD within HR band.
+
+    coef 表示 "在 HR 频段内, PPG 频谱里 accel 能解释的耦合系数".
+    accel_psd * coef ≈ ppg_psd (按 sum-of-squares 最小化).
+
+    accel 在 HR 频段内能量太小 (< 1e-12) → 返回 0.0 (静息窗口, 无需 subtraction).
+
+    保持逻辑严格不变 (从 estimate_hr_one_window 抽出, 不要修改).
+    """
+    hr_band_mask_local = (freqs >= HR_BAND_LOW) & (freqs <= HR_BAND_HIGH)
+    ppg_hr = ppg_power[hr_band_mask_local]
+    accel_hr = accel_power[hr_band_mask_local]
+
+    accel_hr_sq_sum = float(np.sum(accel_hr ** 2))
+    if accel_hr_sq_sum < 1e-12:
+        return 0.0
+    return float(np.sum(accel_hr * ppg_hr) / accel_hr_sq_sum)
+
+
+# ===================================================================
 # 2. Single-window HR estimate
 # ===================================================================
 def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0,
@@ -92,18 +115,8 @@ def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0,
     _, accel_power = periodogram(accel_mag_filt, fs=fs, nfft=NFFT)
 
     # --- 4. Spectral subtraction + 5. Peak detection in HR band ---
-    # HR 频段内 regression-based normalization
-    # coef 表示 "在 HR 频段内, PPG 频谱里 accel 能解释的耦合系数"
-    hr_band_mask_local = (freqs >= HR_BAND_LOW) & (freqs <= HR_BAND_HIGH)
-    ppg_hr = ppg_power[hr_band_mask_local]
-    accel_hr = accel_power[hr_band_mask_local]
-
-    accel_hr_sq_sum = float(np.sum(accel_hr ** 2))
-    if accel_hr_sq_sum < 1e-12:
-        # accel 在 HR 频段内几乎没能量 (静息窗口) → 无需 subtraction
-        coef = 0.0
-    else:
-        coef = float(np.sum(accel_hr * ppg_hr) / accel_hr_sq_sum)
+    # HR 频段内 regression-based normalization (抽出到 compute_coupling_coef)
+    coef = compute_coupling_coef(ppg_power, accel_power, freqs)
 
     cleaned_power = np.maximum(ppg_power - lam * coef * accel_power, 0.0)
 
