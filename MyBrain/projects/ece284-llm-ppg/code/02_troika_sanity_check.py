@@ -172,15 +172,16 @@ print(f"saved (b):  {fig_b_path}")
 # ===================================================================
 cleaned_power = debug["cleaned_power"]
 cleaned_plot = cleaned_power[plot_mask]
-accel_scaled_plot = LAM * accel_plot
+coef = debug["coef"]
+accel_scaled_plot = LAM * coef * accel_plot
 
 fig_c, ax_c = plt.subplots(figsize=(10, 5))
 ax_c.plot(freqs_plot, ppg_plot, color="#1a3a6b", linewidth=1.2,
           label="PPG PSD")
 ax_c.plot(freqs_plot, accel_scaled_plot, color="#e08a2a", linewidth=1.2,
-          label=f"accel PSD × λ (λ={LAM})")
+          label=f"accel PSD × λ × coef (λ={LAM}, coef={coef:.4f})")
 ax_c.plot(freqs_plot, cleaned_plot, color="#2a9a3c", linewidth=1.5,
-          label="cleaned = max(PPG − λ·accel, 0)")
+          label="cleaned = max(PPG − λ·coef·accel, 0)")
 
 # HR band shading
 ax_c.axvspan(HR_BAND_LOW, HR_BAND_HIGH, alpha=0.10, color="#888888",
@@ -201,11 +202,18 @@ if not np.isnan(hr_est):
               f"  HR estimate = {hr_est:.2f} BPM",
               color="red", fontsize=9, ha="left", va="top")
 
+# Coef annotation (top-left corner)
+ax_c.text(0.02, 0.97, f"coef = {coef:.4f}",
+          transform=ax_c.transAxes, fontsize=10, color="#333333",
+          ha="left", va="top",
+          bbox=dict(boxstyle="round,pad=0.3",
+                    facecolor="white", edgecolor="#888888", alpha=0.85))
+
 ax_c.set_xlabel("Frequency (Hz)")
 ax_c.set_ylabel("Power")
 ax_c.set_xlim(0, 10)
-ax_c.set_title(f"Spectral subtraction — PPG vs accel × λ vs cleaned\n"
-               f"{title_suffix}")
+ax_c.set_title(f"Spectral subtraction (coef-normalized) — "
+               f"PPG vs accel × λ × coef vs cleaned\n{title_suffix}")
 ax_c.legend(loc="upper right", fontsize=8)
 ax_c.grid(True, alpha=0.3)
 

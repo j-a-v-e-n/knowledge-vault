@@ -77,7 +77,20 @@ def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0):
     _, accel_power = periodogram(accel_mag_filt, fs=fs, nfft=NFFT)
 
     # --- 4. Spectral subtraction + 5. Peak detection in HR band ---
-    cleaned_power = np.maximum(ppg_power - lam * accel_power, 0.0)
+    # HR 频段内 regression-based normalization
+    # coef 表示 "在 HR 频段内, PPG 频谱里 accel 能解释的耦合系数"
+    hr_band_mask_local = (freqs >= HR_BAND_LOW) & (freqs <= HR_BAND_HIGH)
+    ppg_hr = ppg_power[hr_band_mask_local]
+    accel_hr = accel_power[hr_band_mask_local]
+
+    accel_hr_sq_sum = float(np.sum(accel_hr ** 2))
+    if accel_hr_sq_sum < 1e-12:
+        # accel 在 HR 频段内几乎没能量 (静息窗口) → 无需 subtraction
+        coef = 0.0
+    else:
+        coef = float(np.sum(accel_hr * ppg_hr) / accel_hr_sq_sum)
+
+    cleaned_power = np.maximum(ppg_power - lam * coef * accel_power, 0.0)
 
     debug_dict = {
         "ppg_filt": ppg_filt,
@@ -86,6 +99,7 @@ def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0):
         "ppg_power": ppg_power,
         "accel_power": accel_power,
         "cleaned_power": cleaned_power,
+        "coef": coef,
         "peak_freq": None,
     }
 
