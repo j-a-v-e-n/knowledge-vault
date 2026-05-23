@@ -78,13 +78,37 @@ accel_window_raw = sig[3:6, start:end]                   # (3, 1000)
 gt_hr = float(bpm0[WINDOW_IDX])
 gt_freq_hz = gt_hr / 60.0
 
+# 从 run_subject 的结果里取 window (WINDOW_IDX-1) 的估计作为 prev_hr,
+# 以复现 run_subject 内部对 window 50 的真实 tracking 状态.
+if WINDOW_IDX == 0:
+    prev_hr_in = None
+else:
+    prev_hr_in = result["hr_estimates"][WINDOW_IDX - 1]
+    if isinstance(prev_hr_in, float) and np.isnan(prev_hr_in):
+        prev_hr_in = None
+
 hr_est, debug = estimate_hr_one_window(
-    ppg_window_raw, accel_window_raw, fs=FS, lam=LAM
+    ppg_window_raw, accel_window_raw, fs=FS, lam=LAM,
+    prev_hr=prev_hr_in,
 )
 
 print(f"window samples:    [{start}, {end})")
 print(f"window time:       [{start/FS:.2f}, {end/FS:.2f}) s")
 print(f"ground truth HR:   {gt_hr:.2f} BPM  ({gt_freq_hz:.4f} Hz)")
+prev_hr_used = debug["prev_hr_used"]
+if prev_hr_used is None:
+    print("prev_hr_used:      None (cold start / prev was NaN)")
+else:
+    print(f"prev_hr_used:      {prev_hr_used:.2f} BPM  "
+          f"(from window {WINDOW_IDX - 1})")
+tb_lo = debug["tracking_band_low_hz"]
+tb_hi = debug["tracking_band_high_hz"]
+if tb_lo is not None:
+    print(f"tracking band:     [{tb_lo:.4f}, {tb_hi:.4f}] Hz  "
+          f"= [{tb_lo*60:.2f}, {tb_hi*60:.2f}] BPM")
+else:
+    print("tracking band:     (none — no prev_hr)")
+print(f"fallback used:     {debug['tracking_fallback_used']}")
 if np.isnan(hr_est):
     print("estimated HR:      NaN (no peak found)")
     est_label = "NaN"
@@ -202,8 +226,20 @@ if not np.isnan(hr_est):
               f"  HR estimate = {hr_est:.2f} BPM",
               color="red", fontsize=9, ha="left", va="top")
 
+# Tracking band: pair of light-blue vertical dashed lines (only if prev_hr used)
+if tb_lo is not None:
+    ax_c.axvline(tb_lo, color="#4a9ed8", linestyle="--", linewidth=1.0)
+    ax_c.axvline(tb_hi, color="#4a9ed8", linestyle="--", linewidth=1.0)
+    ax_c.text(tb_lo, y_top * 0.55,
+              f"  tracking band from prev HR = {prev_hr_used:.2f} BPM\n"
+              f"  [{tb_lo*60:.1f}, {tb_hi*60:.1f}] BPM",
+              color="#1c5d8c", fontsize=8, ha="left", va="top")
+
 # Coef annotation (top-left corner)
-ax_c.text(0.02, 0.97, f"coef = {coef:.4f}",
+coef_text = f"coef = {coef:.4f}"
+if debug["tracking_fallback_used"]:
+    coef_text += "\n(tracking fallback used)"
+ax_c.text(0.02, 0.97, coef_text,
           transform=ax_c.transAxes, fontsize=10, color="#333333",
           ha="left", va="top",
           bbox=dict(boxstyle="round,pad=0.3",
