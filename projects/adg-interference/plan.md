@@ -11,6 +11,7 @@
 
 | 日期 | 决策 | 理由 |
 |---|---|---|
+| 2026-W22 | Kaggle CLI 用 legacy kaggle.json 通过 - 新版 OAuth access_token 服务端 404 | 新版 IntrospectToken endpoint 在 api.kaggle.com 返回 404（CLI 端实现了但 server 未发布）；legacy kaggle.json 多年稳定 |
 | 2026-W22 | 项目初始化（conda env adg, Python 3.11, vault 内 projects/adg-interference/） | 从零开始；Python 3.14 系统版本对 PyTorch 支持不稳定，单独建 3.11 env |
 | 2026-W22 | Pilot attribute 选 smiling / male / eyeglasses，放弃 young | young 在 CelebA 上 label consistency 偏低（arxiv 2210.07356）；eyeglasses 视觉局部化，若与其他 attribute 出现 spurious 链接最 striking |
 | 2026-W22 | 主测量公式改为 Δ_clf_on_gen - Δ_clf_on_real（同一 classifier apples-to-apples），label-based 仅作 sanity check | label 自身有 systematic noise；classifier-perceived correlation 是更接近 model 实际学习目标的 baseline |
