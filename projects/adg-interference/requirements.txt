@@ -1,0 +1,17 @@
+torch
+torchvision
+diffusers
+transformers
+accelerate
+timm
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+jupyter
+ipykernel
+kaggle
+tqdm
+pillow
+huggingface_hub
