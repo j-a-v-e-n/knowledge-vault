@@ -2,7 +2,7 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-18 [daemon dawn-shift: ai-watch ✅ 写完；email-triage ❌ Gmail MCP 不可用；task-024 已移入 ✅ 列；看板其余可行项均 blocked on @javen 或外部]
+**最后更新**：2026-05-28 [daemon dawn-shift: ai-watch ✅ 写完（Project Glasswing / AGIBOT GO-2 / Opus 4.7）；email-triage ❌ Gmail MCP 不可用；看板全量 blocked on @javen 或外部，无可推进任务]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
