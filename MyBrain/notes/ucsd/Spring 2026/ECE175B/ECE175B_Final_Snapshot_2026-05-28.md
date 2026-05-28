@@ -23,7 +23,7 @@ status_source_files:
 
 1. **课程 final project 题目**：ADG = Attribute-Disentangled Guidance（per-attribute 拆 CFG 的 guidance scale w → w_k），CelebA 64×64，K=4 属性。
 2. **midterm 已交 5/8**（PDF 真出 5 页，含 15-epoch 训练 + 两张 16-grid 样本图）；**final presentation 6/2、final report ~6/12**。
-3. **关键约束**：Javen 昨晚 (5/27) 一度想 pivot 到一个独立项目 `adg-interference`（诊断分解 Δ_data/model/guidance），今天 (5/28) 决定**放弃 pivot**，回归原 ECE175B-ADG 路线；snapshot 只描述 ECE175B-ADG。
+3. **当前状态**：midterm 已交 5/8；final §5 承诺的 4 件 quantitative evaluation **全部未启动**；6/2 presentation slides **未起笔**；Kaggle 上 5/5–5/8 训出的 best.pt checkpoint **未同步回本地**。
 
 ---
 
@@ -222,22 +222,7 @@ ADG (K 个 scales w_k):
 
 ---
 
-## 7. 被放弃的支线：`adg-interference`（5/28 决定放弃）
-
-> 仅为完整性记录，**不要在 ECE175B final 工作里引入这个项目的产出**。
-
-- **路径**：`~/Projects/adg-interference/`（vault 外，独立 git repo）
-- **创建**：2026-05-27 22:46
-- **触发**：Javen 读了 DCFG (Xia et al. 2025, arxiv 2506.14399)，判断 ADG 的 per-attribute CFG novelty 被 DCFG 的 group-wise mitigation 覆盖
-- **重新框定**：换成"诊断分解 Δ_total = Δ_data + Δ_model(w=1) + Δ_guidance(w)"，pilot attributes 砍掉 young 改成 smile/male/eyeglasses
-- **进度**：Phase 0 (measurement system validation)，classifier smoke test 还没完
-- **5/28 决定**：放弃。ECE175B final 回归原 ADG proposal 不动。
-
-如果未来要重新捡起，材料在那个 repo 里（plan.md / README.md / data/ / src/ / kaggle/）。
-
----
-
-## 8. 给收件 LLM 的提问 / 决策点
+## 7. 给收件 LLM 的提问 / 决策点
 
 请帮忙规划下面这几件事中你认为最关键的 2-3 件，并给出可执行步骤：
 
@@ -254,7 +239,7 @@ ADG (K 个 scales w_k):
 
 ---
 
-## 9. 相关人物 / 联系
+## 8. 相关人物 / 联系
 
 | 角色 | 名字 | 联系 |
 |---|---|---|
@@ -264,10 +249,10 @@ ADG (K 个 scales w_k):
 
 ---
 
-## 10. Snapshot 元信息
+## 9. Snapshot 元信息
 
 - **生成日期**：2026-05-28
-- **生成方式**：Claudian 主对话读 `midterm_report.tex` + `proposal.pdf` + `PROJECT_BRIEF.md` + ls vault `ece175b-adg/` + Drive search + ls `~/Projects/adg-interference/` 后整合
+- **生成方式**：Claudian 主对话读 `midterm_report.tex` + `proposal.pdf` + `PROJECT_BRIEF.md` + ls vault `ece175b-adg/` + Google Drive search 后整合
 - **源文件 sanity check**：
   - midterm PDF 5 页内容与 `midterm_report.tex` 完全对齐
   - proposal PDF 3 页内容与 `MyBrain/raw/ucsd/Spring 2026/ECE175B/proposal.pdf` byte-identical（vault 那份和 Downloads 重下版本 119,743 bytes 一致）
