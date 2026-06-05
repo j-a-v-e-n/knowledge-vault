@@ -59,6 +59,12 @@ SUBJECT_TYPES = [
 MISSING_SUBJECTS = ["09"]
 LAM = 1.0
 
+# 显式 override module-level tracking params 以保持跟 method C / RF-λ / Oracle 一致
+# (method C / 05 / 07 都用 J=15, 这里之前用 module default J=20 → 破坏 controlled comparison)
+MAX_JUMP_BPM_EXPLICIT = 15
+ENERGY_THRESHOLD_EXPLICIT = 0.5
+COLD_START_N_EXPLICIT = 10
+
 
 def to_json_safe(x):
     """numpy scalar / np.nan → native Python (float/int) / None."""
@@ -74,9 +80,11 @@ def to_json_safe(x):
 
 print("=" * 70)
 print("TROIKA-lite LOSO — 11 subjects (Udacity mirror, type per availability)")
-print(f"params: COLD_START_N={COLD_START_N}  "
-      f"ENERGY_THRESHOLD={ENERGY_THRESHOLD}  "
-      f"MAX_JUMP_BPM={MAX_JUMP_BPM}  lam={LAM}")
+print(f"params (EXPLICIT, override module defaults to align with method C / RF-λ / Oracle):")
+print(f"  COLD_START_N={COLD_START_N_EXPLICIT}  "
+      f"ENERGY_THRESHOLD={ENERGY_THRESHOLD_EXPLICIT}  "
+      f"MAX_JUMP_BPM={MAX_JUMP_BPM_EXPLICIT}  lam={LAM}")
+print(f"  (module defaults were: N={COLD_START_N} T={ENERGY_THRESHOLD} J={MAX_JUMP_BPM})")
 print(f"missing_subjects: {MISSING_SUBJECTS}")
 print("=" * 70)
 
@@ -86,7 +94,12 @@ per_subject_mae = []
 
 for subj, type_id in SUBJECT_TYPES:
     t0 = time.perf_counter()
-    res = run_subject(subj, type_id=type_id, lam=LAM)
+    res = run_subject(
+        subj, type_id=type_id, lam=LAM,
+        max_jump_bpm=MAX_JUMP_BPM_EXPLICIT,
+        energy_threshold=ENERGY_THRESHOLD_EXPLICIT,
+        cold_start_n=COLD_START_N_EXPLICIT,
+    )
     t1 = time.perf_counter()
 
     key = f"subj{subj}_type{type_id}"
@@ -115,6 +128,13 @@ result_dict = {
     "overall_mae": overall_mae,
     "n_subjects": len(SUBJECT_TYPES),
     "missing_subjects": MISSING_SUBJECTS,
+    "method": "TROIKA_lite",
+    "params": {
+        "N": COLD_START_N_EXPLICIT,
+        "max_jump_bpm": MAX_JUMP_BPM_EXPLICIT,
+        "energy_threshold": ENERGY_THRESHOLD_EXPLICIT,
+        "lam": LAM,
+    },
     "per_subject": per_subject,
 }
 

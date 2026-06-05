@@ -199,12 +199,23 @@ def estimate_hr_one_window(ppg_window, accel_xyz_window, fs=125, lam=1.0,
 # ===================================================================
 # 3. Single-subject driver
 # ===================================================================
-def run_subject(subj_id, type_id="01", lam=1.0):
+def run_subject(subj_id, type_id="01", lam=1.0,
+                max_jump_bpm=None, energy_threshold=None, cold_start_n=None):
     """Run TROIKA-lite over all windows of one subject.
+
+    Args (all optional, fall back to module constants if None):
+        max_jump_bpm:     tracking band 半宽 BPM (默认 MAX_JUMP_BPM 模块常量)
+        energy_threshold: self-correction 阈值 (默认 ENERGY_THRESHOLD 模块常量)
+        cold_start_n:     冷启动窗口数 (默认 COLD_START_N 模块常量)
 
     Returns:
         dict(mae, hr_estimates, hr_truths, n_windows, n_nan)
     """
+    # Resolve params (caller-passed > module-default)
+    _max_jump = MAX_JUMP_BPM if max_jump_bpm is None else max_jump_bpm
+    _energy_thr = ENERGY_THRESHOLD if energy_threshold is None else energy_threshold
+    _cold_n = COLD_START_N if cold_start_n is None else cold_start_n
+
     sig, bpm0 = load_subject(subj_id, type_id)
     W = len(bpm0)
 
@@ -216,16 +227,16 @@ def run_subject(subj_id, type_id="01", lam=1.0):
         if end > sig.shape[1]:
             hr_estimates.append(np.nan)
             continue                     # 越界 → 不更新 prev_hr
-        cold_start_active = (i < COLD_START_N)
+        cold_start_active = (i < _cold_n)
         hr, _ = estimate_hr_one_window(
             sig[1, start:end],          # PPG ch1
             sig[3:6, start:end],        # accel XYZ
             fs=FS,
             lam=lam,                    # 显式传 lam, 不依赖默认值
             prev_hr=prev_hr,            # HR tracking from prev window
-            max_jump_bpm=MAX_JUMP_BPM,  # tracking band 半宽
+            max_jump_bpm=_max_jump,     # tracking band 半宽 (caller-controllable)
             cold_start_active=cold_start_active,
-            energy_threshold=ENERGY_THRESHOLD,
+            energy_threshold=_energy_thr,
         )
         hr_estimates.append(hr)
         if not np.isnan(hr):
