@@ -1,8 +1,10 @@
 ### E1 英文成稿（约 430 词，背这个）
+1. Fish and Shiffrin defend opposing views on free speech and its value. Outline the
+main differences between them and indicate which view is superior
 
 Fish and Shiffrin hold opposite views about free speech. They disagree on three main points.
 
-**1. Does free speech have value in itself?** Shiffrin says yes. For her, free speech has a deep and basic value. We are thinking beings. To be a full person, we must be able to put our thoughts into words — to know ourselves, to be known by others, and to share a moral life with others. Without speech, the mind is trapped, like a kind of solitary confinement inside one's own head. So free speech matters for its own sake. Fish says no. For him, "free speech" is an empty label. It has no fixed content of its own. People fill it with whatever cause they want to push. So free speech is not a value in itself. It is a prize that each side fights to claim.
+**1. Does free speech have value in itself?** Shiffrin says yes. For her, free speech has a deep and basic value. We are thinking beings. To be a full person, we must be able to put our thoughts into words — to know ourselves, to be known by others, and to share a moral life with others. Without speech, the mind is trapped, like a prison inside the head. So free speech matters for its own sake. Fish says no. For him, "free speech" is an empty label. It has no fixed content of its own. People fill it with whatever cause they want to push. So free speech is not a value in itself. It is a prize that each side fights to claim.
 
 **2. Can speech be separated from action?** Shiffrin says speech is special and unlike action. With words, you can test an idea, say "maybe," and revise it or take it back later. A punch cannot be thrown with a "maybe." So speech has a special, workshop-like role that action does not. Fish says there is no "pure" speech that stands apart from action. Every word has effects in the world. An insult, for example, hurts the moment it is spoken, and no later words can fully take that harm back. So there is no clean zone of harmless speech for the law to protect.
 
