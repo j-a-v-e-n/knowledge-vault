@@ -24,7 +24,8 @@
       "Write(/Users/javencao/.claude/agents/reviewer.md)",
       "Read(//Users/javencao/.codex/skills/**)",
       "Read(//Users/javencao/Documents/Claude/Scheduled/daily-ai-digest/**)",
-      "Bash(mkdir -p ~/.claude/skills/test-skill-probe)"
+      "Bash(mkdir -p ~/.claude/skills/test-skill-probe)",
+      "Bash(echo \"=== before ===\"\nls -la ~/.claude/agents/\necho \"\"\necho \"=== delete reviewer.md ===\"\nrm ~/.claude/agents/reviewer.md\necho \"\"\necho \"=== after ===\"\nls -la ~/.claude/agents/)"
     ]
   },
   "hooks": {
