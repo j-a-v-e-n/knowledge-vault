@@ -21,7 +21,10 @@
       "mcp__claude_ai_Gmail__list_labels",
       "Bash(mkdir -p ~/.claude/agents)",
       "Read(//Users/javencao/.claude/**)",
-      "Write(/Users/javencao/.claude/agents/reviewer.md)"
+      "Write(/Users/javencao/.claude/agents/reviewer.md)",
+      "Read(//Users/javencao/.codex/skills/**)",
+      "Read(//Users/javencao/Documents/Claude/Scheduled/daily-ai-digest/**)",
+      "Bash(mkdir -p ~/.claude/skills/test-skill-probe)"
     ]
   },
   "hooks": {
