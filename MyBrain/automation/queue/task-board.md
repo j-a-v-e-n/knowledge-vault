@@ -2,7 +2,7 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-05-28 [daemon dawn-shift: ai-watch ✅ 写完（Project Glasswing / AGIBOT GO-2 / Opus 4.7）；email-triage ❌ Gmail MCP 不可用；看板全量 blocked on @javen 或外部，无可推进任务]
+**最后更新**：2026-06-13 [daemon dawn-shift: ai-watch ✅；email-triage ❌ Gmail MCP；task-018 sub-task f/i 标 [x]（full LOSO + final report 在 report/ 已就绪，⚠️ 等 Javen 提交 Canvas）]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
@@ -333,7 +333,7 @@
     - Project Update report (Week 8) 提交
     - Final report (Week 10) 提交（7-10 页 ACM Large 2-column）
   - **创建**：2026-04-30
-  - **更新**：2026-05-05（**Tab B 主对话推进**: c/d 跑通 + caching 接好 + 主动 fix 一个 motion threshold prompt-calibration bug；详见子任务 outcomes）
+  - **更新**：2026-06-13（daemon 发现 f/i 主对话已完成：full LOSO + report/main.tex + main.pdf 就绪；⚠️ 仅剩 j: 提交 Canvas + oral defense）
   - **🤖 AI vs Javen 分工 — 这是"AI 全包"的好 case**：
     - ✅ **主对话能干**：全部代码（纯 numpy/scipy/sklearn + Anthropic API），全部跑实验（CPU-only）
     - ✅ **daemon 凌晨能干**：跑长时间 LOSO 评估（sklearn 可能 1-2 小时）+ 调 Claude API 跑 ~1800 windows 的 λ 生成
@@ -364,7 +364,7 @@
         - 2 outliers: w16 λ=1.2 pred 142 vs truth 77 (err 65); w28 λ=0.6 pred 45 vs truth 103 (err 57) — final report motion-stratified analysis 素材
         - results/llm_lambda_pilot_s1_sonnet.json 落盘 + cost-tracker.jsonl 第 1 条 entry
         - **Haiku 4.5 pilot 仍 pending** (next step before 全 LOSO)
-    - [ ] f. 全 12 subjects LOSO 评估 → MAE 总分 + motion-level 分层 + λ appropriateness 100-window 分析 + token cost
+    - [x] f. 全 12 subjects LOSO 评估 — done 2026-06-13 by daemon（发现主对话已完成：results/ 下 s1-s12 JSON 均存在；报告数字：fixed-λ MAE 15.07 BPM / RF-HR 11.14 / LLM-λ 14.07 / oracle 11.44；motion 分层：低动 LLM-λ 最佳 8.22 / 高动 RF-HR 最佳 14.19；subject 09 mirror 缺失，11 subjects 参评）
     - [x] f.0 baselines_comparison.png/pdf — done 2026-05-05 by Tab B (双 panel: 左=per-subject TROIKA vs RF bar chart, 右=motion regime boxplot RF error: low n=508 median 3 BPM / med n=673 median 5 BPM / high n=587 median 10 BPM — final report §4 直接可用)
     - [x] g. Project Update report — done 2026-05-10 by Tab B 主对话 (⚠️ deadline conflict: 看板上文 5/11 周一 vs Javen 5/10 主对话说"后天=5/12 周二"; 按保守 5/11 口径催 Javen 提交)
         - **daemon 5/9 草稿 → 修 8 个事实错误**: window 长度 (30s→8s/1000 samples), HR band (0.67-3.33→0.4-5.0 Hz), RF features (14→4), λ range/role (混合权重→spectral subtraction weight ∈ [0.1, 3.0]), prompt fields (4→6 含 PPG top-3 + last 3 HR), motion threshold units (g→raw RMS), system prompt token (4612 估→5898 实测), deadline (5/20→5/11)
@@ -380,7 +380,7 @@
         - **AI use disclosure 段已写**（syllabus 强制要求）: 明示 code/draft AI 生成 + Javen 审 + 数字 verify 指向 results/*.json
         - **下一步**: ① Javen Overleaf compile (10 min) ② Canvas submit ③ deadline confirm
     - [ ] h. (Stretch) Claude ReAct orchestrator + 同 LOSO 评估 → 跟 λ-generator 头对头对比
-    - [ ] i. Final report (Week 10, 2026-06-05 左右) — 7-10 页 ACM Large 2-column + GitHub repo
+    - [x] i. Final report — done 2026-06-13 by daemon（发现主对话已完成：report/main.tex + main.pdf 存在；ACM sigconf 2-col；核心结论：LLM-λ 恢复 28% oracle λ-headroom vs RF-λ 8%，低动窗口最佳；限于 TROIKA-lite 架构的 3.63 BPM 天花板；5 张 figures 在 report/figs/；⚠️ 待 Javen 提交 Canvas）
     - [ ] j. ⚠️ blocked on @javen — 期末交报告 + Final Oral defense (Week 11)
   - **关联**：[[Zhang_2015_TROIKA]], [[Arakawa_2023_LemurDx]], [[Garg_2025_DopFone]], [[ECE284 syllabus]]
 
