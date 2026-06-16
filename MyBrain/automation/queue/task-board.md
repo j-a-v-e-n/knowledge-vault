@@ -2,7 +2,7 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-06-13 [daemon dawn-shift: ai-watch ✅；email-triage ❌ Gmail MCP；task-018 sub-task f/i 标 [x]（full LOSO + final report 在 report/ 已就绪，⚠️ 等 Javen 提交 Canvas）]
+**最后更新**：2026-06-16 [daemon dawn-shift: ai-watch ✅；email-triage ❌ Gmail MCP；task-017 sub-task h [x]（final_report.tex 写完，corrected 3 midterm errors，pending Javen compile + submit）]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
@@ -318,7 +318,7 @@
     - [ ] e. （final 阶段，midterm 不必）量化评估：FID + per-attribute accuracy + 解耦度
     - [ ] f. （final 阶段，midterm 不必）失败模式分析
     - [x] g. **Midterm report (5/8 23:59 提交)** — done 2026-05-08（v3 PDF 出 5 页 NeurIPS 风格；reviewer subagent 审过 + fix 3 处事实错误：dropout 描述跟代码对齐 / 删 2 个未引 bib 含 arxiv 占位符 / 删除虚构的"50 epochs in proposal"；最终 PDF 通过主对话 sanity check 后 Javen 上传 Canvas）
-    - [ ] h. Final report (Week 10-11, 2026-06-12 左右) — 7-10 页 NeurIPS 风格 + GitHub repo
+    - [x] h. Final report (Week 10-11, 2026-06-12 左右) — 7-10 页 NeurIPS 风格 + GitHub repo — done 2026-06-16 by daemon（final_report.tex: §1-§6 NeurIPS 风格，修正 3 处 midterm 错误：25.37M 参数/0.0359 epoch-0 loss/一次性 15 epoch 训练；training loss table all 15 epochs；qualitative analysis；compute cost 2.5× overhead；quantitative eval deferred — eval scripts ready but GPU eval session not run）
     - [ ] i. ⚠️ blocked on @javen — 期末交报告 + 提交 GitHub repo 链接
   - **关联**：[[ECE175B_概览]], [[ECE175B_Lecture3_变分推断与ELBO]], [[ECE175B_Lecture4_生成对抗网络]], `notes/ucsd/Spring 2026/ECE175B/HW1/` (NeurIPS LaTeX 模板复用源)
 

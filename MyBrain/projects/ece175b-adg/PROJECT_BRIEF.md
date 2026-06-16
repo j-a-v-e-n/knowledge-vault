@@ -19,7 +19,7 @@ Javen Cao | ECE 175B Spring 2026 final project | Course = Deep Generative Models
 
 ## Definition of Done
 - ✅ Midterm report submitted 2026-05-08 (Gradescope confirmed)
-- [ ] Final report submitted ~2026-06-12 with FID curves + per-attr accuracy + disentanglement plot
+- [x] Final report drafted 2026-06-16 by daemon — final_report.tex (6 sections, NeurIPS style, corrected numbers from checkpoint manifest); pending Javen compile + submit
 - [ ] GitHub repo link submitted with final report
 
 ## Status (2026-05-18)
