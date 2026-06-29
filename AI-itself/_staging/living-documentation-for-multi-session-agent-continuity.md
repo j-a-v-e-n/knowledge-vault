@@ -1,24 +1,27 @@
 ---
 name: Living Documentation for Multi-Session Agent Continuity
-technique: Maintain named markdown files (notes.md, plan.md, research.md) that agents both read and update each session, preserving accumulated context across multi-session agent work without repeating it in prompts
-when_to_use: Any multi-session or multi-agent project where context would otherwise be lost between sessions, or when handing off work between agent instances
+technique: Maintain plan.md + notes.md + understanding.md throughout agent execution so each new session resumes with full context instead of starting blind
+when_to_use: Any multi-session agentic project where context cannot fit in one window or work spans multiple Claude sessions
 source: "https://simonwillison.net/2026/Jun/22/porting-moebius/#atom-everything"
 tags:
   - ai-usage
   - ai-digest
-  - agent-coordination
   - multi-session
   - context-management
-  - handoffs
-  - prompting
-verified: true (every claim sentence-backed by an independent fresh context)
+  - documentation
+  - agent-continuity
+  - handoff
+  - subagent
+verified_by: RAGAS faithfulness (per-claim, via claude -p subscription)
 verified_at: 2026-06-29
 audience: AI
 ---
 #ai-digest
 
-## claims (each backed by an exact source sentence)
-- claim: Saving research outputs from one agent session as markdown files makes them available as structured input for downstream agent sessions or subagents
-  source_sentence: "I copied out the last answer and saved it as research.md for Claude Code to read later."
-- claim: Subagent delegation for subsidiary analysis tasks (e.g., analyzing obfuscated code) avoids consuming top-level agent context tokens on tangential work
-  source_sentence: "That project was entirely obfuscated, built JavaScript files so I figured using a subagent would avoid spending the rest of my top-level token context deciphering those files."
+## claims (each passed RAGAS faithfulness against the source)
+- claim: Save Claude's exploratory analysis from one session to a markdown file (e.g. research.md) so the next agent session can read it as a context bridge between Claude.ai chat work and Claude Code implementation work.
+  faithfulness: 1.0
+- claim: Instruct the agent to maintain a notes.md file continuously during execution to record discoveries and technical findings as they emerge.
+  faithfulness: 1.0
+- claim: When facing obfuscated or very large files, spawn a focused subagent to decipher them rather than consuming the main session's remaining token context.
+  faithfulness: 1.0
