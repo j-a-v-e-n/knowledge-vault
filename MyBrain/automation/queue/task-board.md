@@ -2,7 +2,7 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-06-22 [daemon dawn-shift: ai-watch ✅ 写了 4 条（John Jumper/Anthropic ⚡、Fable5 出口管制 ⚡、NVIDIA GR00T N1.6 🔍、π0.7 🔍）；email-triage ❌ Gmail MCP 不可用；看板 @claude 子任务全部已完成或 blocked，无新推进]
+**最后更新**：2026-07-01 [daemon dawn-shift: ai-watch ✅ 写了 4 条（NVIDIA+Unitree GR00T Reference Humanoid Robot ⚡ 含 UCSD ARCL 合作、Claude Science 发布 ⚡、GPT-5.6 预览 🔍、Copilot 计费风波 🔍）；email-triage ❌ Gmail MCP 不可用（同 6/22）；看板 @claude 子任务全部已完成或 blocked，无新推进]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
