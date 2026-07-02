@@ -54,3 +54,10 @@ MyBrain/automation/runs/
 
 # === Inbox — keep tracked (transient but small text) ===
 # (no exclude — inbox/ stays in git)
+
+# === 4-archive: keep bulk course/kaggle data out of git (2026-07-02 reorg) ===
+4-archive/**/__pycache__/
+4-archive/**/*.pyc
+4-archive/**/data/
+4-archive/**/*.mat
+4-archive/kaggle-playground-s6e6/data/

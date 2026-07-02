@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>当算法"不看种族"，却歧视了黑人 | Obermeyer 2019</title>
+<style>
+/* ─── RESET & ROOT ─────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --red:    #e63946;
+  --blue:   #457b9d;
+  --dark:   #1a1a2e;
+  --mid:    #16213e;
+  --light:  #f8f9fa;
+  --white:  #ffffff;
+  --text:   #2d3748;
+  --muted:  #718096;
+  --border: #e2e8f0;
+  --yellow: #ffd60a;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC', sans-serif;
+  color: var(--text);
+  line-height: 1.85;
+  font-size: 1.05rem;
+  background: var(--white);
+}
+
+img { display: block; max-width: 100%; }
+
+/* ─── HERO ──────────────────────────────────────────────────── */
+.hero {
+  background: var(--dark);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 60% 40%, #16213e 0%, #0a0a18 100%);
+  z-index: 0;
+}
+.hero-content { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+
+.hero-label {
+  font-size: .78rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 1.75rem;
+}
+.hero h1 em { color: var(--red); font-style: normal; }
+.hero h1 .accent { color: var(--yellow); font-style: normal; }
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: rgba(255,255,255,.72);
+  max-width: 640px;
+  line-height: 1.9;
+  margin-bottom: 3rem;
+}
+
+.stat-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 3.5rem;
+}
+.stat-card {
+  flex: 1;
+  min-width: 160px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 1.4rem 1.6rem;
+}
+.stat-card .num {
+  display: block;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  color: var(--red);
+  line-height: 1;
+  margin-bottom: .45rem;
+}
+.stat-card .desc { font-size: .88rem; color: rgba(255,255,255,.6); line-height: 1.55; }
+
+.scroll-hint {
+  font-size: .78rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.28);
+  animation: bounce 2.2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(9px); }
+}
+
+/* ─── SECTIONS ───────────────────────────────────────────────── */
+.wrap { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+
+.section { padding: 6rem 2rem; max-width: 900px; margin: 0 auto; }
+
+.band {
+  background: var(--light);
+  padding: 5.5rem 2rem;
+}
+.band .wrap { max-width: 900px; }
+
+hr.stripe {
+  border: none;
+  height: 4px;
+  background: linear-gradient(90deg, var(--red), var(--blue));
+  margin: 0;
+}
+
+.eyebrow {
+  font-size: .78rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin-bottom: .75rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 1.8rem;
+  height: 2px;
+  background: var(--red);
+}
+
+h2 {
+  font-size: clamp(1.7rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 1.5rem;
+  line-height: 1.25;
+}
+
+.lead {
+  font-size: 1.12rem;
+  color: #4a5568;
+  line-height: 1.9;
+  margin-bottom: 1.75rem;
+}
+
+p { margin-bottom: 1.2rem; }
+p:last-child { margin-bottom: 0; }
+
+/* ─── ANALOGY BOX ────────────────────────────────────────────── */
+.analogy {
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
+  background: #fffce8;
+  border: 1px solid #f6d855;
+  border-radius: 14px;
+  padding: 1.6rem 1.75rem;
+  margin: 2rem 0;
+}
+.analogy-icon { font-size: 1.9rem; line-height: 1; flex-shrink: 0; margin-top: .1rem; }
+.analogy-body { font-size: 1rem; color: #554400; line-height: 1.85; }
+.analogy-body strong { display: block; font-size: 1.05rem; color: #3a2e00; margin-bottom: .35rem; }
+
+/* ─── BIG NUMBER ─────────────────────────────────────────────── */
+.big-number-block {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background: var(--dark);
+  border-radius: 18px;
+  padding: 2.4rem 2.8rem;
+  margin: 2.5rem 0;
+  flex-wrap: wrap;
+}
+.big-number-block .num {
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-weight: 900;
+  color: var(--red);
+  line-height: 1;
+  white-space: nowrap;
+}
+.big-number-block .desc {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,.8);
+  line-height: 1.75;
+}
+
+/* ─── FIGURE CARD ────────────────────────────────────────────── */
+.fig-card {
+  margin: 3rem 0;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 6px 28px rgba(0,0,0,.07);
+}
+.fig-card img {
+  width: 100%;
+  background: #fff;
+  padding: .5rem;
+}
+.fig-caption {
+  background: #f1f5f9;
+  padding: 1.2rem 1.6rem;
+  border-top: 1px solid var(--border);
+  font-size: .92rem;
+  color: #4a5568;
+  line-height: 1.75;
+}
+.fig-caption strong { color: var(--dark); }
+
+/* ─── CALLOUT ────────────────────────────────────────────────── */
+.callout {
+  border-left: 4px solid var(--red);
+  background: rgba(230,57,70,.04);
+  border-radius: 0 12px 12px 0;
+  padding: 1.1rem 1.5rem;
+  margin: 2rem 0;
+  color: #4a5568;
+  line-height: 1.8;
+}
+.callout strong { color: var(--dark); }
+
+/* ─── BIAS CHAIN ─────────────────────────────────────────────── */
+.chain { margin: 2.5rem 0; }
+
+.chain-step {
+  display: flex;
+  align-items: stretch;
+  gap: 1.25rem;
+  opacity: 0;
+  transform: translateX(-16px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.chain-step.vis { opacity: 1; transform: translateX(0); }
+.chain-step:nth-child(2) { transition-delay: .12s; }
+.chain-step:nth-child(3) { transition-delay: .24s; }
+.chain-step:nth-child(4) { transition-delay: .36s; }
+.chain-step:nth-child(5) { transition-delay: .48s; }
+.chain-step:nth-child(6) { transition-delay: .60s; }
+
+.chain-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 46px;
+  flex-shrink: 0;
+}
+.chain-dot {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: .95rem;
+  flex-shrink: 0;
+  z-index: 1;
+  box-shadow: 0 0 0 5px rgba(230,57,70,.18);
+}
+.chain-dot.end { background: var(--dark); box-shadow: 0 0 0 5px rgba(26,26,46,.18); }
+.chain-connector {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--red), rgba(230,57,70,.15));
+  margin: 3px 0;
+  min-height: 1.5rem;
+}
+
+.chain-body { padding: .6rem 0 2rem; flex: 1; }
+.chain-title { font-weight: 700; color: var(--dark); font-size: 1.05rem; margin-bottom: .3rem; }
+.chain-sub { color: var(--muted); font-size: .94rem; line-height: 1.65; }
+.chain-tag {
+  display: inline-block;
+  margin-top: .4rem;
+  background: rgba(230,57,70,.1);
+  color: var(--red);
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+/* ─── LABEL EXPERIMENT ───────────────────────────────────────── */
+.label-exp { margin: 2.5rem 0; }
+
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .45s, transform .45s;
+}
+.label-row.vis { opacity: 1; transform: translateY(0); }
+.label-row:nth-child(2) { transition-delay: .08s; }
+.label-row:nth-child(3) { transition-delay: .16s; }
+.label-row:nth-child(4) { transition-delay: .24s; }
+
+.label-name {
+  width: 200px;
+  flex-shrink: 0;
+  font-size: .92rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+.bar-wrap {
+  flex: 1;
+  min-width: 220px;
+  height: 34px;
+  background: #e9ecef;
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+.bar {
+  height: 100%;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  font-size: .86rem;
+  font-weight: 800;
+  color: #fff;
+  width: 0;
+  transition: width 1.1s cubic-bezier(.4,0,.2,1);
+}
+.bar.gray   { background: #a0aec0; }
+.bar.orange { background: #ed8936; }
+.bar.red    { background: var(--red); }
+
+.label-badge {
+  font-size: .76rem;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.label-badge.dim { background: #edf2f7; color: #718096; }
+.label-badge.hot { background: rgba(230,57,70,.12); color: var(--red); }
+
+/* ─── COMPARISON PAIR ────────────────────────────────────────── */
+.compare-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin: 2.25rem 0;
+}
+.cmp-card { border-radius: 14px; padding: 1.6rem 1.75rem; border: 2px solid; }
+.cmp-card.wrong {
+  background: rgba(230,57,70,.03);
+  border-color: rgba(230,57,70,.25);
+}
+.cmp-card.right {
+  background: rgba(69,123,157,.03);
+  border-color: rgba(69,123,157,.25);
+}
+.cmp-label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: .65rem;
+}
+.cmp-card.wrong .cmp-label { color: var(--red); }
+.cmp-card.right .cmp-label { color: var(--blue); }
+.cmp-stmt { font-size: 1rem; font-weight: 600; color: var(--dark); line-height: 1.5; }
+
+/* ─── TAKEAWAYS ──────────────────────────────────────────────── */
+.takeaways {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.4rem;
+  margin: 2.5rem 0;
+}
+.tk-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--red);
+  border-radius: 14px;
+  padding: 1.7rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+.tk-card .n {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--red);
+  opacity: .22;
+  line-height: 1;
+  margin-bottom: .7rem;
+}
+.tk-card h4 { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: .55rem; line-height: 1.4; }
+.tk-card p  { font-size: .92rem; color: var(--muted); line-height: 1.7; margin: 0; }
+
+/* ─── DARK INSIGHT BOX ───────────────────────────────────────── */
+.insight {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  color: #fff;
+  border-radius: 18px;
+  padding: 2.5rem 2.8rem;
+  margin: 3rem 0;
+}
+.insight h3 { font-size: 1.35rem; font-weight: 800; color: var(--red); margin-bottom: 1rem; }
+.insight p  { font-size: 1.05rem; color: rgba(255,255,255,.82); line-height: 1.9; margin-bottom: .8rem; }
+.insight p:last-child { margin-bottom: 0; }
+
+/* ─── SCROLL FADE-IN ─────────────────────────────────────────── */
+.fade {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .65s ease, transform .65s ease;
+}
+.fade.vis { opacity: 1; transform: translateY(0); }
+
+/* ─── FOOTER ─────────────────────────────────────────────────── */
+footer {
+  background: var(--dark);
+  color: rgba(255,255,255,.55);
+  padding: 4rem 2rem;
+  font-size: .9rem;
+  line-height: 1.9;
+}
+footer .wrap { max-width: 900px; }
+footer h3 { color: #fff; font-size: .95rem; margin-bottom: .5rem; font-weight: 700; }
+footer a { color: rgba(255,255,255,.75); }
+footer .credit {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,.1);
+  font-size: .82rem;
+  color: rgba(255,255,255,.3);
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .compare-pair { grid-template-columns: 1fr; }
+  .big-number-block { flex-direction: column; gap: 1rem; }
+  .label-name { width: 100%; }
+  .chain-col { width: 36px; }
+  .chain-dot { width: 36px; height: 36px; font-size: .8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HERO                                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-label">Obermeyer et al. · Science 2019 · 深度解析</p>
+    <h1>
+      当算法<em>「不看种族」</em>，<br>
+      却<em>歧视</em>了黑人
+    </h1>
+    <p class="hero-sub">
+      美国医院每天用一套商业算法决定谁能进入重点护理项目。它的代码里从未出现过"种族"二字。
+      但研究人员发现：在同样的算法评分下，黑人患者病得更重——却获得更少的医疗资源。
+    </p>
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="num">26.3%</span>
+        <span class="desc">同等风险评分下，黑人患者多出的慢性病负担</span>
+      </div>
+      <div class="stat-card">
+        <span class="num">17.7%</span>
+        <span class="desc">护理项目中实际黑人比例（公平情况应为 46.2%）</span>
+      </div>
+      <div class="stat-card">
+        <span class="num">数百万</span>
+        <span class="desc">受此类算法影响的美国患者，每年涉及数十亿美元资源</span>
+      </div>
+    </div>
+    <p class="scroll-hint">↓ 向下滚动</p>
+  </div>
+</section>
+
+<hr class="stripe">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 1 · 先说结论                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section fade">
+  <p class="eyebrow">第一部分 · 发现</p>
+  <h2>在同样的"危险等级"下，黑人患者病得更重</h2>
+
+  <p class="lead">
+    医院给每位患者打分，分数越高代表明年需要消耗越多医疗资源。
+    高分者会被推荐进入"护理管理项目"——专属护士定期回访、优先预约、更密集的随访。
+    这套分配机制听起来合理：把资源给最需要的人。
+  </p>
+
+  <p>
+    但 Obermeyer 团队发现了一个让人不安的事实：
+    <strong>当黑人患者和白人患者的算法评分完全相同时，黑人患者平均要比白人患者多承受 26.3% 的慢性病负担。</strong>
+    在 97 百分位（自动录入护理项目的门槛），黑人患者平均有 4.8 种活跃慢性病，而白人患者只有 3.8 种。
+  </p>
+
+  <div class="big-number-block fade">
+    <div class="num">26.3%</div>
+    <div class="desc">
+      同等算法评分，黑人患者多出来的慢性病负担。<br>
+      <span style="opacity:.7;font-size:.95rem;">意思是：算法认为他们"同样危险"，但黑人患者实际上病得更重。</span>
+    </div>
+  </div>
+
+  <p>
+    这条差距不只在某个分数点出现——在整个风险分布的所有百分位，这个差距都持续存在。
+    不是偶然，是系统性的。
+  </p>
+
+  <div class="fig-card fade">
+    <img src="attachments/ECE284/Obermeyer_2019_Fig1_chronic_illness.png"
+         alt="图1：慢性病数量与算法风险评分的关系（按种族）">
+    <div class="fig-caption">
+      <strong>图 1：</strong>
+      左图——在风险评分的每一个百分位，× 标记的黑人患者慢性病均值（红色）始终高于白人（蓝色），差距贯穿整个分布。
+      竖直虚线是护理项目的录入门槛（97 百分位自动录入，55 百分位建议转诊）。<br>
+      右图——原算法（实线）把高风险人群中的黑人比例锁定在 17.7%；
+      如果改用健康状况重新训练（虚线），黑人比例将跃升至 <strong>46.2%</strong>。
+    </div>
+  </div>
+</section>
+
+<hr class="stripe">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 2 · 五条证据                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="band">
+<div class="wrap">
+  <div class="fade">
+    <p class="eyebrow">第二部分 · 证据</p>
+    <h2>不只是"慢性病数量"——五个生物标志物全部指向同一个结论</h2>
+
+    <p class="lead">
+      也许有人会说：慢性病的"数量"只是粗略的计数，也许黑人患者的病情轻一些？
+      研究团队进一步检查了五个客观生物标志物——血压、血糖、胆固醇、肾功能、贫血程度。
+      结果依然一致。
+    </p>
+
+    <p>
+      下图中，每一张子图都对比了在<strong>同等算法风险评分</strong>下，黑白患者在某个生物标志物上的均值。
+      需要特别说明的是图 E（血细胞比容）：这是一个"反向指标"——
+      <strong>数值越低代表贫血越严重</strong>。黑人患者的线低于白人患者，意味着他们的贫血更重，而不是更健康。
+    </p>
+  </div>
+
+  <div class="fig-card fade">
+    <img src="attachments/ECE284/Obermeyer_2019_Fig2_biomarkers.png"
+         alt="图2：五个生物标志物与算法风险评分的关系（按种族）">
+    <div class="fig-caption">
+      <strong>图 2（A–E）：</strong>
+      在同等算法评分下，黑人患者在全部五项指标上均显示出更严重的病情——
+      A 高血压比例更高、B 血糖（HbA1c）更高、C 坏胆固醇（LDL）更高、D 肾功能更差、E 贫血更严重。
+      五面都是同一个方向：算法低估了黑人患者的真实病情。
+    </div>
+  </div>
+
+  <div class="callout fade">
+    <strong>一个有用的思维实验：</strong>
+    假设你是医院的分诊护士，只能看到算法分数，不知道患者的其他情况。
+    你面前两位患者评分相同——一位白人、一位黑人。
+    按照统计，黑人患者的血压更高、血糖更高、肾功能更差、贫血更重。
+    但算法告诉你他们"一样危险"。你信哪个？
+  </div>
+</div>
+</div>
+
+<hr class="stripe">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 3 · 为什么                                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="fade">
+    <p class="eyebrow">第三部分 · 根源</p>
+    <h2>算法没有使用"种族"，问题出在哪里？</h2>
+
+    <p class="lead">
+      这是整个研究最重要的发现——算法的偏差不是因为代码里藏着种族歧视，
+      而是因为选错了一个代理指标：<strong>用"医疗费用"来代表"健康需求"</strong>。
+    </p>
+  </div>
+
+  <div class="analogy fade">
+    <div class="analogy-icon">🍽️</div>
+    <div class="analogy-body">
+      <strong>类比：用"去餐厅次数"衡量"一个人有多饿"</strong>
+      如果某个人因为没钱、附近没有餐厅、或对餐厅有顾虑而很少外出就餐——
+      这不代表他不饿，而是代表他有各种<em>就餐壁垒</em>。
+      用就餐次数训练"饥饿预测模型"，得到的会是一个"谁去餐厅"的模型，不是"谁更饿"的模型。
+    </div>
+  </div>
+
+  <p class="fade">医疗系统里发生的事情完全一样。算法被训练成"预测明年的医疗费用"，
+  而黑人患者因为各种系统性障碍，实际产生的费用低于同等病情的白人患者。
+  下面这条链路解释了偏差是怎么一步步形成的：</p>
+
+  <!-- BIAS CHAIN -->
+  <div class="chain" id="chain">
+    <div class="chain-step">
+      <div class="chain-col">
+        <div class="chain-dot">①</div>
+        <div class="chain-connector"></div>
+      </div>
+      <div class="chain-body">
+        <div class="chain-title">黑人患者拥有同等甚至更高的真实健康需求</div>
+        <div class="chain-sub">数据证明：相同慢性病数量下，五项生物标志物均显示更严重的病情。</div>
+      </div>
+    </div>
+
+    <div class="chain-step">
+      <div class="chain-col">
+        <div class="chain-dot">②</div>
+        <div class="chain-connector"></div>
+      </div>
+      <div class="chain-body">
+        <div class="chain-title">但他们实际就医次数更少、产生费用更低</div>
+        <div class="chain-sub">平均差距约 <strong>$1,800 / 年</strong>（与白人患者的同等慢病数量对比）。</div>
+        <span class="chain-tag">地理壁垒 · 文化信任缺失 · 经济障碍 · 历史性系统歧视</span>
+      </div>
+    </div>
+
+    <div class="chain-step">
+      <div class="chain-col">
+        <div class="chain-dot">③</div>
+        <div class="chain-connector"></div>
+      </div>
+      <div class="chain-body">
+        <div class="chain-title">算法学到的是"花了多少钱"，而不是"有多病"</div>
+        <div class="chain-sub">
+          算法的训练目标是预测费用，它非常准确地做到了这一点——
+          黑白患者在同等评分下产生的费用几乎相同（见图 3A）。
+          问题是费用本身就是一个带偏差的代理指标。
+        </div>
+      </div>
+    </div>
+
+    <div class="chain-step">
+      <div class="chain-col">
+        <div class="chain-dot">④</div>
+        <div class="chain-connector"></div>
+      </div>
+      <div class="chain-body">
+        <div class="chain-title">算法系统性地给黑人患者打出更低的风险评分</div>
+        <div class="chain-sub">相同病情，黑人患者被评为"更安全"，因为历史数据显示他们花钱更少。</div>
+      </div>
+    </div>
+
+    <div class="chain-step">
+      <div class="chain-col">
+        <div class="chain-dot end">⑤</div>
+      </div>
+      <div class="chain-body">
+        <div class="chain-title">黑人患者被排除在护理管理项目之外</div>
+        <div class="chain-sub">
+          护理资源流向了病情更轻的白人患者。
+          黑人患者的医疗需求被算法"隐形"了。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fig-card fade">
+    <img src="attachments/ECE284/Obermeyer_2019_Fig3_costs.png"
+         alt="图3：费用与风险评分/费用与慢性病数量的关系">
+    <div class="fig-caption">
+      <strong>图 3：</strong>
+      左图——费用与算法评分高度吻合，黑白患者在同等评分下费用相近：<em>算法预测费用是准确的</em>。<br>
+      右图——但在同等慢性病数量（即同等健康需求）下，黑人患者的年度医疗费用比白人患者低约 $1,800。<br>
+      这揭示了核心矛盾：<strong>算法预测费用无偏；费用本身对健康需求的代理有种族偏差。</strong>
+    </div>
+  </div>
+</section>
+
+<hr class="stripe">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 4 · 铁证                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="band">
+<div class="wrap">
+  <div class="fade">
+    <p class="eyebrow">第四部分 · 实验证明</p>
+    <h2>换一个标签，偏差几乎消失</h2>
+
+    <p class="lead">
+      光找到根源还不够——研究团队设计了一个"标签替换实验"，
+      直接证明偏差来自标签选择而非其他因素。
+    </p>
+
+    <p>
+      他们用同样的数据、同样的患者、同样的模型架构，
+      但分别换用不同的训练标签，看看算法入组的高风险人群里，
+      <strong>黑人患者占多少比例</strong>：
+    </p>
+  </div>
+
+  <!-- LABEL EXPERIMENT BARS -->
+  <div class="label-exp" id="labelexp">
+    <div class="label-row">
+      <div class="label-name">🏷 总医疗费用<br><small style="color:var(--muted)">原算法，标签有偏</small></div>
+      <div class="bar-wrap">
+        <div class="bar gray" data-width="52.8">14.1%</div>
+      </div>
+      <span class="label-badge dim">原算法</span>
+    </div>
+
+    <div class="label-row">
+      <div class="label-name">🏷 可避免费用<br><small style="color:var(--muted)">急诊 + 住院</small></div>
+      <div class="bar-wrap">
+        <div class="bar orange" data-width="78.7">21.0%</div>
+      </div>
+      <span class="label-badge dim">改进</span>
+    </div>
+
+    <div class="label-row">
+      <div class="label-name">🏷 活跃慢性病数量<br><small style="color:var(--muted)">直接衡量健康状况</small></div>
+      <div class="bar-wrap">
+        <div class="bar red" data-width="100">26.7%</div>
+      </div>
+      <span class="label-badge hot">↑ 偏差消失</span>
+    </div>
+  </div>
+
+  <div class="callout fade">
+    换用"活跃慢性病数量"作为训练标签，高风险入组的黑人比例从 <strong>14.1%</strong> 跃升到 <strong>26.7%</strong>——
+    增幅将近 <strong>一倍</strong>。
+    偏差不是从算法的深处长出来的，它就藏在那个被称为"标签"的选择里。
+  </div>
+
+  <div class="insight fade">
+    <h3>⚡ 关键结论</h3>
+    <p>
+      这个实验的意义在于：研究者没有改变任何患者数据，没有改变模型架构，
+      没有加入任何"种族修正因子"——他们<strong>只是换了一个更能真实反映健康需求的训练目标</strong>，
+      偏差就几乎消失了。
+    </p>
+    <p>
+      这说明偏差不是算法的"性格"，而是输入信息选择的结果。
+      用带偏差的数据训练出来的系统，会忠实地继承那个偏差——哪怕代码里从头到尾看不到"种族"两个字。
+    </p>
+  </div>
+</div>
+</div>
+
+<hr class="stripe">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 5 · 意义                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="fade">
+    <p class="eyebrow">第五部分 · 意义</p>
+    <h2>三件你需要记住的事</h2>
+
+    <p class="lead">
+      这不只是一个医疗算法的故事。它揭示了一个普遍规律：
+      任何用历史数据训练的预测系统，如果历史本身由系统性不平等塑造，
+      系统就会把那个不平等当作"正确答案"学进去。
+    </p>
+  </div>
+
+  <div class="compare-pair fade">
+    <div class="cmp-card wrong">
+      <div class="cmp-label">❌ 常见误解</div>
+      <div class="cmp-stmt">算法没有使用种族特征，<br>所以算法是无偏的。</div>
+    </div>
+    <div class="cmp-card right">
+      <div class="cmp-label">✓ 正确理解</div>
+      <div class="cmp-stmt">偏差可以完全由<strong>标签选择</strong>产生，<br>与是否使用种族特征无关。</div>
+    </div>
+  </div>
+
+  <div class="takeaways fade">
+    <div class="tk-card">
+      <div class="n">01</div>
+      <h4>代理标签是偏差的藏身处</h4>
+      <p>
+        当真正想预测的目标（健康需求）难以直接测量时，
+        开发者会用更容易获取的数据作为"代理"（如费用）。
+        代理和目标之间的系统性差距，就是偏差进入算法的通道。
+      </p>
+    </div>
+    <div class="tk-card">
+      <div class="n">02</div>
+      <h4>历史数据会把不平等当作真相</h4>
+      <p>
+        黑人患者因系统性障碍产生较少费用，这是历史不平等造成的结果。
+        算法忠实地从这个结果里学习，再把它当作预测依据——不平等被"科学化"了。
+      </p>
+    </div>
+    <div class="tk-card">
+      <div class="n">03</div>
+      <h4>修复是可能的，且不复杂</h4>
+      <p>
+        Obermeyer 团队的解决方案并不激进：换用更能反映真实健康状况的训练标签。
+        这说明关键在于<strong>选什么来训练</strong>，而不只是训练的方式。
+        标签审计应成为算法发布前的必经步骤。
+      </p>
+    </div>
+  </div>
+
+  <div class="insight fade">
+    <h3>🔭 更大的图景</h3>
+    <p>
+      Obermeyer 等人估计，在他们研究的这家机构里，
+      如果算法被修正，护理管理项目中的黑人患者比例将从 17.7% 提升到 46.2%——
+      意味着每年有数以千计的患者将获得本应属于他们的医疗关注。
+    </p>
+    <p>
+      而全美有数十家公司向数千家医院销售类似算法，处理的患者规模以百万计、资金规模以十亿计。
+      如果这种系统性偏差普遍存在，它对公共健康的影响将是巨大的。
+    </p>
+    <p>
+      这篇论文发表于 2019 年，作者之一 Sendhil Mullainathan 是哈佛大学经济学教授。
+      该商业算法的开发公司在论文发表后确认了研究结论，并承诺修改算法。
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<hr class="stripe">
+<footer>
+  <div class="wrap">
+    <h3>来源</h3>
+    <p>
+      Obermeyer, Z., Powers, B., Vogeli, C., &amp; Mullainathan, S. (2019).
+      Dissecting racial bias in an algorithm used to manage the health of populations.
+      <em>Science</em>, 366(6464), 447–453.
+      <a href="https://doi.org/10.1126/science.aax2342" target="_blank">DOI: 10.1126/science.aax2342</a>
+    </p>
+
+    <div class="credit">
+      本网站为 ECE284 课程学习材料 · 基于论文内容整理 · 图片来源于原始论文
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script>
+/* ── Intersection Observer: fade-in + chain + label bars ─────── */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+
+    // Generic fade
+    if (e.target.classList.contains('fade')) {
+      e.target.classList.add('vis');
+    }
+
+    // Bias chain steps
+    if (e.target.id === 'chain') {
+      e.target.querySelectorAll('.chain-step').forEach((s, i) => {
+        setTimeout(() => s.classList.add('vis'), i * 140);
+      });
+    }
+
+    // Label experiment rows + bar animation
+    if (e.target.id === 'labelexp') {
+      e.target.querySelectorAll('.label-row').forEach((row, i) => {
+        setTimeout(() => {
+          row.classList.add('vis');
+          const bar = row.querySelector('.bar');
+          if (bar) bar.style.width = bar.dataset.width + '%';
+        }, i * 180);
+      });
+    }
+
+    io.unobserve(e.target);
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.fade, #chain, #labelexp').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

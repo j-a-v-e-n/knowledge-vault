@@ -1,0 +1,121 @@
+# 知识缺口与待调查问题
+
+## 待回答
+
+### 2026-05-11 抖音 AI 主题视频编译后新增（8 视频 + 跨视频综合）
+
+- [ ] **Instruction-tuning Paradox 的修复路径**：[[Pal_2023_MedHALT]] 揭示 RLHF chat 模型 hallucination 控制比 base 差。如果用 Med-HALT Pointwise Score（+1/−0.25/0）作为 RLHF reward，能否同时保持对话流畅和诚实抗性？跨"医疗 LLM 评测"+"agent 自主度"两个 domain 的 connection。（触发：编译 [[Pal_2023_MedHALT]] + [[2026-05-11_Claude_Code_新功能8项]] 的 Auto-Permission 设计）
+- [ ] **DeepSeek 在美国 enterprise 的合规命运**：DeepSeek API + 模型在中美数据 / 国家安全 dispute 加剧时是否会被禁用？类似 TikTok 禁令风险。如果禁用，本地推理路径（Antirez ds4 / Ollama + 量化 DeepSeek）能否独立存活？（触发：编译 [[2026-05-11_DeepSeek_TUI登顶GitHub]] + [[2026-05-11_Antirez_4000行C本地推理]]）
+- [ ] **"AI 同事"概念被 union / labor law 怎么接纳**：当 agent 进入团队（CodeBanana 模式），它不能像人类员工"负责任"。出 production bug 责任在开发者 / 工具厂商 / 训模型公司之间怎么分？是否需要类似"AI agent operator license"？（触发：编译 [[2026-05-11_CodeBanana_agent团队协作]]）
+- [ ] **Apple vs NVIDIA 在 AI workstation 市场的长期 trajectory**：M3 Ultra 512GB unified memory 让消费 Mac 跑 1.6T MoE 模型——这优势能持续多久？NVIDIA B100/B200 + DGX 反击策略？（触发：编译 [[2026-05-11_Antirez_4000行C本地推理]] + [[本地大模型推理]]）
+- [ ] **MCP standard 的 lock-in 风险**：MCP 是 Anthropic 提出，OpenAI / Google 跟进意愿？如果 MCP 成 de facto standard，Anthropic 锁定 agent tool 生态？反过来如果 OpenAI 推竞争 protocol，碎片化伤所有人？（触发：[[2026-05-11_Claude_Code_新功能8项]]）
+- [ ] **应届直进 Anthropic FDE 的真实概率**：历史 case 数？通过 Anthropic intern 跨过去 vs full-time 直进比例？中国留学生 H1B 在 FDE 角色 sponsorship 成功率？（触发：[[2026-05-11_AI落地咨询师岗位预测]] + [[综合_AI浪潮下中国留学生的工具选型与岗位选择]]）
+- [ ] **Agent IDE 的下一代 form factor**：当前 IDE (VS Code / Vim) 都是给人类用的——agent 团队协作需要什么样的新 UI？谁先定义这种 UI = 下一代 winner？（触发：[[综合_2026年AI工具栈的三重转变]] §6.1）
+- [ ] **"AI 落地" 国内 vs 美国 long-term trajectory**：美国 enterprise 市场更成熟 vs 国内基数更大，5 年后哪个 market 更香？Javen 这种"留美 vs 回国"的 strategic 决策点？（触发：[[AI agent 时代的团队与岗位]]）
+- [ ] **多 agent context alignment 的工程解**：CodeBanana 描述的问题（不同 agent 看到不同版本事实）—— 是 RAG ground truth source-of-truth 强制？还是 agent 间 challenge 机制？目前是 open research（触发：[[2026-05-11_CodeBanana_agent团队协作]]）
+
+### 2026-05-11 编译 [[Pal_2023_MedHALT]] 后新增
+
+- [ ] **Instruction-tuning Paradox 的因果机制**：[[Pal_2023_MedHALT]] 揭示 LLaMA-2 70B Base 72.33% acc → Chat 11.26%（差 61pp），但只说"detrimental effect"没拆解原因。是 RLHF 训练目标偏向"善于对话"导致"硬答"？还是 chat fine-tune data 里"假装懂"的模式被强化？需要 ablation：把 RLHF 拆成 SFT only / SFT + DPO / SFT + RLHF 三组各测 Med-HALT，定位是哪个阶段引入退化。（触发来源：编译 [[Pal_2023_MedHALT]] §6.1 时的推测）
+- [ ] **Med-PaLM 2 + Med-HALT cross-benchmark 评估缺失**：现有论文都只测一类——Med-PaLM 2 (Singhal 2025) 在 MedQA 86.5% 但未测 Med-HALT；Med-HALT (Pal 2023) 未测 Med-PaLM 系列。同一模型在两类 benchmark 上的成绩谁先报告，谁就提供了"能力评测 vs 诚实度评测的相关性 / 独立性"的关键证据。这是明显研究 gap。（触发来源：编译 [[LLM 医疗评测]] 时的跨论文对比）
+- [ ] **LLM 推理能力和记忆能力是否真的分离**：[[Pal_2023_MedHALT]] 显示 LLaMA-2 70B 在 RHT 上 72.33% (强) 但 MHT 上 8.04% (弱)；Falcon 40B 反之 (RHT 59.09% / MHT 30.36%)。这种"反向 ranking" 暗示两种 hallucination 是**独立的失效模式**。是否能用 mechanistic interpretability 工具（如 attribution patching）定位 RHT vs MHT 的神经回路差异？这能指导针对性 mitigation。（触发来源：编译 [[Pal_2023_MedHALT]] Table 2+3 对比时的观察）
+- [ ] **Med-HALT scoring 能否作为 RLHF reward function 训练更诚实的模型**：论文 Discussion 暗示但未实证。直接把 Pointwise Score（+1 / −0.25 / 0）当 reward 训练 LLaMA-2 base，能否在 Med-HALT 上拿到比 Llama-2 Chat (RLHF) 更高的 score？如果能，这就是"对抗性 benchmark 反过来变成训练信号"的工程范式。（触发来源：编译 [[Pal_2023_MedHALT]] §Conclusion）
+
+- [ ] 多模态 LLM（如 GPT-4V、Gemini）是否显著缩小了 Frank (2023) 描述的数据鸿沟？（触发来源：编译 [[Frank_2023_数据鸿沟]] 时产生的推测）
+- [ ] 如何量化"社会互动"对儿童学习效率的贡献？目前缺乏参数化框架。（触发来源：[[Frank_2023_数据鸿沟]]）
+- [ ] 自监督 vs 有监督学习的分类是否在概念上成立？LLM 的 next-word prediction 看似无监督，但训练算法本质是有监督。（触发来源：编译 [[监督学习与无监督学习]] 时产生的推测）
+- [ ] 婴儿无助期的"编码→微调"两阶段模型如何实证验证？需要什么样的神经标志物来划定阶段转变？（触发来源：[[Cusack_2024_婴儿无助期假说]]）
+- [ ] Cusack 假说的预训练成本的进化合理性——数年无助期对适应度的净收益如何估算？（触发来源：编译 [[自监督学习与基础模型]] 时产生的推测）
+- [ ] 婴儿接收的多模态感官数据总量是否达到"基础模型预训练"的数据量级？缺乏跨模态的定量对标。（触发来源：编译 [[自监督学习与基础模型]] 时产生的推测）
+- [ ] Cusack et al. 与 Zettersten et al. 的争论是否本质上在 Marr 的不同分析层面进行？Cusack 的类比可能在计算层面有效（任务是什么），而 Zettersten 的批评更多针对算法/实现层面（婴儿如何执行学习）。（触发来源：编译 [[Zettersten_2026_计算模型与框架]] 时产生的推测）
+- [ ] Apple Heart Study 34% 的 ECG 贴片 AF 检出率是否被贴片佩戴延迟（平均 13 天）严重低估？如果能实现实时 ECG 确认，真实 PPV 会是多少？（触发来源：编译 [[Perez_2019_AppleHeartStudy]] 时产生的推测）
+- [ ] TROIKA 的信号处理框架（SSA+SSR）与 Apple Heart Study 的不规则脉搏检测算法之间是否存在技术继承关系？Apple Watch 的内部 AF 检测算法是否使用类似的稀疏信号重建方法？（触发来源：编译 [[Perez_2019_AppleHeartStudy]] 时对两篇 ECE284 文献的交叉思考）
+- [ ] Shah et al. 的心脏骤停检测算法约 77 秒延迟（57s 分类 + 20s 倒计时）——在复苏存活率每分钟下降 7-10% 的背景下，此延迟的净收益是否已被量化？是否存在针对高密度场所的"激进模式"（更短延迟、更高假阳性容忍度）？（触发来源：编译 [[Shah_2025_LossOfPulse]]）
+- [ ] Paperfuge 离心样本 + m-phone 显微成像是否已在实际诊断场景中整合部署？两个系统的"资源匮乏地区 POC"定位高度互补，但目前尚无交叉引用。（触发来源：编译 [[Bhamla_2017_Paperfuge]] 和 [[Song_2024_SmartphoneMicroscope]] 时的交叉思考）
+- [ ] Shah et al. (2025) 的心脏骤停检测算法是否在不同肤色群体中表现一致？PPG 信号的光学原理与 Jubran (1990) 描述的脉搏血氧仪机制相同，深色皮肤可能导致 PPG 信号质量差异，进而影响算法敏感度——但 Shah 2025 未报告种族子群分析。（触发来源：编译 [[Jubran_1990_脉搏血氧仪种族偏差]] 后对 [[Shah_2025_LossOfPulse]] 的延伸思考）
+- [ ] Apple Heart Study (Perez 2019) 的 AF 检测 PPV 是否在不同种族群体中存在差异？论文未报告种族子群分析，而研究基于大规模消费者数据——既可能存在 PPG 传感器偏差（Jubran 机制），也可能存在算法训练数据偏差（Obermeyer 机制）。（触发来源：编译 [[Obermeyer_2019_医疗算法种族偏见]] 后对 [[Perez_2019_AppleHeartStudy]] 的延伸思考）
+- [ ] Song & Adams (2024) 的 m-phone 血细胞计数模型（Hough 圆检测 + SVM）是否在不同患者群体中表现均匀？训练数据集（Makerere 大学医院的乌干达患者）与验证集（同一机构）的人口构成未详述，模型对其他人群的泛化性未验证。（触发来源：编译 [[Obermeyer_2019_医疗算法种族偏见]] 后对 [[Song_2024_SmartphoneMicroscope]] 的延伸思考）
+- [ ] ECE175B 目前只覆盖了 VAE 和 GAN 两种 DGM，Diffusion Models 和 Normalizing Flows 等后续模型如何与 ELBO 框架联系或区别？课程后续内容待编译。（触发来源：编译 ECE175B L1-L4 时，课程知识地图中标注了"待讲"的扩散模型）
+- [ ] LLM 的 next-word prediction 在 ECE175B 中被解释为链式 BN（自回归生成模型），而 COGS117 中被 Frank (2023) 讨论为自监督学习——这两个视角（概率图模型 vs 学习范式分类）之间的关系是什么？（触发来源：编译 [[ECE175B_Lecture1b_贝叶斯网络]] 时发现与 [[Frank_2023_数据鸿沟]] 和 [[自监督学习与基础模型]] 的交叉点）
+- [ ] Scott & Monesson (2009) 的"个体标签保留辨别能力"能否推广到非面孔领域？如果让婴儿每天看 6 个不同品种的狗且父母给每只取个体名字，婴儿是否会**保留**区分狗品种的能力并避免窄化？这能把"加工粒度"假说从面孔验证推广到通用视觉类别。（触发来源：编译 [[Scott_2009_面孔知觉偏差起源]]）
+- [ ] 语言标签作为"强制个体化加工工具"的机制推测：口头命名是否通过**注意力分配**或**记忆编码深度**影响神经表征？这可以用婴儿 fNIRS + 个体 vs 类别标签操纵测试——验证 Scott 2009 的推广。（触发来源：编译 [[Scott_2009_面孔知觉偏差起源]] 时对早期教育意义的推测）
+- [ ] Ayzenberg 2024 的"骨架表征"假说与当代 AI 视觉模型的"形状 vs 纹理偏差"（Geirhos et al. 2019）的关系：CNN 训练数据换成**骨架-增强**版本后，能否获得婴儿水平的泛化？这可测试骨架先验是识别泛化的关键。（触发来源：编译 [[Ayzenberg_2024_视觉物体识别发展]]）
+- [ ] 面孔剥夺猕猴实验（Ayzenberg 2024 Fig 5）的伦理-可行性矛盾：这类 critical period 实验在人类不可做，但其结论对人类面孔识别的临床推断（先天性白内障、早期面孔缺失）的强度如何？猕猴结果能否用于指导新生儿面孔暴露干预？（触发来源：编译 [[Ayzenberg_2024_视觉物体识别发展]]）
+- [ ] Emberson 2015 的自上而下预测响应是**两派共享的证据**——但两派对同一 fNIRS 数据做了不同解读。是否存在更区分性的实验范式能把"自监督预测"与"主动目标预期"机制上分离？比如：给婴儿**同一输入**但诱导不同**目标设定**，观察预测响应是否系统性改变。（触发来源：编译 [[Zettersten_2026_Lecture5_感知发展1]] 与 [[争论_婴儿被动vs主动学习]] 时的交叉思考）
+- [ ] Jayaraman 头戴摄像数据（婴儿视觉输入以面孔为主）与 Vong et al. (2024) 的 SAYcam-S（单一儿童视角学习语言）是否可以**整合训练一个多模态基础模型**来预测婴儿的发展里程碑？这将是实现 Cusack 假说的直接计算测试。（触发来源：编译 [[Zettersten_2026_Lecture5_感知发展1]] + [[Zettersten_2026_Lecture2_发展研究方法]]）
+- [ ] 核心知识 (Spelke) 的"先天"强度难以直接测——能否用**发育加速**范式（双胞胎早产 vs 足月）的表征时间表差异来部分解开"先天生理结构 vs 最早经验"的贡献？如果真的是先天编码，早产双胞胎应与足月双胞胎在相同月龄下表现一致；若是经验驱动，早产儿应落后。（触发来源：编译 [[核心知识理论]] 时对先验强度测量的思考）
+- [ ] Vygotsky 的"文化工具重塑思维"与连接主义难以调和——能否用**元学习 (meta-learning)** 或 **in-context learning**（LLM 已经能做）来建模文化工具的"结构先验传播"？这是 [[Zettersten_2026_Lecture4_发展理论]] 留下的公开问题。（触发来源：编译 [[Zettersten_2026_Lecture4_发展理论]]）
+- [ ] 三月婴儿的形状表征 (Ayzenberg 2024) 是否已达到足以引发**类别窄化**的粒度？即：如果形状识别在 3 月龄就成熟了，为什么物体类别辨别的窄化时点更晚（通常 9–12 月）？是形状表征与类别标签的**绑定**需要额外时间，还是早期形状表征不够"锐利"以区分亚类？（触发来源：编译 [[Ayzenberg_2024_视觉物体识别发展]] 与 [[感知窄化]] 的交叉）
+- [ ] [[Luo_2026_NormWear]] 框架未包含温度通道，但 [[Mason_2024_TemPredict]] 显示体温是抑郁的有效生理标志——把体温作为 NormWear 第七个通道是否能显著提升精神健康相关下游任务的表现？且需要重新做 MAE 预训练？（触发来源：编译 NormWear 与 TemPredict 时的交叉思考）
+- [ ] Liu et al. (2017) 的"朴素效用计算"框架 U=R-C 假设婴儿对**未观察到的** reward 也能反推——但实验中 reward 通过 target 视觉差异（颜色/形状）操纵，所以"价值"是 perceptual 还是 abstract？如果让两个 target 完全相同的视觉外观但只在功能上不同（一个发声、一个不发声），婴儿是否还能用 cost 推 reward？（触发来源：编译 [[Liu_2017_婴儿成本推理]]）
+- [ ] Stojnic 2023 的 BIB benchmark 测试的是 2D grid world，但 LLM-based agents（如 Med-PaLM 2 这种 reasoning model）的常识心理能力可能跟纯视觉 BC-RNN 不同。如果改用 LLM-based world model agent（如 PaLM-E、RT-2、VLA）作为 baseline，BIB 通过率会显著上升吗？（触发来源：编译 [[Stojnic_2023_常识心理BIB]] 时与 ECE284 [[Singhal_2025_MedPaLM2_演讲]] 的交叉思考）
+- [ ] Liu 2017 测的是 cost vs reward 在**单一物理维度**的 trade-off（高度/宽度/角度三选一），但真实婴儿环境是 multi-modal cost（时间+体力+社交风险）。婴儿对 multi-dimensional cost-reward 的 Bayesian 推理能力的发展时点是何时？需要扩展实验范式。（触发来源：编译 [[Liu_2017_婴儿成本推理]]）
+- [ ] Med-PaLM 2 (Singhal 2025) 的 86.5% MedQA performance 报告未做**人口统计学子群分层**——跟 Obermeyer 2019 算法偏见、Jubran 1990 PPG 种族偏见同构问题。论文 closed-weight 让外部 audit 不可能。是否有可能 reverse-engineer 一个"shadow audit" 通过 prompt engineering 探查 model 在 racial/SES 高度相关临床场景的行为差异？（触发来源：编译 [[Singhal_2025_MedPaLM2_演讲]] 时与 [[Obermeyer_2019_医疗算法种族偏见]] 的交叉）
+- [ ] "Naïve utility calculus" (Liu 2017) 跟 "Bayesian inverse planning" (Stojnic 2023) 在数学上是同一框架的实例——但跟 Med-PaLM 2 的"chain of retrieval"在 reasoning 结构上是否有结构对应？婴儿的 inverse planning 是 single-step Bayesian，LLM 的 chain of retrieval 是 multi-step generative。两者能否统一为某种 cost-aware reasoning 框架？这可能是 synthesis 候选页。（触发来源：跨 COGS117 + ECE284 ingest 的结构观察）
+- [ ] NormWear 的"Channel-Aware Attention + [CLS] 联络员 token"与 Transfusion 的"共享主干 + 模态特定编解码层"是否在结构上同构？两者都解决"异质模态共享一个 Transformer"问题，但前者用于时序信号、后者用于文本+图像——存在**统一的"主干 + 模态适配器"设计模式**？（触发来源：编译 [[Luo_2026_NormWear]] 与 [[统一多模态生成架构]] 时的跨领域对照）
+- [ ] [[统一多模态生成架构]] 中 Transfusion 的混合损失 $\mathcal{L} = \mathcal{L}_{\text{LM}} + \lambda \mathcal{L}_{\text{DDPM}}$ 的最优 λ 在不同任务/数据上是否稳定？论文用 5.0 但未充分对照——是否需要任务感知的自适应 λ？（触发来源：编译 [[2026-04-20_多模态故事生成研究]]）
+- [ ] [[Mason_2024_TemPredict]] 是横断面分析——但 Oura Ring 是连续时序数据，理论上能做"个体内体温变化预测下一周抑郁波动"。这种**时序因果推断**对临床干预（什么时候介入）更有价值，但论文未做。是否能用 Granger 因果或时间序列基础模型（如 NormWear 时序版本）实现？（触发来源：编译 [[Mason_2024_TemPredict]] 时对横断面局限的延伸）
+- [ ] [[2026-04-20_多模态故事生成研究]] 中 DiffuStory 的"先生成隐式叙事 sketch → 再展开成长故事"的两阶段思想，是否可逆向应用到图像生成？比如先用 AR 生成"语义草图"（patch 标签序列），再用扩散精细化每个 patch——这能否调和 Chameleon（全 AR）与 Transfusion（混合）的优劣？（触发来源：编译多模态故事生成研究时对架构创新空间的推测）
+- [ ] [[Mason_2024_TemPredict]] 的 ROC AUC 0.762（严重抑郁）在多模态融合下能否突破 0.9？把体温（Mason）+ HRV（Apple Heart Study 或 NormWear PPG 通道）+ 睡眠（Oura）+ 活动（IMU）一起喂入 [[Luo_2026_NormWear]] 类基础模型，是否能在抑郁筛查上达到接近临床 PHQ-9 的判别力？（触发来源：编译两篇 ECE284 文献时对多模态可穿戴融合的延伸）
+- [ ] [[Luo_2026_NormWear]] 的 zero-shot 信号-文本对齐能否扩展到**临床决策支持**？即：给定一段未见过的可穿戴信号，模型用自然语言描述"这位用户最近 3 天 HRV 显著下降"——这能解决医生不会读 PPG 时序的实操问题。论文展示的 zero-shot 仅在已见类别迁移上验证，开放性诊断生成未测。（触发来源：编译 [[Luo_2026_NormWear]]）
+- [ ] 多模态故事生成（[[统一多模态生成架构]]）的"图文一致性"和可穿戴时序-文本对齐（[[Luo_2026_NormWear]]）的"信号-文本对齐"在数学上都是 contrastive learning（CLIP 范式）。两个领域的 alignment 损失差异是否是"模态本质特性"造成（连续 vs 离散），还是仅仅是工程惯例？这关系到能否设计**统一的 cross-modal alignment 损失函数**。（触发来源：编译两份 2026-04-20 材料时的跨领域观察）
+
+### 2026-04-27 编译思瑶视频《AI 任务面板自动化系统》后新增
+
+- [ ] 双触发机制（fswatch 事件 + launchd 定时）是否存在**重复触发风险**？比如用户改了文件、fswatch 立刻唤醒 AI 处理；几分钟后 launchd 又定时唤醒 AI 看到面板"刚被处理过的状态"——会不会浪费 token 或重复执行某些动作？视频未讨论去重机制（触发来源：编译 [[2026-04-27_AI任务面板自动化系统]]）
+- [ ] 多设备同步场景下系统会怎样？视频强调"本地运行 = 数据安全"，但若用户在 Mac + 笔记本两台机器都装了系统、且看板文件用 iCloud/Google Drive 同步——是否可能两边的 fswatch 同时唤醒、两个 Claude 实例同时编辑同一个看板，导致竞态？需要锁机制还是单机授权？（触发来源：编译 [[2026-04-27_AI任务面板自动化系统]]）
+- [ ] "事件驱动比 30 分钟轮询省 token" 这个工程经验**缺乏量化**。具体省了多少？取决于哪些因素（看板修改频率、任务平均耗时）？什么类型的工作流不适合事件驱动（例如必须每天定时盘点的工作）？（触发来源：编译 [[2026-04-27_AI任务面板自动化系统]]）
+- [ ] 视频中的"注意力分配规则适配 ADHD"是个人定制——这种**用户认知特性 → AI 行为规则**的映射是否能**模板化**？能否建一组"用户特性档案"（ADHD、慢决策者、完美主义者、夜猫子……），让用户选档案后自动生成对应的 skill 片段？这是把心理学/认知科学接到 agent 工程的接口。（触发来源：编译 [[2026-04-27_AI任务面板自动化系统]] 时对个性化适配的延伸）
+
+### 2026-04-27 编译 LemurDx + DopFone 后新增
+
+- [ ] [[Arakawa_2023_LemurDx]] 的"情境过滤"思想（只看 sitting/quiet 时段做诊断）能否推广到其他基于运动的精神/行为状态评估？候选：自闭症的重复刻板动作（在结构化任务中显示）、抑郁的活动减少（在通常活跃情境中显示）、儿童焦虑的逃避行为（在社交触发情境中显示）。一个统一的"情境-触发型表征学习"框架是否可能？（触发来源：编译 [[Arakawa_2023_LemurDx]]）
+- [ ] LemurDx 的自动 sitting/quiet 检测准确率 74.5%（远低于多动检测的 85.2%）——是否可引入手机日历 / 校历事件 / GPS 区域分类（家 / 学校 / 户外）作为强先验，让情境检测精度上 90%+？这会进一步缩小自动 vs 家长标签的差距（82% → 接近 85.2%）。（触发来源：编译 [[Arakawa_2023_LemurDx]]）
+- [ ] [[Arakawa_2023_LemurDx]] + [[Mason_2024_TemPredict]] 多模态融合：Apple Watch 加速度（行为）+ Oura Ring 体温（生理）+ 二者都有的睡眠数据，能否在 ADHD 共病焦虑/抑郁的复杂临床场景下做"多模态行为/生理表型分型"？这是把两个 ECE284 的工作合在一起的自然下一步。（触发来源：跨编译 LemurDx 与 TemPredict）
+- [ ] LemurDx 的 risk score 与 VADPRS 弱相关——是模型噪声还是 VADPRS 量表本身 inter-rater 一致性 κ=0.11 的固有 noise 上限？需要更可靠的 ground truth（如 Conners CPT 客观注意力测试 / 临床医生综合诊断）来重新校准。这关系到 LemurDx 能否真的做"严重程度连续刻度"用于药物滴定。（触发来源：[[Arakawa_2023_LemurDx]]）
+- [ ] [[Garg_2025_DopFone]] 在 BMI ≥ 30 群体上 MAE 升高 33%（脂肪组织对 18 kHz 衰减）——是否可以做"BMI-自适应 spectrogram"（基于 BMI 调整窗口大小 / 带宽 / spectral 增益），部分弥补这个差距？这是工程上的小改进可能带来公平性的大提升。（触发来源：[[Garg_2025_DopFone]]）
+- [ ] DopFone 跨手机临床验证缺失：Pixel / Samsung 在真孕妇上的精度未测——in vitro 明胶 phantom 与真组织差异有多大？特别是 Android 设备的麦克风方向性 / DSP 链路差异是否会影响 18 kHz 弱信号提取？（触发来源：[[Garg_2025_DopFone]]）
+- [ ] DopFone "整面腹腔表面振动剖面"的物理直觉是否可推广到其他周期性内脏运动？候选：肠蠕动检测（消化系统疾病筛查）、膀胱充盈程度估计（尿失禁评估）、呼吸力学评估（COPD 监测）——都是周期性表面微振动信号。如果可推广，DopFone 的方法学就不止于产前。（触发来源：[[Garg_2025_DopFone]] 物理机制延伸）
+- [ ] DopFone 多胎妊娠的两个心率叠加在 18 kHz 分辨率下分不开——能否用源分离算法（独立成分分析 ICA、非负矩阵分解 NMF）从单通道音频中解开两个心率？或者用 iPhone 双麦克风（如果未来 iOS 开放原始多通道音频）做空间分离？（触发来源：[[Garg_2025_DopFone]] 局限性延伸）
+- [ ] [[Garg_2025_DopFone]] + [[Bhamla_2017_Paperfuge]] + [[Song_2024_SmartphoneMicroscope]] 联合部署：在低资源孕产保健中，DopFone（FHR 监测）+ Paperfuge（妊娠贫血血样离心）+ m-phone（疟疾涂片镜检）能否组成一个"零附加硬件孕产监护包"？这是 ECE284 三篇 POC 论文的自然交汇点——但目前没有任何文献尝试系统集成。（触发来源：跨编译三篇 POC 论文的延伸）
+- [ ] **架构哲学的有趣对比**：[[Arakawa_2023_LemurDx]] 和 [[Garg_2025_DopFone]] 都用消费级智能设备做临床任务但**设计哲学相反**——LemurDx 强调"情境过滤"（先选合适情境再做 ML），DopFone 强调"位置无关性"（避免对情境/位置的依赖）。这种相反性是否反映了**信号-噪声比类型不同**？LemurDx 的信号差异在"情境维度"（同一动作能量在 sitting 时显著），DopFone 的信号差异在"频率维度"（18 kHz 周期性极强可频域分离）。能否把这一观察形式化为"消费医疗 ML 系统设计的 SNR-维度匹配原则"？（触发来源：跨编译 LemurDx 与 DopFone）
+
+### 2026-04-22 编译动作发展文献后新增
+
+- [ ] Oudeyer 的 "学习进步 (LP)" 形式化能否用现代 RL 的**内在奖励**机制（如 Random Network Distillation）重新实现，并在**现代规模**下复现 Playground 实验的阶段涌现？如果可以，这将是发展科学 × 现代 AI 最有说服力的汇合点。（触发来源：编译 [[Oudeyer_2017_婴儿发展机器人]] + [[内在动机与好奇心驱动学习]]）
+- [ ] Adolph 2018 建议 7（"典型幼童 2,400 步/小时、73% 曲线路径、82% 含后退/侧步"）的数据能否作为"infant-like motor curriculum"来训练模拟机器人，并与在**直线路径**上训练的机器人比较**新环境泛化性能**？Ossmy 2018 已有初步工作，但是否已有系统性基准？（触发来源：[[Adolph_2018_走路发展15条建议]]）
+- [ ] "走路 → 语言词汇增长"的级联（Walle & Campos 2014）是**真正因果**还是**共同原因**（大脑整体成熟）？用 skill age 部分控制后仍显著——但需要**干预实验**才能确定。是否有可能用"动作训练 vs 非动作训练"随机分组的跨文化自然实验数据做因果推断？（触发来源：[[发展级联]]）
+- [ ] Cusack 的"预训练 schedule"假说在**动作发展**视角下显得不合理——婴儿没有"先预训练好再行动"的阶段；动作发展本身就是持续的感知-行动耦合。这是否意味着 Cusack 的基础模型类比**仅适用于视觉/听觉**等相对被动感知通道？对动作/多模态完整发展应该用不同的模型？（触发来源：编译 [[Adolph_2018_走路发展15条建议]] + [[Oudeyer_2017_婴儿发展机器人]] 后对 [[争论_婴儿被动vs主动学习]] 的延伸）
+- [ ] 新生儿模仿的"**吐舌**残留证据"（即便在 Oostenbroek 阴性后仍有批评者认为吐舌可复现）——是否能用脑磁图 (MEG) 或 fNIRS 观察到婴儿看面部吐舌时的运动皮层激活？如果有激活而无外显动作，那可能是镜像神经元系统的早期证据，模仿争议就有新的分辨层。（触发来源：编译 [[争论_新生儿模仿]]）
+- [ ] Thelen 1984 stepping reflex 配重实验的**反向版本**：给一位**静态不动的成人**挂很轻的腿外骨骼，能否引发类似 stepping reflex 的自主节律？如果能，则说明 stepping circuit 是**在所有年龄段都存在**的、只是通常被体重抑制的——这对"反射 = 进化遗迹"的理解有根本修正。（触发来源：编译 [[Zettersten_2026_Lecture7_走路与动作发展]]）
+- [ ] Clerkin & Smith 2017 的婴儿头戴相机数据是**西方中产家庭**样本——跨文化头戴相机数据（如 SEEDLingS 或非西方扩展版）是否显示不同的"训练数据分布"？这关系到 AI 类比的**生态普适性**——如果婴儿视觉输入分布**本身**就跨文化巨大变异，那"婴儿训练数据"作为 AI 训练数据的参考就有文化依赖性。（触发来源：[[Zettersten_2026_Lecture6_感知发展2]]）
+- [ ] Oudeyer Playground 实验里的"阶段涌现"能否在**LLM-based agents**（如 AutoGPT、AutoGen）里复现？给 LLM 智能体装一个"好奇心目标"机制（例如选择 perplexity 下降最大的任务），观察是否产生类似的**自发阶段化**。如果能，LLM 就是开发好奇心驱动智能的新平台。（触发来源：[[内在动机与好奇心驱动学习]]）
+- [ ] 发展级联 vs AI 多任务学习——在什么数学条件下，**共享主干 + 任务专用头**的神经网络能自然产生类似婴儿的"一个任务改善带动其他任务"的级联行为？如果这些条件能形式化，可以作为"设计更像人类发展的 AI 系统"的准则。（触发来源：[[发展级联]]）
+
+### 2026-05-01 编译 COGS117 Week 5 语言习得文献后新增
+
+- [ ] **统计学习算法的高效性来源**：[[Saffran_1996_统计学习]] 的 8 月婴儿仅 2 分钟即可学到 transitional probability 结构——这远比当前 self-supervised LLM 的样本效率高几个数量级。是婴儿用了**完全不同的算法**（而非 SGD-based parameter update），还是有**强 inductive bias** 让贝叶斯估计快速收敛？还是两者皆有？需要把婴儿统计学习能力**算法层**的形式化（参 [[Frank_2023_数据鸿沟]]）（触发来源：编译 [[Saffran_1996_统计学习]]）
+
+- [ ] **CVCL 与真孩子差距 (61.6% vs 几千词) 的来源拆解**：[[Vong_2024_单童语言习得]] 用通用 contrastive learning + 单孩 61h 数据学到 22 名词。差距是不是来自 (a) 数据量不够（孩子 1% waking time 被 cover），(b) 主动学习 / attention 调度（CVCL 是被动 batch；孩子是 active episodic streaming），(c) 多模态深度（CVCL 缺触觉、本体感、嗅觉），还是 (d) social cognition（CVCL 没有 joint attention / 凝视 / 意图推断）？这四种解释的相对贡献需要 ablation 实验。（触发来源：[[Vong_2024_单童语言习得]]）
+
+- [ ] **可控的"用 SAYcam 训出来的婴儿模拟器"**：能否把 CVCL 类模型 + 头戴相机 + LLM 风格 active learning（chooses what to look at 而非 batch random）整合，做一个**"按婴儿成长曲线发展"** 的可控模拟？这能把 [[争论_先天语言vs统计学习]] 的核心争议从理论推到实证：模型在哪些点开始落后于真孩子？需要加哪些能力才能赶上？（触发来源：[[Vong_2024_单童语言习得]] + [[Cusack_2024_婴儿无助期假说]]）
+
+- [ ] **shape bias 的因果归因**：英语母语孩子的 shape bias 比中文/日文母语孩子强——这是不是因为英语 noun 词汇本身**更多按形状组织**（孩子从输入分布学到偏好），还是某种**先天倾向 + 经验调谐**？做一个跨语言婴儿 + LLM 对照（用纯英文 corpus 训 vs 用纯中文 corpus 训），看 LLM 的 shape bias 是否复现。（触发来源：[[词语学习机制]] + [[Zettersten_2026_Lecture9_语言2]]）
+
+- [ ] **Mutual exclusivity 在 bilingual 弱化的关键期**：Byers-Heinlein & Werker 2009 显示 bilingual 孩子 mutual exclusivity 较弱——这个差异是否有发展窗口？2 岁前接触第二语言 vs 5 岁前 vs 成年——bias 调节程度一样吗？这关系到"双语家长应该几岁开始第二语言"的实操建议。（触发来源：[[词语学习机制]]）
+
+- [ ] **headturn preference 与 LLM 的 perplexity surprisal 是否同源**？[[Saffran_1996_统计学习]] 中婴儿对 part-words "听更久"（novelty）暗示 part-words 在婴儿的内部模型里 surprisal 高——这跟 LLM 用 perplexity 评估 surprise 是同一信号吗？如果是，可以把婴儿 listening duration 与 LLM perplexity 直接对照，做"婴儿是否拥有跟 GPT-2 类似的 next-token 预测能力"的定量比较（触发来源：[[Saffran_1996_统计学习]] + [[ECE175B_Lecture1b_贝叶斯网络]]）
+
+- [ ] **L8 介绍的 Frank et al. 2024 *eLife* (Peekbank) 是否值得单独建 source 页**？讲座 8 用它作为 peer review 教学样本。但论文本身（Peekbank 数据库 + word recognition 速度发展曲线）跟 [[Vong_2024_单童语言习得]] 有方法学交集（都研究词学习的发展轨迹）——是否在课程后续提到时再补 source 页？（触发来源：[[Zettersten_2026_Lecture8_语言1与如何读论文]]）
+
+- [ ] **语言习得三大策略的相对权重模型化**：能否把 statistical regularities + social cues + cognitive biases 写成一个 weighted ensemble model，在不同年龄段给不同策略不同权重，看哪种权重曲线最佳预测真实词汇成长曲线？（触发来源：[[词语学习机制]]）
+
+- [ ] **whistled / sign 语言的统计学习是否仍有 transitional probability 的一阶马尔可夫结构**？这些非声学语言是 [[争论_先天语言vs统计学习]] 中"反 universals"的关键证据——但它们的统计结构是否仍跟口语类似？如果是，统计学习派立场更强；如果不是，需要修订模型。（触发来源：[[Zettersten_2026_Lecture9_语言2]]）
+- [ ] **Tuli 2022 提出的 Nussbaum capabilities approach** 是 2022 年针对 menstrual tracker app 设计的——该框架在 wearable / IoT / 生成式 AI 健康应用（2024+）的扩展性如何？是否有论文系统应用 capabilities approach 到 LLM 健康助手？（触发来源：编译 [[Tuli_2022_MenstrualTrackers]]）
+- [ ] **Basavaraja 2024 训练样本 N=91**（54 自然分娩进训练）—— deep learning 通常需要更多数据。模型是否对训练队列特征（人口构成 / BMI / 健康状态）过拟合？跨机构 / 跨地理 / 跨族群 external validation 缺失，临床部署前必须验证。（触发来源：编译 [[Basavaraja_2024_LaborPrediction]]）
+- [ ] **Mason 2024 + Basavaraja 2024 都用 Oura ring + 温度信号但 task 不同**（COVID 症状 vs 分娩日）—— 同一 wearable 是否能 multi-task 同时跑多个临床预测？工程实现（latency / 置信度融合）+ 商业可行性（FDA 单一 device 多 indication 监管）+ 伦理（用户知情）三层都未解决。（触发来源：[[Mason_2024_TemPredict]] + [[Basavaraja_2024_LaborPrediction]] 交叉思考）
+- [ ] **Tuli 2022 + Obermeyer 2019 + Jubran 1990 三者描述的是"医疗技术编码社会偏见"的同一现象的三个轴**（gender / 月经污名 ↔ race / 健康费用代理 ↔ race / 皮肤色素）——这套框架能否形式化成一个**抽象偏见编码模型**（社会标签 + 代理变量 + 算法决策的耦合结构），让未来论文能用同一术语讨论不同轴上的偏见？（触发来源：编译 [[Tuli_2022_MenstrualTrackers]] 后看到三个轴的结构同构）
+
+## 已回答
+
+（暂无）

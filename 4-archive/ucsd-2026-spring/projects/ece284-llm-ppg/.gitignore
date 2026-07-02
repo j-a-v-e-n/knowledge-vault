@@ -1,0 +1,28 @@
+# 数据集 - 太大不进 git
+data/
+*.mat
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# 实验输出 - keep results/ 但不 push 大文件
+results/*.npy
+results/*.pkl
+results/*.png  # 大图不 push, final report 用的图选择性 add
+!results/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# API keys 绝对不 push
+.env
+*.key
+configs/*.local.json
