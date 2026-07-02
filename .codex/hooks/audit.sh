@@ -55,7 +55,7 @@ case "$EVENT" in
     if [[ "$FILE_PATH" == *"task-board.md"* ]] \
        || [[ "$FILE_PATH" == *"approvals.md"* ]] \
        || [[ "$FILE_PATH" == *"automation/CLAUDE.md"* ]] \
-       || [[ "$FILE_PATH" == *"automation/docs/user-guide.md"* ]]; then
+       || [[ "$FILE_PATH" == *"3-resources/system-docs/automation/user-guide.md"* ]]; then
       SHOULD_LOG=true
     fi
     ;;
