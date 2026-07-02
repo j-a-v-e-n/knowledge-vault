@@ -125,7 +125,7 @@ threads_surfaced: M
 
 ### "已投递公司"特别 surface
 
-Javen 的 `MyBrain/career/applications.md` 里有他已投出的公司清单。
+Javen 的 `2-areas/career/applications.md` 里有他已投出的公司清单。
 **先 Read 那份文件**，提取所有 "投出"状态的公司名 + recruiter 邮箱（如果有）。
 
 发件人若匹配这份清单 → **强制 surface 到 🔴**，哪怕邮件内容看起来是自动回信。理由：可能藏着 OA 链接、面试邀请、reject 反馈。
