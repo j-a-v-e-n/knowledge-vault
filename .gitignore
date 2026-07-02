@@ -61,3 +61,6 @@ MyBrain/automation/runs/
 4-archive/**/data/
 4-archive/**/*.mat
 4-archive/kaggle-playground-s6e6/data/
+
+# === 顶层素材库(2026-07-02 reorg,自 MyBrain/ 平移;MyBrain/raw 行保留给 douyin 过渡)===
+/raw/
