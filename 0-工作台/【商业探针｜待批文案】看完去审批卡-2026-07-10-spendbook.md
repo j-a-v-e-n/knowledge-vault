@@ -1,6 +1,7 @@
 **这是什么**：商业探针 spendbook 的待批发布文案——探针页已上线，这里是准备发到各社区的最终帖子。
 **需要你做什么**：看完本卡后在 [[【商业探针｜发布审批】回一个词-spendbook]] 的 decision: 行回一个词（发 / edit: 怎么改 / 跳过）；手动渠道发完在 [[【商业探针｜手发回执】发完填日期-spendbook]] 填 posted_date。
 **不办会怎样**：不批就不发布，deploy+14 天到期自动记 not-run（不算负例）。办结后机器自动清进 done/（原件在 innovation/commercial/runs/ 留档）。
+**巡检 2026-07-11**：核实仍活——探针 FSM=awaiting-approval（07-10 起），decision 未填；不批 07-24 自动记 not-run。
 
 # 商业探针行动卡（审批请求）— spendbook（2026-07-10）
 
