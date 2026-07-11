@@ -1,5 +1,6 @@
-> 归宿：审批请求——看文案，去同目录《商业探针发布审批-*》回一个词（发/edit/跳过）。发布确认或跳过后机器自动清进 done/（原件在 innovation/commercial/runs/ 留档）
-**需要你做什么**：看完本卡后在 [[商业探针发布审批-spendbook]] 的 decision: 行回一个词（发 / edit: 怎么改 / 跳过）；手动渠道发完在 [[商业探针回执-spendbook]] 填 posted_date。
+**这是什么**：商业探针 spendbook 的待批发布文案——探针页已上线，这里是准备发到各社区的最终帖子。
+**需要你做什么**：看完本卡后在 [[【商业探针｜发布审批】回一个词-spendbook]] 的 decision: 行回一个词（发 / edit: 怎么改 / 跳过）；手动渠道发完在 [[【商业探针｜手发回执】发完填日期-spendbook]] 填 posted_date。
+**不办会怎样**：不批就不发布，deploy+14 天到期自动记 not-run（不算负例）。办结后机器自动清进 done/（原件在 innovation/commercial/runs/ 留档）。
 
 # 商业探针行动卡（审批请求）— spendbook（2026-07-10）
 
@@ -38,11 +39,11 @@ Happy to hear if ccusage already covers what you need, or where this kind of rec
 
 ## 怎么批
 
-打开同目录《商业探针发布审批-spendbook.md》，在 decision: 后回一个词：
+打开同目录《【商业探针｜发布审批】回一个词-spendbook.md》，在 decision: 后回一个词：
 **发**（照发）/ **edit: 怎么改**（改完重出卡再等你的发）/ **跳过**（本周不发）。
 
 ## 什么算信号（预注册，从真实发布时刻起 14 天）
 
 - 主指标：≥ 5 次"点进 checkout"（每周一自动报告；监控流量已剔除）
-- 自动渠道回执机器自记；手动渠道发完填 `商业探针回执-spendbook.md` 的 posted_date
+- 自动渠道回执机器自记；手动渠道发完填 `【商业探针｜手发回执】发完填日期-spendbook.md` 的 posted_date
 - 不批也行——deploy+14 天自动记 not-run（不算负例）

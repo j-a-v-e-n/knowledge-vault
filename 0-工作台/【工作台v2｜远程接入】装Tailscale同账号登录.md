@@ -1,8 +1,8 @@
+**这是什么**：工作台 v2 手机远程访问的唯一 owner 侧动作——装 Tailscale 并登录（账号/设备登录是身份操作，机器代办不了）。
+**需要你做什么**：在 Mac 和 iPhone 上装 Tailscale 并用同一 Google 账号登录（约 10 分钟，$0，逐步点击见下），装完在下面回一行或拖 done/。
+**不办会怎样**：手机远程接入一直停在冻结位；办完后机器接着配 serve + 钉死身份。
+
 # 工作台 v2 — Tailscale 接入（owner 身份动作，机器代办不了）
-
-**需要你做什么**：在 Mac 和 iPhone 上装 Tailscale 并用同一账号登录（约 10 分钟，$0，免费 Personal 档），装完在下面回一行。
-
-> 归宿：办完 → 把本卡拖进 done/（下次任何会话看到即接着配 serve + 钉死身份）
 
 为什么：工作台 v2 的手机远程访问走 Tailscale（零公网暴露、零密钥、免费——调研裁定见 workbench/research/CD-intent-queue-remote-access.md）。账号创建/设备登录是身份动作，按契约到步即停交给你。
 
