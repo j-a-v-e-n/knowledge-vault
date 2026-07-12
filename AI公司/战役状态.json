@@ -1,13 +1,13 @@
 {
   "campaign": "continuous",
   "day": 1,
-  "round": 5,
+  "round": 6,
   "phase": "build",
-  "next_action": "ROUND 5：执行序 ⑧ W6 金库分区（纲领 §6 VAULT ZONING：私人区 school/personal 机器永不写 / 公司区全运营一个 owner 面=0-工作台 / 实战经验库 winner 案例+最佳交付+焊住的教训、建得让人愿意翻）。已知失败模式=orphaned watcher，方案明令：先枚举**全部** writer/watcher/reader（grep 全仓库对 vault 路径的引用），双路守卫、路径 lockstep 迁移、每条 round-trip 证明后才切；独立轨可并行开工，**切换窗口等卡清零**（0-工作台 现有 5 张卡未清——枚举与准备先行，真切换等卡清）。开工前照例查 0-工作台 owner 回词：criteria v2「批」→冻结DRAFT+钉sha+翻开关；kit「发」→rider 记窗口；AESTHETICS「冻结」→钉sha+审美闸 enforce；修宪卡「批」→誊条文进 CHARTER+doctrine_lens=true+独立会话逐字diff；凌晨五连批 A/B 有答案照卡执行。然后 THE LOOP：SELF-ATTACK→fresh 子代理独立评审→修→回归批评史→日志→状态。",
-  "handoff": "ROUND 4 完成并过双路独立评审（详见战役日志 Round 4 条）：W5 四环轻改——勘探环合规听点稳定工件+coverage_context 接线（R3 边界②关闭）/ craft voicecheck 可选 report-only 过闸（真 kit 5/5 干净）/ workbench 冻结件两卡族（两张真卡页面从不可审批到全链可审批，线上实测）/ supervisor 教义镜头预建默认关+修宪卡排队。本轮最值钱捕获=decision 跨行正则真 bug（空 decision 行吞下一个标题，AESTHETICS 真卡实证），workbench 5 处+六文件 9 处全修+红先测试。评审 SOUND(1MED)+HAS-ISSUES(2MED+1LOW) 全修：页脚对冻结件族谎称 watcher（不实声称族，提交前抓获修净）、正则残留、W5 pairwise 偏离已显式记边界（审美闸 pairwise 卡型未建——生成器随 AESTHETICS 冻结激活后才有真卡，现建=空壳）。测试 pytest 156+勘探35+监事71+craft 全绿。等 owner：修宪卡（新）+ criteria v2 + kit + AESTHETICS + 凌晨五连批 A/B，开工前查过均空。",
+  "next_action": "ROUND 6：执行序 ⑨ W7 owner-gate 工作流（纲领 §6 OWNER-GATE TEST：每个卡族过三问闸——真两难/花钱/安全身份 才到 owner，其余机器代决+ledger 记理由，owner 桌面每周个位数卡；把 02:51 事故卡里『勘探环 5 条一键全批记 void 后的重裁』并入本轮降级提案；可顺路接纲领 §5.1 permission gate（Haiku 预筛 PERMISSION.md，已批准执行）进 workbench/owner-gate 身份层）。开工前照例查 0-工作台 owner 回词：criteria v2「批」→冻结+钉sha+翻开关；kit「发」→rider 记窗口；AESTHETICS「冻结」→钉sha+审美闸 enforce；修宪卡「批」→誊条文+doctrine_lens=true+独立会话逐字diff；凌晨五连批 A/B 有答案照卡执行（A=不是owner ⇒ 一级事故彻查+生产卡禁测结构闸提前）。注意：R5 起 PreToolUse hook vault-zone-guard.sh 已对本 worker 生效——vault 私人区（MyBrain/Clippings/2-areas/3-resources/raw/attachments/4-archive/1-projects 非飞地）Edit/Write 会被 exit 2 阻断，属正常防线不是故障。然后 THE LOOP：SELF-ATTACK→fresh 子代理独立评审→修→回归批评史→日志→状态。",
+  "handoff": "ROUND 5 完成并过双路独立评审后全修（详见战役日志 Round 5 条）：W6 金库分区——全库枚举成册（campaign/VAULT-ZONES.md）、裁决零物理迁移、写权清单 vault_zones.json+写闸 vaultzone.py（默认拒绝/symlink/NFC/firmlink）+applier 接线、实战经验库三件套补齐（最佳交付7+焊住的教训16 全带源）、owner 页 AI公司/金库分区.md。评审 1 CRITICAL（无人值守 worker 不受闸管+owner页过誓）→ 修=新增 .claude/hooks/vault-zone-guard.sh（PreToolUse 判死私人区 Edit/Write+Bash 粗闸，六用例实测）+页面改如实分层；4 MED 全修（枚举补 5 个 watcher兼writer/firmlink 剥离/safe_card_name 三处消毒/兄弟前缀测试补牙）；3 LOW 记档 VAULT-ZONES §5。测试 campaign30+workbench19+craft10+commercial22+prosp/sup21+ops 全绿。spendbook 卡上的『发』坐实为 02:51 事故残留（03:04 已记跳过，owner 页机器回执已终版更正），真实 owner 回词全空。等 owner：修宪卡+criteria v2+kit+AESTHETICS+凌晨五连批 A/B。",
   "complete": false,
   "started_iso": "2026-07-12T04:54:37-07:00",
-  "updated_iso": "2026-07-12T08:22:21-07:00",
+  "updated_iso": "2026-07-12T09:10:00-07:00",
   "day_deadline_epoch": null,
   "golive_authorized": true,
   "golive_evidence": "owner ran go_live.sh 2026-07-12 04:54 (plists installed 04:54:37, launchd job loaded, supervisor spawned worker 23013)"
