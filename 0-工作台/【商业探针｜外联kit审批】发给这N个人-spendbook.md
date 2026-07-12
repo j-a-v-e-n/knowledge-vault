@@ -65,16 +65,18 @@ Disclosure: I'm building spendbook and this is a presale validation — the page
 
 @thiswillbeyourgithub you filed this issue a year ago — "the openrouter prices are not automatically updated even though could be updated automatically using their API" — and it's still the standing failure mode of that tool class: a price table quietly goes stale and the numbers keep looking plausible.
 
-I'm building the opposite behavior into a small CLI called spendbook: the price table is an explicit, versioned input (a pinned LiteLLM commit), and a model missing from the table refuses to book — never $0, never a guess. Real run, same real usage events, two real table versions:
+I'm building the opposite behavior into a small CLI called spendbook: the price table is an explicit, versioned input (a pinned LiteLLM commit), and a model missing from the table refuses to book — never $0, never a guess. Two real runs of the current prototype — same real usage events (17 events extracted from one of my own agent sessions), two real LiteLLM table versions:
 
 ```
-$ spendbook post session.jsonl --prices litellm-8447cd3a.json     # current pinned table
-; 17 usage events → balanced ledger, total $2.256045, sum-check 0
+run 1 — table pinned at commit 8447cd3a (current):
+  17 usage events → balanced ledger, total $2.256045, sum-check 0
 
-$ spendbook post session.jsonl --prices litellm-3f5c5892.json     # real table from 2026-04-29
-✗ HARD FAIL — model 'claude-opus-4-8' not in price table: refusing to post
-  this event at $0 or a guessed price. (exit 2)
+run 2 — table pinned at commit 3f5c5892 (real table from 2026-04-29):
+  ✗ HARD FAIL — model 'claude-opus-4-8' not in price table: refusing to post
+    this event at $0 or a guessed price. (exit 2)
 ```
+
+(spendbook is presale — this is the prototype's real output, not a shipped binary you can install today.)
 
 The usage events are extracted from one of my own agent sessions (token counts verbatim, content stripped); both tables are real LiteLLM commits. Your proposal here was "update automatically via their API" — spendbook's version of the same instinct is "pin explicitly and fail hard on gaps", because an auto-updated table can also silently break, and an audit tool shouldn't guess.
 
@@ -91,23 +93,23 @@ Disclosure: spendbook is mine and in presale validation — the page (https://pr
 
 Your audit in this issue is now a before/after case study: the gpt-oss-120b copy-paste pricing you flagged ($3.00/M carrying DeepSeek-V3.1's rate) is fixed in the current table — which means any tool that follows the table silently repriced by ~13× at some commit in between, and nothing anywhere failed loudly.
 
-I'm building a small CLI (spendbook) on the position that the price table must be an explicit, versioned input — same events, two real LiteLLM commits, booked as double-entry ledgers:
+I'm building a small CLI (spendbook) on the position that the price table must be an explicit, versioned input — same events, two real LiteLLM commits, booked by the current prototype as double-entry ledgers:
 
 ```
-$ spendbook post batch.jsonl --prices litellm-3f5c5892.json   # real table, 2026-04-29
+prices = LiteLLM table at commit 3f5c5892 (real table, 2026-04-29):
 Expenses:LLM:Sambanova:GptOss120b:Input         3.000000 USD   ; 1,000,000 tok
 Expenses:LLM:Sambanova:GptOss120b:Output        0.900000 USD   ; 200,000 tok
 Liabilities:Provider:Sambanova                 -3.900000 USD
 sum-check (must be 0)                           0.000000
 
-$ spendbook post batch.jsonl --prices litellm-8447cd3a.json   # current pinned table
+prices = LiteLLM table at commit 8447cd3a (current pin):
 Expenses:LLM:Sambanova:GptOss120b:Input         0.220000 USD   ; 1,000,000 tok
 Expenses:LLM:Sambanova:GptOss120b:Output        0.118000 USD   ; 200,000 tok
 Liabilities:Provider:Sambanova                 -0.338000 USD
 sum-check (must be 0)                           0.000000
 ```
 
-(Token counts illustrative; both tables and both rates are real, and the delta is exactly your finding.) A missing model is a hard failure (exit 2, never $0); a present-but-wrong price is the failure class pinning alone can't catch — the table diff between pins makes it visible, and reconciling ledger totals against the provider's own billing is the layer I'm building for the rest.
+(Token counts illustrative; both tables and both rates are real. The input-rate delta is exactly your finding — $3.00/M vs $0.22/M, ~13.6×; the ledger totals differ ~11.5× because the output leg moved less. spendbook is presale — prototype output, not a shipped binary.) A missing model is a hard failure (exit 2, never $0); a present-but-wrong price is the failure class pinning alone can't catch — the table diff between pins makes it visible, and reconciling ledger totals against the provider's own billing is the layer I'm building for the rest.
 
 Disclosure: spendbook is mine and in presale validation — the page (https://probe-spendbook.vercel.app) runs Stripe in TEST mode, nobody can actually be charged today. Question: when you did the SambaNova audit, was that for a production cost pipeline of yours, and what does it treat as the source of truth today?
 
@@ -123,11 +125,11 @@ Disclosure: spendbook is mine and in presale validation — the page (https://pr
 # CAN-SPAM 六件套（FTC compliance guide 逐项）：header/From 真实 ✓、subject 如实 ✓、
 # 广告披露 ✓（正文 Disclosure 段，clear and conspicuous）、opt-out ✓（尾段，30 天有效）、
 # 邮政地址 = owner 发送前把 «OWNER-POSTAL-ADDRESS» 替换成真实通信地址（机器不掌握、不代填）。
-# subject: Your HN comment on inference cost hiding a ~300-tool bug
+# subject: Your Ask HN post — the 300-tool bug that cost noise hid
 
 Hello Roberto,
 
-Your HN comment stuck with me: inference cost is your main metric, and a bug loading ~300 tools stayed invisible for weeks because the cost movement "got hidden by other changes I made in the same period". That is a totals problem — one number absorbs everything, so nothing stands out.
+I'm writing because of your Ask HN post: inference cost is your main metric, and a bug loading ~300 tools stayed invisible for weeks because the cost movement "got hidden by other changes I made in the same period". That is a totals problem — one number absorbs everything, so nothing stands out.
 
 I'm building spendbook: it posts every usage event from an agent transcript as a double-entry journal entry, so cost lives in per-leg accounts instead of one total. A real session of mine (89 usage events, token counts verbatim, content stripped):
 
@@ -161,31 +163,30 @@ If you'd rather not hear from me about this again, reply "stop" and that's the e
 （在他们公开提问（'Are you using … or just letting the tokens burn?'）的帖子里公开回帖——Reddit 官方文本下比 DM/另发帖更稳的形态；遵守 r/LocalLLaMA 10% 自荐比例（owner 账号非推广号））
 
 ```````
-# channel: github-repo-discussion — 在 github.com/jfrog/boost 的 Discussions 开一帖
-# （has_discussions=true 已核验；他们在 Reddit 帖里公开求教，Reddit 冷 DM 禁用，
-#  在其官方 repo 答其公开之问；单发一次，不追帖）
-# title: Auditable per-leg cost ledgers as evidence for context-savings claims
+# channel: reddit-thread-reply — 在他们的帖子里公开回帖（评论），不是新帖、不是 DM：
+# https://old.reddit.com/r/LocalLLaMA/comments/1urugnh/stripping_terminal_noise_from_agent_context_via_a/
+# （他们帖内公开求教 "Are you using … or just letting the tokens burn?"——公开回帖=答其公开之问，
+#  Reddit 官方文本下比 DM/另发帖更稳的形态；遵守 r/LocalLLaMA 10% 自荐比例，owner 账号非推广号；
+#  单发一次，不追帖）
 
-Your r/LocalLLaMA post on stripping terminal noise ends with a real question — "Are you using something similar, or just letting the tokens burn?" — and the cost side of my answer is: I stopped being able to tell, until the spend was a ledger instead of a total.
+Your closing question — "Are you using something similar, or just letting the tokens burn?" — the cost side of my answer: I couldn't tell which, until the spend was a ledger instead of a total.
 
 I'm building spendbook: it books every usage event from an agent transcript as a balanced double-entry journal entry against a pinned, versioned price table. One of my own real sessions (89 events, token counts verbatim, content stripped):
 
-```
-; spendbook trial balance — 89 usage events
-; prices: litellm-8447cd3a.json (pinned commit — explicit, versioned input)
-Expenses:LLM:Anthropic:ClaudeFable5:CacheRead           5.844290 USD   ; 5,844,290 tok
-Expenses:LLM:Anthropic:ClaudeFable5:CacheWrite1h        5.187780 USD   ; 259,389 tok
-Expenses:LLM:Anthropic:ClaudeFable5:Input               0.000640 USD   ; 64 tok
-Expenses:LLM:Anthropic:ClaudeFable5:Output              3.579350 USD   ; 71,587 tok
-Expenses:LLM:Anthropic:ClaudeOpus48:CacheRead           4.234090 USD   ; 8,468,179 tok
-Expenses:LLM:Anthropic:ClaudeOpus48:CacheWrite1h        1.683990 USD   ; 168,399 tok
-Expenses:LLM:Anthropic:ClaudeOpus48:Input               0.000570 USD   ; 114 tok
-Expenses:LLM:Anthropic:ClaudeOpus48:Output              2.904750 USD   ; 116,190 tok
-Liabilities:Provider:Anthropic                        -23.435460 USD
-sum-check (must be 0)                                   0.000000
-```
+    ; spendbook trial balance — 89 usage events
+    ; prices: LiteLLM table pinned at commit 8447cd3a (explicit, versioned input)
+    Expenses:LLM:Anthropic:ClaudeFable5:CacheRead           5.844290 USD   ; 5,844,290 tok
+    Expenses:LLM:Anthropic:ClaudeFable5:CacheWrite1h        5.187780 USD   ; 259,389 tok
+    Expenses:LLM:Anthropic:ClaudeFable5:Input               0.000640 USD   ; 64 tok
+    Expenses:LLM:Anthropic:ClaudeFable5:Output              3.579350 USD   ; 71,587 tok
+    Expenses:LLM:Anthropic:ClaudeOpus48:CacheRead           4.234090 USD   ; 8,468,179 tok
+    Expenses:LLM:Anthropic:ClaudeOpus48:CacheWrite1h        1.683990 USD   ; 168,399 tok
+    Expenses:LLM:Anthropic:ClaudeOpus48:Input               0.000570 USD   ; 114 tok
+    Expenses:LLM:Anthropic:ClaudeOpus48:Output              2.904750 USD   ; 116,190 tok
+    Liabilities:Provider:Anthropic                        -23.435460 USD
+    sum-check (must be 0)                                   0.000000
 
-The "massive, redundant log tokens on every subsequent turn" from your post live in the CacheRead/Input legs — in this session the read side alone is ~14.3M tokens, $10.08, visible as its own account lines. Which is also the connection to Boost: a tool that strips context can state its savings as a before/after ledger diff instead of an aggregate counter — an auditable number a customer can recompute from their own transcripts.
+The "massive, redundant log tokens on every subsequent turn" from your post live in the CacheRead/Input legs — in this session the read side alone is ~14.3M tokens, $10.08, visible as its own account lines instead of buried in one number. Which connects to what you're building: a tool that strips context can state its savings as a before/after ledger diff a customer can recompute from their own transcripts, instead of an aggregate counter.
 
 Disclosure: spendbook is mine and in presale validation — the page (https://probe-spendbook.vercel.app) runs Stripe in TEST mode, nobody can actually be charged today. Genuine question back: does Boost's telemetry keep per-leg (input / cache-read / cache-write / output) attribution internally, or aggregate savings only?
 
