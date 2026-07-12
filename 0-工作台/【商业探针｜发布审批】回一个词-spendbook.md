@@ -5,4 +5,6 @@
 
 # 商业探针发布审批 — spendbook
 
-decision: <填 发 / edit: ... / 跳过>
+decision: 发
+
+> 机器回执 2026-07-12T02:52:01-07:00: 已发布 0 条（无自动通道）；2 条需手贴（Hacker News (Ask HN / regular submission); r/LocalLLaMA——文案在行动卡里）。计时窗口已从发布时刻起算。

@@ -13,4 +13,6 @@
 
 > 激活是整批的（activate.py 无单选）；激活后轮转共 14 个 brief，每晚每个约 1/14 概率被抽中。
 
-decision: <填 激活>
+decision: 激活
+
+> 机器回执 2026-07-12T02:51:26-07:00: 已激活并推送——box 今晚窗口生效（activated 事件在 manifest.jsonl）。
