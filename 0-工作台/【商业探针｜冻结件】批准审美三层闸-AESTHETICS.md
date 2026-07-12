@@ -10,7 +10,7 @@ decision:
 
 - **Tier-0 选源即闸**：视觉一律从精选源起步（shadcn/ui + shadcnblocks/Tremor 结构，land-book/godly 参照），禁训练记忆品味。
 - **Tier-1 机械底线**：Lighthouse accessibility ≥ 0.95、best-practices ≥ 0.95，不达标 deploy 不 accepted（代码判，不判"美"）。
-- **Tier-2 相对裁决**：vision-LLM 只做 pairwise（绝对打分仅 38% 准的论文实证）；**绝对审美判断永远是你的**，你的 pairwise 选择进口味台账。
+- **Tier-2 相对裁决**：vision-LLM 只做 pairwise、不打绝对分（arXiv 2510.08783：MLLM 与人类偏好部分维度背离、不能替代人评）；**绝对审美判断永远是你的**，你的 pairwise 选择进口味台账。
 
 ## 已有的真证据（尺子 DRAFT 期收的）
 
