@@ -1,0 +1,13 @@
+{
+  "campaign": "continuous",
+  "day": 0,
+  "round": 0,
+  "phase": "build",
+  "next_action": "ROUND 1：执行 THE LOOP 的当前块——在 Gen-2 doctrine freeze / stock re-adjudication / workbench 过硬 / vault 分区 中挑最高杠杆的一块 BUILD/IMPROVE，然后 SELF-ATTACK → 用 fresh 子代理独立评审 → 修 → 回归甲方批评史 → 追加战役日志 → 更新本状态。",
+  "handoff": "续跑引擎已建成并证明（campaign/tests/PROOF-RESULTS.md，四证全过、code-checked）。memguard 已装载保护。唯一未做：启用无人值守守护（spawns approval-off workers）——被 harness 安全闸拦下，需 owner 显式授权。见 0-工作台 go-live 卡 + campaign/go_live.sh。授权前 campaign NOT live。",
+  "complete": false,
+  "started_iso": "2026-07-12T04:30:00-07:00",
+  "updated_iso": "2026-07-12T04:35:00-07:00",
+  "day_deadline_epoch": null,
+  "golive_authorized": false
+}
