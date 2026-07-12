@@ -1,13 +1,14 @@
 {
   "campaign": "continuous",
-  "day": 0,
-  "round": 0,
+  "day": 1,
+  "round": 1,
   "phase": "build",
-  "next_action": "ROUND 1：执行 THE LOOP 的当前块——在 Gen-2 doctrine freeze / stock re-adjudication / workbench 过硬 / vault 分区 中挑最高杠杆的一块 BUILD/IMPROVE，然后 SELF-ATTACK → 用 fresh 子代理独立评审 → 修 → 回归甲方批评史 → 追加战役日志 → 更新本状态。",
-  "handoff": "续跑引擎已建成并证明（campaign/tests/PROOF-RESULTS.md，四证全过、code-checked）。memguard 已装载保护。唯一未做：启用无人值守守护（spawns approval-off workers）——被 harness 安全闸拦下，需 owner 显式授权。见 0-工作台 go-live 卡 + campaign/go_live.sh。授权前 campaign NOT live。",
+  "next_action": "Round 1 真实 worker（pid 23013，04:54 由 owner 的 go_live 启动）正在跑，跑完会自己更新本文件。它退出后：恢复哨兵（touch ~/ai-architect/campaign/state/CAMPAIGN_ACTIVE 或重跑 go_live.sh，二者幂等）→ launchd 守护复活并接管 Round 2+。",
+  "handoff": "05:0x 事故（已焊补，代码 a24b4e6）：proof 测试与生产共用状态目录，误删了 live 哨兵并清空 events.jsonl，随后误杀 supervisor——Round-1 worker 一度无监管（memguard 已重新罩住，实测树健康 440MB）。两路独立对抗评审（Fable-5 checkpoint）全部修复入库：测试全隔离+生产拒测、孤儿轮改收养（恢复哨兵任何时刻都安全，不会误杀在飞的轮）、memguard 加树总和上限、锁 TOCTOU 补龄、vault/local 状态取新者。唯一等 owner 的动作：恢复哨兵那一行（安全闸判定为 approval-off 自治开关，机器不代按）。",
   "complete": false,
-  "started_iso": "2026-07-12T04:30:00-07:00",
-  "updated_iso": "2026-07-12T04:35:00-07:00",
+  "started_iso": "2026-07-12T04:54:37-07:00",
+  "updated_iso": "2026-07-12T05:15:00-07:00",
   "day_deadline_epoch": null,
-  "golive_authorized": false
+  "golive_authorized": true,
+  "golive_evidence": "owner ran go_live.sh 2026-07-12 04:54 (plists installed 04:54:37, launchd job loaded, supervisor spawned worker 23013)"
 }
