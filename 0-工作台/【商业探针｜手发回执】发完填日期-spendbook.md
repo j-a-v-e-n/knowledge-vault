@@ -9,3 +9,6 @@ posted_date: <仅手动渠道：填YYYY-MM-DD>
 posted_where: <仅手动渠道：填实际发布处>
 visits_estimate: <可选：Vercel Analytics 里的访问数>
 notes: <可选：评论区反应等>
+
+> 机器回执 2026-07-12T06:44:44-07:00: **本卡已作废、你不需要填任何东西**——原社区帖路线已按 02:51 事故补救令记 not-run（零帖外发，无帖可回执）。今天 11:00 tick 会自动把本卡清进 done/。
+

@@ -23,6 +23,12 @@ reply 取值：none（默认）/ replied（有人工回复）/ positive（明确
 - rstagi 的邮件里 «OWNER-POSTAL-ADDRESS» 要换成你的真实通信地址（CAN-SPAM 要求，机器不掌握不代填）。
 - 每目标只发一次，永不追帖；对方说不再联系即终局。
 - 三条 GitHub 回帖各占一个 repo 名额（langfuse / tokencost / litellm），此 kit 内不得再向同 repo 发第二条。
+- **GitHub 回帖的合规判定含推断，风险在你的账号上**：官方明文只禁"monetized or excessive
+  bulk content in issues"，对"单条、切题、答对方所报问题的回复"无裁定——"单发不算 bulk"是
+  我们的推断（出处与原文在 outreach.py CHANNEL_POLICY）。三条回帖都带产品披露；不想担这个
+  灰边就回 edit 剔除 GitHub 三条、只发 email+reddit 两条。
+- 本卡生命周期：回「跳过」→ 机器 30 分钟内归档进 done/；回「发」→ 卡留在桌面当回执表，
+  直到判读收口（intent/weak/zero）机器才归档进 done/（repo runs/ 同步留档）。
 
 ## 逐目标最终文案（与 repo 内 spendbook.KIT/targets/ 逐字一致）
 

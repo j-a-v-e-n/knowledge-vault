@@ -1,13 +1,13 @@
 {
   "campaign": "continuous",
   "day": 1,
-  "round": 1,
+  "round": 2,
   "phase": "log",
-  "next_action": "ROUND 2（守护会自动派活，无需人手）：Gen-2 pilot 第二刀——D3 demo-first 外联 kit（spendbook 战场档案点名目标 + 逐目标真 demo 资产 + K5v2 合规硬表，机器只造 kit、发送永远 owner 手）+ criteria v2（K6 能力滤镜 / K7 战场五问）提案卡 + triage v2 管线代码（自由区建好、批后激活）。然后照 THE LOOP：SELF-ATTACK → fresh 子代理独立评审 → 修 → 回归批评史 → 日志 → 状态。",
-  "handoff": "ROUND 1 完成并过独立评审（详见战役日志 Round 1 条）：spendbook gen2 页上线（Lighthouse a11y 1.0/bp 1.0/perf 0.98，证据 runs/2026-07-12/gen2-evidence/），gen2 成默认页模板，防编造引文闸 fail-closed 焊进 deploy，D4 审美闸 report-only（enforcement 等 owner 批 0-工作台『批准审美三层闸』卡后设 [probe].aesthetics_enforced=true）。评审抓的 blocking（cache 1h/5m 档错价少算 60%）已修+平账断言焊进测试。留意：11:00 tick 会按跳过令清 spendbook 发布卡（零外发，页面在线）。—— 前情（05:0x 事故，另一路已焊补 a24b4e6）：proof 测试误删哨兵/误杀 supervisor，修复过两路独立评审；现况实测 05:42 heartbeat 健康、supervisor(36690) 已收养本 worker（pgid 23013），campaign LIVE，本 worker 退出后守护接管 Round 2。",
+  "next_action": "ROUND 3（守护自动派活）：W3 GENERATE 出生带战场——candidate schema 加 battlefield 字段（GENERATE_PROMPT/STRUCTURE_PROMPT + intake 同闸）+ 勘探环可听段接线（coverage map 喂 GENERATE 信号侧）；开工前先看 0-工作台 两张卡有无 owner 回词（criteria v2 回「批」→ git mv DRAFT→criteria-v2.md + config enforced=true + 钉 sha + owner-gate 台账；kit 卡回「发」→ 什么都不用做，rider 自动记回执窗口；回「edit」→ 按词改 kit 重出卡）。然后照 THE LOOP：SELF-ATTACK → fresh 子代理独立评审 → 修 → 回归批评史 → 日志 → 状态。",
+  "handoff": "ROUND 2 完成并过双路独立评审（详见战役日志 Round 2 条）：spendbook D3 外联 kit 建成（5 主发+4 bench，全一手核验、真算术 demo、K5v2 合规硬表焊码），kit 审批卡+criteria v2 冻结件提案卡都在 0-工作台 等 owner；triage v2 代码默认关（激活=两行，见卡）。评审 12 条发现全修（2 BLOCKING：渠道错标可骗闸→已焊码检；zero-intent 缺全发要件→已焊）。测试 85/85。要点：① 旧 spendbook 发布线=02:51 事故补救后 not-run（11:00 tick 清三张旧卡），kit 是唯一在推进的外联器械；② outreach rider 已挂 publish_watch 30-min 环（record-only，判读收口自动归档卡进 done/）；③ R1 handoff 的『跳过令』说法正确，本轮曾误读为 owner 批发、已更正在卡与 KIT.md。",
   "complete": false,
   "started_iso": "2026-07-12T04:54:37-07:00",
-  "updated_iso": "2026-07-12T05:58:00-07:00",
+  "updated_iso": "2026-07-12T06:46:48-07:00",
   "day_deadline_epoch": null,
   "golive_authorized": true,
   "golive_evidence": "owner ran go_live.sh 2026-07-12 04:54 (plists installed 04:54:37, launchd job loaded, supervisor spawned worker 23013)"
