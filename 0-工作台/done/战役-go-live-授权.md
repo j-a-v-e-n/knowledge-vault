@@ -26,3 +26,6 @@ touch ~/ai-architect/campaign/state/CAMPAIGN_ACTIVE
 
 ---
 办完 → 把本卡拖进 `0-工作台/done/`。
+
+
+> 机器回执 2026-07-12T06:26:44-07:00: owner 已于 07-12 04:54 执行 go_live.sh（launchd 守护装载、Round 1 已跑完并过独立评审）——本卡办结，机器代拖 done/。
