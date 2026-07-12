@@ -1,13 +1,13 @@
 {
   "campaign": "continuous",
   "day": 1,
-  "round": 6,
+  "round": 7,
   "phase": "build",
-  "next_action": "ROUND 6：执行序 ⑨ W7 owner-gate 工作流（纲领 §6 OWNER-GATE TEST：每个卡族过三问闸——真两难/花钱/安全身份 才到 owner，其余机器代决+ledger 记理由，owner 桌面每周个位数卡；把 02:51 事故卡里『勘探环 5 条一键全批记 void 后的重裁』并入本轮降级提案；可顺路接纲领 §5.1 permission gate（Haiku 预筛 PERMISSION.md，已批准执行）进 workbench/owner-gate 身份层）。开工前照例查 0-工作台 owner 回词：criteria v2「批」→冻结+钉sha+翻开关；kit「发」→rider 记窗口；AESTHETICS「冻结」→钉sha+审美闸 enforce；修宪卡「批」→誊条文+doctrine_lens=true+独立会话逐字diff；凌晨五连批 A/B 有答案照卡执行（A=不是owner ⇒ 一级事故彻查+生产卡禁测结构闸提前）。注意：R5 起 PreToolUse hook vault-zone-guard.sh 已对本 worker 生效——vault 私人区（MyBrain/Clippings/2-areas/3-resources/raw/attachments/4-archive/1-projects 非飞地）Edit/Write 会被 exit 2 阻断，属正常防线不是故障。然后 THE LOOP：SELF-ATTACK→fresh 子代理独立评审→修→回归批评史→日志→状态。",
-  "handoff": "ROUND 5 完成并过双路独立评审后全修（详见战役日志 Round 5 条）：W6 金库分区——全库枚举成册（campaign/VAULT-ZONES.md）、裁决零物理迁移、写权清单 vault_zones.json+写闸 vaultzone.py（默认拒绝/symlink/NFC/firmlink）+applier 接线、实战经验库三件套补齐（最佳交付7+焊住的教训16 全带源）、owner 页 AI公司/金库分区.md。评审 1 CRITICAL（无人值守 worker 不受闸管+owner页过誓）→ 修=新增 .claude/hooks/vault-zone-guard.sh（PreToolUse 判死私人区 Edit/Write+Bash 粗闸，六用例实测）+页面改如实分层；4 MED 全修（枚举补 5 个 watcher兼writer/firmlink 剥离/safe_card_name 三处消毒/兄弟前缀测试补牙）；3 LOW 记档 VAULT-ZONES §5。测试 campaign30+workbench19+craft10+commercial22+prosp/sup21+ops 全绿。spendbook 卡上的『发』坐实为 02:51 事故残留（03:04 已记跳过，owner 页机器回执已终版更正），真实 owner 回词全空。等 owner：修宪卡+criteria v2+kit+AESTHETICS+凌晨五连批 A/B。",
+  "next_action": "ROUND 7：开工照例查 0-工作台 owner 回词（6 张卡在等：修宪-两环降级【裁决-1/2/3】、监事会修宪-教义镜头、criteria v2、AESTHETICS、外联 kit、凌晨五连批 A/B——任何一张有词先执行；修宪批的执行路径=誊条文+独立会话逐字 diff+钉 sha+激活对应机制）。建议执行序：① 预建两环降级执行机制（监事会可逆时间盒提案自动跑 + 勘探环合规验活源自动加+自动回滚项，代码自由区预建、默认关、修宪卡批后一行激活——纲领 §6 明令模式；勘探环 5 条重裁的自动应用器也在此，裁决-3 单独批时做一次性带外应用）；② 纲领 §5.1 permission gate（Haiku 预筛 PERMISSION.md，owner 已批准执行、不再评估）进 workbench/owner-gate 身份层。出卡纪律：任何新卡族先注册 ledger/card_families.json 再写代码（表外族 gate() 直接拒）；手写卡出卡前自己跑一行 gate() 记账（R6 先例）。周一 publish_watch tick 会自动发首封真周摘要（W28）进 inbox——不用手动。警惕：09:30/21:00 有定时 wrapper sweep，新文件落盘即 git add 保持树一致（焊住的教训 #17）。",
+  "handoff": "ROUND 6 完成且独立评审复核 PASS（详见战役日志 R6 条）：W7 owner-gate——§1.7 调研（不 fork，OPA 字段概念+AWS BP02 确定性铁律）→ ledger/ownergate.py 出卡闸（默认拒绝注册表 19 族/周预算旗/机器自决记账）+ 八个写卡点全焊 + 周摘要 rider（生产 tick 实证）+ workbench 修宪两族注册（server 已重启）+ 修宪卡上桌（两环降级+5 条重裁，3 裁决行）。评审初判 FAIL：2 CRITICAL（distill 第八写卡点漏焊【活体】；applier verdicts 路由硬编码致修宪卡网页回词必败=编造手册文字类）+4 MED+2 LOW → 全修，复核 PASS（评审自重放 repro+自跑 220 tests 绿）。本轮自抓两真 bug：环测试灌 12 行垃圾进生产台账（根修=repo 根 conftest 全测试沙箱+清洗+更正行）；创新环 wrapper sweep 卷走在途 tracked 改动造断链 commit（未推出去即补齐；教训 #17 入实战经验库）。台账 15 行 append-only。等 owner：修宪-两环降级(3 裁决行) / 监事会修宪 / criteria v2 / AESTHETICS / kit / 凌晨 A/B——全部仍空。",
   "complete": false,
   "started_iso": "2026-07-12T04:54:37-07:00",
-  "updated_iso": "2026-07-12T09:10:00-07:00",
+  "updated_iso": "2026-07-12T10:00:00-07:00",
   "day_deadline_epoch": null,
   "golive_authorized": true,
   "golive_evidence": "owner ran go_live.sh 2026-07-12 04:54 (plists installed 04:54:37, launchd job loaded, supervisor spawned worker 23013)"
