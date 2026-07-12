@@ -8,3 +8,5 @@
 decision: 发
 
 > 机器回执 2026-07-12T02:52:01-07:00: 已发布 0 条（无自动通道）；2 条需手贴（Hacker News (Ask HN / regular submission); r/LocalLLaMA——文案在行动卡里）。计时窗口已从发布时刻起算。
+
+> 机器回执 2026-07-12T05:57:55-07:00: 更正上一条——**计时窗口尚未起算**。两条都是手贴渠道（HN、r/LocalLLaMA），窗口要等你在回执卡（【商业探针｜手发回执】发完填日期-spendbook.md）填 posted_date 才有起点；不填则 deploy+14 天后自动记 not-run（不算负例）。上一条『已从发布时刻起算』是措辞 bug，代码已修。
