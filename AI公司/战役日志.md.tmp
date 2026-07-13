@@ -1,0 +1,313 @@
+# 战役日志
+
+> 每轮一条：做了什么 / 攻击了什么 / 什么活下来。owner 随时看，机器从不 ping。
+> 纲领见 [[战役纲领]]；状态见 战役状态.json；实战经验见 [[实战经验库]]。
+
+---
+
+## Round 0 — Bootstrap：续跑引擎建成 + 看门狗证明（2026-07-12）
+
+**做了什么**
+- **纲领立权威**：把 owner 的 `CONTINUOUS CAMPAIGN CHARTER`（明令 supersedes ALL prior）逐字写入 `战役纲领.md`，取代早前一个并行会话誊的旧版（旧版是新版子集）。worker 每轮运行时从此文件读「逐字法律」，故纲领改动零代码传播。
+- **并行撞车化解**：开工时另一个会话（c6fe6446）正实时建同一战役。判定「整合、不硬刚」——审阅其 `campaign/lib.py`+`supervisor.py` 质量高（O_EXCL 锁+stale 检测、v2/兄弟环 deference、relaunch 天花板+指数退避、崩溃循环退避、孤儿回收、本地锁 vs vault 状态分离），不重写、不砸。后 owner 主动关掉那个窗口，本会话接管补全。
+- **补全 finish line**：`worker_run.sh`（无头单轮 round，subscription 计费，读纲领当律法）、两个 launchd plist、`campaign/launchd/memguard.py`（内存看门狗——v2 的 memguard 只管 /v2/ 且本机已停用，47GB 崩机前科；本 guard 精确只扫 supervisor 后代+登记孤儿 pgid，绝不误杀 owner 交互 claude）。
+- **证明看门狗（纲领 §1 硬闸，fact-shaped 全 CODE-checked，非自评）**：`campaign/tests/prove_watchdog.sh` 四证全过 → `PROOF-RESULTS.md`：
+  1. 单写者 O_EXCL 锁：活 holder 挡住第二个、stale holder 被打破重取；
+  2. kill→干净单份恢复：SIGKILL supervisor → 孤儿 worker 被回收、恰好一个 supervisor 存活、sentinel 移除后干净退出；
+  3. 崩溃循环→指数退避 + relaunch 天花板：快死触发 backoff_sleep、天花板挡住风暴、launch 数被 bound；
+  4. 对 live v2 RUN_WINDOW 完全让路：零 worker 启动、零争抢。
+- **memguard 已装载**（保护型，harness 允许）；自测 rc=0、扫描 procs=[] 无误杀。
+- **§2.4 实战经验库**：调研落库 4 个真实营收 AI 生意（Base44 [A-]、Chatbase [B]、陈云飞 [B]、HeadshotPro [C+]）+ 反面案例（卖铲子飞轮）+ 5 条可迁移打法，证据分级、红队过、双语井挖干。见 [[收入已验证的AI生意-案例库-v1]]。
+
+**攻击了什么 / 什么活下来**
+- 自攻 + code-check：看门狗四证在 env-压缩计时下可复现全过。测试自身两个 bug（kill 打到脚本自身进程组、relaunch_log 污染）被抓出修掉——**证明有效，非摆设**。
+- **诚实边界（未活下来 / 未验证）**：只证明了「续跑机器」牢靠；**没有证明「worker 真跑出好一轮」**——一轮真实 round 都还没跑过。这两个是不同的断言，不混。
+
+**下一步为何最接近目标**
+- 唯一卡点：启用无人值守守护会 spawn approval-off worker，被 harness 安全闸拦（[Create Unsafe Agents]+[Unauthorized Persistence]）。这**该 owner 拍**（授权 approval-off 自治=安全/授权决定，过 owner-gate）。已出 go-live 卡 + `campaign/go_live.sh`。
+- 授权后：守护启动跑 Round 1（真实 BUILD 一轮），其质量由**它自己的独立评审闸**把关；坏轮被 proven 的退避/天花板/wallclock/memguard 兜住，不会风暴或崩机。**授权前 campaign NOT live。**
+
+---
+
+## Round 0.5 — 事故 + 双路独立对抗评审 + 全量修复（2026-07-12 05:1x，Fable-5 checkpoint）
+
+**背景**：owner 04:54 亲自跑通 `go_live.sh`（launchd 守护装载、Round-1 真实 worker 启动）；随后 owner 切换模型至 Fable 5 并令"重做一遍"——执行为纲领 §2.1 的 **different-checkpoint 独立对抗评审 + FIX EVERYTHING FOUND**（推倒重写=重复造轮子，评审比重写更严）。
+
+**事故（如实记，不粉饰）**：重验时 proof 测试与生产**共用状态目录**——删掉了 live 哨兵（= KeepAlive 触发器）并清空生产 events.jsonl（**证据被本机器自己毁掉**）；随后清僵尸的 pkill 误杀了 launchd supervisor。后果：Round-1 worker 无监管裸跑（无 wallclock 罩、memguard 因 children.json 被删而看不见它）。发现后 5 分钟内：worker pgid 重新登记、memguard 重新罩住（实测树 440MB 健康）、根因焊补。
+
+**独立评审判决（两路 fresh-context，Fable-5）**：并发攻击评审 = HAS-ISSUES（1 CRITICAL：memguard 只查单进程不查**树总和**——47GB 事故正是"多个中等进程的子树"；2 HIGH：killpg 罩子代理只是假设从未实测、vault 状态无新旧比较可致回退；+4 MEDIUM/LOW）。合规攻击评审 = HAS-ISSUES（CRITICAL：「kill→干净恢复」在首次真实生产考验中**当场失败**且续跑引擎当初**没过独立评审就自评"已证明"**——正是甲方批评史里的 self-graded verdict 复发；+状态过期、陈云飞案例评级偏宽一档）。
+
+**全部修复（commit a24b4e6，四证 3 连跑全过）**：
+- 测试全隔离（专用临时目录）+ **生产在跑即拒测** + trap 杀净自起进程——事故根因焊死；
+- **孤儿轮改收养**：supervisor 复活后对在飞的轮"等它跑完（wallclock 罩内），超时才杀"——owner 任何时刻恢复哨兵都不会误杀 Round 1；
+- memguard 加**树总和上限**（largest-first cull 到 80% 上限；合成 7GB 树 code-check 通过）+ overlap guard fail-open（修掉自引入的 /bin/pgrep 路径 bug——瞎的看门狗比重叠更危险）；
+- 锁 stale-break 补**锁龄**门槛（TOCTOU：刚创建/未首跳窗口不可被打破）；vault/local 状态**取新者**；reap 失败保留登记；worker 日志 50MB 轮转；
+- **实测**（评审 HIGH#2）：真实 worker 进程树全体共享 pgid——killpg 罩得住（measured，边界如实标：setsid 后台进程可逃逸，由 memguard 后代分支兜）。
+- 纲领誊录 byte-level diff 复核 = 零漂移；陈云飞评级 [B]→[B-]（21财经=编辑背书的转述自述，高于纯自述、低于独立核实——按评审把理由写明）。
+
+**什么活下来**：锁/退避/天花板/让路四证（隔离重跑 3 遍全过）、纲领誊录、案例库主体、卡片格式与 owner-gate 分类。**什么没活下来**：初版"已证明"的自评判决（被推翻——真实考验暴露测试/生产耦合）、memguard 初版 scoping、初版 reap 语义。
+
+**等 owner 的唯一动作**：Round-1 worker 跑完后恢复哨兵——`touch ~/ai-architect/campaign/state/CAMPAIGN_ACTIVE`（或重跑 go_live.sh，幂等）。安全闸把这个开关判给 owner 本人，机器不代按、不绕。
+
+## Round 1 — Gen-2 pilot 第一刀：D4 审美闸 + spendbook 页面重建（2026-07-12）
+
+**做了什么**
+- **spendbook 探针页从 Arial 线框重建为 gen2 页并上线**（https://probe-spendbook.vercel.app）：Tailwind v4 + shadcn zinc token + Geist（Tier-0 选源即闸，出处在 `templates/gen2/README.md`）；hero/终端演示/真实痛点引文/三步说明/定价卡/FAQ 完整落地页。acceptance GET 200 + Stripe checkout 303 实测过。**顺手修掉线上真 bug**：旧页按钮价格重复渲染（"Pre-order — $19 — $19.00"）。
+- **终端演示 = 真数据真算术**：一条真实 agent transcript 的 claude-sonnet-5 usage 事件，按 pin 死的 LiteLLM 价格表（commit 8447cd3a）计出复式分录；stale-table 硬失败演示用真实 2026-04-29 旧表（真的没有 claude-sonnet-5）。计算脚本+输出存 `runs/2026-07-12/gen2-evidence/preview-computation.txt`。
+- **防编造代码闸**（`page_content.py`，fail-closed 且不崩 tick）：页面引文必须逐字（≥20 字符）链回 CK1 验过的冻结 dossier、link 一致；终端演示必须带出处 caption；结构闭世界。假引文实测被拦（测试 + 真 deploy 双证）。
+- **D4 审美闸建成、report-only**（`aesthetics.py` = Lighthouse，§1.7 不手搓）：每次 deploy 落证据进 record；enforcement 等 owner 冻结 AESTHETICS.md（提案卡已排队 0-工作台，纲领 §4 内核唯二可等 owner 的卡型；owner-gate 台账已记）。冻结件 criteria.md/checks.py/DOCTRINE/NORTH-STAR/PROBE spec **一字未动**（评审 git diff 验证）。
+- gen2 成为**所有未来探针的默认页**（"Nothing Gen-1 ships as-is"）；离线测试 86+10 全绿。
+
+**攻击了什么 / 什么活下来**
+- 两个 fresh-context reviewer 子代理独立攻击（页面质量线 + 声明/代码线，判决不由本会话自评）。
+- **被击破再修复（blocking，评审的真捕获）**：终端演示把 1 小时 cache write 按 5 分钟档计价、少算 60%——恰是产品自己声称要杀的静默错价。修正为 above_1hr 档（transcript 的 ephemeral_1h 字段亲手复核）、caption 把这个坑写成卖点、分录平账断言焊进测试（D5）。
+- **修复的 minor**：移动端账本断词（改横向滚动）；缺 OG/Twitter meta（已补，Reddit/HN 分享卡不再空白）；引文闸缺最短长度下限（cherry-pick 碎片防线，已焊+测试）；arXiv 具体数字本会话复核不到→按"查到 vs 推断"降级标注。
+- **活下来的**：引文逐字性（评审用 HN Algolia API 独立验证两条 verbatim）；Stripe TEST 披露（4 处，无空壳冒充）；AI 腔排查零命中（"unusually restrained"）；Lighthouse 终版 a11y 1.0 / best-practices 1.0 / perf 0.98、零失败审计；单写者纪律（FSM 零触碰，mtime 取证验证）。
+- **诚实边界**：① 页面重建 ≠ 市场结果——零外发（publish 跳过令维持原判），§1.5 只在 D3 外联真触达后才谈成败；② Reddit 引文外部验证被反爬墙挡（dossier 已知限制，如实标）；③ Tier-2 只有 reviewer pairwise（新页明确胜旧页、无回退），owner 口味台账未建；④ Tier-1 阈值是 DRAFT 尺子，未冻结不 enforce。
+
+**下一步为何最接近目标**：纲领点名的 pilot 交付 =「battlefield dossier + demo-first kit + 审美闸 → 一张干净审批卡」。审美闸已到位，下一轮做 **D3 外联 kit**（战场点名目标 + 逐目标 demo 资产 + K5v2 合规通道）+ **criteria v2（K6/K7）提案卡** + triage v2 管线代码（自由区、批后激活）。
+
+---
+
+## Round 2 — Gen-2 pilot 第二刀：D3 demo-first 外联 kit + criteria v2 提案 + triage v2 代码（2026-07-12）
+
+**做了什么**
+- **spendbook 外联 kit 真做出来**（纲领 §6 点名交付）：5 个主发点名目标 + 4 bench，全部两条子代理线一手核验（HN Firebase API / GitHub API / arctic-shift 存档；28 条渠道规则官方原文引文经独立红队逐字复核 28/28）。**两发最强个性化 = 用对方自己公开贴出的数字算账**：lichenyang-spdev（langfuse#14249，他手算的 $0.28 vs $0.20 漏计——我们的复式账逐分复现 $0.276218，cache-write 腿单列可见）；gakugaku（litellm#29011，他审计出的 gpt-oss-120b 13.6× copy-paste 错价——在两版真实 pinned 表上跑出账差）。其余 demo 全部真数据（本机真实会话 usage 事件提取，内容剥离、提取器 committed 可复现）或如实标注 illustrative。
+- **K5v2 渠道合规硬表焊成代码**（outreach.py CHANNEL_POLICY，每条带官方规则逐字引文+出处+证据级）：Etsy/小红书/闲鱼/Reddit-DM/GitHub 来源冷邮/自动化群发=结构性禁；冷邮=CAN-SPAM 六件套；GitHub 回帖=仅目标自开 issue、≤1 发/repo；中国收件人=opt-in 制（本轮补查《互联网电子邮件服务管理办法》第十三条，chicogong 因此移 bench）。合规判决直接重排了 kit：3 目标移 bench、1 升主发、2 换渠道——机器按硬表决、台账记 owner-gate.jsonl。
+- **criteria v2（K4v2 器械/K5v2 合规/K6 能力滤镜/K7 战场五问含③一票否决）**：DRAFT 落盘 + 冻结件提案卡排队 0-工作台（尺子=内核(a)，只提案不激活）；**triage v2 管线代码自由区建好默认关**（checks_v2.py report-only、config [criteria_v2] enforced=false、sha 篡改闸、批后两行激活），冻结件 criteria.md/checks.py 一字未动（评审 git diff 验证）。
+- **两张卡等 owner**：【商业探针｜外联kit审批】发给这N个人-spendbook（发送永远 owner 手；30-min rider 已挂 publish_watch 实测跑通）+【商业探针｜冻结件】批准triage-criteria-v2。
+- **顺手抓修的真 bug**：publish_watch 对手贴渠道也写「窗口已从发布时刻起算」（与 FSM T9b 矛盾，spendbook 卡上实证误导）→ 按 auto/manual 分叉修正；过时 go-live 卡、作废手发回执卡、旧发布审批卡三张全部注记/清理。**事实更正**：R1 handoff 说的「跳过令」是对的——旧卡上的「发」属 02:51 未归因事故、03:04 已补救跳过；本 worker 早期误读为 owner 已批发，已在卡上与 KIT.md 更正（kit 现为 spendbook 唯一在推进的外联器械）。
+
+**攻击了什么 / 什么活下来**
+- 两路 fresh-context reviewer 独立攻击（kit 内容+合规线 / 代码+纪律线），判决不由本会话自评。**双双 HAS-ISSUES，12 条发现全部修复**：
+  - 2 BLOCKING（两路独立命中同一处）：jfrog-boost 文案头仍是灰渠道 github-discussion 而声明是 reddit-thread-reply——**错标渠道能骗过合规闸**。修：文案重写为真 Reddit 帖内回复 + validate_kit 焊上"文案头渠道必须与声明一致"码检 + 测试（D5：错误变结构）。
+  - 1 BLOCKING/HIGH：zero-intent 判读没查预注册的「全部 N 条发出」要件，部分发出+沉默会被误杀进 killlist 且 kill 理由字符串撒谎（"kit fully sent"）。修：n_targets 要件 + 部分发出永不判杀 + 测试。
+  - 1 HIGH：kit 卡无 done/ 归档路径（违背金库常规）。修：判读收口自动注记+归档 done/（repo runs/ 留档），卡上生命周期如实写明。
+  - 2 MEDIUM 代码：write_kit_card 重跑会清 owner 已填数据（加 refusing-to-clobber 闸+测试）；scan 无逐文件隔离+非原子写（加隔离+tmp-rename+测试）。
+  - 1 MEDIUM 合规：GitHub 回帖 "allowed" 判定基于自认推断（官方无单条裁定）而 3/5 主发依赖它——修法=把推断和风险归属逐字亮在审批卡上，owner 可回 edit 剔除 GitHub 三条。
+  - 2 MEDIUM 诚实性：13.6×（单价）与 11.5×（账面总额）两个基数未分标（已分标）；两封信展示了不存在的 CLI 语法 `$ spendbook post`（改为如实的 prototype-output 框架）。
+  - 1 LOW：rstagi 开头"stuck with me"违 facts-only 语域（已改事实句）。
+- **评审验证为真的**：全部 7 组账本数字用 committed 工具逐字复算一致；全部 issue/HN/博客引文 gh api/直抓核验 verbatim；email 出处确非 GitHub 抓取；usage 事件确认零对话内容；无 transport 代码（机器只造 kit 成立）；冻结件零改动；v2 默认关对下游零行为变化（dashboard/collectors/kpi 消费路径逐一查过）。
+- **回归批评史**：无已知失败复发（空壳=无，卡上声称的机器行为全部真接线并实测；编造=零，评审专项核验；stale 卡=本轮反向清掉三张；self-graded=判决全部出自 fresh 评审）。
+- **诚实边界**：① kit 建成 ≠ 市场结果——§1.5 只认真实回复/意向数据，等 owner 批发后的 14 天窗；② GitHub 单条回帖合规性是推断非裁定，风险已亮卡；③ 闲鱼禁令结论是 C 级二手源（官方页不可达，如实标 UNVERIFIED）；④ jfrog-boost 的 Reddit 引文评审端被反爬挡、未能独立复核（调研端 arctic-shift 存档核验过，降半级如实标）。
+
+**下一步为何最接近目标**：两张卡等 owner 期间不空等。Round 3 = W3 GENERATE 出生带战场（candidate schema 加 battlefield 字段 + 勘探环可听段接线——D2 在想法出生处的焊接，比等审批更接近"想法生而有市场"）+ 处理 owner 任何卡上回词（批 criteria v2 → 冻结+激活；发 kit → 窗口起算）。
+
+## Round 3 — Gen-2 第三刀：W3 出生带战场 + 勘探环接线（2026-07-12）
+
+**做了什么**
+- **想法出生即带战场（二代改造方案 §5 W3 / 教义 D2「市场选择先于产品」）**：GENERATE 与 owner 投递结构化（intake）两个出生口的 schema 都加了 `battlefield{segment, where_they_live, why_them, reach_path}` 四要件，字段词汇与 `commercial/checks_v2.BATTLEFIELD_FIELDS` 完全同源（出生到 dossier 一套词汇；方案 §5 的第 5 字段 outreach_form 有意折入 dossier 阶段的 D3 instrument.choice，注释如实记录此偏离）。反 Goodhart 写死在规则里：默认种子=引用信号所在的那个社区（"你确实在那里听到了那个痛"）、听不见的段只许诚实标二手证据、宁要薄而诚实不要自信的雾。
+- **勘探环可听段接线（W3 第二半）**：`coverage_context()` 只读勘探环 coverage map，把「哪些 NAICS 段我们的信号源真听得见/聋着」渲染进两个出生 prompt；fail-open（map 缺失/坏损降级为诚实一行，绝不弄死每日 run，评审 fuzz 实测）。方案 §5 的「合规听点」数据勘探环侧尚不存在（map/feed_reach 只有可听度），如实记边界、等勘探环产出后接。
+- **report-only 硬边界（冻结内核零触碰）**：出生尺子 criteria.md C1-C6 + gate/checks.py 一字未动（评审 git diff 验证）；gate 只在 verdict json 里记 `battlefield_birth{enforced:false, present, errors}`（复用 checks_v2.ck4，try/except 包死绝不影响裁决），日报加一行出生带战场率并注明「只查非空、实质待 K7 批后判」。enforcement 属 criteria v2 K7，卡仍在 0-工作台 排队。
+- **battlefield 全链可见**：gate verdict → 日报行 → 商业池（exceeds-envelope 候选把出生战场带进 dossier prompt，明令"当起始假设、用证据改判、绝不静默丢弃"）。
+- **顺手修掉真 bug（评审独立验证为真）**：owner 投递的超纲（exceeds-envelope）想法进商业池时 `idea=""`——旧代码只读 candidates.json 从不读 owner-candidates.json，owner 的想法正文整个丢失；已修+回归测试钉死。
+- 本轮为**双会话接力**：上一 worker 完成 BUILD 后被杀（未提交、未评审），本 worker 从状态与工作树无损接上，走完评审→修复→收尾。
+
+**攻击了什么 / 什么活下来**
+- 两路 fresh-context 子代理独立攻击（代码+纪律线 / 设计+诚实线），判决不由本会话自评。判决：一路 SOUND（3 LOW）、一路 HAS-ISSUES（2 MEDIUM + 3 LOW），无 blocking，全部修掉或如实记边界：
+  - [MED×2 编造引文回归风险] 注释写「charter §6 W3」但纲领里 grep 不到 "W3"（W3 只住在方案 §5）；且字段清单引错节（§4b 无字段名、实际在 §5）+ 砍掉 outreach_form 的偏离没记录。→ 全部改为可 grep 核验的出处 + 一句话如实记录偏离。这正是甲方批评史里「编造手册文字」的族——被独立评审在提交前抓住并修掉。
+  - [LOW] corpus_hits 为 None 时渲染 "corpus hits: None"（评审 fuzz 抓的）→ 修 + 钉回归测试；[LOW] reach_path 被兼职当证据成色标记（语义混载）→ 二手标记改挂 why_them；[LOW] 日报出生率指标对机器候选近乎恒真（schema 强制四键必填）→ 日报行如实注明只查非空、防止读成实质合格率。
+  - **如实记的未修边界**：① 正常过闸→晋升 BRIEF 的路径尚不把 battlefield 写进 BRIEF 文件（COMPILE_PROMPT 未动；方案自己的路线图排在后续 W 刀）；② 合规听点未接线（上游数据不存在）。
+- **评审验证为真的**：冻结件五文件零 diff；GATE_PROMPT 未动、LLM 判官看不到 battlefield 规则、不可能借道杀候选；report-only 全链 code-true；owner-candidates.json 读法与真实生产者 schema 逐字一致；引用的 DOCTRINE D2 / 方案 §4b§5 / criteria-v2.DRAFT K7 / 0-工作台卡全部真实在位；无循环 import、checks_v2 零 import 副作用。
+- **测试**：172 全绿（tests/ 77 + commercial 52 + prospector 9 + supervisor 10 + craft 10 + workbench 14），含新 W3 套件 12 条 red-first。
+- **回归批评史**：无已知失败复发（空壳=无，battlefield 三处真消费；编造=评审抓住两处引文不精确、提交前修净；stale 卡=本轮零新卡；self-graded=判决全出自 fresh 子代理；市场盲=本轮正是焊它的刀）。
+
+**owner 卡零新增**：criteria v2 卡与外联 kit 卡都还在 0-工作台 等回词（本轮开工前查过，decision 行均空）；「凌晨五连批」A/B 也仍待答。
+
+**下一步为何最接近目标**：执行序走到 ⑦ W5 四环轻改——workbench M2 加两卡型（审美闸 pairwise、外联 kit 批准）+ craft 可选外联文案过 VOICE 闸（自由区直接建），supervisor Gen-2 教义镜头属修宪→提案卡排队；勘探环侧推进合规听点产出（正是本轮记下的两个边界之一的解锁钥匙）。想法已生而带市场，下一刀让四环把 Gen-2 教义各自咬合。
+
+## Round 4 — Gen-2 第四刀：W5 四环轻改（2026-07-12）
+
+**做了什么**（执行序 ⑦，方案 §7 W5 表四行逐行落）
+- **勘探环（接线，冻结章程零触碰）**：合规听点从「散落在滚动 runs/ 存档」变成稳定段级工件——新 `prospector/listening.py` 把 stage_research 的 vetted venues 投影成 `coverage/listening_posts.json`（hard NO-list venue 排除、probe 结果逐字搬运、纯增量自有工件走写守卫）；已从 07-10 真实 run 回填（62 医疗 7 听点 / 31 制造 7 / 52 金融 6，probe 验活仅 GoActuary 1 个）；innovation 端 `coverage_context()` 新增只读渲染分支喂进 GENERATE/intake 出生 prompt（独立 fail-open，坏档只掉节不掉 run）——**R3 记的边界②就此关闭**：聋区战场的 reach_path 现在有具体可指的合规 venue，渲染里如实写明「NOT ingested feeds、痛证据仍是二手直到 owner 批源」。
+- **craft（可选过闸，冻结件零触碰）**：`commercial/voicecheck.py` 只读复用 craft 的 vale_lint（facts-only register 硬规）+ stylecheck（advisory），report-only、验证过未接进 validate_kit（可选=结构性的，测试断言 outreach.py 源码里无 voicecheck）；真 kit 实跑 5/5 干净（证据 runs/2026-07-12/voicecheck-spendbook.json，Vale 不可用时如实报 UNCHECKED 绝不装干净）。
+- **workbench（两卡族）**：frozen-criteria（批/edit/驳）+ frozen-aesthetics（冻结/edit/缓）注册进 readmodel/intents/render 三处——此前两张冻结件真卡被通配前缀吞成 attachment、页面上根本无法审批；现已 kickstart 重启后 HTTP 实测两卡按钮齐全、applier 全链可写。
+- **supervisor（修宪提案+预建默认关）**：`doctrine_lens.py` 照 premortem 先例预建（LLM 起草+代码把关：违规判决缺 D0-D5 键/环/证据即拒收；DOCTRINE.md 只读、sha 记录在案），config `doctrine_lens=false` 默认关、周报逐字节不变（渲染工件驱动）；修宪提案卡【监事会｜修宪】批准Gen-2教义镜头常设节-2026-07-12 排队 0-工作台，owner-gate 台账记 kernel (a)/(e)。
+- **顺手抓修的真 bug（本轮最值钱的捕获）**：`decision[:：]\s*` 跨行正则——空 decision 行会把下一个 Markdown 标题吞成「已填值」，AESTHETICS 真卡实证（readmodel 误判已填→卡失去按钮，applier 误判 conflict→页面审批必败）。workbench 5 处 + 评审追出的六文件 9 处（activate_watch/prospector.watch/supervisor.watch/publish_watch/outreach/craft.approve）全部改 `[ \t]*`，红先回归测试钉死。
+
+**攻击了什么 / 什么活下来**
+- 两路 fresh-context reviewer 独立攻击（代码+纪律线 SOUND+1MED / 声称+诚实线 HAS-ISSUES 2MED+1LOW），判决不由本会话自评。全部修掉：
+  - [MED 声称线] workbench 页脚对冻结件族谎称「现有 watcher 施加后果/等 watcher 办结」（正是批评史「不实声称」族，提交前抓获）→ 页脚按 family 分叉如实写「本族无 30-min watcher：战役轮工作者开工读 0-工作台 时施加后果」，测试+线上双证。
+  - [MED 代码线] 跨行正则残留六文件未修未记 → 全修（见上）。
+  - [MED 声称线] W5 偏离未显式记 → 见下方边界①。 [LOW] 修宪卡零 wiki-link → 已补。
+- **评审验证为真的**：11 个冻结件路径 git diff 零改动；listening_posts.json 与源 blindspots.json 逐段核对（7/7/6、non_compliant 4/1/3）字段逐字无编造；coverage_context 接线真达 LLM prompt（非装饰）；voicecheck 字节级复现+planted 违规真报警；两卡族 sqlite readmodel 实证分类正确；doctrine lens 默认关代码为真；常设问与方案 §7 逐字节一致（无编造手册文字）；测试非恒真；AI 腔零命中。
+- **回归批评史**：无已知失败复发（页脚不实声称在提交前被独立评审抓获修净——闸在工作；空壳=无，四项全部真接线实测；编造=零；stale 卡=零新增；自评=判决全出自 fresh 评审）。测试全绿：pytest 156 + 勘探 35 + 监事 71 + craft 离线。
+
+**如实记的边界**
+- ① 方案 W5 workbench 行点名的「审美闸 pairwise 裁决」卡型**未建**：pairwise 卡的生成器不存在——那族卡由 Tier-2 审美闸产生，等 AESTHETICS.md 冻结（卡在 0-工作台 等回词）激活后才有真卡可审；现在注册空族=空壳。「外联 kit 批准」族 R2 已建（caf7ad8）。本轮实际建的两个冻结件族修复的是两张**现存真卡**页面不可审批的真缺口。
+- ② supervisor KPI「demo 外联转化列」未预建：kit 未发出、转化数据不存在，先建列只会永久空表；已写进修宪卡（批后随首份真实 outreach 数据一起接）。
+- ③ 听点的诚实成色：62/31 段听点全部无可用 feed（api-key/blocked/no-feed），「人在那里但机器听不进」，触达要靠 D3 人工渠道；probe 验活仅 GoActuary（其 R2 批准已被凌晨事故 void，不算已批源）。
+- ④ voicecheck 5/5 干净是对 R2 已修过语域的 kit 的复核，增量价值在未来新 kit 的机械闸，不是新发现。
+
+**owner 卡**：+1 修宪卡（教义镜头）；criteria v2 / 外联 kit / AESTHETICS 三卡 decision 仍空，凌晨五连批 A/B 仍未答（开工时查过）。
+
+**下一步为何最接近目标**：执行序走到 ⑧ W6 金库分区（私人区/公司区/实战经验库，先枚举全部 writer/watcher/reader、双路守卫、逐条 round-trip 证明——独立轨可并行开工，切换窗口等卡清零）；owner 若在任何卡回词，下一轮开工先执行。
+
+## Round 5 — W6 金库分区：三区落定 + 私人区写闸（2026-07-12）
+
+**做了什么**：执行序 ⑧（纲领 §6 VAULT ZONING）。① fresh Explore 子代理全库枚举 vault
+writer/watcher/reader（含 launchd + 三个仓库外项目），成册 `campaign/VAULT-ZONES.md`；
+枚举证明全部机器写点已在公司运营路径、私人区零机器写 → **裁决零物理迁移**（分区=清单声明+
+默认拒绝写闸；orphaned watcher 已知失败模式本轮风险为零；「切换等卡清零」因无切换而不再适用）。
+② 写权清单 `campaign/vault_zones.json`（公司区六写面允许名单）+ 写闸 `campaign/vaultzone.py`
+（stdlib resolve+is_relative_to，带源调研；默认拒绝、symlink 展开、NFC、firmlink 剥离）+
+接线 workbench/applier（web 动态卡名唯一入口：非空平名检查+闸）。③ 实战经验库补齐纲领三件套：
+赢家案例 v1（已有）+ 最佳交付 7 条（路径全核实）+ 焊住的教训 16 条（每条带 commit/STATUS 源）+
+索引；vault 侧 owner 页 `AI公司/金库分区.md`。④ owner 回词巡检：唯一已填的 spendbook「发」
+坐实为 02:51 事故残留（03:04 已补救记跳过），真实回词全空、无待执行裁决。
+
+**攻击与判决**：自攻抓出空卡名 IsADirectoryError + pathlib 不折叠 `..` 两坑（红先测试证）。
+双路 fresh 子代理独立评审（证据核查 + 红队攻闸）：**HAS-ISSUES，1 CRITICAL + 4 MED + 3 LOW**。
+CRITICAL=无人值守 campaign worker 本身跑在 bypassPermissions 下不受 python 闸管、owner 页
+「由代码强制」过誓 → 修：新增 PreToolUse hook `.claude/hooks/vault-zone-guard.sh`（复用同一
+manifest 判死 Edit/Write/NotebookEdit，Bash 写形命令粗闸；六用例实测），owner 页改为如实分层
+表述。MED：枚举表漏 5 个 watcher 兼 writer（补齐）；firmlink `/System/Volumes/Data` 别名管辖
+逃逸（闸剥别名+测试）；craft/commercial 动态卡名 f-string 无消毒（`safe_card_name()` 三处接线+
+测试）；测试咬不住 startswith 突变（兄弟前缀向量补牙）。LOW×3 记档于 VAULT-ZONES §5。
+评审同时核实：教训 11/16 深查无编造、交付 7/7 路径真实、突变检查声称精确复现、无 AI 腔。
+
+**什么活下来**：写闸+hook+消毒+30 项测试（campaign30/workbench19/craft10/commercial22/
+prosp+sup21/ops 全绿）；实战经验库三件套；枚举册与分区清单。**诚实边界**：LLM worker 的
+Bash 写只有粗正则（内核级 sandbox 属后续轮）；固定路径 python 写点靠 conformance 而非逐点
+运行时闸；claudian/douyin（owner 私人自动化）不在辖内。
+
+**回归批评史**：空壳（闸经评审活体验证）/编造（抽查通过）/stale 卡（零新卡）/隐身特性
+（文档=修后事实）/AI 腔（评审确认）/自评判决（判决全出自 fresh 子代理）/orphaned watcher
+（零迁移）——零复发。
+
+**下一轮**：执行序 ⑨（纲领 §5 Pi 采纳 staging：permission gate 预筛已批准执行）或按状态 json
+next_action。
+
+## Round 6 — W7 owner-gate：三问出卡闸焊进每个写卡点（2026-07-12）
+
+**做了什么**：执行序 ⑨（纲领 §6 OWNER-GATE TEST）。① §1.7 前置调研（fresh 子代理，带源）：
+OPA/Cerbos=policy daemon、LangGraph/OpenAI-SDK=agent-runtime 特性、HumanLayer(已自弃)/
+gotoHuman=SaaS——三类形态全不匹配"本地文件卡+stdlib+无常驻服务"→ 排除法定案：在既有
+owner-gate.jsonl 台账上写薄层，借 OPA decision-log 字段概念（decision_id/input）+ AWS
+AGENTSEC04-BP02 铁律（分类器必须确定性规则、不许 LLM 过闸；全过人审=rubber-stamp 反模式，
+恰是 owner"个位数卡"目标的权威背书）。存档 `ledger/research/2026-07-12-ownergate-survey.md`。
+② `ledger/ownergate.py` + 注册表 `ledger/card_families.json`（19 族逐一过三问带理由；表外
+族默认拒绝，先例 vault_zones）：gate()=准入+记账+周预算旗（>9/周亮 budget_breach 不硬扣）、
+machine_decide()=代决记账、maybe_weekly_digest()=每 ISO 周一封「机器自决周摘要」进 inbox
+（7 天否决窗、写前过金库分区闸、空周不发）。③ 焊接**八个**写卡点（commercial 行动卡三卡组/
+外联 kit/craft 发布+冻结/craft 蒸馏提案/激活卡 create-refresh 去重/监事会/勘探环/ops 双路
+fail-open——事故通道不因记账失败被压制）+ publish_watch 30-min tick 挂周摘要 rider（生产
+launchd tick 当场实证跑通）。④ workbench 注册修宪卡两族（campaign-amendment verdicts/
+supervisor-amendment decision），server kickstart 重启后页面渲染验证。⑤ 修宪提案卡
+【战役｜修宪】准许两环降级-2026-07-12 上桌（内核 e 排队）：裁决-1 监事会可逆时间盒提案自动跑、
+裁决-2 勘探环合规验活源自动加、裁决-3 独立重裁 02:51 被 void 的 5 条（GoActuary RSS + 4 个
+联邦公开数据检测器）——一词一事，5 条批后逐条进周摘要可单条否决。
+
+**攻击与判决**：自攻抓出两个真 bug——(a) 环 offline 测试真走焊后写卡路径，往**生产审计台账**
+灌了 12 行测试垃圾（07-11 test_regen 清生产 panel-seen 同类病）→ 根修 repo 根 conftest.py
+autouse 沙箱 + 默认参数运行时解析，垃圾清洗+记档；(b) 09:30 创新环 wrapper 的 sweep 把在途
+焊点改动卷进 a5b01b2（sweep 只卷 tracked 留 untracked → "焊点入库、被 import 的模块还在
+树外"的断链 commit），侥幸未推出去，补齐提交一次推送修复 → 焊住的教训 #17。fresh 子代理
+独立评审判 **FAIL：2 CRITICAL + 4 MED + 2 LOW** —— CRITICAL#1=craft/distill.py 是第八个
+写卡点、漏出"七处焊全"清单（活体，craft tick 每轮在跑）；CRITICAL#2=修宪卡声称"网页表单
+也能回词"但 applier 的 verdicts 路由硬编码 (supervisor,prospector)，本卡族掉 decision 分支
+永远被拒（正中"编造手册文字"回归类）。全修：distill 注册+焊闸+WELDS 补条目；applier 改
+FAMILY_GRAMMAR kind 驱动路由（主判+self-heal 两处）+ 两族端到端回归测试；MED×4（台账假证据
+指针→append-only 更正行 529322d8f429；裁决-1 挪用勘探环事故→改归属+"这句是推断"逐字标注；
+周摘要否决措辞→"人手执行、无自动回滚 daemon"；ownergate 头注补"管辖边界"三条）；LOW#7→
+裁决拆三行。**复核判决 PASS**（评审重放自己的 repro 验证修复、自跑 220 tests 全绿）。
+
+**什么活下来**：出卡闸+19 族注册表+八焊点+conformance 测试（22 条新测试，全套 202-220 绿）+
+周摘要 rider（周一首封 W28 真摘要自动落 inbox）+ 修宪卡（3 裁决行，页面可回词）+ 台账 15 行
+（append-only：12 原 + 卡行 + 清洗行 + 更正行）。**诚实边界**：ops 两族闸=记账不是准入
+（fail-open 写死+声明）；手写卡焊不了代码闸=会话契约+自记 gate() 行；记账先于落盘，Drive 挂
+时台账可能多记一张未送达的卡；否决窗是"下个会话人手执行"不是 daemon；评审 residual：卡行
+169de1de4ee1 没补裁决-3 拆分的伴随注（卡内容自洽为准）、:8787 渲染是我 curl 验的、评审未独立
+复核（数据层已由测试证明）。
+
+**回归批评史**：空壳/隐身特性（两 CRITICAL 恰是此类，修+测试+活体验证）/编造文字（三处全修，
+含台账自引证据）/stale 卡（零新增；spendbook 四卡 11:00 tick 自动善终）/AI 腔（评审未标）/
+自评判决（FAIL→修→复核 PASS，判决全程在 fresh 子代理手里）——已知失败零复发。
+
+**owner 卡**：+1 修宪卡（两环降级+5 条重裁，3 裁决行）；criteria v2 / AESTHETICS / kit /
+监事会修宪 / 凌晨五连批 A/B 开工时查过，全部仍空。本周出卡 5 张（预算 ≤9，台账可查）。
+
+**下一轮**：开工照例查 owner 回词（现在 6 张卡在等，任何一张有词先执行）；建议执行序=预建
+两环降级执行机制（监事会自动跑可逆实验 + 勘探环合规源自动加，代码自由区预建默认关、修宪批后
+一行激活——纲领 §6 明令模式）+ 纲领 §5.1 permission gate（Haiku 预筛 PERMISSION.md，已批准
+执行）进 workbench 身份层。
+
+---
+
+## Round 7 — §5.1 permission gate 建成 + 三评审判 FAIL→全修→复核 PASS（2026-07-12）
+
+**做了什么**：执行序 ②（纲领 §5 PI ADOPTION 第 1 条 permission gate，owner 已批、不再评估）。
+① §1.7 前置调研（fresh 子代理，带源，`ledger/research/2026-07-12-permgate-survey.md`）：六家现成
+方案（LlamaFirewall/PromptGuard2、NeMo、GuardrailsAI、llm-guard、Invariant Gateway、superagent）
+逐一对约束——全形态性不匹配（HF 模型下载+torch / 常驻 proxy / 接管应用的框架）且问题不同构
+（它们做内容安全/注入检测，本任务做自家权限策略判定）→ **不 fork，薄层自建**，三样借现成智慧：
+判定内核=Anthropic 官方 harmlessness-screen 成文模式（Haiku + 强约束 JSON）；fail-semantics=
+Progent「动作空间只准收缩」+ OWASP LLM06「授权在下游」+ AWS「LLM 不是 security enforcement」。
+② `ledger/PERMISSION.md`（辑录既有冻结裁定，B 段每条带出处，唯一综合项 B.8 明标非逐字）+
+`ledger/permgate.py`（Haiku 预筛，只判 **DENY/DEFER、永无 ALLOW 权**；故障/超时/pin 不合/闸被关
+一律 DEFER 落到确定性闸，且**留痕** `_degraded()`）+ config sha 钉 PERMISSION.md。
+③ 焊进**两条** `claude -p` 路径（本仓全部模型调用面）：`v2/lib/claude_cli.call`（innovation 全家
++craft+ops+v2 executor）+ `learning/subscription.complete/complete_meta`（learning 环，含 ai_itself
+的 WebFetch/WebSearch agentic 调用）+ 最高权限 agent `campaign/supervisor.run_one_worker` 开跑前筛
+行军令。④ workbench 架构树加 permgate 节点（sha 钉合校验 + enabled 状态可见）。
+**真 Haiku 实测四类 prompt 全对**（证据 `ledger/research/2026-07-12-permgate-live-validation.md`）：
+恶意 force-push+发布+花钱→DENY、凭证外传+注入→DENY（注入未翻转判定）、行军令→DEFER、讨论禁令→DEFER。
+
+**攻击与判决**：自攻先抓出两真 bug 全修——(a) `ops/tests/test_vault_guard.py` standalone 直跑往
+**生产** owner-gate 台账灌 2 行测试垃圾（R6 同型病灶残留缺口，1f2f015 焊了四环套件漏了本套件）→
+补焊套件台账沙箱 + 新建 `ownergate.void()` 作废机制；(b) `prospector.rollback_source` 二次回滚无
+防护 → 加"最后一次 apply 后已有 rollback 行则拒"。**三个 fresh-context 独立评审并行攻击，全判 FAIL**，
+合并去重 ~11 条真发现：**CRITICAL** = B4 permgate docstring 谎称"全仓唯一 choke point"（learning/
+subscription.py 独立路径绕过、含 agentic 注入面）；B6 DENY 路径 `ownergate_row_failed` 在 append
+之后设置=永不落盘；B7 `void()` 无守卫可让 owner 读的周摘要里任意卡（含 kernel 卡）消失，撞"绝不瞒着
+不列"；B1 PERMISSION.md item 8「破坏性操作」无出处=私自立法伪装成逐字。**MED/严重** = B2 item 7
+引错 §（§7→§4）；②#3 四条闸失效路径不留痕可静默永久关闭；①#2 supervisor 测试 `(A and B) or True`
+重言式恒真、覆盖 autoexec 时间盒回滚这条核心安全承诺；①#3 `engaged()` 对缺 families 键注册表抛
+KeyError 崩溃周报（与 fail-closed 宣称不符）；①#4 route 缺批内断点、崩溃重跑误报撞名卡；B8 claude_cli
+焊点吞异常无日志。**全修**：B4→焊 subscription 两函数+改正两处 docstring+诚实边界；B6→重排先记账后
+落盘（实测强制失败后 `ownergate_row_failed` 真落盘）；B7→改成**被作废行照列标 ⊘不隐藏**（只从预算摘除）
++void 守卫（目标须存在、拒 void-of-void）；B1→头注承认 B.8 唯一综合项非逐字+分散依据；B2→改引 §4；
+②#3→`_degraded()` 四路径全留痕+workbench 显示 enabled；①#2→去 `or True` 改真断言（红队拆守卫验证
+测试真挂）；①#3→`.get("families",{})`+拓宽 except（三种畸形注册表实测 fail-closed）；①#4→
+`already_applied_by_us()` 事件流判幂等跳过；B8→stderr 留痕。**第四个 fresh 评审复核判 ALL-FIXED-CLEAN**
+（真读码+跑 216 pytest+红队式行为验证；逐条 FIXED，唯一遗留=subscription 焊点缺回归测试的覆盖缺口→
+已补 3 条测试闭环）。
+
+**什么活下来**：permgate（判定内核+两焊点+worker 行军令闸）+ PERMISSION.md（sha 钉）+ void 作废机制
+（照列不隐藏）+ 12 条新 permgate 测试 + 4 条 supervisor 焊点测试 + 3 条 void 测试 + route 幂等测试；
+全套 **263 pytest 绿** + 5 个 standalone runner 绿；真 Haiku 四类实测 + B6/降级留痕代码级实测。
+**诚实边界**：真 Haiku 判定是概率层（咨询性减法），唯一放行权威仍在确定性闸（hook/sandbox/ownergate/
+vaultzone）；焊的是本仓已知两条 `claude -p` 路径，将来**新**起的调用若不经这两条会漏筛=conformance
+约束非结构强制（docstring 已如实标）；permgate 默认 enabled，是加分层不是承重墙（闸炸/被关都 DEFER
+放行，但留痕）；prompt 注入对抗是持续军备竞赛，实测只证当前四类不被翻转。
+
+**回归批评史**：空壳（permgate 真 Haiku 实测非摆设）/隐身特性（arch 树可见+sha 钉）/编造手册文字
+（B1/B2 恰是此类，评审抓出+全修+现逐字对照通过）/stale 卡（零新增）/AI 腔（评审未标）/自评判决
+（三评审 FAIL + 第四评审复核 PASS，判决全程在 fresh 子代理手里，我只自攻不判）/orphaned watcher
+（零迁移）——已知失败零复发。
+
+**owner 卡**：本轮**零新增卡**（permgate 是自由区代码，非内核；未碰任何冻结件）。7 张在等的卡
+（修宪-两环降级/监事会修宪/criteria v2/AESTHETICS/外联 kit/凌晨五连批 A/B）开工时逐一查过，全部仍空。
+
+**下一轮**：开工照例查 owner 回词（7 张卡在等，任一有词先执行——修宪批的执行路径=誊条文+独立会话
+逐字 diff+钉 sha+激活对应机制）。建议执行序=纲领 §5.2 token 效率（context-noise 过滤 strip
+git-log diff/注释 + lazy skill/charter 加载，owner 已批准执行）进 v2 executor，或 §5.3 Pi 执行基座
+staging（一条 brief lane 试点，沙箱包本仓 harness）。警惕：09:30/21:00 wrapper sweep 落盘即 git add
+（教训 #17）；permgate 已对 learning/v2/innovation/craft/ops 全线生效，新起 claude -p 须自己调 _screen/enforce。
+
+## Round 8 — §5.2 token 效率：lean/slim context profiles（2026-07-12）
+
+**做了什么**：执行序 ①（纲领 §5 PI ADOPTION 第 2 条 token 效率，owner 已批、不再评估）。开工照例查 0-工作台：7 张卡全空（占位符未填），无 owner 回词可执行。
+① 坐实噪音在哪（代码核对）：v2/rings 没有任何一处把 git-log/diff 喂给模型（那类只在纯代码 metrics 里）；真噪音大头 = headless `claude -p` 每次自动注入的 charter/CLAUDE.md/rules/skills/MCP schema——仓库内 tool-less 调用实测 **31,670** ctx tokens/次。
+② §1.7 前置调研（fresh 子代理带源 + 独立红队复核 CONFIRMED，`ledger/research/2026-07-12-token-efficiency-survey.md`）：结论 = **零新轮子**，全用 CLI 原生旗子/env；`--bare` 官方推荐但锁死 API-key 认证（OAuth 永不读）→ 我们订阅计费，不可用，如实记为与官方推荐的唯一分歧；LLMLingua 类压缩器不采用（压缩对象错位：已知来源的固定噪音该"不加载"而非"有损压缩"）。
+③ 建成两档 profile 焊进 `v2/lib/claude_cli.call()`：**lean**（auto：tool-less/纯 WebSearch·WebFetch 调用 → 仓库外 leanroom + `--setting-sources ''` + `--disable-slash-commands` + `--strict-mcp-config` + `--no-session-persistence` + `--tools 白名单` + env 禁 CLAUDE.md/auto-memory）= **3,318 tokens/-89%（穿 weld 活体实测）**；**slim**（显式，stages_v2 ruler/build 两处 agentic 调用 → 不动 setting-sources、全部 hooks 保留，只剥 charter/memory/skills/MCP）= **19,274/-39%**。安全线：能碰本地文件系统的调用永不自动进 lean；`V2_LEAN_CONTEXT=0` 一键全回。自动受益（零改动）：innovation 全家、prospector、commercial dossier、student 蒸馏+RAGAS judge、ops 告警、permgate 自身 Haiku 预筛。calls.jsonl 审计加 context_profile/context_tokens；workbench 架构树加 leancontext 节点（逐字引文+sha）。
+
+**攻击了什么**：自攻抓 1 真缺陷先修——CLI 自动更新砍旗子会让 lean 调用静默拿空结果 → 加"rc≠0 且信封不可解析→剥旗回退 full 重试一次+留痕"。承重语义全部代码实测非文档推定：marker-hook 实验证明 slim 下项目 PreToolUse hook 真开火（vault 写闸零损失）；stream-json 证明 lean 下 WebSearch 真开火（注意 `web_search_requests` 计数器在此模式恒 0，是计量口径怪癖）。**两个 fresh-context 独立评审并行判决，双双 PASS**：反 Goodhart 对账员独立复现 token 数字（差 <2.3%）、重放 hook 实验、逐测试判"真测机制非同义反复"、278 pytest 复跑一致，零 REFUTED；攻击手独立活体复测 4 项承重声称全成立、grep CLI 二进制验证旗子/env 无一编造、逐调用点核对覆盖面声称全真，抓出 1 MED+4 LOW+1 nit。
+
+**修了什么（评审发现全修，279 pytest 绿）**：MED=kill switch 对 `context='lean'` 会 ValueError 崩溃而非降级（违反"一键全回"合同）→ 结构不合格与 kill switch 分离，降级+新测试钉死；LOW×4=survey 披露缺口（lean 还剥 UserPromptSubmit/Stop/output-style，已补全损失面）、"唯一 choke point"措辞复发 B4 病灶（已改口，架构树引文自动带上纠正版）、回退不可审计（meta 现报 `full-fallback`）、`--tools` 变参旗吞参脚枪（重排块首）；nit=注释引错实测数。
+
+**什么活下来**：两档 profile + 安全线 + 回退 + kill switch + 16 条新测试；全套 **279 pytest 绿** + craft/ops standalone 绿；survey 文档（实测表 8 行 + 承重语义 3 实验 + 完整损失面披露）。本轮零新增 owner 卡（§5.2 全自由区）。permgate.jsonl 新增 2 行 = 活体验证的真调用留痕（非测试垃圾）。
+
+**诚实边界**：v1 `loop.sh` 三处 claude 调用（design/review/smoke）未动——v1 树 read-only 约定 + agentic 写面，留单独一轮带回归再做；`learning/subscription.py` 第二条路径未动（自有调用面与测试，不扩 blast radius）；ring 输出在 lean 下的行为漂移风险经评审逐 prompt 核对判"无实质影响"，但**首个真实夜窗/日 tick 是真验收**——下一轮开工先看 innovation 日跑与 v2 夜窗的 calls.jsonl（context_profile 字段已可查）有无异常。
+
+**回归批评史**：空壳（穿 weld 活体+评审独立复现）✓；编造手册文字（评审 grep CLI 二进制逐旗验证；架构树引文逐字+sha）✓；自评判决（双 fresh 评审，均独立复测）✓；隐身特性（架构树节点+calls.jsonl 审计字段）✓；stale 卡（零新增）✓；AI 腔（评审明判"无注水"）✓；已知失败零复发。
