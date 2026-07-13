@@ -2,13 +2,14 @@
   "campaign": "continuous",
   "day": 1,
   "round": 9,
-  "phase": "build",
-  "next_action": "ROUND 9：开工照例查 0-工作台 owner 回词（7 张卡在等：修宪-两环降级【裁决-1/2/3】、监事会修宪-教义镜头、criteria v2、AESTHETICS、外联 kit、凌晨五连批 A/B——任何一张有词先执行；修宪批的执行路径=誊条文进 CHARTER.md+独立会话逐字 diff+钉 sha+激活对应机制）。然后先做 R8 的落地验收：查最近一次 innovation 日 tick / v2 夜窗的 calls.jsonl（新字段 context_profile/context_tokens）确认 lean 真生效、输出无行为漂移（这是 §1.5 真实结果验收，比新活优先）。之后建议执行序：① 纲领 §5.3 Pi 执行基座 staging（一条 brief lane 试点，Pi 自写扩展 SANDBOXED 并包本仓 harness=memguard/wallclock/frozen-kernel/permgate 全在，blast-radius 控制非暂停；§5.4 Pi SDK 默认 Phase B 秘书基座一并查证）；或 ② v1 loop.sh 三处 claude 调用的 slim 化（R8 留的边界，需带回归验证）。出卡纪律：新卡族先注册 ledger/card_families.json；手写卡自跑 gate()。警惕：09:30/21:00 wrapper sweep，新文件落盘即 git add（教训 #17）；新起 claude -p 的代码须自调 permgate + 自查 lean 损失面（survey 文档已列全）。",
-  "handoff": "ROUND 8 完成，两个 fresh-context 独立评审双双 PASS（详见战役日志 R8 条）：纲领 §5.2 token 效率建成——§1.7 调研（零新轮子，CLI 原生旗子；--bare 因锁死 API-key 认证不可用=与官方推荐唯一分歧）→ lean/slim 两档 context profile 焊进 v2/lib/claude_cli.call()：lean（tool-less/纯 server-side 工具自动）31,670→3,318 tokens/-89% 穿 weld 活体实测；slim（stages_v2 ruler/build 显式）19,274/-39%，marker-hook 实验证明全部写闸 hooks 真开火。安全线=能碰本地文件系统永不自动 lean + V2_LEAN_CONTEXT=0 一键全回 + CLI 砍旗回退 full-fallback 留痕。评审 1 MED+4 LOW+1 nit 全修（kill switch 降级不崩、披露补全、'唯一 choke point'措辞改口、回退可审计、--tools 吞参防护）。279 pytest 绿。诚实边界：v1 loop.sh 与 learning/subscription.py 两面未动（如实记原因）；lean 剥掉 UserPromptSubmit/Stop/output-style 的完整损失面已写进 survey；ring 行为漂移的真验收=下一个真实夜窗/日 tick 的 calls.jsonl（R9 开工先查）。等 owner：7 张卡全部仍空。",
+  "phase": "STOOD_DOWN_relocated",
+  "status": "STOOD DOWN — 2026-07-12 Mac 一级事故(load 284 拖死→硬重启)；owner 令永久搬离日用 Mac。引擎已移植 ROG-STRIX WSL box + governor(cgroup 硬顶+几何增 AIMD 油门)建成、真实压测标定(红线 58/TasksMax 136)、9 次跑对抗性证明 7/7 PASS、独立评审 SOUND。点火权在 owner。",
+  "next_action": "OWNER 动作：box 上跑 `campaign/box/go_live.sh` 点火（未标定/未证明/有 drop-in 残留它自己拒绝，构造性安全）。之前需先跑一次 authorize_key.sh 装 SSH 钥匙(已装)。点火后 supervisor 起 Round 10：照例查 0-工作台 owner 回词（现 8 张卡：原 7 张 + 新增【战役｜告警通道】邮件门铃设置卡）+ 做 R8 lean 落地验收(calls.jsonl context_profile 字段) + 执行序 §5.3 Pi staging 或 §5.2 v1 loop.sh slim。box 侧新纪律：新起 claude -p 自调 permgate+lean 自查；worker 读 parallel_hint 软节流；金库经 vault_mirror(信使 15min 双向)。",
+  "handoff": "事故轮完成(见战役日志『事故轮』条)。Mac 侧 campaign launchd 全退役、stand_down 收尸 bug 修+测试。box 侧 campaign/box/ 全套：systemd units(service cgroup=整棵 worker 树 TasksMax=136/CPUQuota≤2400%/MemoryMax 硬顶)+governor.py(几何增 ×1.5 逼近硬顶/乘性减 0.6 回压/全机 runnable+psi 信号)+memguard.py(cgroup 原生+governor 独立审计)+calibrate.py(USL 拐点→governor.local.toml)+prove_governor.py(spawn-storm 再现攻击七断言，samples 落盘)+bootstrap/go_live/stand_down(构造性安全)。配置分离 governor.local.toml(标定产物 gitignored)/governor.toml(仓库模板)。金库桥 vault_mirror+courier_mac.py(flock 防叠跑+心跳 ops 告警)。邮件门铃 ledger/owner_alert.py(gate 焊点 kernel 即时/其余日批，面板=记录邮件=门铃 fail-open)待 owner 开通账号。证明 9 跑暴露 6 真 bug(全修，加 ruff F821 lint)+独立评审 SOUND。等 owner：go_live 点火 + 邮件门铃设置卡回词。",
   "complete": false,
   "started_iso": "2026-07-12T04:54:37-07:00",
-  "updated_iso": "2026-07-12T14:20:00-07:00",
+  "updated_iso": "2026-07-13T13:30:00-07:00",
   "day_deadline_epoch": null,
-  "golive_authorized": true,
-  "golive_evidence": "owner ran go_live.sh 2026-07-12 04:54 (plists installed 04:54:37, launchd job loaded, supervisor spawned worker 23013)"
+  "golive_authorized": false,
+  "golive_evidence": "PRIOR Mac go-live VOIDED by 2026-07-12 incident. Campaign relocated to box; re-ignition requires owner to run campaign/box/go_live.sh ON THE BOX (gates on calibrated=true + PROOF VERDICT:PASS + no drop-in residue + live cgroup probe). Governor proof 7/7 PASS + independent review SOUND on 2026-07-13; box ready, awaiting owner ignition."
 }
