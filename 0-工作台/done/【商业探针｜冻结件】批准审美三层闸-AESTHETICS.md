@@ -23,3 +23,5 @@ spendbook 页面按 Tier-0 重建（2026-07-12，替换 Arial 线框）：Lighth
 相关：[[战役纲领]] · innovation/DOCTRINE.md（D4 原文）· 知识库/inbox/二代改造方案.md §4d（三层结构调研出处）
 
 办完 → 拖进 done/
+
+> 执行记录 2026-07-19：AESTHETICS.md 状态改 FROZEN、[probe].aesthetics_enforced=true + sha 钉、Tier-1 不达标 deploy 不 accepted（deploy.py 硬闸）；测试全绿。详见战役日志 Round 10。

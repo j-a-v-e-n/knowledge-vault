@@ -22,3 +22,4 @@ decision: 批
 
 你回词后：战役的下一轮工作者读到即执行（冻结 DRAFT → 重钉 sha → 翻开关），执行记录进战役日志；执行完把本卡移进 done/。本卡族无 30 分钟 watcher，如实说明。
 
+> 执行记录 2026-07-19：DRAFT 更名 criteria-v2.md 冻结、状态头改 FROZEN、sha 重钉 c2528324…、config enforced=true、tamper-guard 验证通过、commercial 57 测试全绿；triage 下个 tick 起按 v2 判。详见战役日志 Round 10。
