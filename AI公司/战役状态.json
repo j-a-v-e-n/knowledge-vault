@@ -1,15 +1,14 @@
 {
   "campaign": "continuous",
   "day": 1,
-  "round": 9,
-  "phase": "STOOD_DOWN_relocated",
-  "status": "STOOD DOWN — 2026-07-12 Mac 一级事故(load 284 拖死→硬重启)；owner 令永久搬离日用 Mac。引擎已移植 ROG-STRIX WSL box + governor(cgroup 硬顶+几何增 AIMD 油门)建成、真实压测标定(红线 58/TasksMax 136)、9 次跑对抗性证明 7/7 PASS、独立评审 SOUND。点火权在 owner。",
-  "next_action": "OWNER 动作：box 上跑 `campaign/box/go_live.sh` 点火（未标定/未证明/有 drop-in 残留它自己拒绝，构造性安全）。之前需先跑一次 authorize_key.sh 装 SSH 钥匙(已装)。点火后 supervisor 起 Round 10：照例查 0-工作台 owner 回词（现 8 张卡：原 7 张 + 新增【战役｜告警通道】邮件门铃设置卡）+ 做 R8 lean 落地验收(calls.jsonl context_profile 字段) + 执行序 §5.3 Pi staging 或 §5.2 v1 loop.sh slim。box 侧新纪律：新起 claude -p 自调 permgate+lean 自查；worker 读 parallel_hint 软节流；金库经 vault_mirror(信使 15min 双向)。",
-  "handoff": "事故轮完成(见战役日志『事故轮』条)。Mac 侧 campaign launchd 全退役、stand_down 收尸 bug 修+测试。box 侧 campaign/box/ 全套：systemd units(service cgroup=整棵 worker 树 TasksMax=136/CPUQuota≤2400%/MemoryMax 硬顶)+governor.py(几何增 ×1.5 逼近硬顶/乘性减 0.6 回压/全机 runnable+psi 信号)+memguard.py(cgroup 原生+governor 独立审计)+calibrate.py(USL 拐点→governor.local.toml)+prove_governor.py(spawn-storm 再现攻击七断言，samples 落盘)+bootstrap/go_live/stand_down(构造性安全)。配置分离 governor.local.toml(标定产物 gitignored)/governor.toml(仓库模板)。金库桥 vault_mirror+courier_mac.py(flock 防叠跑+心跳 ops 告警)。邮件门铃 ledger/owner_alert.py(gate 焊点 kernel 即时/其余日批，面板=记录邮件=门铃 fail-open)待 owner 开通账号。证明 9 跑暴露 6 真 bug(全修，加 ruff F821 lint)+独立评审 SOUND。等 owner：go_live 点火 + 邮件门铃设置卡回词。",
+  "round": 12,
+  "phase": "build",
+  "next_action": "ROUND 12：开工第一步先 `git pull --rebase origin main` 再读本文件与镜像（R11 教训：box 停机后本地全是旧副本，别对旧数据做判断）。然后照例查 0-工作台 owner 回词（rebase 后为准；当前 8 张卡全是 owner 手动动作：spendbook 外联 kit 审批、envgrant 发布审批+待批文案+手发回执、发帖执行 7 条、个人网站 Vercel 授权、金库桥根治回词、运维告警——任何一张有词/回执先施加后果）。R11 的落地验收：查最近真夜窗 v2/runs/cycle-*/calls.jsonl 有无 design/review/smoke 行、context_profile=slim、context_tokens ~18.5k、零 full-fallback（v1 slim 是 R11 焊的，真夜窗才是 §1.5 验收）。之后主项建议：① 纲领 §5.3 Pi 执行基座 staging——多会话量级，先 §1.7 带源调研 badlogic/pi-mono（安装形态/扩展机制/无 guardrails 的沙箱包法），再装+沙箱，再一条 brief lane 试点（本仓 harness 全在：permgate/memguard/wallclock/frozen-kernel），分段落盘 handoff 别贪一口；或 ② learning/subscription.py slim 化（最后一条未 slim 调用面，小而完整）。出卡纪律照旧；警惕：worker box 会无预告停机（07-15→07-19 六天黑），长任务每步落盘。",
+  "handoff": "ROUND 11 完成（2026-07-19，box 点火后首轮）：① R8 真实验收 PASS——lean/slim 在 07-13 日 tick（61 调用全 lean）/craft/07-14-15 夜窗（0082-0086 全 verify_pass）真实生效，零 fallback 无漂移，独立评审逐项 CONFIRMED。② v1 loop.sh 三处调用接 slim（实测两次 26.2k→18.5k/-30%，原始 envelope 在 ledger/research/2026-07-19-v1-slim-probe/）+ 补焊 permgate 第三条路径（R7'两条=全部'覆盖声称不实已改正；只认真 DENY=exit 7，infra 崩溃一律 DEFER 放行留痕）。③ 两 fresh 评审攻击 HAS-ISSUES（2 CRIT+3 MED+2 LOW）→ 全修 → 第三 fresh 复核 ALL-FIXED-CLEAN；box 套件 202 pytest 绿；7 条 loop.sh 离线回归。④ 信息位障事故记录：本轮开工读的状态/镜像是 07-13 旧副本（box 停机 6 天未同步），收尾 rebase 才见远端事故轮+Round 10；所选两件活恰与远端排期一致零冲突，唯一撞车=commercial 日期测试两边独立修出相同补丁（取远端版）。⑤ cycle-0087（停机打断）工件入库。诚实边界：learning/subscription.py 未 slim；regate.sh 未焊（休眠已点名）；v1 slim 真夜窗验收待下轮。",
   "complete": false,
   "started_iso": "2026-07-12T04:54:37-07:00",
-  "updated_iso": "2026-07-13T13:30:00-07:00",
+  "updated_iso": "2026-07-19T04:40:00-07:00",
   "day_deadline_epoch": null,
-  "golive_authorized": false,
-  "golive_evidence": "PRIOR Mac go-live VOIDED by 2026-07-12 incident. Campaign relocated to box; re-ignition requires owner to run campaign/box/go_live.sh ON THE BOX (gates on calibrated=true + PROOF VERDICT:PASS + no drop-in residue + live cgroup probe). Governor proof 7/7 PASS + independent review SOUND on 2026-07-13; box ready, awaiting owner ignition."
+  "golive_authorized": true,
+  "golive_evidence": "Box ignition 2026-07-19: CAMPAIGN_ACTIVE + supervisor.lock + heartbeat created 02:15-02:17 on ROG-STRIX box and supervisor spawned the R11 worker; go_live.sh constructive gates (calibrated=true + PROOF PASS + no drop-in residue) imply a passed ignition. Prior Mac go-live (07-12) voided by the 07-12 incident; box readiness proven 07-13 (governor 7/7 PASS + independent review SOUND)."
 }
