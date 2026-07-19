@@ -4,7 +4,7 @@
 
 # 外联 kit 发布审批 — spendbook
 
-decision: <填 发 / edit: 怎么改 / 跳过>
+decision: 发
 
 ## 发送与回执表（发一个填一个；机器只读你的字，绝不代填）
 

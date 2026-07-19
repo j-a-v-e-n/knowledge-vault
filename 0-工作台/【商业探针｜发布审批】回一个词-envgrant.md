@@ -4,4 +4,6 @@
 
 # 商业探针发布审批 — envgrant
 
-decision: <填 发 / edit: ... / 跳过>
+decision: 发
+
+> 机器回执 2026-07-19T01:04:40-07:00: 已发布 0 条（无自动通道）；2 条需手贴（Ask HN (Hacker News); r/selfhosted——文案在行动卡里）。计时窗口尚未起算：手贴渠道要等你在回执卡（【商业探针｜手发回执】发完填日期-envgrant.md）填 posted_date 才有起点——不填，这次探针记 not-run。

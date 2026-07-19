@@ -4,7 +4,7 @@
 
 # 冻结提案 — 审美三层闸 AESTHETICS.md
 
-decision:
+decision: 冻结
 
 ## 你在批什么（一句话一层）
 

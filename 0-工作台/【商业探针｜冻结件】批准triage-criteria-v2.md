@@ -4,7 +4,7 @@
 
 # 冻结件提案 — commercial triage criteria v2
 
-decision: <填 批 / edit: 哪里改 / 驳>
+decision: 批
 
 ## 改了什么（全文见 repo `innovation/commercial/criteria-v2.DRAFT.md`，其余逐字继承 v1.1）
 
