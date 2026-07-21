@@ -1,0 +1,4 @@
+prototype/__pycache__/
+prototype/tests/__pycache__/
+prototype/data/raw/
+prototype/data/runs/

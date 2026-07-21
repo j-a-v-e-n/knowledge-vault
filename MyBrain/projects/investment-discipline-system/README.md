@@ -16,6 +16,21 @@
 - RESEARCH_INDEX.md：调研来源、来源类型、主要结论和证据强度。
 - AI_COLLABORATION_METHOD.md：如何使用 AI/Codex 进行可靠的研究、设计、搭建和验证。
 - PROJECT_WORK_SYSTEM.md：本项目采用的项目工作系统，以及未来如何抽象成通用能力。
+- LOOP_SPEC.md：目标确认后如何持续执行、验证、记录、继续或暂停。
+- HARNESS_EVALUATION.md：现成 Harness、循环和记忆方案的比较与采用条件。
+- FIRST_VERTICAL_SLICE.md：第一个不连接真实券商的端到端纸面闭环。
+- LOOP_RUN_LOG.md：持续循环的运行记录与交接信息。
+- DATA_SOURCE_POLICY.md：原型数据来源、处理边界和发布限制。
+- DATA_PROVIDER_EVALUATION.md：数据源与纸面执行候选的官方限制、社区摩擦和接入门槛。
+- PAPER_RUN_EVIDENCE.md：当前真实来源纸面案例的可复核证据和边界。
+- PAPER_SUITE_EVIDENCE.md：连续纸面运行套件的分支覆盖证据和边界。
+- SYSTEM_ARCHITECTURE.md：系统层次、状态转换、权限和验证边界。
+- EXECUTABLE_SYSTEM_DESIGN.md：当前个人版 MVP 的单一可执行设计入口。
+- MARKET_DATA_BROKER_DECISION.md：市场、数据和纸面券商的暂定约束与选择门槛。
+- BACKTEST_EVIDENCE.md：历史检验引擎及真实来源开发/留出运行证据。
+- UNIFIED_RUN_EVIDENCE.md：历史检验、纸面执行、账本和复盘统一运行的证据与边界。
+- REAL_DATA_UNIFIED_EVIDENCE.md：保存的 FRED 来源统一研究运行证据和限制。
+- CONTRACT_FAULT_EVIDENCE.md：数据与执行契约本地故障注入证据。
 
 ## 协作入口
 
@@ -36,4 +51,3 @@
 ## 当前边界
 
 这是一个个人使用的项目空间。系统当前不服务其他用户，不涉及对外发布、多人权限、商业化或自动替他人交易。未来扩展只进入路线图，除非另行确认，不会提前混入当前实现。
-
