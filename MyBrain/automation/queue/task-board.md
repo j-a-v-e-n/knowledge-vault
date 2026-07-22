@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-07-21 03:0X by daemon dawn-shift [审批 0 条待执行（⏳ 列 [x] 均已 inline done）；ai-watch ✅ 写了 4 条（GPT-5.6 Sol/Terra/Luna ⚡、Anthropic Claude Science + John Jumper 🔍、J-lens 全局工作空间 🔍、机器人 VLA 双发 LingBot-VLA 2.0 + Robostral Navigate 💡 接 ECE148）；email-triage ❌ Gmail MCP 不可用（连续第 5 次，同 6/22、7/1、7/11、7/12 → task-011e 待 Javen 主对话验证）；看板扫描：15 待启动 + 2 进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/npm/web/.claude 或 @javen 决策），无新可推进任务]
-上一次：2026-07-12 03:05 by daemon dawn-shift [ai-watch ✅ 精简版（预算限制仅 1 次 search 未逐条核实：OpenAI Daybreak 安全计划、Claude reflection dashboard、Claude Code 企业云 auto mode）；email-triage ❌ Gmail MCP 不可用（连续第 4 次 → task-011e 待 Javen 主对话验证）；预算耗尽未扫看板任务]
+**最后更新**：2026-07-22 03:02 by daemon dawn-shift [审批 0 条待执行（⏳ 列无 [x] 勾选，4 条 [ ] 未勾选待 Javen）；ai-watch ✅ 写了 5 条（Grok 4.5/Kimi K3/Gemini 3.6 Flash 密集刷新 ⚡、Claude Sonnet 5 便宜 agentic 🔍、Meta Muse Spark 1.1 1M-ctx 🔍、Google 生成媒体降价 🔍；落地 ACE-Brain-0.5 接 ECE148 💡 + Sonnet 5 省 API 💡，2 search+2 fetch 核实）；email-triage ❌ Gmail MCP 不可用（连续第 6 次，同 6/22、7/1、7/11、7/12、7/21 → task-011e 待 Javen 主对话验证）；看板扫描：待启动 + 进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/npm/web/.claude 或 @javen 决策），无新可推进任务]
+上一次：2026-07-21 03:0X by daemon dawn-shift [ai-watch ✅ 4 条（GPT-5.6 Sol/Terra/Luna、Claude Science + John Jumper、J-lens、机器人 VLA 双发接 ECE148）；email-triage ❌ Gmail MCP 不可用（连续第 5 次）；看板无新可推进任务]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
