@@ -61,6 +61,7 @@ Bruner 不让我们急着判 Piaget 或 Vygotsky 谁“对”。他认为，两�
 - `COGS100_Group8_Speaker_Script.txt`：按 Javen Slides 1–6、Juqy Slides 7–12 分配；已经改为自然口语英语。
 - Google Form：已发布为 quiz，3 道单选题，正确答案已设置，Michael Allen (`mga003@ucsd.edu`) 已有 Editor 权限。
 - Quiz responder link：<https://tinyurl.com/cogs100-group8-quiz>
+- Quiz 的课程截止信息已写进表单：reading 所在周的 Friday @ 11:59 PM。
 
 ## 还需要 Javen 确认的两件事
 
