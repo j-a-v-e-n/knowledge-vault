@@ -8,30 +8,39 @@ Juqy: Slides 7–12
 
 This is a spoken guide, not an essay. Keep the key terms, but use your normal voice and pause when the audience needs a moment to look at a visual.
 
+PRACTICE TARGET
+Aim for about 10 minutes per person. The script leaves room for a natural pace, brief pauses while people look at the visuals, and the handoff between speakers.
+
 SLIDE 1
-JAVEN — about 30 seconds
+JAVEN — about 40 seconds
 
 Hi everyone, I’m Javen Cao. We’re Group 8, and today we’re talking about Bruner’s paper on Piaget and Vygotsky. We’ll use one simple question: how does a mind grow? Piaget and Vygotsky both care about that question, but they answer it in very different ways.
 
 The quiz link is on this slide. Every answer shows up in our presentation.
 
+We are not going to retell every page of the paper. Instead, we will follow the questions in this week’s learning outcomes: what each thinker says about the mind, how growth happens, and why culture and other people matter.
+
 Before we compare the two theories, let’s start with Bruner’s question: what is special about human thinking?
 
 SLIDE 2
-JAVEN — about 1 minute 30 seconds
+JAVEN — about 1 minute 45 seconds
 
 Bruner starts with a simple point. Lots of living things adapt to the world around them. Humans do too. But humans also do something extra: we make theories and stories about the world. We make stories about other people. We even make stories about ourselves.
 
 That matters because stories and theories help us explain things, argue with each other, and work together. Sometimes they even give people things to fight about.
 
+For example, two people can see the same event and still explain it in different ways. They may point to different causes, tell different stories about what matters, and then try to persuade each other. Bruner thinks this ability to make and share accounts is a big part of what makes human mental life special.
+
 So the big development question is this: how does a child grow into someone who can build and share these kinds of accounts? Piaget gives one answer. Vygotsky gives another.
 
 SLIDE 3
-JAVEN — about 1 minute 20 seconds
+JAVEN — about 1 minute 30 seconds
 
 Both thinkers agree on one starting point. We do not just take in the world like a camera. The mind sits between what happens out there and what we come to know.
 
 Piaget’s big insight is logic-like operations. He thinks the child slowly builds better ways to organize experience. Vygotsky’s big insight is different. He thinks human culture and history give us tools for thinking, especially language.
+
+You can already see the contrast in the visual. Piaget asks how one person’s thinking becomes more organized. Vygotsky asks how the things people already share, like words, symbols, and ways of teaching, become available to one person’s mind.
 
 So this is not only a disagreement about teaching. It is a disagreement about what should be at the center of a theory of mind. Let’s start with Piaget.
 
@@ -41,6 +50,8 @@ JAVEN — about 2 minutes
 Piaget says the mind uses organized operations to make sense of experience. He does not mean that the mind is literally a calculator. He means that thinking has a structure.
 
 For Piaget, knowledge is made, not simply found. A child acts in the world, organizes what happened, and then tests that understanding through more action. If the understanding works, it becomes part of a stronger way of thinking.
+
+Think about a child experimenting with blocks. The child does not receive the idea of balance as a finished fact. They try something, see what falls, change the arrangement, and try again. The important point is not the blocks themselves. It is that action and thought keep shaping each other.
 
 That is why the word “mediate” matters here. The world does not turn straight into knowledge. The child’s way of thinking helps shape what the child can know.
 
@@ -53,6 +64,8 @@ Here is Piaget’s basic sequence. First, a child does things: touching, moving,
 
 Piaget calls the pressure behind this growth disequilibration. Imagine you meet something that does not fit what you already think. You can try to fit it into your old idea. That is assimilation. Or you can change the old idea. That is accommodation.
 
+Here is a simple made-up example. A young child might call every four-legged animal a dog. When they see a horse, they could force it into the old category. Or they could revise the category and learn that not every four-legged animal is a dog. The surprise creates a problem for the old idea, and changing the idea solves that problem.
+
 Piaget says the tension between those two moves pushes thinking forward. Bruner’s criticism is that the basic idea is clear, but the exact mechanism is still not fully explained.
 
 SLIDE 6
@@ -64,32 +77,38 @@ But another part is less clear. What actually moves a child from one stage to th
 
 Bruner also thinks Piaget leaves out too much about other people. How do people understand each other well enough to teach, negotiate, and build a shared world? In Piaget’s account, culture often looks more like a challenge to the individual than a resource the individual can use.
 
+That criticism matters because teaching is more than placing a child next to a difficult problem. A teacher can point to what matters, use words the learner already knows, and connect a new idea to a shared activity. Bruner wants a theory that can explain why those social moves sometimes change what a learner is able to do.
+
 One thing I learned from this section is that a theory can be great at showing the direction of change and still leave the engine of change unclear.
 
 That gap brings us to Vygotsky.
 
 SLIDE 7
-JUQY — about 1 minute 40 seconds
+JUQY — about 1 minute 30 seconds
 
 Hi, I’m Juqy Chen. Vygotsky also thinks the mind stands between the world and our experience. But he does not start with logic. He starts with meaning.
 
 For Vygotsky, meaning depends on language and on the culture where that language is used. So mental growth means learning the symbolic tools that a culture already has. Think about how algebra can reorganize arithmetic. It gives you a new way to handle earlier ideas.
 
+A symbolic tool is not just information that you memorize. It gives you a way to operate on ideas. A number line, a diagram, a word for a category, or algebraic notation can let you notice relationships that were harder to handle before.
+
 This growth does not come from inside one child alone. It depends on cultural tools and on ongoing contact with other people. That leads to Vygotsky’s key question: how do tools that start outside us become tools inside our own thinking?
 
 SLIDE 8
-JUQY — about 2 minutes 10 seconds
+JUQY — about 2 minutes
 
 For Vygotsky, mental life starts out social. People act together. They talk. They solve problems together. And speech carries shared meanings from the culture around them.
 
 Internalization is the name for what happens next. Meanings that first show up between people become resources inside one person’s thinking.
+
+For a simple example, imagine someone learning a new task with an adult beside them. At first, the adult says what to look for and what to do next. Later, the learner may quietly use those same kinds of prompts for themselves. The guidance has moved from a shared interaction into the learner’s own thinking.
 
 This is not just copying someone else. Once a person has a new tool for thinking, that tool can change how older ideas fit together. It can also help the person go beyond the immediate situation.
 
 Bruner points out that Vygotsky does not fully explain the mechanism of internalization either. But the main idea is clear: social life and cultural tools are not just outside influences. They can become part of the way a person thinks.
 
 SLIDE 9
-JUQY — about 2 minutes 10 seconds
+JUQY — about 2 minutes
 
 The zone of proximal development, or ZPD, makes Vygotsky’s social view very concrete. It is the gap between what a learner can do alone and what that learner can do with useful help from someone else.
 
@@ -97,10 +116,12 @@ The point is not that any help works. Good help has to match the learner’s nex
 
 The learner is still doing the learning. The tutor is not simply giving away the answer. The tutor notices what the learner can almost do and gives just enough support to make that next step possible.
 
+For example, if a learner is stuck on one part of a problem, a useful tutor might ask, “What information do we already have?” They do not solve the whole problem for the learner. They help the learner see the next move, so the learner can still make it.
+
 For Bruner, this also raises a bigger question: humans teach each other in a systematic way. What makes teaching and being taught possible in the first place?
 
 SLIDE 10
-JUQY — about 2 minutes
+JUQY — about 1 minute 40 seconds
 
 Our learning outcome asks us to connect these ideas to cognitive science. This is a useful rough comparison, not a claim that either thinker fits perfectly into one modern label.
 
@@ -108,10 +129,12 @@ Piaget sounds closer to traditional cognitive science. He looks for general, log
 
 Vygotsky sounds closer to situated cognitive science. He puts language, culture, history, and a particular interaction right in the middle of the story. He is more interested in how people make meaning in context.
 
+So the difference is not simply “inside the mind” versus “outside the mind.” Both thinkers care about development. The difference is which part of the explanation they make central: Piaget highlights organized operations, while Vygotsky highlights cultural tools and interaction.
+
 But we should not turn this into a cartoon. Piaget did not say culture never matters. And Vygotsky did not say development has no movement from concrete ideas to more abstract ones. The real difference is where each theory puts the center of explanation.
 
 SLIDE 11
-JUQY — about 1 minute 45 seconds
+JUQY — about 1 minute 40 seconds
 
 Bruner does not think the answer is to blend Piaget and Vygotsky into one easy theory. He thinks a good theory of development has to explain two very different things.
 
@@ -119,15 +142,19 @@ First, why is development often stable? Why can good teaching fail to make an im
 
 Second, why can development sometimes move quickly? Why can the right kind of collaboration open up a new possibility? Vygotsky helps us look for those levers of change: scaffolding, joint activity, and cultural opportunity.
 
+This is why Bruner calls the difference a divergence, not a mistake that has to be erased. If we only ask Piaget’s question, we might miss what a good interaction can do. If we only ask Vygotsky’s question, we might miss why learning does not always transfer right away. Keeping both questions gives us a stronger way to study development.
+
 That is why Bruner thinks their disagreement is useful. Each theory pushes the other to answer questions it might otherwise ignore.
 
 SLIDE 12
-JUQY — about 1 minute, then personal takeaway
+JUQY — about 1 minute 15 seconds, then personal takeaway
 
 To close, Piaget helps us see how thinking can become more organized and systematic. Vygotsky helps us see how language, culture, and other people become part of thinking.
 
 Bruner’s main point is not that one thinker wins. Their difference is valuable because it stops us from explaining development with only logic or only culture.
 
 One thing I learned is that even private thought can have a social history. Tools like language first live between people, and then they can become tools inside one person’s mind.
+
+So when we look at learning, Bruner pushes us to ask both questions: what is changing in the learner’s thinking, and what people, language, or cultural tools made that change possible?
 
 Thank you. Please remember to take the quiz using the link on the first or final slide.
