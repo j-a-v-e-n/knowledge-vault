@@ -1,0 +1,54 @@
+GOOGLE FORM SETUP
+
+Form title
+Group 8 — Celebrating Divergence: Piaget and Vygotsky Quiz
+
+Form description
+Answer these 3 questions after watching Group 8’s presentation on Bruner’s “Celebrating Divergence: Piaget and Vygotsky.” Every answer is stated in the slides. Due Friday at 11:59 PM during the same week as this reading.
+
+Required settings
+1. Google Forms Settings → Make this a quiz: ON
+2. Give each question 1 point
+3. Mark every question Required
+4. In Share, give mga003@ucsd.edu Editor access
+5. After publishing, create a TinyURL for the form and replace the PPT placeholder:
+   tinyurl.com/[add-after-form]
+
+QUESTION 1
+According to Piaget, why is knowledge not simply “found” in the world?
+
+A. The mind uses logic-like operations to construct knowledge and test it through action.
+B. Children copy their knowledge directly from adults.
+C. Knowledge develops only through language.
+D. The world is unknowable.
+
+Correct answer: A
+Answer-key explanation: Piaget treats knowledge as a construction produced by the mind’s organized operations and checked in action.
+
+QUESTION 2
+What is the zone of proximal development?
+
+A. The difference between a learner’s memory and attention.
+B. The gap between what a learner can do independently and what they can do with help from a knowledgeable other.
+C. A fixed stage that every child reaches at the same age.
+D. A method for memorizing cultural facts.
+
+Correct answer: B
+Answer-key explanation: The ZPD identifies what becomes possible when assistance is appropriately matched to the learner.
+
+QUESTION 3
+What does internalization mean in Vygotsky’s theory?
+
+A. Memorizing an answer without interacting with others.
+B. Replacing language with formal logic.
+C. Moving culturally shaped meanings from social interaction into individual thought.
+D. Ignoring culture in order to think independently.
+
+Correct answer: C
+Answer-key explanation: Vygotsky sees social interaction and speech as the source of meanings that become tools of individual thought.
+
+PRESENTATION SCHEDULE FIELDS
+
+Presentation slides link: [paste Google Drive link]
+Quiz link: [paste TinyURL]
+Quiz deadline: Friday @ 11:59 PM, same week

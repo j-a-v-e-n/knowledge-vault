@@ -1,0 +1,88 @@
+COGS 100 — Group 8
+Week 4 Day 2, Reading 1
+“Celebrating Divergence: Piaget and Vygotsky” — Jerome Bruner
+
+SPEAKER ALLOCATION
+Javen: Slides 1–6
+Juqy: Slides 7–12
+
+Use the wording naturally. Do not read the slide text word for word; the script supplies the explanation that is intentionally not on the slides.
+
+SLIDE 1 — Javen
+Hi everyone, I’m Javen Cao, and this is our Group 8 presentation on Jerome Bruner’s “Celebrating Divergence: Piaget and Vygotsky.” Juqy and I will use one question to organize the reading: how does a mind grow? Piaget and Vygotsky both take the growing mind seriously, but they give very different answers. The quiz link is on this slide; every answer is stated during the presentation.
+
+Before comparing the two theories, we need Bruner’s starting point: what makes human cognition distinctive?
+
+SLIDE 2 — Javen
+Bruner begins with a claim about human uniqueness. We are not unique merely because we adapt. Other organisms adapt too. What is distinctive is that we also make theories and stories about the world and about our own actions. Those accounts let us explain, argue, coordinate with other people, and sometimes even fight over competing views.
+
+That creates the developmental problem for both theorists: how does a child become capable of making these kinds of accounts? The rest of the paper contrasts two answers. Piaget emphasizes the logical organization of thought. Vygotsky emphasizes the cultural tools that make thought meaningful.
+
+SLIDE 3 — Javen
+Both thinkers agree that the mind is a mediator. We do not simply receive the external world as raw information. But Piaget and Vygotsky disagree about what this mediator fundamentally is.
+
+For Piaget, the central achievement is logical organization: the child builds increasingly coherent systems for understanding the world. For Vygotsky, the central achievement is meaning-making with cultural tools: language and other symbolic systems, acquired through participation with other people.
+
+This is not just a disagreement about teaching methods. Bruner argues it may reflect two different ways of knowing: explaining through general, testable structures and interpreting meaning in a specific cultural setting. I’ll start with Piaget’s approach.
+
+SLIDE 4 — Javen
+Piaget’s key move was to treat the mind as an organized group of logic-like operations. These operations mediate between the world and our knowledge of it. In this view, knowledge is not simply found waiting outside us. It is constructed by the mind and then tested by whether it works in action and whether it gives us understanding.
+
+The important word here is mediation. An experience does not automatically become knowledge. It has to be organized through the child’s operations. Piaget traces these operations back to action, but as they develop they become increasingly internal, decentered from the immediate situation, and capable of being reversed or reflected upon. That leads directly to his account of growth.
+
+SLIDE 5 — Javen
+For Piaget, mental growth is a move from simpler to more complex systems of operations. The route begins with action. Actions are internalized into thought; thought becomes less centered on what is immediately visible or done; and eventually thought can represent and examine itself as propositions.
+
+The usual name for the engine of this change is disequilibration. When a new experience arrives, the child can assimilate it — fit it into an existing structure — or accommodate by changing the structure. Neither process on its own gives a complete explanation. Bruner says the tension between them is supposed to create growth, although Piaget never made the actual dynamics fully clear.
+
+That gap matters, because it sets up the strongest criticism Bruner makes of Piaget.
+
+SLIDE 6 — Javen
+Bruner is careful: he does not dismiss Piaget. Piaget made development systematic rather than a random product of associations and reinforcement. And one thing is, in Bruner’s words, abundantly clear: Piagetian development follows an invariant course.
+
+But the theory specifies the direction of growth more clearly than its causes. What exactly pushes the child from one logical stage to the next? Bruner says that remains under-specified. He also identifies a larger omission: intersubjectivity. Piaget has little to say about how people understand one another well enough to teach, negotiate, and jointly construct a world. Culture appears mainly as a challenge to the individual, not as a shared resource.
+
+One thing I learned is that a theory can be very powerful at identifying the direction of development while still leaving open the mechanism that drives it.
+
+That gap is precisely where Vygotsky begins. He asks how cultural tools and other people become part of an individual mind.
+
+SLIDE 7 — Juqy
+Hi, I’m Juqy Chen. Vygotsky also treats the mind as a mediator, but he does not think of it as a logical calculus. For him, mind is a process for giving experience meaning. And meaning cannot be separated from language or from the cultural context in which language is used.
+
+Mental development, then, means mastering higher-order symbolic systems that are already embodied in culture. Bruner gives algebra and arithmetic as an example: a new symbolic system can absorb or reorganize an older one. This growth is not exclusively generated from within the child. It depends on cultural tools and continued interaction with other people.
+
+That produces Vygotsky’s central question: How do cultural tools that begin outside the individual become resources inside the individual’s thought?
+
+SLIDE 8 — Juqy
+For Vygotsky, mental life first expresses itself in interaction with other people. Because interaction is largely mediated by speech, what the child takes in are the meanings and forms generated through verbal exchange. Those meanings are not private inventions. They are products of a broader cultural and historical system.
+
+Internalization is the term for this movement from outside to inside. Bruner notes that Vygotsky never fully explained the mechanism, but the idea is central. Importantly, internalization is not passive copying. Once a new structure enters thinking, it can reorganize earlier concepts and allow the person to go beyond the immediate social situation. So culture shapes the mind, but it does not simply imprison it.
+
+SLIDE 9 — Juqy
+The Zone of Proximal Development, or ZPD, makes Vygotsky’s social view concrete. It is the gap between what a learner can do independently and what the learner can do with useful hints and help from a knowledgeable other.
+
+The point is not simply that help is good. The help has to be matched to the learner. Bruner lists ways pedagogy might work: shielding from distraction, foregrounding critical features, sequencing the steps, and encouraging negotiation. The tutor has to sense what the learner can almost do, and the culture has to provide shared expectations for teaching and learning.
+
+For Bruner, the ZPD also raises a deep evolutionary question: humans use teaching systematically. Vygotsky’s framework asks what makes teaching and being taught possible.
+
+SLIDE 10 — Juqy
+The learning outcome asks us to connect these theories to cognitive science. Piaget sounds closer to traditional cognitive science because he looks for formal, general operations inside an individual mind. His approach is nomothetic: it seeks general explanations that can be checked through logic and empirical testing.
+
+Vygotsky sounds closer to situated cognitive science because he treats meaning as inseparable from language, culture, history, and the particular interaction in which it occurs. His emphasis is interpretive rather than only explanatory.
+
+This should not become a caricature. Piaget did not deny cultural support, and Vygotsky did not deny development from concrete to abstract. The useful contrast is where each theory places its explanatory center.
+
+SLIDE 11 — Juqy
+Bruner does not think the right ending is to blend the two theories into one easy compromise. A good theory of development must explain two things. First, why development can be remarkably stable, resistant to even inspired instruction, and limited in transfer. Second, why it can sometimes move quickly and unexpectedly when learners have the right opportunities and collaboration.
+
+Piaget makes us investigate constraints and regularities. Vygotsky makes us investigate the levers of change: scaffolding, joint activity, and cultural opportunity. Bruner calls their difference fruitful because each perspective becomes a serious, informed challenge to the other.
+
+SLIDE 12 — Juqy
+To close, Piaget gives us a powerful account of how a mind can become increasingly systematic and logically organized. Vygotsky gives us a powerful account of how a mind becomes possible through language, culture, and interaction with other people. Bruner’s point is not that one thinker cancels the other. Their divergence is productive because it prevents us from reducing development to only one kind of explanation.
+
+One thing I learned is that even very private thought can have a social history: language and cultural tools first appear between people and then become resources within the individual.
+
+Thank you. Please remember that the quiz link is on the first and final slides.
+
+SOURCE
+All content is based on the assigned reading: Bruner, J. (1997). “Celebrating Divergence: Piaget and Vygotsky.” Human Development, 40, 63–73.
