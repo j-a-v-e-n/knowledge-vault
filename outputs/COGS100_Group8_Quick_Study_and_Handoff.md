@@ -58,20 +58,20 @@ Bruner 不让我们急着判 Piaget 或 Vygotsky 谁“对”。他认为，两�
 ## 交付状态
 
 - `COGS100_Group8_Piaget_Vygotsky.pptx`：12 页，视觉与文字溢出检查已通过。
+- PPT 首页已填入两人的 PID；PPT 内的 speaker notes 已同步为最新版讲稿。
 - `COGS100_Group8_Speaker_Script.txt`：按 Javen Slides 1–6、Juqy Slides 7–12 分配；已经改为自然口语英语。
 - Google Form：已发布为 quiz，3 道单选题，正确答案已设置，Michael Allen (`mga003@ucsd.edu`) 已有 Editor 权限。
 - Quiz responder link：<https://tinyurl.com/cogs100-group8-quiz>
 - Quiz 的课程截止信息已写进表单：reading 所在周的 Friday @ 11:59 PM。
 
-## 还需要 Javen 确认的两件事
+## 还需要 Javen 确认的一件事
 
-1. 两人的 PID。现在 PPT 首页保留 `[confirm]`，因为 email/用户名不能当 PID 猜。
-2. 在我实际上传 PPT 到课程共享 Drive、并把 PPT 和 quiz 链接填进 Group 8 schedule 前，给一次明确确认。这是会改变课程共享文件和表格的外部操作。
+1. 在我实际上传 PPT 到课程共享 Drive、并把 PPT 和 quiz 链接填进 Group 8 schedule 前，给一次明确确认。这是会改变课程共享文件和表格的外部操作。
 
 ## 你们两个人最后只需要做的事
 
 1. 读一遍自己负责的自然口语稿；两人至少一起过一遍衔接处（Slide 6 → 7）。
-2. 确认首张的 PID，查看 PPT 和 quiz。
+2. 查看最终 PPT 和 quiz。
 3. 在老师要求的 Canvas assignment 内，各自提交最终 slides 链接；具体截止时间以 Canvas 为准。
 
 ## Sources used for content
