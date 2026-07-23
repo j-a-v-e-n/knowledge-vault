@@ -4,6 +4,31 @@
 
 Bruner 不让我们急着判 Piaget 或 Vygotsky 谁“对”。他认为，两人各自抓住了心智发展中一个不能丢掉的问题：Piaget 解释思维为什么会越来越有结构、为什么发展常有稳定方向；Vygotsky 解释语言、文化和与他人的互动怎样成为思维的资源。
 
+## 为什么 Bruner 要把 Piaget 和 Vygotsky 放在一起？
+
+乍看之下，他们讲的确实很不一样。Piaget 讲的是个体怎样从行动发展出更有逻辑、更能反思的思维结构；Vygotsky 讲的是语言、历史、文化和别的人怎样成为思维的工具。Bruner 把他们放一起，正是要让这个差异变清楚，而不是把差异抹掉。
+
+从根上说，他们都在回答同一个大问题：**一个儿童怎样成为能够理解、解释并思考世界的人？** 两人也都同意，心智不是照相机；它介入了外部世界和个人经验之间。分歧在于，他们认为心智发展最关键的“发动机”在哪里。
+
+| Bruner 用他们分别照亮的问题 | Piaget 的中心 | Vygotsky 的中心 |
+| --- | --- | --- |
+| 心智是什么？ | 组织经验的 logic-like operations | 在语言与文化中产生 meaning 的过程 |
+| 发展主要怎么发生？ | 行动逐渐内化、结构逐渐更复杂 | 掌握社会中已有的 symbolic tools |
+| 最擅长解释什么？ | 发展为何有规律、稳定性、方向 | 教学、互动、文化如何打开新的可能 |
+| Bruner 看到的不足 | 推动变化的机制、intersubjectivity 和文化资源写得不够 | internalization 的具体机制没有完全说明 |
+
+所以 Bruner 的目的不是说 “Piaget 讲个人，Vygotsky 讲社会，两个拼起来就完美了”。他的观点更强一点：**让两种理论保持张力，才能逼我们问更好的问题。**
+
+- 只有 Piaget，容易漏掉：为什么好的教学、语言和共同活动有时会带来突然的进步？
+- 只有 Vygotsky，容易漏掉：为什么发展常常很稳定，为什么有些东西即使教了也不会立刻改变？
+- 把他们并列，才能同时问：发展为什么有约束和规律？又为什么有时能被协作和机会推动？
+
+这也是文章标题 “Celebrating Divergence” 的意思：这里的 divergence 不是尴尬的矛盾，而是有价值的理论分歧。
+
+### 课堂上可以用的一句自然英语回答
+
+“Bruner puts them together because they are answering the same development question from different centers. Piaget explains why thinking becomes structured and stable. Vygotsky explains how culture and other people become resources for thinking. Bruner thinks we need the tension between those questions.”
+
 ## 你们两个人都要懂的全篇逻辑
 
 1. 人类不只会适应环境；还会对世界、他人和自己建立 theories and stories。Bruner 想问的是：这种能力怎样发展出来？
