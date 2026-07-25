@@ -69,6 +69,7 @@
     "scripts/replay_design_freeze_attacks.py",
     "scripts/run_assurance_ci.py",
     "scripts/refresh_ground_truth_manifest.py",
+    "scripts/verify_research_sufficiency.py",
     "governance_tests/",
     "scripts/restore_drill.py",
     "scripts/user_proxy_gate.py",

@@ -35,6 +35,7 @@
     {"path": "scripts/verify_git_state.py", "kind": "file", "required_by": "design_freeze"},
     {"path": "scripts/verify_governance.py", "kind": "file", "required_by": "design_freeze"},
     {"path": "scripts/verify_remote_commit.py", "kind": "file", "required_by": "design_freeze"},
+    {"path": "scripts/verify_research_sufficiency.py", "kind": "file", "required_by": "design_freeze"},
     {"path": "acceptance/", "kind": "directory", "required_by": "product_release"},
     {"path": "docs/OPERATIONS.md", "kind": "file", "required_by": "product_release"},
     {"path": "scripts/restore_drill.py", "kind": "file", "required_by": "product_release"},

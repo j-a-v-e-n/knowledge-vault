@@ -74,6 +74,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/replay_design_freeze_attacks.py",
     "scripts/run_assurance_ci.py",
     "scripts/refresh_ground_truth_manifest.py",
+    "scripts/verify_research_sufficiency.py",
     "scripts/verify_contract_supersession.py",
     "README.md",
     "STATUS.md",
