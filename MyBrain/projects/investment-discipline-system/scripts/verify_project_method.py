@@ -25,12 +25,8 @@ DEFAULT_CLOSURE_EVIDENCE = (
 )
 ALLOWED_FAILURE_STATUSES = {"covered", "partially_covered", "gap"}
 CONDITIONALLY_DEFERRED_FAILURES = {
-    "ORG-06",
-    "IMP-04",
-    "SEC-06",
-    "HUM-05",
-    "ECO-03",
-    "ECO-04",
+    "HUM-05": "COND-JAVEN-FIELD-USE",
+    "ECO-03": "COND-LONGITUDINAL-EDGE",
 }
 
 EXPECTED_TOP_LEVEL = {
@@ -808,11 +804,38 @@ def git_text(*args: str) -> str:
     return completed.stdout.strip()
 
 
+def git_blob_sha256(commit: str, repository_relative: str) -> str:
+    completed = subprocess.run(
+        ["git", "show", f"{commit}:{repository_relative}"],
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"git show {commit}:{repository_relative} failed: "
+            f"{completed.stderr.decode('utf-8', 'replace').strip() or '<no output>'}"
+        )
+    return hashlib.sha256(completed.stdout).hexdigest()
+
+
 def verify_closure_evidence(path: Path) -> list[str]:
     errors: list[str] = []
     receipt = load_json(path, errors, "project method closure evidence")
     if not receipt:
         return errors
+    registry = load_json(FAILURE_REGISTRY, errors, "failure registry")
+    registry_classes = registry.get("failure_classes")
+    registry_by_id = (
+        {
+            item.get("id"): item
+            for item in registry_classes
+            if isinstance(item, dict) and nonempty(item.get("id"))
+        }
+        if isinstance(registry_classes, list)
+        else {}
+    )
     expected_top_level = {
         "schema_version",
         "verification_id",
@@ -861,6 +884,23 @@ def verify_closure_evidence(path: Path) -> list[str]:
             or value != sha256_file(source)
         ):
             errors.append(f"project method closure evidence {field} differs")
+    for relative, source in (
+        ("governance/PROJECT_METHOD_POLICY_V1.json", POLICY_PATH),
+        ("governance/FAILURE_CLASSES_V1.json", FAILURE_REGISTRY),
+    ):
+        try:
+            committed_hash = git_blob_sha256(
+                candidate_commit,
+                f"{project_prefix}{relative}",
+            )
+        except RuntimeError as exc:
+            errors.append(str(exc))
+            continue
+        if committed_hash != sha256_file(source):
+            errors.append(
+                "project method closure evidence source differs from candidate "
+                f"commit: {relative}"
+            )
 
     results = receipt.get("failure_results")
     if not isinstance(results, list):
@@ -902,14 +942,32 @@ def verify_closure_evidence(path: Path) -> list[str]:
                 f"project method closure evidence {failure_id} outcome blocks closure"
             )
         conditional_gate = result.get("conditional_gate_id")
+        registry_entry = registry_by_id.get(failure_id)
+        registry_status = (
+            registry_entry.get("status")
+            if isinstance(registry_entry, dict)
+            else None
+        )
         if outcome == "conditionally_deferred":
             if (
-                failure_id not in CONDITIONALLY_DEFERRED_FAILURES
-                or not nonempty(conditional_gate)
+                CONDITIONALLY_DEFERRED_FAILURES.get(failure_id)
+                != conditional_gate
+                or registry_status != "partially_covered"
             ):
                 errors.append(
                     "project method closure evidence has an unauthorized "
                     f"conditional deferral for {failure_id}"
+                )
+        elif outcome == "mechanism_verified":
+            if registry_status != "covered":
+                errors.append(
+                    "project method closure evidence cannot mark a non-covered "
+                    f"registry entry verified: {failure_id}"
+                )
+            if conditional_gate is not None:
+                errors.append(
+                    f"project method closure evidence {failure_id} has a stray "
+                    "conditional gate"
                 )
         elif conditional_gate is not None:
             errors.append(
@@ -980,6 +1038,7 @@ def output(
     *,
     closure_errors: Iterable[str] = (),
     require_closure: bool = False,
+    closure_evidence: Path | None = None,
 ) -> int:
     values = list(errors)
     closure_values = list(closure_errors)
@@ -994,6 +1053,14 @@ def output(
             "eligible" if not closure_values else "blocked"
         )
         payload["closure_error_count"] = len(closure_values)
+        payload["closure_evidence_path"] = (
+            str(closure_evidence) if closure_evidence is not None else None
+        )
+        payload["closure_evidence_sha256"] = (
+            sha256_file(closure_evidence)
+            if closure_evidence is not None and closure_evidence.is_file()
+            else None
+        )
     if as_json:
         print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
     elif failed:
@@ -1025,6 +1092,7 @@ def main() -> int:
         args.json,
         closure_errors=closure_errors,
         require_closure=args.require_closure,
+        closure_evidence=args.evidence if args.require_closure else None,
     )
 
 

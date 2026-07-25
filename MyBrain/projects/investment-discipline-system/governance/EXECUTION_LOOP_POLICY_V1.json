@@ -1,0 +1,143 @@
+{
+  "schema_version": "execution-loop-policy/v1",
+  "policy_id": "ORG-04-ECO-01-EXECUTION-LOOP-V1",
+  "linked_failure_ids": [
+    "ORG-04",
+    "ECO-01"
+  ],
+  "bound_work_packet": {
+    "packet_id": "WP-METHOD-INTEGRATION",
+    "packet_path": ".work_packets/packets/WP-METHOD-INTEGRATION.packet.json",
+    "attempts_path": ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.json",
+    "packet_schema_version": "work-packet-instance/v1",
+    "packet_contract_fields": [
+      "schema_version",
+      "packet_id",
+      "goal_id",
+      "owner",
+      "reviewer",
+      "bounded_write_paths",
+      "read_dependencies",
+      "acceptance_checks",
+      "retry_budget",
+      "external_side_effects",
+      "semantic_invariants"
+    ]
+  },
+  "ledger_schema": {
+    "ledger_schema_version": "execution-attempt-ledger/v1",
+    "ledger_required_fields": [
+      "schema_version",
+      "packet_id",
+      "packet_path",
+      "packet_contract_sha256",
+      "reported_state",
+      "cost_accounting_claim",
+      "attempts"
+    ],
+    "attempt_schema_version": "execution-attempt/v1",
+    "attempt_required_fields": [
+      "schema_version",
+      "sequence",
+      "retry_index",
+      "started_at",
+      "ended_at",
+      "wall_time_ms",
+      "blocker",
+      "failure_delta",
+      "evidence_delta",
+      "cost_observation",
+      "declared_progress",
+      "previous_attempt_sha256",
+      "record_sha256"
+    ],
+    "blocker_required_fields": [
+      "root_cause_id",
+      "failure_ids",
+      "root_cause",
+      "status_after",
+      "fingerprint_sha256"
+    ],
+    "failure_delta_required_fields": [
+      "before",
+      "after",
+      "resolved",
+      "introduced"
+    ],
+    "evidence_delta_required_fields": [
+      "before",
+      "after",
+      "added",
+      "removed"
+    ],
+    "evidence_reference_required_fields": [
+      "path",
+      "sha256",
+      "kind",
+      "supports_failure_ids"
+    ],
+    "cost_observation_required_fields": [
+      "wall_time_source",
+      "token_usage"
+    ],
+    "token_usage_required_fields": [
+      "availability",
+      "input_tokens",
+      "output_tokens",
+      "total_tokens",
+      "measurement_source"
+    ],
+    "first_sequence": 1,
+    "first_retry_index": 0,
+    "timestamp_format": "RFC3339_UTC_Z_MILLISECONDS",
+    "record_hash_rule": "canonical_sha256_of_attempt_without_record_sha256"
+  },
+  "progress_derivation": {
+    "declared_progress_must_equal_derived": true,
+    "failure_delta_must_be_set_difference": true,
+    "evidence_delta_must_be_set_difference": true,
+    "evidence_after_must_match_current_regular_files": true,
+    "progress_requires": "verified_evidence_addition_or_failure_resolution",
+    "resolved_failure_requires_added_supporting_evidence": true,
+    "ledger_and_packet_files_cannot_count_as_progress_evidence": true
+  },
+  "stopping_rules": {
+    "same_blocker_consecutive_no_progress_threshold": 3,
+    "same_blocker_threshold_outcome": "blocked",
+    "retry_budget_source": "packet.retry_budget",
+    "first_attempt_is_retry_index_zero": true,
+    "retry_index_above_budget_outcome": "invalid",
+    "budget_exhausted_without_verified_acceptance_outcome": "blocked"
+  },
+  "completion_rules": {
+    "candidate_complete_requires_current_checkpoint_receipt": true,
+    "complete_requires_current_checkpoint_and_acceptance_receipts": true,
+    "receipt_directory": ".work_packets/receipts",
+    "checkpoint_schema_version": "work-packet-checkpoint/v1",
+    "acceptance_schema_version": "work-packet-acceptance/v1",
+    "all_actual_exit_codes_must_equal_expected": true,
+    "final_attempt_must_add_required_receipt": true,
+    "acceptance_without_budget_overrun_can_derive_complete": true
+  },
+  "cost_accounting": {
+    "wall_time_source": "started_at_and_ended_at",
+    "token_availability_values": [
+      "measured",
+      "unknown"
+    ],
+    "unknown_tokens_require_null_counts_and_source": true,
+    "measured_tokens_require_nonnegative_counts_sum_and_source": true,
+    "ledger_claim_values": [
+      "measured",
+      "partial"
+    ],
+    "any_unknown_token_observation_forces_partial": true
+  },
+  "platform_and_process_limitations": [
+    "Current-file hashes prove that cited evidence bytes exist now; they do not by themselves prove semantic adequacy or the historical time at which those bytes were created.",
+    "The local JSON ledger is tamper-evident through hashes and ordering but not physically append-only; durable Git and remote history are separate assurance layers.",
+    "When the execution platform exposes no token telemetry, token cost remains explicitly unknown and aggregate accounting remains partial.",
+    "Acceptance receipts bind declared checks and recorded exit codes, but this verifier does not re-execute, authenticate, or sandbox the recorded commands.",
+    "A stable root-cause identifier reduces wording-based retry evasion, but independent review is still needed to detect dishonest splitting of one semantic blocker into multiple identifiers."
+  ]
+}

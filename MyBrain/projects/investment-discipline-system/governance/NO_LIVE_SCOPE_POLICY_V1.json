@@ -1,0 +1,292 @@
+{
+  "schema_version": "no-live-scope-policy/v1",
+  "policy_id": "NO-LIVE-PAPER-V1",
+  "scope": {
+    "runtime_entrypoints": [
+      "prototype/run_contract_faults.py",
+      "prototype/run_paper_suite.py",
+      "prototype/run_real_data_backtest.py",
+      "prototype/run_real_data_case.py",
+      "prototype/run_real_data_unified.py",
+      "prototype/run_unified_prototype_case.py"
+    ],
+    "implementation_roots": [
+      "prototype"
+    ],
+    "entrypoint_discovery": {
+      "filename_prefix": "run_",
+      "filename_suffix": ".py",
+      "recursive": false,
+      "require_main_guard": true
+    },
+    "active_work_packet_directory": ".work_packets/packets",
+    "active_work_packet_states": [
+      "active",
+      "blocked",
+      "candidate_complete"
+    ],
+    "ignored_directory_names": [
+      "__pycache__"
+    ],
+    "python_suffix": ".py",
+    "configuration_suffixes": [
+      ".cfg",
+      ".env",
+      ".ini",
+      ".json",
+      ".toml",
+      ".yaml",
+      ".yml"
+    ],
+    "inert_data_or_document_suffixes": [
+      ".csv",
+      ".jsonl",
+      ".md"
+    ],
+    "reject_unknown_file_suffixes": true,
+    "reject_symlinks": true
+  },
+  "python_ast_policy": {
+    "allowed_import_roots": [
+      "__future__",
+      "csv",
+      "dataclasses",
+      "datetime",
+      "decimal",
+      "hashlib",
+      "json",
+      "pathlib",
+      "prototype",
+      "tempfile",
+      "typing",
+      "unittest"
+    ],
+    "forbidden_import_prefixes": [
+      "aiohttp",
+      "alpaca",
+      "alpaca_trade_api",
+      "asyncio",
+      "binance",
+      "boto3",
+      "ccxt",
+      "coinbase",
+      "ctypes",
+      "fabric",
+      "ftplib",
+      "http",
+      "httpx",
+      "ib_insync",
+      "ibapi",
+      "oandapyv20",
+      "paramiko",
+      "requests",
+      "robin_stocks",
+      "runpy",
+      "schwab",
+      "smtplib",
+      "socket",
+      "socketserver",
+      "subprocess",
+      "telnetlib",
+      "urllib",
+      "urllib3",
+      "websocket",
+      "websockets",
+      "xmlrpc"
+    ],
+    "forbidden_call_prefixes": [
+      "aiohttp",
+      "alpaca",
+      "alpaca_trade_api",
+      "binance",
+      "ccxt",
+      "coinbase",
+      "http.client",
+      "httpx",
+      "ib_insync",
+      "ibapi",
+      "oandapyv20",
+      "requests",
+      "robin_stocks",
+      "schwab",
+      "socket",
+      "subprocess",
+      "urllib.request",
+      "urllib3",
+      "websocket",
+      "websockets"
+    ],
+    "forbidden_call_paths": [
+      "asyncio.create_subprocess_exec",
+      "asyncio.create_subprocess_shell",
+      "builtins.compile",
+      "builtins.eval",
+      "builtins.exec",
+      "os.execl",
+      "os.execle",
+      "os.execlp",
+      "os.execlpe",
+      "os.execv",
+      "os.execve",
+      "os.execvp",
+      "os.execvpe",
+      "os.popen",
+      "os.system",
+      "runpy.run_module",
+      "runpy.run_path"
+    ],
+    "forbidden_call_leaf_names": [
+      "buy_market_order",
+      "cancel_all_orders",
+      "cancel_order",
+      "create_order",
+      "execute_order",
+      "placeOrder",
+      "place_order",
+      "replace_order",
+      "send_order",
+      "sell_market_order",
+      "submitOrder",
+      "submit_order",
+      "transmit_order"
+    ],
+    "dynamic_import_call_paths": [
+      "__import__",
+      "builtins.__import__",
+      "importlib.import_module"
+    ],
+    "allowed_dynamic_import_modules": [],
+    "reject_nonliteral_dynamic_imports": true,
+    "reject_star_imports": true
+  },
+  "endpoint_policy": {
+    "allowed_read_only_endpoints": [
+      {
+        "scheme": "https",
+        "host": "fred.stlouisfed.org",
+        "port": null,
+        "path": "/graph/fredgraph.csv",
+        "allowed_query_keys": [
+          "id"
+        ],
+        "purpose": "saved_public_market_data_provenance"
+      }
+    ],
+    "python_endpoint_name_fragments": [
+      "api_url",
+      "base_url",
+      "broker_url",
+      "endpoint",
+      "source_url",
+      "trading_url",
+      "url"
+    ],
+    "text_url_schemes": [
+      "http",
+      "https"
+    ],
+    "require_https": true,
+    "reject_userinfo": true,
+    "reject_fragments": true,
+    "reject_unlisted_endpoints": true,
+    "reject_dynamic_python_endpoint_values": true
+  },
+  "local_paper_only_surface": {
+    "definitions": [
+      {
+        "path": "prototype/contracts.py",
+        "class_name": "LocalPaperExecutionAdapter",
+        "required_public_methods": [
+          "submit"
+        ],
+        "allowed_public_methods": [
+          "submit"
+        ]
+      },
+      {
+        "path": "prototype/paper.py",
+        "class_name": "PaperAccount",
+        "required_public_methods": [
+          "execute",
+          "mark_to_market",
+          "positions"
+        ],
+        "allowed_public_methods": [
+          "execute",
+          "mark_to_market",
+          "positions"
+        ]
+      }
+    ],
+    "execution_capable_class_suffixes": [
+      "Broker",
+      "BrokerClient",
+      "ExecutionAdapter",
+      "OrderClient",
+      "TradingClient"
+    ],
+    "allowed_execution_capable_classes": [
+      "prototype.contracts.ExecutionAdapter",
+      "prototype.contracts.LocalPaperExecutionAdapter"
+    ],
+    "reject_unlisted_public_methods": true
+  },
+  "work_packet_policy": {
+    "filename_suffix": ".packet.json",
+    "instance_schema_version": "work-packet-instance/v1",
+    "required_fields": [
+      "schema_version",
+      "packet_id",
+      "goal_id",
+      "state",
+      "owner",
+      "reviewer",
+      "bounded_write_paths",
+      "read_dependencies",
+      "acceptance_checks",
+      "checkpoint_path",
+      "acceptance_receipt_path",
+      "retry_budget",
+      "external_side_effects",
+      "semantic_invariants"
+    ],
+    "all_state_values": [
+      "pending",
+      "active",
+      "blocked",
+      "candidate_complete",
+      "complete"
+    ],
+    "allowed_active_external_side_effects": [
+      "git_remote_autobackup_observed"
+    ],
+    "forbidden_active_side_effect_fragments": [
+      "auto_order",
+      "automatic_order",
+      "broker",
+      "live_order",
+      "live_trade",
+      "real_fund",
+      "real_money",
+      "submit_order",
+      "trade_execution"
+    ],
+    "reject_unlisted_active_external_side_effects": true,
+    "reject_unexpected_directory_entries": true
+  },
+  "claim_boundary": {
+    "proves": "For the exact declared local tree, this verifier checks that frozen runtime entries and implementation roots exist, Python source parses and stays within a closed import and file-type surface, high-risk broker/order/network execution imports and calls are absent under the specified AST rules, configured URLs are limited to an explicit read-only endpoint, execution-capable classes stay within the local paper allow surface, and active work packets declare no unapproved external side effect.",
+    "does_not_prove": [
+      "absence of behavior hidden in the Python interpreter, native runtime, dependencies, generated code, or files outside the declared implementation roots",
+      "absence of a live capability introduced after this point-in-time scan",
+      "operating-system sandboxing or network egress prevention",
+      "semantic safety of market data or investment advice",
+      "safety of a future policy revision or a future live-trading scope"
+    ],
+    "required_companion_controls": [
+      "hash or commit binding of this policy, verifier, declared implementation, and test evidence",
+      "runtime network sandbox or egress denial for stronger assurance",
+      "independent review before changing the closed import, endpoint, execution-class, or work-packet allow surfaces"
+    ]
+  }
+}

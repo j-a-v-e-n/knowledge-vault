@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "manifest_id": "FROZEN-TEST-MANIFEST-V1",
+  "requirement": {
+    "failure_id": "VER-07",
+    "invariant_id": "PM-09-FROZEN-TESTS"
+  },
+  "hash_contract": {
+    "source": "sha256-raw-file-bytes",
+    "class_ast": "sha256-canonical-python-ast-v1",
+    "test_ast": "sha256-canonical-python-ast-v1",
+    "assertions": "sha256-canonical-assertion-ast-list-v1"
+  },
+  "forbidden_disable_mechanisms": [
+    "unittest.skip",
+    "unittest.skipIf",
+    "unittest.skipUnless",
+    "unittest.expectedFailure",
+    "pytest.mark.skip",
+    "pytest.mark.skipif",
+    "pytest.mark.xfail",
+    "dynamic SkipTest/skipTest/pytest.skip/pytest.xfail"
+  ],
+  "claim_boundary": {
+    "protects": "only the exact selectors listed in this manifest, their containing classes, source modules, and clean baseline outcomes",
+    "does_not_prove": [
+      "correctness of any listed test oracle",
+      "integrity or executability of unlisted tests",
+      "correctness of product code or transitive dependencies"
+    ]
+  },
+  "baseline": {
+    "runner": "current-python-stdlib-unittest",
+    "working_directory": "project_root",
+    "process_isolation": "fresh_subprocess",
+    "timeout_seconds": 120,
+    "expected": {
+      "tests_run": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "expected_failures": 0,
+      "unexpected_successes": 0
+    }
+  },
+  "sources": [
+    {
+      "file": "governance_tests/test_project_method.py",
+      "sha256": "4db8e6175b50df0392369067a085dba6f8551751fe7fd86f589d933963849f6a"
+    },
+    {
+      "file": "governance_tests/test_context_recovery.py",
+      "sha256": "c004d2bc5c0b303b37e1b326f6cbeb2449c0403cd7e5ce6a5081c2a21dd73de8"
+    },
+    {
+      "file": "governance_tests/test_work_packets.py",
+      "sha256": "59736f199ab8f4c33485fe913fa3212dbb4fd9e6cbef86df620eaad89171a123"
+    },
+    {
+      "file": "governance_tests/test_assurance_runner.py",
+      "sha256": "83a450a88540d8ed7dacdb87a19dfcaab6b8210bfca970a6793fc4551bdb93c9"
+    }
+  ],
+  "classes": [
+    {
+      "file": "governance_tests/test_project_method.py",
+      "class_name": "ProjectMethodPolicyTests",
+      "normalized_ast_sha256": "9eed7afeb8d621ef07c215d5d0efa66d0a1eb4f44997f1af84fcd1cf020becc7"
+    },
+    {
+      "file": "governance_tests/test_context_recovery.py",
+      "class_name": "ContextRecoveryDesignFreezeTests",
+      "normalized_ast_sha256": "dba107216f2817d33432a529a1ce7b4d11b86ba5b847f99f8b904a9e872feda4"
+    },
+    {
+      "file": "governance_tests/test_work_packets.py",
+      "class_name": "WorkPacketVerifierTests",
+      "normalized_ast_sha256": "83e09ad3d7ce4c498e09f12868cefe82b9041cc8204ab019cd0094923e061515"
+    },
+    {
+      "file": "governance_tests/test_assurance_runner.py",
+      "class_name": "AssuranceRunnerTests",
+      "normalized_ast_sha256": "97cecd053723b5d4d0cb7bae1a5b6450d3da90dad2be78b2691d230ff945ec76"
+    }
+  ],
+  "tests": [
+    {
+      "selector": "governance_tests.test_project_method.ProjectMethodPolicyTests.test_criterion_weakening_is_rejected",
+      "file": "governance_tests/test_project_method.py",
+      "class_name": "ProjectMethodPolicyTests",
+      "test_name": "test_criterion_weakening_is_rejected",
+      "normalized_ast_sha256": "5c4b01da7b13e3d7e521cdf5bc90d5f5ad7979d9087b63a65d45db982023a931",
+      "assertion_count": 1,
+      "assertion_ast_sha256": "3490dc6c4e5e7b7f4f5ea5b7713234ff316e5043d51d5568ccbad1138114dc8e"
+    },
+    {
+      "selector": "governance_tests.test_project_method.ProjectMethodPolicyTests.test_reviewer_candidate_write_access_is_rejected",
+      "file": "governance_tests/test_project_method.py",
+      "class_name": "ProjectMethodPolicyTests",
+      "test_name": "test_reviewer_candidate_write_access_is_rejected",
+      "normalized_ast_sha256": "1486ecf37f235b529275c7cbd0e1ae0299f73363d7f0895e43a4441ebde1c001",
+      "assertion_count": 1,
+      "assertion_ast_sha256": "7496a6f8eedfc413fdf045a6fa53238ef603547a4b1758741da66da6e0863e55"
+    },
+    {
+      "selector": "governance_tests.test_project_method.ProjectMethodPolicyTests.test_frozen_test_baseline_bypass_is_rejected",
+      "file": "governance_tests/test_project_method.py",
+      "class_name": "ProjectMethodPolicyTests",
+      "test_name": "test_frozen_test_baseline_bypass_is_rejected",
+      "normalized_ast_sha256": "198d0fc86c437f4886aa15a0b4f2862ea568f6aeeaf6b82aca6126b069db2f31",
+      "assertion_count": 1,
+      "assertion_ast_sha256": "45c602b485ddd66b9eb0ca64d5357be5105edd84cd04fd519e1ff0b7bbb55cda"
+    },
+    {
+      "selector": "governance_tests.test_context_recovery.ContextRecoveryDesignFreezeTests.test_receipt_claim_cannot_override_derived_observation",
+      "file": "governance_tests/test_context_recovery.py",
+      "class_name": "ContextRecoveryDesignFreezeTests",
+      "test_name": "test_receipt_claim_cannot_override_derived_observation",
+      "normalized_ast_sha256": "43f24e0d64806785a52fefc775378cc3097af047c95ecf971d3a05f42161ebef",
+      "assertion_count": 1,
+      "assertion_ast_sha256": "ebb239842146148caa3b24d4ae38dcc6d47b92ffa4c7ee6d2f0981f27add1114"
+    },
+    {
+      "selector": "governance_tests.test_work_packets.WorkPacketVerifierTests.test_disjoint_text_changes_can_fail_joint_semantic_invariant",
+      "file": "governance_tests/test_work_packets.py",
+      "class_name": "WorkPacketVerifierTests",
+      "test_name": "test_disjoint_text_changes_can_fail_joint_semantic_invariant",
+      "normalized_ast_sha256": "23dfeae6bab8d2396bde00d719a1bc7e625065623bc30cff94f72360bb9944e3",
+      "assertion_count": 5,
+      "assertion_ast_sha256": "8264a70c321760470d7c551f108ed49543bfb09cc0be3fdb0fa1244fcb382575"
+    },
+    {
+      "selector": "governance_tests.test_assurance_runner.AssuranceRunnerTests.test_timeout_fails_closed_and_preserves_partial_output",
+      "file": "governance_tests/test_assurance_runner.py",
+      "class_name": "AssuranceRunnerTests",
+      "test_name": "test_timeout_fails_closed_and_preserves_partial_output",
+      "normalized_ast_sha256": "4d9c05a7294ffaaf4ff35745d6fbf6a98ecce18122a568785b5c60b27ea6496b",
+      "assertion_count": 6,
+      "assertion_ast_sha256": "8f7e48964cb196cca853ce41ad1d00a0e58451c789b1da4f9262865c486c4e87"
+    }
+  ]
+}

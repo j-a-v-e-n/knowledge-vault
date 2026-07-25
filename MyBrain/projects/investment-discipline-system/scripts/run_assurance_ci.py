@@ -193,11 +193,17 @@ def main() -> int:
             "CHECK-PROJECT-METHOD",
             [
                 sys.executable,
-                str(PROJECT_ROOT / "scripts" / "verify_project_method.py"),
+                str(
+                    PROJECT_ROOT
+                    / "scripts"
+                    / "run_project_method_acceptance.py"
+                ),
                 "--json",
-                "--require-closure",
+                "--verify",
+                "--ephemeral",
             ],
             parse_json=True,
+            timeout_seconds=1800,
         ),
         execute_check(
             "CHECK-CANDIDATE-GOVERNANCE",

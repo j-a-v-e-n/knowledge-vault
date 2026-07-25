@@ -209,6 +209,18 @@
       "required": true
     },
     {
+      "path": "governance/COMPONENT_REGISTRY_V1.json",
+      "sha256": "26604334dbe2aa90326fa51c78f32ad957cb8dafd55471ea04de1b2b1e1d9cb1",
+      "role": "component_boundary_dependency_and_removal_contract",
+      "required": true
+    },
+    {
+      "path": "governance/CONTEXT_RECOVERY_SPEC_V1.json",
+      "sha256": "bfc7d844bec9652890b0137759306b006ac279e4d523779d680302e803ccd4cd",
+      "role": "deterministic_context_recovery_probe_contract",
+      "required": true
+    },
+    {
       "path": "governance/DECISION_AUTHORITY_V1.json",
       "sha256": "c54f93262755b413e56a7ef7ddcf33fc12a2b88da23c66e740d62298d0abbb57",
       "role": "decision_authority_and_non_confirmation_contract",
@@ -284,6 +296,12 @@
       "path": "governance/VERIFICATION_SPECS_V1.json",
       "sha256": "adbc13b6227cf5ee163400d4a405059c9594aa2ae3187e2e97109bbc87170c4c",
       "role": "verification_executor_oracle_and_evidence_contract",
+      "required": true
+    },
+    {
+      "path": "governance/WORK_PACKET_POLICY_V1.json",
+      "sha256": "123f1ddf9ab6c9e1aa684eb3d48f9872c778c5b29ad3d52fb13acc1a9cf91a53",
+      "role": "bounded_work_packet_and_write_ownership_contract",
       "required": true
     },
     {

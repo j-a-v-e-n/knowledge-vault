@@ -101,7 +101,7 @@
         "locators": [
           {
             "path": "scripts/verify_governance.py",
-            "sha256": "8c6b7bcff439e16c5dc89acc62cec79fdcf6ee17f56458bd9f3334d57db1e56d",
+            "sha256": "010668ba1e40b08b54405575a31b7374663f5eb12eea8a8bb832678acdb8744b",
             "anchors": [
               "def main() -> int:",
               "governance verification: FAIL"

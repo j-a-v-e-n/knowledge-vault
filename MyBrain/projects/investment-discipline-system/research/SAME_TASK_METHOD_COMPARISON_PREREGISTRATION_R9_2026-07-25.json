@@ -1,53 +1,110 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "round_id": "SAME-TASK-METHOD-COMPARISON-R9",
   "status": "preregistered_not_executed",
   "created_at_utc": "2026-07-25T17:18:58Z",
   "contains_execution_results": false,
-  "purpose": "在任何 R9 生成输出出现之前，冻结一次 ordinary wrapper 与 evidence-governed minimum-core wrapper 的完全同题、同语料、同模型配置、同资源上限比较。R9 只判断 minimum core 在本预注册适用范围内是否产生足以覆盖额外成本的可观察收益，不预设 governed 胜出。",
+  "prelaunch_readiness": {
+    "state": "not_evaluated_blocked_until_required_receipts_exist",
+    "runtime_binding_present": false,
+    "allocation_present": false,
+    "capability_preflight_receipt_present": false,
+    "judge_package_fit_receipts_present": false,
+    "generation_authorized": false,
+    "current_blocker": "本预注册只冻结方法，不包含 external independent stateless process harness、runtime binding、complete tree manifests、digest sidecars 或 capability/package-fit receipts；本项目父 task/thread 的 native subagent 明确不合格，因此现在不得启动 generation。",
+    "resolution_rule": "只能在任何输出前由符合本文件的外部隔离 harness 生成并冻结全部 required receipts 后把独立运行状态标为 ready；若能力 false、unknown 或平台无法提供，则保持 blocked_before_generation，并在 result payload 中记录 outcome = bounded_incomplete，不得回填本字段或降低标准。"
+  },
+  "purpose": "在任何 R9 生成输出出现之前，冻结一次共同 governed task/output contract 下的边际 wrapper 比较。baseline 与 treatment 都受同一冻结语料、引用、JSON、安全、失败关闭和资源契约约束；唯一 treatment 是额外加入 evidence-governed minimum-core instructions。R9 只判断这组额外 instructions 在本预注册适用范围内是否产生足以覆盖额外成本的可观察收益，不把 baseline 称为无治理 ordinary prompting，也不预设 treatment 胜出。",
   "predecessor_problem": {
     "r7": "R7 的 ordinary baseline 与 governed report 回答了不同问题，因此输出差异不能归因于方法 wrapper，且成本记录不完整。",
     "r8": "R8 可以继续关闭其原有研究问题，但不能在看到既有输出后补写一套比较规则并把它称为预注册的 same-task 证据。",
-    "r9_correction": "先固定一个任务、一个有限语料、一个共同输出契约、两个 wrapper、资源上限、盲法、rubric、哈希、失败规则和三态裁决，再允许任何生成运行开始。"
+    "r9_correction": "先固定一个任务、一个有限语料、一个共同 governed 输出契约、边际 wrapper contrast、多个 paired replicates、request-slot 随机化、独立无状态 harness、资源上限、方法标签遮蔽、rubric、非自指哈希、失败规则和三态裁决，再允许任何生成运行开始。"
   },
   "decision_scope": {
-    "decision_supported_by_this_experiment": "是否把本文件定义的 minimum core 作为高影响、有限冻结语料、离线研究综合任务的实验性默认 wrapper。",
+    "decision_supported_by_this_experiment": "是否在已经强制使用本文件共同 governed task/output contract 的前提下，把本文件定义的额外 minimum-core instructions 作为高影响、有限冻结语料、离线研究综合任务的实验性默认 wrapper。",
     "not_supported": [
-      "governed 方法在开放网络、所有领域、所有模型或长期项目中普遍优于 ordinary",
+      "governed 方法在开放网络、所有领域、所有模型或长期项目中普遍优于 ordinary prompting",
+      "baseline 代表无约束、无引用要求或无失败关闭的 ordinary prompting",
+      "共同 governed output contract 本身相对于无治理流程的效应",
       "完整 R7 或 R8 治理流程已经证明成本有效",
       "更多结构、更多文字、更多引用或更多维护对象本身代表质量更高",
       "任何真实资金、真实交易、私人账户、供应商账户或产品完成结论"
     ],
-    "adopt_scope_if_passed": "只采用本文件列出的 minimum core wrapper，并只用于与本实验相近的高影响、有限冻结语料、离线综合任务；超出范围必须重新验证。",
-    "reject_scope_if_failed": "不把 minimum core 设为该范围的默认 wrapper；ordinary 仍可胜出，治理步骤也不得因更复杂而自动保留。"
+    "adopt_scope_if_passed": "只在共同 governed task/output contract 已经存在时采用本文件列出的额外 minimum-core instructions，并只用于与本实验相近的高影响、有限冻结语料、离线综合任务；超出范围必须重新验证。",
+    "reject_scope_if_failed": "不在共同 governed task/output contract 上增加该 minimum-core wrapper；baseline 可胜出，额外步骤也不得因更复杂而自动保留。"
+  },
+  "estimand_and_contrast": {
+    "primary_estimand": "在同一冻结任务、同一冻结语料、同一共同 governed task/output contract、同一可观察 requested configuration 和四个预注册 fresh-process paired replicates 内，将 arm-specific instructions 从 common_contract_only 替换为 common_contract_plus_minimum_core 后，blind quality_score 的 replicate-level paired mean difference。",
+    "treatment_contrast": {
+      "baseline_arm": "common_contract_only",
+      "treatment_arm": "common_contract_plus_minimum_core",
+      "shared_governed_contract": [
+        "common_task",
+        "frozen_corpus",
+        "common_output_contract",
+        "paper-only 与人工最终决定安全边界",
+        "strict JSON、引用、未知和 bounded_incomplete 要求",
+        "相同资源、无工具、无网络和失败协议"
+      ],
+      "only_added_treatment": "R9-WRAPPER-COMMON-CONTRACT-PLUS-MINCORE-V2 中列出的 minimum-core instructions"
+    },
+    "assignment_unit": "每个 pair 内的 request_slot_1 或 request_slot_2",
+    "analysis_unit": "paired_replicate",
+    "target_population": "本任务、本语料、本共同 contract、本 harness 能力和本次 requested model configuration 下的四次 fresh-process 请求；不外推为任务、模型或平台总体。",
+    "identification_conditions": [
+      "每个 pair 内 treatment 到 request slot 的分配按冻结算法随机且保持一比一",
+      "除 arm-specific wrapper 外的 request bytes 与可观察 requested configuration 相同",
+      "每次请求来自不继承父线程状态的独立无状态隔离进程",
+      "不存在跨 slot、跨 pair、输出到 reviewer 或方法映射泄漏",
+      "不存在 transport 或 service error，且所有预注册 receipt 可接受"
+    ],
+    "not_estimated": [
+      "共同 governed contract 相对无约束 ordinary prompting 的效应",
+      "exact backend revision、隐藏权重、服务端路由、缓存、硬件或并发负载的效应",
+      "跨任务平均处理效应、长期维护效应或统计总体 superiority",
+      "native subagent、共享父线程或可读项目工作区条件下的效应"
+    ]
   },
   "preregistration_freeze": {
     "execution_may_start_only_after": [
       "包含本文件精确字节的 Git commit 已存在",
-      "本文件原始字节 sha256 已记录",
-      "执行绑定 manifest 已在看不到任何生成输出时冻结并记录 sha256",
-      "随机分配记录已封存且其 sha256 已记录"
+      "本文件原始字节 sha256 已写入独立 preregistration digest sidecar，且 sidecar 已进入后续 Git commit；本文件不包含自己的 sha256",
+      "执行绑定 payload、完整 harness tree manifest、八个 generator package tree manifest 及其各自 digest sidecar 已在看不到任何生成输出时冻结",
+      "独立无状态/隔离进程、deny-read、no-tools、usage、timing、retry 和 judge package-fit capability preflight 全部通过并有可接受 receipt",
+      "四个 pair 的 treatment-to-request-slot 随机分配记录已封存，分配 payload 的 sha256 只写入独立 sidecar",
+      "尚未出现任何 generation artifact、partial output、review output 或其内容摘要"
     ],
     "immutable_after_first_output": [
       "共同任务",
       "语料及切片",
-      "两个 wrapper",
+      "共同 governed contract 与两个 wrapper",
+      "四个 paired replicates 与 request-slot 分配算法",
       "输出契约",
-      "模型与资源相等规则",
+      "same observable requested configuration 与资源相等规则",
+      "harness、deny-read、no-tools、receipt 和 package-fit 门",
       "rubric 与权重",
-      "盲法",
+      "方法标签遮蔽规则",
       "adopt、reject 和 bounded_incomplete 规则"
     ],
     "change_rule": "上述任一字段在任何生成输出出现后改变，R9 自动失效；只能新建后续 round，不得回填或覆盖本文件。",
-    "prior_material_rule": "R7、R8 的报告和审查只用于设计本预注册，禁止进入 R9 生成者或盲评者输入。"
+    "prior_material_rule": "R7、R8 的报告和审查只用于设计本预注册，禁止进入 R9 生成者或 reviewer 输入。",
+    "failed_preflight_rule": "任何启动前 capability、tree completeness、configuration equality、receipt acceptance 或 judge package-fit 门不能满足时，operational_state = blocked_before_generation，最终 outcome = bounded_incomplete；不得减少 replicate、改用父线程 native subagent、放宽隔离、缩小 reviewer package、换模型、改预算或降低标准。"
   },
   "primary_design": {
-    "design_type": "single_preregistered_parallel_paired_same_task_two_arm_comparison",
-    "experimental_unit": "一对在隔离上下文中并行启动的生成 artifact",
-    "replicates_per_arm": 1,
+    "design_type": "preregistered_randomized_four_paired_replicate_same_task_two_arm_marginal_wrapper_comparison",
+    "experimental_unit": "pair 内一个随机分配 treatment 的 request slot；主要分析以 pair 为区组",
+    "paired_replicate_count": 4,
+    "replicates_per_arm": 4,
+    "planned_generation_artifact_count": 8,
+    "pair_ids": [
+      "R9-PAIR-01",
+      "R9-PAIR-02",
+      "R9-PAIR-03",
+      "R9-PAIR-04"
+    ],
     "arms": [
-      "ordinary",
-      "minimum_core"
+      "common_contract_only",
+      "common_contract_plus_minimum_core"
     ],
     "only_permitted_treatment_difference": "method_wrapper",
     "held_equal": [
@@ -55,7 +112,7 @@
       "语料切片、顺序和字节",
       "共同输出 schema",
       "system prompt",
-      "模型 provider、exact model id、revision、sampling 与 seed 支持状态",
+      "可观察的 provider、surface、requested model identifier、request parameters、sampling 与 seed 支持状态",
       "上下文上限",
       "工具与网络权限",
       "输出 token 上限",
@@ -64,8 +121,10 @@
       "启动窗口",
       "停止和失败处理"
     ],
-    "known_limit": "单个 paired task 只能支持范围受限的操作决定，不构成跨任务统计普遍性证明。",
-    "why_not_two_equivalent_tasks": "成对不同任务会引入难以证明的任务等价性；本轮选择字节级同一任务和同一语料作为更强的局部控制。"
+    "replicate_rationale": "四个 pair 是用于平衡两个 request slot 并观察同一任务请求随机性的最小预注册重复设计；它们不是四个独立任务，也不支持总体显著性推断。",
+    "known_limit": "四个 paired replicates 仍只支持范围受限的局部操作决定，不构成跨任务或跨 backend revision 的统计普遍性证明。",
+    "why_not_two_equivalent_tasks": "成对不同任务会引入难以证明的任务等价性；本轮选择字节级同一任务和同一语料作为更强的局部控制。",
+    "no_sample_size_downgrade": "必须获得四个预注册 pair 的一次且仅一次 request receipt；平台若不能支持八个隔离生成请求和两份完整 reviewer package，则启动前 blocked_before_generation 并最终 bounded_incomplete，不得改成一个 pair、删 pair、补 pair 或 best-of-n。"
   },
   "common_task": {
     "task_id": "R9-TASK-CA-PIT-01",
@@ -95,6 +154,9 @@
     "total_exposed_slice_bytes": 16512,
     "manifest_root_algorithm": "sha256 of ASCII bytes: r9-corpus-manifest-v1 LF, then for each slice_id in ascending bytewise order: slice_id TAB slice_sha256 LF",
     "manifest_root_sha256": "379ea29e5f981e6c014ba244c4970a66bd3c9f5ece8b4ac003db658015a2a4d1",
+    "manifest_root_preimage_excluded_fields": [
+      "manifest_root_sha256"
+    ],
     "slice_extraction_rule": {
       "precondition": "完整 derived text 文件原始字节 sha256 必须匹配 source_document_sha256，且行分隔符为 LF。",
       "algorithm": "以 LF 分割原始字节并保留每行终止符；按 1-based inclusive start_line 与 end_line 取连续行；不得转码、trim、补 header 或改变换行。",
@@ -231,11 +293,11 @@
       }
     ],
     "source_independence_rule": "同一 source 的多个切片只算一个 upstream cluster；引用数量和切片数量不得当作独立证据数量。",
-    "mirror_rule": {
-      "mirror_count": 2,
-      "construction": "在生成启动前，从通过 hash 的切片构造两个只读隔离镜像；两个镜像的切片顺序、字节、neutral index 和 manifest root 必须完全相同。",
-      "access": "每个生成 arm 只能看到被随机分配的一个镜像；不能看到原项目目录、另一个镜像、R7/R8/R9 报告、memory 或 Git 历史。",
-      "equality_gate": "两个镜像 manifest_root_sha256 不同、出现额外文件或可跨镜像读取时，结果为 bounded_incomplete。"
+    "replicate_package_rule": {
+      "generator_package_instance_count": 8,
+      "construction": "在生成启动前，从通过 hash 的切片构造八个只读隔离 package instance，每个 pair-slot 一个；所有 instance 的切片顺序、字节、neutral index、common component hashes 和 generator-visible tree root 必须完全相同，只有随机分配后写入同一固定路径的 arm-specific wrapper 字节可以不同。",
+      "access": "每个 one-shot generation process 只能读取自己的一个 package instance；不能读取原项目目录、其他 slot 或 pair 的 package、任何输出 spool、R7/R8/R9 报告、memory、Git 历史或 harness control tree。",
+      "equality_gate": "任一 instance 的 corpus_manifest_root_sha256 或 common generator-visible tree projection 不同、出现未声明 entry、symlink/hardlink、额外文件或跨 instance 读取成功时，启动前 blocked_before_generation；若运行后才发现则 bounded_incomplete。"
     }
   },
   "common_output_contract": {
@@ -352,7 +414,8 @@
       }
     },
     "common_constraints": [
-      "不得输出 arm、wrapper、ordinary、governed、minimum core 或实验方法标签",
+      "不得输出 internal arm id、wrapper id、common_contract_only、common_contract_plus_minimum_core、minimum-core method label 或实验 treatment/baseline 标签",
+      "ordinary cash dividend 是任务要求的公司行动领域术语，明确允许；仅出现该完整领域短语不构成方法标签或遮蔽污染",
       "不得引用 frozen corpus 之外的事实来源",
       "每个 corpus_fact 必须至少有一个精确切片行号引用",
       "inference 与 recommendation 必须和 corpus_fact 区分",
@@ -361,13 +424,13 @@
     "invalid_json_handling": "保留原始字节且不修复、不重试；将其包装为统一的 blind failure envelope 供 reviewer 查看。invalid JSON 是 arm 的可观察方法失败，不自动使实验失效。"
   },
   "method_wrappers": {
-    "ordinary": {
-      "wrapper_id": "R9-WRAPPER-ORDINARY-V1",
-      "instructions": "使用你通常的最佳研究判断完成共同任务。只能使用挂载的冻结语料和共同输出契约；不得访问网络、项目历史、先前 R7/R8/R9 输出、memory、另一个 arm 或其他文件。答案必须在共同资源上限内完成；证据不足时选择 bounded_incomplete。不要创建共同输出以外的 sidecar，也不要在输出中提及本实验或方法标签。"
+    "common_contract_only": {
+      "wrapper_id": "R9-WRAPPER-COMMON-CONTRACT-ONLY-V2",
+      "instructions": "使用你通常的最佳研究判断完成共同任务。只能使用挂载的冻结语料和共同输出契约；不得访问网络、项目历史、先前 R7/R8/R9 输出、memory、另一个 request slot 或其他文件。答案必须在共同资源上限内完成；证据不足时选择 bounded_incomplete。不要创建共同输出以外的 sidecar，也不要在输出中提及本实验、internal arm id、wrapper id 或方法标签。"
     },
-    "minimum_core": {
-      "wrapper_id": "R9-WRAPPER-MINCORE-V1",
-      "instructions": "使用以下 minimum core 完成完全相同的共同任务和共同输出契约：先在内部固定问题、范围、备选政策和决定对象；逐一清点全部语料切片并按 upstream source 去重；区分 corpus fact、inference 和 recommendation；分别执行支持证据与最强反证检查；逐项核对每个会改变决定的 claim 与精确切片行号是否蕴含；显式记录未知、限制和 decision effect；提交前只执行一次矛盾与引用复核。只能使用挂载的冻结语料；不得访问网络、项目历史、先前 R7/R8/R9 输出、memory、另一个 arm 或其他文件。达到共同资源上限或仍有决定性缺口时选择 bounded_incomplete。不要创建共同输出以外的 sidecar，也不要在输出中提及本实验或方法标签。"
+    "common_contract_plus_minimum_core": {
+      "wrapper_id": "R9-WRAPPER-COMMON-CONTRACT-PLUS-MINCORE-V2",
+      "instructions": "在共同任务和共同输出契约之上额外执行以下内部步骤：先在内部固定问题、范围、备选政策和决定对象；逐一清点全部语料切片并按 upstream source 去重；区分 corpus fact、inference 和 recommendation；分别执行支持证据与最强反证检查；逐项核对每个会改变决定的 claim 与精确切片行号是否蕴含；显式记录未知、限制和 decision effect；提交前只执行一次矛盾与引用复核。只能使用挂载的冻结语料；不得访问网络、项目历史、先前 R7/R8/R9 输出、memory、另一个 request slot 或其他文件。达到共同资源上限或仍有决定性缺口时选择 bounded_incomplete。不要创建共同输出以外的 sidecar，也不要在输出中提及本实验、internal arm id、wrapper id 或方法标签。"
     },
     "minimum_core_components_under_test": [
       "预先固定问题、范围、备选与决定对象",
@@ -379,58 +442,193 @@
       "一次最终矛盾与引用审计",
       "固定预算和 bounded_incomplete 失败关闭"
     ],
-    "fairness_rule": "共同任务、共同输出字段和安全边界对两臂完全相同；wrapper 长度与由此产生的 token、时间负担是 treatment 成本，不做 padding，也不从成本统计中扣除。"
+    "contrast_interpretation": "common_contract_only 不是无治理 ordinary prompting：它已经受到共同任务、冻结语料、strict JSON、精确引用、反证、未知、paper-only 和 bounded_incomplete 契约约束。本轮只估计额外 minimum-core instructions 的边际效应。",
+    "fairness_rule": "共同任务、共同 governed 输出字段和安全边界对两臂完全相同；额外 wrapper 长度与由此产生的 token、时间负担是 treatment 成本，不做 padding，也不从成本统计中扣除。"
   },
   "prompt_assembly": {
     "system_message": "两个生成 arm 必须使用字节相同的 system prompt；其 sha256 写入执行绑定 manifest。",
     "user_message_order": [
       "共同任务的 canonical JSON projection",
       "共同输出契约的 canonical JSON projection",
-      "占据相同位置的 arm-specific wrapper",
+      "占据相同位置、只含 neutral instructions 字段的 arm-specific wrapper model-visible projection",
       "按 slice_id 升序排列的 neutral corpus index 与切片原始字节"
     ],
     "neutral_corpus_header": "每个切片只显示 slice_id、source_id、upstream_cluster_id、source_title、原始 source line range 和正文；不显示 R7/R8 结论、query id、筛选决定或预期答案。",
-    "only_allowed_byte_difference": "arm-specific wrapper 的 wrapper_id 与 instructions；执行绑定 manifest 必须验证其余 prompt component hashes 相等。"
+    "wrapper_visibility_rule": "wrapper_id、internal arm id、baseline/treatment label 和 method name 只存在于封存 input/allocation manifests，不进入 model-visible package 或 assembled request；model-visible method/wrapper.canonical.json 只能含相同 neutral field name 下的 instructions 字符串。",
+    "only_allowed_byte_difference": "model-visible arm-specific instructions 字节；执行绑定 manifest 必须验证其余 prompt component hashes 相等。"
+  },
+  "package_and_tree_manifest": {
+    "controlled_scope": "完整清点实验控制的 harness tree、八个 generator-readable package tree 和 reviewer package tree。该清点不声称覆盖 provider backend、host kernel、系统动态库或平台隐藏服务状态；这些边界必须写入结果。",
+    "generator_visible_package": {
+      "package_instance_count": 8,
+      "exact_regular_file_paths": [
+        "common/system_message.txt",
+        "common/common_task.canonical.json",
+        "common/common_output_contract.canonical.json",
+        "method/wrapper.canonical.json",
+        "corpus/neutral_index.canonical.json",
+        "corpus/slices/R9-C01.txt",
+        "corpus/slices/R9-C02.txt",
+        "corpus/slices/R9-C03.txt",
+        "corpus/slices/R9-C04.txt",
+        "corpus/slices/R9-C05.txt",
+        "corpus/slices/R9-C06.txt",
+        "corpus/slices/R9-C07.txt",
+        "corpus/slices/R9-C08.txt",
+        "corpus/slices/R9-C09.txt",
+        "corpus/slices/R9-C10.txt",
+        "corpus/slices/R9-C11.txt"
+      ],
+      "exact_regular_file_count": 16,
+      "arm_specific_path": "method/wrapper.canonical.json",
+      "common_projection_rule": "从完整 tree entries 中排除 method/wrapper.canonical.json 后计算 common_projection_root_sha256；八个 instance 必须相同。完整 tree root 在同一 arm 的四个 instance 间必须相同。",
+      "manifest_location": "tree manifest payload 与 digest sidecar 位于 generator deny-read root 之外，不能被生成进程读取。",
+      "directory_set_rule": "允许的 directory entries 必须恰好是 exact_regular_file_paths 的非空 transitive parent directories；不得增加空目录或其他目录。",
+      "undeclared_entry_rule": "除显式目录 entry 外，任何未列出的 regular file、hidden file、symlink、hardlink、socket、device、mount overlay 或额外目录都使 package 不合格。"
+    },
+    "harness_control_tree": {
+      "complete_recursive_inventory_required": true,
+      "root_locator_field": "harness_control_tree_root_locator",
+      "includes": [
+        "本次运行使用的 launcher、request assembler、sandbox policy、receipt recorder、deterministic validator 和配置文件",
+        "实验控制且可变化的 tokenizer 文件或版本 locator",
+        "所有 hidden entries 与 executable mode bits"
+      ],
+      "runtime_base_binding": "若使用 immutable container 或 VM image，记录 image digest；若不使用，记录 OS、kernel、runtime 和动态依赖 locator，并明确它们未被完整内容哈希。",
+      "unmanifested_control_file_rule": "任何会影响 request、randomization、sandbox、receipt、validation 或 review package 的实验控制文件未进入 manifest，启动前 blocked_before_generation。"
+    },
+    "reviewer_package_tree": {
+      "reviewer_package_count": 2,
+      "common_regular_file_paths": [
+        "common/common_task.canonical.json",
+        "common/common_output_contract.canonical.json",
+        "corpus/neutral_index.canonical.json",
+        "corpus/slices/R9-C01.txt",
+        "corpus/slices/R9-C02.txt",
+        "corpus/slices/R9-C03.txt",
+        "corpus/slices/R9-C04.txt",
+        "corpus/slices/R9-C05.txt",
+        "corpus/slices/R9-C06.txt",
+        "corpus/slices/R9-C07.txt",
+        "corpus/slices/R9-C08.txt",
+        "corpus/slices/R9-C09.txt",
+        "corpus/slices/R9-C10.txt",
+        "corpus/slices/R9-C11.txt",
+        "review/evaluation_rubric.canonical.json",
+        "review/reference_anchors.canonical.json",
+        "review/system_message.txt",
+        "review/scoring_instructions.txt"
+      ],
+      "common_regular_file_count": 18,
+      "artifact_entry_rule": "冻结 review package 时，对八个 ordered blind_artifact_id 各完整列出 artifacts/<blind_artifact_id>.raw 与 artifacts/<blind_artifact_id>.metadata.canonical.json 两个 regular file；不得用 glob、目录摘要或示例路径代替实际 entries。",
+      "artifact_regular_file_count": 16,
+      "total_regular_file_count": 34,
+      "directory_set_rule": "允许的 directory entries 必须恰好是全部实际 common 与 artifact regular-file paths 的非空 transitive parent directories；不得增加空目录或其他目录。",
+      "equality_rule": "两个 reviewer package 的 common entries 与 artifact bytes 必须相同；只允许 scoring_instructions 中的 reviewer role、artifact presentation order 和对应 manifest 顺序不同。",
+      "forbidden_entries": [
+        "arm mapping",
+        "wrapper text or id",
+        "allocation nonce",
+        "resource metrics",
+        "generator locator",
+        "prior R7/R8/R9 reports or memory"
+      ]
+    },
+    "tree_manifest_payload_schema": {
+      "schema_id": "R9-COMPLETE-TREE-MANIFEST-PAYLOAD-V2",
+      "required_fields": [
+        "tree_id",
+        "tree_role",
+        "root_locator",
+        "created_at_utc",
+        "entry_count",
+        "entries",
+        "preimage_excluded_fields"
+      ],
+      "entry_required_fields": [
+        "relative_path",
+        "entry_type",
+        "mode_octal",
+        "byte_count_or_null",
+        "raw_sha256_or_null"
+      ],
+      "entry_type_enum": [
+        "directory",
+        "regular_file"
+      ],
+      "ordering": "relative_path 的 UTF-8 bytes 严格升序；目录也必须逐项列出；路径必须 normalized、相对、无空段、无 dot segment。",
+      "preimage_excluded_fields_const": [
+        "tree_root_sha256",
+        "tree_manifest_payload_raw_sha256"
+      ]
+    },
+    "tree_root_algorithm": "对 tree manifest payload 中按冻结顺序排列的 entries，以 ASCII r9-tree-entry-v2 LF 开头，逐 entry 连接 entry_type TAB mode_octal TAB relative_path UTF-8 TAB byte_count_or_null TAB raw_sha256_or_null LF 后做 SHA-256；tree root 与 manifest payload raw SHA-256 只写入外部 digest sidecar，不写回 payload。",
+    "completeness_gate": "entry_count、递归实际 walk、精确允许路径、类型、mode、byte count、raw hashes、tree root 或 sidecar 任一不一致，启动前 blocked_before_generation；运行后发现则 bounded_incomplete。"
   },
   "execution_binding_contract": {
-    "timing": "必须在随机化、prompt 组装和任何生成调用前冻结；选择者不得看到未来输出。",
-    "model_selection_rule": "选择当时两个隔离上下文都能使用的一个 exact model 配置并固定；不得根据输出切换模型。若平台不能提供 exact model id，仍须记录平台显示的最精确 locator 与不可见 revision 限制；两个 arm 的 locator 或配置不相等即 bounded_incomplete。",
+    "schema_id": "R9-RUNTIME-BINDING-PAYLOAD-V2",
+    "timing": "必须在随机化、prompt 组装和任何生成调用前冻结；选择者不得看到未来输出。payload 的 raw sha256 写入独立 digest sidecar，不写回 payload。",
+    "model_selection_rule": "选择当时八个独立生成进程都能请求的同一 observable requested configuration 并固定；不得根据输出切换 requested provider、surface、endpoint、model identifier 或参数。不可见 exact backend revision 不作为已证明事实，也不因不可见本身阻止比较。",
     "required_fields": [
       "execution_id",
       "created_at_utc",
       "preregistration_raw_sha256",
+      "preregistration_digest_sidecar_raw_sha256",
       "corpus_manifest_root_sha256",
-      "provider",
-      "surface",
-      "exact_model_id",
-      "model_revision_or_null",
-      "model_revision_visibility",
+      "harness_control_tree_manifest_payload_raw_sha256",
+      "generator_package_tree_manifest_payload_raw_sha256s",
+      "requested_provider",
+      "requested_surface",
+      "requested_endpoint_or_deployment",
+      "requested_model_identifier",
+      "requested_api_version_or_null",
       "system_prompt_raw_sha256",
-      "sampling_parameters",
-      "seed_value_or_null",
+      "requested_sampling_parameters",
+      "requested_response_mode",
+      "requested_seed_value_or_null",
       "seed_support_status",
-      "context_limit_tokens",
+      "declared_context_limit_tokens",
       "generation_budget",
-      "judge_model_locator",
+      "judge_requested_configuration",
       "tool_policy",
       "network_policy",
-      "runtime_manifest_raw_sha256"
+      "client_library_and_version",
+      "client_automatic_retry_limit",
+      "streaming_mode",
+      "process_isolation_profile_id",
+      "receipt_acceptance_contract_id",
+      "backend_fields_captured_for_diagnostics",
+      "preimage_excluded_fields"
     ],
-    "same_model_gate": [
-      "provider 相同",
-      "surface 相同",
-      "exact_model_id 相同",
-      "model_revision_or_null 和 visibility 相同",
+    "preimage_excluded_fields_const": [
+      "runtime_binding_payload_raw_sha256"
+    ],
+    "same_observable_requested_configuration_gate": [
+      "八个请求的 requested_provider 相同",
+      "八个请求的 requested_surface 与 requested_endpoint_or_deployment 相同",
+      "八个请求的 requested_model_identifier 与 requested_api_version_or_null 相同",
       "system_prompt_raw_sha256 相同",
-      "sampling_parameters 相同",
-      "seed_value_or_null 与 seed_support_status 相同",
-      "context_limit_tokens 相同",
-      "无 fallback、路由切换或中途模型替换"
+      "requested_sampling_parameters、requested_response_mode、requested_seed_value_or_null 与 seed_support_status 相同",
+      "declared_context_limit_tokens、tool_policy、network_policy、streaming_mode 和 generation_budget 相同",
+      "client-side fallback、automatic retry、conversation continuation、router override 和中途 model replacement 均禁用"
     ],
-    "runtime_unknown_rule": "任何会妨碍判断两臂是否同模型同配置的缺失字段，在运行前不能关闭时，禁止启动；运行后才发现则 bounded_incomplete。"
+    "response_diagnostics": [
+      "provider_reported_model_identifier_or_null",
+      "provider_reported_backend_fingerprint_or_null",
+      "provider_request_id_or_null",
+      "provider_region_or_null"
+    ],
+    "response_diagnostic_rule": "诊断字段按原样记录但不升级为 backend identity 证明。若 provider 明示实际 model 与 requested_model_identifier 冲突、客户端 fallback 被触发或两个 slot 收到不同的显式 deployment override，则 bounded_incomplete；字段为 null 本身不证明相同或不同 backend。",
+    "does_not_prove": [
+      "exact backend revision 或相同 model weights",
+      "相同服务端 router、cache state、hardware、quantization、region、queue、并发负载或系统级 prompt",
+      "相同随机流、deterministic replay、组织独立或密码学隔离",
+      "provider 没有在相同 requested identifier 下滚动部署"
+    ],
+    "runtime_unknown_rule": "任何会妨碍比较 observable requested configuration 或资源上限的 required field 在运行前不能关闭时，禁止启动；运行后才发现则 bounded_incomplete。隐藏 backend revision 只作为明确限制，不被伪写成 exact revision equality。"
   },
   "resource_budget": {
-    "generation_per_arm": {
+    "generation_per_request": {
       "maximum_wall_time_seconds": 900,
       "maximum_total_accounted_tokens": 24000,
       "maximum_output_tokens": 4096,
@@ -441,46 +639,246 @@
     },
     "judge_per_context": {
       "judge_context_count": 2,
+      "artifact_count_per_judge": 8,
       "maximum_wall_time_seconds": 900,
-      "maximum_total_accounted_tokens": 16000,
-      "maximum_output_tokens": 4096,
+      "maximum_total_accounted_tokens": 64000,
+      "maximum_output_tokens": 8192,
       "maximum_tool_calls": 0,
       "maximum_network_calls": 0,
       "maximum_retries": 0
     },
-    "maximum_experiment_accounted_tokens": 80000,
-    "budget_equality_rule": "两个生成 arm 的上限必须字节相同；实际耗用可以不同并作为成本结果记录。",
-    "budget_exhaustion_rule": "单个 arm 在正常服务下达到自己的 cap 是该方法的可观察失败并保留 partial output；共享基础设施或总实验预算在两份生成和两份评审完成前耗尽则 bounded_incomplete。"
+    "maximum_experiment_accounted_tokens": 320000,
+    "maximum_experiment_accounted_tokens_formula": "8 * 24000 generation tokens + 2 * 64000 reviewer tokens",
+    "tool_and_network_count_scope": "maximum_tool_calls 与 maximum_network_calls 只计模型可调用能力；唯一 provider transport attempt 由 supervisor 记录在 attempt receipt，不被伪写成 model network tool call。",
+    "budget_equality_rule": "八个生成请求的上限必须字节相同；实际耗用可以不同并作为成本结果记录。",
+    "budget_exhaustion_rule": "单个请求在正常已建立服务响应中达到自己的 token 或 wall cap 是该 arm replicate 的可观察方法失败并保留 partial output；任何 transport/service error、共享基础设施故障或总实验预算在八份生成和两份评审完成前耗尽都使 outcome = bounded_incomplete。"
+  },
+  "prelaunch_capability_preflight": {
+    "schema_id": "R9-CAPABILITY-PREFLIGHT-RECEIPT-V2",
+    "timing": "在 allocation nonce、任何完整 prompt、任何 generation request 和任何生成输出之前运行并冻结；只允许本地 deterministic capability probe，不允许调用生成模型。",
+    "required_generator_harness": "external_independent_stateless_one_shot_process_per_request",
+    "prohibited_generation_surfaces": [
+      "本项目父 Codex task/thread 的 native subagent",
+      "从本项目父 task/thread fork、继承、resume 或共享 compaction/memory 的子上下文",
+      "同一持久会话中的顺序 turns",
+      "可读取项目 workspace、Git、memory 或其他 request 输出的进程",
+      "提供 browser、computer、shell、filesystem、connector、code execution、retrieval 或任意 model tool 的 surface"
+    ],
+    "required_process_topology": [
+      "八个 generation request 各由一个 fresh OS process 或等价 fresh immutable container 启动",
+      "两个 reviewer request 也各由未参与生成且不继承父 task/thread 的 fresh stateless one-shot process/context 启动，并使用同一 no-tools 与 single-attempt transport boundary",
+      "每个 process 是一次性 request-response，结束后销毁，不复用 conversation id、assistant/thread id、session、cookie、local cache directory 或 tool state",
+      "父 orchestrator 只能在输出不可见时完成冻结 input、slot allocation 和 launch；不得把任何已返回内容送入尚未提交的 request",
+      "每个 process 只有自己的 pair-slot package 和 write-only result handoff；其他七个 package 与所有 result spool 不可读",
+      "transport client automatic retry、fallback 和 continuation 均为零或禁用"
+    ],
+    "deny_read_boundary": {
+      "only_readable_experiment_root": "当前 pair-slot 的 generator-visible package root",
+      "readable_files_must_equal_manifest": true,
+      "must_be_denied": [
+        "项目根及其 research、audits、governance、scripts、tests 和 .git",
+        "用户或 Codex memory、父 task/thread state、conversation cache 和 compaction summary",
+        "其他 pair-slot package root",
+        "任何 generation、review 或 result output spool",
+        "home、cloud-drive sibling、credential file、SSH config、browser profile 和 environment dump",
+        "harness control tree 与 allocation mapping"
+      ],
+      "write_boundary": "generation child process 不得写 package；transport supervisor 只能把原始响应、错误与自动 receipt 写入该 slot 的新建隔离 spool，且该 spool 对全部 generation child process deny-read。",
+      "path_escape_rule": "absolute path、parent traversal、symlink、hardlink、file descriptor inheritance、alternate mount 和 canonical-path escape 均须拒绝。"
+    },
+    "no_tool_boundary": {
+      "model_request_tools": "empty",
+      "model_request_tool_choice": "none_or_provider_equivalent",
+      "maximum_model_tool_calls": 0,
+      "harness_network_exception": "只有 transport supervisor 可向 runtime binding 中唯一冻结的 model endpoint 发出一次请求；模型没有网络、retrieval 或 connector tool。",
+      "tool_surface_probe": "冻结 request serialization 必须证明没有 tools、functions、browser、computer、shell、filesystem、code interpreter、retrieval 或 connector capability；provider 若强制注入不可关闭工具则 preflight fail。"
+    },
+    "required_negative_probes": [
+      "允许读取 manifest 内每个 regular file 并逐项匹配 raw sha256",
+      "读取项目 AGENTS.md 或任一项目文件必须失败",
+      "读取 .git、memory 和父 task/thread state locator 必须失败",
+      "读取 sibling pair-slot package 与预建 canary output spool 必须失败",
+      "通过 dot-dot、absolute path、symlink、hardlink 和 inherited file descriptor 读取 deny target 必须失败",
+      "枚举 deny-read root、环境全量或 host filesystem 必须失败",
+      "向 package 写入、在 package 新建文件或修改 mode 必须失败",
+      "model request serialization 的 tool capability count 必须为零",
+      "client 自动 retry 与 fallback fault probe 必须显示一次失败只产生一次 attempt"
+    ],
+    "receipt_required_fields": [
+      "preflight_id",
+      "created_at_utc",
+      "harness_control_tree_manifest_payload_raw_sha256",
+      "runtime_binding_payload_raw_sha256",
+      "sandbox_profile_raw_sha256",
+      "process_image_or_runtime_locator",
+      "probe_case_ids",
+      "per_probe_expected_result",
+      "per_probe_observed_result",
+      "per_probe_evidence_locator",
+      "request_serialization_without_tools_raw_sha256",
+      "automatic_retry_fault_probe_receipt_locator",
+      "all_required_capabilities_passed",
+      "preimage_excluded_fields"
+    ],
+    "preimage_excluded_fields_const": [
+      "capability_preflight_receipt_raw_sha256"
+    ],
+    "pass_rule": "全部 required process、deny-read、no-tool、single-attempt 和 receipt probes 必须为 true；角色名、prompt 指令、父线程口头承诺或 model 自述不算 capability evidence。",
+    "failure_disposition": "任一 probe false、unknown、不可执行或 receipt 不可恢复时，不启动任何 generation request，记录 operational_state = blocked_before_generation，并令最终 outcome = bounded_incomplete；不得使用本项目父线程 native subagent 或降低边界作为 fallback。",
+    "claim_boundary": "preflight 只证明所观察本地 harness 与 request serialization 的能力，不证明 provider 服务端不共享 weights、cache、router、日志或基础设施。"
+  },
+  "receipt_acceptance_contract": {
+    "contract_id": "R9-RESOURCE-AND-ATTEMPT-RECEIPT-V2",
+    "automatic_capture_only": true,
+    "manual_or_model_self_report_is_unacceptable": true,
+    "usage_receipt": {
+      "acceptable_source": "provider response 中绑定 provider_request_id_or_null 与 full_request_raw_sha256 的原始 usage payload，加上 harness 的不可变映射 receipt；若 provider 不返回可恢复的 input、output 与 total token accounting，启动前 preflight fail。",
+      "required_fields": [
+        "pair_id",
+        "request_slot_id",
+        "blind_artifact_id",
+        "full_request_raw_sha256",
+        "provider_request_id_or_null",
+        "provider_usage_payload_locator",
+        "provider_usage_payload_raw_sha256",
+        "input_tokens",
+        "output_tokens",
+        "total_accounted_tokens",
+        "cached_input_tokens_or_null",
+        "reasoning_tokens_or_null",
+        "token_field_mapping_version",
+        "usage_capture_status"
+      ],
+      "acceptance_rule": "input_tokens、output_tokens 和 total_accounted_tokens 必须是 provider receipt 的非负整数且映射规则在 preflight 冻结；cached 或 reasoning 分项可为 null，但不得由此把已计入 provider total 的 token 扣除。usage_capture_status 必须为 complete。",
+      "missing_or_inconsistent_rule": "任一 required usage field 缺失、手工估算、无法绑定 request、mapping 改变或 total 自相矛盾，outcome = bounded_incomplete。"
+    },
+    "timing_receipt": {
+      "clock_requirement": "同一 host monotonic clock id 与同一冻结 recorder implementation；UTC 只用于 locator，不用于 duration。",
+      "required_fields": [
+        "pair_id",
+        "request_slot_id",
+        "process_started_monotonic",
+        "request_attempt_started_monotonic",
+        "request_bytes_committed_monotonic_or_null",
+        "first_response_byte_monotonic_or_null",
+        "terminal_event_monotonic",
+        "end_to_end_wall_milliseconds",
+        "queue_or_transport_milliseconds_or_null",
+        "provider_reported_generation_milliseconds_or_null",
+        "clock_id",
+        "recorder_version",
+        "timing_capture_status"
+      ],
+      "derivation_rule": "end_to_end_wall_milliseconds = terminal_event_monotonic - request_attempt_started_monotonic；原始 monotonic values 与派生值都保留。非 streaming completed response 的 first_response_byte 可为 null；其他 required timing 不可缺失。",
+      "acceptance_rule": "时间单调、同 clock、与 attempt event log 一一对应、timing_capture_status = complete；否则 bounded_incomplete。"
+    },
+    "retry_and_attempt_receipt": {
+      "required_fields": [
+        "pair_id",
+        "request_slot_id",
+        "client_automatic_retry_limit",
+        "fallback_enabled",
+        "attempt_count",
+        "retry_count",
+        "attempt_event_log_locator",
+        "attempt_event_log_raw_sha256",
+        "terminal_class"
+      ],
+      "acceptance_rule": "client_automatic_retry_limit = 0、fallback_enabled = false、attempt_count = 1、retry_count = 0，且 event log 只含一个 network submission。attempt 是否被 provider 接受不改变 service-error disposition。",
+      "violation_rule": "attempt_count 不为一、出现隐藏自动 retry、fallback、continuation、重复提交或 event log 不可恢复时，outcome = bounded_incomplete；不得选择其中一个 response。"
+    },
+    "terminal_class_enum": [
+      "completed",
+      "model_token_cap",
+      "model_wall_time_cap_after_service_acceptance",
+      "model_refusal",
+      "transport_error",
+      "service_error",
+      "cancelled_for_integrity"
+    ],
+    "transport_or_service_error_classes": [
+      "dns_or_connection_failure",
+      "tls_or_protocol_failure",
+      "authentication_or_authorization_failure",
+      "rate_limit_or_quota_failure",
+      "provider_5xx_or_unavailable",
+      "provider_timeout_before_valid_terminal_response",
+      "stream_interruption_or_truncated_transport",
+      "malformed_or_unbindable_provider_response",
+      "request_not_submitted_or_acceptance_unknown"
+    ],
+    "error_disposition": "任何 generation 或 reviewer request 的 transport_error 或 service_error 一律 outcome = bounded_incomplete，不是 arm 的可评分方法失败；保留单次 attempt receipt，不 retry、不替换、不删除 pair。",
+    "self_hash_rule": "usage、timing、attempt 和组合 resource receipt 均不包含自己的 raw sha256；其 digest 写入独立 sidecar。"
+  },
+  "judge_package_fit_preflight": {
+    "schema_id": "R9-JUDGE-PACKAGE-FIT-PREFLIGHT-RECEIPT-V2",
+    "timing": "在任何 generation request 前，对两个 reviewer role 各自的完整最坏情况 package 做 deterministic local token-fit 检查；不得通过一次 judge generation call 探测容量。",
+    "worst_case_package_definition": [
+      "完整 reviewer common tree 与固定 scoring instructions",
+      "八个 artifact metadata envelopes 的精确固定开销",
+      "每个 generation artifact 按 maximum_output_tokens = 4096 计入，不使用未来实际较短输出缩小预留",
+      "transport message framing 与 provider-required system fields 的冻结 tokenizer 计数",
+      "judge maximum_output_tokens = 8192 的完整输出预留"
+    ],
+    "fit_formula": "fixed_review_input_tokens + 8 * 4096 + eight_artifact_envelope_overhead_tokens + transport_framing_tokens + 8192 <= declared_judge_context_limit_tokens，并且同一总量 <= judge maximum_total_accounted_tokens = 64000。",
+    "required_fields": [
+      "preflight_id",
+      "created_at_utc",
+      "judge_requested_configuration_raw_sha256",
+      "reviewer_package_template_tree_manifest_payload_raw_sha256s",
+      "tokenizer_name_version_and_raw_sha256_or_immutable_locator",
+      "declared_judge_context_limit_tokens",
+      "fixed_review_input_tokens",
+      "generation_artifact_reserved_tokens",
+      "artifact_envelope_overhead_tokens",
+      "transport_framing_tokens",
+      "judge_output_reserved_tokens",
+      "worst_case_total_tokens",
+      "fits_declared_context",
+      "fits_judge_budget",
+      "preimage_excluded_fields"
+    ],
+    "preimage_excluded_fields_const": [
+      "judge_package_fit_preflight_receipt_raw_sha256"
+    ],
+    "acceptance_rule": "tokenizer、framing、context limit 和 package template 必须与冻结 judge requested configuration 一致，两个 fits 字段都为 true；平台只提供实际提交后的容量错误、tokenizer 不可恢复或 context limit unknown 均不合格。",
+    "same_observable_requested_configuration_gate": "两个 reviewer request 的 requested provider、surface、endpoint/deployment、model identifier、API version、sampling、seed support、response mode、context limit、budget、tool policy、network policy、streaming mode、client version、retry = 0 与 fallback = false 必须相同；这仍不证明 exact backend revision。",
+    "failure_disposition": "任一 reviewer 的 package-fit preflight 失败或 unknown 时，启动前 blocked_before_generation 且最终 bounded_incomplete；不得删 artifact、摘要 artifact、拆成多轮 reviewer turns、减少 replicate、增大运行时 context 或改 judge。"
   },
   "order_randomization_and_leakage_control": {
-    "launch_mode": "parallel",
+    "launch_mode": "four_blocks_parallel_within_pair",
     "maximum_request_submission_skew_seconds": 60,
-    "allocator_nonce": "在 preregistration commit 后、任何 prompt 组装前，从本地 CSPRNG 生成 32 bytes；nonce 只写入封存分配记录，盲评完成前不交给 reviewer。",
+    "maximum_all_request_submission_window_seconds": 240,
+    "batch_launch_rule": "按冻结 pair_launch_order 启动四个 pair，不等待较早 pair 的 terminal event；八个 attempt 必须在 240 秒窗口内启动，且每个 pair 两个 slot 的 request bytes 在 60 秒 skew 内提交。response spool 在八个 request bytes committed 或出现 launch integrity failure 前对 orchestrator 与其他 generation process 保持不可读。",
+    "request_slot_definition": "每个 pair 预先存在 request_slot_1 与 request_slot_2；slot 由独立 process/transport lane locator 定义，不由先完成、先返回或人工选择定义。",
+    "allocator_nonce": "在全部 preflight 通过后、任何完整 prompt 组装前，从本地 CSPRNG 生成 32 bytes；nonce 只写入封存 allocation payload，两个 reviewer 输出冻结前不交给 reviewer。",
     "allocation_algorithm": [
-      "d = sha256 ASCII bytes of r9-allocation-v1 LF plus lowercase nonce hex plus LF",
-      "d 的最低有效 bit 决定 ordinary 使用 mirror_1 还是 mirror_2；minimum_core 使用另一个镜像",
-      "blind artifact id = ART- 加 sha256 ASCII bytes of r9-blind-id-v1 LF plus nonce hex LF plus arm internal id LF 的前 16 个大写十六进制字符",
-      "分配记录在启动前保存 raw sha256；方法到 artifact 的映射在两个 reviewer 输出冻结前保持封存"
+      "对四个 pair 分别计算 slot_rank = sha256 ASCII bytes of r9-slot-balance-v2 LF plus lowercase nonce hex LF plus pair_id LF；按 digest bytewise ascending、pair_id 破同值排序",
+      "slot_rank 最低的两个 pair 把 common_contract_only 分配到 request_slot_1，其余两个 pair 把 common_contract_plus_minimum_core 分配到 request_slot_1；每个 pair 的另一 arm 固定进入 request_slot_2，因此两个 treatment 各占 slot_1 两次、slot_2 两次",
+      "pair_launch_order 按 sha256 ASCII bytes of r9-pair-order-v2 LF plus lowercase nonce hex LF plus pair_id LF 的 digest bytewise ascending、pair_id 破同值确定",
+      "blind artifact id = ART- 加 sha256 ASCII bytes of r9-blind-id-v2 LF plus nonce hex LF plus pair_id LF plus request_slot_id LF plus arm_internal_id LF 的前 16 个大写十六进制字符",
+      "allocation payload 在任何完整 prompt 或 request 前封存；payload 不包含自己的 sha256，其 raw sha256 写入独立 digest sidecar；方法到 artifact 的映射在两个 reviewer 输出冻结前保持封存"
     ],
     "generation_isolation": [
-      "两个全新上下文，不复用对话、memory、缓存摘要或工具状态",
-      "两个上下文不能彼此读取消息、trace、partial output 或 final output",
-      "只能收到自己的 wrapper、共同任务、共同输出契约和被分配镜像",
-      "不把一个 arm 的错误、问题或完成状态反馈给另一个 arm",
+      "八个 fresh one-shot process，不复用父线程、对话、memory、缓存摘要、conversation id 或工具状态",
+      "任何 process 不能读取其他 slot 或 pair 的消息、trace、partial output、final output 或 receipt",
+      "只能收到自己的 wrapper、共同任务、共同输出契约和 pair-slot package",
+      "不把一个 request 的错误、问题、完成状态或输出反馈给任何尚未提交的 request",
       "不允许人工中途提示、澄清、修复或继续"
     ],
-    "launch_failure_rule": "无法在启动偏差上限内并行提交、任何上下文继承先前项目内容、或发生跨臂输出泄漏，均停止并记 bounded_incomplete；不得改成事后顺序重跑。",
-    "model_learning_claim_boundary": "本设计只控制可观察上下文与输入泄漏，不声称证明平台权重、服务端缓存或组织层完全独立。"
+    "launch_failure_rule": "任一 pair 无法在启动偏差上限内向两个 slot 各提交一次、任何 process 继承先前项目内容、任一 planned request 缺失、或发生跨 slot/pair 输出泄漏，均停止并记 bounded_incomplete；不得删 pair、补跑、替换或改成父线程 native subagent。",
+    "model_learning_claim_boundary": "本设计只控制可观察本地 process、request slot 与输入/输出泄漏，不声称证明平台 weights、服务端 cache、router 或组织层完全独立。"
   },
   "blinding_and_review": {
     "quality_reviewers": 2,
-    "reviewer_independence": "每位 reviewer 使用未参与两个生成 arm 的全新独立上下文。该独立性只称 platform-observable separate context，不称组织独立、密码学身份或安全隔离。",
+    "artifacts_per_reviewer": 8,
+    "reviewer_independence": "每位 reviewer 使用未参与八个生成请求、未继承本项目父 task/thread 的全新独立 stateless one-shot process/context；reviewer model 无 tools，只能收到自己的完整只读 package。该独立性只称 platform-observable separate context，不称组织独立、密码学身份或安全隔离。",
     "reviewer_inputs": [
       "共同任务",
       "共同输出契约",
       "完整 frozen corpus neutral package",
       "预注册 rubric、reference anchors 和 scoring rule",
-      "两个仅以 blind artifact id 标识的原始或 failure-envelope artifact"
+      "八个仅以 blind artifact id 标识的原始 artifact 与 deterministic metadata/failure envelope"
     ],
     "withheld_until_both_reviews_are_hashed": [
       "方法标签与 wrapper 文本",
@@ -495,23 +893,33 @@
       "reviewer_2": "blind artifact id bytewise descending"
     },
     "blindness_checks": [
-      "artifact 出现 explicit method label 时不是静默删除，而是记录 blind contamination；若能直接揭示映射则 bounded_incomplete",
+      "本设计是 method-label-masked review，不声称 reviewer 无法从写作风格推断方法",
+      "artifact 出现 internal arm id、wrapper id 或明确实验方法标签时不是静默删除，而是记录 masking contamination；若能直接揭示映射则 bounded_incomplete",
+      "ordinary cash dividend 是允许且必需评估的领域术语，单独出现不算方法标签、method guess 或 masking contamination",
       "每位 reviewer 必须先冻结全部分数、理由和 critical error，再记录 method_guess 与 guess_confidence",
       "方法猜测不改变已冻结分数",
       "两个 reviewer 输出 raw sha256 均固定后才允许解封映射并做成本比较"
     ],
+    "package_fit_gate": "两个 reviewer 的 R9-JUDGE-PACKAGE-FIT-PREFLIGHT-RECEIPT-V2 必须在任何 generation request 前通过；最终 review package tree 还必须在 review 前按相同 tokenizer 重算并不超过预注册 worst-case bound。",
     "no_third_judge": "两个 reviewer 的预注册一致性门不满足时直接 bounded_incomplete，不追加第三 judge 或事后改 rubric。"
   },
   "reviewer_locator_schema": {
     "type": "object",
     "required_fields": [
       "locator_schema_id",
-      "provider",
-      "surface",
+      "requested_provider",
+      "requested_surface",
+      "requested_endpoint_or_deployment",
       "thread_or_context_id",
       "run_id",
-      "exact_model_id",
-      "model_revision_or_null",
+      "requested_model_identifier",
+      "requested_api_version_or_null",
+      "requested_sampling_parameters",
+      "requested_seed_value_or_null",
+      "seed_support_status",
+      "requested_response_mode",
+      "provider_reported_model_identifier_or_null",
+      "provider_reported_backend_fingerprint_or_null",
       "context_created_at_utc",
       "review_started_at_utc",
       "review_completed_at_utc",
@@ -549,7 +957,8 @@
       "receipt_locator": {
         "description": "可恢复 reviewer 原始输出与平台可观察上下文的本地相对路径或平台 opaque locator；不得用角色名冒充身份保证。"
       }
-    }
+    },
+    "backend_claim_boundary": "reviewer locator 记录 observable requested configuration 与 provider diagnostics，不证明 exact backend revision、相同 weights 或组织独立。"
   },
   "deterministic_pre_review_checks": {
     "checks": [
@@ -560,12 +969,15 @@
       "每个 citation 的 slice_id 存在且行号落在该切片暴露的 source line range 内",
       "没有 corpus 外 URL、source id 或项目文件 locator",
       "每个 corpus_fact 至少有 citation",
-      "artifact 没有显式方法标签",
-      "两个 blind package 除 artifact 内容和 blind id 外使用相同任务、语料、rubric 与封装 schema"
+      "artifact 没有 internal arm id、wrapper id 或显式实验方法标签；ordinary cash dividend 不匹配该禁词检查",
+      "八个 input manifest 的 common component、requested configuration、预算和 package common projection hashes 相同",
+      "两个 reviewer package 除 artifact 顺序和 reviewer role 字段外使用相同任务、语料、rubric、artifact bytes 与封装 schema",
+      "完整 tree walk 与所有 tree manifest payload、entry count、raw hash 和 sidecar digest 一致",
+      "usage、timing 与 single-attempt receipt 均满足 R9-RESOURCE-AND-ATTEMPT-RECEIPT-V2"
     ],
     "role": "这些检查只提供确定性结构证据，不替代 reviewer 对事实、蕴含、反证、未知和决定质量的判断。",
-    "method_failure_rule": "输出无效、漏字段、越界引用、拒答、正常 timeout 或正常 token cap 均作为 arm 结果送审，不做修复或重跑。",
-    "experiment_failure_rule": "输入 hash、模型相等、隔离、盲法、基础设施或 reviewer package 相等性失败会破坏因果解释，直接 bounded_incomplete。"
+    "method_failure_rule": "在服务已经接受请求且 receipt 完整时，输出无效、漏字段、越界引用、model refusal、正常 model wall cap 或正常 model token cap 均作为该 arm replicate 结果送审，不做修复或重跑。",
+    "experiment_failure_rule": "input hash、observable requested configuration、隔离、方法标签遮蔽、tree completeness、receipt、transport/service 或 reviewer package 相等性失败会破坏因果解释，直接 bounded_incomplete。"
   },
   "reference_anchors_for_judges": [
     {
@@ -672,7 +1084,9 @@
         "critical_error": "核心结论依赖未给出的来源、隐藏步骤或不可恢复 locator。"
       }
     ],
-    "quality_score_formula": "对每个 artifact，先对两位 reviewer 的每个 dimension 取算术平均，再计算 25 * sum(weight_decimal * mean_dimension_score)，结果保留两位小数；不得加入长度、引用数量或复杂度 bonus。",
+    "artifact_failure_scoring_rule": "invalid JSON、漏 required field、无可读 artifact、model refusal、正常 model token cap 或正常 model wall cap 仍以 deterministic failure envelope 进入 review；缺失或不可评估 dimension 依 generic anchor 记 0，不允许 reviewer 用修复后的假想答案评分。transport/service error 不评分而直接 bounded_incomplete。",
+    "quality_score_formula": "对每个 artifact，先对两位 reviewer 的每个 dimension 取算术平均，再计算 25 * sum(weight_decimal * mean_dimension_score)，结果保留两位小数并另存 hundredths integer；不得加入长度、引用数量或复杂度 bonus。",
+    "paired_quality_delta_formula": "对每个 pair，paired_quality_delta_hundredths = common_contract_plus_minimum_core.quality_score_hundredths - common_contract_only.quality_score_hundredths。",
     "decision_critical_dimensions": [
       "factual_accuracy",
       "citation_entailment_and_precision",
@@ -687,18 +1101,50 @@
       "one concise reason",
       "critical_error boolean"
     ],
-    "inter_reviewer_consistency_gate": "任一 artifact 的任一 decision-critical dimension 两位 reviewer 相差超过 1 分，或两位对同一 finding 的 critical_error 判断冲突，则 bounded_incomplete；不追加 judge。",
-    "method_inference_check": "每位 reviewer 在分数冻结后记录 guessed_method 为 artifact_1、artifact_2 或 unknown，以及 low、medium、high confidence；该字段只检查盲法风险，不改变分数。"
+    "inter_reviewer_consistency_gate": "八个 artifact 中任一 artifact 的任一 decision-critical dimension 两位 reviewer 相差超过 1 分，或两位对同一 finding 的 critical_error 判断冲突，则 bounded_incomplete；不追加 judge。",
+    "method_inference_check": "每位 reviewer 在全部分数冻结后，对每个 blind_artifact_id 记录 guessed_method 为 common_contract_only、common_contract_plus_minimum_core 或 unknown，以及 low、medium、high confidence；该字段只检查方法标签遮蔽风险，不改变分数。"
+  },
+  "continuous_outcomes_and_sensitivity": {
+    "primary_continuous_outcomes": [
+      "八个 artifact 各自的 quality_score_hundredths",
+      "四个 paired_quality_delta_hundredths",
+      "两臂 quality_score 的 arithmetic mean 与 median",
+      "paired quality delta 的 arithmetic mean、median、minimum 和 maximum",
+      "每个 rubric dimension 的四个 paired delta、mean paired delta 与 median paired delta",
+      "每个 pair 的 token、wall time、manual time 和 maintenance count paired delta，以及两臂总量、mean 与 ratio"
+    ],
+    "aggregation_rules": {
+      "arm_mean": "同一 arm 四个预注册 replicate 的 arithmetic mean；不得按有效性、长度、得分或成本加权。",
+      "paired_mean_delta": "四个预注册 pair delta 的 arithmetic mean；先做 pair 内 treatment minus baseline，再跨四个 pair 等权平均。",
+      "paired_median_delta": "四个 pair delta 升序排列后中间两个值的 arithmetic mean。",
+      "dimension_aggregation": "先在 artifact 内平均两位 reviewer，再做 pair 内 treatment minus baseline，最后对四个 pair 等权平均。",
+      "ratio_aggregation": "token 与 wall-time ratio 使用 treatment 四个 replicate 总量除以 baseline 四个 replicate 总量；分母为零则 bounded_incomplete。",
+      "rounding": "所有门槛判断使用未四舍五入的 integer numerator/denominator 或 hundredths integer 总和；显示值最后才保留两位小数。",
+      "no_exclusion_or_replacement": "四个 pair 全部进入聚合；method-observed failure 按 rubric 评分，不能删除、替换、补跑或选择 best replicate。"
+    },
+    "predeclared_sensitivity_analyses": [
+      "四次 leave-one-pair-out paired mean quality delta，并报告是否每次仍大于 0",
+      "分别只使用 reviewer_1 与 reviewer_2 原始 dimension scores 重算 paired mean quality delta",
+      "报告 paired median quality delta 与 positive paired quality delta count",
+      "在 quality delta 门槛 5.00、8.00、10.00 下重算质量门是否通过",
+      "在 token 与 wall-time ratio cap 分别为 1.25、1.50、2.00 时重算成本门是否通过",
+      "逐项报告哪个预注册 predicate 导致 adopt、reject 或 bounded_incomplete；不得用 sensitivity 结果替换主裁决"
+    ],
+    "inferential_boundary": "不报告跨任务 p-value、population confidence interval 或 statistical superiority；四个 pair 是同一任务的请求级重复，用于连续结果、方向稳定性和 outlier sensitivity。",
+    "sensitivity_non_override_rule": "主裁决只使用 minimum_core_admission_rule 的冻结阈值。敏感性分析必须完整报告，但不得事后选择更有利阈值、改变权重或改写 outcome。"
   },
   "cost_and_maintenance_accounting": {
-    "capture_source": "由同一执行 harness 自动记录；生成者自报不作为成本证据。",
+    "capture_source": "由通过 preflight 的同一 harness recorder 自动记录并满足 R9-RESOURCE-AND-ATTEMPT-RECEIPT-V2；生成者自报不作为成本证据。",
     "time_fields": [
-      "request_submitted_monotonic",
+      "process_started_monotonic",
+      "request_attempt_started_monotonic",
+      "request_bytes_committed_monotonic_or_null",
       "first_response_byte_monotonic_or_null",
-      "final_response_byte_monotonic_or_stop",
-      "end_to_end_wall_seconds",
-      "provider_reported_generation_seconds_or_null",
-      "queue_or_transport_seconds_or_null"
+      "terminal_event_monotonic",
+      "end_to_end_wall_milliseconds",
+      "provider_reported_generation_milliseconds_or_null",
+      "queue_or_transport_milliseconds_or_null",
+      "clock_id"
     ],
     "token_fields": [
       "input_tokens",
@@ -706,14 +1152,15 @@
       "output_tokens",
       "reasoning_tokens_or_null",
       "total_accounted_tokens",
-      "provider_token_receipt_locator"
+      "provider_usage_payload_locator",
+      "provider_usage_payload_raw_sha256"
     ],
     "maintenance_fields": [
       "wrapper_utf8_byte_count",
       "wrapper_input_tokens",
-      "arm_specific_operator_setup_seconds",
+      "arm_specific_operator_setup_milliseconds",
       "manual_intervention_count",
-      "manual_normalization_seconds",
+      "manual_normalization_milliseconds",
       "method_specific_persistent_artifact_count_excluding_common_output_and_automatic_receipts",
       "method_specific_required_operator_field_count",
       "retry_count",
@@ -725,63 +1172,156 @@
       "blind_review_seconds",
       "deterministic_validation_seconds"
     ],
+    "replicate_aggregation": "逐 pair 保留原始值与 treatment-minus-baseline delta；arm-level token 与 wall ratio 用四个 replicate 总量，absolute increase 门用四个 paired delta 的 arithmetic mean；人工与 maintenance count 同时报告每 pair、arm mean 和 arm total。",
     "maintenance_claim_boundary": "本轮只能比较一次运行中可观察的边际维护代理指标，不能证明长期维护成本；该限制必须进入最终结果。",
-    "missing_metric_rule": "time、total_accounted_tokens 或 maintenance required fields 任一缺失且不能由冻结 raw receipt 恢复时，结果 bounded_incomplete。"
+    "missing_metric_rule": "任一 planned generation 或 reviewer request 的 timing、total_accounted_tokens、single-attempt 或 maintenance required fields 缺失、不可接受或不能由冻结 raw receipt 恢复时，结果 bounded_incomplete。"
   },
   "hash_and_locator_protocol": {
     "hash_algorithm": "SHA-256",
     "hex_encoding": "lowercase",
     "raw_bytes_are_authoritative": true,
     "canonical_json_for_derived_hashes": "严格解析 JSON 后，以 UTF-8、递归 key bytewise ascending、无多余空白、末尾单个 LF 序列化；manifest 中不允许 NaN、Infinity、负零或浮点数，比例与小数阈值用字符串保存。",
-    "input_manifest_schema": {
-      "schema_id": "R9-RUN-INPUT-MANIFEST-V1",
+    "self_reference_prohibition": "任何 artifact、manifest payload、review output、result 或 receipt 都不得在被哈希的原始字节中包含自己的 raw sha256。所有 target raw digest 写入独立 sidecar；任何 tree/root 派生 hash 的 preimage exclusion 必须显式列出且冻结。",
+    "generic_digest_sidecar_schema": {
+      "schema_id": "R9-ARTIFACT-DIGEST-SIDECAR-V2",
+      "required_fields": [
+        "sidecar_schema_id",
+        "target_role",
+        "target_locator",
+        "target_byte_count",
+        "target_raw_sha256",
+        "hash_algorithm",
+        "created_at_utc",
+        "preimage_excluded_fields"
+      ],
+      "field_constraints": {
+        "sidecar_schema_id": {
+          "const": "R9-ARTIFACT-DIGEST-SIDECAR-V2"
+        },
+        "hash_algorithm": {
+          "const": "SHA-256"
+        },
+        "preimage_excluded_fields": {
+          "const": [
+            "digest_sidecar_raw_sha256"
+          ]
+        }
+      },
+      "sidecar_self_digest_rule": "sidecar 不含自己的 digest_sidecar_raw_sha256。需要引用 sidecar 时，由下一个封装 artifact 记录 sidecar 原始字节 sha256；若 sidecar 是终端 receipt，则其 sha256 只由外部验证命令报告，不回写。"
+    },
+    "required_digest_sidecars": [
+      "preregistration file",
+      "runtime binding payload",
+      "allocation payload",
+      "harness tree manifest payload",
+      "每个 generator package tree manifest payload",
+      "每个 input manifest payload",
+      "每个 capability、judge-fit、usage、timing、attempt、resource 和 deterministic-check receipt payload",
+      "每个 generation output receipt payload",
+      "每个 reviewer package payload 与 tree manifest payload",
+      "每个 review output payload",
+      "unsealed mapping payload",
+      "final result payload"
+    ],
+    "preregistration_digest_sidecar_rule": {
+      "construction": "本文件进入 preregistration commit 后，对该 commit 中本路径的精确 raw bytes 计算 sha256，并把 target locator、byte count 与 digest 写入独立 R9-ARTIFACT-DIGEST-SIDECAR-V2；不得把 digest 回填本文件。",
+      "required_additional_fields": [
+        "preregistration_commit_sha",
+        "preregistration_commit_timestamp_utc",
+        "target_repository_relative_path",
+        "target_git_blob_oid"
+      ],
+      "commit_sequence": "sidecar 必须进入 preregistration commit 的后续 descendant commit；runtime binding 同时记录 preregistration target digest 与 sidecar raw digest。包含 sidecar 的 commit 必须早于 allocation、prompt、request 和任何输出。"
+    },
+    "allocation_payload_schema": {
+      "schema_id": "R9-SEALED-ALLOCATION-PAYLOAD-V2",
       "required_fields": [
         "execution_id",
+        "allocator_nonce_hex",
+        "pair_launch_order",
+        "pair_slot_assignments",
+        "blind_artifact_ids",
+        "algorithm_id",
+        "created_at_utc",
+        "sealed_mapping_locator",
+        "preimage_excluded_fields"
+      ],
+      "preimage_excluded_fields_const": [
+        "allocation_payload_raw_sha256"
+      ]
+    },
+    "input_manifest_schema": {
+      "schema_id": "R9-RUN-INPUT-MANIFEST-PAYLOAD-V2",
+      "required_fields": [
+        "execution_id",
+        "pair_id",
+        "replicate_index",
+        "request_slot_id",
         "arm_internal_id",
         "blind_artifact_id",
         "preregistration_raw_sha256",
-        "runtime_binding_raw_sha256",
-        "allocation_record_raw_sha256",
+        "preregistration_digest_sidecar_raw_sha256",
+        "runtime_binding_payload_raw_sha256",
+        "runtime_binding_digest_sidecar_raw_sha256",
+        "allocation_payload_raw_sha256",
+        "allocation_digest_sidecar_raw_sha256",
         "common_task_component_sha256",
         "common_output_contract_component_sha256",
         "method_wrapper_component_sha256",
         "corpus_manifest_root_sha256",
-        "mirror_manifest_raw_sha256",
+        "generator_package_tree_manifest_payload_raw_sha256",
+        "generator_package_tree_digest_sidecar_raw_sha256",
+        "generator_package_common_projection_root_sha256",
         "system_prompt_raw_sha256",
         "assembled_user_message_raw_sha256",
         "full_request_raw_sha256",
-        "model_locator",
+        "observable_requested_configuration_raw_sha256",
         "budget",
-        "started_at_utc"
+        "started_at_utc",
+        "preimage_excluded_fields"
+      ],
+      "preimage_excluded_fields_const": [
+        "input_manifest_payload_raw_sha256"
       ]
     },
     "generation_output_receipt_schema": {
-      "schema_id": "R9-GENERATION-OUTPUT-RECEIPT-V1",
+      "schema_id": "R9-GENERATION-OUTPUT-RECEIPT-PAYLOAD-V2",
       "required_fields": [
         "execution_id",
+        "pair_id",
+        "replicate_index",
+        "request_slot_id",
         "blind_artifact_id",
-        "input_manifest_raw_sha256",
-        "stop_reason",
+        "input_manifest_payload_raw_sha256",
+        "terminal_class",
+        "terminal_detail",
         "raw_output_byte_count",
-        "raw_output_sha256",
+        "raw_output_sha256_or_null",
         "strict_json_valid",
         "canonical_json_sha256_or_null",
-        "deterministic_check_receipt_sha256",
-        "resource_receipt_sha256",
+        "deterministic_check_receipt_payload_raw_sha256",
+        "resource_receipt_payload_raw_sha256",
+        "resource_receipt_digest_sidecar_raw_sha256",
         "generator_locator",
-        "completed_at_utc"
+        "completed_at_utc",
+        "preimage_excluded_fields"
       ],
-      "stop_reason_enum": [
+      "terminal_class_enum": [
         "completed",
-        "wall_time_cap",
-        "token_cap",
-        "refusal",
+        "model_token_cap",
+        "model_wall_time_cap_after_service_acceptance",
+        "model_refusal",
+        "transport_error",
         "service_error",
         "cancelled_for_integrity"
-      ]
+      ],
+      "preimage_excluded_fields_const": [
+        "generation_output_receipt_payload_raw_sha256"
+      ],
+      "error_rule": "transport_error 或 service_error 的 raw_output 可为 null，但 outcome 必须 bounded_incomplete；不得构造可评分替代 artifact。"
     },
     "blind_review_package_schema": {
-      "schema_id": "R9-BLIND-REVIEW-PACKAGE-V1",
+      "schema_id": "R9-BLIND-REVIEW-PACKAGE-PAYLOAD-V2",
       "required_fields": [
         "common_task_component_sha256",
         "common_output_contract_component_sha256",
@@ -790,7 +1330,13 @@
         "reference_anchor_component_sha256",
         "ordered_blind_artifact_ids",
         "blind_artifact_raw_sha256s",
-        "package_raw_sha256"
+        "blind_artifact_metadata_raw_sha256s",
+        "reviewer_package_tree_manifest_payload_raw_sha256",
+        "judge_package_fit_preflight_receipt_payload_raw_sha256",
+        "preimage_excluded_fields"
+      ],
+      "preimage_excluded_fields_const": [
+        "blind_review_package_payload_raw_sha256"
       ],
       "forbidden_fields": [
         "arm_internal_id",
@@ -803,39 +1349,53 @@
       ]
     },
     "review_output_schema": {
-      "schema_id": "R9-BLIND-REVIEW-OUTPUT-V1",
+      "schema_id": "R9-BLIND-REVIEW-OUTPUT-PAYLOAD-V2",
       "required_fields": [
         "reviewer_locator",
-        "review_package_raw_sha256",
+        "review_package_payload_raw_sha256",
+        "review_package_digest_sidecar_raw_sha256",
         "rubric_component_sha256",
         "scores_by_blind_artifact_and_dimension",
         "critical_errors",
         "artifact_level_summary",
         "scores_frozen_at_utc",
         "guessed_method_after_scoring",
-        "raw_review_output_sha256"
+        "preimage_excluded_fields"
+      ],
+      "preimage_excluded_fields_const": [
+        "review_output_payload_raw_sha256"
       ]
     },
     "final_result_schema": {
-      "schema_id": "R9-METHOD-COMPARISON-RESULT-V1",
+      "schema_id": "R9-METHOD-COMPARISON-RESULT-PAYLOAD-V2",
       "required_fields": [
         "preregistration_raw_sha256",
-        "runtime_binding_raw_sha256",
-        "allocation_record_raw_sha256",
+        "preregistration_digest_sidecar_raw_sha256",
+        "runtime_binding_payload_raw_sha256",
+        "allocation_payload_raw_sha256",
+        "capability_preflight_receipt_payload_raw_sha256",
+        "judge_package_fit_preflight_receipt_payload_raw_sha256s",
+        "tree_manifest_payload_raw_sha256s",
         "corpus_manifest_root_sha256",
-        "generation_output_receipt_sha256s",
+        "generation_output_receipt_payload_raw_sha256s",
         "reviewer_locators",
-        "review_output_sha256s",
-        "unsealed_mapping_sha256",
-        "quality_scores",
-        "dimension_deltas",
+        "review_output_payload_raw_sha256s",
+        "unsealed_mapping_payload_raw_sha256",
+        "per_artifact_quality_scores",
+        "per_pair_quality_and_dimension_deltas",
+        "aggregate_continuous_outcomes",
+        "sensitivity_results",
         "time_token_and_maintenance_metrics",
         "integrity_predicates",
         "admission_predicates",
         "outcome",
         "outcome_reason",
         "claim_boundary",
-        "created_at_utc"
+        "created_at_utc",
+        "preimage_excluded_fields"
+      ],
+      "preimage_excluded_fields_const": [
+        "final_result_payload_raw_sha256"
       ],
       "outcome_enum": [
         "adopt",
@@ -843,35 +1403,57 @@
         "bounded_incomplete"
       ]
     },
-    "locator_rule": "所有 generator、reviewer、receipt 和 artifact locator 必须可由本地相对路径或平台 opaque id 恢复；显示名、角色名或模型自述不构成身份或独立性证明。"
+    "locator_rule": "所有 generator、reviewer、receipt、sidecar、manifest 和 artifact locator 必须可由本地相对路径或平台 opaque id 恢复；显示名、角色名或模型自述不构成身份或独立性证明。",
+    "terminal_digest_rule": "最终 result payload 与其 digest sidecar 都可以由外部命令分别哈希并报告；任何报告的 digest 都不得为追求自包含而回填其 preimage。"
   },
-  "minimum_core_admission_rule": {
+  "additional_wrapper_admission_rule": {
     "evaluation_order": [
-      "先检查 experiment integrity 与 evaluability",
-      "再在仍盲的状态下冻结两个 reviewer 分数",
+      "先检查全部 prelaunch receipts、experiment integrity、transport/service 状态与八个 planned artifact/failure envelope 是否齐全",
+      "再在方法映射仍封存时冻结两个 reviewer 对八个 artifact 的全部分数",
       "再检查 reviewer consistency",
-      "之后解封方法映射",
-      "最后合并 quality、time、token 和 maintenance predicates"
+      "之后解封 arm mapping 并按 pair 计算连续结果",
+      "最后合并 quality、directional robustness、time、token 和 maintenance predicates",
+      "完成主裁决后才计算并报告预注册 sensitivity，不允许 sensitivity 覆盖主裁决"
     ],
+    "threshold_utility_rationale": {
+      "epistemic_status": "以下阈值是预先冻结的本地决策效用与最大 willingness-to-pay，不是外部实证估计、行业标准、显著性界线或模型能力事实。",
+      "quality_floor": "quality_score 75.00 等价于所有权重维度的加权平均 3.00，对应 rubric 的 strong_and_usable 水平；低于此值即使相对 baseline 提升也不足以成为默认。",
+      "quality_gain": "paired mean gain 8.00 等价于加权 0-4 dimension scale 上 0.32 的平均移动，用来要求可见的边际收益，而不是由长度或微小评分摆动驱动采用。",
+      "dimension_guardrails": "至少两个 decision-critical dimensions 平均提升 0.50、至少一个核心事实/引用/决定维度提升 0.50，且任何 decision-critical dimension 不下降超过 0.50，以防总分掩盖局部伤害。",
+      "replicate_robustness": "四个 pair 至少三个 quality delta 为正且每个 leave-one-pair-out mean delta 都大于 0，避免采用结论仅由单个异常请求产生。",
+      "cost_guardrails": "1.50 ratio 与 token、wall、manual、intervention、persistent-artifact 绝对 cap 表示为额外 wrapper 预先愿意支付的最大局部成本；它们不证明长期维护经济性。",
+      "sensitivity_reason": "同时报告更宽松与更严格的质量及成本 cap，显示主结论离决策边界多远，但不得事后改用有利场景。"
+    },
+    "analysis_variable_bindings": {
+      "planned_pair_count": "primary_design.paired_replicate_count",
+      "planned_artifact_count": "primary_design.planned_generation_artifact_count",
+      "arm_vectors": "每个 arm 按 pair_id 升序排列的四元素向量",
+      "paired_delta_vectors": "按同一 pair_id 对齐后逐元素计算 treatment minus baseline 的四元素向量",
+      "sum_by_dimension": "对指定 dimension 的四元素 paired delta 向量求整数和",
+      "leave_one_pair_out_mean_quality_delta_hundredths": "每次删除一个 pair 后，其余三个 paired_quality_delta_hundredths 的有理数算术平均；比较大于 0 时等价比较其整数和大于 0"
+    },
+    "expression_semantics": "sum、count、all、any_of 均对完整预注册向量求值；不得忽略 null、缺失或失败 replicate。任何 required value 为 null 或不可接受时先触发 bounded_incomplete，不进入 adopt expression。所有乘法比较使用整数，避免门槛前 rounding。",
     "machine_readable_thresholds": {
       "score_storage_unit": "hundredths_of_one_point_or_hundredths_of_quality_score_as_named",
-      "minimum_core_quality_score_min_hundredths": 7500,
-      "minimum_core_quality_delta_min_hundredths": 800,
-      "dimension_improvement_min_hundredths": 50,
+      "treatment_arm_mean_quality_score_min_hundredths": 7500,
+      "paired_mean_quality_delta_min_hundredths": 800,
+      "positive_paired_quality_delta_count_min": 3,
+      "leave_one_pair_out_mean_quality_delta_strictly_positive": true,
+      "dimension_mean_improvement_min_hundredths": 50,
       "dimension_improvement_count_min": 2,
-      "dimension_decline_max_hundredths": 50,
-      "core_quality_dimension_min_hundredths": 300,
-      "counterevidence_and_uncertainty_min_hundredths": 250,
-      "reproducibility_min_hundredths": 300,
+      "dimension_mean_decline_max_hundredths": 50,
+      "treatment_core_quality_dimension_mean_min_hundredths": 300,
+      "treatment_counterevidence_and_uncertainty_mean_min_hundredths": 250,
+      "treatment_reproducibility_mean_min_hundredths": 300,
       "token_ratio_max_numerator": 3,
       "token_ratio_max_denominator": 2,
-      "token_absolute_increase_max": 4000,
+      "mean_paired_token_increase_max": 4000,
       "wall_time_ratio_max_numerator": 3,
       "wall_time_ratio_max_denominator": 2,
-      "wall_time_absolute_increase_seconds_max": 180,
-      "manual_time_absolute_increase_seconds_max": 300,
-      "manual_intervention_absolute_increase_max": 1,
-      "persistent_artifact_absolute_increase_max": 1,
+      "mean_paired_wall_time_increase_milliseconds_max": 180000,
+      "mean_paired_manual_time_increase_milliseconds_max": 300000,
+      "mean_paired_manual_intervention_increase_max": 1,
+      "mean_paired_persistent_artifact_increase_max": 1,
       "retry_count_max": 0,
       "failure_recovery_action_count_max": 0
     },
@@ -882,7 +1464,7 @@
       },
       {
         "predicate_id": "R9-ADM-02",
-        "expression": "minimum_core.artifact_evaluable == true"
+        "expression": "planned_pair_count == 4 and planned_artifact_count == 8 and all_planned_generation_receipts_and_scoreable_artifacts_present == true"
       },
       {
         "predicate_id": "R9-ADM-03",
@@ -890,176 +1472,197 @@
       },
       {
         "predicate_id": "R9-ADM-04",
-        "expression": "minimum_core.critical_error_count == 0"
+        "expression": "common_contract_plus_minimum_core.total_critical_error_count == 0"
       },
       {
         "predicate_id": "R9-ADM-05",
-        "expression": "minimum_core.quality_score_hundredths >= minimum_core_quality_score_min_hundredths"
+        "expression": "sum(common_contract_plus_minimum_core.quality_score_hundredths) >= planned_pair_count * treatment_arm_mean_quality_score_min_hundredths"
       },
       {
         "predicate_id": "R9-ADM-06",
-        "expression": "minimum_core.quality_score_hundredths - ordinary.quality_score_hundredths >= minimum_core_quality_delta_min_hundredths"
+        "expression": "sum(paired_quality_delta_hundredths) >= planned_pair_count * paired_mean_quality_delta_min_hundredths"
       },
       {
         "predicate_id": "R9-ADM-07",
-        "expression": "count(decision_critical_dimension_delta_hundredths >= dimension_improvement_min_hundredths) >= dimension_improvement_count_min"
+        "expression": "count(paired_quality_delta_hundredths > 0) >= positive_paired_quality_delta_count_min"
       },
       {
         "predicate_id": "R9-ADM-08",
-        "expression": "any_of(factual_accuracy_delta_hundredths, citation_entailment_and_precision_delta_hundredths, decision_quality_delta_hundredths) >= dimension_improvement_min_hundredths"
+        "expression": "all(leave_one_pair_out_mean_quality_delta_hundredths > 0)"
       },
       {
         "predicate_id": "R9-ADM-09",
-        "expression": "all(decision_critical_dimension_delta_hundredths >= -dimension_decline_max_hundredths)"
+        "expression": "count(sum_by_dimension(decision_critical_paired_delta_hundredths) >= planned_pair_count * dimension_mean_improvement_min_hundredths) >= dimension_improvement_count_min"
       },
       {
         "predicate_id": "R9-ADM-10",
-        "expression": "minimum_core.factual_accuracy_hundredths >= core_quality_dimension_min_hundredths and minimum_core.citation_entailment_and_precision_hundredths >= core_quality_dimension_min_hundredths and minimum_core.decision_quality_hundredths >= core_quality_dimension_min_hundredths"
+        "expression": "any_of(sum(factual_accuracy_paired_delta_hundredths), sum(citation_entailment_and_precision_paired_delta_hundredths), sum(decision_quality_paired_delta_hundredths)) >= planned_pair_count * dimension_mean_improvement_min_hundredths"
       },
       {
         "predicate_id": "R9-ADM-11",
-        "expression": "minimum_core.counterevidence_hundredths >= counterevidence_and_uncertainty_min_hundredths and minimum_core.uncertainty_and_boundaries_hundredths >= counterevidence_and_uncertainty_min_hundredths"
+        "expression": "all(sum_by_dimension(decision_critical_paired_delta_hundredths) >= -planned_pair_count * dimension_mean_decline_max_hundredths)"
       },
       {
         "predicate_id": "R9-ADM-12",
-        "expression": "minimum_core.reproducibility_hundredths >= reproducibility_min_hundredths"
+        "expression": "sum(common_contract_plus_minimum_core.factual_accuracy_hundredths) >= planned_pair_count * treatment_core_quality_dimension_mean_min_hundredths and sum(common_contract_plus_minimum_core.citation_entailment_and_precision_hundredths) >= planned_pair_count * treatment_core_quality_dimension_mean_min_hundredths and sum(common_contract_plus_minimum_core.decision_quality_hundredths) >= planned_pair_count * treatment_core_quality_dimension_mean_min_hundredths"
       },
       {
         "predicate_id": "R9-ADM-13",
-        "expression": "minimum_core.total_accounted_tokens * token_ratio_max_denominator <= ordinary.total_accounted_tokens * token_ratio_max_numerator and minimum_core.total_accounted_tokens - ordinary.total_accounted_tokens <= token_absolute_increase_max"
+        "expression": "sum(common_contract_plus_minimum_core.counterevidence_hundredths) >= planned_pair_count * treatment_counterevidence_and_uncertainty_mean_min_hundredths and sum(common_contract_plus_minimum_core.uncertainty_and_boundaries_hundredths) >= planned_pair_count * treatment_counterevidence_and_uncertainty_mean_min_hundredths"
       },
       {
         "predicate_id": "R9-ADM-14",
-        "expression": "minimum_core.end_to_end_wall_seconds * wall_time_ratio_max_denominator <= ordinary.end_to_end_wall_seconds * wall_time_ratio_max_numerator and minimum_core.end_to_end_wall_seconds - ordinary.end_to_end_wall_seconds <= wall_time_absolute_increase_seconds_max"
+        "expression": "sum(common_contract_plus_minimum_core.reproducibility_hundredths) >= planned_pair_count * treatment_reproducibility_mean_min_hundredths"
       },
       {
         "predicate_id": "R9-ADM-15",
-        "expression": "minimum_core.arm_specific_operator_setup_seconds + minimum_core.manual_normalization_seconds - ordinary.arm_specific_operator_setup_seconds - ordinary.manual_normalization_seconds <= manual_time_absolute_increase_seconds_max"
+        "expression": "common_contract_plus_minimum_core.total_accounted_tokens * token_ratio_max_denominator <= common_contract_only.total_accounted_tokens * token_ratio_max_numerator and sum(paired_token_delta) <= planned_pair_count * mean_paired_token_increase_max"
       },
       {
         "predicate_id": "R9-ADM-16",
-        "expression": "minimum_core.manual_intervention_count - ordinary.manual_intervention_count <= manual_intervention_absolute_increase_max"
+        "expression": "common_contract_plus_minimum_core.total_end_to_end_wall_milliseconds * wall_time_ratio_max_denominator <= common_contract_only.total_end_to_end_wall_milliseconds * wall_time_ratio_max_numerator and sum(paired_wall_time_delta_milliseconds) <= planned_pair_count * mean_paired_wall_time_increase_milliseconds_max"
       },
       {
         "predicate_id": "R9-ADM-17",
-        "expression": "minimum_core.method_specific_persistent_artifact_count - ordinary.method_specific_persistent_artifact_count <= persistent_artifact_absolute_increase_max"
+        "expression": "sum(paired_arm_specific_operator_setup_milliseconds_delta + paired_manual_normalization_milliseconds_delta) <= planned_pair_count * mean_paired_manual_time_increase_milliseconds_max"
       },
       {
         "predicate_id": "R9-ADM-18",
-        "expression": "minimum_core.retry_count <= retry_count_max and minimum_core.failure_recovery_action_count <= failure_recovery_action_count_max"
+        "expression": "sum(paired_manual_intervention_count_delta) <= planned_pair_count * mean_paired_manual_intervention_increase_max"
+      },
+      {
+        "predicate_id": "R9-ADM-19",
+        "expression": "sum(paired_method_specific_persistent_artifact_count_excluding_common_output_and_automatic_receipts_delta) <= planned_pair_count * mean_paired_persistent_artifact_increase_max"
+      },
+      {
+        "predicate_id": "R9-ADM-20",
+        "expression": "common_contract_plus_minimum_core.total_retry_count <= retry_count_max and common_contract_plus_minimum_core.total_failure_recovery_action_count <= failure_recovery_action_count_max"
       }
     ],
     "adopt_requires_all": [
-      "全部 experiment_integrity_predicates 为 true",
-      "至少一个 artifact 可评估，且 minimum_core artifact 可评估",
+      "全部 experiment_integrity_predicates 为 true，且无 transport/service error",
+      "四个 pair、八个一次性生成 receipt 与八个可评分 raw artifact 或 method-failure envelope 全部存在",
       "reviewer consistency gate 通过",
-      "minimum_core 没有任何 critical_error",
-      "minimum_core quality_score 不低于 75.00",
-      "minimum_core quality_score 减 ordinary quality_score 至少为 8.00",
-      "至少两个 decision-critical dimensions 的 minimum_core 两 reviewer 平均分比 ordinary 高至少 0.50，且其中至少一个是 factual_accuracy、citation_entailment_and_precision 或 decision_quality",
-      "minimum_core 在任何 decision-critical dimension 上都不比 ordinary 低超过 0.50",
-      "minimum_core 的 factual_accuracy、citation_entailment_and_precision 与 decision_quality 平均分各不低于 3.00",
-      "minimum_core 的 counterevidence 与 uncertainty_and_boundaries 平均分各不低于 2.50",
-      "minimum_core 的 reproducibility 平均分不低于 3.00",
-      "minimum_core total_accounted_tokens 不高于 ordinary 的 1.50 倍，且绝对增加不超过 4000",
-      "minimum_core end_to_end_wall_seconds 不高于 ordinary 的 1.50 倍，且绝对增加不超过 180 秒",
-      "minimum_core arm_specific_operator_setup_seconds 加 manual_normalization_seconds 不高于 ordinary 对应和加 300 秒",
-      "minimum_core manual_intervention_count 不高于 ordinary 加 1",
-      "minimum_core method_specific_persistent_artifact_count 不高于 ordinary 加 1",
-      "minimum_core retry_count 与 failure_recovery_action_count 均为 0"
+      "common_contract_plus_minimum_core 四个 artifact 合计没有任何 critical_error",
+      "treatment arm mean quality_score 不低于 75.00",
+      "四个 paired quality delta 的 mean 不低于 8.00",
+      "至少三个 paired quality delta 大于 0，且四个 leave-one-pair-out mean delta 均大于 0",
+      "至少两个 decision-critical dimensions 的 mean paired delta 不低于 0.50，且其中至少一个是 factual_accuracy、citation_entailment_and_precision 或 decision_quality",
+      "任何 decision-critical dimension 的 mean paired delta 都不低于 -0.50",
+      "treatment 的 factual_accuracy、citation_entailment_and_precision 与 decision_quality 跨四 replicate 平均分各不低于 3.00",
+      "treatment 的 counterevidence 与 uncertainty_and_boundaries 跨四 replicate 平均分各不低于 2.50",
+      "treatment 的 reproducibility 跨四 replicate 平均分不低于 3.00",
+      "treatment 四次 total_accounted_tokens 总量不高于 baseline 的 1.50 倍，且 mean paired increase 不超过 4000",
+      "treatment 四次 end_to_end wall 总量不高于 baseline 的 1.50 倍，且 mean paired increase 不超过 180000 milliseconds",
+      "treatment mean paired operator setup 加 manual normalization increase 不超过 300000 milliseconds",
+      "treatment mean paired manual intervention increase 不超过 1",
+      "treatment mean paired method-specific persistent artifact increase 不超过 1",
+      "treatment retry_count 与 failure_recovery_action_count 总量均为 0"
     ],
-    "adopt_meaning": "把 R9-WRAPPER-MINCORE-V1 作为 decision_scope 内的实验性默认；不采用未被该 wrapper 包含的完整治理流程，也不声称普遍或统计 superiority。",
-    "reject_when": "实验完整、两份评审可用且一致，但任一 adopt predicate 为 false。平局、ordinary 质量更高、minimum_core 只增加审计痕迹、或收益不足以覆盖成本时都必须 reject。",
-    "reject_meaning": "不把 minimum core 设为该范围默认。不得因其更复杂、更长、更像治理流程而保留；可在新预注册任务中重新测试。",
+    "adopt_meaning": "只把 R9-WRAPPER-COMMON-CONTRACT-PLUS-MINCORE-V2 的额外 instructions 作为 decision_scope 内共同 governed contract 之上的实验性默认；不采用未被该 wrapper 包含的完整治理流程，也不声称 ordinary-vs-governed、普遍或统计 superiority。",
+    "reject_when": "实验完整、八个 artifacts 与两份评审可用且一致，但任一 adopt predicate 为 false。平局、baseline 质量更高、treatment 只增加审计痕迹、方向不稳定或收益不足以覆盖成本时都必须 reject。",
+    "reject_meaning": "不在共同 governed contract 上默认增加 minimum-core wrapper。不得因其更复杂、更长或更像治理流程而保留；可在新预注册任务中重新测试。",
     "bounded_incomplete_when": [
+      "任一 prelaunch capability、deny-read、no-tools、single-attempt、complete-tree 或 judge package-fit predicate 为 false 或 unknown",
       "任一 experiment integrity predicate 为 false",
-      "模型或配置相等性不能证明",
-      "corpus、mirror、prompt common components 或 input hashes 不一致",
-      "跨臂学习或输出泄漏、显式方法标签泄漏、或 reviewer 提前看到映射",
-      "并行提交偏差超过上限",
-      "共享基础设施故障使任一 arm 没有收到请求",
-      "两个 artifact 都不可评估",
-      "任一 reviewer 未在预算内返回有效评分",
+      "observable requested configuration equality 不能证明，或出现显式 fallback/deployment 冲突",
+      "corpus、package tree、prompt common components 或 input hashes 不一致",
+      "跨 slot/pair 学习或输出泄漏、显式方法标签泄漏、或 reviewer 提前看到 mapping",
+      "任一 pair 的 request submission skew 超过上限",
+      "八个 planned generation request 中任一个未提交且只有一个 attempt、缺 receipt 或缺可恢复 raw response/error",
+      "任一 generation 或 reviewer request 出现 transport_error 或 service_error",
+      "任一 reviewer 未在预算内返回完整有效评分",
       "reviewer consistency gate 未通过",
-      "必要 time、token 或 maintenance receipt 缺失",
-      "总实验预算在两臂与两份评审完成前耗尽"
+      "必要 usage、timing、attempt、maintenance、tree、digest sidecar 或 locator 缺失或不可接受",
+      "总实验预算在八份生成和两份评审完成前耗尽"
     ],
-    "bounded_incomplete_meaning": "没有方法胜负或采用结论；保留失败 receipt，不追加预算、不补第三 judge、不事后修改规则。",
+    "bounded_incomplete_meaning": "没有方法胜负或采用结论；保留失败 receipt，不减少 replicate、不追加预算、不重试、不补第三 judge、不事后修改规则。",
     "outcome_function": [
       "若任一 bounded_incomplete_when 条件为 true，则 outcome = bounded_incomplete",
       "否则若全部 machine_readable_adopt_predicates 为 true，则 outcome = adopt",
       "否则 outcome = reject"
     ],
-    "ordinary_win_is_allowed": true,
+    "baseline_win_is_allowed": true,
     "complexity_is_not_a_benefit": true
   },
   "experiment_integrity_predicates": [
-    "preregistration commit 与 raw sha256 早于全部执行记录",
-    "runtime binding 与 allocation record 在任何 prompt 或输出前冻结并哈希",
-    "两个 corpus mirror 的 manifest root 均匹配冻结值",
-    "除 wrapper 外的 prompt component hashes 相同",
-    "两个 arm 通过 same_model_gate",
-    "两个 arm 的资源上限相同且无重试",
-    "两个生成上下文隔离且无 network、tool、memory 或项目历史访问",
-    "并行提交偏差在上限内",
+    "preregistration commit 与独立 digest sidecar 早于全部 allocation、prompt、request 和输出记录，且本文件不含自己的 raw sha256",
+    "runtime binding、complete tree manifests、capability preflight、judge package-fit preflight 与 allocation payload 在任何完整 prompt、request 或输出前冻结并由非自指 sidecar 哈希",
+    "harness capability preflight 证明八个 independent stateless one-shot processes、deny-read、no-tools、single-attempt 与 no-fallback；未使用本项目父线程 native subagent",
+    "八个 generator package 的 corpus root 均匹配冻结值，完整 tree walk 无未声明 entry，common projection root 相同，同 arm full tree root 相同",
+    "除 arm-specific wrapper 外的八个 prompt component hashes 相同",
+    "八个 generation request 通过 same_observable_requested_configuration_gate，且没有声称 exact backend revision equality",
+    "八个 generation request 的资源上限相同，provider usage/timing/attempt receipts 可接受且无 retry",
+    "八个生成进程隔离且 model 无 network、tool、memory 或项目历史访问；任何 generation process 不能读取其他 package 或输出 spool",
+    "四个 pair 均完成 treatment-to-request-slot 随机化，两个 treatment 各占 slot_1 两次与 slot_2 两次，每个 pair 提交偏差在上限内",
+    "不存在 generation 或 reviewer transport_error/service_error，且八个 planned generation attempt 与两个 reviewer attempt 均有且仅有一次",
+    "两个 reviewer 的最坏情况 package-fit preflight 在生成前通过，最终完整 package tree 仍在冻结 bound 内",
     "blind mapping 在两个 reviewer 分数冻结前未解封",
-    "两个 reviewer 输入除 artifact 顺序外相同，且顺序交叉",
-    "所有 raw input、output、review 与 resource receipts 可由 sha256 和 locator 恢复",
-    "没有对 arm 输出做人工修复、追加提示、选择性丢弃或 best-of-n"
+    "两个 reviewer 输入除 reviewer role 与八个 artifact 的升序/降序 presentation order 外相同",
+    "所有 raw input、output、review、resource、tree 与 digest sidecar receipts 可由 sha256 和 locator 恢复，且没有 self-referential digest",
+    "没有对 artifact 做人工修复、追加提示、选择性丢弃、replicate replacement、best-of-n 或样本量降级"
   ],
   "stopping_and_failure_protocol": {
+    "prelaunch_stop": "任一 mandatory preflight、complete-tree、observable requested configuration、receipt acceptance 或 judge package-fit gate false/unknown 时，在任何 generation request 前停止；operational_state = blocked_before_generation，outcome = bounded_incomplete。",
     "generation_stop_order": [
-      "成功返回一个 artifact",
+      "成功返回该 request 的一个 artifact",
       "达到 maximum_output_tokens 或 maximum_total_accounted_tokens",
-      "达到 maximum_wall_time_seconds",
-      "模型拒答",
-      "服务错误",
+      "服务已接受后达到 maximum_wall_time_seconds",
+      "模型拒答并返回可恢复 response",
+      "transport_error 或 service_error",
       "检测到 experiment integrity failure"
     ],
     "review_stop_order": [
       "两位 reviewer 各自返回完整评分并哈希",
       "judge token 或 wall-time cap",
-      "judge 服务错误",
+      "judge transport_error 或 service_error",
       "检测到 blind contamination 或 package mismatch"
     ],
-    "no_retry_rule": "不对生成或评审做重试、继续、补 prompt、修复 JSON、替换模型或 best-of-n 选择。",
+    "no_retry_rule": "不对生成或评审做 retry、continue、补 prompt、修复 JSON、替换模型、替换 pair、拆 reviewer package 或 best-of-n 选择；SDK 与 transport 自动 retry 必须在 preflight 中证明为零。",
     "method_observed_failures_that_remain_scoreable": [
       "invalid JSON",
       "漏字段",
-      "正常 token cap",
-      "正常 wall-time cap",
-      "拒答",
+      "服务已接受后的正常 model token cap",
+      "服务已接受后的正常 model wall-time cap",
+      "有完整 provider response 与 receipt 的 model refusal",
       "越界引用",
       "未完成共同任务"
     ],
-    "integrity_failures_that_block_comparison": [
-      "输入或模型不相等",
-      "基础设施只提交了一个 arm",
-      "context、output 或 mapping 泄漏",
-      "corpus hash 不一致",
-      "judge 看到方法标签或资源成本",
-      "无法恢复必要 raw receipt"
+    "bounded_incomplete_failures": [
+      "任一 transport_error 或 service_error，包括 rate limit、provider timeout、stream interruption 和 malformed transport response",
+      "input 或 observable requested configuration 不相等，或 client fallback 被触发",
+      "基础设施未对四个 pair 的两个 slot 各提交一次且仅一次",
+      "process、output 或 mapping 泄漏，或使用父线程 native subagent",
+      "corpus/package/tree hash 不一致或存在未声明 entry",
+      "reviewer 看到明确方法 mapping、wrapper 或资源成本",
+      "judge package 不适配冻结 context/budget",
+      "无法恢复必要 raw receipt、digest sidecar 或 locator"
     ],
     "post_stop_rule": "停止后只允许运行预注册的确定性校验、盲评、解封和公式计算；不得搜索新资料、增加任务、改 rubric 或生成替代 artifact。"
   },
   "result_reporting_requirements": {
     "must_report": [
       "adopt、reject 或 bounded_incomplete 中且仅一个",
+      "prelaunch operational_state、全部 capability/tree/package-fit/receipt gates 与 blocked reason",
       "全部 integrity 与 admission predicate 的逐项 true 或 false",
-      "两个 blind artifact raw hashes 与解封后的 method mapping hash",
-      "每个 dimension 的两位 reviewer 原始分数、平均分和 delta",
+      "八个 blind artifact raw hashes、pair-slot locators 与解封后的 method mapping payload hash",
+      "每个 artifact、pair 和 dimension 的两位 reviewer 原始分数、平均分、paired delta 与 arm aggregate",
       "critical errors 与精确 artifact/corpus locators",
-      "wall time、token 和 maintenance 原始指标与差值",
-      "ordinary 胜出、平局或 governed 胜出的维度",
-      "单任务、同源模型、平台可观察独立性和长期维护未知的限制",
+      "四个 pair 的 wall time、token、attempt 和 maintenance 原始指标、paired 差值、arm total、mean 与 ratio",
+      "全部 primary continuous outcomes 与预注册 leave-one-pair-out、reviewer-specific、median 和 threshold sensitivity",
+      "baseline 胜出、平局或 treatment 胜出的 replicate 与维度",
+      "共同 governed contract、同一任务重复、same observable requested configuration、exact backend 未证明、平台可观察隔离和长期维护未知的限制",
       "采用范围或拒绝范围"
     ],
     "forbidden_claims": [
-      "因 governed 产物更长、字段更多或引用更多而判胜",
-      "把一次 paired task 写成普遍统计 superiority",
+      "因 treatment 产物更长、字段更多或引用更多而判胜",
+      "把四个同题 paired replicates 写成跨任务统计 superiority",
+      "把 baseline 写成无治理 ordinary prompting，或把结果写成 common governed contract 本身的效应",
+      "把 same observable requested configuration 写成 exact backend revision、相同 weights 或 deterministic replay 证明",
       "把 separate context 写成组织、密码学或安全独立",
       "把 bounded_incomplete 改写成失败或通过",
-      "隐藏 ordinary 胜出的维度或治理成本",
+      "隐藏 baseline 胜出的 pair、维度或 treatment 成本",
+      "用 sensitivity 场景替换主阈值裁决",
       "以已经投入时间或维护工作为理由降低 admission rule"
     ]
   },
@@ -1067,9 +1670,13 @@
     "联网搜索、打开外部网页或扩展 frozen corpus",
     "读取 Gmail、课程资料、私人通信、真实账户、API key、token、券商凭据或任何项目外私人数据",
     "把 R7、R8 的 raw reports、reviews、synthesis、memory 或本项目既有结论放进生成者或 reviewer 上下文",
-    "让两个 arm 共享上下文、工具状态、输出或中途反馈",
-    "在看到任一生成输出后改变 task、corpus、wrapper、budget、rubric、blind mapping 或裁决阈值",
+    "使用本项目父 task/thread 的 native subagent、fork 或继承上下文作为任何 generation arm",
+    "让任何 slot 或 pair 共享进程、上下文、工具状态、输出或中途反馈",
+    "给生成模型提供任何 tool、network、retrieval、filesystem、browser、computer、shell、code execution 或 connector capability",
+    "在看到任一生成输出后改变 task、corpus、wrapper、replicate count、slot allocation、budget、rubric、blind mapping 或裁决阈值",
+    "因平台不支持隔离、receipt 或 judge package-fit 而减少 replicate、顺序补跑、摘要 artifact、拆分 judge turns 或降级标准",
+    "把 artifact、manifest、receipt 或 result 的 raw sha256 写回其自身 preimage",
     "执行交易、连接 broker、修改风险规则、改项目实现或把本实验结果自动写成项目决定",
-    "因 minimum_core 更复杂而默认采用"
+    "因 additional minimum-core wrapper 更复杂而默认采用"
   ]
 }

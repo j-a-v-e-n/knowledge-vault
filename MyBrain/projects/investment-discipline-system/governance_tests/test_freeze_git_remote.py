@@ -882,7 +882,13 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             ),
             machine_check(
                 "CHECK-PROJECT-METHOD",
-                ["PYTHON", "scripts/verify_project_method.py", "--json"],
+                [
+                    "PYTHON",
+                    "scripts/run_project_method_acceptance.py",
+                    "--json",
+                    "--verify",
+                    "--ephemeral",
+                ],
                 structured_result={"status": "pass", "errors": []},
             ),
             machine_check(

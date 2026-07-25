@@ -1,0 +1,186 @@
+{
+  "schema_version": "work-packet-instance/v1",
+  "packet_id": "WP-METHOD-INTEGRATION",
+  "goal_id": "METHOD-GOVERNANCE-CLOSURE",
+  "state": "active",
+  "owner": "main-agent",
+  "reviewer": "independent-reviewer",
+  "bounded_write_paths": [
+    {
+      "path": "governance/ACCEPTANCE_CASES_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/COMPONENT_REGISTRY_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/EXECUTION_LOOP_POLICY_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/FAILURE_CLASSES_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/FROZEN_TEST_MANIFEST_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/GROUND_TRUTH_MANIFEST_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/MIGRATION_DRILL_SPEC_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/TRACEABILITY_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/VERIFICATION_SPECS_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_assurance_metadata.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_frozen_tests.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_execution_loop.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_migration_drill.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_no_live_scope.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_project_method.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_project_method_acceptance_runner.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_r9_same_task_comparison.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/run_assurance_ci.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/run_project_method_acceptance.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/verify_migration_drill.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/verify_no_live_scope.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/verify_assurance_metadata.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/verify_execution_loop.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/verify_frozen_tests.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/verify_governance.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/verify_project_method.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/verify_r9_same_task_comparison.py",
+      "kind": "file"
+    },
+    {
+      "path": ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.json",
+      "kind": "file"
+    }
+  ],
+  "read_dependencies": [
+    "AGENTS.md",
+    "AI_COLLABORATION_METHOD.md",
+    "DECISIONS.md",
+    "EVIDENCE_GOVERNED_AI_SYSTEM.md",
+    "PROJECT_CHARTER.md",
+    "governance/CONTEXT_RECOVERY_SPEC_V1.json",
+    "governance/PROJECT_METHOD_POLICY_V1.json",
+    "governance/WORK_PACKET_POLICY_V1.json",
+    "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json"
+  ],
+  "acceptance_checks": [
+    {
+      "check_id": "CHECK-METHOD-STATIC",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/verify_project_method.py",
+        "--json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-METHOD-ACCEPTANCE",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/run_project_method_acceptance.py",
+        "--json",
+        "--verify",
+        "--ephemeral"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-CANDIDATE-GOVERNANCE",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/verify_governance.py",
+        "--allow-candidate"
+      ],
+      "expected_exit_code": 0
+    }
+  ],
+  "checkpoint_path": null,
+  "acceptance_receipt_path": null,
+  "retry_budget": 3,
+  "external_side_effects": [
+    "git_remote_autobackup_observed"
+  ],
+  "semantic_invariants": []
+}

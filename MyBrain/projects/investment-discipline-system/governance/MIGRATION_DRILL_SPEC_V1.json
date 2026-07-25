@@ -1,0 +1,272 @@
+{
+  "schema_version": "migration-drill-spec/v1",
+  "mechanism_id": "ECO-04-WORK-PACKET-MIGRATION-DRILL-V1",
+  "failure_id": "ECO-04",
+  "requirement_id": "REQ-METHOD-001",
+  "case_id": "CASE-METHOD-RENAME-REWRITE",
+  "record_family": "work_packet",
+  "source_version": "work-packet-instance/v1",
+  "target_version": "work-packet-instance/v2-drill",
+  "source_fixture": {
+    "schema_version": "work-packet-instance/v1",
+    "packet_id": "WP-ECO04-DRILL-FIXTURE",
+    "goal_id": "METHOD-MIGRATION-EXIT-DRILL",
+    "state": "candidate_complete",
+    "owner": "bounded-builder-agent",
+    "reviewer": "independent-readonly-reviewer",
+    "bounded_write_paths": [
+      {
+        "path": "governance/MIGRATION_DRILL_SPEC_V1.json",
+        "kind": "file"
+      },
+      {
+        "path": "scripts/verify_migration_drill.py",
+        "kind": "file"
+      },
+      {
+        "path": "governance_tests/test_migration_drill.py",
+        "kind": "file"
+      }
+    ],
+    "read_dependencies": [
+      "governance/PROJECT_METHOD_POLICY_V1.json",
+      "governance/WORK_PACKET_POLICY_V1.json"
+    ],
+    "acceptance_checks": [
+      {
+        "check_id": "CHECK-ECO04-MIGRATION-DRILL",
+        "kind": "process_exit",
+        "argv": [
+          "python3",
+          "scripts/verify_migration_drill.py",
+          "--json"
+        ],
+        "expected_exit_code": 0
+      }
+    ],
+    "checkpoint_path": ".work_packets/receipts/WP-ECO04-DRILL-FIXTURE.checkpoint.json",
+    "acceptance_receipt_path": null,
+    "retry_budget": 2,
+    "external_side_effects": [],
+    "semantic_invariants": []
+  },
+  "migration_contract": {
+    "strategy": "dry_run_then_backup_then_transactional_copy_transform_replace",
+    "dry_run_required": true,
+    "canonical_target_encoding": "utf-8-json-sort-keys-compact-newline",
+    "field_mapping": [
+      {
+        "source": "/schema_version",
+        "target": "/migration/source_version"
+      },
+      {
+        "source": "/packet_id",
+        "target": "/identity/packet_id"
+      },
+      {
+        "source": "/goal_id",
+        "target": "/identity/goal_id"
+      },
+      {
+        "source": "/state",
+        "target": "/lifecycle/state"
+      },
+      {
+        "source": "/retry_budget",
+        "target": "/lifecycle/retry_budget"
+      },
+      {
+        "source": "/owner",
+        "target": "/authority/owner"
+      },
+      {
+        "source": "/reviewer",
+        "target": "/authority/reviewer"
+      },
+      {
+        "source": "/bounded_write_paths",
+        "target": "/scope/bounded_write_paths"
+      },
+      {
+        "source": "/read_dependencies",
+        "target": "/scope/read_dependencies"
+      },
+      {
+        "source": "/external_side_effects",
+        "target": "/scope/external_side_effects"
+      },
+      {
+        "source": "/acceptance_checks",
+        "target": "/verification/acceptance_checks"
+      },
+      {
+        "source": "/checkpoint_path",
+        "target": "/verification/checkpoint_path"
+      },
+      {
+        "source": "/acceptance_receipt_path",
+        "target": "/verification/acceptance_receipt_path"
+      },
+      {
+        "source": "/semantic_invariants",
+        "target": "/verification/semantic_invariants"
+      }
+    ],
+    "target_only_fields": {
+      "/schema_version": "work-packet-instance/v2-drill",
+      "/migration/target_version": "work-packet-instance/v2-drill",
+      "/migration/compatibility": "explicit_break",
+      "/migration/source_sha256": "derived_from_exact_source_bytes"
+    }
+  },
+  "semantic_invariants": [
+    {
+      "invariant_id": "ECO04-INV-SOURCE-VERSION-PROVENANCE",
+      "source_pointer": "/schema_version",
+      "target_pointer": "/migration/source_version",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-PACKET-ID",
+      "source_pointer": "/packet_id",
+      "target_pointer": "/identity/packet_id",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-GOAL-ID",
+      "source_pointer": "/goal_id",
+      "target_pointer": "/identity/goal_id",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-STATE",
+      "source_pointer": "/state",
+      "target_pointer": "/lifecycle/state",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-RETRY-BUDGET",
+      "source_pointer": "/retry_budget",
+      "target_pointer": "/lifecycle/retry_budget",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-OWNER-AUTHORITY",
+      "source_pointer": "/owner",
+      "target_pointer": "/authority/owner",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-REVIEWER-AUTHORITY",
+      "source_pointer": "/reviewer",
+      "target_pointer": "/authority/reviewer",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-WRITE-BOUNDARY",
+      "source_pointer": "/bounded_write_paths",
+      "target_pointer": "/scope/bounded_write_paths",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-READ-DEPENDENCIES",
+      "source_pointer": "/read_dependencies",
+      "target_pointer": "/scope/read_dependencies",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-EXTERNAL-SIDE-EFFECTS",
+      "source_pointer": "/external_side_effects",
+      "target_pointer": "/scope/external_side_effects",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-ACCEPTANCE-CHECKS",
+      "source_pointer": "/acceptance_checks",
+      "target_pointer": "/verification/acceptance_checks",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-CHECKPOINT-REFERENCE",
+      "source_pointer": "/checkpoint_path",
+      "target_pointer": "/verification/checkpoint_path",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-ACCEPTANCE-REFERENCE",
+      "source_pointer": "/acceptance_receipt_path",
+      "target_pointer": "/verification/acceptance_receipt_path",
+      "comparison": "deep_equal"
+    },
+    {
+      "invariant_id": "ECO04-INV-INTEGRATION-PROBES",
+      "source_pointer": "/semantic_invariants",
+      "target_pointer": "/verification/semantic_invariants",
+      "comparison": "deep_equal"
+    }
+  ],
+  "compatibility_contract": {
+    "mode": "explicit_break",
+    "source_reader_accepts_target": false,
+    "target_reader_accepts_source": false,
+    "bridge_required": true,
+    "break_reason": "The drill target restructures authority, lifecycle, scope, and verification records; a v1 reader must reject it instead of silently treating renamed fields as equivalent."
+  },
+  "backup_contract": {
+    "backup_path": "backup/source.packet.json",
+    "hash_sidecar_path": "backup/source.packet.json.sha256",
+    "content": "exact_source_bytes",
+    "must_precede_first_replace": true,
+    "existing_backup_policy": "fail_closed_no_overwrite"
+  },
+  "failure_atomicity_contract": {
+    "injected_stage": "after_candidate_fsync_before_replace",
+    "source_after_failure": "exact_pre_attempt_bytes_and_sha256",
+    "candidate_after_failure": "removed",
+    "failure_outcome": "abort_without_success_claim"
+  },
+  "rollback_contract": {
+    "source": "verified_backup_exact_bytes",
+    "strategy": "transactional_replace",
+    "final_bytes": "exact_source_bytes",
+    "final_sha256": "exact_source_sha256",
+    "reader_check": "source_reader_accepts_restored_record"
+  },
+  "repeat_run_contract": {
+    "when_target_version_is_valid": "validated_noop",
+    "target_bytes_must_not_change": true,
+    "target_sha256_must_not_change": true,
+    "unknown_or_mismatched_version": "fail_closed_without_write"
+  },
+  "project_isolation_contract": {
+    "sandbox": "system_temporary_directory_outside_project_root",
+    "all_mutations_must_be_under_sandbox": true,
+    "protected_project_paths": [
+      "governance/MIGRATION_DRILL_SPEC_V1.json",
+      "governance/PROJECT_METHOD_POLICY_V1.json",
+      "governance/WORK_PACKET_POLICY_V1.json"
+    ],
+    "protected_manifest_before_after": "exact_type_size_sha256",
+    "full_project_tree_manifest_before_after": "exact_kind_size_sha256_or_symlink_target",
+    "excluded_path_components": [
+      ".git",
+      "__pycache__"
+    ],
+    "real_project_write_outcome": "zero"
+  },
+  "exit_plan": {
+    "steps": [
+      "Stop writers and verify the exact source version.",
+      "Create and verify an exact byte backup before replacement.",
+      "Run the target migration and all semantic invariants.",
+      "If compatibility or validation fails, restore through transactional rollback.",
+      "Verify exact source bytes, source hash, and source-reader acceptance after rollback."
+    ],
+    "success_oracle": "rollback_restores_exact_source_and_a_second_migration_reproduces_exact_target",
+    "missing_or_failed_step_outcome": "migration_drill_failed"
+  },
+  "claim_boundary": {
+    "allowed_claim": "This mechanism executes one isolated work-packet v1 to v2-drill migration with dry-run, exact backup, pre-replace failure injection, semantic comparison, explicit incompatibility, deterministic replay, idempotent repeat, exact rollback, and audited project-path isolation.",
+    "forbidden_claim": "This single fixture does not prove every future schema, production database migration, concurrent writer protocol, filesystem crash model, or long-term exit cost."
+  }
+}

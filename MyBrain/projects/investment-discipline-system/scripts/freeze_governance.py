@@ -68,7 +68,13 @@ MACHINE_CHECK_SPECS = {
         "structured": True,
     },
     "CHECK-PROJECT-METHOD": {
-        "argv": ["PYTHON", "scripts/verify_project_method.py", "--json"],
+        "argv": [
+            "PYTHON",
+            "scripts/run_project_method_acceptance.py",
+            "--json",
+            "--verify",
+            "--ephemeral",
+        ],
         "cwd": "PROJECT_ROOT",
         "structured": True,
     },

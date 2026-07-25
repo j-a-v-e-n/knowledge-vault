@@ -1,0 +1,12 @@
+{
+  "schema_version": "work-packet-acceptance/v1",
+  "packet_id": "WP-CONTRACT-SUPERSESSION",
+  "packet_contract_sha256": "b5b29ad41eb5143fe193e9913828308a2e9e6bdcd84531abd28b007f0b8dbde3",
+  "checkpoint_receipt_sha256": "2261bb17017c3d49e2411d58e784148fdc76924bbf6324a03e54e7f7c15c1100",
+  "checks": [
+    {
+      "check_id": "CHECK-CONTRACT-SUPERSESSION-TESTS",
+      "actual_exit_code": 0
+    }
+  ]
+}

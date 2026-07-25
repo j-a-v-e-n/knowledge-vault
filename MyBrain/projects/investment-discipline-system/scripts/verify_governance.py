@@ -38,6 +38,18 @@ RESEARCH_SUFFICIENCY = GOVERNANCE / "RESEARCH_SUFFICIENCY_V1.json"
 FAILURE_CLASSES = GOVERNANCE / "FAILURE_CLASSES_V1.json"
 DECISION_AUTHORITY = GOVERNANCE / "DECISION_AUTHORITY_V1.json"
 PROJECT_METHOD_POLICY = GOVERNANCE / "PROJECT_METHOD_POLICY_V1.json"
+COMPONENT_REGISTRY = GOVERNANCE / "COMPONENT_REGISTRY_V1.json"
+CONTEXT_RECOVERY_SPEC = GOVERNANCE / "CONTEXT_RECOVERY_SPEC_V1.json"
+WORK_PACKET_POLICY = GOVERNANCE / "WORK_PACKET_POLICY_V1.json"
+FROZEN_TEST_MANIFEST = GOVERNANCE / "FROZEN_TEST_MANIFEST_V1.json"
+MIGRATION_DRILL_SPEC = GOVERNANCE / "MIGRATION_DRILL_SPEC_V1.json"
+NO_LIVE_SCOPE_POLICY = GOVERNANCE / "NO_LIVE_SCOPE_POLICY_V1.json"
+EXECUTION_LOOP_POLICY = GOVERNANCE / "EXECUTION_LOOP_POLICY_V1.json"
+R9_METHOD_PREREGISTRATION = (
+    PROJECT_ROOT
+    / "research"
+    / "SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json"
+)
 BLUEPRINT = PROJECT_ROOT / "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
 FROZEN_BUNDLE = GOVERNANCE / "FROZEN_BUNDLE_V1.json"
 ATTACK_RUNNER = PROJECT_ROOT / "scripts" / "run_design_freeze_attack.py"
@@ -76,22 +88,41 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/run_assurance_ci.py",
     "scripts/refresh_ground_truth_manifest.py",
     "scripts/verify_assurance_metadata.py",
+    "scripts/verify_component_registry.py",
+    "scripts/verify_context_recovery.py",
+    "scripts/verify_frozen_tests.py",
+    "scripts/verify_execution_loop.py",
+    "scripts/verify_migration_drill.py",
+    "scripts/verify_no_live_scope.py",
     "scripts/verify_project_method.py",
+    "scripts/verify_r9_same_task_comparison.py",
     "scripts/verify_research_sufficiency.py",
     "scripts/verify_contract_supersession.py",
+    "scripts/verify_work_packets.py",
+    "scripts/run_project_method_acceptance.py",
     "README.md",
     "STATUS.md",
     "governance_tests/test_final_review_attacks.py",
     "governance_tests/test_final_review_schema.py",
     "governance_tests/test_attack_runner.py",
     "governance_tests/test_assurance_metadata.py",
+    "governance_tests/test_component_registry.py",
+    "governance_tests/test_contract_supersession.py",
+    "governance_tests/test_context_recovery.py",
+    "governance_tests/test_frozen_tests.py",
+    "governance_tests/test_execution_loop.py",
+    "governance_tests/test_migration_drill.py",
+    "governance_tests/test_no_live_scope.py",
     "governance_tests/test_project_method.py",
+    "governance_tests/test_project_method_acceptance_runner.py",
+    "governance_tests/test_r9_same_task_comparison.py",
     "governance_tests/test_research_sufficiency.py",
     "governance_tests/test_research_evidence_governance.py",
     "governance_tests/test_verify_conditionals.py",
     "governance_tests/test_freeze_git_remote.py",
     "governance_tests/test_verify_governance.py",
     "governance_tests/test_verify_money_semantics.py",
+    "governance_tests/test_work_packets.py",
     f"{REPOSITORY_SCOPE_PREFIX}{ASSURANCE_WORKFLOW_REPO_PATH}",
 }
 NORMATIVE_JSON_PATHS = (
@@ -105,6 +136,12 @@ NORMATIVE_JSON_PATHS = (
     "governance/FIELD_USE_PROTOCOL_V1.json",
     "governance/PRIVATE_DATA_POLICY_V1.json",
     "governance/PROJECT_METHOD_POLICY_V1.json",
+    "governance/COMPONENT_REGISTRY_V1.json",
+    "governance/CONTEXT_RECOVERY_SPEC_V1.json",
+    "governance/FROZEN_TEST_MANIFEST_V1.json",
+    "governance/EXECUTION_LOOP_POLICY_V1.json",
+    "governance/MIGRATION_DRILL_SPEC_V1.json",
+    "governance/NO_LIVE_SCOPE_POLICY_V1.json",
     "governance/IMPLEMENTATION_TARGETS_V1.json",
     "governance/VERIFICATION_SPECS_V1.json",
     "governance/TRACEABILITY_V1.json",
@@ -114,6 +151,8 @@ NORMATIVE_JSON_PATHS = (
     "governance/RESEARCH_SUFFICIENCY_V1.json",
     "governance/FAILURE_CLASSES_V1.json",
     "governance/DECISION_AUTHORITY_V1.json",
+    "governance/WORK_PACKET_POLICY_V1.json",
+    "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json",
 )
 
 
@@ -3999,6 +4038,14 @@ def verify(allow_candidate: bool) -> list[str]:
     failure_classes = load_json(FAILURE_CLASSES, errors)
     decision_authority = load_json(DECISION_AUTHORITY, errors)
     project_method_policy = load_json(PROJECT_METHOD_POLICY, errors)
+    component_registry = load_json(COMPONENT_REGISTRY, errors)
+    context_recovery_spec = load_json(CONTEXT_RECOVERY_SPEC, errors)
+    work_packet_policy = load_json(WORK_PACKET_POLICY, errors)
+    frozen_test_manifest = load_json(FROZEN_TEST_MANIFEST, errors)
+    migration_drill_spec = load_json(MIGRATION_DRILL_SPEC, errors)
+    no_live_scope_policy = load_json(NO_LIVE_SCOPE_POLICY, errors)
+    execution_loop_policy = load_json(EXECUTION_LOOP_POLICY, errors)
+    r9_method_preregistration = load_json(R9_METHOD_PREREGISTRATION, errors)
     frozen_bundle = load_json(FROZEN_BUNDLE, errors) if not allow_candidate else {}
 
     if errors:
@@ -4108,6 +4155,100 @@ def verify(allow_candidate: bool) -> list[str]:
                 ]
             errors.append(
                 "project method executable verification failed: "
+                + "; ".join(str(item) for item in detail)
+            )
+
+    executable_method_checks = (
+        (
+            "context recovery",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_context_recovery.py"),
+                "--json",
+            ],
+        ),
+        (
+            "component registry",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_component_registry.py"),
+                "--json",
+            ],
+        ),
+        (
+            "work packets",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_work_packets.py"),
+                "--packet-dir",
+                str(PROJECT_ROOT / ".work_packets" / "packets"),
+                "--json",
+            ],
+        ),
+        (
+            "frozen tests",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_frozen_tests.py"),
+                "--json",
+            ],
+        ),
+        (
+            "execution loop",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_execution_loop.py"),
+                "--json",
+            ],
+        ),
+        (
+            "R9 same-task prelaunch control",
+            [
+                sys.executable,
+                str(
+                    PROJECT_ROOT
+                    / "scripts"
+                    / "verify_r9_same_task_comparison.py"
+                ),
+                "--json",
+            ],
+        ),
+        (
+            "migration drill",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_migration_drill.py"),
+                "--json",
+            ],
+        ),
+        (
+            "no-live scope",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_no_live_scope.py"),
+                "--json",
+            ],
+        ),
+    )
+    for label, command in executable_method_checks:
+        result = subprocess.run(
+            command,
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        try:
+            payload = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            payload = {}
+        if result.returncode != 0 or payload.get("status") != "pass":
+            detail = payload.get("errors")
+            if not isinstance(detail, list):
+                detail = [result.stdout.strip() or "<no verifier output>"]
+            errors.append(
+                f"{label} executable verification failed: "
                 + "; ".join(str(item) for item in detail)
             )
 
@@ -4390,6 +4531,16 @@ def verify(allow_candidate: bool) -> list[str]:
 
     verify_implementation_targets(
         implementation_targets, trace_targets, allow_candidate, errors
+    )
+    del (
+        component_registry,
+        context_recovery_spec,
+        work_packet_policy,
+        frozen_test_manifest,
+        migration_drill_spec,
+        no_live_scope_policy,
+        execution_loop_policy,
+        r9_method_preregistration,
     )
 
     if not allow_candidate:

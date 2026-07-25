@@ -175,6 +175,16 @@
         "regression_test": "governance_tests/test_attack_runner.py",
         "owner": "CTRL-GOV-FREEZE",
         "reopen_trigger": "any attack fixture, candidate-scope or baseline-order change"
+      },
+      {
+        "incident_id": "INC-R9-SELF-POLLUTING-ACCEPTANCE",
+        "observed_failure": "the project-method machine check wrote its own evidence inside the candidate before a later clean-candidate governance check",
+        "proximate_cause": "the acceptance runner defaulted to a project-local evidence path during the same assurance sequence",
+        "root_control_failure": "evidence production and candidate cleanliness were not separated at the machine-check boundary",
+        "preventive_control": "machine assurance must use an ephemeral external receipt, verify and hash it, then remove it before subsequent candidate checks",
+        "regression_test": "governance_tests/test_project_method_acceptance_runner.py",
+        "owner": "CTRL-PROJECT-METHOD",
+        "reopen_trigger": "any change to project-method evidence paths, assurance check order, or machine-check argv"
       }
     ]
   },

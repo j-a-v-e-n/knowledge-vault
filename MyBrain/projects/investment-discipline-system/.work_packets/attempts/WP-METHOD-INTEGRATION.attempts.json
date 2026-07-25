@@ -1,0 +1,115 @@
+{
+  "schema_version": "execution-attempt-ledger/v1",
+  "packet_id": "WP-METHOD-INTEGRATION",
+  "packet_path": ".work_packets/packets/WP-METHOD-INTEGRATION.packet.json",
+  "packet_contract_sha256": "6f9eb083089d639073aab8557fe54dab0477b1d978722cc846ad7fde265bbf42",
+  "reported_state": "active",
+  "cost_accounting_claim": "partial",
+  "attempts": [
+    {
+      "schema_version": "execution-attempt/v1",
+      "sequence": 1,
+      "retry_index": 0,
+      "started_at": "2026-07-25T18:50:36.587Z",
+      "ended_at": "2026-07-25T18:51:02.253Z",
+      "wall_time_ms": 25666,
+      "blocker": {
+        "root_cause_id": "EXECUTION-LOOP-INTEGRATION-PENDING",
+        "failure_ids": [
+          "ECO-01",
+          "ORG-04"
+        ],
+        "root_cause": "The execution-loop mechanism and focused tests now exist, but authoritative project-method integration and acceptance remain pending.",
+        "status_after": "open",
+        "fingerprint_sha256": "02fabe99b2ee92e292e8e26038bfd6475f3ab3c9dc10ac396fce8b9dda5be43d"
+      },
+      "failure_delta": {
+        "before": [
+          "ECO-01",
+          "ORG-04"
+        ],
+        "after": [
+          "ECO-01",
+          "ORG-04"
+        ],
+        "resolved": [],
+        "introduced": []
+      },
+      "evidence_delta": {
+        "before": [],
+        "after": [
+          {
+            "path": "governance/EXECUTION_LOOP_POLICY_V1.json",
+            "sha256": "bab2e798cf44534bd2168c6ce9d11f2f8e4e5935b321a73575dd72fc9d52c75f",
+            "kind": "policy",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "path": "governance_tests/test_execution_loop.py",
+            "sha256": "e128a4225f3879a1d651bb9ac851d0ef111cab9875d1f440dc539a971ebc1c78",
+            "kind": "test",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "path": "scripts/verify_execution_loop.py",
+            "sha256": "7e45eac95733369a34cb68c209c3bef47ea726d9d0ba478231103308f248fbe2",
+            "kind": "implementation",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          }
+        ],
+        "added": [
+          {
+            "path": "governance/EXECUTION_LOOP_POLICY_V1.json",
+            "sha256": "bab2e798cf44534bd2168c6ce9d11f2f8e4e5935b321a73575dd72fc9d52c75f",
+            "kind": "policy",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "path": "governance_tests/test_execution_loop.py",
+            "sha256": "e128a4225f3879a1d651bb9ac851d0ef111cab9875d1f440dc539a971ebc1c78",
+            "kind": "test",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "path": "scripts/verify_execution_loop.py",
+            "sha256": "7e45eac95733369a34cb68c209c3bef47ea726d9d0ba478231103308f248fbe2",
+            "kind": "implementation",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          }
+        ],
+        "removed": []
+      },
+      "cost_observation": {
+        "wall_time_source": "timestamps",
+        "token_usage": {
+          "availability": "unknown",
+          "input_tokens": null,
+          "output_tokens": null,
+          "total_tokens": null,
+          "measurement_source": null
+        }
+      },
+      "declared_progress": true,
+      "previous_attempt_sha256": null,
+      "record_sha256": "4de12004d09f2703e6e2d8613c48db5e5c0adf540d69c259150193f9efe54482"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "work-packet-checkpoint/v1",
+  "packet_id": "WP-CONTRACT-SUPERSESSION",
+  "packet_contract_sha256": "b5b29ad41eb5143fe193e9913828308a2e9e6bdcd84531abd28b007f0b8dbde3",
+  "sequence": 1,
+  "snapshots": [
+    {
+      "path": "governance_tests/test_contract_supersession.py",
+      "kind": "file",
+      "state": "file",
+      "content_sha256": "ff3cb47d81be36c57425960e28249585c38ffa7a7ab6135dd76c897cb5bcc1e3"
+    },
+    {
+      "path": "scripts/verify_contract_supersession.py",
+      "kind": "file",
+      "state": "file",
+      "content_sha256": "5deb7a451dda8b7b0f0e2651ffad18660410d1129bd002d5b01e6a3afd7270fe"
+    }
+  ]
+}

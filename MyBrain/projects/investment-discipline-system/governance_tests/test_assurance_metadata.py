@@ -138,11 +138,17 @@ class AssuranceMetadataMutationTests(unittest.TestCase):
 
     def run_verifier(
         self,
+        *extra_arguments: str,
     ) -> tuple[subprocess.CompletedProcess[str], dict[str, Any]]:
         environment = os.environ.copy()
         environment["PYTHONDONTWRITEBYTECODE"] = "1"
         result = subprocess.run(
-            [sys.executable, str(self.verifier), "--json"],
+            [
+                sys.executable,
+                str(self.verifier),
+                "--json",
+                *extra_arguments,
+            ],
             cwd=self.project,
             text=True,
             stdout=subprocess.PIPE,
@@ -157,6 +163,46 @@ class AssuranceMetadataMutationTests(unittest.TestCase):
             self.fail(f"verifier did not emit JSON: {exc}: {result.stdout!r}")
         self.assertIsInstance(payload, dict)
         return result, payload
+
+    def commit_fixture(self, message: str) -> str:
+        subprocess.run(
+            ["git", "-C", str(self.repository), "config", "user.name", "Verifier Test"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+        )
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(self.repository),
+                "config",
+                "user.email",
+                "verifier@example.invalid",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(self.repository), "add", "-A"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(self.repository), "commit", "-m", message],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+        )
+        return subprocess.run(
+            ["git", "-C", str(self.repository), "rev-parse", "HEAD"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+        ).stdout.strip()
 
     def assert_rejected(self, expected_error: str) -> None:
         result, payload = self.run_verifier()
@@ -191,6 +237,55 @@ class AssuranceMetadataMutationTests(unittest.TestCase):
         artifact.write_bytes(artifact.read_bytes() + b"\n")
         self.assert_rejected(
             "stale artifact hash for governance/PRIVATE_DATA_POLICY_V1.json"
+        )
+
+    def test_can_bind_artifact_hashes_to_exact_candidate_commit(self) -> None:
+        candidate = self.commit_fixture("candidate snapshot")
+        artifact = self.project / PRIVATE_DATA_POLICY
+        artifact.write_bytes(artifact.read_bytes() + b"\n")
+
+        ordinary_result, ordinary_payload = self.run_verifier()
+        self.assertNotEqual(ordinary_result.returncode, 0, ordinary_result.stdout)
+        self.assertIn(
+            "stale artifact hash for governance/PRIVATE_DATA_POLICY_V1.json",
+            "\n".join(ordinary_payload["errors"]),
+        )
+
+        bound_result, bound_payload = self.run_verifier(
+            "--artifact-source-commit",
+            candidate,
+        )
+        self.assertEqual(bound_result.returncode, 0, bound_result.stdout)
+        self.assertEqual(
+            bound_payload,
+            {"error_count": 0, "errors": [], "status": "pass"},
+        )
+
+    def test_rejects_non_commit_artifact_source(self) -> None:
+        result, payload = self.run_verifier(
+            "--artifact-source-commit",
+            "0" * 40,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn(
+            "artifact source commit: Git failed",
+            "\n".join(payload["errors"]),
+        )
+
+    def test_rejects_symlink_blob_in_artifact_source_commit(self) -> None:
+        artifact = self.project / PRIVATE_DATA_POLICY
+        artifact.unlink()
+        artifact.symlink_to("../PROJECT_CHARTER.md")
+        candidate = self.commit_fixture("candidate with symlink artifact")
+
+        result, payload = self.run_verifier(
+            "--artifact-source-commit",
+            candidate,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn(
+            "source commit entry must be one regular Git blob",
+            "\n".join(payload["errors"]),
         )
 
     def test_rejects_missing_research_primary_artifact(self) -> None:
