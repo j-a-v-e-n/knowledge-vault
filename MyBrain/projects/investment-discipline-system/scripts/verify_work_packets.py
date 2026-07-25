@@ -1390,6 +1390,11 @@ def verify(
 
     ownership_states = set(policy["ownership"]["ownership_states"])
     active_records = [record for record in records if record.state in ownership_states]
+    all_claims = [
+        (record, claim)
+        for record in records
+        for claim in record.writes
+    ]
     active_claims = [
         (record, claim)
         for record in active_records
@@ -1427,11 +1432,11 @@ def verify(
                     f"receipt path collision: {left_record.packet_id} {left_kind} "
                     f"and {right_record.packet_id} {right_kind}"
                 )
-        for owner_record, claim in active_claims:
+        for owner_record, claim in all_claims:
             if path_relation(left_path.canonical, claim.path.canonical) is not None:
                 errors.append(
                     f"packet {left_record.packet_id} {left_kind} receipt overlaps "
-                    f"active write ownership of {owner_record.packet_id}"
+                    f"declared write set of {owner_record.packet_id}"
                 )
 
     semantic_probe_count = run_semantic_probes(

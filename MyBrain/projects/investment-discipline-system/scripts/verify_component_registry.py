@@ -18,6 +18,21 @@ from typing import Any
 REGISTRY_RELATIVE_PATH = Path("governance/COMPONENT_REGISTRY_V1.json")
 COMPONENT_ID_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+REQUIRED_SCOPE_ROOTS = {"governance", "research", "prototype"}
+REQUIRED_SCAN_EXTENSIONS = {
+    ".csv",
+    ".json",
+    ".md",
+    ".py",
+    ".toml",
+    ".txt",
+    ".yaml",
+    ".yml",
+}
+ALLOWED_SCAN_EXCLUDED_DIRECTORIES = {"__pycache__"}
+ALLOWED_SCAN_EXCLUDED_FILES = {
+    REGISTRY_RELATIVE_PATH.as_posix(),
+}
 
 TOP_LEVEL_FIELDS = {
     "schema_version",
@@ -309,6 +324,14 @@ def _selector_file_and_nodes(
     if class_node is None:
         errors.append(f"{context} test class is missing: {selector}")
         return None
+    is_test_case = any(
+        (isinstance(base, ast.Name) and base.id == "TestCase")
+        or (isinstance(base, ast.Attribute) and base.attr == "TestCase")
+        for base in class_node.bases
+    )
+    if not is_test_case:
+        errors.append(f"{context} class is not a unittest TestCase: {selector}")
+        return None
     method_node = next(
         (
             node
@@ -433,17 +456,6 @@ def _validate_component_shape(
                 errors,
                 evidence_cache,
             )
-            target_markers = (f"{target}/", f"from {target}", f"import {target}")
-            target_roots = []
-            if isinstance(target, str):
-                target_roots = [
-                    path
-                    for candidate in component_ids
-                    if candidate == target
-                    for other in []
-                    for path in other
-                ]
-            del target_markers, target_roots
             if not locator_paths:
                 errors.append(f"{dep_context} lacks valid dependency evidence")
 
@@ -807,18 +819,38 @@ def verify_registry(
         )
         if any(not extension.startswith(".") for extension in extensions):
             errors.append("dependency_scan.text_extensions must start with '.'")
-        _string_list(
+        missing_extensions = REQUIRED_SCAN_EXTENSIONS - set(extensions)
+        if missing_extensions:
+            errors.append(
+                "dependency_scan.text_extensions omits required authored "
+                f"formats: {sorted(missing_extensions)}"
+            )
+        excluded_directories = _string_list(
             dependency_scan["excluded_directories"],
             "dependency_scan.excluded_directories",
             errors,
             allow_empty=True,
         )
+        unexpected_directories = (
+            set(excluded_directories) - ALLOWED_SCAN_EXCLUDED_DIRECTORIES
+        )
+        if unexpected_directories:
+            errors.append(
+                "dependency_scan.excluded_directories contains unapproved "
+                f"dependency blind spots: {sorted(unexpected_directories)}"
+            )
         excluded_files = _string_list(
             dependency_scan["excluded_files"],
             "dependency_scan.excluded_files",
             errors,
             allow_empty=True,
         )
+        unexpected_files = set(excluded_files) - ALLOWED_SCAN_EXCLUDED_FILES
+        if unexpected_files:
+            errors.append(
+                "dependency_scan.excluded_files contains unapproved dependency "
+                f"blind spots: {sorted(unexpected_files)}"
+            )
         for index, excluded in enumerate(excluded_files):
             _safe_relative_path(
                 excluded, f"dependency_scan.excluded_files[{index}]", errors
@@ -930,6 +962,11 @@ def verify_registry(
         elif not any(candidate.is_file() for candidate in path.rglob("*")):
             errors.append(f"{context}.path contains no files")
     sorted_roots = sorted(root_owner)
+    missing_required_roots = REQUIRED_SCOPE_ROOTS - set(root_owner)
+    if missing_required_roots:
+        errors.append(
+            f"scope_roots omits current component groups: {sorted(missing_required_roots)}"
+        )
     for left_index, left in enumerate(sorted_roots):
         left_parts = PurePosixPath(left).parts
         for right in sorted_roots[left_index + 1 :]:
@@ -957,6 +994,53 @@ def verify_registry(
             )
 
     declared_edges = _component_dependency_edges(components)
+    for source_id, component in components_by_id.items():
+        dependencies = component.get("dependencies")
+        if not isinstance(dependencies, list):
+            continue
+        for dependency_index, dependency in enumerate(dependencies):
+            if not isinstance(dependency, dict):
+                continue
+            target_id = dependency.get("component_id")
+            locators = dependency.get("evidence_locators")
+            if target_id not in mapped_component_paths or not isinstance(
+                locators, list
+            ):
+                continue
+            markers = [
+                f"{target_root}/"
+                for target_root in mapped_component_paths[target_id]
+            ]
+            witnessed = False
+            for locator in locators:
+                if not isinstance(locator, dict):
+                    continue
+                relative = locator.get("path")
+                if relative not in evidence_cache:
+                    continue
+                if not any(
+                    relative == source_root
+                    or relative.startswith(f"{source_root}/")
+                    for source_root in mapped_component_paths[source_id]
+                ):
+                    errors.append(
+                        f"{source_id}.dependencies[{dependency_index}] evidence "
+                        f"is not owned by the source component: {relative}"
+                    )
+                    continue
+                data = evidence_cache[relative][0]
+                try:
+                    text = data.decode("utf-8")
+                except UnicodeDecodeError:
+                    continue
+                if any(marker in text for marker in markers):
+                    witnessed = True
+                    break
+            if not witnessed:
+                errors.append(
+                    f"{source_id}.dependencies[{dependency_index}] evidence "
+                    f"does not contain a target-root reference for {target_id}"
+                )
     if (
         isinstance(dependency_scan, dict)
         and set(dependency_scan) == DEPENDENCY_SCAN_FIELDS

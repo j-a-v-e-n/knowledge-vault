@@ -307,8 +307,8 @@
             "path": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
             "sha256": "d94da3bc494fa6b5a2f1baa461a1fed1c0d04ed7184cf67c01054c3525556b0b",
             "anchors": [
-              "DataSnapshot",
-              "provider"
+              "## 正式数据适配器的硬要求",
+              "本地 PaperAccount 是唯一权威账"
             ]
           }
         ]
