@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "registry_id": "ECO-03-COMPONENT-REGISTRY-V1",
+  "as_of_date": "2026-07-25",
+  "status": "partial",
+  "scope_roots": [
+    {
+      "path": "governance",
+      "component_id": "governance-control-plane"
+    },
+    {
+      "path": "research",
+      "component_id": "research-evidence-corpus"
+    },
+    {
+      "path": "prototype",
+      "component_id": "paper-prototype-runtime"
+    }
+  ],
+  "layer_order": [
+    "research-evidence",
+    "prototype-runtime",
+    "governance-control"
+  ],
+  "entry_component_ids": [
+    "governance-control-plane"
+  ],
+  "dependency_scan": {
+    "text_extensions": [
+      ".csv",
+      ".json",
+      ".md",
+      ".py",
+      ".toml",
+      ".txt",
+      ".yaml",
+      ".yml"
+    ],
+    "excluded_directories": [
+      "__pycache__"
+    ],
+    "excluded_files": [
+      "governance/COMPONENT_REGISTRY_V1.json"
+    ]
+  },
+  "longitudinal_maintenance": {
+    "minimum_distinct_periods_per_component": 2,
+    "receipts": [],
+    "reassessment_eligible": false,
+    "longitudinal_cost_proved": false
+  },
+  "claim_boundary": {
+    "allowed_claim": "The current governance, research, and prototype groups have a path-backed inventory, resolvable test selectors, observed dependency checks, hash-bound exit evidence, and a non-destructive removal-impact dry run.",
+    "forbidden_claim": "This one registry and one verification run do not prove longitudinal maintenance cost, migration feasibility in operation, or ECO-03 closure."
+  },
+  "components": [
+    {
+      "id": "governance-control-plane",
+      "owner": "Javen retains final authority; AI agents maintain candidate governance artifacts.",
+      "purpose": "Define and verify the local paper workbench's scope, authority, evidence, acceptance, and project-method controls.",
+      "responsibility": {
+        "id": "RESP-GOVERNANCE-CONTROL",
+        "summary": "Own normative controls and deterministic governance verification for the project."
+      },
+      "paths": [
+        "governance"
+      ],
+      "layer": "governance-control",
+      "contract_interface": {
+        "kind": "strict-json governance contracts",
+        "summary": "Machine-readable candidate contract and project-method policy consumed by governance verification.",
+        "locators": [
+          {
+            "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
+            "sha256": "82a88217c5ab6be1b9b444ca8fca7a118cde64f75dfed7846004a213c1f7660f",
+            "anchors": [
+              "\"contract_id\": \"ids-local-paper-workbench-v1\"",
+              "\"authority\""
+            ]
+          },
+          {
+            "path": "governance/PROJECT_METHOD_POLICY_V1.json",
+            "sha256": "552ff39732d210129e207cb4f752768e8195a6640368dad66d8ff61808f750ad",
+            "anchors": [
+              "\"maintainability_and_migration\"",
+              "\"missing_exit_plan_outcome\": \"not_adopted\""
+            ]
+          }
+        ]
+      },
+      "tests": {
+        "selectors": [
+          "governance_tests.test_project_method.ProjectMethodPolicyTests.test_benign_policy_passes"
+        ]
+      },
+      "observability": {
+        "signals": [
+          "governance verifier exit status",
+          "path-specific validation errors"
+        ],
+        "locators": [
+          {
+            "path": "scripts/verify_governance.py",
+            "sha256": "8c6b7bcff439e16c5dc89acc62cec79fdcf6ee17f56458bd9f3334d57db1e56d",
+            "anchors": [
+              "def main() -> int:",
+              "governance verification: FAIL"
+            ]
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "component_id": "research-evidence-corpus",
+          "reason": "Governance binds research artifacts and research sufficiency into its candidate boundary.",
+          "evidence_locators": [
+            {
+              "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
+              "sha256": "82a88217c5ab6be1b9b444ca8fca7a118cde64f75dfed7846004a213c1f7660f",
+              "anchors": [
+                "\"research/\""
+              ]
+            }
+          ]
+        },
+        {
+          "component_id": "paper-prototype-runtime",
+          "reason": "Governance protects and references the existing paper-only prototype boundary.",
+          "evidence_locators": [
+            {
+              "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
+              "sha256": "82a88217c5ab6be1b9b444ca8fca7a118cde64f75dfed7846004a213c1f7660f",
+              "anchors": [
+                "\"prototype/\""
+              ]
+            }
+          ]
+        }
+      ],
+      "failure_mode": {
+        "summary": "Self-consistent governance labels can report closure without executable or independently bound evidence.",
+        "detection": "Strict JSON, evidence hashes, selector resolution, observed dependency edges, layer checks, and review freshness fail closed.",
+        "containment": "Keep status partial and prevent the registry from asserting longitudinal cost proof or ECO-03 closure."
+      },
+      "removal_path": {
+        "mode": "retire_after_dependents_migrate",
+        "preconditions": [
+          "A replacement authority and acceptance boundary is registered.",
+          "Every research and prototype reference is migrated and reverified.",
+          "The governance test selector is removed or reassigned with review evidence."
+        ],
+        "steps": [
+          "Run the removal-impact dry run and preserve its blocker report.",
+          "Migrate each observed dependency and rerun the declared governance selector.",
+          "Obtain a fresh review binding before removing the governance scope root."
+        ],
+        "blocker_locators": [
+          {
+            "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
+            "sha256": "82a88217c5ab6be1b9b444ca8fca7a118cde64f75dfed7846004a213c1f7660f",
+            "anchors": [
+              "\"required_artifacts\"",
+              "\"governance/TRACEABILITY_V1.json\""
+            ]
+          }
+        ]
+      },
+      "replacement_migration_path": {
+        "mode": "retire_without_replacement",
+        "target_component_id": null,
+        "steps": [
+          "Freeze the final accepted governance state and enumerate all consumers.",
+          "Move authority and verification responsibilities to an explicitly reviewed successor before retirement.",
+          "Recompute dependency edges and require zero remaining cross-component references."
+        ],
+        "rollback_steps": [
+          "Restore the content-addressed governance state.",
+          "Rerun governance verification and its declared test selector."
+        ],
+        "evidence_locators": [
+          {
+            "path": "audits/PROJECT_METHOD_GAP_CLOSURE_REVIEW_R8_2026-07-25.md",
+            "sha256": "071f5064ef7deb68ba5307b3b5e3c24d4bdb8040de092553babb144a701dc845",
+            "anchors": [
+              "ECO-03 必须建立 component inventory",
+              "静态 removal-path 字段只能算局部控制"
+            ]
+          }
+        ]
+      },
+      "status": "partial",
+      "last_review_binding": {
+        "path": "audits/PROJECT_METHOD_GAP_CLOSURE_REVIEW_R8_2026-07-25.md",
+        "sha256": "071f5064ef7deb68ba5307b3b5e3c24d4bdb8040de092553babb144a701dc845",
+        "anchors": [
+          "PM-GAP-MAJOR-IRREDUCIBLE-BEHAVIOR",
+          "ECO-03：删除 `removal_path` 字段会被拒绝",
+          "它仍是 `gap`"
+        ],
+        "review_id": "PM-GAP-MAJOR-IRREDUCIBLE-BEHAVIOR",
+        "reviewed_on": "2026-07-25",
+        "max_age_days": 90,
+        "finding": "gap",
+        "scope": "Pre-registry independent gap review; it opens ECO-03 and does not approve this registry."
+      },
+      "evidence_locators": [
+        {
+          "path": "governance/PROJECT_METHOD_POLICY_V1.json",
+          "sha256": "552ff39732d210129e207cb4f752768e8195a6640368dad66d8ff61808f750ad",
+          "anchors": [
+            "\"failure_id\": \"ECO-03\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "research-evidence-corpus",
+      "owner": "Javen owns research decisions; AI agents maintain bounded candidate evidence and preregistrations.",
+      "purpose": "Preserve preregistered research questions, frozen evidence, counterevidence, and bounded-incomplete decision records.",
+      "responsibility": {
+        "id": "RESP-RESEARCH-EVIDENCE",
+        "summary": "Own bounded research artifacts and their evidence-preservation boundary."
+      },
+      "paths": [
+        "research"
+      ],
+      "layer": "research-evidence",
+      "contract_interface": {
+        "kind": "preregistered research artifacts",
+        "summary": "Finite or explicitly bounded research inputs whose status and stopping rules remain visible.",
+        "locators": [
+          {
+            "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json",
+            "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8",
+            "anchors": [
+              "\"research_universe\"",
+              "\"bounded_incomplete\": \"any predicate false after fixed budget\""
+            ]
+          }
+        ]
+      },
+      "tests": {
+        "selectors": [
+          "governance_tests.test_research_sufficiency.ResearchSufficiencyTests.test_current_bounded_incomplete_receipt_is_internally_valid"
+        ]
+      },
+      "observability": {
+        "signals": [
+          "preregistered query accounting",
+          "bounded-incomplete stopping state",
+          "reserved stability result"
+        ],
+        "locators": [
+          {
+            "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json",
+            "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8",
+            "anchors": [
+              "\"query_accounting\"",
+              "\"stability_protocol\""
+            ]
+          }
+        ]
+      },
+      "dependencies": [],
+      "failure_mode": {
+        "summary": "Mutable or incomplete evidence can be relabelled as sufficient, exhaustive, or decision-closing.",
+        "detection": "Hash-bound preregistration anchors and a resolvable research-sufficiency selector expose missing or stale evidence.",
+        "containment": "Preserve bounded-incomplete states and forbid open-web exhaustiveness claims."
+      },
+      "removal_path": {
+        "mode": "archive_after_dependents_migrate",
+        "preconditions": [
+          "Governance no longer references research paths.",
+          "Decision-relevant source bytes and hashes are archived under a registered successor.",
+          "The research-sufficiency selector is removed or reassigned."
+        ],
+        "steps": [
+          "Run the removal-impact dry run and enumerate governance dependents.",
+          "Migrate decision-relevant evidence with hashes and status history intact.",
+          "Recompute dependency edges and require no governance-to-research edge."
+        ],
+        "blocker_locators": [
+          {
+            "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json",
+            "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8",
+            "anchors": [
+              "\"predecessor\"",
+              "\"raw_artifacts\""
+            ]
+          }
+        ]
+      },
+      "replacement_migration_path": {
+        "mode": "retire_without_replacement",
+        "target_component_id": null,
+        "steps": [
+          "Preserve exact source bytes, hashes, preregistration order, and bounded findings.",
+          "Update every governance locator before changing the research root.",
+          "Rerun the declared selector and obtain a fresh review."
+        ],
+        "rollback_steps": [
+          "Restore the archived research tree at its original relative paths.",
+          "Recompute hashes and rerun the research-sufficiency selector."
+        ],
+        "evidence_locators": [
+          {
+            "path": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
+            "sha256": "d94da3bc494fa6b5a2f1baa461a1fed1c0d04ed7184cf67c01054c3525556b0b",
+            "anchors": [
+              "DataSnapshot",
+              "provider"
+            ]
+          }
+        ]
+      },
+      "status": "partial",
+      "last_review_binding": {
+        "path": "audits/PROJECT_METHOD_GAP_CLOSURE_REVIEW_R8_2026-07-25.md",
+        "sha256": "071f5064ef7deb68ba5307b3b5e3c24d4bdb8040de092553babb144a701dc845",
+        "anchors": [
+          "PM-GAP-MAJOR-IRREDUCIBLE-BEHAVIOR",
+          "ECO-03：删除 `removal_path` 字段会被拒绝",
+          "它仍是 `gap`"
+        ],
+        "review_id": "PM-GAP-MAJOR-IRREDUCIBLE-BEHAVIOR",
+        "reviewed_on": "2026-07-25",
+        "max_age_days": 90,
+        "finding": "gap",
+        "scope": "Pre-registry independent gap review; it opens ECO-03 and does not approve this registry."
+      },
+      "evidence_locators": [
+        {
+          "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json",
+          "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8",
+          "anchors": [
+            "\"accepted_r7_state\": \"bounded_incomplete\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "paper-prototype-runtime",
+      "owner": "Javen owns decisions and risk acceptance; AI agents maintain the deterministic paper-only prototype.",
+      "purpose": "Exercise provider-neutral data, decision, risk-gate, paper execution, ledger, backtest, and review contracts without live trading.",
+      "responsibility": {
+        "id": "RESP-PAPER-PROTOTYPE",
+        "summary": "Own deterministic paper-only workflow behavior and provider-neutral runtime contracts."
+      },
+      "paths": [
+        "prototype"
+      ],
+      "layer": "prototype-runtime",
+      "contract_interface": {
+        "kind": "Python Protocol and immutable data contracts",
+        "summary": "DataSnapshot, DataSource, and ExecutionAdapter define the provider-neutral runtime boundary.",
+        "locators": [
+          {
+            "path": "prototype/contracts.py",
+            "sha256": "ee8e6b3d80110e2190111bf7405b6f2908d07079384cc34befe10fd91ee6ba58",
+            "anchors": [
+              "class DataSnapshot:",
+              "class DataSource(Protocol):",
+              "class ExecutionAdapter(Protocol):"
+            ]
+          }
+        ]
+      },
+      "tests": {
+        "selectors": [
+          "prototype.tests.test_discipline_system.ContractTests.test_local_execution_adapter_returns_structured_gate_rejection"
+        ]
+      },
+      "observability": {
+        "signals": [
+          "structured execution status",
+          "contract-fault rejection path",
+          "append-only ledger events"
+        ],
+        "locators": [
+          {
+            "path": "prototype/run_contract_faults.py",
+            "sha256": "2ba31a28d6d559e294f87d7df4a5b846eed3fa0e3bef0c562f1d7b2aef83fd42",
+            "anchors": [
+              "python3 -m prototype.run_contract_faults"
+            ]
+          }
+        ]
+      },
+      "dependencies": [],
+      "failure_mode": {
+        "summary": "Future-visible data, gate bypass, ambiguous execution, or duplicate orders can produce false paper results.",
+        "detection": "Provider-neutral contract tests and the contract-fault runner expose rejected, unknown, and duplicate paths.",
+        "containment": "Keep execution local and paper-only; structured failures never masquerade as fills."
+      },
+      "removal_path": {
+        "mode": "retire_after_dependents_migrate",
+        "preconditions": [
+          "Governance no longer protects or references the prototype root.",
+          "A successor preserves paper-only and human-final-decision invariants.",
+          "The prototype selector is removed or reassigned after equivalent negative tests."
+        ],
+        "steps": [
+          "Run the removal-impact dry run and enumerate governance blockers.",
+          "Migrate provider-neutral contracts and negative tests before runtime code.",
+          "Require zero observed governance-to-prototype dependency edges."
+        ],
+        "blocker_locators": [
+          {
+            "path": "prototype/README.md",
+            "sha256": "2e8037e5453dbde447a44c766bf50999be1a92c4c05b4cf311f9919030ca3b81",
+            "anchors": [
+              "不连接真实券商，也不执行真实交易",
+              "执行适配器返回结构化的成交、拒绝或未知结果"
+            ]
+          }
+        ]
+      },
+      "replacement_migration_path": {
+        "mode": "retire_without_replacement",
+        "target_component_id": null,
+        "steps": [
+          "Freeze representative paper receipts and contract-fault observations.",
+          "Preserve DataSnapshot, DataSource, and ExecutionAdapter semantics in any successor.",
+          "Rerun equivalent no-future, gate, ledger, and execution-failure tests."
+        ],
+        "rollback_steps": [
+          "Restore the prototype tree and its saved input fixtures.",
+          "Rerun the declared selector and contract-fault runner."
+        ],
+        "evidence_locators": [
+          {
+            "path": "prototype/README.md",
+            "sha256": "2e8037e5453dbde447a44c766bf50999be1a92c4c05b4cf311f9919030ca3b81",
+            "anchors": [
+              "## 运行契约故障注入",
+              "## 原型模块"
+            ]
+          }
+        ]
+      },
+      "status": "partial",
+      "last_review_binding": {
+        "path": "audits/PROJECT_METHOD_GAP_CLOSURE_REVIEW_R8_2026-07-25.md",
+        "sha256": "071f5064ef7deb68ba5307b3b5e3c24d4bdb8040de092553babb144a701dc845",
+        "anchors": [
+          "PM-GAP-MAJOR-IRREDUCIBLE-BEHAVIOR",
+          "ECO-03：删除 `removal_path` 字段会被拒绝",
+          "它仍是 `gap`"
+        ],
+        "review_id": "PM-GAP-MAJOR-IRREDUCIBLE-BEHAVIOR",
+        "reviewed_on": "2026-07-25",
+        "max_age_days": 90,
+        "finding": "gap",
+        "scope": "Pre-registry independent gap review; it opens ECO-03 and does not approve this registry."
+      },
+      "evidence_locators": [
+        {
+          "path": "prototype/contracts.py",
+          "sha256": "ee8e6b3d80110e2190111bf7405b6f2908d07079384cc34befe10fd91ee6ba58",
+          "anchors": [
+            "ExecutionStatus = Literal[\"filled\", \"partially_filled\", \"rejected\", \"unknown\"]"
+          ]
+        }
+      ]
+    }
+  ]
+}

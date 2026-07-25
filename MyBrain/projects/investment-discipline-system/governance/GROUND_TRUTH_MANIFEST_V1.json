@@ -216,7 +216,7 @@
     },
     {
       "path": "governance/FAILURE_CLASSES_V1.json",
-      "sha256": "f4918be6c32bec1c0e8d8cd4b493dc69f466e0b26bd01da867ce3d46c03b010c",
+      "sha256": "9308b1d1af159ae57f65d1d6c06a97102b21a28bea6396d04ab3368908764851",
       "role": "failure_class_coverage_and_gap_contract",
       "required": true
     },

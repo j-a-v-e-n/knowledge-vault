@@ -6,8 +6,8 @@
   "coverage_summary": {
     "total_failure_classes": 74,
     "covered_failure_classes": 57,
-    "partially_covered_failure_classes": 13,
-    "gap_failure_classes": 4,
+    "partially_covered_failure_classes": 14,
+    "gap_failure_classes": 3,
     "alias_count": 5,
     "domains": [
       {
@@ -28,8 +28,8 @@
         "domain": "C-context-memory-and-state",
         "total": 5,
         "covered": 4,
-        "partially_covered": 0,
-        "gaps": 1
+        "partially_covered": 1,
+        "gaps": 0
       },
       {
         "domain": "D-organization-agents-and-loops",
@@ -687,7 +687,7 @@
       "aliases": [],
       "domain": "C-context-memory-and-state",
       "impact": "high",
-      "status": "gap",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -703,7 +703,7 @@
       "residual_risk": "检索器可能漏掉关键文件",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
       "open_gaps": [
-        "真实 start、middle、end、compaction、restart 与 stale-request 恢复探针尚未通过"
+        "确定性字节与六类恢复探针已通过，但真实 LLM recall、任意位置与生产 compaction 仍需经验验证"
       ]
     },
     {

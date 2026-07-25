@@ -50,11 +50,17 @@ class ProjectMethodPolicyTests(unittest.TestCase):
     def policy_path(self) -> Path:
         return self.root / "governance" / "PROJECT_METHOD_POLICY_V1.json"
 
-    def run_verifier(self) -> subprocess.CompletedProcess[str]:
+    @property
+    def registry_path(self) -> Path:
+        return self.root / "governance" / "FAILURE_CLASSES_V1.json"
+
+    def run_verifier(
+        self, *extra_arguments: str
+    ) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
         environment["IDS_PROJECT_ROOT"] = str(self.root)
         return subprocess.run(
-            [sys.executable, str(VERIFIER), "--json"],
+            [sys.executable, str(VERIFIER), "--json", *extra_arguments],
             check=False,
             capture_output=True,
             text=True,
@@ -67,6 +73,15 @@ class ProjectMethodPolicyTests(unittest.TestCase):
     def write_policy(self, policy: dict[str, Any]) -> None:
         self.policy_path.write_text(
             json.dumps(policy, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+    def load_registry(self) -> dict[str, Any]:
+        return json.loads(self.registry_path.read_text(encoding="utf-8"))
+
+    def write_registry(self, registry: dict[str, Any]) -> None:
+        self.registry_path.write_text(
+            json.dumps(registry, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
 
@@ -94,6 +109,61 @@ class ProjectMethodPolicyTests(unittest.TestCase):
         result = self.run_verifier()
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         self.assertEqual("pass", json.loads(result.stdout)["status"])
+
+    def test_static_policy_pass_does_not_imply_closure(self) -> None:
+        result = self.run_verifier("--require-closure")
+        self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual("fail", payload["status"])
+        self.assertEqual("blocked", payload["closure_status"])
+        self.assertTrue(
+            any(
+                "project method closure evidence" in error
+                for error in payload["errors"]
+            ),
+            payload,
+        )
+
+    def test_registry_summary_must_be_derived_from_entries(self) -> None:
+        registry = self.load_registry()
+        target = next(
+            item
+            for item in registry["failure_classes"]
+            if item["id"] == "GOV-04"
+        )
+        target["status"] = "covered"
+        target["open_gaps"] = []
+        self.write_registry(registry)
+        result = self.run_verifier()
+        self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertTrue(
+            any(
+                "coverage summary must be derived from entries" in error
+                for error in payload["errors"]
+            ),
+            payload,
+        )
+
+    def test_noncovered_registry_entry_requires_gap_reason(self) -> None:
+        registry = self.load_registry()
+        target = next(
+            item
+            for item in registry["failure_classes"]
+            if item["id"] == "GOV-04"
+        )
+        target["open_gaps"] = []
+        self.write_registry(registry)
+        result = self.run_verifier()
+        self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertTrue(
+            any(
+                "GOV-04 must name its remaining gaps" in error
+                for error in payload["errors"]
+            ),
+            payload,
+        )
 
     def test_criterion_weakening_is_rejected(self) -> None:
         def mutate(policy: dict[str, Any]) -> None:
