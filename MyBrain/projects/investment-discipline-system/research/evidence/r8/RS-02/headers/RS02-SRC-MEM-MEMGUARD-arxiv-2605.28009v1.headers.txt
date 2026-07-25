@@ -1,0 +1,18 @@
+HTTP/2 200 
+via: 1.1 google, 1.1 varnish, 1.1 varnish, 1.1 varnish
+x-cloud-trace-context: b15ebad6e6a0af1b889e54efea8352f1
+link: <https://arxiv.org/pdf/2605.28009>; rel='canonical'
+content-type: application/pdf
+content-disposition: inline; filename="2605.28009v1.pdf"
+last-modified: Thu, 28 May 2026 00:43:40 GMT
+etag: "sha256:ad5c71b59356799ebcccf6d193254f6ac18264b686a7ef94e53d24ea1ebf0e5c"
+server: Google Frontend
+access-control-allow-origin: *
+accept-ranges: bytes
+age: 57050
+date: Sat, 25 Jul 2026 16:22:55 GMT
+x-served-by: cache-lga21943-LGA, cache-lga21943-LGA, cache-lga21967-LGA, cache-hhr-khhr2060027-HHR
+x-cache: MISS, HIT, MISS
+x-timer: S1784996576.754851,VS0,VE80
+content-length: 1312901
+

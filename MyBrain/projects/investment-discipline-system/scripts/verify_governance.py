@@ -74,6 +74,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/replay_design_freeze_attacks.py",
     "scripts/run_assurance_ci.py",
     "scripts/refresh_ground_truth_manifest.py",
+    "scripts/verify_assurance_metadata.py",
     "scripts/verify_research_sufficiency.py",
     "scripts/verify_contract_supersession.py",
     "README.md",
@@ -81,6 +82,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "governance_tests/test_final_review_attacks.py",
     "governance_tests/test_final_review_schema.py",
     "governance_tests/test_attack_runner.py",
+    "governance_tests/test_assurance_metadata.py",
     "governance_tests/test_research_sufficiency.py",
     "governance_tests/test_research_evidence_governance.py",
     "governance_tests/test_verify_conditionals.py",
@@ -2187,7 +2189,7 @@ def verify_final_review_evidence(
             "schema_version": 1,
             "manifest_id": "ids-github-machine-assurance-v1",
             "status": "pass",
-            "assurance_level": "externally_signed_machine_execution_provenance",
+            "assurance_level": "github_issued_workflow_provenance",
             "semantic_approval": False,
             "repository": "j-a-v-e-n/knowledge-vault",
             "candidate_commit": candidate_commit,
@@ -2202,7 +2204,7 @@ def verify_final_review_evidence(
     expected_evidence = {
         "candidate_commit": candidate_commit,
         "candidate_tree": candidate_tree,
-        "assurance_level": "platform_observable_context_isolation",
+        "assurance_level": "platform_observable_separate_thread_review",
         "verdict": "passed_freeze",
         "new_architecture_changing_classes": [],
         "participated_in_candidate_construction": False,
@@ -4027,6 +4029,36 @@ def verify(allow_candidate: bool) -> list[str]:
                 detail = [research_result.stdout.strip() or "<no verifier output>"]
             errors.append(
                 "research sufficiency executable verification failed: "
+                + "; ".join(str(item) for item in detail)
+            )
+
+    assurance_metadata_verifier = (
+        PROJECT_ROOT / "scripts" / "verify_assurance_metadata.py"
+    )
+    if not assurance_metadata_verifier.is_file():
+        errors.append("assurance metadata verifier is missing")
+    else:
+        assurance_result = subprocess.run(
+            [sys.executable, str(assurance_metadata_verifier), "--json"],
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        try:
+            assurance_payload = json.loads(assurance_result.stdout)
+        except json.JSONDecodeError:
+            assurance_payload = {}
+        if (
+            assurance_result.returncode != 0
+            or assurance_payload.get("status") != "pass"
+        ):
+            detail = assurance_payload.get("errors")
+            if not isinstance(detail, list):
+                detail = [assurance_result.stdout.strip() or "<no verifier output>"]
+            errors.append(
+                "assurance metadata executable verification failed: "
                 + "; ".join(str(item) for item in detail)
             )
 

@@ -45,20 +45,23 @@ AUTHORITY_STATUS_PAIRS = {
 EXPECTED_RELEASE_REQUIREMENTS = [
     "local frozen runner replay passes against the exact reviewed candidate",
     (
-        "GitHub Actions signed machine-execution manifest is observed and "
-        "verifies against exact repository/workflow/commit"
+        "GitHub-issued workflow provenance for the assurance manifest is "
+        "observed and verifies against exact repository/workflow/source "
+        "commit and policy"
     ),
     "post-candidate Codex semantic review covers the full ground-truth manifest",
     "at least one post-candidate novelty probe is actually executed and rejected",
     "no open critical, major, or minor final-review finding remains",
 ]
 EXPECTED_ANTI_OVERCLAIM_ALLOWED = {
-    "content-addressed",
-    "externally signed machine-execution provenance",
-    "platform-observable context isolation",
+    "content snapshot anchor",
+    "GitHub-issued workflow provenance",
+    "platform-observable separate-thread review",
     "personal paper-scope assurance",
 }
 EXPECTED_ANTI_OVERCLAIM_FORBIDDEN = {
+    "independent executor",
+    "security-isolated reviewer",
     "cryptographically independent reviewer",
     "organizationally independent audit",
     "tamper-proof against the machine owner",
@@ -66,22 +69,26 @@ EXPECTED_ANTI_OVERCLAIM_FORBIDDEN = {
 }
 EXPECTED_CLAIM_BOUNDARIES = {
     "ASSURANCE-CLAIM-CONTENT": {
-        "level": "content_addressed_git_identity",
+        "level": "content_snapshot_anchor",
         "does_not_prove": {
             "文件中的主体、命令或结果字段真实",
+            "Git author 或 committer 字段对应真实身份",
             "作者与审查者组织独立",
         },
     },
     "ASSURANCE-CLAIM-MACHINE": {
-        "level": "externally_signed_machine_execution_provenance",
+        "level": "github_issued_workflow_provenance",
         "does_not_prove": {
+            "workflow 可控制的 predicate 字段均为真实陈述",
+            "manifest 声称的命令与结果仅因 attestation 而真实",
             "测试 oracle 或设计语义正确",
             "GitHub 平台、仓库 owner 与所有构造主体不串谋",
         },
     },
     "ASSURANCE-CLAIM-SEMANTIC": {
-        "level": "platform_observable_context_isolation",
+        "level": "platform_observable_separate_thread_review",
         "does_not_prove": {
+            "子代理线程构成安全意义上的上下文隔离",
             "审查者人类身份的密码学证明",
             "组织级职责分离",
             "仓库内 locator 字符串本身不可伪造",
@@ -591,7 +598,7 @@ def verify_trust_model(
     if (
         not isinstance(codex, dict)
         or codex.get("forbidden_claim")
-        != "cryptographically_independent_reviewer_identity"
+        != "security_isolated_or_cryptographically_independent_reviewer"
     ):
         errors.append(
             "assurance trust model: Codex semantic-review non-overclaim "

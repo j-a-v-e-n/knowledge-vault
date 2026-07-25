@@ -156,7 +156,7 @@
     },
     {
       "path": "governance/ASSURANCE_TRUST_MODEL_V1.json",
-      "sha256": "765ef92367aa0f0a715cd09f22f088edda75b59e3b5a72761480509ae6882c62",
+      "sha256": "319338f45031efd45b468914ecca3f197ed7d952e3d737fd214e4efcf9ade627",
       "role": "assurance_trust_and_provenance_threat_model",
       "required": true
     },
@@ -180,7 +180,7 @@
     },
     {
       "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
-      "sha256": "ccbcf892170949a655e1e6cf66273372ac0cc59b688c9f8b8a35238c656bc3ad",
+      "sha256": "3913156c56b4cd89f3d5e9f36080ded95925031dfc6e27512e5f0f209cd844e9",
       "role": "design_freeze_and_release_scope_contract",
       "required": true
     },

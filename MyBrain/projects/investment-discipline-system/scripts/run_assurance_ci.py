@@ -128,6 +128,19 @@ def main() -> int:
 
     checks = [
         execute_check(
+            "CHECK-ASSURANCE-METADATA",
+            [
+                sys.executable,
+                str(
+                    PROJECT_ROOT
+                    / "scripts"
+                    / "verify_assurance_metadata.py"
+                ),
+                "--json",
+            ],
+            parse_json=True,
+        ),
+        execute_check(
             "CHECK-CANDIDATE-GOVERNANCE",
             [
                 sys.executable,
@@ -172,6 +185,7 @@ def main() -> int:
         ),
     ]
     required_check_ids = [
+        "CHECK-ASSURANCE-METADATA",
         "CHECK-CANDIDATE-GOVERNANCE",
         "CHECK-CANONICAL-ATTACK-REPLAY",
         "CHECK-GOVERNANCE-REGRESSION",
@@ -186,7 +200,7 @@ def main() -> int:
         "schema_version": 1,
         "manifest_id": "ids-github-machine-assurance-v1",
         "status": "pass" if passed else "fail",
-        "assurance_level": "externally_signed_machine_execution_provenance",
+        "assurance_level": "github_issued_workflow_provenance",
         "semantic_approval": False,
         "repository": os.environ.get(
             "GITHUB_REPOSITORY", "j-a-v-e-n/knowledge-vault"

@@ -1,0 +1,18 @@
+HTTP/2 200 
+content-disposition: inline; filename="2603.20625v1.pdf"
+last-modified: Tue, 24 Mar 2026 00:29:01 GMT
+link: <https://arxiv.org/pdf/2603.20625>; rel='canonical'
+etag: CIqnleejt5MDEAI=
+x-cloud-trace-context: 9b6b3b0b95c7ab4ed5a65735db8ea000
+access-control-allow-origin: *
+via: 1.1 google, 1.1 varnish, 1.1 varnish, 1.1 varnish
+content-type: application/pdf
+server: Google Frontend
+accept-ranges: bytes
+age: 1225227
+date: Sat, 25 Jul 2026 16:22:40 GMT
+x-served-by: cache-lga21954-LGA, cache-lga21954-LGA, cache-lga21970-LGA, cache-hhr-khhr2060052-HHR
+x-cache: MISS, HIT, MISS
+x-timer: S1784996561.842605,VS0,VE74
+content-length: 463072
+

@@ -10,36 +10,40 @@
   "claims": [
     {
       "id": "ASSURANCE-CLAIM-CONTENT",
-      "level": "content_addressed_git_identity",
+      "level": "content_snapshot_anchor",
       "proves": [
         "候选 commit、tree、文件 mode/type/blob 与内容哈希可核对",
         "审查与执行证据不能静默跨候选复用"
       ],
       "does_not_prove": [
         "文件中的主体、命令或结果字段真实",
+        "Git author 或 committer 字段对应真实身份",
         "作者与审查者组织独立"
       ]
     },
     {
       "id": "ASSURANCE-CLAIM-MACHINE",
-      "level": "externally_signed_machine_execution_provenance",
+      "level": "github_issued_workflow_provenance",
       "proves": [
-        "固定 GitHub repository、workflow 与 commit 生成了指定 digest 的 assurance manifest",
-        "manifest 中的固定 runner 实际记录了 wrapper、baseline verifier 与 mutated target verifier 的不同退出状态"
+        "通过精确 policy 验证后，GitHub 签发的 attestation 把指定 artifact digest 绑定到预期 repository、workflow 与 source commit",
+        "本地验证器可独立解析被绑定 manifest 的固定检查、攻击结果与内容哈希"
       ],
       "does_not_prove": [
+        "workflow 可控制的 predicate 字段均为真实陈述",
+        "manifest 声称的命令与结果仅因 attestation 而真实",
         "测试 oracle 或设计语义正确",
         "GitHub 平台、仓库 owner 与所有构造主体不串谋"
       ]
     },
     {
       "id": "ASSURANCE-CLAIM-SEMANTIC",
-      "level": "platform_observable_context_isolation",
+      "level": "platform_observable_separate_thread_review",
       "proves": [
-        "候选固定后存在可由用户在 Codex App 检查的独立子代理审查线程",
+        "候选固定后存在可由用户在 Codex App 检查的单独子代理审查线程",
         "审查输入、输出、候选与新增 novelty probe 的内容绑定可在仓库中核对"
       ],
       "does_not_prove": [
+        "子代理线程构成安全意义上的上下文隔离",
         "审查者人类身份的密码学证明",
         "组织级职责分离",
         "仓库内 locator 字符串本身不可伪造"
@@ -60,7 +64,7 @@
       ]
     },
     "github_actions_machine_execution": {
-      "status": "pending_first_signed_observation",
+      "status": "designed_not_observed",
       "repository": "j-a-v-e-n/knowledge-vault",
       "repository_visibility": "public",
       "workflow_path": ".github/workflows/investment-discipline-assurance.yml",
@@ -78,13 +82,14 @@
       "local_verification_policy": [
         "verify artifact digest with GitHub attestation verification",
         "require repository j-a-v-e-n/knowledge-vault",
-        "require the exact workflow identity and candidate commit",
+        "require the expected OIDC issuer, signer repository, exact workflow identity, source commit and predicate type",
+        "reject an unexpected source ref, signer workflow, issuer, source digest or self-hosted runner identity",
         "parse the manifest and independently validate every required check and attack result",
         "do not treat attestation as semantic approval"
       ]
     },
     "codex_semantic_review": {
-      "status": "platform_observable_not_cryptographically_exported",
+      "status": "platform_observable_separate_thread_not_security_isolated",
       "required_platform": "Codex App subagent thread",
       "required_binding": [
         "agent or thread locator",
@@ -95,7 +100,7 @@
         "candidate-postdated novelty probe spec and actual runner receipt",
         "findings and open severity counts"
       ],
-      "forbidden_claim": "cryptographically_independent_reviewer_identity",
+      "forbidden_claim": "security_isolated_or_cryptographically_independent_reviewer",
       "user_check": "Javen can open the named subagent thread in Codex App and compare its prompt/result with the stored hashes."
     }
   },
@@ -103,7 +108,7 @@
     "type": "conjunction",
     "required": [
       "local frozen runner replay passes against the exact reviewed candidate",
-      "GitHub Actions signed machine-execution manifest is observed and verifies against exact repository/workflow/commit",
+      "GitHub-issued workflow provenance for the assurance manifest is observed and verifies against exact repository/workflow/source commit and policy",
       "post-candidate Codex semantic review covers the full ground-truth manifest",
       "at least one post-candidate novelty probe is actually executed and rejected",
       "no open critical, major, or minor final-review finding remains"
@@ -152,12 +157,14 @@
   ],
   "anti_overclaim_vocabulary": {
     "allowed": [
-      "content-addressed",
-      "externally signed machine-execution provenance",
-      "platform-observable context isolation",
+      "content snapshot anchor",
+      "GitHub-issued workflow provenance",
+      "platform-observable separate-thread review",
       "personal paper-scope assurance"
     ],
     "forbidden_without_new_evidence": [
+      "independent executor",
+      "security-isolated reviewer",
       "cryptographically independent reviewer",
       "organizationally independent audit",
       "tamper-proof against the machine owner",

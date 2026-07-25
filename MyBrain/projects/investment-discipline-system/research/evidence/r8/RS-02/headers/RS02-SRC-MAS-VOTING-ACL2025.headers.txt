@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Date: Sat, 25 Jul 2026 16:23:16 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Last-Modified: Wed, 16 Jul 2025 13:58:55 GMT
+ETag: "eedf8-63a0c4b2505c0"
+Accept-Ranges: bytes
+Content-Length: 978424
+Content-Type: application/pdf
+

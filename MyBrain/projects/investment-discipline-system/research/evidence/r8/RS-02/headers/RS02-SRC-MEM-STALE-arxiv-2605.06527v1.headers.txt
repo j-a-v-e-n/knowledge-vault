@@ -1,0 +1,18 @@
+HTTP/2 200 
+content-disposition: inline; filename="2605.06527v1.pdf"
+etag: "sha256:cde7280d22775abc14c9ecb1e2b188ee609eaed430d7151e86abfce0df3f987f"
+link: <https://arxiv.org/pdf/2605.06527>; rel='canonical'
+server: Google Frontend
+last-modified: Fri, 08 May 2026 01:45:16 GMT
+access-control-allow-origin: *
+via: 1.1 google, 1.1 varnish, 1.1 varnish, 1.1 varnish
+content-type: application/pdf
+x-cloud-trace-context: f0a6eb93642c8643f93d3fb8e709bf68
+accept-ranges: bytes
+age: 109745
+date: Sat, 25 Jul 2026 16:22:48 GMT
+x-served-by: cache-lga21991-LGA, cache-lga21991-LGA, cache-lga21963-LGA, cache-hhr-khhr2060031-HHR
+x-cache: MISS, HIT, HIT
+x-timer: S1784996569.969426,VS0,VE0
+content-length: 5568857
+
