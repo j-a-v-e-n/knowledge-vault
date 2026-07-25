@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -364,6 +365,33 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         reviewer["participated_in_candidate_construction"] = True
         self.write_json("governance/ASSURANCE_SUBJECTS_V1.json", subjects)
         self.assert_rejected("design reviewer is not independent")
+
+    def test_final_review_evidence_cannot_enter_candidate_ground_truth_cycle(
+        self,
+    ) -> None:
+        evidence_relative = "audits/FINAL_REVIEW_CYCLE_FIXTURE.json"
+        evidence_path = self.root / evidence_relative
+        evidence_bytes = b'{"fixture":"post-candidate-review"}\n'
+        evidence_path.write_bytes(evidence_bytes)
+        research = self.read_json(
+            "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json"
+        )
+        research["primary_artifacts"].append(
+            {
+                "id": "ARTIFACT-CHALLENGE-FINAL-R99",
+                "path": evidence_relative,
+                "sha256": hashlib.sha256(evidence_bytes).hexdigest(),
+                "role": "independent_final_challenge",
+            }
+        )
+        self.write_json(
+            "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+            research,
+        )
+        self.assert_rejected(
+            "post-candidate final review evidence must not be a candidate "
+            "primary artifact"
+        )
 
     def test_unknown_conditional_requirement_is_rejected(self) -> None:
         contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
