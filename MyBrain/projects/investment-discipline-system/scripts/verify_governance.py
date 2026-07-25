@@ -99,6 +99,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/replay_design_freeze_attacks.py",
     "scripts/run_assurance_ci.py",
     "scripts/run_governance_regression.py",
+    "scripts/run_unittest_receipt.py",
     "scripts/refresh_ground_truth_manifest.py",
     "scripts/verify_assurance_metadata.py",
     "scripts/verify_component_registry.py",

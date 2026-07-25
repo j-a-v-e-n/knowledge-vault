@@ -47,11 +47,7 @@ class AssuranceRunnerTests(unittest.TestCase):
         self.assertEqual(receipt["result"], "fail")
         self.assertIsNone(receipt["structured_result"])
 
-    @unittest.skipUnless(
-        run_assurance_ci.os.name == "posix",
-        "process-group assertion requires POSIX",
-    )
-    def test_timeout_kills_grandchild_and_preserves_partial_output(self) -> None:
+    def test_timeout_fails_closed_and_preserves_partial_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             marker = Path(temporary) / "grandchild-survived.txt"
             child = (

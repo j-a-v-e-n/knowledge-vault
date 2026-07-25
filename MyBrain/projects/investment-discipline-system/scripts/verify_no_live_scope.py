@@ -21,7 +21,7 @@ SCRIPT_PROJECT_ROOT = Path(
 ).resolve()
 DEFAULT_POLICY_RELATIVE = Path("governance/NO_LIVE_SCOPE_POLICY_V1.json")
 EXPECTED_POLICY_CANONICAL_SHA256 = (
-    "6058c421e7a6c48c75fbc77f93c1b6840b31e237cdeebeb2203af2f8ec3c6c62"
+    "220d2c5358709b99459742c7f5e1cb9b0f0ca79b11b3b5fac5ec6ed226040045"
 )
 
 POLICY_TOP_LEVEL_FIELDS = {
@@ -98,6 +98,7 @@ WORK_PACKET_POLICY_FIELDS = {
     "filename_suffix",
     "instance_schema_version",
     "required_fields",
+    "state_specific_optional_fields",
     "all_state_values",
     "allowed_active_external_side_effects",
     "forbidden_active_side_effect_fragments",
@@ -432,6 +433,18 @@ def validate_policy_schema(
                     "NLS-POLICY-SCHEMA",
                     f"policy.work_packet_policy.{field} must be a nonempty string",
                 )
+        optional_fields = packet_policy.get(
+            "state_specific_optional_fields"
+        )
+        if (
+            not isinstance(optional_fields, dict)
+            or optional_fields != {"superseded": ["superseded_by"]}
+        ):
+            add_error(
+                errors,
+                "NLS-POLICY-SCHEMA",
+                "work-packet state-specific optional fields differ",
+            )
         for field in (
             "reject_unlisted_active_external_side_effects",
             "reject_unexpected_directory_entries",
@@ -1446,11 +1459,17 @@ def validate_work_packets(
         if packet is None:
             continue
         expected_fields = set(packet_policy["required_fields"])
-        if set(packet) != expected_fields:
+        state = packet.get("state")
+        optional_by_state = packet_policy[
+            "state_specific_optional_fields"
+        ]
+        optional_fields = set(optional_by_state.get(state, []))
+        allowed_fields = expected_fields | optional_fields
+        if set(packet) != allowed_fields:
             add_error(
                 errors,
                 "NLS-PACKET-SCHEMA",
-                f"work-packet fields differ; missing={sorted(expected_fields - set(packet))}, extra={sorted(set(packet) - expected_fields)}",
+                f"work-packet fields differ; missing={sorted(allowed_fields - set(packet))}, extra={sorted(set(packet) - allowed_fields)}",
                 path=relative,
             )
             continue
@@ -1470,12 +1489,22 @@ def validate_work_packets(
                 "work packet has an unsupported schema_version",
                 path=relative,
             )
-        state = packet["state"]
         if state not in packet_policy["all_state_values"]:
             add_error(
                 errors,
                 "NLS-PACKET-SCHEMA",
                 "work packet has an invalid state",
+                path=relative,
+            )
+            continue
+        if state == "superseded" and (
+            not isinstance(packet.get("superseded_by"), str)
+            or not packet["superseded_by"]
+        ):
+            add_error(
+                errors,
+                "NLS-PACKET-SCHEMA",
+                "superseded work packet has an invalid superseded_by",
                 path=relative,
             )
             continue

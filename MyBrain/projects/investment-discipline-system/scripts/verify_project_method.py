@@ -271,6 +271,12 @@ def verify_state_and_packets(policy: dict[str, Any], errors: list[str]) -> None:
         "a packet cannot be complete without its checkpoint and acceptance receipts"
     ):
         errors.append("partial work state rule differs")
+    if packet.get("supersession_rule") != (
+        "later work must use a named successor packet; the superseded packet "
+        "keeps its original contract and receipts, releases ownership, and "
+        "never compares its historical snapshot hash to successor bytes"
+    ):
+        errors.append("work packet supersession rule differs")
 
 
 def verify_execution(policy: dict[str, Any], errors: list[str]) -> None:
@@ -461,6 +467,31 @@ def verify_tests_incidents_and_explanations(
             errors.append("mutation must trigger its target rejection")
         if integrity.get("test_or_oracle_change_requires_new_candidate_review") is not True:
             errors.append("test or oracle changes must require a new review")
+        universe = integrity.get("complete_regression_universe")
+        expected_universe = {
+            "suite_root": "governance_tests/",
+            "recursive": True,
+            "source_pattern": "test*.py",
+            "package_init_required": False,
+            "selector_identity": "unittest.TestCase.id",
+            "orchestrator": "scripts/run_governance_regression.py",
+            "structured_worker": "scripts/run_unittest_receipt.py",
+            "exact_execution_rule": (
+                "Counter(discovered_test_ids) == "
+                "Counter(planned_test_ids) == "
+                "Counter(loaded_test_ids) == "
+                "Counter(started_test_ids) == "
+                "Counter(successful_test_ids); every selector count == 1"
+            ),
+            "non_success_outcome": (
+                "loader_error_failure_error_skip_expected_failure_"
+                "unexpected_success_timeout_or_malformed_receipt_blocks"
+            ),
+            "source_fingerprint_before_after_required": True,
+            "independent_freeze_recomputation_required": True,
+        }
+        if universe != expected_universe:
+            errors.append("complete governance regression universe differs")
 
     incidents = policy.get("incident_learning")
     required_incident_fields = {

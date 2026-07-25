@@ -541,6 +541,19 @@ class ProjectMethodPolicyTests(unittest.TestCase):
             "mutation tests must first prove a passing baseline",
         )
 
+    def test_regression_test_universe_narrowing_is_rejected(self) -> None:
+        def mutate(policy: dict[str, Any]) -> None:
+            universe = policy["frozen_test_integrity"][
+                "complete_regression_universe"
+            ]
+            universe["recursive"] = False
+            universe["source_pattern"] = "test_*.py"
+
+        self.assert_rejected(
+            mutate,
+            "complete governance regression universe differs",
+        )
+
     def test_unknown_telemetry_warning_is_rejected(self) -> None:
         def mutate(policy: dict[str, Any]) -> None:
             policy["supply_chain"]["telemetry_unknown_outcome"] = "warn"

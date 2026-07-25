@@ -67,6 +67,18 @@
         "-v"
       ],
       "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-ASSURANCE-RUNNER-TESTS",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "governance_tests.test_assurance_runner",
+        "-v"
+      ],
+      "expected_exit_code": 0
     }
   ],
   "checkpoint_path": null,

@@ -41,6 +41,7 @@
     {"path": "scripts/replay_design_freeze_attacks.py", "kind": "file", "required_by": "design_freeze"},
     {"path": "scripts/run_assurance_ci.py", "kind": "file", "required_by": "design_freeze"},
     {"path": "scripts/run_governance_regression.py", "kind": "file", "required_by": "design_freeze"},
+    {"path": "scripts/run_unittest_receipt.py", "kind": "file", "required_by": "design_freeze"},
     {"path": "scripts/run_design_freeze_attack.py", "kind": "file", "required_by": "design_freeze"},
     {"path": "scripts/run_project_method_acceptance.py", "kind": "file", "required_by": "design_freeze"},
     {"path": "scripts/verify_assurance_metadata.py", "kind": "file", "required_by": "design_freeze"},

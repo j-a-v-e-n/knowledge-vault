@@ -27,6 +27,7 @@ POLICY_FIELDS = {
     "path_rules",
     "ownership",
     "completion",
+    "supersession",
     "semantic_integration",
     "platform_and_process_limitations",
 }
@@ -65,7 +66,9 @@ STATE_VALUES = (
     "blocked",
     "candidate_complete",
     "complete",
+    "superseded",
 )
+SUPERSESSION_FIELD = "superseded_by"
 TOKEN_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:@-]{0,127}$")
 PACKET_ID_RE = re.compile(r"^WP-[A-Z0-9][A-Z0-9._-]{0,63}$")
 GOAL_ID_RE = re.compile(r"^[A-Z][A-Z0-9._-]{1,63}$")
@@ -299,9 +302,13 @@ def validate_policy(policy: dict[str, Any], errors: list[str]) -> bool:
         if completion["checkpoint_required_states"] != [
             "candidate_complete",
             "complete",
+            "superseded",
         ]:
             errors.append("policy.completion: checkpoint_required_states differ")
-        if completion["acceptance_required_states"] != ["complete"]:
+        if completion["acceptance_required_states"] != [
+            "complete",
+            "superseded",
+        ]:
             errors.append("policy.completion: acceptance_required_states differ")
         if completion["receipt_directory"] != ".work_packets/receipts":
             errors.append("policy.completion: receipt_directory differs")
@@ -313,6 +320,28 @@ def validate_policy(policy: dict[str, Any], errors: list[str]) -> bool:
             errors.append("policy.completion: checkpoint suffix differs")
         if completion["acceptance_filename_suffix"] != ".acceptance.json":
             errors.append("policy.completion: acceptance suffix differs")
+
+    supersession = policy["supersession"]
+    expected_supersession = {
+        "state": "superseded",
+        "successor_field": SUPERSESSION_FIELD,
+        "successor_allowed_states": [
+            "active",
+            "blocked",
+            "candidate_complete",
+            "complete",
+        ],
+        "successor_must_exist": True,
+        "successor_must_share_goal": True,
+        "successor_must_reclaim_exact_write_set": True,
+        "historical_receipts_remain_required": True,
+        "historical_snapshot_rule": (
+            "validate_receipt_schema_and_original_claim_identity_without_"
+            "comparing_later_file_bytes"
+        ),
+    }
+    if supersession != expected_supersession:
+        errors.append("policy.supersession differs")
 
     semantic = policy["semantic_integration"]
     if exact_keys(
@@ -382,6 +411,7 @@ class PacketRecord:
     raw: dict[str, Any]
     packet_id: str
     state: str
+    superseded_by: str | None
     writes: list[WriteClaim]
     reads: list[ResolvedProjectPath]
     acceptance_checks: list[dict[str, Any]]
@@ -845,7 +875,21 @@ def validate_packet(
 ) -> PacketRecord | None:
     start = len(errors)
     label = f"packet file {source.name}"
-    if not exact_keys(packet, set(PACKET_FIELDS), label, errors):
+    required_fields = set(PACKET_FIELDS)
+    allowed_fields = required_fields | {SUPERSESSION_FIELD}
+    if not isinstance(packet, dict):
+        errors.append(f"{label}: must be an object")
+        return None
+    actual_fields = set(packet)
+    if (
+        not required_fields.issubset(actual_fields)
+        or not actual_fields.issubset(allowed_fields)
+    ):
+        errors.append(
+            f"{label}: fields differ; "
+            f"missing={sorted(required_fields - actual_fields)}, "
+            f"extra={sorted(actual_fields - allowed_fields)}"
+        )
         return None
     if packet["schema_version"] != policy["packet_schema"]["instance_schema_version"]:
         errors.append(f"{label}: unsupported schema_version")
@@ -860,6 +904,23 @@ def validate_packet(
     if state not in policy["packet_schema"]["state_values"]:
         errors.append(f"packet {packet_id}: invalid state")
         state = "invalid"
+    superseded_by = packet.get(SUPERSESSION_FIELD)
+    if state == "superseded":
+        if (
+            not isinstance(superseded_by, str)
+            or PACKET_ID_RE.fullmatch(superseded_by) is None
+            or superseded_by == packet_id
+        ):
+            errors.append(
+                f"packet {packet_id}: invalid {SUPERSESSION_FIELD}"
+            )
+            superseded_by = None
+    elif SUPERSESSION_FIELD in packet:
+        errors.append(
+            f"packet {packet_id}: {SUPERSESSION_FIELD} is only allowed "
+            "for superseded packets"
+        )
+        superseded_by = None
     for field in ("owner", "reviewer"):
         value = packet[field]
         if not isinstance(value, str) or TOKEN_RE.fullmatch(value) is None:
@@ -932,6 +993,7 @@ def validate_packet(
         raw=packet,
         packet_id=packet_id,
         state=state,
+        superseded_by=superseded_by,
         writes=writes,
         reads=reads,
         acceptance_checks=checks,
@@ -1046,6 +1108,44 @@ def snapshot_write_claim(
     }
 
 
+def verify_historical_snapshots(
+    record: PacketRecord,
+    snapshots: Any,
+    label: str,
+    errors: list[str],
+) -> None:
+    if not isinstance(snapshots, list) or len(snapshots) != len(record.writes):
+        errors.append(f"{label}: historical snapshot count differs")
+        return
+    for index, (snapshot, claim) in enumerate(
+        zip(snapshots, record.writes, strict=True)
+    ):
+        item_label = f"{label} snapshots[{index}]"
+        if not exact_keys(
+            snapshot,
+            {"path", "kind", "state", "content_sha256"},
+            item_label,
+            errors,
+        ):
+            continue
+        state = snapshot["state"]
+        digest = snapshot["content_sha256"]
+        if (
+            snapshot["path"] != claim.path.lexical
+            or snapshot["kind"] != claim.kind
+            or state not in {"absent", "file", "tree"}
+            or (state == "absent" and digest is not None)
+            or (
+                state != "absent"
+                and (
+                    not isinstance(digest, str)
+                    or SHA256_RE.fullmatch(digest) is None
+                )
+            )
+        ):
+            errors.append(f"{item_label}: historical claim identity differs")
+
+
 def verify_checkpoint_receipt(
     record: PacketRecord,
     project_root: Path,
@@ -1077,18 +1177,28 @@ def verify_checkpoint_receipt(
         errors.append(f"{label}: packet contract digest differs")
     if not is_int(receipt["sequence"]) or receipt["sequence"] < 1:
         errors.append(f"{label}: sequence must be a positive integer")
-    expected_snapshots: list[dict[str, Any]] = []
-    for index, claim in enumerate(record.writes):
-        snapshot = snapshot_write_claim(
-            project_root,
-            claim,
-            f"{label} snapshots[{index}]",
+    if record.state == "superseded":
+        verify_historical_snapshots(
+            record,
+            receipt["snapshots"],
+            label,
             errors,
         )
-        if snapshot is not None:
-            expected_snapshots.append(snapshot)
-    if receipt["snapshots"] != expected_snapshots:
-        errors.append(f"{label}: snapshots differ from current owned write set")
+    else:
+        expected_snapshots: list[dict[str, Any]] = []
+        for index, claim in enumerate(record.writes):
+            snapshot = snapshot_write_claim(
+                project_root,
+                claim,
+                f"{label} snapshots[{index}]",
+                errors,
+            )
+            if snapshot is not None:
+                expected_snapshots.append(snapshot)
+        if receipt["snapshots"] != expected_snapshots:
+            errors.append(
+                f"{label}: snapshots differ from current owned write set"
+            )
     if len(errors) != start:
         return None
     return receipt
@@ -1297,6 +1407,7 @@ def verify(
             "ownership_conflict_count": 0,
             "semantic_probe_count": 0,
             "completion_verified_count": 0,
+            "superseded_receipt_verified_count": 0,
             "errors": [f"project root: cannot resolve: {exc}"],
             "platform_and_process_limitations": [],
         }
@@ -1332,6 +1443,7 @@ def verify(
             "ownership_conflict_count": 0,
             "semantic_probe_count": 0,
             "completion_verified_count": 0,
+            "superseded_receipt_verified_count": 0,
             "errors": sorted(set(errors)),
             "platform_and_process_limitations": [],
         }
@@ -1364,6 +1476,7 @@ def verify(
             "ownership_conflict_count": 0,
             "semantic_probe_count": 0,
             "completion_verified_count": 0,
+            "superseded_receipt_verified_count": 0,
             "errors": sorted(set(errors)),
             "platform_and_process_limitations": limitations,
         }
@@ -1387,6 +1500,42 @@ def verify(
         else:
             seen_packet_ids[record.packet_id] = packet_file.name
         records.append(record)
+
+    records_by_id = {record.packet_id: record for record in records}
+    allowed_successor_states = set(
+        policy["supersession"]["successor_allowed_states"]
+    )
+    for record in records:
+        if record.state != "superseded":
+            continue
+        successor = (
+            records_by_id.get(record.superseded_by)
+            if record.superseded_by is not None
+            else None
+        )
+        if successor is None:
+            errors.append(
+                f"packet {record.packet_id}: superseding packet is missing"
+            )
+            continue
+        if successor.state not in allowed_successor_states:
+            errors.append(
+                f"packet {record.packet_id}: superseding packet state is invalid"
+            )
+        if successor.raw["goal_id"] != record.raw["goal_id"]:
+            errors.append(
+                f"packet {record.packet_id}: superseding packet goal differs"
+            )
+        historical_writes = {
+            (claim.path.lexical, claim.kind) for claim in record.writes
+        }
+        successor_writes = {
+            (claim.path.lexical, claim.kind) for claim in successor.writes
+        }
+        if successor_writes != historical_writes:
+            errors.append(
+                f"packet {record.packet_id}: superseding packet write set differs"
+            )
 
     ownership_states = set(policy["ownership"]["ownership_states"])
     active_records = [record for record in records if record.state in ownership_states]
@@ -1447,6 +1596,7 @@ def verify(
     )
 
     completion_verified_count = 0
+    superseded_receipt_verified_count = 0
     completion_policy = policy["completion"]
     for record in records:
         checkpoint_required = (
@@ -1487,6 +1637,12 @@ def verify(
             and acceptance_valid
         ):
             completion_verified_count += 1
+        if (
+            record.state == "superseded"
+            and checkpoint_receipt is not None
+            and acceptance_valid
+        ):
+            superseded_receipt_verified_count += 1
 
     unique_errors = sorted(set(errors))
     return {
@@ -1498,6 +1654,9 @@ def verify(
         "ownership_conflict_count": ownership_conflicts,
         "semantic_probe_count": semantic_probe_count,
         "completion_verified_count": completion_verified_count,
+        "superseded_receipt_verified_count": (
+            superseded_receipt_verified_count
+        ),
         "errors": unique_errors,
         "platform_and_process_limitations": limitations,
     }
@@ -1541,6 +1700,7 @@ def main(argv: list[str] | None = None) -> int:
             "ownership_conflict_count": 0,
             "semantic_probe_count": 0,
             "completion_verified_count": 0,
+            "superseded_receipt_verified_count": 0,
             "errors": [
                 f"internal verifier error: {type(exc).__name__}: {exc}"
             ],

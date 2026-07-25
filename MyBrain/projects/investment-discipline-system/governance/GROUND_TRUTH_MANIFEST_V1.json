@@ -180,13 +180,13 @@
     },
     {
       "path": "governance/ACCEPTANCE_CASES_V1.json",
-      "sha256": "51fbfe8203d62b56c04b6e050d7481fed413f0c6ec81cbcee71efded292080e8",
+      "sha256": "37b1379fb60c63c4b549ed9d641651311e0baaff687fdcacfbc75f936663cf8f",
       "role": "acceptance_case_contract",
       "required": true
     },
     {
       "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-      "sha256": "a0831101d9ca26d568b5581caa2ff8db90ceea6ddbc0bfdb363e846ef106b0f7",
+      "sha256": "628dc791951d3e83d27ccfe30d04a2c067731b6dc5e5eccabdf3761dc824f2d6",
       "role": "top_level_acceptance_contract",
       "required": true
     },
@@ -210,7 +210,7 @@
     },
     {
       "path": "governance/COMPONENT_REGISTRY_V1.json",
-      "sha256": "f655b4b3d00c1955c7880a5cf26632d16c953f2278279adf18de626fdb7b28c5",
+      "sha256": "0b37ca979a0fe2c85fe656fe910749a16c92f3b75a5b7db3d36f9c8a51cc219f",
       "role": "component_boundary_dependency_and_removal_contract",
       "required": true
     },
@@ -252,13 +252,13 @@
     },
     {
       "path": "governance/FROZEN_TEST_MANIFEST_V1.json",
-      "sha256": "97a9dfc53e658fc532f57ac2120e35a316823954a0c73fea1d6eea113c2e159f",
+      "sha256": "aa191e38645b82bb09324c4b7a4cb5b2d860f5ae35571a0f1af583c68a6d3efa",
       "role": "frozen_test_source_ast_and_clean_baseline_contract",
       "required": true
     },
     {
       "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
-      "sha256": "4cab7809bb60323a487a1160374402cae0c5ce83e6d76bc9891fea4cb4614293",
+      "sha256": "5ddc36b8cc54846b55364164087d91a1c1de9066f994a72f6c22997113ece617",
       "role": "design_freeze_and_release_scope_contract",
       "required": true
     },
@@ -282,7 +282,7 @@
     },
     {
       "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
-      "sha256": "d7087f3ea64a9548278c2b8b9184891d3c190132a81263a35fa81d3112edba97",
+      "sha256": "7ce363420387341f95305a8c5d54a53405922e8cbb2f4362589b221acc312f02",
       "role": "paper_only_static_entrypoint_and_side_effect_boundary",
       "required": true
     },
@@ -294,7 +294,7 @@
     },
     {
       "path": "governance/PROJECT_METHOD_POLICY_V1.json",
-      "sha256": "8555e16d0808e76dc12443a056bfd9f23eb80030d768a3b9ffad511e834900a2",
+      "sha256": "232c2830ba2109cd7b3cfa6a9450f2d736352b45f088f4eb0918c5d004d87dbb",
       "role": "reusable_ai_project_method_contract",
       "required": true
     },
@@ -312,7 +312,7 @@
     },
     {
       "path": "governance/TRACEABILITY_V1.json",
-      "sha256": "ffbd7ead49e087f6346e672837974233dcba736b926a9090eb358349a50eac44",
+      "sha256": "1ec5c8ac2494f24f93728955c73798e925298119690ef24b9dc27e20d5f119e4",
       "role": "requirements_controls_verification_trace_contract",
       "required": true
     },
@@ -336,7 +336,7 @@
     },
     {
       "path": "governance/WORK_PACKET_POLICY_V1.json",
-      "sha256": "123f1ddf9ab6c9e1aa684eb3d48f9872c778c5b29ad3d52fb13acc1a9cf91a53",
+      "sha256": "44740256da023790ab6bda53260f32e1a59d87d1c207bf0e60810bf9bab66a74",
       "role": "bounded_work_packet_and_write_ownership_contract",
       "required": true
     },

@@ -33,7 +33,8 @@
       "active",
       "blocked",
       "candidate_complete",
-      "complete"
+      "complete",
+      "superseded"
     ]
   },
   "path_rules": {
@@ -65,16 +66,33 @@
   "completion": {
     "checkpoint_required_states": [
       "candidate_complete",
-      "complete"
+      "complete",
+      "superseded"
     ],
     "acceptance_required_states": [
-      "complete"
+      "complete",
+      "superseded"
     ],
     "receipt_directory": ".work_packets/receipts",
     "checkpoint_schema_version": "work-packet-checkpoint/v1",
     "acceptance_schema_version": "work-packet-acceptance/v1",
     "checkpoint_filename_suffix": ".checkpoint.json",
     "acceptance_filename_suffix": ".acceptance.json"
+  },
+  "supersession": {
+    "state": "superseded",
+    "successor_field": "superseded_by",
+    "successor_allowed_states": [
+      "active",
+      "blocked",
+      "candidate_complete",
+      "complete"
+    ],
+    "successor_must_exist": true,
+    "successor_must_share_goal": true,
+    "successor_must_reclaim_exact_write_set": true,
+    "historical_receipts_remain_required": true,
+    "historical_snapshot_rule": "validate_receipt_schema_and_original_claim_identity_without_comparing_later_file_bytes"
   },
   "semantic_integration": {
     "probe_states": [
@@ -93,6 +111,7 @@
     "Acceptance receipts bind declared checks to packet content and expose recorded process exit codes, but this verifier does not execute, authenticate, or sandbox those commands.",
     "Canonical-path, symlink, and content-snapshot checks are point-in-time local-filesystem observations and cannot eliminate time-of-check/time-of-use, mount, case-folding, or all hard-link alias races.",
     "There is no distributed lock or process isolation; the supplied packet directory must be an authoritative, consistent snapshot of all concurrent packets.",
-    "Semantic integration is checked only for declared supported invariants and inputs; omitted or incorrectly modeled invariants remain outside this mechanism."
+    "Semantic integration is checked only for declared supported invariants and inputs; omitted or incorrectly modeled invariants remain outside this mechanism.",
+    "A superseded packet preserves its original receipt binding and claim identities, but later file bytes are evidence of the successor packet and cannot re-prove the historical snapshot without repository history."
   ]
 }

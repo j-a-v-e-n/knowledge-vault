@@ -1365,6 +1365,52 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.assertIn(f"normative file is not tracked: {relative}", result.stdout)
         self.assertIn(f"normative file is absent from HEAD: {relative}", result.stdout)
 
+    def test_regression_status_only_receipt_is_rejected(self) -> None:
+        freezer = load_module(
+            self.root / "scripts" / "freeze_governance.py",
+            "fixture_freezer_rejects_status_only",
+            project_root=self.root,
+        )
+        reviewed_commit = self.git_text(self.root, "rev-parse", "HEAD")
+        with self.assertRaisesRegex(
+            SystemExit,
+            "machine governance regression receipt schema differs",
+        ):
+            freezer.require_governance_regression_binding(
+                check={
+                    "structured_result": {
+                        "status": "pass",
+                    }
+                },
+                reviewed_commit=reviewed_commit,
+                project_prefix=TEST_PROJECT_PREFIX,
+            )
+
+    def test_production_shaped_regression_receipt_is_accepted(self) -> None:
+        freezer = load_module(
+            self.root / "scripts" / "freeze_governance.py",
+            "fixture_freezer_accepts_regression_receipt",
+            project_root=self.root,
+        )
+        reviewed_commit = self.git_text(self.root, "rev-parse", "HEAD")
+        receipt = self.make_regression_receipt(
+            reviewed_commit=reviewed_commit
+        )
+        stdout = (
+            json.dumps(receipt, ensure_ascii=False, sort_keys=True) + "\n"
+        )
+        freezer.require_governance_regression_binding(
+            check={
+                "structured_result": receipt,
+                "stdout_sha256": hashlib.sha256(
+                    stdout.encode("utf-8")
+                ).hexdigest(),
+                "stdout_tail": stdout[-4000:],
+            },
+            reviewed_commit=reviewed_commit,
+            project_prefix=TEST_PROJECT_PREFIX,
+        )
+
     def test_git_verifier_requires_existing_bundle_in_head(self) -> None:
         bundle = self.root / BUNDLE_RELATIVE
         bundle.write_text("{}\n", encoding="utf-8")

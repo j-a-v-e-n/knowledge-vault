@@ -62,7 +62,8 @@
       "undeclared_path"
     ],
     "parallel_write_rule": "active packets must have disjoint bounded_write_paths; collision blocks both packets until ownership is resolved",
-    "partial_state_rule": "a packet cannot be complete without its checkpoint and acceptance receipts"
+    "partial_state_rule": "a packet cannot be complete without its checkpoint and acceptance receipts",
+    "supersession_rule": "later work must use a named successor packet; the superseded packet keeps its original contract and receipts, releases ownership, and never compares its historical snapshot hash to successor bytes"
   },
   "execution_state_machine": {
     "states": [
@@ -155,7 +156,20 @@
     "deletion_skip_or_xfail_outcome": "blocked",
     "baseline_must_pass_before_mutation": true,
     "mutation_must_trigger_target_rejection": true,
-    "test_or_oracle_change_requires_new_candidate_review": true
+    "test_or_oracle_change_requires_new_candidate_review": true,
+    "complete_regression_universe": {
+      "suite_root": "governance_tests/",
+      "recursive": true,
+      "source_pattern": "test*.py",
+      "package_init_required": false,
+      "selector_identity": "unittest.TestCase.id",
+      "orchestrator": "scripts/run_governance_regression.py",
+      "structured_worker": "scripts/run_unittest_receipt.py",
+      "exact_execution_rule": "Counter(discovered_test_ids) == Counter(planned_test_ids) == Counter(loaded_test_ids) == Counter(started_test_ids) == Counter(successful_test_ids); every selector count == 1",
+      "non_success_outcome": "loader_error_failure_error_skip_expected_failure_unexpected_success_timeout_or_malformed_receipt_blocks",
+      "source_fingerprint_before_after_required": true,
+      "independent_freeze_recomputation_required": true
+    }
   },
   "incident_learning": {
     "required_fields": [

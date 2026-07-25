@@ -2,7 +2,8 @@
   "schema_version": "work-packet-instance/v1",
   "packet_id": "WP-CONTRACT-SUPERSESSION",
   "goal_id": "METHOD-GOVERNANCE-CLOSURE",
-  "state": "complete",
+  "state": "superseded",
+  "superseded_by": "WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY",
   "owner": "main-agent",
   "reviewer": "independent-reviewer",
   "bounded_write_paths": [

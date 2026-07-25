@@ -276,6 +276,18 @@ BROKER_ENDPOINT = _build_endpoint()
         self.write_packet(packet)
         self.assert_rejected("NLS-PACKET-UNAPPROVED-SIDE-EFFECT")
 
+    def test_superseded_packet_field_is_state_bound(self) -> None:
+        packet = self.paper_packet()
+        packet["state"] = "superseded"
+        packet["superseded_by"] = "WP-PAPER-SUCCESSOR"
+        packet["external_side_effects"] = []
+        self.write_packet(packet)
+        self.assert_passes()
+
+        packet["state"] = "active"
+        self.write_packet(packet)
+        self.assert_rejected("NLS-PACKET-SCHEMA")
+
     def test_unlisted_execution_capable_class_is_rejected(self) -> None:
         self.assert_passes()
         self.append_python(

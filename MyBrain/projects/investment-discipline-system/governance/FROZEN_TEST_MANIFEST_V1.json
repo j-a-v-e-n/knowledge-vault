@@ -35,7 +35,7 @@
     "process_isolation": "fresh_subprocess",
     "timeout_seconds": 120,
     "expected": {
-      "tests_run": 6,
+      "tests_run": 7,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -46,7 +46,7 @@
   "sources": [
     {
       "file": "governance_tests/test_project_method.py",
-      "sha256": "07f24ee2beb48867bc75eec60718d4b7974e0d87f25feeaad9b1fbc02ed1eb3f"
+      "sha256": "ad08e15fd501c6382c0c33e87ed9ffff042bb55f291a1b7ae6ccacc9bfcd10ef"
     },
     {
       "file": "governance_tests/test_context_recovery.py",
@@ -54,18 +54,22 @@
     },
     {
       "file": "governance_tests/test_work_packets.py",
-      "sha256": "59736f199ab8f4c33485fe913fa3212dbb4fd9e6cbef86df620eaad89171a123"
+      "sha256": "81409baedb914e8c0dfa52547c1ae5184c8c998a0e08f8ae15759c841ee011b6"
     },
     {
       "file": "governance_tests/test_assurance_runner.py",
-      "sha256": "83a450a88540d8ed7dacdb87a19dfcaab6b8210bfca970a6793fc4551bdb93c9"
+      "sha256": "47c956b59b61c6b447e4f77ef88582221a12d83c2afc6540640230afa7cb70cb"
+    },
+    {
+      "file": "governance_tests/test_governance_regression_runner.py",
+      "sha256": "a58060c6b044237ba51de84d5d63fe354aace7f6976c5ce2b00d97afffdd2579"
     }
   ],
   "classes": [
     {
       "file": "governance_tests/test_project_method.py",
       "class_name": "ProjectMethodPolicyTests",
-      "normalized_ast_sha256": "ee88d679c14467ed2e7074a29dae66fde26406fc208c1eaf86d90effc2adcdca"
+      "normalized_ast_sha256": "8e75fe1f57a76f84d69317066883164f1a057f61f56418b105117ff5d88fb30d"
     },
     {
       "file": "governance_tests/test_context_recovery.py",
@@ -75,12 +79,17 @@
     {
       "file": "governance_tests/test_work_packets.py",
       "class_name": "WorkPacketVerifierTests",
-      "normalized_ast_sha256": "83e09ad3d7ce4c498e09f12868cefe82b9041cc8204ab019cd0094923e061515"
+      "normalized_ast_sha256": "6b81fbca665eb3ee72ea6c535874bee8b167343bd13667e3f555c8cd79908f66"
     },
     {
       "file": "governance_tests/test_assurance_runner.py",
       "class_name": "AssuranceRunnerTests",
-      "normalized_ast_sha256": "97cecd053723b5d4d0cb7bae1a5b6450d3da90dad2be78b2691d230ff945ec76"
+      "normalized_ast_sha256": "dc4bf7a818da341a1e406cee87220295ba9639764576f721027d5432b86f187a"
+    },
+    {
+      "file": "governance_tests/test_governance_regression_runner.py",
+      "class_name": "GovernanceRegressionRunnerTests",
+      "normalized_ast_sha256": "637298dbaf019f84d6d0bdcd926e81b6acec4c894d1b9de9b0c9b12ea745c846"
     }
   ],
   "tests": [
@@ -134,9 +143,18 @@
       "file": "governance_tests/test_assurance_runner.py",
       "class_name": "AssuranceRunnerTests",
       "test_name": "test_timeout_fails_closed_and_preserves_partial_output",
-      "normalized_ast_sha256": "4d9c05a7294ffaaf4ff35745d6fbf6a98ecce18122a568785b5c60b27ea6496b",
-      "assertion_count": 6,
-      "assertion_ast_sha256": "8f7e48964cb196cca853ce41ad1d00a0e58451c789b1da4f9262865c486c4e87"
+      "normalized_ast_sha256": "dbc58ae6dd471db413d6dc73cf86933e4870ecc30a41dd15ead8126df2bcaa8a",
+      "assertion_count": 7,
+      "assertion_ast_sha256": "c9a475bf92cc60b1117f1ebb8f14d5fd0d6934f31b1968f7274efed7bd9cf3a4"
+    },
+    {
+      "selector": "governance_tests.test_governance_regression_runner.GovernanceRegressionRunnerTests.test_duplicate_substitution_cannot_fake_exact_execution",
+      "file": "governance_tests/test_governance_regression_runner.py",
+      "class_name": "GovernanceRegressionRunnerTests",
+      "test_name": "test_duplicate_substitution_cannot_fake_exact_execution",
+      "normalized_ast_sha256": "a61d744992bacc3e469a342b372ead3ff595ced623759c2a7a4dd6038e15595f",
+      "assertion_count": 1,
+      "assertion_ast_sha256": "5ebdd1469f58f336ad7dbd040dcd351b6fb94701f89e23daa5cf792f69341e13"
     }
   ]
 }

@@ -221,11 +221,12 @@ FAILURE_CASES: list[dict[str, Any]] = [
                 "-m",
                 "unittest",
                 "governance_tests.test_frozen_tests",
+                "governance_tests.test_project_method.ProjectMethodPolicyTests.test_regression_test_universe_narrowing_is_rejected",
                 "-v",
             ],
         ],
         "limitations": [
-            "The manifest protects only listed tests and does not establish that their original oracle is semantically correct."
+            "The manifest protects only listed tests, while the regression-universe policy separately fixes recursive test*.py discovery and exact test identities; neither establishes that an original oracle is semantically correct."
         ],
     },
     {

@@ -250,12 +250,18 @@
       "external_side_effects",
       "semantic_invariants"
     ],
+    "state_specific_optional_fields": {
+      "superseded": [
+        "superseded_by"
+      ]
+    },
     "all_state_values": [
       "pending",
       "active",
       "blocked",
       "candidate_complete",
-      "complete"
+      "complete",
+      "superseded"
     ],
     "allowed_active_external_side_effects": [
       "git_remote_autobackup_observed"

@@ -163,6 +163,61 @@ class WorkPacketVerifierTests(unittest.TestCase):
         )
         return payload
 
+    def write_completed_packet_with_receipts(
+        self,
+        packet_id: str,
+        write_path: str,
+    ) -> dict[str, Any]:
+        checkpoint_relative = (
+            f".work_packets/receipts/{packet_id}.checkpoint.json"
+        )
+        acceptance_relative = (
+            f".work_packets/receipts/{packet_id}.acceptance.json"
+        )
+        packet = self.packet(
+            packet_id,
+            write_path,
+            state="complete",
+            checkpoint_path=checkpoint_relative,
+            acceptance_receipt_path=acceptance_relative,
+        )
+        contract_digest = canonical_sha256(
+            {field: packet[field] for field in CONTRACT_FIELDS}
+        )
+        file_digest = hashlib.sha256(
+            (self.root / write_path).read_bytes()
+        ).hexdigest()
+        checkpoint = {
+            "schema_version": "work-packet-checkpoint/v1",
+            "packet_id": packet_id,
+            "packet_contract_sha256": contract_digest,
+            "sequence": 1,
+            "snapshots": [
+                {
+                    "path": write_path,
+                    "kind": "file",
+                    "state": "file",
+                    "content_sha256": file_digest,
+                }
+            ],
+        }
+        acceptance = {
+            "schema_version": "work-packet-acceptance/v1",
+            "packet_id": packet_id,
+            "packet_contract_sha256": contract_digest,
+            "checkpoint_receipt_sha256": canonical_sha256(checkpoint),
+            "checks": [
+                {
+                    "check_id": "CHECK-FOCUSED",
+                    "actual_exit_code": 0,
+                }
+            ],
+        }
+        self.write_packet(packet)
+        self.write_json(checkpoint_relative, checkpoint)
+        self.write_json(acceptance_relative, acceptance)
+        return packet
+
     def test_benign_disjoint_packets_allow_shared_read_dependencies(self) -> None:
         self.write_packet(
             self.packet(
@@ -183,7 +238,7 @@ class WorkPacketVerifierTests(unittest.TestCase):
         self.assertEqual(2, payload["active_packet_count"])
         self.assertEqual(2, payload["ownership_claim_count"])
         self.assertEqual(0, payload["ownership_conflict_count"])
-        self.assertEqual(5, len(payload["platform_and_process_limitations"]))
+        self.assertEqual(6, len(payload["platform_and_process_limitations"]))
 
     def test_direct_duplicate_ownership_is_rejected(self) -> None:
         self.write_packet(self.packet("WP-A", "src/feature/a.json"))
@@ -283,6 +338,54 @@ class WorkPacketVerifierTests(unittest.TestCase):
 
         payload = self.assert_passes()
         self.assertEqual(1, payload["completion_verified_count"])
+
+    def test_superseded_packet_preserves_history_and_releases_ownership(
+        self,
+    ) -> None:
+        historical = self.write_completed_packet_with_receipts(
+            "WP-A",
+            "src/feature/a.json",
+        )
+        self.write_text("src/feature/a.json", '{"value": 9}\n')
+        historical["state"] = "superseded"
+        historical["superseded_by"] = "WP-B"
+        self.write_packet(historical)
+        self.write_packet(
+            self.packet("WP-B", "src/feature/a.json", state="active")
+        )
+
+        payload = self.assert_passes()
+        self.assertEqual(1, payload["active_packet_count"])
+        self.assertEqual(0, payload["completion_verified_count"])
+        self.assertEqual(
+            1,
+            payload["superseded_receipt_verified_count"],
+        )
+
+    def test_superseded_packet_requires_exact_scope_successor(self) -> None:
+        historical = self.write_completed_packet_with_receipts(
+            "WP-A",
+            "src/feature/a.json",
+        )
+        historical["state"] = "superseded"
+        historical["superseded_by"] = "WP-B"
+        self.write_packet(historical)
+        self.write_packet(
+            self.packet("WP-B", "src/feature/b.json", state="active")
+        )
+
+        self.assert_rejected("superseding packet write set differs")
+
+    def test_superseded_packet_requires_existing_successor(self) -> None:
+        historical = self.write_completed_packet_with_receipts(
+            "WP-A",
+            "src/feature/a.json",
+        )
+        historical["state"] = "superseded"
+        historical["superseded_by"] = "WP-MISSING"
+        self.write_packet(historical)
+
+        self.assert_rejected("superseding packet is missing")
 
     def test_disjoint_text_changes_can_fail_joint_semantic_invariant(self) -> None:
         invariant = {

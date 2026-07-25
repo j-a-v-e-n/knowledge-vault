@@ -741,8 +741,8 @@
       "phase": "design_freeze",
       "requirement_ids": ["REQ-METHOD-001"],
       "verification_ids": ["V-PROJECT-METHOD"],
-      "preconditions": {"mutation": "skip the passing baseline before mutation"},
-      "operation": {"command": "python3 -m unittest governance_tests.test_project_method.ProjectMethodPolicyTests.test_frozen_test_baseline_bypass_is_rejected"},
+      "preconditions": {"mutation": "narrow recursive test*.py discovery or skip the passing baseline before mutation"},
+      "operation": {"command": "python3 -m unittest governance_tests.test_project_method.ProjectMethodPolicyTests.test_regression_test_universe_narrowing_is_rejected"},
       "expected": {"exit": 0, "mutation_rejected": true}
     },
     {

@@ -116,6 +116,11 @@ EXPECTED_TESTS = (
         "AssuranceRunnerTests",
         "test_timeout_fails_closed_and_preserves_partial_output",
     ),
+    FrozenIdentity(
+        "governance_tests/test_governance_regression_runner.py",
+        "GovernanceRegressionRunnerTests",
+        "test_duplicate_substitution_cannot_fake_exact_execution",
+    ),
 )
 
 
