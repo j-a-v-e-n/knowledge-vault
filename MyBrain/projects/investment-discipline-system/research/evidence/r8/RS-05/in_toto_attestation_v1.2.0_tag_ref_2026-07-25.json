@@ -1,0 +1,10 @@
+{
+  "ref": "refs/tags/v1.2.0",
+  "node_id": "MDM6UmVmMzUzNzM1Nzk1OnJlZnMvdGFncy92MS4yLjA=",
+  "url": "https://api.github.com/repos/in-toto/attestation/git/refs/tags/v1.2.0",
+  "object": {
+    "sha": "df02077bf97218a8860a5c534eff1f1381f56984",
+    "type": "commit",
+    "url": "https://api.github.com/repos/in-toto/attestation/git/commits/df02077bf97218a8860a5c534eff1f1381f56984"
+  }
+}

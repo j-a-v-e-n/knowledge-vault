@@ -204,7 +204,7 @@
     },
     {
       "path": "governance/ASSURANCE_TRUST_MODEL_V1.json",
-      "sha256": "319338f45031efd45b468914ecca3f197ed7d952e3d737fd214e4efcf9ade627",
+      "sha256": "33f86ae8ec1c94105803f4e6def9a2ac2de2b9d14c330cf40c3fb189258bedb4",
       "role": "assurance_trust_and_provenance_threat_model",
       "required": true
     },

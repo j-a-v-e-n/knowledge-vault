@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "round_id": "RESEARCH-REFRESH-R8",
+  "topic_id": "RS-02",
+  "created_at_utc": "2026-07-25T16:31:33Z",
+  "preregistration": {
+    "commit": "7824a63afe923d5e38c0c6f06577a7d1adfb81d5",
+    "commit_utc": "2026-07-25T16:13:44Z",
+    "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8"
+  },
+  "required_snapshot_class_status": [
+    {
+      "snapshot_class": "one primary or peer-reviewed memory failure source",
+      "predicate": true,
+      "source_ids": [
+        "RS02-SRC-MEM-01",
+        "RS02-SRC-MEM-02",
+        "RS02-SRC-MEM-03",
+        "RS02-SRC-MEM-04"
+      ]
+    },
+    {
+      "snapshot_class": "one primary harness or durable execution source",
+      "predicate": true,
+      "source_ids": [
+        "RS02-SRC-DUR-01",
+        "RS02-SRC-DUR-02"
+      ]
+    },
+    {
+      "snapshot_class": "one implementation issue or practitioner failure report",
+      "predicate": true,
+      "source_ids": [
+        "RS02-SRC-ISSUE-01",
+        "RS02-SRC-ISSUE-02",
+        "RS02-SRC-ISSUE-03",
+        "RS02-SRC-ISSUE-04"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "RS02-SRC-MEM-01",
+      "topic_id": "RS-02",
+      "source_class": "primary preprint",
+      "snapshot_class": "one primary or peer-reviewed memory failure source",
+      "canonical_url_or_repo_commit": "https://arxiv.org/pdf/2606.27472v1",
+      "revision_or_supersession_state": "arXiv:2606.27472v1; PDF first page date 2026-06-25; preprint under review",
+      "retrieved_at_utc": "2026-07-25T16:21:53Z",
+      "media_type": "application/pdf",
+      "byte_count": 275393,
+      "sha256": "ba7175324f30b02ff1967242250d421afdb0a6f1f80c3f48d2576f4f77de7e1b",
+      "local_path": "snapshots/RS02-SRC-MEM-SUPERSEDE-arxiv-2606.27472v1.pdf",
+      "source_range_used": "PDF pages 1, 5, and 8: abstract; Section 5.1; Section 7 limitations",
+      "license_or_quotation_boundary": "Copyright and redistribution license not independently established from the saved PDF; preserve locally for verification, cite the paper, and use only short attributed quotations.",
+      "response_headers": {
+        "local_path": "headers/RS02-SRC-MEM-SUPERSEDE-arxiv-2606.27472v1.headers.txt",
+        "byte_count": 663,
+        "sha256": "38f55b6b32d430d1a04158011e2a1163d4bb834ae97143d87b5a9fd70416375b",
+        "etag": "CLCSjqeTq5UDEAI=",
+        "last_modified": "2026-06-29T00:04:48Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-MEM-02",
+      "topic_id": "RS-02",
+      "source_class": "primary preprint",
+      "snapshot_class": "one primary or peer-reviewed memory failure source",
+      "canonical_url_or_repo_commit": "https://arxiv.org/pdf/2605.06527v1",
+      "revision_or_supersession_state": "arXiv:2605.06527v1; PDF first page date 2026-05-07; preprint",
+      "retrieved_at_utc": "2026-07-25T16:22:49Z",
+      "media_type": "application/pdf",
+      "byte_count": 5568857,
+      "sha256": "388f71f1eb952e7d7e7b19c2f25bfc744c47efa8ee00a548093b949432495109",
+      "local_path": "snapshots/RS02-SRC-MEM-STALE-arxiv-2605.06527v1.pdf",
+      "source_range_used": "PDF pages 1, 3-4, 7, and 14: abstract; probing dimensions; implicit-conflict definition; aggregate result; limitations",
+      "license_or_quotation_boundary": "Copyright and redistribution license not independently established from the saved PDF; preserve locally for verification, cite the paper, and use only short attributed quotations.",
+      "response_headers": {
+        "local_path": "headers/RS02-SRC-MEM-STALE-arxiv-2605.06527v1.headers.txt",
+        "byte_count": 719,
+        "sha256": "b5d4112b5e81887ac6d11a59c233bf8be3a52ee7de0f7d18ee0f5072ff142716",
+        "etag": "sha256:cde7280d22775abc14c9ecb1e2b188ee609eaed430d7151e86abfce0df3f987f",
+        "last_modified": "2026-05-08T01:45:16Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-MEM-03",
+      "topic_id": "RS-02",
+      "source_class": "primary preprint",
+      "snapshot_class": "one primary or peer-reviewed memory failure source",
+      "canonical_url_or_repo_commit": "https://arxiv.org/pdf/2605.28009v1",
+      "revision_or_supersession_state": "arXiv:2605.28009v1; PDF first page date 2026-05-27; preprint",
+      "retrieved_at_utc": "2026-07-25T16:22:56Z",
+      "media_type": "application/pdf",
+      "byte_count": 1312901,
+      "sha256": "b396784d2f056b3310ee4012b2d909fa148f27a24a3a8ea249e3fba32271a5fd",
+      "local_path": "snapshots/RS02-SRC-MEM-MEMGUARD-arxiv-2605.28009v1.pdf",
+      "source_range_used": "PDF pages 1, 3, and 8-9: abstract; heterogeneous-memory-contamination definition; component analysis; limitation",
+      "license_or_quotation_boundary": "Copyright and redistribution license not independently established from the saved PDF; preserve locally for verification, cite the paper, and use only short attributed quotations.",
+      "response_headers": {
+        "local_path": "headers/RS02-SRC-MEM-MEMGUARD-arxiv-2605.28009v1.headers.txt",
+        "byte_count": 720,
+        "sha256": "00cab76f0b68948b55f3af7e057a094e66169c3f6a5299c5d124938999acecd5",
+        "etag": "sha256:ad5c71b59356799ebcccf6d193254f6ac18264b686a7ef94e53d24ea1ebf0e5c",
+        "last_modified": "2026-05-28T00:43:40Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-MEM-04",
+      "topic_id": "RS-02",
+      "source_class": "peer-reviewed paper",
+      "snapshot_class": "one primary or peer-reviewed memory failure source",
+      "canonical_url_or_repo_commit": "https://aclanthology.org/2026.acl-long.27.pdf",
+      "revision_or_supersession_state": "ACL 2026, Anthology ID 2026.acl-long.27",
+      "retrieved_at_utc": "2026-07-25T16:23:08Z",
+      "media_type": "application/pdf",
+      "byte_count": 10212411,
+      "sha256": "2c3992d238f5d6dec4ed96faae0a82e3b88edc6e37b26d8622a2b780f2160400",
+      "local_path": "snapshots/RS02-SRC-MEM-XIONG-ACL2026.pdf",
+      "source_range_used": "PDF pages 1, 5-6, and 9: abstract; experience-following; error propagation; conclusion and limitations",
+      "license_or_quotation_boundary": "The saved PDF does not state a redistribution license in the used ranges; preserve locally for verification, cite the ACL paper, and use only short attributed quotations.",
+      "response_headers": {
+        "local_path": "headers/RS02-SRC-MEM-XIONG-ACL2026.headers.txt",
+        "byte_count": 243,
+        "sha256": "90a5f0e1f2ac2eee574baa79962c428407af2ecfa724c26f6d357022ad4df440",
+        "etag": "9bd43b-653f003024200",
+        "last_modified": "2026-06-11T01:09:28Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-DUR-01",
+      "topic_id": "RS-02",
+      "source_class": "primary preprint and proof-of-concept",
+      "snapshot_class": "one primary harness or durable execution source",
+      "canonical_url_or_repo_commit": "https://arxiv.org/pdf/2603.20625v1",
+      "revision_or_supersession_state": "arXiv:2603.20625v1; PDF first page date 2026-03-21; mitigation not implemented or evaluated in the paper",
+      "retrieved_at_utc": "2026-07-25T16:22:40Z",
+      "media_type": "application/pdf",
+      "byte_count": 463072,
+      "sha256": "5b88ebb1f9dc1cb136c2e8b282a5b9d31122dc172ecd9c1893f4a5b578e86263",
+      "local_path": "snapshots/RS02-SRC-DUR-ACRFENCE-arxiv-2603.20625v1.pdf",
+      "source_range_used": "PDF pages 1-3: semantic rollback threat; Action Replay; Authority Resurrection; proposed replay-or-fork; evaluation limitation",
+      "license_or_quotation_boundary": "Copyright and redistribution license not independently established from the saved PDF; preserve locally for verification, cite the paper, and use only short attributed quotations.",
+      "response_headers": {
+        "local_path": "headers/RS02-SRC-DUR-ACRFENCE-arxiv-2603.20625v1.headers.txt",
+        "byte_count": 664,
+        "sha256": "4d06e915074d84606c45c97b0de270a4c75d8848cbc8c5351766a863a75dd5f6",
+        "etag": "CIqnleejt5MDEAI=",
+        "last_modified": "2026-03-24T00:29:01Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-DUR-02",
+      "topic_id": "RS-02",
+      "source_class": "official vendor primary report",
+      "snapshot_class": "one primary harness or durable execution source",
+      "canonical_url_or_repo_commit": "https://www.anthropic.com/engineering/harness-design-long-running-apps",
+      "revision_or_supersession_state": "Anthropic Sanity article _id d247b270-f917-40ca-8d67-d5ae517e117d, _rev nndkrAuP7NXH0SvEsFos86, _updatedAt 2026-03-24T16:23:08Z; exact live HTML saved",
+      "retrieved_at_utc": "2026-07-25T16:23:27Z",
+      "media_type": "text/html; charset=utf-8",
+      "byte_count": 248479,
+      "sha256": "3643c6685d30c4d4a3e3e9d7bef5ed53da5f2ce0e4c070f11c07c5c4e43e6aa7",
+      "local_path": "snapshots/RS02-SRC-HARNESS-ANTHROPIC-2026-03-24.html",
+      "source_range_used": "Article section 'Why naive implementations fall short', paragraphs on context reset versus compaction and self-evaluation; architecture paragraph on later model-specific reset removal",
+      "license_or_quotation_boundary": "Anthropic page copyright applies; retain exact bytes only for internal verification, link to the canonical page, and use only short attributed quotations.",
+      "response_headers": {
+        "local_path": "headers/RS02-SRC-HARNESS-ANTHROPIC-2026-03-24.headers.txt",
+        "byte_count": 6428,
+        "sha256": "ab753771ed0238a5c9b5537daf736199ba7820ac15f6a0f1b71037a612959164",
+        "etag": null,
+        "last_modified": null
+      }
+    },
+    {
+      "source_id": "RS02-SRC-MAS-01",
+      "topic_id": "RS-02",
+      "source_class": "peer-reviewed counterevidence",
+      "snapshot_class": "additional multi-agent counterevidence",
+      "canonical_url_or_repo_commit": "https://aclanthology.org/2025.findings-acl.606.pdf",
+      "revision_or_supersession_state": "Findings of ACL 2025, Anthology ID 2025.findings-acl.606",
+      "retrieved_at_utc": "2026-07-25T16:23:17Z",
+      "media_type": "application/pdf",
+      "byte_count": 978424,
+      "sha256": "f4c85dab5bc9dada9d6bc4554dbc7224386769039bc1c2fcff7d856e31863f6d",
+      "local_path": "snapshots/RS02-SRC-MAS-VOTING-ACL2025.pdf",
+      "source_range_used": "PDF pages 1, 5-6, and 9: abstract; protocol/task comparison; agent/round analysis; limitations",
+      "license_or_quotation_boundary": "The saved PDF does not state a redistribution license in the used ranges; preserve locally for verification, cite the ACL paper, and use only short attributed quotations.",
+      "response_headers": {
+        "local_path": "headers/RS02-SRC-MAS-VOTING-ACL2025.headers.txt",
+        "byte_count": 240,
+        "sha256": "36db3a971b153eaac716f3490259f89cb306b89630f8e02fb1e5ac2ec17ce42a",
+        "etag": "eedf8-63a0c4b2505c0",
+        "last_modified": "2025-07-16T13:58:55Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-ISSUE-01",
+      "topic_id": "RS-02",
+      "source_class": "fixed GitHub implementation issue",
+      "snapshot_class": "one implementation issue or practitioner failure report",
+      "canonical_url_or_repo_commit": "https://github.com/NousResearch/hermes-agent/issues/2670",
+      "retrieval_url": "https://api.github.com/repos/NousResearch/hermes-agent/issues/2670",
+      "revision_or_supersession_state": "closed/completed; API updated_at 2026-03-23T23:08:40Z; HTTP ETag W/\"b1be1f64ddaf4ecec5d5433b8c51f798c66e969689a4ba647795a305e31b8827\"",
+      "retrieved_at_utc": "2026-07-25T16:23:43Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 7444,
+      "sha256": "17813fa4e55d80cf8f857db257986935be54d064dbc20e139071140489263113",
+      "local_path": "snapshots/RS02-ISSUE-HERMES-2670.json",
+      "source_range_used": "JSON $.body, derived body lines 1-39: stale flush, reproduction, missing timestamp/conflict handling, impact",
+      "license_or_quotation_boundary": "User-authored issue text; use only as a concrete failure and regression probe, not incidence or universal capability; quote minimally with attribution and canonical issue link.",
+      "response_headers": {
+        "local_path": "headers/RS02-ISSUE-HERMES-2670.headers.txt",
+        "byte_count": 1294,
+        "sha256": "3fdf62340906420bdfa85a7fca07c9735923995752d7b66289be33b59b9619a0",
+        "etag": "W/\"b1be1f64ddaf4ecec5d5433b8c51f798c66e969689a4ba647795a305e31b8827\"",
+        "last_modified": "2026-07-02T03:28:22Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-ISSUE-02",
+      "topic_id": "RS-02",
+      "source_class": "fixed GitHub implementation issue",
+      "snapshot_class": "one implementation issue or practitioner failure report",
+      "canonical_url_or_repo_commit": "https://github.com/openclaw/openclaw/issues/68751",
+      "retrieval_url": "https://api.github.com/repos/openclaw/openclaw/issues/68751",
+      "revision_or_supersession_state": "closed/completed; API updated_at 2026-06-25T04:54:14Z; search result displayed open but the later exact API snapshot supersedes that backend state",
+      "retrieved_at_utc": "2026-07-25T16:23:55Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 15533,
+      "sha256": "ce3654c614349083c1737da7f45f87f161620ad31137ae3fc9349e50e2afcccd",
+      "local_path": "snapshots/RS02-ISSUE-OPENCLAW-68751.json",
+      "source_range_used": "JSON $.body, derived body lines 1-23 and 100-104: prior-session commands re-enter current input; reproduction; untrusted-data boundary",
+      "license_or_quotation_boundary": "User-authored issue text; use only as a concrete failure and regression probe, not incidence or universal capability; quote minimally with attribution and canonical issue link.",
+      "response_headers": {
+        "local_path": "headers/RS02-ISSUE-OPENCLAW-68751.headers.txt",
+        "byte_count": 1271,
+        "sha256": "a1a05c499a6311ef81a43b31453b14435c5f186e86b311e9ee6c6e7bd6108cff",
+        "etag": "W/\"d75203190fe2a838a33162df1e2987f3dc1f15da6c8700b5fa0a43a766661c44\"",
+        "last_modified": "2026-06-25T04:54:14Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-ISSUE-03",
+      "topic_id": "RS-02",
+      "source_class": "fixed GitHub implementation issue",
+      "snapshot_class": "one implementation issue or practitioner failure report",
+      "canonical_url_or_repo_commit": "https://github.com/openclaw/openclaw/issues/42112",
+      "retrieval_url": "https://api.github.com/repos/openclaw/openclaw/issues/42112",
+      "revision_or_supersession_state": "closed/completed; API updated_at 2026-04-27T04:53:34Z",
+      "retrieved_at_utc": "2026-07-25T16:24:03Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 9304,
+      "sha256": "e12ee1b466d02ed8cfa88ddabf465968ff847be26741a807dd8606df5f60d1bc",
+      "local_path": "snapshots/RS02-ISSUE-OPENCLAW-42112.json",
+      "source_range_used": "JSON $.body, derived body lines 1-25, 61-73, and 83-123: orphaned tool call; replay poison; structural validation and atomic-persistence probes",
+      "license_or_quotation_boundary": "User-authored issue text; use only as a concrete failure and regression probe, not incidence or universal capability; quote minimally with attribution and canonical issue link.",
+      "response_headers": {
+        "local_path": "headers/RS02-ISSUE-OPENCLAW-42112.headers.txt",
+        "byte_count": 1294,
+        "sha256": "917a4a8ddf959434906c011c7f3f53aa8267702795ca843cd1d96b76314cfc9a",
+        "etag": "W/\"0834d7495d7b509f8abff4ac4bd9184a793533361941e905ee954a849983e6a2\"",
+        "last_modified": "2026-04-27T04:53:34Z"
+      }
+    },
+    {
+      "source_id": "RS02-SRC-ISSUE-04",
+      "topic_id": "RS-02",
+      "source_class": "fixed GitHub implementation issue",
+      "snapshot_class": "one implementation issue or practitioner failure report",
+      "canonical_url_or_repo_commit": "https://github.com/NousResearch/hermes-agent/issues/13075",
+      "retrieval_url": "https://api.github.com/repos/NousResearch/hermes-agent/issues/13075",
+      "revision_or_supersession_state": "open; API updated_at 2026-07-25T06:00:37Z",
+      "retrieved_at_utc": "2026-07-25T16:24:14Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 5822,
+      "sha256": "6c51d5fa9f8afd8f36ce1dc4278f70f7b9ae4fcdf85e03186256caf3de50b283",
+      "local_path": "snapshots/RS02-ISSUE-HERMES-13075.json",
+      "source_range_used": "JSON $.body, derived body lines 3-30: interruption counter reset and duplicate memory review reproduction",
+      "license_or_quotation_boundary": "User-authored issue text; use only as a concrete failure and regression probe, not incidence or universal capability; quote minimally with attribution and canonical issue link.",
+      "response_headers": {
+        "local_path": "headers/RS02-ISSUE-HERMES-13075.headers.txt",
+        "byte_count": 1294,
+        "sha256": "ede49b4733de102cf0f55201e8f094d745c5466ea181a2337927b79047b5c161",
+        "etag": "W/\"ca7234f590ce07ffc1fded6bb53610fe025554d3e92dfb3cda73bf743463d780\"",
+        "last_modified": "2026-07-25T06:00:37Z"
+      }
+    }
+  ],
+  "retrieval_receipts": [
+    {
+      "local_path": "receipts/SNAPSHOT_RETRIEVAL_RETRIES.md",
+      "purpose": "records the local-directory and sandbox-DNS failures before the successful fixed-URL Supersede snapshot retry"
+    }
+  ]
+}

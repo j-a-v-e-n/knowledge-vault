@@ -164,7 +164,7 @@
 - new_high_impact_failure_class: `no`
 - decision_reversal: `no`
 - open_critical_or_major_contradiction: `none`
-- new_major_operational_probe: Public-repository verification may require authentication, so a future machine gate should isolate verifier execution, minimize token scope/lifetime, and record whether unauthenticated operation is possible for the exact installed CLI. This user report is not promoted to a universal mechanism claim.
+- new_major_operational_probe: Automatic bundle lookup/download through `gh` may require authentication and can encounter unauthenticated API rate limits. The saved issue thread also clarifies that `gh attestation verify --bundle ...` can verify an already-saved bundle without GitHub authentication. A future machine gate should therefore preserve the bundle, isolate any authenticated fetch, minimize token scope/lifetime, and record the exact installed CLI behavior. This user report and thread are not promoted to a universal mechanism claim.
 - last_high_impact_delta: `R8-RS05-DELTA-S1-VALID-ATTESTATION-COMPROMISED-PIPELINE`
 - later_reserved_queries_after_last_high_impact_delta: `R8-RS05-S2`, `R8-RS05-S3`
 - later_query_outcomes: Both yielded no new high-impact failure class, no decision reversal, and no open critical/major contradiction.
@@ -173,3 +173,12 @@
 - no_sixth_query: `enforced`
 - topic_status_implication: Stability itself passes. Topic closure must still be evaluated against every other predicate; this author does not perform the required independent entailment review.
 
+## Post-search exact issue-thread validation
+
+- retrieval_window_utc: `2026-07-25T16:31:31Z`–`2026-07-25T16:31:32Z`
+- exact_issue_bytes: `github_cli_issue_11803_2026-07-25.json`
+- exact_comment_bytes: `github_cli_issue_11803_comments_2026-07-25.json`
+- current_state: Issue `#11803` is open, has `18` comments in the exact API receipt, and is labeled `enhancement` and `gh-attestation`.
+- qualification_from_thread: A repository contributor explains that hosted bundle fetching is the authentication-dependent operation and that local verification with an explicitly supplied bundle does not require GitHub authentication. The reporter confirms a bundle-based unauthenticated verification path and later reports rate-limit failures for unauthenticated fetching on some Actions runners.
+- authority_boundary: The issue is independent user evidence for burden/failure probes. Contributor comments improve mechanism interpretation, but the thread is not a controlled incidence study and does not prove every version/environment behaves identically.
+- supersession_check_for_result_10: `github_cli_issue_9602_2026-07-25.json` is `closed` with `state_reason: completed`; its exact comment receipt records that a CLI contributor linked the shipped implementation. The current D2 manual and local `gh 2.95.0` expose `--source-ref`, `--source-digest`, and `--signer-digest`, so the old request is not counted as a current missing-policy flag.

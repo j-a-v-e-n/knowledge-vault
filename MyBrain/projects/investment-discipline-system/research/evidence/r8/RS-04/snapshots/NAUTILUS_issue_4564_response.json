@@ -1,0 +1,82 @@
+{
+  "url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4564",
+  "repository_url": "https://api.github.com/repos/nautechsystems/nautilus_trader",
+  "labels_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4564/labels{/name}",
+  "comments_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4564/comments",
+  "events_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4564/events",
+  "html_url": "https://github.com/nautechsystems/nautilus_trader/issues/4564",
+  "id": 4971291379,
+  "node_id": "I_kwDOCEIjhM8AAAABKE_i8w",
+  "number": 4564,
+  "title": "[Interactive Brokers] Modify during Gateway connectivity loss can duplicate the order at IB (new permId, original stays live); adapter tracks one incarnation and cancel leaves an orphaned working order",
+  "user": {
+    "login": "davidgreyme",
+    "id": 48728901,
+    "node_id": "MDQ6VXNlcjQ4NzI4OTAx",
+    "avatar_url": "https://avatars.githubusercontent.com/u/48728901?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/davidgreyme",
+    "html_url": "https://github.com/davidgreyme",
+    "followers_url": "https://api.github.com/users/davidgreyme/followers",
+    "following_url": "https://api.github.com/users/davidgreyme/following{/other_user}",
+    "gists_url": "https://api.github.com/users/davidgreyme/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/davidgreyme/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/davidgreyme/subscriptions",
+    "organizations_url": "https://api.github.com/users/davidgreyme/orgs",
+    "repos_url": "https://api.github.com/users/davidgreyme/repos",
+    "events_url": "https://api.github.com/users/davidgreyme/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/davidgreyme/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 0,
+  "created_at": "2026-07-24T18:55:23Z",
+  "updated_at": "2026-07-24T18:55:23Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "NONE",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "## Bug report\n\n**Adapter:** Interactive Brokers\n**Version:** `1.231.0a20260709` (develop nightly), Python 3.13, Linux (Docker), gnzsnz `ib-gateway` (paper)\n\n### Summary\n\nAn order modified with a normal in-place `placeOrder` (same IB `orderId`) **while the TWS↔IBKR connectivity was degraded/lost** was resolved by IB as a **new working order with a new `permId`, while the original `permId` stayed live** — two real broker orders from one modify. The adapter cannot represent \"one client order → two broker incarnations\", so:\n\n1. On reconnect, IB's open-order snapshots replayed **both** incarnations; `_on_open_order` overwrites the cached `venue_order_id` last-writer-wins (`venue_order_id_modified=True`), and the **stale original** incarnation arrived last, leaving the engine tracking the wrong order.\n2. A later `cancel_order` resolved and cancelled only that one incarnation. IB confirmed `OrderCanceled` — but the *modified* incarnation kept working at the broker, invisible to the engine.\n3. Six hours later the surviving incarnation **filled** (4 contracts, a protective stop → an unintended position flip). The fill report carried the surviving `permId`, so `Order.apply` raised `ValueError('self.venue_order_id' ... was not equal to 'event.venue_order_id' ...)` against the CANCELED order, and the engine fell back to inferred-fill NET reconciliation (which healed positions correctly — but the harm was the orphaned order executing at all).\n\n### Timeline (UTC, 2026-07-24, paper account, MESU6.CME)\n\n```\n06:10:03  submit STOP_MARKET BUY 4 @ 7463.75 GTC  -> OrderAccepted venue_order_id=PERM-253949451 (IB orderId=187)\n06:14:08  ERROR InteractiveBrokersClient: Not connected (code 504)\n06:14:13  ERROR Client failed to initialize; connection timeout\n06:15:08  ModifyOrder trigger 7463.75 -> 7443.75; adapter logs exactly ONE\n          \"Placing 136287796088976: 187,0,0: STP BUY 4@ GTC\"  (in-place, same orderId=187)\n06:15:14+ modify never confirms; engine in-flight check queries every ~2s\n06:30:05  ERROR Connectivity between IBKR and TWS has been lost (code 1100); watchdog reconnect\n06:30:06  OrderUpdated venue_order_id=PERM-253949452 trigger=7443.75 + OrderAccepted (the modified incarnation, NEW permId)\n06:30:10  OrderUpdated venue_order_id=PERM-253949451 trigger=7463.75  (the ORIGINAL, still working; cache clobbered back to 451)\n07:10:02  CancelOrder (resolves 451) -> OrderCanceled confirmed.  PERM-253949452 remains working at IB.\n13:30:00  IB fills PERM-253949452 BUY 4 @ 7444.00\n13:30:23  position check: cached_qty=-2 venue_qty=2 -> missing-fill query ->\n          ERROR ExecEngine: Error on applying OrderFilled(... venue_order_id=PERM-253949452 ...)\n          ValueError('self.venue_order_id' ... PERM-253949451 was not equal to ... PERM-253949452)\n          -> inferred NET reconciliation heals positions\n```\n\n### Verification that a *clean* modify is fine\n\nReproduced live against the same Gateway/account (second API client id, unfillable far-from-market LIMIT, qty 1): place → in-place modify (same `orderId`) → **`permId` unchanged, exactly one working order** → cancel → clean. So the duplication is specifically an IB-side artifact of a modify issued into/around a connectivity loss; the adapter's modify path itself places once, in place. (The duplication itself was not re-induced — it requires forcing a Gateway reconnect on a live-traded account.)\n\n### Where the adapter makes it worse (source refs, `adapters/interactive_brokers/execution.py` @ 1.231.0a20260709)\n\n- `_on_open_order` (~L1789 → L1842–L1848): unconditionally rewrites the cached `venue_order_id` to whatever the latest open-order snapshot reports. When IB replays two incarnations of the same `orderRef`, last-writer-wins silently selects one — in our case the stale, about-to-be-cancelled one. There is no detection of \"this client order already has a *different* live venue id\".\n- `_cancel_order` (~L1524): resolves a single IB `orderId` (via `_resolve_ib_order_id`, ~L1602) and cancels a single order — a duplicate incarnation it doesn't know about survives.\n- The continuous open-order check (`open_check_interval_secs`) *does* see the survivor every cycle, but because the report maps back (via `orderRef`) to the CANCELED client order with a different `venue_order_id`, applying it hits the same mismatch wall — so it can only log the error repeatedly, never heal or cancel the orphan.\n\n### Suggested directions\n\n1. After a modify/cancel (or on reconnect), reconcile the **instrument-level open-order set**: if one `client_order_id`/`orderRef` maps to more than one live `permId`, surface it (event or at minimum a WARN with both ids) instead of silently clobbering `venue_order_id`.\n2. In `_on_open_order`, don't overwrite a cached `venue_order_id` with a *different* id while the order is in an open state without flagging the conflict.\n3. Optionally: a post-cancel verification (order-status query) so `OrderCanceled` on one incarnation isn't treated as \"nothing else with this orderRef is working\".\n\nHappy to provide the full node logs for the incident window.\n",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4564/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4564/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}

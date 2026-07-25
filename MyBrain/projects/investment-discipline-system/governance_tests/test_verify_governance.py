@@ -11,25 +11,60 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 VERIFIER = PROJECT_ROOT / "scripts" / "verify_governance.py"
+PROJECT_PREFIX = Path("MyBrain/projects/investment-discipline-system")
+SOURCE_REPOSITORY_ROOT = Path(
+    subprocess.run(
+        ["git", "-C", str(PROJECT_ROOT), "rev-parse", "--show-toplevel"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=True,
+    ).stdout.strip()
+)
+WORKFLOW_PATH = Path(
+    ".github/workflows/investment-discipline-assurance.yml"
+)
+REMOTE_URL = "git@github.com:j-a-v-e-n/knowledge-vault.git"
 
 
 class GovernanceVerifierMutationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
-        shutil.copytree(PROJECT_ROOT / "governance", self.root / "governance")
-        shutil.copytree(PROJECT_ROOT / "research", self.root / "research")
-        shutil.copytree(PROJECT_ROOT / "audits", self.root / "audits")
-        shutil.copytree(PROJECT_ROOT / "scripts", self.root / "scripts")
-        shutil.copytree(PROJECT_ROOT / "governance_tests", self.root / "governance_tests")
-        for relative in (
-            "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
-            "PROJECT_CHARTER.md",
-            "DECISIONS.md",
-            "README.md",
-            "STATUS.md",
-        ):
-            shutil.copy2(PROJECT_ROOT / relative, self.root / relative)
+        self.repository = Path(self.temp.name) / "fixture-repository"
+        self.root = self.repository / PROJECT_PREFIX
+        self.root.parent.mkdir(parents=True)
+        shutil.copytree(
+            PROJECT_ROOT,
+            self.root,
+            ignore=shutil.ignore_patterns(
+                "__pycache__",
+                "*.pyc",
+                ".DS_Store",
+            ),
+        )
+        workflow = self.repository / WORKFLOW_PATH
+        workflow.parent.mkdir(parents=True)
+        shutil.copy2(SOURCE_REPOSITORY_ROOT / WORKFLOW_PATH, workflow)
+        subprocess.run(
+            ["git", "init", "--quiet", str(self.repository)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+        )
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(self.repository),
+                "remote",
+                "add",
+                "origin",
+                REMOTE_URL,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+        )
 
     def tearDown(self) -> None:
         self.temp.cleanup()
@@ -388,7 +423,10 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         result = self.run_verifier(frozen=True)
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("research independent challenge is not completed", result.stdout)
-        self.assertIn("research stop rule is not met", result.stdout)
+        self.assertIn(
+            "research sufficiency is not derived pre-review eligible",
+            result.stdout,
+        )
 
 
 if __name__ == "__main__":

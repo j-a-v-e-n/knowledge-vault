@@ -1,0 +1,102 @@
+{
+  "url": "https://api.github.com/repos/HKUDS/AI-Trader/issues/76",
+  "repository_url": "https://api.github.com/repos/HKUDS/AI-Trader",
+  "labels_url": "https://api.github.com/repos/HKUDS/AI-Trader/issues/76/labels{/name}",
+  "comments_url": "https://api.github.com/repos/HKUDS/AI-Trader/issues/76/comments",
+  "events_url": "https://api.github.com/repos/HKUDS/AI-Trader/issues/76/events",
+  "html_url": "https://github.com/HKUDS/AI-Trader/issues/76",
+  "id": 3581389091,
+  "node_id": "I_kwDOQHxY5c7Vd6kj",
+  "number": 76,
+  "title": "[Bug] Future Information Leakage (Lookahead Bias) in `get_information` Tool During Backtesting",
+  "user": {
+    "login": "randyy179",
+    "id": 129808685,
+    "node_id": "U_kgDOB7y5LQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/129808685?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/randyy179",
+    "html_url": "https://github.com/randyy179",
+    "followers_url": "https://api.github.com/users/randyy179/followers",
+    "following_url": "https://api.github.com/users/randyy179/following{/other_user}",
+    "gists_url": "https://api.github.com/users/randyy179/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/randyy179/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/randyy179/subscriptions",
+    "organizations_url": "https://api.github.com/users/randyy179/orgs",
+    "repos_url": "https://api.github.com/users/randyy179/repos",
+    "events_url": "https://api.github.com/users/randyy179/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/randyy179/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+
+  ],
+  "state": "closed",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 3,
+  "created_at": "2025-11-03T10:11:28Z",
+  "updated_at": "2025-11-17T06:09:22Z",
+  "closed_at": "2025-11-17T06:09:22Z",
+  "assignee": null,
+  "author_association": "CONTRIBUTOR",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "First, thank you very much for contributing such a valuable AI Trader project. The Agent-based trading framework is brilliantly designed.\n\nI recently submitted PR [#73](https://github.com/HKUDS/AI-Trader/pull/73) to improve the verbose logging of the trading agent. It was through analyzing these detailed thought and action logs that I discovered a **critical issue undermining the validity of backtesting**: the market information retrieved by the agent via the `get_information` tool exhibits obvious **Future Information Leakage** (or **Lookahead Bias**).\n\n### 🐞 Problem Description\n\nDuring historical backtesting, the trading agent is able to retrieve news articles published on **future dates** (i.e., dates later than the current trading day). This allows the agent to make decisions based on information that would be impossible to possess in real-time, completely invalidating the backtest results.\n\n**Core Component:** The `get_information` tool (which appears to source information via Jina/search engines).\n\n**Consequence:** The trading agent obtains definitive future market positive news (e.g., a stock is confirmed to have surged by a specific percentage), and bases its trading decisions on this foreknowledge.\n\n### ⚙️ Steps to Reproduce & Evidence\n\nWhile running a backtest for the trading day **2025-10-06**, I found the following undeniable evidence:\n\n#### Scenario: Decision to Buy AMD on 2025-10-06\n\nThe AI agent performed two calls to `get_information`. The second call, crucial for its decision, returned information published four days later:\n\n**The Critical Leakage Evidence:**\n\nThe agent searched for specific details regarding the **AMD-OpenAI partnership**. The result returned an article with a defined **price surge** and a **Publish Time after the decision date**:\n\n```log\n[tool/start] [chain:... > tool:get_information] Entering Tool run with input:\n\"{'query': 'AMD OpenAI partnership October 2025 stock performance'}\"\ncontent='\\nURL: https://www.fool.com/investing/2025/10/10/amds-stock-surged-24-on-its-openai-partnership-and/\\nTitle: AMD's Stock Surged 24% on Its OpenAI Partnership and Is Near an All-Time High. Is It Still a Buy?\\nDescription: AMD has played second fiddle to Nvidia throughout the AI arms race.\\nPublish Time: **2025-10-10T10:00:00.000Z** ...' \n// Note: The transaction happens on **2025-10-06**, but the news is published on **2025-10-10**.\n```\n\n**Decision Made Based on Leakage:**\n\nThe agent explicitly acts on this \"future\" news, leading to the purchase of AMD:\n\n```log\nAI: Now I can buy AMD shares:\nTool: {\"NVDA\":8,\"MSFT\":4,\"AAPL\":7,\"...\",\"AMD\":1, ...} // Purchase successfully executed\n```\n\n### 💡 Suggested Fix and Impact\n\nThis is a **clear and severe** instance of future information leakage. To ensure the validity of the backtesting process:\n\n1.  **Strict Filtering of `get_information`:** The implementation of `get_information` must be reviewed to strictly ensure that the underlying data source (e.g., Jina or other search providers) filters results based on the backtest's **current trading date** (`today_date`).\n2.  **Enforce Temporal Integrity:** The tool should only return information published at a time **less than or equal to** the time of the current simulation step.\n\nThank you again for your work on this project!",
+  "closed_by": {
+    "login": "TianyuFan0504",
+    "id": 87062283,
+    "node_id": "MDQ6VXNlcjg3MDYyMjgz",
+    "avatar_url": "https://avatars.githubusercontent.com/u/87062283?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/TianyuFan0504",
+    "html_url": "https://github.com/TianyuFan0504",
+    "followers_url": "https://api.github.com/users/TianyuFan0504/followers",
+    "following_url": "https://api.github.com/users/TianyuFan0504/following{/other_user}",
+    "gists_url": "https://api.github.com/users/TianyuFan0504/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/TianyuFan0504/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/TianyuFan0504/subscriptions",
+    "organizations_url": "https://api.github.com/users/TianyuFan0504/orgs",
+    "repos_url": "https://api.github.com/users/TianyuFan0504/repos",
+    "events_url": "https://api.github.com/users/TianyuFan0504/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/TianyuFan0504/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "reactions": {
+    "url": "https://api.github.com/repos/HKUDS/AI-Trader/issues/76/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/HKUDS/AI-Trader/issues/76/timeline",
+  "performed_via_github_app": null,
+  "state_reason": "completed",
+  "pinned_comment": null
+}

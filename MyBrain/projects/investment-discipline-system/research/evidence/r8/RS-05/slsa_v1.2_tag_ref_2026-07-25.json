@@ -1,0 +1,10 @@
+{
+  "ref": "refs/tags/v1.2",
+  "node_id": "MDM6UmVmMzQ2NTE3NTAyOnJlZnMvdGFncy92MS4y",
+  "url": "https://api.github.com/repos/slsa-framework/slsa/git/refs/tags/v1.2",
+  "object": {
+    "sha": "19e4e2f005f871270c4f555fc47afecfb37f3efe",
+    "type": "commit",
+    "url": "https://api.github.com/repos/slsa-framework/slsa/git/commits/19e4e2f005f871270c4f555fc47afecfb37f3efe"
+  }
+}

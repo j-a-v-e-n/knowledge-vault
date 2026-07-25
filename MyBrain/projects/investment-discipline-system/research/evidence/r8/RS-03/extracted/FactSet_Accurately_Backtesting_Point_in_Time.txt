@@ -1,0 +1,285 @@
+AC C U R AT ELY B AC K T E S T IN G F IN A N C I A L
+M O DEL S T HR O U GH P O IN T-IN-T IME
+C O N S EN S U S E S T IM AT E S
+By: Annabel Hudson, Richard Dutheil, and Juliana Germain
+CONTENTS
+
+Our Goal .................................................................................. 3
+Point-in-Time Database at a Glance .. ............................................... 3
+Point-in-Time Database vs. Traditional FE Database . . ........................... 4
+   FE Database Offering
+   FE Product Limitations
+   Point-in-Time Index Differences vs. FE Breakdown
+Point-in-Time Database Methodology.. ............................................. 8
+   Consensus
+   Currency
+   Database Update Process
+   Intraday FX Rate Methodology
+   Limitations and Universe
+   Consensus Methodology
+FQL and Screening Codes ............................................................. 9
+
+
+
+
+ 2 AC CUR ATELY BACK TESTING FINANCIAL MODEL S THROUGH P OINT-IN-TIME C ONSENSUS ESTIMATES
+OUR GOAL
+Provide clients with a point-in-time snapshot of consensus data so that
+they can accurately backtest models without any look-ahead bias.
+The Point-in-Time Database provides consensus data for each day at local midnight for each company.
+This is a consensus snapshot that ensures the data that has been used for the calculation was available at
+the date of this calculation. No data entered after the local midnight snapshot time can be included in that
+date’s consensus calculation.
+The Point-in-Time Database is not adjusted for dilutions, QA corrections, changes to the default currency,
+or broker estimates that were not available as of the consensus date.
+
+
+
+POINT-IN-TIME DATABASE AT A GLANCE
+
+PERIODS AVAILABLE                             ITEMS COVERED                                 CONSENSUS FLAVORS
+
+History as of December 2009                   Dividends Per Share                           100-Day Consensus Window
+                                              EPS                                           45-Day Post-Event Consensus Window
+Rolling Fiscal Periods:                       EPS Adjusted - Basic                          Sharp Consensus
+Annual FY0-FY2                                EBIT
+Quarters FQ-3 to FQ8                          EBITDA                                        Statistics:
+Semiannual FH-1 to FH4                        Free Cash Flow Per Share                      Mean
+                                              Free Cash Flow                                Median
+Annual                                        Net Debt                                      Number of Estimates
+Quarterly                                     Net Income                                    Standard Deviation
+Semi Annual                                   Sales
+                                              Rating
+                                              Target Price
+
+
+
+
+3 AC CUR ATELY BACK TESTING FINANCIAL MODEL S THROUGH P OINT-IN-TIME C ONSENSUS ESTIMATES
+POINT-IN-TIME DATABASE VS. TRADITIONAL FE DATABASE
+Access to estimates data with no look-ahead bias is essential to backtest quant models accurately. Today, the traditional
+FactSet Estimates Database has limitations in returning data that it had at a date’s “point in time.”
+
+FE DATABASE OFFERING
+The traditional FactSet Estimates Database uses the “Research Date,” or the market date of the broker contribution, to calculate
+the consensus. This exposes a look-ahead bias because most research dates are T-1 day of the broker contribution’s “Input Date,”
+or the date when the contribution was collected into the database. Clients have the option to use the “Input Date” to calculate their
+consensus to eliminate the look-ahead bias of including contributions in a consensus before the date they were collected.
+
+Research Date vs. Input Date
+Using Research Date: As of September 28, Broker A’s estimate is included in the consensus even though it was input to the
+database on the 29th.
+
+
+
+
+Using Input Date: Broker A’s estimate is excluded from consensus.
+
+
+
+
+4 AC CUR ATELY BACK TESTING FINANCIAL MODEL S THROUGH P OINT-IN-TIME C ONSENSUS ESTIMATES
+FE PRODUCT LIMITATIONS
+QA Corrections: If a broker contribution is corrected or deleted after the initial collection, using the “Input Date” mode does not
+account for those changes.
+
+Input Date Time Methodology Limitations
+Broker C’s estimate is deleted or corrected after input: As of September 28, Broker C’s estimate is excluded from consensus,
+but it was visible at the time.
+
+
+
+
+Point-in-Time Database: Using the exact picture of the database as of September 28, Broker A’s estimate doesn’t
+exist and Broker C’s estimate is available.
+
+
+
+
+5 AC CUR ATELY BACK TESTING FINANCIAL MODEL S THROUGH P OINT-IN-TIME C ONSENSUS ESTIMATES
+Time Zone Updates
+Using “Input Date” mode in FE uses a 12:00 AM GMT cutoff time for each perspective date. This is not accurate for regions outside of
+the GMT time zone.
+The Point-in-Time Database calculates the consensus based on each security’s local 12:00 AM cutoff time for each date.
+
+Point-in-Time Enhanced Methodology
+“Input Date” mode uses Midnight GMT as a reference to calculate daily data points. That’s not accurate for U.S. and Asian markets.
+
+
+
+
+The Point-in-Time Database will be smarter and more accurate using Midnight Market Local.
+
+
+
+
+6 AC CUR ATELY BACK TESTING FINANCIAL MODEL S THROUGH P OINT-IN-TIME C ONSENSUS ESTIMATES
+Dilutions
+The FE database has no way to account for dilutions. Once a dilution is applied to a security, all of the history reflects this change
+and users cannot retrieve estimate data as it was pre-dilution. The Point-in-Time Database reflects the consensus we had as of the
+perspective date and dilutions are not applied historically.
+
+
+POINT-IN-TIME INDE X DIFFERENCES VS. FE BRE AKDOWN
+The study below validates the accuracy of the Point-in-Time Database vs. the input date calculation available in standard FactSet
+Estimates. Here’s a seven year study of FY1 Sales, unadjusted for dilutions:
+
+
+Point-in-Time vs. Input Data - % Equities Impacted
+
+
+7.0%                                                                                                                               2000
+
+                                                                                                                                 18000
+6.0%
+                             6.2%
+           5.8%                                                                   5.1%                                           16000
+                                              5.4%                                                 4.9%
+5.0%                                                                                                                             14000
+                                                                4.6%                                                             12000
+4.0%
+                                                                                                                                 10000
+3.0%
+                                                                                                                                  8000
+                                                                                                                     2.5%         6000
+2.0%
+                                                                                                                                  4000
+1.0%
+                                                                                                                                   2000
+
+0.0%                                                                                                                                     0
+         7/31/2010        7/31/2011         7/31/2012         7/31/2013        7/31/2014         7/31/2015         7/31/2016
+
+     Sales FY1 Coverage          Consensus Differences - % Companies
+
+
+The differences can be attributed to the categories below:
+1)	About 50% of the differences are due to a change in the assigned estimates currency. The FE Database recalculates the consensus
+    based on the current currency while the Point-in-Time Database returns the currency assigned as of the consensus date.
+
+2)	About 30% of the differences are due to quality assurance (QA) corrections applied after the consensus date. The FE Database will
+    reflect any QA corrections, and the Point-in-Time Database will show what we had as of the end of the consensus date.
+
+3)	About 10% of the differences reflect a difference due to a QA datum deletion. The FE Database does not bring back data that has
+    since been deleted, while the Point-in-Time Database will return any data we had as of the end of the day of the consensus date.
+
+4)	About 10% of the differences are due to QA actions to consensus classes. For example, if QA takes an action to remove a broker
+    contribution from the consensus because it was determined that the estimate is made on a different methodology basis than
+    the consensus, the standard FE Database returns the new consensus class separately for historic dates while the Point-in-Time
+    Database will return what was available as of the end of that consensus date.
+
+
+
+
+7 AC CUR ATELY BACK TESTING FINANCIAL MODEL S THROUGH P OINT-IN-TIME C ONSENSUS ESTIMATES
+POINT-IN-TIME DATABASE METHODOLOGY
+CONSENSUS
+• Default – 100-day consensus window
+
+• Sharp – Proprietary consensus calculated with a custom consensus window when revision trends are detected.
+  Available for EPS, Sales, and FFO for FQ1 or FY1 period.
+
+• 45-Day Post-Event – Includes only estimates that have been contributed after the latest event. Excludes estimates
+  older than 45 days.
+
+CURRENCY
+The consensus is provided in the estimates currency, which is defined as the majority currency brokers are contributing estimates
+in. An estimates currency change can occur for any given security. We therefore provide our point-in-time consensus feed with
+the currency displayed for each datum. If an estimates currency change occurs, the new consensus will be calculated with the new
+currency. Previous consensus values will not, however, be changed.
+
+DATABASE UPDATE PROCESS
+The Point-in-Time Database provides a consensus snapshot as of each security’s local market midnight time. The local market time
+is determined by the exchange of the security’s primary instrument.The update process runs three times, for Asia, Europe, and the
+Americas, allowing the database to capture the latest data for each company.
+
+INTR ADAY F X R ATE ME THODOLOGY
+FactSet stores individual broker estimates in the estimates currency, and any broker contributions in a different currency are therefore
+converted with that date’s exchange rate. As FX rate data does not have a market close time, the first two updates for Asia and Europe
+are converted using the most recent FX rate, and then updated with the FX rate as of midnight on the final update each day. As a result of
+this, consensus data in Asia and Europe can change between the update in their local time and the final update in the Americas.
+
+LIMITATIONS AND UNIVERSE
+• The Point-in-Time will be available for the full FactSet Estimates universe.
+
+• The Point-in-Time Database is not available before December 2009.
+
+• The only window sizes available will be 100 days and the 45-day post-event window, as specified above.
+
+• The database is consensus only.
+
+CONSENSUS ME THODOLOGY
+FactSet Estimates default consensus methodology has evolved throughout history. The Point-in-Time Database uses the default
+consensus methodology as of September 9, 2017. Consensus values as of historical perspective dates before September 9, 2017,
+may use a slightly different methodology than that which was used as of that date. Post September 9, 2017, any changes to FE
+consensus methodology will be reflected in the point-in-time consensus calculations.
+
+
+
+
+8 AC CUR ATELY BACK TESTING FINANCIAL MODEL S THROUGH P OINT-IN-TIME C ONSENSUS ESTIMATES
+FQL AND SCREENING CODES
+The codes available for point-in-time are:
+FE_PIT_ESTIMATE_45D (item,stat,rbasis,period,date)
+Returns the 45-day post-event consensus for annual, quarterly and semiannual periods, as well as NTM/LTM and calendarized data.
+
+FE_PIT_ESTIMATE_100D (item,stat,rbasis,period,date)
+Returns the 100-day consensus for annual, quarterly, and semiannual periods, as well as NTM/LTM and calendarized data.
+
+FE_PIT_ESTIMATE_DATE (stat,item,rbasis,period,date)
+Returns the associated date for the consensus.
+
+FE_PIT_SHARP_ESTIMATE (item,stat,rbasis,period,date)
+Returns the EPS or Sales Sharp consensus for FQ1 or FY1.
+
+FE_PIT_SHARP_ESTIMATE_INFO (item,date)
+Returns the company’s currency as well as dilution factors and dilution dates.
+
+All of the codes are available in FQL and Screening.
+
+
+
+
+IMPORTANT NOTICE
+The information contained in this report is provided “as is” and all representations, warranties, terms and
+conditions, oral or written, express or implied (by common law, statute or otherwise), in relation to the information
+are hereby excluded and disclaimed to the fullest extent permitted by law. In particular, FactSet, its affiliates and its
+suppliers disclaim implied warranties of merchantability and fitness for a particular purpose and make no warranty
+of accuracy, completeness or reliability of the information. This report is for informational purposes and does not
+constitute a solicitation or an offer to buy or sell any securities mentioned within it. The information in this report
+is not investment advice. FactSet, its affiliates and its suppliers assume no liability for any consequence relating
+directly or indirectly to any action or inaction taken based on the information contained in this report. No part of this
+document (in whole or in part) may be reproduced, displayed, modified, distributed or copied (in whole or in part), in
+any form or format or by any means, without express written permission from FactSet.
+
+
+
+
+ 9 AC CUR ATELY BACK TESTING FINANCIAL MODEL S THROUGH P OINT-IN-TIME C ONSENSUS ESTIMATES
+FactSet (NYSE:FDS | NASDAQ:FDS) delivers superior analytics, service, content, and
+technology to help more than 115,000 users see and seize opportunity sooner. We
+are committed to giving investment professionals the edge to outperform, with fresh
+perspectives, informed insights, and the industry-leading support of our dedicated spe-
+cialists. We’re proud to have been recognized with multiple awards for our analytical and
+data-driven solutions and repeatedly ranked as one of Fortune’s 100 Best Companies to
+Work For® and a Best Workplace in the United Kingdom and France. Subscribe to
+our thought leadership blog to get fresh insight delivered daily at insight.factset.com.
+Learn more at www.factset.com and follow on Twitter: www.twitter.com/factset.
+
+
+AUTHORS:
+Annabel Hudson
+Content Manager
+Estimates Content Development Product
+Richard Dutheil
+Vice President, Principal Content Manager
+Estimates Content Development Product
+Juliana Germain
+Vice President, Director, Content
+Estimates Methodology Product
+
+
+
+
+www.factset.com
+

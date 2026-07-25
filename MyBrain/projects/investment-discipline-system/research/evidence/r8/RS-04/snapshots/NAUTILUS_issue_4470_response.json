@@ -1,0 +1,90 @@
+{
+  "url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4470",
+  "repository_url": "https://api.github.com/repos/nautechsystems/nautilus_trader",
+  "labels_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4470/labels{/name}",
+  "comments_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4470/comments",
+  "events_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4470/events",
+  "html_url": "https://github.com/nautechsystems/nautilus_trader/issues/4470",
+  "id": 4890305484,
+  "node_id": "I_kwDOCEIjhM8AAAABI3wjzA",
+  "number": 4470,
+  "title": "CancelAllOrders is documented/logged as strategy-scoped but executed instrument-wide (cancels sibling strategies' orders)",
+  "user": {
+    "login": "zurpet",
+    "id": 46728641,
+    "node_id": "MDQ6VXNlcjQ2NzI4NjQx",
+    "avatar_url": "https://avatars.githubusercontent.com/u/46728641?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/zurpet",
+    "html_url": "https://github.com/zurpet",
+    "followers_url": "https://api.github.com/users/zurpet/followers",
+    "following_url": "https://api.github.com/users/zurpet/following{/other_user}",
+    "gists_url": "https://api.github.com/users/zurpet/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/zurpet/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/zurpet/subscriptions",
+    "organizations_url": "https://api.github.com/users/zurpet/orgs",
+    "repos_url": "https://api.github.com/users/zurpet/repos",
+    "events_url": "https://api.github.com/users/zurpet/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/zurpet/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+    {
+      "id": 974366557,
+      "node_id": "MDU6TGFiZWw5NzQzNjY1NTc=",
+      "url": "https://api.github.com/repos/nautechsystems/nautilus_trader/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true,
+      "description": "Something isn't working"
+    }
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 4,
+  "created_at": "2026-07-15T07:27:18Z",
+  "updated_at": "2026-07-17T06:38:00Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "NONE",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "## Bug report\n\n**Version:** nautilus_trader 1.230.0 (also present on current master as far as I can tell)\n**OS / Python:** Windows 11, Python 3.12\n**Context:** live multi-strategy TradingNode (Interactive Brokers adapter), several strategies trading the same instrument on one node with `OmsType.HEDGING`.\n\n### Summary\n\n`Strategy.cancel_all_orders(instrument_id)` is documented as *\"Cancel all orders **for this strategy** for the given instrument ID\"*, and its local bookkeeping is strategy-scoped (it queries the cache with `strategy_id=self.id`, counts and logs only the calling strategy's orders, and applies `OrderPendingCancel` only to them). The `CancelAllOrders` command also carries `strategy_id`.\n\nHowever, both execution venues I checked **ignore `command.strategy_id`** and cancel every open order on the instrument, across all strategies:\n\n- **Interactive Brokers adapter** — `InteractiveBrokersExecutionClient._cancel_all_orders` (`adapters/interactive_brokers/execution.py`, ~line 1558 in the 1.230.0 wheel):\n\n  ```python\n  for order in self._cache.orders_open(\n      instrument_id=command.instrument_id,\n  ):\n      ...\n      self._client.cancel_order(ib_order_id)\n  ```\n\n- **Backtest matching engine** — `OrderMatchingEngine.process_cancel_all`:\n\n  ```python\n  cpdef void process_cancel_all(self, CancelAllOrders command, AccountId account_id):\n      cdef Order order\n      for order in self.cache.orders_open(venue=None, instrument_id=command.instrument_id):\n          if command.order_side != OrderSide.NO_ORDER_SIDE and command.order_side != order.side:\n              continue\n          if order.is_inflight_c() or order.is_open_c():\n              self.cancel_order(order)\n  ```\n\nSo a strategy that calls `cancel_all_orders` on a shared instrument silently cancels its **sibling strategies'** working orders (protective stops/take-profits included), while the local engine state (PENDING_CANCEL applied only to the caller's orders) disagrees with what was actually sent to the venue.\n\n### Live impact (how we found it)\n\nProduction incident, 2026-07-14, two strategies on MNQ on one node (HEDGING):\n\n- Strategy A was SHORT 5 with a protective stop; strategy B was LONG 5 with a working SL/TP bracket (OCA).\n- Strategy A's end-of-day flatten called `cancel_all_orders(MNQU6.GLBX)`. Its log line said `Canceling 1 open MNQU6.GLBX order` (correct strategy-scoped count) — but the IB adapter canceled **all three** working MNQ orders, including strategy B's SL and TP.\n- Strategy B's long ran with no protection for the rest of the session.\n- Side effect: strategy B's SL/TP were OUO-linked, so the venue-initiated cancel of the SL triggered a contingent cancel of the TP that raced the adapter's own cancel, producing IB error `10148` (`OrderId ... cannot be cancelled, state: PendingCancel`) — harmless here, but a symptom of the same command fanning out wider than the engine expects.\n\n### Expected behavior\n\n`CancelAllOrders` execution should honor `command.strategy_id`, e.g. in both places:\n\n```python\nfor order in self._cache.orders_open(\n    instrument_id=command.instrument_id,\n    strategy_id=command.strategy_id,\n):\n```\n\n(or, if instrument-wide cancel-all is intentional for some venues, the divergence from the `Strategy.cancel_all_orders` docstring/local state handling deserves a loud warning in the docs — the current combination is a silent live-risk on multi-strategy nodes).\n\n### Reproduction\n\nDeterministic in a backtest — no IB needed, since `OrderMatchingEngine.process_cancel_all` has the same behavior:\n\n1. One `BacktestEngine`, HEDGING venue, two strategies on the same instrument.\n2. Strategy B: open a position, submit a far reduce_only STOP_MARKET, never touch it again.\n3. Strategy A: open a position, then call `self.cancel_all_orders(instrument_id)` + `close_position(...)`.\n4. Observe strategy B's stop is `CANCELED` even though B never canceled anything, and A's log claimed it was canceling only its own order count.\n\nWe work around it strategy-side by iterating `cache.orders_open(instrument_id=..., strategy_id=self.id)` and sending individual `cancel_order` calls.",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4470/reactions",
+    "total_count": 1,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 1
+  },
+  "timeline_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4470/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}

@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "round_id": "RESEARCH-REFRESH-R8",
+  "topic_id": "RS-03",
+  "manifest_scope": "exact saved source-response bytes plus explicitly marked derivative text",
+  "snapshots": [
+    {
+      "source_id": "RS03-SNAP-CRSP-JULY-2026",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "one primary return or corporate-action calculation method",
+      "canonical_url_or_repo_commit": "https://www.crsp.org/wp-content/uploads/guides/CRSP_Market_Indexes_Methodology_Guide.pdf",
+      "retrieved_at_utc": "2026-07-25T16:25:25Z",
+      "path": "snapshots/CRSP_Market_Indexes_Methodology_Guide_July_2026.pdf",
+      "media_type": "application/pdf",
+      "byte_count": 5167396,
+      "sha256": "8e212b1514e34eea6968295b4b13cd9f316654ed6c9ec15cec8c364eda77760c",
+      "snapshot_status": "exact_response_bytes_verified",
+      "source_range_used": "PDF header; pages 51-55; pages 69-70; pages 81-82",
+      "license_or_quotation_boundary": "Copyrighted official methodology retained only as an internal audit snapshot; report uses short paraphrases and page/range locators, not redistribution.",
+      "derived_text": {
+        "path": "extracted/CRSP_Market_Indexes_Methodology_Guide_July_2026.txt",
+        "byte_count": 327010,
+        "sha256": "7ea2c507913fbd728d14760d3c3ba29c03c3a95a8c0af1650b7d4d5b6f6c07e6",
+        "derivation": "pdftotext -layout",
+        "ranges_used": "49; 2469-2497; 2621-2632; 3334-3352; 3945-3953"
+      }
+    },
+    {
+      "source_id": "RS03-SNAP-NYSE-V3.2A",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "one official timing or corporate-action definition",
+      "canonical_url_or_repo_commit": "https://www.nyse.com/publicdocs/nyse/data/NYSE_CorporateActions_Client_Specification.v3.2a.pdf",
+      "retrieved_at_utc": "2026-07-25T16:26:00Z",
+      "path": "snapshots/NYSE_CorporateActions_Client_Specification_v3.2a.pdf",
+      "media_type": "application/pdf",
+      "byte_count": 708910,
+      "sha256": "61e15ff3250c2f94718896cfd27bd18fa98529d9a0ed225c2d22d08a5759092c",
+      "snapshot_status": "exact_response_bytes_verified",
+      "source_range_used": "PDF pages 9-12: declared, announcement, ex, record, pay/effective, split ratio, cancellation, and updated fields",
+      "license_or_quotation_boundary": "Official exchange client specification retained only as an internal audit snapshot; report quotes minimally and otherwise paraphrases.",
+      "derived_text": {
+        "path": "extracted/NYSE_CorporateActions_Client_Specification_v3.2a.txt",
+        "byte_count": 57459,
+        "sha256": "57685fad3cdffe2650abc35e67bc998f0729c231b224ea3139e093aae5601ca0",
+        "derivation": "pdftotext -layout",
+        "ranges_used": "354-389; 437-489"
+      }
+    },
+    {
+      "source_id": "RS03-SNAP-TIINGO-TOS-2026-07-18",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "one provider license or revision boundary source",
+      "canonical_url_or_repo_commit": "https://app.tiingo.com/tos/",
+      "retrieved_at_utc": "2026-07-25T16:27:13Z",
+      "path": "snapshots/Tiingo_Terms_of_Use_2026-07-18.html",
+      "media_type": "text/html",
+      "byte_count": 663905,
+      "sha256": "9a5cfcdeb5588ae89fb55cc9895f5ba21b3eea133c40db1eb74d98ffbf944de3",
+      "snapshot_status": "exact_response_bytes_verified",
+      "source_range_used": "HTML lines 29, 408, and 676 in the saved response; Version 1, last-updated date, API use, and termination effect",
+      "license_or_quotation_boundary": "Public terms retained to evidence the license gate only; no legal advice, no account-specific inference, and no redistribution of the page.",
+      "derived_text": null
+    },
+    {
+      "source_id": "RS03-SNAP-CBOE-LIVE",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "supporting official timing and revision definition",
+      "canonical_url_or_repo_commit": "https://www.cboe.com/document/tech-spec/document/technical-specifications/cboe-bzx-exchange-u.s.-listing-corporate-actions-specification",
+      "retrieved_at_utc": "2026-07-25T16:26:54Z",
+      "path": "snapshots/Cboe_BZX_Corporate_Actions_Specification.html",
+      "media_type": "text/html",
+      "byte_count": 450101,
+      "sha256": "2ede407424b5fec02e22672bde8da4a08572f4dff81f9f52f04a66eb452f44d1",
+      "snapshot_status": "exact_response_bytes_verified",
+      "source_range_used": "saved HTML lines 1181-1216: action ID/status, declared, updated, ex, record, payment, effective, cash, and stock amount",
+      "license_or_quotation_boundary": "Official specification retained only as internal evidence; report uses field-name paraphrases and short locators.",
+      "derived_text": null
+    },
+    {
+      "source_id": "RS03-SNAP-FACTSET-PIT",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "supporting provider PIT and revision methodology",
+      "canonical_url_or_repo_commit": "https://www.insight.factset.com/hubfs/Resources%20Section/White%20Papers/ID11996_point_in_time.pdf",
+      "retrieved_at_utc": "2026-07-25T16:26:25Z",
+      "path": "snapshots/FactSet_Accurately_Backtesting_Point_in_Time.pdf",
+      "media_type": "application/pdf",
+      "byte_count": 9158902,
+      "sha256": "b2ad639c2463bb9d08729874fabd3011f2dba306a5b3334ac440cc0e3b58ff34",
+      "snapshot_status": "exact_response_bytes_verified",
+      "source_range_used": "PDF pages 3-7: research/input date, corrections/deletions, historical-view differences, and PIT update process",
+      "license_or_quotation_boundary": "The document's notice restricts reproduction; exact bytes are retained only for internal audit and the report uses paraphrase plus narrow ranges.",
+      "derived_text": {
+        "path": "extracted/FactSet_Accurately_Backtesting_Point_in_Time.txt",
+        "byte_count": 15174,
+        "sha256": "9b11301006d0ef081e8eb4dc3d1ff71ee003d49c621e75f5bbdbfe70c1a9de57",
+        "derivation": "pdftotext -layout",
+        "ranges_used": "29-35; 64-103; 173-201"
+      }
+    },
+    {
+      "source_id": "RS03-SNAP-DB-SEVEN-SINS",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "supporting independent corporate-action look-ahead counterexample",
+      "canonical_url_or_repo_commit": "https://hudsonthames.org/wp-content/uploads/2022/01/DB-201409-Seven_Sins_of_Quantitative_Investing.pdf",
+      "retrieved_at_utc": "2026-07-25T16:26:23Z",
+      "path": "snapshots/Deutsche_Bank_Seven_Sins_of_Quantitative_Investing.pdf",
+      "media_type": "application/pdf",
+      "byte_count": 3132081,
+      "sha256": "fd9de52b947605ec9ea5333aa288957c4bec70766ac039e6d55005de4e294646",
+      "snapshot_status": "exact_response_bytes_verified",
+      "source_range_used": "PDF pages 11-13: split-adjustment look-ahead mechanism, worked comparison, and mitigations",
+      "license_or_quotation_boundary": "Copyrighted research retained only for internal audit; report paraphrases and does not redistribute substantial text.",
+      "derived_text": {
+        "path": "extracted/Deutsche_Bank_Seven_Sins_of_Quantitative_Investing.txt",
+        "byte_count": 186545,
+        "sha256": "b225d39ce9c62e83b0210638fe7408c5696d445feb78900009c8788a5ae77e86",
+        "derivation": "pdftotext -layout",
+        "ranges_used": "669-730; 796-804"
+      }
+    },
+    {
+      "source_id": "RS03-SNAP-ALPACA-PAPER-CURRENT",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "supporting external-paper read-only observer boundary",
+      "canonical_url_or_repo_commit": "https://docs.alpaca.markets/us/docs/paper-trading",
+      "retrieved_at_utc": "2026-07-25T16:26:53Z",
+      "path": "snapshots/Alpaca_Paper_Trading_Public_Documentation.html",
+      "media_type": "text/html",
+      "byte_count": 483969,
+      "sha256": "acacd1f871c2e08d7677122a19a105077a0abd64c0ad39cd3b1d9d9633879001",
+      "snapshot_status": "exact_response_bytes_verified",
+      "source_range_used": "saved HTML body and embedded document metadata: IEX entitlement, simulation omissions, fill assumptions, and document update metadata",
+      "license_or_quotation_boundary": "Public documentation retained only to define observer limitations; no account, key, endpoint, or order was accessed.",
+      "derived_text": null
+    },
+    {
+      "source_id": "RS03-SNAP-MARKETDATA-TERMS",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "supporting license termination counterexample",
+      "canonical_url_or_repo_commit": "https://www.marketdata.app/terms/",
+      "retrieved_at_utc": "2026-07-25T16:26:53Z",
+      "path": "snapshots/MarketData_Terms_2025-08-18.html",
+      "media_type": "text/html",
+      "byte_count": 191943,
+      "sha256": "44ac9d9378eea61dd0ac50d80ab2afaa2710ee73ca85c6dc5dfcecf1480cb942",
+      "snapshot_status": "exact_response_bytes_verified",
+      "source_range_used": "saved HTML lines 1109 and 1167: subscription-end deletion and termination effects",
+      "license_or_quotation_boundary": "Public terms retained as a provider-specific counterexample only; no legal advice and no extrapolation to Tiingo.",
+      "derived_text": null
+    },
+    {
+      "source_id": "RS03-SNAP-TIINGO-EOD-SHELL",
+      "topic_id": "RS-03",
+      "required_snapshot_class": "non-counting shell-only receipt",
+      "canonical_url_or_repo_commit": "https://www.tiingo.com/documentation/end-of-day",
+      "retrieved_at_utc": "2026-07-25T16:26:54Z",
+      "path": "snapshots/Tiingo_EOD_Documentation.html",
+      "media_type": "text/html",
+      "byte_count": 10302,
+      "sha256": "7e6ce120afad8105ffe25015edc638418d1b63eaabfc2d85fe8468ab3f3f3e63",
+      "snapshot_status": "exact_response_bytes_shell_only_not_decisive",
+      "source_range_used": "none; saved response contains the Angular application shell but not the documentation body",
+      "license_or_quotation_boundary": "Retained as an exact transport receipt only. It must not be cited as a content snapshot or replaced by a search snippet.",
+      "derived_text": null
+    }
+  ],
+  "blocked_or_partial_receipts": [
+    "receipts/CME_DS45_DOWNLOAD_FAILURE.md",
+    "receipts/TIINGO_EOD_SHELL_ONLY.md",
+    "receipts/CRSP_LEGACY_CALCULATIONS_LOCATOR.md"
+  ]
+}

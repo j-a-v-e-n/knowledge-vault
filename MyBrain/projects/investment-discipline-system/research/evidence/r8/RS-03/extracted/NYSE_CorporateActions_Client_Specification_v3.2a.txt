@@ -1,0 +1,1066 @@
+Corporate Actions of NYSE Group Listings
+
+
+Version                                            Date
+3.2a                                               14 Jul 2025
+
+
+
+
+© 20252026 NYSE Group, Inc. All Rights Reserved.
+Preface
+
+Document History
+
+
+
+ Version
+           Date         Change Description
+ No.
+ 1.0       25/11/2011   First release of document
+
+ 1.1       23/10/2012   Document updated throughout and rebranded with new NYSE template
+
+ 1.2       27/02/2014   Document updated to reflect April 7th 2014 enhancements and additions
+
+ 1.3       28/02/2014   Document updated to reflect frequency enhancements to Daily Corporate Actions
+
+ 1.3.1     09/04/2014   Document updated to reflect new Current Market field values
+
+ 2.0       07/28/2014   Document updated to reflect September 8th 2014 enhancements and addition of
+                        the Daily Corporate Actions, Ex-Date and Ticker Notices files
+
+ 2.1       06/15/2016   Document updated to reflect addition in the Ticker Notice file of ‘TickPilot’ field as
+                        well as inclusion of ‘ActionTypeCode’ values (Page 9-14):
+                            -    ‘ProdSymChng’
+                            -    ‘ProdCUSChng’
+                            -    ‘PSCChng’
+                            -    ‘ProdNameChng’
+                            -    ‘ProdNameSymChng’
+                            -    ‘ProdNameCUSChng’
+                            -    ‘PNSCChng’
+                        A list of Notice Types has been added to Section 4.2. (Page 9-14)
+                        A list of Action Type Codes has been added to Section 4.3 (Page 9-14)
+
+ 2.1.1     10/26/2016   Revised description language.
+
+ 2.1.2     07/07/2017   Revised version with updated NYSE American branding.
+
+ 2.2.1     08/17/2018   Revised version to reflect migration from FTP2 to MFT server location.
+
+ 2.2.2     02/20/2021
+                        Document updated to reflect enhancements to TickerNotices “Action Type” for
+                        Direct Listings.
+                        Updated contact information and website links.
+
+
+
+ 2.2.3     03/24/2022   Updated branding
+
+
+
+
+                                                                                                        2
+Version
+          Date         Change Description
+No.
+2.2.4     08/08/2022   - Added new file delivery method instructions and directory layout for accessing
+                       data via AWS S3 Cloud and NYSE SFTP.
+                       - Revised field length for column “Notice_Body/” from ‘3200’ to ‘Unlimited’ for
+                       InfoNotices in Section 4.2.
+                       - Removed ‘TickPilot’ value from column “Notes” for TickerNotices in Section 4.3.
+                       - Sequence update for Notice ID; will begin at 40,000 on August 8, 2022.
+                       - Added 3 Notice Types to Table 4 in Section 4.2.
+
+                           •    Bond Maturity
+                           •    Business Combination
+                           •    Stock Distribution
+                       - Removed 1 Notice Type from Table 4 in Section 4.2.
+
+                           •    Change in DMM / Post
+                       - Removed 1 Action Type from Table 6 in Section 4.3.
+
+                           •    Change in DMM / Post
+                       - Renamed the below 5 fields in Table 5 in Section 4.3.
+
+                           •    ‘CompanyName’ renamed ‘IssuerName’
+                           •    ‘CurrentExchange’ renamed ‘Exchange’
+                           •    ‘IssueName’ renamed ‘SecurityName’
+                           •    ‘IssueSymbol’ renamed ‘SecuritySymbol’
+                           •    ‘IssueType’ renamed ‘SecurityType’
+
+2.2.5     08/08/2022   - Added 1 Action Type to Table 6 in Section 4.3.
+
+                           •    New Structured Product
+
+
+3.0       05/06/24     -Added new Distributions and Ex-Date Distribution files
+
+                           •    New Distributions file replacing Corp Action of NYSE Group Listing file
+                           •    New Ex-Date Distribution file replace NYSE Ex-Date Corp Action file
+                           •    Existing fields broken down in their own individual elements
+                           •    New fields displayed in a more organized format
+                           •    New Dividend Type: Right Offering
+
+3.1       6/12/24      -Capitalized Values in fields for Dividend_Type, Distribution Method and
+                       Frequency
+
+
+3.2       4/10/2025    Distributions and Ex-Date Distributions
+
+                           •    “Exchange” field now supports “NYSE Texas”
+                       TickerNotices
+
+                           •    “Exchange” field now supports “NYSE Texas”
+
+3.2a      7/14/2025    New Dividend Frequency Values
+
+                           •    ANNUAL
+                           •    BI_WEEKLY
+
+
+
+
+                                                                                                    3
+Contact Information
+NYSE Service Desk
+▪   Email:
+    support@nyse.com
+
+Further Information
+▪   For additional product information, visit:
+    Corporate Actions for NYSE Group Listings
+
+
+
+
+                                                 4
+Contents
+
+1.      INTRODUCTION........................................................................................................ 6
+2.      CORPORATE ACTIONS OF NYSE GROUP LISTINGS PRODUCT STRUCTURE ... 7
+ 2.1    Distributions of NYSE Group Listings ................................................................................. 7
+ 2.2    NYSE Group Ex-Date Distributions ..................................................................................... 7
+ 2.3    Info Notices ...................................................................................................................... 7
+ 2.4    Ticker Notices ................................................................................................................... 7
+3.      DELIVERY SCHEDULE ............................................................................................. 8
+ 3.1    NYSE Group Daily Distributions ......................................................................................... 8
+ 3.2    NYSE Group Ex-Date Distributions ..................................................................................... 8
+ 3.3    Info Notices ...................................................................................................................... 8
+ 3.4    Ticker Notices ................................................................................................................... 8
+4.      FILE LAYOUTS.......................................................................................................... 9
+ 4.1    NYSE Group Distributions & NYSE Group Ex-Date Distributions .......................................... 9
+ 4.2    InfoNotices ..................................................................................................................... 14
+ 4.3    TickerNotices.................................................................................................................. 17
+5.      FILE NAMES............................................................................................................ 21
+ 5.1    NYSE Group Daily Distributions ....................................................................................... 21
+ 5.2    NYSE Group Ex-Date Distributions ................................................................................... 21
+ 5.3    InfoNotices ..................................................................................................................... 21
+ 5.4    TickerNotices.................................................................................................................. 21
+6.      SFTP DIRECTORY STRUCTURE ........................................................................... 22
+ 6.1    SFTP Server Name........................................................................................................... 22
+ 6.2    NYSE Group Daily Distributions ....................................................................................... 22
+ 6.3    NYSE Group Ex-Date Distributions ................................................................................... 22
+ 6.4    InfoNotices ..................................................................................................................... 22
+ 6.5    TickerNotices.................................................................................................................. 22
+7.      S3 DIRECTORY STRUCTURE ................................................................................ 23
+ 7.1    S3 Bucket Name .............................................................................................................. 23
+ 7.2    S3 Directory NameName ................................................................................................. 23
+8.   ACCESSING INFORMATION ON DASHBOARD.THEICE.COM AND UPDATING
+EMAIL DISTRIBUTION SETTINGS .................................................................................... 24
+
+
+
+
+                                                                                                                                           5
+1.     Introduction
+
+This document describes the Corporate Actions of NYSE Group Listings product and provides
+detailed information regarding delivery time of the data, file names, layouts, SFTP, and S3 directory
+structures. NYSE Group includes NYSE, NYSE American and NYSE Arca content.
+
+
+
+
+                                                                                                        6
+2.     Corporate Actions of NYSE Group Listings Product Structure
+
+The Corporate Actions of NYSE Group Listings product is comprised of several reports and provides
+information for equities listed on the New York Stock Exchange (“NYSE”), NYSE American (“ NYSE
+American”) and NYSE Arca (“NYSE Arca”) market centres, including, but not limited to, new listings
+(for example IPOs, spin-offs and structured product listings), corporate actions, cash dividends, proxy
+related matters, and so forth.
+
+2.1    Distributions of NYSE Group Listings
+The Distributions reports provide dividend information created by the Corporate Actions of NYSE
+Group Listings team covering NYSE, NYSE American and NYSE Arca markets (NYSE Group). The
+intraday reports are provided throughout the day in Text, Microsoft Excel, and XML formats and can
+be delivered by email, SFTP, S3 or downloaded from our website (HTTP). Additionally, start of day
+and end of day summary reports are available to clients that wish to receive a consolidated list of this
+information.
+
+2.2    NYSE Group Ex-Date Distributions
+The Ex-Date Distributions report distributes a complete listing of Dividends for NYSE Group
+(dividends, stock splits, spin-offs and so forth) two days prior the “Ex-Date” where “Ex-Date” is Record
+Date minus two trading days (unless otherwise directed). The file, created by the end of the day, is
+available in Text, Microsoft Excel and XML formats and can be delivered by email, SFTP, S3 or
+downloaded from our website (HTTP).
+
+2.3    Info Notices
+Info Notices about spin-offs and other new listings and corporate actions (mergers & acquisitions,
+name and symbol changes, tender offers, stock splits, special trading markets: “When-Issue”, “Ex-
+Distribution”, “When-Distributed” and so forth) are created by the Corporate Actions of NYSE Group
+Listings team and cover NYSE, NYSE American and NYSE Arca markets. Info Notices provide a
+window into the life of a corporate actions event and are distributed throughout the day in Text format
+and can be delivered by email, SFTP, S3 or downloaded from our website (HTTP).
+
+2.4    Ticker Notices
+Ticker Notices are summaries of timely new listings (IPOs, spin-offs, structured product listings and so
+forth), special trading markets and corporate actions information such as mergers, stock splits, rights
+offering, tender/exchange offers, redemptions, name and symbol changes for NYSE Group-listed
+issues. Ticker Notices are distributed intraday in Text and Microsoft Excel formats and can be
+delivered by email, SFTP, S3 or downloaded from our website (HTTP). Start of day and end of day
+summary reports will be available.
+
+
+
+
+                                                                                                           7
+3.        Delivery Schedule
+
+3.1       NYSE Group Daily Distributions
+▪     The intraday reports are provided every hour from 8h00am ET to 3h00pm ET.
+▪     The intraday reports are provided every 15 minutes from 3h00pm ET to 9h00pm ET.
+▪     The summary reports are provided at 8h30am ET, 5h30pm ET and at 11h00pm ET:
+      –   The 8h30am ET (start of day) report carries all information published in T-1 (previous trading
+          day).
+      –   The 5h30pm ET (end of day) report carries all information published in T (current trading day).
+      –   The 11h00pm ET (end of day) report carries all information published in T (current trading
+          day). This report is created only when new information was published on T from 5h30pm ET
+          to 11pm ET.
+
+3.2       NYSE Group Ex-Date Distributions
+The Ex-Date Report is provided twice a day at 5h30pm ET and 11h00pm ET.
+
+3.3       Info Notices
+
+Info Notices files are delivered every hour from 8h00am ET to 8h00pm ET on the SFTP server and
+updated on our website. Additionally, Info Notices are emailed intraday to clients from the address
+NYSEDataMail@nyse.com.
+
+3.4       Ticker Notices
+▪     Ticker Notices are delivered daily every 15 minutes from 8h00am ET to 8h00pm ET.
+▪     The summary reports are provided at 8h30am ET, 5h30pm ET and at 11h00pm ET:
+      –   The 8h30am ET (start of day) report carries all information published in T-1 (previous trading
+          day).
+      –   The 5h30pm ET (end of day) report carries all information published in T (current trading day).
+      –   The 11h00pm ET (end of day) report carries all information published in T (current trading
+          day). This report is created only when new information was published on T from 5h30pm ET
+          to 11pm ET.
+▪     The effective Ticker Notices are delivered daily at 5h30pm ET. The report carries all information
+      expected to become effective the next trading day (T+1).
+
+
+
+
+                                                                                                           8
+4.       File Layouts
+
+4.1      NYSE Group Distributions & NYSE Group Ex-Date Distributions
+Table 1 File Layout – NYSE Group Distributions & NYSE Group Ex-Date Distributions
+
+
+ Field Name                 Format      Length    Description
+
+ DividendID                 Number      20        Corporate action identification number which
+                                                  uniquely identifies each corporate action. This
+                                                  allows data recipients to determine changes made
+                                                  to already declared corporate actions.
+
+ Exchange                   Text        225       NYSE Group listed Exchange:
+                                                  - NYSE
+                                                  - NYSE American
+                                                  - NYSE Arca
+                                                  - NYSE Texas
+
+ Security_Symbol            Text        10        NYSE Group listed security symbol in
+                                                  [symbol]_[symbol suffix]_[symbol class] format
+                                                  where "_" is a space.
+
+ CUSIP                      Text        9         Standard and Poor's CUSIP identifier for the given
+                                                  security.
+
+ Issuer_Name                Text        180       Issuer registered name with the SEC.
+
+
+ Security_Name              Text        180       Security Name as registered with the SEC.
+
+ Security_Type              Text        100       Values Include:
+                                                  - ADS: Common
+                                                  - ADS: Preferred
+                                                  - Bond
+                                                  - Common Stock
+                                                  - ETF
+                                                  - ETV
+                                                  - ETN
+                                                  - Global Registered Share
+                                                  - NY Registry Shares
+                                                  - Option
+                                                  - Preferred Stock
+                                                  - Structured Product
+                                                  - Structured Product: Retail Debt
+                                                  - Structured Product: Mandatory Conversion
+                                                  - Structured Product: Repackaged Security
+                                                  - Structured Product: Trust Preferred
+                                                  - Subscription Receipt
+
+                                                                                                       9
+Field Name                    Format   Length   Description
+
+                                                - Purchase Right
+                                                - Contingent Value Right
+                                                - Warrant
+                                                - Unit
+                                                - Rights
+
+ADS_ratio                     Text     150      Formerly in Misc Notes field.
+
+Foreign_Private_Issuer_Flag   Text     1        Indicates if the issuer is a non-US Private entity. Y
+                                                or Blank
+
+Dividend_Type                 Text     100      Valid Dividend types:
+                                                CASH
+                                                CASH & STOCK
+                                                CASH & STOCK SPLIT
+                                                STOCK DISTRIBUTION
+                                                STOCK SPLIT (FORWARDS ONLY)
+                                                SPIN OFF
+                                                RIGHTS OFFERING
+                                                Note: This field will NOT contain Reverse Stock
+                                                Splits.
+
+Frequency                     Text     100      Payment frequency for the given security (for
+                                                dividends). Valid Values:
+                                                DAILY
+                                                WEEKLY
+                                                BI_WEEKLY
+                                                MONTHLY
+                                                BI_MONTHLY
+                                                QUARTERLY
+                                                SEMI_ANNUALLY
+                                                ANNUAL
+                                                AD_HOC
+
+Declared_Date                 Date              Date on which the corporate action was declared.
+                                                If not applicable will be blank. Format:
+                                                MM/DD/YYYY
+
+Announcement_Date             Date              Formerly in Misc Notes field.
+
+Ex_Date                       Date              The date on or after which a security is traded
+                                                without a previously declared dividend or
+                                                distribution.
+                                                Note: When T+1 Settlement goes live, Ex-Date
+                                                will always = Record Date.
+
+
+                                                                                                    10
+Field Name                 Format   Length   Description
+
+                                             Format: MM/DD/YYYY
+
+Record_Date                Date              This is the date on which all shareholders are
+                                             considered a "holder of record" and ensured the
+                                             right of a dividend or distribution.
+                                             Note: When T+1 Settlement goes live, Record
+                                             Date
+                                             will always = Ex-Date.
+                                             Format: MM/DD/YYYY
+
+Pay_Date                   Date              Date on which corporate action distribution will be
+                                             paid or effective.
+                                             Format: MM/DD/YYYY
+
+Total_Dividend_Amount      Number   100      Used for Cash (Regular, Cash Special or any
+                                             combination Cash dividend) only.
+                                             Not applicable to Stock Distribution or Splits
+                                             If Dividend Type = Spinoff, Transferable Right or
+                                             Non-Transferable Right, this field will be blank.
+
+Normal_Amount              Number   100      Normal Dividend amount. Applicable to CASH
+                                             (Regular) only.
+
+Long_Term_Capital_Gaines   Text     100      Long Term Capital Gains Dividend amount.
+                                             Applicable to CASH (Regular) only. May be blank
+                                             or 0.0000000000000000
+
+Short_Term_Capital_Gains   Text     100      Short Term Capital Gains Dividend amount.
+                                             Applicable to CASH only. Blank or
+                                             0.0000000000000000
+
+Return_of_Capital          Text     100      Return of Capital Dividend amount. Applicable to
+                                             CASH (Regular) only. Blank or
+                                             0.0000000000000000
+
+Special                    Text     100      Special Dividend amount. Applicable to CASH
+                                             (Special) only. Blank or 0.0000000000000000
+
+Other                      Number   100      “Other” Dividend amount. Applicable to CASH
+                                             (both Regular and Special) Blank or
+                                             0.0000000000000000
+
+Dividend_Currency          Text     100      Currency Dividend is being paid in if
+                                             DividendType = Cash. Always = USD in Ex Date
+                                             File. Else can be USD, CAD, EURO or any other
+                                             foreign currency.
+
+Exchange_Rate_Type         Number   50       APPROXIMATE or FINAL
+
+Final_Amount               Number   4        Final amount
+
+Final_Amount_Currency      Text     100      Always USD when Exchange Rate Type = Final
+                                             else Blank
+
+                                                                                                   11
+Field Name                 Format   Length   Description
+
+Distribution               Number   4        Stock Distribution percentage or share amount to
+                                             be distributed else blank.
+
+Distribution_Method        Text     50       Indicates if Stock Distribution Method:
+                                             Valid Values:}
+
+                                             SHARES
+                                             PERCENT
+                                             (blank)
+
+Post_Split_Shares          Number   4        For Stock Splits, represents the post-split number
+                                             of shares.
+
+Pre_Split_Shares           Number   4        For stock splits, represents the pre-split number of
+                                             shares.
+
+Rights_Per_Share           Number   4        Currently in Misc Notes field.
+
+Rights_Symbol              Text     10       Currently in Misc Notes field.
+
+Spinco_Shares              Number   4        Spinoff Shares
+
+Spinco_Symbol              Text     10       Spinco symbol
+
+First_day_of_Due_Bills     Date              Due bills function as promissory notes and ensure
+                                             that the correct owner receives a stock's dividend
+                                             when the stock trades near its ex-dividend date
+                                             (ex-date).
+
+Last_Day_of_Due_Bills      Date              Last Day of Bill Due
+
+Due_Bill_Settlement_Date   Date              Due Bill Settlement Date
+
+Cancelled_Date             Date              Date of Corporate Action cancellation (if
+                                             applicable) else null.
+                                             Format: MM/DD/YYYY
+
+Cancel_Flag                Text     1        Remove Flag set to yes when an already declared
+                                             corporate action has been removed or cancelled.
+                                             Y or N
+
+Cancel_Reason              Text     255      Reason for cancellation (if applicable) else blank.
+                                             e.g., Security Stricken on YYYY-MM-DD
+
+Misc_Notes                 Text     300      Description and/or explanation field used to
+                                             explain unique features or conditions of the
+                                             corporate action.
+                                             e.g., Regular quarterly cash dividend and annual
+                                             3% stock dividend. Cash dividend will be paid
+                                             3/30/2023 / Stock dividend will be paid on
+                                             4/7/2023, Cash in lieu of fractional shares. The
+                                             shares to be issued in payment of the stock
+
+
+                                                                                                   12
+ Field Name                Format     Length      Description
+
+                                                  dividend are not entitled to receive the cash
+                                                  dividend payable 3/30/2023.
+
+ Updated_Date              Date                   Date which corporate action was last updated or
+                                                  released.
+                                                  Format: MM/DD/YYYY
+
+ Reserved for Future Use
+
+ Reserved for Future Use
+
+
+
+
+Table 2 Dividend Types – NYSE Group Distributions & NYSE Group Ex-Date Distributions
+
+ Dividend Type                         Description
+
+ Cash                                  Cash dividend payment.
+
+ Cash & Stock                          Combination of Cash & Stock dividend payment.
+
+ Cash & Stock Split                    Combination of Cash dividend payment and Forward Stock
+                                       Split distribution.
+
+ Cash-Liquidating                      Liquidating distribution payment for funds.- remove we have no
+                                       such dividend type
+
+ Stock Distribution                    Stock dividend payment.
+
+ Stock Split                           Forward Stock Split distribution
+
+ Spin Off                              The sale or distribution of new shares of an existing business
+                                       or division of a parent company creating an independent
+                                       company.
+
+ Right Offering                        Either Transferable Rights or NonTransferable Rights Offering
+
+
+
+
+                                                                                                        13
+4.2    InfoNotices
+The layout of the InfoNotices files / tables has not been modified.
+Table 3 File Layout – InfoNotices
+
+
+ Field Name                     Format        Length         Description
+
+ DateTime                     Date                           Date of the InfoNotice.
+
+ Company                      Text           100             Name of the listed company.
+
+ Notice_Type                  Text           100             Name of the corporate action.
+
+ Notice_Body                  Text           Unlimited       Description and/or explanation field used to
+                                                             explain unique features or conditions of the
+                                                             corporate action(s).
+
+
+
+Table 4 Notice Types – InfoNotices
+
+
+ Notice Type                                  Description
+
+ Bond Maturity                                Date at which point the listed issue, specifically Exchange-
+                                              traded Notes, and all rights, are extinguished and the issue no
+                                              longer exists.
+
+ Business Combination                         Combination between a special purpose acquisition company
+                                              (SPAC) and another operating company, which is also known
+                                              as a de-SPAC transaction.
+
+ Business Reorganization                      The Issuing Entity's business structure is changing.
+
+ Call for Redemption                          The act of an issuer repurchasing a fixed income issue or
+                                              convertible issue at or before maturity.
+
+ Change - Reclassified                        Issuer changes the class designation of its issue's shares.
+
+ Change in Domicile                           Company changes the state/country of its formation to a
+                                              different state/company.
+
+ Change in Name/Symbol/CUSIP                  Company is undergoing a change to its name and/or change to
+                                              the symbol of 1 or all of its issues and/or change to the CUSIP
+                                              of 1 or all of its issues.
+
+ Change in Terms                              Issuer changes the terms applicable to 1 of its issues. The
+                                              change can be a change in Conversion Ratio, change in
+                                              Exercise Price, change in Expiration Date, change in Par
+                                              Value, change in Round-Lot Aspect of Trading.
+
+ Change in Underlying Share Ratio             Foreign company changes the ratio of the ADR Issue's share
+                                              to foreign issue's share.
+
+ Conversion                                   Terms of converting an issue typically of a target company to a
+                                              cash and/or stock of the acquiring company.
+
+ Conversion - Mandatory                       TBD
+
+
+                                                                                                            14
+Conversion to Open-End Investment   TBD
+Company
+
+Dividend - Due-Bills                Company informs the market that a dividend declaration is
+                                    accompanied with due bills. Due bills are promissory notes and
+                                    resolve the problem of ensuring that the correct owner receives
+                                    a stock's dividend when the stock is traded near its ex-dividend
+                                    date.
+
+Initial Public Offering             The act of offering the stock of a company on a public stock
+                                    exchange for the first time.
+
+Liquidation                         Event that usually occurs when a company is insolvent. The
+                                    company’s operations are brought to an end, and its assets are
+                                    divvied up among creditors and shareholders, according to the
+                                    priority of their claims.
+
+Mandatory Exchange                  TBD
+
+Maturity                            The Issuer of a bond agrees to repay investors the original sum
+                                    loaned at the bond's maturity date.
+
+Merger                              The combining of two or more companies, generally by offering
+                                    the stockholders of one company securities in the acquiring
+                                    company in exchange for the surrender of their stock.
+
+New Listed Bond                     Admitting a new bond for the first time.
+
+New Listing                         Admitting a new security for the first time that is not an IPO.
+                                    Excludes bonds.
+
+Offer to Purchase                   TBD
+
+Other                               A corporate action event that impacts the Issuer and it's
+                                    securities and the event does not fit the description of the other
+                                    notice types in list.
+
+Reverse Stock Split                 A corporate action in which a company reduces the total
+                                    number of its outstanding shares. A reverse stock split involves
+                                    the company dividing its current shares by a number such as 5
+                                    or 10, which would be called a 1-for-5 or 1-for-10 split,
+                                    respectively.
+
+Rights Offering                     Company issues a rights offering (issue). This issue is an issue
+                                    of rights to a company's existing shareholders that entitles
+                                    them to buy additional shares directly from the company in
+                                    proportion to their existing holdings, within a fixed time period.
+                                    In a rights offering, the subscription price at which each share
+                                    may be purchased in generally at a discount to the current
+                                    market price.
+
+Securities Separation               The existing shares of issue are technically suspended and re-
+                                    admitted under a new CUSIP reflecting as a new security.
+
+Spin-Off                            A type of business divestiture where an independent company
+                                    is created through the sale or distribution of new shares of an
+                                    existing business or division of a parent company.
+
+
+
+                                                                                                      15
+Stock Distribution    Stock dividend payment.
+
+
+
+
+Stock Split           A corporate action in which a company divides its existing
+                      shares into multiple shares. Although the number of shares
+                      outstanding increases by a specific multiple, the total dollar
+                      value of the shares remains the same compared to pre-split
+                      amounts, because the split did not add any real value.
+
+Suspend - For Cause   An issuer fails the listing markets compliance requirements on
+                      qualitative and/or financial grounds and NYSE initiates the
+                      suspension of the issue(s) of the Issuer.
+
+Termination           Informing investor community that they can receive
+                      proportionate share of a Unit Investment Trust's net assets.
+                      Termination is based on the investments held in the Unit
+                      Investment Trust's portfolio. For example, a portfolio that holds
+                      bonds may have a bond ladder consisting of five-, 10- and 20-
+                      year bonds. The portfolio would be set to terminate when the
+                      20-year bonds reach maturity.
+
+Voluntary Delisting   This Corporate Action event might occur if a company is
+                      acquired or goes private or if the Company's issues are being
+                      transferred to another market outside of NYSE, NYSE
+                      American, NYSE ARCA.
+
+Expiration            Informing the market of the expiration date on an issue (e.g.
+                      Warrant). In the case of a warrant, the expiration date is the
+                      last day the rights of a warrant can be executed
+
+
+
+
+                                                                                       16
+4.3      TickerNotices
+The CUSIP and ForeignPrivateIssuerFlag fields have been added to the TickerNotices file / table.
+
+
+Table 5 File Layout – TickerNotices
+
+ Field Name                   Format        Length       Description
+
+ NoticeID                    Text          64            Identification number of the Ticker Notice.
+
+ NoticeDate                  Date                        Date of the Ticker Notice.
+
+ SecurityType*               Text          255           Type of security.
+
+ ActionTypeCode              Text          255           Name of the corporate action.
+
+ ActionDate                  Date                        Effective date of the corporate action(s) for
+                                                         Trading purposes.
+
+ IssuerName                  Text          128           Company Name as registered with the SEC.
+
+ SecuritySymbol*             Text          16            NYSE Group listed security symbol.
+
+ Notes                       Text          3000          Description and/or explanation field used to
+                                                         explain unique features or conditions of the
+                                                         corporate action(s).
+
+ CUSIP                       Text          9             Standard and Poor's CUSIP identifier for the
+                                                         given security.
+
+ ForeignPrivateIssuerFlag    Text          1             Indicates if the issuer is a non-US Private
+                                                         entity.
+
+ Exchange*                   Text          255           NYSE Group listed Exchange:
+                                                         - NYSE
+                                                         - NYSE American
+                                                         - NYSE Arca
+                                                         - NYSE Texas
+
+ SecurityName                Text          180           Security Name as registered with the SEC.
+
+ ETP_Suffix_1                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_2                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_3                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_4                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_5                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_6                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_7                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_8                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_9                Text          255           Arca ETP new listing symbol.
+
+ ETP_Suffix_10               Text          255           Arca ETP new listing symbol.
+
+
+
+
+                                                                                                         17
+Table 6 Action Types – TickerNotices
+
+ Action Type                           ActionTypeCode   Description
+
+
+                                                        Re-issue a security that was previously listed
+ Admit                                 Admit
+                                                        from a Corporate Action event.
+
+
+                                                        Admitting a security to trade without the rights
+                                                        to a specific distribution. Here, the seller (or the
+ Admit - "Ex-Distribution" Market      AdmitExDistWI
+                                                        previous owner) rather than the buyer is
+                                                        entitled to receive the distribution.
+
+                                                        Admitting a security to trade such that its
+ Admit - "When-Distributed" Market     AdmitWD          distribution is scheduled but has not yet
+                                                        occurred.
+
+                                                        Conditional authorization of a security to trade
+                                                        prior to the security's issuance. Prior to a new
+                                                        issue's offering, underwriters solicit potential
+                                                        investors who may elect to book an order to
+ Admit - "When-Issued" Market          AdmitWI          purchase a portion of the new issue. These
+                                                        orders are made conditionally - "when issued" -
+                                                        because they may not be completed,
+                                                        particularly in the event the offering is
+                                                        cancelled.
+
+                                                        Conditional authorization to trade on additional
+ Admit - "When Issued", Additional                      outstanding shares of a security. In essence,
+                                       AdmitAddShares
+ Shares, Market                                         admitting the additional outstanding shares of
+                                                        a security to trade on a 'When Issued' basis.
+
+                                                        A corporate action event that impacts the
+ Other Action Type                     Other            security and the event does not fit the
+                                                        description of the other action types in list.
+
+                                                        Change in the security's expiration date or
+ Change in Terms                       TermsChng        distribution schedule or aspects of the terms
+                                                        from time of its original listing.
+
+ Change CUSIP                          CUSIPChng        Security's CUSIP is undergoing a change.
+
+                                                        The Issuer/company name is undergoing a
+ Change Name                           NameChange
+                                                        change.
+
+                                                        Security's ticker symbol is undergoing a
+ Change Symbol                         ChngInSymbol
+                                                        change.
+
+                                                        The Issuer name's CUSIP is undergoing a
+ Change Name and CUSIP                 NameCUSChng
+                                                        change.
+
+                                                        The Issuer name and the security's ticker
+ Change Name and Symbol                NameSymChng
+                                                        symbol is undergoing a change.
+
+                                                        The Issuer name and the security's ticker
+ Change Name and Symbol and CUSIP      NSCChng
+                                                        symbol and CUSIP are undergoing a change.
+
+                                                        The Product name of an Exchange Traded
+ Change Product Name                   ProdChng         Product (ETP) or issue name is undergoing a
+                                                        change.
+
+                                                        The Product name of an Exchange Traded
+                                                        Product (ETP) or issue name (as opposed to
+ Change Product and CUSIP              ProdCUSChng
+                                                        Company Name)and the security's CUSIP is
+                                                        undergoing a change.
+
+
+
+                                                                                                 18
+                                                                The Product name of an Exchange Traded
+                                                                Product (ETP) or issue name (as opposed to
+Change Product and Symbol              ProdSymChng
+                                                                Company Name) and the security's symbol is
+                                                                undergoing a change.
+
+                                                                The Product name of an Exchange Traded
+Change Product and Symbol and                                   Product (ETP) or issue name (as opposed to
+                                       PSCChng
+CUSIP                                                           Company Name) and the security's symbol
+                                                                and CUSIP is undergoing a change.
+
+                                                                The Issuer/Company’s name and Product
+                                                                name of an Exchange Traded Product (ETP)
+Change Company and Product Name        ProdNameChng
+                                                                or issue name (as opposed to Company
+                                                                Name) are undergoing a change.
+
+                                                                The Issuer/Company’s name and Product
+                                                                name of an Exchange Traded Product (ETP)
+Change Company and Product and
+                                       ProdNameCUSChng          or issue name (as opposed to Company
+CUSIP
+                                                                Name) and the security's CUSIP are
+                                                                undergoing a change.
+
+                                                                The Issuer/Company’s name and Product
+                                                                name of an Exchange Traded Product (ETP)
+Change Company and Product and
+                                       ProdNameSymChng          or issue name (as opposed to Company
+Symbol
+                                                                Name) and the security's symbol are
+                                                                undergoing a change.
+
+                                                                The Issuer/Company’s name and Product
+                                                                name of an Exchange Traded Product (ETP)
+Change Company and Product and
+                                       PNSCChng                 or issue name (as opposed to Company
+Symbol and CUSIP
+                                                                Name) and the security's symbol and CUSIP
+                                                                are undergoing a change.
+
+                                                                Applies to American Depository receipt
+Change Underlying Share Ratio          ChngUlyStck              security (ADS). Here the ratio of ADS share to
+                                                                local shares is changing.
+
+                                                                Security will begin trading by way of a Direct
+Direct Listing                         DirectListing
+                                                                Listing
+
+                                                                Security will begin trading by way of a Direct
+Direct Listing with Capital Raise      DirectListCapitalRaise
+                                                                Listing with a capital raise
+
+                                                                Security is being re-purchased by Issuer in its
+Full Call                              FullCall
+                                                                entirety at or before maturity.
+
+                                                                The act of offering the stock of a company on a
+Initial Public Offering                IPO
+                                                                public stock exchange for the first time.
+
+                                                                Admitting a new security for the first time that
+New Listing                            NewListing
+                                                                is not an IPO.
+
+                                                                A new listing with issuer type of "structured
+New Structured Product                 NewStrucProd
+                                                                product".
+
+                                                                Change to the class of a security. Common
+Reclassification                       ReclassDesg              practice is to have voting rights associated with
+                                                                one class of stock over the other.
+
+                                                                A security will no longer trade on a 'When-
+                                                                Issued' basis and will only trade in the normal
+Regular-Way in lieu of "When-Issued"   RegWay                   fashion (Regular Way) under its regular ticker
+                                                                symbol without the suffix (WI) associated with
+                                                                the 'When-Issued' market.
+
+                                                                The removal of security from trading as a result
+Suspend                                Suspend
+                                                                of a Corporate Action event.
+
+                                                                                                       19
+                                                              The removal of security from trading on an Ex-
+Suspend - "Ex-Distribution" Market    SuspExDistWI
+                                                              Distribution basis.
+
+                                                              The removal of security from trading on a
+Suspend - "When-Distributed" Market   SuspendWD
+                                                              When-Distributed basis.
+
+                                                              The removal of security from trading on a
+Suspend - "When-Issued" Market        SuspendWI
+                                                              When-Issued basis.
+
+                                                              The removal of the additional outstanding
+Suspend - "When-Issued", Additional
+                                      SuspWIAddSharesMarket   shares of a security from trading on a When-
+Shares, Market
+                                                              Issued basis.
+
+                                                              The removal of security from trading due to
+Suspend - For - Cause                 SuspCause               failure of compliance with listing market
+                                                              regulation.
+
+                                                              An Issuer initiates the removal of its security
+Suspend - Voluntary                   SuspendVol
+                                                              from trading on its own accord.
+
+                                                              An Issuer initiates the removal of its security
+                                                              from trading on its own accord. This also
+Suspend & Delist - Voluntary          VolDelist               involves notifying the exchange of the delisting
+                                                              Form 25 submission for the issue with the
+                                                              SEC.
+
+
+
+
+                                                                                                     20
+5.      File Names
+
+Note: In all file names described in this section, “yyyymmdd” refers to the date of the file.
+
+5.1     NYSE Group Daily Distributions
+      a) Intraday File name: EQY_US_NYSEGROUP_DISTRIBUTIONS _YYYYMMDD
+
+5.2     NYSE Group Ex-Date Distributions
+      a) Intraday File name: EQY_US_NYSEGROUP_DISTRIBUTIONS_EXDATE_YYYYMMDD
+
+5.3    InfoNotices
+       EQY_US_NYSE_MKT_REF_INFONOTICES_yyyymmdd
+
+5.4     TickerNotices
+      a) Intraday File name: EQY_US_NYSE-MKT_REF_TICKERNOTICES_YYYYMMDD
+         Summary File name: EQY_US_NYSE_REF_TICKERNOTICES_SUMMARY_YYYYMMDDHH
+         Effective File name: EQY_US_NYSE-
+         MKT_REF_TICKERNOTICES_EFFECTIVE_YYYYMMDD
+
+
+
+
+                                                                                                21
+6.      SFTP Directory Structure
+
+Note: In each of the directories described in this section, “yyyy” refers to the generation year of the file
+and “mm” refers to the generation month of the file.
+
+6.1     SFTP Server Name
+The name of the SFTP server is:
+sftp.nyse.com
+
+In order to establish your connection to the SFTP, NYSE needs your dedicated source IP address(es)
+and SSH Key(s). Please provide this information on the customer dashboard by visiting
+dashboard.theice.com and navigating to “SFTP Access Settings”. For additional information, please
+refer to the NYSE SSH Key Generation Guide.
+
+
+For additional information regarding accessing the NYSE SFTP, please refer to the NYSE SFTP
+Access - User Guide.
+
+
+
+6.2     NYSE Group Daily Distributions
+Historical archives (including the most-recent daily file) are available on:
+/EQY_US_NYSEGROUP_DISTRIBUTIONS/EQY_US_NYSEGROUP_DISTRIBUTIONS_yyyy/EQY_
+US_NYSEGROUP_DISTRIBUTIONS_yyyymm
+
+6.3     NYSE Group Ex-Date Distributions
+Historical archives (including the most-recent daily file) are available on:
+/EQY_US_NYSEGROUP_DISTRIBUTIONS_EXDATE/EQY_US_NYSEGROUP_DISTRIBUTIONS_E
+XDATE_yyyy/EQY_US_NYSEGROUP_DISTRIBUTIONS_EXDATE_yyyymm
+
+6.4     InfoNotices
+Historical archives (including the most-recent daily file) are available on:
+/EQY_US_NYSE_REF_INFONOTICES/EQY_US_NYSE_REF_INFONOTICES_yyyy/EQY_US_NYS
+E_REF_INFONOTICES_yyyymm
+
+6.5     TickerNotices
+Historical archives (including the most-recent daily file) are available on:
+/EQY_US_NYSE_REF_TICKERNOTICES/EQY_US_NYSE_REF_TICKERNOTICES_yyyy/EQY_US_
+NYSE_REF_TICKERNOTICES_yyyymm
+
+
+
+
+                                                                                                         22
+7.      S3 Directory Structure
+
+     7.1 S3 Bucket Name
+        nyse.taq.prod.rawfiles
+
+     7.2 S3 Directory NameName
+        22_NYSE_GROUP_CORPORATE_ACTIONS
+
+
+For additional information regarding accessing this data via S3, please refer to the AWS Access -
+User Guide.
+
+
+
+
+                                                                                                    23
+8.       Accessing Information on dashboard.theice.com and Updating Email Distribution
+         Settings
+
+Clients who wish to access information on dashboard.theice.com and/or manage email distribution
+settings should proceed as follows.
+Login to dashboard.theice.com.
+
+
+
+     ▪   Under Proprietary Data Order Management, select the “Access Data” link:
+
+
+
+
+     ▪   Type Corporate Actions of NYSE Group Listings on the search tool
+
+
+
+
+     ▪   To manage email distribution, select “Manage Email Subscriptions”, select the check box for
+         any file(s) you would like to receive via email, and input and internal email addresses
+         separated by a comma.
+
+
+
+
+                                                                                                       24
+▪   To view data online, select “View Product Components” and select the file you would like to
+    view.
+
+
+
+
+                                                                                                  25
+
