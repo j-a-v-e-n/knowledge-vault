@@ -1521,7 +1521,7 @@ def verify_research_register(
 
     artifacts = research.get("primary_artifacts")
     artifact_ids = unique_ids(artifacts, "research primary artifacts", errors)
-    expected_artifact_ids = {
+    core_artifact_ids = {
         "ARTIFACT-AI-FAILURE-TAXONOMY",
         "ARTIFACT-AI-METHOD-REFRESH",
         "ARTIFACT-EXISTING-SYSTEM-AUDIT",
@@ -1531,18 +1531,25 @@ def verify_research_register(
         "ARTIFACT-CHALLENGE-R2B",
         "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
     }
-    if artifact_ids != expected_artifact_ids:
+    missing_core_artifacts = core_artifact_ids - artifact_ids
+    final_artifact_ids = artifact_ids - core_artifact_ids
+    if missing_core_artifacts or len(final_artifact_ids) > 1 or any(
+        not re.fullmatch(r"ARTIFACT-CHALLENGE-FINAL-R[0-9]+", item)
+        for item in final_artifact_ids
+    ):
         errors.append(
             "research primary artifact ids differ: "
-            f"missing={sorted(expected_artifact_ids - artifact_ids)}, "
-            f"extra={sorted(artifact_ids - expected_artifact_ids)}"
+            f"missing={sorted(missing_core_artifacts)}, "
+            f"extra={sorted(final_artifact_ids)}"
         )
     artifact_paths: set[str] = set()
+    artifact_by_id: dict[str, dict[str, Any]] = {}
     if isinstance(artifacts, list):
         for artifact in artifacts:
             if not isinstance(artifact, dict):
                 continue
             artifact_id = artifact.get("id", "<unknown>")
+            artifact_by_id[artifact_id] = artifact
             relative = artifact.get("path")
             expected_hash = artifact.get("sha256")
             if (
@@ -1564,8 +1571,42 @@ def verify_research_register(
                 or sha256(path) != expected_hash
             ):
                 errors.append(f"{artifact_id} research artifact sha256 mismatch")
+            if not allow_candidate and path.is_file():
+                repo_prefix = run_git(["rev-parse", "--show-prefix"], errors)
+                repo_relative = f"{repo_prefix}{relative}"
+                tracked = subprocess.run(
+                    [
+                        "git",
+                        "ls-files",
+                        "--error-unmatch",
+                        "--",
+                        f":(top){repo_relative}",
+                    ],
+                    cwd=PROJECT_ROOT,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                )
+                at_head = subprocess.run(
+                    ["git", "cat-file", "-e", f"HEAD:{repo_relative}"],
+                    cwd=PROJECT_ROOT,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                )
+                if tracked.returncode != 0 or at_head.returncode != 0:
+                    errors.append(
+                        f"{artifact_id} frozen research artifact is not tracked in HEAD"
+                    )
             if not isinstance(artifact.get("role"), str) or not artifact.get("role"):
                 errors.append(f"{artifact_id} research artifact role is missing")
+            if (
+                artifact_id in final_artifact_ids
+                and artifact.get("role") != "independent_final_challenge"
+            ):
+                errors.append(f"{artifact_id} final challenge artifact role differs")
 
     challenge = research.get("challenge")
     if not isinstance(challenge, dict):
@@ -1755,6 +1796,23 @@ def verify_research_register(
         or last_result != "passed_freeze"
     ):
         errors.append("frozen research has no valid completed challenge")
+    if last_result == "passed_freeze" and isinstance(rounds[-1], dict):
+        final_round = rounds[-1]
+        matching_final_artifacts = [
+            artifact
+            for artifact_id, artifact in artifact_by_id.items()
+            if artifact_id in final_artifact_ids
+            and artifact.get("path") == final_round.get("evidence_path")
+            and artifact.get("sha256") == final_round.get("evidence_sha256")
+        ]
+        if len(matching_final_artifacts) != 1:
+            errors.append(
+                "passing final challenge is not bound to one final research artifact"
+            )
+    elif final_artifact_ids:
+        errors.append(
+            "final challenge research artifact exists without a passing final round"
+        )
 
 
 def verify_conditionals(
