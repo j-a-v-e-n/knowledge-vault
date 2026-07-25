@@ -32,8 +32,19 @@ MARKET_POLICY = GOVERNANCE / "MARKET_SIMULATION_POLICY_V1.json"
 FIELD_PROTOCOL = GOVERNANCE / "FIELD_USE_PROTOCOL_V1.json"
 PRIVATE_DATA_POLICY = GOVERNANCE / "PRIVATE_DATA_POLICY_V1.json"
 IMPLEMENTATION_TARGETS = GOVERNANCE / "IMPLEMENTATION_TARGETS_V1.json"
+ASSURANCE_TRUST_MODEL = GOVERNANCE / "ASSURANCE_TRUST_MODEL_V1.json"
+GROUND_TRUTH_MANIFEST = GOVERNANCE / "GROUND_TRUTH_MANIFEST_V1.json"
+RESEARCH_SUFFICIENCY = GOVERNANCE / "RESEARCH_SUFFICIENCY_V1.json"
+FAILURE_CLASSES = GOVERNANCE / "FAILURE_CLASSES_V1.json"
+DECISION_AUTHORITY = GOVERNANCE / "DECISION_AUTHORITY_V1.json"
 BLUEPRINT = PROJECT_ROOT / "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
 FROZEN_BUNDLE = GOVERNANCE / "FROZEN_BUNDLE_V1.json"
+ATTACK_RUNNER = PROJECT_ROOT / "scripts" / "run_design_freeze_attack.py"
+REPLAY_ATTACKS = PROJECT_ROOT / "scripts" / "replay_design_freeze_attacks.py"
+ASSURANCE_WORKFLOW_REPO_PATH = (
+    ".github/workflows/investment-discipline-assurance.yml"
+)
+REPOSITORY_SCOPE_PREFIX = "@repo/"
 INNER_REMOTE_CONTEXT_ENV = "IDS_FROZEN_REMOTE_INNER_CONTEXT_V1"
 EXPECTED_TRUSTED_GIT_REMOTE = {
     "name": "origin",
@@ -43,41 +54,38 @@ EXPECTED_TRUSTED_GIT_REMOTE = {
 }
 
 PHASES = {"design_freeze", "product_release", "human_onboarding", "longitudinal"}
-FINAL_REVIEW_ATTACK_SELECTORS = {
-    "ATTACK-PIT-ORACLE-INVERSION": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_pit_oracle_inversion_is_rejected"
-    ),
-    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_same_bar_causality_smuggle_is_rejected"
-    ),
-    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_split_accounting_smuggle_is_rejected"
-    ),
-    "ATTACK-CONDITIONAL-SELF-ATTESTATION": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_conditional_self_attestation_is_rejected"
-    ),
-}
+FINAL_REVIEW_ATTACK_IDS = [
+    "ATTACK-PIT-ORACLE-INVERSION",
+    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE",
+    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE",
+    "ATTACK-CONDITIONAL-SELF-ATTESTATION",
+]
 FINAL_REVIEW_REQUIRED_SCOPE = {
+    "PROJECT_CHARTER.md",
+    "DECISIONS.md",
+    "AI_COLLABORATION_METHOD.md",
+    "EVIDENCE_GOVERNED_AI_SYSTEM.md",
     "scripts/verify_governance.py",
     "scripts/verify_conditionals.py",
     "scripts/freeze_governance.py",
     "scripts/verify_git_state.py",
     "scripts/verify_remote_commit.py",
+    "scripts/run_design_freeze_attack.py",
     "scripts/replay_design_freeze_attacks.py",
+    "scripts/run_assurance_ci.py",
+    "scripts/refresh_ground_truth_manifest.py",
     "scripts/verify_contract_supersession.py",
     "README.md",
     "STATUS.md",
     "governance_tests/test_final_review_attacks.py",
     "governance_tests/test_final_review_schema.py",
+    "governance_tests/test_attack_runner.py",
     "governance_tests/test_research_evidence_governance.py",
     "governance_tests/test_verify_conditionals.py",
     "governance_tests/test_freeze_git_remote.py",
     "governance_tests/test_verify_governance.py",
     "governance_tests/test_verify_money_semantics.py",
+    f"{REPOSITORY_SCOPE_PREFIX}{ASSURANCE_WORKFLOW_REPO_PATH}",
 }
 NORMATIVE_JSON_PATHS = (
     "governance/USER_SOURCE_EXCERPTS_V1.json",
@@ -93,6 +101,11 @@ NORMATIVE_JSON_PATHS = (
     "governance/VERIFICATION_SPECS_V1.json",
     "governance/TRACEABILITY_V1.json",
     "governance/ASSURANCE_SUBJECTS_V1.json",
+    "governance/ASSURANCE_TRUST_MODEL_V1.json",
+    "governance/GROUND_TRUTH_MANIFEST_V1.json",
+    "governance/RESEARCH_SUFFICIENCY_V1.json",
+    "governance/FAILURE_CLASSES_V1.json",
+    "governance/DECISION_AUTHORITY_V1.json",
 )
 
 
@@ -181,6 +194,219 @@ def run_git(args: list[str], errors: list[str]) -> str:
         )
         return ""
     return result.stdout.strip()
+
+
+def review_reference_repo_path(
+    reference: str,
+    *,
+    project_prefix: str,
+) -> str | None:
+    if reference.startswith(REPOSITORY_SCOPE_PREFIX):
+        relative = reference.removeprefix(REPOSITORY_SCOPE_PREFIX)
+    else:
+        relative = f"{project_prefix}{reference}"
+    if (
+        not relative
+        or Path(relative).is_absolute()
+        or ".." in Path(relative).parts
+        or "\\" in relative
+    ):
+        return None
+    return relative
+
+
+def verify_bound_project_file(
+    evidence: dict[str, Any],
+    *,
+    path_field: str,
+    hash_field: str,
+    required_path: str | None,
+    prefix: str | None,
+    label: str,
+    errors: list[str],
+) -> Path | None:
+    relative = evidence.get(path_field)
+    expected_hash = evidence.get(hash_field)
+    path = safe_relative_file(relative, prefix=prefix)
+    if (
+        path is None
+        or (required_path is not None and relative != required_path)
+        or not isinstance(expected_hash, str)
+        or re.fullmatch(r"[0-9a-f]{64}", expected_hash) is None
+    ):
+        errors.append(f"{label} binding is invalid")
+        return None
+    if sha256(path) != expected_hash:
+        errors.append(f"{label} sha256 mismatch")
+        return None
+    return path
+
+
+def runner_receipt_fingerprint_payload(
+    receipt: dict[str, Any],
+) -> dict[str, Any]:
+    keys = (
+        "runner_id",
+        "runner_sha256",
+        "candidate_commit",
+        "candidate_tree",
+        "project_prefix",
+        "mode",
+        "probe_id",
+        "mutation_spec_sha256",
+        "mutation_observation",
+        "baseline",
+        "target",
+        "expected_rejection_substring",
+        "result",
+        "runner_exit_code",
+    )
+    return {key: receipt.get(key) for key in keys}
+
+
+def verify_runner_receipt_shape(
+    receipt: dict[str, Any],
+    *,
+    candidate_commit: Any,
+    candidate_tree: Any,
+    mode: str,
+    probe_id: str,
+    label: str,
+    errors: list[str],
+) -> None:
+    required_fields = {
+        "schema_version",
+        "runner_id",
+        "runner_sha256",
+        "candidate_commit",
+        "candidate_tree",
+        "project_prefix",
+        "mode",
+        "probe_id",
+        "mutation_spec_sha256",
+        "mutation_observation",
+        "baseline",
+        "target",
+        "expected_rejection_substring",
+        "result",
+        "runner_exit_code",
+        "started_at",
+        "completed_at",
+        "execution_fingerprint",
+    }
+    if set(receipt) != required_fields:
+        errors.append(f"{label} runner receipt fields differ")
+    project_prefix = run_git(["rev-parse", "--show-prefix"], errors)
+    expected = {
+        "schema_version": 2,
+        "runner_id": "ids-design-freeze-attack-runner-v1",
+        "runner_sha256": sha256(ATTACK_RUNNER),
+        "candidate_commit": candidate_commit,
+        "candidate_tree": candidate_tree,
+        "project_prefix": project_prefix,
+        "mode": mode,
+        "probe_id": probe_id,
+        "result": "rejected",
+        "runner_exit_code": 0,
+    }
+    for key, value in expected.items():
+        if receipt.get(key) != value:
+            errors.append(f"{label} runner receipt {key} differs")
+    for phase, expected_zero in (("baseline", True), ("target", False)):
+        record = receipt.get(phase)
+        if not isinstance(record, dict) or set(record) != {
+            "argv",
+            "exit_code",
+            "stdout",
+            "stdout_sha256",
+        }:
+            errors.append(f"{label} {phase} execution record differs")
+            continue
+        stdout = record.get("stdout")
+        exit_code = record.get("exit_code")
+        if (
+            record.get("argv")
+            != ["PYTHON", "scripts/verify_governance.py", "--allow-candidate"]
+            or type(exit_code) is not int
+            or not isinstance(stdout, str)
+            or record.get("stdout_sha256") != sha256_text(stdout)
+            or (expected_zero and exit_code != 0)
+            or (not expected_zero and exit_code == 0)
+        ):
+            errors.append(f"{label} {phase} actual execution binding differs")
+    expected_signal = receipt.get("expected_rejection_substring")
+    target = receipt.get("target")
+    if (
+        not isinstance(expected_signal, str)
+        or not expected_signal
+        or not isinstance(target, dict)
+        or not isinstance(target.get("stdout"), str)
+        or expected_signal not in target["stdout"]
+    ):
+        errors.append(f"{label} target rejection signal differs")
+    fingerprint = receipt.get("execution_fingerprint")
+    if (
+        not isinstance(fingerprint, str)
+        or re.fullmatch(r"[0-9a-f]{64}", fingerprint) is None
+        or fingerprint
+        != hashlib.sha256(
+            json.dumps(
+                runner_receipt_fingerprint_payload(receipt),
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+    ):
+        errors.append(f"{label} execution fingerprint differs")
+
+
+def reexecute_runner_receipt(
+    *,
+    candidate_commit: str,
+    attack_id: str | None,
+    novelty_spec: Path | None,
+    expected_fingerprint: Any,
+    label: str,
+    errors: list[str],
+) -> None:
+    argv = [
+        sys.executable,
+        str(ATTACK_RUNNER),
+        "--candidate-commit",
+        candidate_commit,
+    ]
+    if attack_id is not None:
+        argv.extend(["--attack-id", attack_id])
+    elif novelty_spec is not None:
+        argv.extend(["--novelty-spec", str(novelty_spec)])
+    else:
+        errors.append(f"{label} has no executable mutation")
+        return
+    completed = subprocess.run(
+        argv,
+        cwd=PROJECT_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    try:
+        actual = json.loads(completed.stdout)
+    except json.JSONDecodeError:
+        actual = None
+    if (
+        completed.returncode != 0
+        or not isinstance(actual, dict)
+        or actual.get("runner_exit_code") != completed.returncode
+        or actual.get("result") != "rejected"
+        or actual.get("execution_fingerprint") != expected_fingerprint
+    ):
+        errors.append(
+            f"{label} actual runner replay differs: "
+            f"process_exit={completed.returncode}, "
+            f"output={completed.stdout[-1000:]!r}"
+        )
 
 
 def unique_ids(
@@ -1762,16 +1988,25 @@ def verify_assurance_subjects(
             if role not in constraints:
                 errors.append(f"assurance role constraint missing: {role}")
     expected_final_review_schema = {
-        "schema_version": 1,
+        "schema_version": 2,
         "additional_fields_allowed": False,
         "required": [
             "schema_version",
             "subject_id",
             "review_locator",
+            "assurance_level",
             "review_input",
             "review_input_sha256",
+            "review_output_path",
+            "review_output_sha256",
             "candidate_commit",
             "candidate_tree",
+            "ground_truth_manifest_path",
+            "ground_truth_manifest_sha256",
+            "machine_assurance_manifest_path",
+            "machine_assurance_manifest_sha256",
+            "machine_attestation_verification_path",
+            "machine_attestation_verification_sha256",
             "verdict",
             "open_critical_count",
             "open_major_count",
@@ -1781,47 +2016,56 @@ def verify_assurance_subjects(
             "write_access_used",
             "reviewed_files",
             "commands_run",
-            "independent_attacks",
+            "canonical_attacks",
+            "novelty_probes",
             "findings",
             "finding_ids",
             "what_would_falsify_pass",
             "limitations",
         ],
-        "required_attack_selectors": [
-            {"attack_id": attack_id, "replay_selector": selector}
-            for attack_id, selector in FINAL_REVIEW_ATTACK_SELECTORS.items()
+        "required_canonical_attacks": [
+            {"attack_id": attack_id}
+            for attack_id in FINAL_REVIEW_ATTACK_IDS
         ],
-        "attack_required": [
+        "canonical_attack_required": [
             "attack_id",
-            "mutation",
-            "mutation_sha256",
-            "expected",
-            "observed",
-            "result",
-            "replay_selector",
-            "raw_result_path",
-            "raw_result_sha256",
+            "runner_receipt_path",
+            "runner_receipt_sha256",
         ],
-        "raw_result_required": [
+        "novelty_probe_required": [
+            "probe_id",
+            "spec_path",
+            "spec_sha256",
+            "runner_receipt_path",
+            "runner_receipt_sha256",
+        ],
+        "runner_receipt_required": [
             "schema_version",
-            "attack_id",
+            "runner_id",
+            "runner_sha256",
             "candidate_commit",
             "candidate_tree",
-            "mutation_sha256",
-            "replay_selector",
-            "command",
-            "exit_code",
-            "stdout",
-            "stdout_sha256",
-            "expected",
-            "observed",
+            "project_prefix",
+            "mode",
+            "probe_id",
+            "mutation_spec_sha256",
+            "mutation_observation",
+            "baseline",
+            "target",
+            "expected_rejection_substring",
             "result",
+            "runner_exit_code",
+            "started_at",
+            "completed_at",
+            "execution_fingerprint",
         ],
         "passing_rule": (
-            "候选 commit/tree、审查主体、输入、由冻结实施目标自动展开的完整 scope、"
-            "finding 计数和四个固定攻击必须一致；"
-            "每个攻击都要由非零目标退出状态、原始 stdout/hash 与独立可复演 selector 证明已被拒绝；"
-            "任一遗漏、escaped、跨候选复用或 open finding 都保持 blocked_freeze。"
+            "候选 commit/tree、平台可观察审查输入输出、完整 ground truth、GitHub 签名机器 manifest、"
+            "finding 计数、四个 canonical attack 和至少一个候选固定后新增 novelty probe 必须一致；"
+            "冻结 runner 会重新执行每项 mutation，并同时核对实际 runner process exit、"
+            "未变异 baseline exit=0、mutated target exit!=0、目标错误信号和 receipt fingerprint。"
+            "任意 command 字符串或内部自洽哈希不能单独成为执行证据；任一遗漏、escaped、"
+            "跨候选复用、open finding 或缺失外部 provenance 都保持 blocked_freeze。"
         ),
     }
     if subjects_doc.get("final_review_evidence_schema") != (
@@ -1845,10 +2089,19 @@ def verify_final_review_evidence(
         "schema_version",
         "subject_id",
         "review_locator",
+        "assurance_level",
         "review_input",
         "review_input_sha256",
+        "review_output_path",
+        "review_output_sha256",
         "candidate_commit",
         "candidate_tree",
+        "ground_truth_manifest_path",
+        "ground_truth_manifest_sha256",
+        "machine_assurance_manifest_path",
+        "machine_assurance_manifest_sha256",
+        "machine_attestation_verification_path",
+        "machine_attestation_verification_sha256",
         "verdict",
         "open_critical_count",
         "open_major_count",
@@ -1858,7 +2111,8 @@ def verify_final_review_evidence(
         "write_access_used",
         "reviewed_files",
         "commands_run",
-        "independent_attacks",
+        "canonical_attacks",
+        "novelty_probes",
         "findings",
         "finding_ids",
         "what_would_falsify_pass",
@@ -1875,7 +2129,7 @@ def verify_final_review_evidence(
             f"{round_id} passing review evidence has unexpected fields: "
             f"{sorted(unexpected)}"
         )
-    if evidence.get("schema_version") != 1:
+    if evidence.get("schema_version") != 2:
         errors.append(f"{round_id} passing review evidence schema differs")
     reviewer_set = set(reviewers) if isinstance(reviewers, list) else set()
     if evidence.get("subject_id") not in reviewer_set:
@@ -1889,10 +2143,64 @@ def verify_final_review_evidence(
         or evidence.get("review_input_sha256") != sha256_text(review_input)
     ):
         errors.append(f"{round_id} passing review provenance is incomplete")
+    verify_bound_project_file(
+        evidence,
+        path_field="review_output_path",
+        hash_field="review_output_sha256",
+        required_path=None,
+        prefix="audits/",
+        label=f"{round_id} review output",
+        errors=errors,
+    )
+    ground_truth_path = verify_bound_project_file(
+        evidence,
+        path_field="ground_truth_manifest_path",
+        hash_field="ground_truth_manifest_sha256",
+        required_path="governance/GROUND_TRUTH_MANIFEST_V1.json",
+        prefix="governance/",
+        label=f"{round_id} ground-truth manifest",
+        errors=errors,
+    )
+    machine_manifest_path = verify_bound_project_file(
+        evidence,
+        path_field="machine_assurance_manifest_path",
+        hash_field="machine_assurance_manifest_sha256",
+        required_path=None,
+        prefix="evidence/ci/",
+        label=f"{round_id} machine-assurance manifest",
+        errors=errors,
+    )
+    verify_bound_project_file(
+        evidence,
+        path_field="machine_attestation_verification_path",
+        hash_field="machine_attestation_verification_sha256",
+        required_path=None,
+        prefix="evidence/ci/",
+        label=f"{round_id} machine-attestation verification",
+        errors=errors,
+    )
+    if machine_manifest_path is not None:
+        machine_manifest = load_json(machine_manifest_path, errors)
+        expected_machine_binding = {
+            "schema_version": 1,
+            "manifest_id": "ids-github-machine-assurance-v1",
+            "status": "pass",
+            "assurance_level": "externally_signed_machine_execution_provenance",
+            "semantic_approval": False,
+            "repository": "j-a-v-e-n/knowledge-vault",
+            "candidate_commit": candidate_commit,
+            "candidate_tree": candidate_tree,
+        }
+        for key, expected in expected_machine_binding.items():
+            if machine_manifest.get(key) != expected:
+                errors.append(
+                    f"{round_id} machine-assurance manifest {key} differs"
+                )
 
     expected_evidence = {
         "candidate_commit": candidate_commit,
         "candidate_tree": candidate_tree,
+        "assurance_level": "platform_observable_context_isolation",
         "verdict": "passed_freeze",
         "new_architecture_changing_classes": [],
         "participated_in_candidate_construction": False,
@@ -1907,6 +2215,34 @@ def verify_final_review_evidence(
         errors.append(f"{round_id} passing review evidence reviewed_files differs")
     else:
         required_scope = set(FINAL_REVIEW_REQUIRED_SCOPE)
+        if ground_truth_path is not None:
+            ground_truth = load_json(ground_truth_path, errors)
+            artifacts = ground_truth.get("artifacts")
+            if not isinstance(artifacts, list) or not artifacts:
+                errors.append(
+                    f"{round_id} ground-truth manifest artifacts must be nonempty"
+                )
+            else:
+                for index, artifact in enumerate(artifacts):
+                    if not isinstance(artifact, dict):
+                        errors.append(
+                            f"{round_id} ground-truth artifacts[{index}] is invalid"
+                        )
+                        continue
+                    if artifact.get("required") is not True:
+                        continue
+                    relative = artifact.get("path")
+                    scope = artifact.get("scope", "project")
+                    if not isinstance(relative, str) or not relative:
+                        errors.append(
+                            f"{round_id} ground-truth artifacts[{index}] path differs"
+                        )
+                        continue
+                    required_scope.add(
+                        f"{REPOSITORY_SCOPE_PREFIX}{relative}"
+                        if scope == "repository"
+                        else relative
+                    )
         if isinstance(frozen_files, list):
             required_scope.update(
                 item for item in frozen_files if isinstance(item, str)
@@ -1972,11 +2308,11 @@ def verify_final_review_evidence(
             candidate_commit, str
         ) and bool(re.fullmatch(r"[0-9a-f]{40}", candidate_commit))
         for relative in reviewed_files:
-            if (
-                Path(relative).is_absolute()
-                or ".." in Path(relative).parts
-                or "\\" in relative
-            ):
+            repo_relative = review_reference_repo_path(
+                relative,
+                project_prefix=project_prefix,
+            )
+            if repo_relative is None:
                 errors.append(
                     f"{round_id} passing review has unsafe reviewed file: {relative}"
                 )
@@ -1989,7 +2325,7 @@ def verify_final_review_evidence(
                     "--full-tree",
                     candidate_commit,
                     "--",
-                    f":(top,literal){project_prefix}{relative}",
+                    f":(top,literal){repo_relative}",
                 ],
                 errors,
             )
@@ -2009,8 +2345,11 @@ def verify_final_review_evidence(
     else:
         commands = set(commands_run)
     required_commands = {
-        f"python3 -m unittest {selector}"
-        for selector in FINAL_REVIEW_ATTACK_SELECTORS.values()
+        (
+            "PYTHON scripts/run_design_freeze_attack.py "
+            f"--candidate-commit {candidate_commit} --attack-id {attack_id}"
+        )
+        for attack_id in FINAL_REVIEW_ATTACK_IDS
     }
     if not required_commands.issubset(commands):
         errors.append(
@@ -2077,122 +2416,70 @@ def verify_final_review_evidence(
     if any(open_counts.values()):
         errors.append(f"{round_id} passed with open review findings")
 
-    attacks = evidence.get("independent_attacks")
+    project_prefix = run_git(["rev-parse", "--show-prefix"], errors)
+    canonical_attacks = evidence.get("canonical_attacks")
     attack_ids: set[str] = set()
-    raw_paths: set[str] = set()
-    if not isinstance(attacks, list):
-        errors.append(f"{round_id} passing review independent_attacks must be a list")
+    receipt_paths: set[str] = set()
+    if not isinstance(canonical_attacks, list):
+        errors.append(f"{round_id} passing review canonical_attacks must be a list")
     else:
-        for index, attack in enumerate(attacks):
-            label = f"{round_id} passing review independent_attacks[{index}]"
-            if not isinstance(attack, dict):
-                errors.append(f"{label} must be an object")
-                continue
-            expected_attack_fields = {
+        for index, attack in enumerate(canonical_attacks):
+            label = f"{round_id} canonical_attacks[{index}]"
+            if not isinstance(attack, dict) or set(attack) != {
                 "attack_id",
-                "mutation",
-                "mutation_sha256",
-                "expected",
-                "observed",
-                "result",
-                "replay_selector",
-                "raw_result_path",
-                "raw_result_sha256",
-            }
-            if set(attack) != expected_attack_fields:
+                "runner_receipt_path",
+                "runner_receipt_sha256",
+            }:
                 errors.append(f"{label} fields differ")
+                continue
             attack_id = attack.get("attack_id")
             if (
                 not isinstance(attack_id, str)
-                or not attack_id
                 or attack_id in attack_ids
+                or attack_id not in FINAL_REVIEW_ATTACK_IDS
             ):
                 errors.append(f"{label} attack_id is invalid or duplicate")
                 continue
             attack_ids.add(attack_id)
-            expected_selector = FINAL_REVIEW_ATTACK_SELECTORS.get(attack_id)
-            mutation = attack.get("mutation")
-            expected = attack.get("expected")
-            observed = attack.get("observed")
+            receipt_relative = attack.get("runner_receipt_path")
+            receipt_path = safe_relative_file(
+                receipt_relative,
+                prefix="audits/final_review_attacks/",
+            )
+            receipt_hash = attack.get("runner_receipt_sha256")
             if (
-                expected_selector is None
-                or attack.get("replay_selector") != expected_selector
+                receipt_path is None
+                or receipt_relative in receipt_paths
+                or not isinstance(receipt_hash, str)
+                or re.fullmatch(r"[0-9a-f]{64}", receipt_hash) is None
             ):
-                errors.append(f"{attack_id} replay selector differs")
-            if (
-                not isinstance(mutation, str)
-                or not mutation
-                or attack.get("mutation_sha256") != sha256_text(mutation)
-            ):
-                errors.append(f"{attack_id} mutation/hash binding differs")
-            if not isinstance(expected, str) or not expected:
-                errors.append(f"{attack_id} expected observation is missing")
-            if not isinstance(observed, str) or not observed:
-                errors.append(f"{attack_id} observed result is missing")
-            if attack.get("result") != "rejected":
-                errors.append(f"{attack_id} did not produce a rejected attack")
-
-            raw_relative = attack.get("raw_result_path")
-            raw_path = safe_relative_file(raw_relative, prefix="audits/")
-            raw_hash = attack.get("raw_result_sha256")
-            if (
-                raw_path is None
-                or raw_relative in raw_paths
-                or not isinstance(raw_hash, str)
-                or not re.fullmatch(r"[0-9a-f]{64}", raw_hash)
-            ):
-                errors.append(f"{attack_id} raw result binding is invalid")
+                errors.append(f"{label} runner receipt binding is invalid")
                 continue
-            raw_paths.add(raw_relative)
-            if sha256(raw_path) != raw_hash:
-                errors.append(f"{attack_id} raw result sha256 mismatch")
+            receipt_paths.add(receipt_relative)
+            if sha256(receipt_path) != receipt_hash:
+                errors.append(f"{label} runner receipt sha256 mismatch")
                 continue
-            raw_result = load_json(raw_path, errors)
-            expected_raw_fields = {
-                "schema_version",
-                "attack_id",
-                "candidate_commit",
-                "candidate_tree",
-                "mutation_sha256",
-                "replay_selector",
-                "command",
-                "exit_code",
-                "stdout",
-                "stdout_sha256",
-                "expected",
-                "observed",
-                "result",
-            }
-            if set(raw_result) != expected_raw_fields:
-                errors.append(f"{attack_id} raw result fields differ")
-            expected_raw = {
-                "schema_version": 1,
-                "attack_id": attack_id,
-                "candidate_commit": candidate_commit,
-                "candidate_tree": candidate_tree,
-                "mutation_sha256": attack.get("mutation_sha256"),
-                "replay_selector": expected_selector,
-                "expected": expected,
-                "observed": observed,
-                "result": "rejected",
-            }
-            for key, value in expected_raw.items():
-                if raw_result.get(key) != value:
-                    errors.append(f"{attack_id} raw result {key} differs")
-            exit_code = raw_result.get("exit_code")
-            if type(exit_code) is not int or exit_code == 0:
-                errors.append(f"{attack_id} raw result exit_code is not rejecting")
-            stdout = raw_result.get("stdout")
-            if (
-                not isinstance(raw_result.get("command"), str)
-                or not raw_result.get("command")
-                or not isinstance(stdout, str)
-                or not stdout
-                or raw_result.get("stdout_sha256") != sha256_text(stdout)
-            ):
-                errors.append(f"{attack_id} raw command/output binding differs")
+            receipt = load_json(receipt_path, errors)
+            verify_runner_receipt_shape(
+                receipt,
+                candidate_commit=candidate_commit,
+                candidate_tree=candidate_tree,
+                mode="canonical",
+                probe_id=attack_id,
+                label=label,
+                errors=errors,
+            )
+            if isinstance(candidate_commit, str):
+                reexecute_runner_receipt(
+                    candidate_commit=candidate_commit,
+                    attack_id=attack_id,
+                    novelty_spec=None,
+                    expected_fingerprint=receipt.get("execution_fingerprint"),
+                    label=label,
+                    errors=errors,
+                )
 
-    required_attack_ids = set(FINAL_REVIEW_ATTACK_SELECTORS)
+    required_attack_ids = set(FINAL_REVIEW_ATTACK_IDS)
     if attack_ids != required_attack_ids:
         errors.append(
             f"{round_id} passing review attack coverage differs: "
@@ -2200,9 +2487,119 @@ def verify_final_review_evidence(
             f"extra={sorted(attack_ids - required_attack_ids)}"
         )
 
+    novelty_probes = evidence.get("novelty_probes")
+    probe_ids: set[str] = set()
+    if not isinstance(novelty_probes, list) or not novelty_probes:
+        errors.append(
+            f"{round_id} passing review requires at least one novelty probe"
+        )
+    else:
+        for index, probe in enumerate(novelty_probes):
+            label = f"{round_id} novelty_probes[{index}]"
+            if not isinstance(probe, dict) or set(probe) != {
+                "probe_id",
+                "spec_path",
+                "spec_sha256",
+                "runner_receipt_path",
+                "runner_receipt_sha256",
+            }:
+                errors.append(f"{label} fields differ")
+                continue
+            probe_id = probe.get("probe_id")
+            if (
+                not isinstance(probe_id, str)
+                or re.fullmatch(r"PROBE-[A-Z0-9][A-Z0-9-]{2,80}", probe_id)
+                is None
+                or probe_id in probe_ids
+            ):
+                errors.append(f"{label} probe_id is invalid or duplicate")
+                continue
+            probe_ids.add(probe_id)
+            spec_relative = probe.get("spec_path")
+            spec_path = safe_relative_file(
+                spec_relative,
+                prefix="audits/final_review_probes/",
+            )
+            spec_hash = probe.get("spec_sha256")
+            if (
+                spec_path is None
+                or not isinstance(spec_hash, str)
+                or re.fullmatch(r"[0-9a-f]{64}", spec_hash) is None
+                or sha256(spec_path) != spec_hash
+            ):
+                errors.append(f"{label} novelty spec binding differs")
+                continue
+            spec = load_json(spec_path, errors)
+            canonical_spec_hash = hashlib.sha256(
+                json.dumps(
+                    spec,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest()
+            if spec.get("probe_id") != probe_id:
+                errors.append(f"{label} novelty spec probe_id differs")
+            if isinstance(candidate_commit, str):
+                candidate_spec = subprocess.run(
+                    [
+                        "git",
+                        "cat-file",
+                        "-e",
+                        f"{candidate_commit}:{project_prefix}{spec_relative}",
+                    ],
+                    cwd=PROJECT_ROOT,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                )
+                if candidate_spec.returncode == 0:
+                    errors.append(
+                        f"{label} novelty spec existed in the reviewed candidate"
+                    )
+
+            receipt_relative = probe.get("runner_receipt_path")
+            receipt_path = safe_relative_file(
+                receipt_relative,
+                prefix="audits/final_review_attacks/",
+            )
+            receipt_hash = probe.get("runner_receipt_sha256")
+            if (
+                receipt_path is None
+                or receipt_relative in receipt_paths
+                or not isinstance(receipt_hash, str)
+                or re.fullmatch(r"[0-9a-f]{64}", receipt_hash) is None
+                or sha256(receipt_path) != receipt_hash
+            ):
+                errors.append(f"{label} runner receipt binding differs")
+                continue
+            receipt_paths.add(receipt_relative)
+            receipt = load_json(receipt_path, errors)
+            verify_runner_receipt_shape(
+                receipt,
+                candidate_commit=candidate_commit,
+                candidate_tree=candidate_tree,
+                mode="novelty",
+                probe_id=probe_id,
+                label=label,
+                errors=errors,
+            )
+            if receipt.get("mutation_spec_sha256") != canonical_spec_hash:
+                errors.append(f"{label} receipt/spec semantic hash differs")
+            if isinstance(candidate_commit, str):
+                reexecute_runner_receipt(
+                    candidate_commit=candidate_commit,
+                    attack_id=None,
+                    novelty_spec=spec_path,
+                    expected_fingerprint=receipt.get("execution_fingerprint"),
+                    label=label,
+                    errors=errors,
+                )
+
 
 def verify_research_register(
     research: dict[str, Any],
+    research_sufficiency: dict[str, Any],
     contract: dict[str, Any],
     implementation_targets: dict[str, Any],
     allow_candidate: bool,
@@ -2458,18 +2855,30 @@ def verify_research_register(
                     )
 
     stop_rule = research.get("stop_rule")
-    stop_met = isinstance(stop_rule, dict) and stop_rule.get("met") is True
+    expected_stop_rule = {
+        "method": "derived_not_declared",
+        "receipt_path": "governance/RESEARCH_SUFFICIENCY_V1.json",
+        "derived_field": "derived_closure_eligible",
+        "required": (
+            "RESEARCH_SUFFICIENCY_V1 的冻结 derivation_rules 必须从检索预算、纳入/排除、来源簇、"
+            "claim entailment、矛盾、补充轮和 architecture/decision delta 推导 pre-review eligibility；"
+            "随后独立挑战还必须关闭所有 finding 且不再发现新架构类别。任何自由布尔值均不构成停止证据。"
+        ),
+    }
+    if stop_rule != expected_stop_rule:
+        errors.append("research stop rule is not derived from sufficiency receipt")
+    closure_eligible = (
+        research_sufficiency.get("derived_closure_eligible") is True
+    )
     last_result = rounds[-1].get("result") if isinstance(rounds[-1], dict) else None
     if challenge_status == "completed":
-        if not stop_met or last_result != "passed_freeze":
+        if not closure_eligible or last_result != "passed_freeze":
             errors.append(
-                "completed research challenge lacks a passing final round and stop rule"
+                "completed research challenge lacks derived eligibility or a passing final round"
             )
-    elif stop_met:
-        errors.append("research stop rule met while challenge remains in progress")
     if not allow_candidate and (
         challenge_status != "completed"
-        or not stop_met
+        or not closure_eligible
         or last_result != "passed_freeze"
     ):
         errors.append("frozen research has no valid completed challenge")
@@ -2995,12 +3404,14 @@ def verify_design_freeze_attack_replay_payload(
     if not isinstance(payload, dict):
         errors.append(f"{label} must be an object")
         return
-    expected_attack_ids = list(FINAL_REVIEW_ATTACK_SELECTORS)
+    expected_attack_ids = FINAL_REVIEW_ATTACK_IDS
     if (
-        payload.get("schema_version") != 1
+        payload.get("schema_version") != 2
         or payload.get("status") != "pass"
         or payload.get("candidate_commit") != expected_commit
         or payload.get("candidate_tree") != expected_tree
+        or payload.get("runner_id") != "ids-design-freeze-attack-runner-v1"
+        or payload.get("runner_sha256") != sha256(ATTACK_RUNNER)
         or payload.get("required_attack_ids") != expected_attack_ids
         or not isinstance(payload.get("started_at"), str)
         or not payload.get("started_at")
@@ -3008,11 +3419,7 @@ def verify_design_freeze_attack_replay_payload(
         or not payload.get("completed_at")
     ):
         errors.append(f"{label} identity or coverage differs")
-    if require_stdout_hash and (
-        not isinstance(payload.get("stdout_sha256"), str)
-        or not re.fullmatch(r"[0-9a-f]{64}", payload.get("stdout_sha256", ""))
-    ):
-        errors.append(f"{label} stdout hash differs")
+    del require_stdout_hash
     results = payload.get("results")
     if not isinstance(results, list) or len(results) != len(expected_attack_ids):
         errors.append(f"{label} result set differs")
@@ -3026,15 +3433,22 @@ def verify_design_freeze_attack_replay_payload(
         if (
             not isinstance(attack_id, str)
             or attack_id in observed_ids
-            or attack_id not in FINAL_REVIEW_ATTACK_SELECTORS
-            or result.get("selector")
-            != FINAL_REVIEW_ATTACK_SELECTORS.get(attack_id)
-            or type(result.get("exit_code")) is not int
-            or result.get("exit_code") != 0
+            or attack_id not in FINAL_REVIEW_ATTACK_IDS
+            or result.get("actual_runner_process_exit") != 0
+            or result.get("declared_runner_exit_code") != 0
+            or result.get("baseline_verifier_exit") != 0
+            or type(result.get("target_verifier_exit")) is not int
+            or result.get("target_verifier_exit") == 0
             or result.get("result") != "rejected"
-            or not isinstance(result.get("output_sha256"), str)
-            or not re.fullmatch(
-                r"[0-9a-f]{64}", result.get("output_sha256", "")
+            or any(
+                not isinstance(result.get(field), str)
+                or re.fullmatch(r"[0-9a-f]{64}", result.get(field, "")) is None
+                for field in (
+                    "baseline_stdout_sha256",
+                    "target_stdout_sha256",
+                    "execution_fingerprint",
+                    "receipt_sha256",
+                )
             )
         ):
             errors.append(f"{label} results[{index}] differs")
@@ -3045,22 +3459,42 @@ def verify_design_freeze_attack_replay_payload(
 
 
 def run_canonical_design_freeze_attacks(
-    *, label: str, errors: list[str]
+    *, candidate_commit: str, label: str, errors: list[str]
 ) -> None:
-    for attack_id, selector in FINAL_REVIEW_ATTACK_SELECTORS.items():
-        result = subprocess.run(
-            [sys.executable, "-m", "unittest", selector, "-v"],
-            cwd=PROJECT_ROOT,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            check=False,
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(REPLAY_ATTACKS),
+            "--candidate-commit",
+            candidate_commit,
+        ],
+        cwd=PROJECT_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        payload = None
+    if result.returncode != 0 or not isinstance(payload, dict):
+        errors.append(
+            f"{label} escaped or errored: "
+            f"{result.stdout.strip() or '<no replay output>'}"
         )
-        if result.returncode != 0:
-            errors.append(
-                f"{label} {attack_id} escaped or errored: "
-                f"{result.stdout.strip() or '<no test output>'}"
-            )
+        return
+    expected_tree = run_git(
+        ["rev-parse", f"{candidate_commit}^{{tree}}"], errors
+    )
+    verify_design_freeze_attack_replay_payload(
+        payload,
+        expected_commit=candidate_commit,
+        expected_tree=expected_tree,
+        label=label,
+        require_stdout_hash=False,
+        errors=errors,
+    )
 
 
 def verify_bundle(
@@ -3127,11 +3561,11 @@ def verify_bundle(
                 "of the baseline"
             )
 
-    if baseline_commit and baseline_tree:
+    if reviewed_commit and reviewed_tree:
         verify_design_freeze_attack_replay_payload(
             bundle.get("design_freeze_attack_replay"),
-            expected_commit=baseline_commit,
-            expected_tree=baseline_tree,
+            expected_commit=reviewed_commit,
+            expected_tree=reviewed_tree,
             label="frozen bundle design-freeze attack replay",
             require_stdout_hash=True,
             errors=errors,
@@ -3420,6 +3854,7 @@ def verify_bundle(
         current_tree = run_git(["rev-parse", "HEAD^{tree}"], errors)
         if current_tree:
             run_canonical_design_freeze_attacks(
+                candidate_commit=reviewed_commit,
                 label="current design-freeze attack replay",
                 errors=errors,
             )
@@ -3553,6 +3988,11 @@ def verify(allow_candidate: bool) -> list[str]:
     field_protocol = load_json(FIELD_PROTOCOL, errors)
     private_data_policy = load_json(PRIVATE_DATA_POLICY, errors)
     implementation_targets = load_json(IMPLEMENTATION_TARGETS, errors)
+    assurance_trust_model = load_json(ASSURANCE_TRUST_MODEL, errors)
+    ground_truth_manifest = load_json(GROUND_TRUTH_MANIFEST, errors)
+    research_sufficiency = load_json(RESEARCH_SUFFICIENCY, errors)
+    failure_classes = load_json(FAILURE_CLASSES, errors)
+    decision_authority = load_json(DECISION_AUTHORITY, errors)
 
     if errors:
         return errors
@@ -3583,6 +4023,11 @@ def verify(allow_candidate: bool) -> list[str]:
         ("field use protocol", field_protocol),
         ("private data policy", private_data_policy),
         ("implementation targets", implementation_targets),
+        ("assurance trust model", assurance_trust_model),
+        ("ground truth manifest", ground_truth_manifest),
+        ("research sufficiency", research_sufficiency),
+        ("failure classes", failure_classes),
+        ("decision authority", decision_authority),
     ):
         if document.get("status") not in allowed_baseline_statuses:
             errors.append(
@@ -3596,9 +4041,8 @@ def verify(allow_candidate: bool) -> list[str]:
         challenge = research.get("challenge")
         if not isinstance(challenge, dict) or challenge.get("status") != "completed":
             errors.append("research independent challenge is not completed")
-        stop_rule = research.get("stop_rule")
-        if not isinstance(stop_rule, dict) or stop_rule.get("met") is not True:
-            errors.append("research stop rule is not met")
+        if research_sufficiency.get("derived_closure_eligible") is not True:
+            errors.append("research sufficiency is not derived closure-eligible")
 
     value_ids = unique_ids(intent.get("core_values"), "core_values", errors)
     verify_source_excerpts(source_excerpts, value_ids, errors)
@@ -3628,7 +4072,12 @@ def verify(allow_candidate: bool) -> list[str]:
     )
     verify_assurance_subjects(assurance_subjects, research, errors)
     verify_research_register(
-        research, contract, implementation_targets, allow_candidate, errors
+        research,
+        research_sufficiency,
+        contract,
+        implementation_targets,
+        allow_candidate,
+        errors,
     )
     verify_conditionals(contract, requirement_ids, case_ids, errors)
     verify_gate_catalogs(contract, executor_ids, errors)
@@ -3662,6 +4111,30 @@ def verify(allow_candidate: bool) -> list[str]:
             f"expected={sorted(expected_frozen_files)}, "
             f"actual={sorted(frozen_files) if isinstance(frozen_files, list) else frozen_files}"
         )
+    repository_frozen_files = (
+        change_control.get("repository_frozen_files")
+        if isinstance(change_control, dict)
+        else None
+    )
+    if repository_frozen_files != [ASSURANCE_WORKFLOW_REPO_PATH]:
+        errors.append("repository frozen file boundary differs")
+    repository_root_text = run_git(["rev-parse", "--show-toplevel"], errors)
+    if repository_root_text:
+        workflow_path = Path(repository_root_text) / ASSURANCE_WORKFLOW_REPO_PATH
+        machine_root = assurance_trust_model.get(
+            "trust_roots", {}
+        ).get("github_actions_machine_execution", {})
+        expected_workflow_hash = (
+            machine_root.get("workflow_sha256")
+            if isinstance(machine_root, dict)
+            else None
+        )
+        if (
+            not workflow_path.is_file()
+            or not isinstance(expected_workflow_hash, str)
+            or sha256(workflow_path) != expected_workflow_hash
+        ):
+            errors.append("assurance workflow content binding differs")
     trusted_remote = (
         change_control.get("trusted_git_remote")
         if isinstance(change_control, dict)

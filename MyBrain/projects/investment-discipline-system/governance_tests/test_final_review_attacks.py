@@ -98,27 +98,32 @@ class FinalReviewAttackTests(unittest.TestCase):
             )
         self.root = repo_root / source_prefix.stdout.strip()
         self.root.mkdir(parents=True, exist_ok=True)
-        for directory in (
-            "governance",
-            "research",
-            "audits",
-            "scripts",
-            "governance_tests",
-        ):
-            shutil.copytree(
-                PROJECT_ROOT / directory,
-                self.root / directory,
-                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
-                dirs_exist_ok=True,
-            )
-        for relative in (
-            "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
-            "PROJECT_CHARTER.md",
-            "DECISIONS.md",
-            "README.md",
-            "STATUS.md",
-        ):
-            shutil.copy2(PROJECT_ROOT / relative, self.root / relative)
+        shutil.copytree(
+            PROJECT_ROOT,
+            self.root,
+            ignore=shutil.ignore_patterns(
+                ".git",
+                "__pycache__",
+                "*.pyc",
+                ".ruff_cache",
+                "FROZEN_BUNDLE_V1.json",
+            ),
+            dirs_exist_ok=True,
+        )
+        source_workflow = (
+            Path(source_repo.stdout.strip())
+            / ".github"
+            / "workflows"
+            / "investment-discipline-assurance.yml"
+        )
+        target_workflow = (
+            repo_root
+            / ".github"
+            / "workflows"
+            / "investment-discipline-assurance.yml"
+        )
+        target_workflow.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_workflow, target_workflow)
         baseline = self.run_verifier()
         self.assertEqual(
             baseline.returncode,
@@ -229,7 +234,7 @@ class FinalReviewAttackTests(unittest.TestCase):
         relative = "governance/ASSURANCE_SUBJECTS_V1.json"
         assurance = self.read_json(relative)
         assurance["final_review_evidence_schema"][
-            "required_attack_selectors"
+            "required_canonical_attacks"
         ].pop()
         self.write_json(relative, assurance)
 

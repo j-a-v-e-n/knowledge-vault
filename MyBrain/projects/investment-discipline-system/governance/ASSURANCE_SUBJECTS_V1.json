@@ -196,16 +196,25 @@
     }
   ],
   "final_review_evidence_schema": {
-    "schema_version": 1,
+    "schema_version": 2,
     "additional_fields_allowed": false,
     "required": [
       "schema_version",
       "subject_id",
       "review_locator",
+      "assurance_level",
       "review_input",
       "review_input_sha256",
+      "review_output_path",
+      "review_output_sha256",
       "candidate_commit",
       "candidate_tree",
+      "ground_truth_manifest_path",
+      "ground_truth_manifest_sha256",
+      "machine_assurance_manifest_path",
+      "machine_assurance_manifest_sha256",
+      "machine_attestation_verification_path",
+      "machine_attestation_verification_sha256",
       "verdict",
       "open_critical_count",
       "open_major_count",
@@ -215,57 +224,60 @@
       "write_access_used",
       "reviewed_files",
       "commands_run",
-      "independent_attacks",
+      "canonical_attacks",
+      "novelty_probes",
       "findings",
       "finding_ids",
       "what_would_falsify_pass",
       "limitations"
     ],
-    "required_attack_selectors": [
+    "required_canonical_attacks": [
       {
-        "attack_id": "ATTACK-PIT-ORACLE-INVERSION",
-        "replay_selector": "governance_tests.test_final_review_attacks.FinalReviewAttackTests.test_pit_oracle_inversion_is_rejected"
+        "attack_id": "ATTACK-PIT-ORACLE-INVERSION"
       },
       {
-        "attack_id": "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE",
-        "replay_selector": "governance_tests.test_final_review_attacks.FinalReviewAttackTests.test_same_bar_causality_smuggle_is_rejected"
+        "attack_id": "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE"
       },
       {
-        "attack_id": "ATTACK-SPLIT-ACCOUNTING-SMUGGLE",
-        "replay_selector": "governance_tests.test_final_review_attacks.FinalReviewAttackTests.test_split_accounting_smuggle_is_rejected"
+        "attack_id": "ATTACK-SPLIT-ACCOUNTING-SMUGGLE"
       },
       {
-        "attack_id": "ATTACK-CONDITIONAL-SELF-ATTESTATION",
-        "replay_selector": "governance_tests.test_final_review_attacks.FinalReviewAttackTests.test_conditional_self_attestation_is_rejected"
+        "attack_id": "ATTACK-CONDITIONAL-SELF-ATTESTATION"
       }
     ],
-    "attack_required": [
+    "canonical_attack_required": [
       "attack_id",
-      "mutation",
-      "mutation_sha256",
-      "expected",
-      "observed",
-      "result",
-      "replay_selector",
-      "raw_result_path",
-      "raw_result_sha256"
+      "runner_receipt_path",
+      "runner_receipt_sha256"
     ],
-    "raw_result_required": [
+    "novelty_probe_required": [
+      "probe_id",
+      "spec_path",
+      "spec_sha256",
+      "runner_receipt_path",
+      "runner_receipt_sha256"
+    ],
+    "runner_receipt_required": [
       "schema_version",
-      "attack_id",
+      "runner_id",
+      "runner_sha256",
       "candidate_commit",
       "candidate_tree",
-      "mutation_sha256",
-      "replay_selector",
-      "command",
-      "exit_code",
-      "stdout",
-      "stdout_sha256",
-      "expected",
-      "observed",
-      "result"
+      "project_prefix",
+      "mode",
+      "probe_id",
+      "mutation_spec_sha256",
+      "mutation_observation",
+      "baseline",
+      "target",
+      "expected_rejection_substring",
+      "result",
+      "runner_exit_code",
+      "started_at",
+      "completed_at",
+      "execution_fingerprint"
     ],
-    "passing_rule": "候选 commit/tree、审查主体、输入、由冻结实施目标自动展开的完整 scope、finding 计数和四个固定攻击必须一致；每个攻击都要由非零目标退出状态、原始 stdout/hash 与独立可复演 selector 证明已被拒绝；任一遗漏、escaped、跨候选复用或 open finding 都保持 blocked_freeze。"
+    "passing_rule": "候选 commit/tree、平台可观察审查输入输出、完整 ground truth、GitHub 签名机器 manifest、finding 计数、四个 canonical attack 和至少一个候选固定后新增 novelty probe 必须一致；冻结 runner 会重新执行每项 mutation，并同时核对实际 runner process exit、未变异 baseline exit=0、mutated target exit!=0、目标错误信号和 receipt fingerprint。任意 command 字符串或内部自洽哈希不能单独成为执行证据；任一遗漏、escaped、跨候选复用、open finding 或缺失外部 provenance 都保持 blocked_freeze。"
   },
   "future_role_constraints": {
     "acceptance_reviewer": {

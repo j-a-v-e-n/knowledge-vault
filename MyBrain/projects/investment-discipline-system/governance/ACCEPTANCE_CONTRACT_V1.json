@@ -23,8 +23,8 @@
   "authority": {
     "builder": "只能提交候选产物和候选完成状态",
     "contract_change": "冻结后只能新增 superseding contract；不得原位降低门槛",
-    "acceptance": "顶层发布谓词直接汇总逐项行为证据、独立黑盒/故障检查、恢复演练、用户立场检察官和只读保障审查；任何单一脚本退出码或作者生成的 verdict 都不能单独决定",
-    "assurance_boundary": "本地文件不能密码学证明作者与审查者独立；V1 以互斥主体记录、候选绑定、原始运行结果、独立新增测试和未知缺陷探针形成可审计的认识论独立，不把它宣称为对同一 OS 用户恶意串谋的安全边界",
+    "acceptance": "顶层发布谓词直接汇总逐项行为证据、独立黑盒/故障检查、恢复演练、用户立场检察官、平台可观察语义审查和 GitHub/Sigstore 签名机器执行 provenance；任何单一脚本退出码、作者生成的 verdict、内部自洽哈希或 locator 字符串都不能单独决定",
+    "assurance_boundary": "ASSURANCE_TRUST_MODEL_V1 明确区分 content-addressed Git identity、externally signed machine-execution provenance 与 platform-observable context isolation；当前不宣称组织级或审查者身份的密码学独立，也不抵御同一 OS 管理员、仓库 owner、平台和全部代理共同串谋",
     "human_reserved": [
       "真实投资决定",
       "风险参数和残余风险接受",
@@ -65,12 +65,21 @@
     "scripts/verify_conditionals.py",
     "scripts/verify_contract_supersession.py",
     "scripts/freeze_governance.py",
+    "scripts/run_design_freeze_attack.py",
+    "scripts/replay_design_freeze_attacks.py",
+    "scripts/run_assurance_ci.py",
+    "scripts/refresh_ground_truth_manifest.py",
     "governance_tests/",
     "scripts/restore_drill.py",
     "scripts/user_proxy_gate.py",
     "governance/TRACEABILITY_V1.json",
     "governance/VERIFICATION_SPECS_V1.json",
     "governance/ASSURANCE_SUBJECTS_V1.json",
+    "governance/ASSURANCE_TRUST_MODEL_V1.json",
+    "governance/GROUND_TRUTH_MANIFEST_V1.json",
+    "governance/RESEARCH_SUFFICIENCY_V1.json",
+    "governance/FAILURE_CLASSES_V1.json",
+    "governance/DECISION_AUTHORITY_V1.json",
     "governance/USER_SOURCE_EXCERPTS_V1.json",
     "governance/ACCEPTANCE_CASES_V1.json",
     "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json",
@@ -78,6 +87,7 @@
     "governance/FIELD_USE_PROTOCOL_V1.json",
     "governance/PRIVATE_DATA_POLICY_V1.json",
     "governance/IMPLEMENTATION_TARGETS_V1.json",
+    "@repo/.github/workflows/investment-discipline-assurance.yml",
     "evidence/acceptance/",
     "evidence/reviews/",
     "README.md",
@@ -86,7 +96,7 @@
   "requirements": [
     {
       "id": "REQ-GOV-001",
-      "statement": "用户意图、原文证据、范围、非目标、隐私边界、完成权、研究登记、规范性蓝图、验收规格和追溯表必须机器可读或内容寻址并进入冻结哈希边界；研究挑战未关闭或 stop rule 未满足时不得冻结。",
+      "statement": "用户意图、原文证据、范围、非目标、隐私边界、决定权限、完成权、研究登记与充分性 receipt、失效类别、保障信任模型、ground-truth manifest、规范性蓝图、验收规格和追溯表必须机器可读或内容寻址并进入冻结哈希边界；研究 closure eligibility 必须由冻结 derivation rules 推导，研究挑战未关闭时不得冻结。",
       "source_values": ["UV-01", "UV-04", "UV-09", "UV-10", "UV-11"],
       "hazards": ["GOV-01", "GOV-02", "GOV-03", "GOV-04", "H-16"],
       "severity": "critical",
@@ -102,7 +112,7 @@
     },
     {
       "id": "REQ-GOV-003",
-      "statement": "作者、构造者和同源自评不得单独批准完成；builder/reviewer/user-proxy 具有稳定互斥主体 ID，独立证据绑定候选 commit/tree、冻结包、审查输入、生成方式和原始结果；未知缺陷探针与独立新增测试证明审查不是空声明；open critical/major 阻止发布。",
+      "statement": "作者、构造者和同源自评不得单独批准完成；最终裁决必须同时依赖固定候选上的 GitHub/Sigstore 签名机器执行 provenance 与 Codex 平台可观察上下文隔离语义审查。固定 runner 必须实际执行未变异 baseline、受限 mutation 和目标 verifier，分离实际 wrapper/target 退出码；审查必须覆盖 ground truth，并在候选固定后新增至少一个可复演 novelty probe。该证据不被夸大为组织级或审查者身份的密码学独立；任何 open critical/major/minor 阻止冻结。",
       "source_values": ["UV-01", "UV-09", "UV-10"],
       "hazards": ["GOV-03", "ORG-02", "VER-02", "H-16"],
       "severity": "critical",
@@ -947,7 +957,7 @@
   },
   "change_control": {
     "before_freeze": "独立挑战发现可修改本文件，并保留 Git 历史",
-    "freeze_action": "三次提交、非原子且 fail-closed：先把全部候选规范提交并直接推送到可信 origin branch，形成 candidate C；独立审查后，closure B 只允许修改挑战状态、审查证据与原始结果，并在提交推送后由冻结程序重放固定攻击；随后生成引用 C/B commit、tree、mode/type/blob、直接远端观察和证据哈希的 FROZEN_BUNDLE_V1.json，作为 bundle commit D 单独提交推送并执行 tracked=HEAD、可信 origin、fresh-clone 后验证。研究 challenge=completed、stop_rule.met=true、全部规范文件 tracked 且项目作用域 clean 是硬前置；任何远端观察均不得宣称消除 TOCTOU",
+    "freeze_action": "三次提交、非原子且 fail-closed：先把全部候选规范、ground-truth hash、固定 attack runner、研究充分性推导和仓库级 assurance workflow 提交并直接推送到可信 origin branch，形成 candidate C；GitHub Actions 在 C 上生成并签名机器 assurance manifest。候选固定后的 Codex 只读语义审查必须覆盖完整 ground truth，并新增至少一个受限 novelty probe。closure B 只允许追加审查输入输出、机器 manifest/attestation verification、probe spec、runner 实际 receipt、挑战轮次和相应状态；冻结程序重新执行 C 上 runner，核对实际 wrapper/baseline/target exit，并在线或离线验证 GitHub attestation。随后生成引用 C/B commit、tree、mode/type/blob、直接远端观察、attestation identity 和证据哈希的 FROZEN_BUNDLE_V1.json，作为 bundle commit D 单独提交推送并执行 tracked=HEAD、可信 origin、fresh-clone 后验证。研究 challenge=completed 且 RESEARCH_SUFFICIENCY_V1 的 closure eligibility 可推导、全部规范文件 tracked 且项目作用域 clean 是硬前置；任何远端观察均不得宣称消除 TOCTOU",
     "trusted_git_remote": {
       "name": "origin",
       "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",
@@ -968,7 +978,15 @@
       "governance/VERIFICATION_SPECS_V1.json",
       "governance/TRACEABILITY_V1.json",
       "governance/ASSURANCE_SUBJECTS_V1.json",
+      "governance/ASSURANCE_TRUST_MODEL_V1.json",
+      "governance/GROUND_TRUTH_MANIFEST_V1.json",
+      "governance/RESEARCH_SUFFICIENCY_V1.json",
+      "governance/FAILURE_CLASSES_V1.json",
+      "governance/DECISION_AUTHORITY_V1.json",
       "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
+    ],
+    "repository_frozen_files": [
+      ".github/workflows/investment-discipline-assurance.yml"
     ],
     "after_freeze": "只允许创建 V2 或更高版本；构造者不得删除 critical/major requirement、降低 severity、扩大 non-goal 或把必需项转为 conditional。自动差分发现任何弱化即阻止发布；只有可核对的新 Javen 原文确认可授权语义弱化，且旧合同继续裁决新合同不得静默降级"
   },

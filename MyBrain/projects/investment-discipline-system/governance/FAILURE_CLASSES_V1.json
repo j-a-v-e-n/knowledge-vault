@@ -1,0 +1,2718 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "source_taxonomy_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+  "source_taxonomy_hash": "sha256:06b1fa2978ab18149e77b3e346279515418d9b3d6ffc5c6ee333a2abcd04606b",
+  "coverage_summary": {
+    "total_failure_classes": 74,
+    "covered_failure_classes": 57,
+    "gap_failure_classes": 17,
+    "alias_count": 5,
+    "domains": [
+      {
+        "domain": "A-goals-requirements-and-completion-authority",
+        "total": 7,
+        "covered": 5,
+        "gaps": 2
+      },
+      {
+        "domain": "B-research-and-evidence",
+        "total": 8,
+        "covered": 8,
+        "gaps": 0
+      },
+      {
+        "domain": "C-context-memory-and-state",
+        "total": 5,
+        "covered": 4,
+        "gaps": 1
+      },
+      {
+        "domain": "D-organization-agents-and-loops",
+        "total": 7,
+        "covered": 2,
+        "gaps": 5
+      },
+      {
+        "domain": "E-implementation-and-configuration",
+        "total": 7,
+        "covered": 6,
+        "gaps": 1
+      },
+      {
+        "domain": "F-verification-testing-and-false-green",
+        "total": 10,
+        "covered": 9,
+        "gaps": 1
+      },
+      {
+        "domain": "G-permissions-security-and-privacy",
+        "total": 8,
+        "covered": 7,
+        "gaps": 1
+      },
+      {
+        "domain": "H-operations-recovery-and-evolution",
+        "total": 11,
+        "covered": 10,
+        "gaps": 1
+      },
+      {
+        "domain": "I-human-factors-product-value-and-sustainable-use",
+        "total": 7,
+        "covered": 6,
+        "gaps": 1
+      },
+      {
+        "domain": "J-cost-complexity-and-maintenance",
+        "total": 4,
+        "covered": 0,
+        "gaps": 4
+      }
+    ],
+    "open_gap_ids": [
+      "GOV-04",
+      "GOV-07",
+      "CTX-02",
+      "ORG-01",
+      "ORG-03",
+      "ORG-04",
+      "ORG-05",
+      "ORG-06",
+      "IMP-04",
+      "VER-07",
+      "SEC-06",
+      "OPS-08",
+      "HUM-05",
+      "ECO-01",
+      "ECO-02",
+      "ECO-03",
+      "ECO-04"
+    ]
+  },
+  "failure_classes": [
+    {
+      "id": "GOV-01",
+      "aliases": [],
+      "domain": "A-goals-requirements-and-completion-authority",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-001"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE"
+      ],
+      "verification_ids": [
+        "V-GOV-FREEZE",
+        "V-GOV-TRACE",
+        "V-GIT-STATE",
+        "V-REMOTE-OBSERVATION"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-OPEN-RESEARCH",
+        "CASE-REMOTE-REF-MISMATCH"
+      ],
+      "residual_risk": "用户本人的真实需求会演化",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "GOV-02",
+      "aliases": [],
+      "domain": "A-goals-requirements-and-completion-authority",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-001",
+        "REQ-GOV-002",
+        "REQ-HUMAN-001"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY",
+        "CTRL-HUMAN-DECISION",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-BEHAVIOR",
+        "CTRL-POLICY"
+      ],
+      "verification_ids": [
+        "V-GOV-FREEZE",
+        "V-GOV-TRACE",
+        "V-GIT-STATE",
+        "V-REMOTE-OBSERVATION",
+        "V-GOV-CASES",
+        "V-EVIDENCE-BINDING",
+        "V-USER-PROXY",
+        "V-DECISION",
+        "V-BEHAVIOR-GATE",
+        "V-BLACKBOX",
+        "V-UX"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-OPEN-RESEARCH",
+        "CASE-GOV-ORACLE-ALWAYS-PASS",
+        "CASE-GOV-EMPTY-NEGATIVE-CASES",
+        "CASE-GOV-MISSING-TARGET",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-REMOTE-REF-MISMATCH",
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY",
+        "CASE-PANIC-BLOCK",
+        "CASE-URGENT-COOLDOWN",
+        "CASE-AI-RUBBER-STAMP",
+        "CASE-HUMAN-REAL-JOURNEY"
+      ],
+      "residual_risk": "追踪关系也可能被错误填写",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "GOV-03",
+      "aliases": [],
+      "domain": "A-goals-requirements-and-completion-authority",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-001",
+        "REQ-GOV-003",
+        "REQ-UX-004",
+        "REQ-QUAL-002"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY",
+        "CTRL-BEHAVIOR",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-REVIEW"
+      ],
+      "verification_ids": [
+        "V-GOV-FREEZE",
+        "V-GOV-TRACE",
+        "V-GIT-STATE",
+        "V-REMOTE-OBSERVATION",
+        "V-GOV-AUTHORITY",
+        "V-INDEPENDENT-REVIEW",
+        "V-INDEPENDENCE-PROBE",
+        "V-USER-PROXY",
+        "V-FIELD-USE-PROTOCOL",
+        "V-HUMAN-CAPABILITY",
+        "V-UX",
+        "V-CONDITIONAL-CLAIMS",
+        "V-CLAIMS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-OPEN-RESEARCH",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-REMOTE-REF-MISMATCH",
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-FIELD-USE-FIXTURE-REJECTED",
+        "CASE-FIELD-USE-FAIL-REOPENS",
+        "CASE-EVIDENCE-CONTRADICTION"
+      ],
+      "residual_risk": "同源模型仍可能共享盲点",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "GOV-04",
+      "aliases": [],
+      "domain": "A-goals-requirements-and-completion-authority",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [
+        "REQ-GOV-001"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE"
+      ],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "人可以明确接受残余风险，但必须可见",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing verification ID and acceptance case directly exercise monotonic supersession or post-hoc weakening of completion criteria."
+      ]
+    },
+    {
+      "id": "GOV-05",
+      "aliases": [],
+      "domain": "A-goals-requirements-and-completion-authority",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-002",
+        "REQ-QUAL-002"
+      ],
+      "control_ids": [
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-GOV-TRACE",
+        "V-GOV-CASES",
+        "V-EVIDENCE-BINDING",
+        "V-USER-PROXY",
+        "V-CLAIMS",
+        "V-CONDITIONAL-CLAIMS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-ORACLE-ALWAYS-PASS",
+        "CASE-GOV-EMPTY-NEGATIVE-CASES",
+        "CASE-GOV-MISSING-TARGET",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY",
+        "CASE-EVIDENCE-CONTRADICTION"
+      ],
+      "residual_risk": "“最大合理努力”不能由功能数量证明",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "GOV-06",
+      "aliases": [],
+      "domain": "A-goals-requirements-and-completion-authority",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-001"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE"
+      ],
+      "verification_ids": [
+        "V-GOV-FREEZE",
+        "V-GOV-TRACE",
+        "V-GIT-STATE",
+        "V-REMOTE-OBSERVATION"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-OPEN-RESEARCH",
+        "CASE-REMOTE-REF-MISMATCH"
+      ],
+      "residual_risk": "本地用户仍可重写所有副本",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "GOV-07",
+      "aliases": [],
+      "domain": "A-goals-requirements-and-completion-authority",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [
+        "REQ-GOV-001",
+        "REQ-GOV-002",
+        "REQ-QUAL-002"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "自动 diff 不能完全理解自然语言语义",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing verification ID and acceptance case directly prove that conditional gates or a superseding contract cannot weaken requirements."
+      ]
+    },
+    {
+      "id": "RES-01",
+      "aliases": [],
+      "domain": "B-research-and-evidence",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-EVIDENCE-003",
+        "REQ-RESEARCH-001"
+      ],
+      "control_ids": [
+        "CTRL-EVIDENCE",
+        "CTRL-EVIDENCE-REVISION",
+        "CTRL-HYPOTHESIS"
+      ],
+      "verification_ids": [
+        "V-RESEARCH-MANIFEST",
+        "V-EVIDENCE-CORRECTIONS",
+        "V-CLAIM-EVIDENCE",
+        "V-HYPOTHESIS",
+        "V-BACKTEST"
+      ],
+      "acceptance_case_ids": [
+        "CASE-EVIDENCE-DUPLICATE-CLUSTER",
+        "CASE-EVIDENCE-RETRACTION",
+        "CASE-HYPOTHESIS-UNFROZEN"
+      ],
+      "residual_risk": "搜索不能证明未知未知不存在",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "RES-02",
+      "aliases": [],
+      "domain": "B-research-and-evidence",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-EVIDENCE-002",
+        "REQ-EVIDENCE-003",
+        "REQ-AI-001",
+        "REQ-RESEARCH-001",
+        "REQ-RESEARCH-003",
+        "REQ-BACKTEST-002"
+      ],
+      "control_ids": [
+        "CTRL-EVIDENCE",
+        "CTRL-EVIDENCE-REVISION",
+        "CTRL-GOV-TRACE",
+        "CTRL-HYPOTHESIS",
+        "CTRL-AI-CANDIDATE",
+        "CTRL-EXPERIMENT-FAMILY",
+        "CTRL-MARKET-SIMULATION",
+        "CTRL-RUN",
+        "CTRL-BACKTEST"
+      ],
+      "verification_ids": [
+        "V-CLAIM-EVIDENCE",
+        "V-CLAIMS",
+        "V-INDEPENDENT-REVIEW",
+        "V-RESEARCH-MANIFEST",
+        "V-EVIDENCE-CORRECTIONS",
+        "V-AI-SCHEMA",
+        "V-BLACKBOX",
+        "V-FAULTS",
+        "V-HYPOTHESIS",
+        "V-BACKTEST",
+        "V-EXPERIMENT-FAMILY",
+        "V-HOLDOUT",
+        "V-CONDITIONAL-CLAIMS",
+        "V-MARKET-SIMULATION",
+        "V-BENCHMARK",
+        "V-ARTIFACTS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-EVIDENCE-DUPLICATE-CLUSTER",
+        "CASE-EVIDENCE-RETRACTION",
+        "CASE-EVIDENCE-CONTRADICTION",
+        "CASE-RUN-MANIFEST-MISSING",
+        "CASE-HYPOTHESIS-UNFROZEN",
+        "CASE-BENCHMARK-TOTAL-RETURN",
+        "CASE-DECISION-NEXT-BAR",
+        "CASE-FAMILY-RENAME",
+        "CASE-CONTAMINATION-UNKNOWN",
+        "CASE-CALENDAR-MISSING-SESSION"
+      ],
+      "residual_risk": "反方材料也可能质量低",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "RES-03",
+      "aliases": [],
+      "domain": "B-research-and-evidence",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-EVIDENCE-001",
+        "REQ-EVIDENCE-003"
+      ],
+      "control_ids": [
+        "CTRL-EVIDENCE",
+        "CTRL-SNAPSHOT",
+        "CTRL-SECURITY",
+        "CTRL-EVIDENCE-REVISION",
+        "CTRL-HYPOTHESIS"
+      ],
+      "verification_ids": [
+        "V-SOURCE-SNAPSHOT",
+        "V-EVIDENCE-CORRECTIONS",
+        "V-PROMPT-INJECTION",
+        "V-TRUSTED-TIME",
+        "V-RESEARCH-MANIFEST",
+        "V-CLAIM-EVIDENCE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-EVIDENCE-DUPLICATE-CLUSTER",
+        "CASE-EVIDENCE-RETRACTION",
+        "CASE-PROMPT-INJECTION-CONTENT"
+      ],
+      "residual_risk": "来源依赖关系有时不可见",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "RES-04",
+      "aliases": [],
+      "domain": "B-research-and-evidence",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-DATA-001",
+        "REQ-EVIDENCE-001",
+        "REQ-EVIDENCE-003"
+      ],
+      "control_ids": [
+        "CTRL-SNAPSHOT",
+        "CTRL-EVIDENCE",
+        "CTRL-SECURITY",
+        "CTRL-EVIDENCE-REVISION",
+        "CTRL-HYPOTHESIS"
+      ],
+      "verification_ids": [
+        "V-DATA-CONTRACT",
+        "V-DATA-FAULTS",
+        "V-TRUSTED-TIME",
+        "V-SOURCE-SNAPSHOT",
+        "V-EVIDENCE-CORRECTIONS",
+        "V-PROMPT-INJECTION",
+        "V-RESEARCH-MANIFEST",
+        "V-CLAIM-EVIDENCE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-PIT-LATE-RETRIEVAL",
+        "CASE-EVIDENCE-DUPLICATE-CLUSTER",
+        "CASE-EVIDENCE-RETRACTION",
+        "CASE-PROMPT-INJECTION-CONTENT"
+      ],
+      "residual_risk": "历史网页可能不可获得",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "RES-05",
+      "aliases": [],
+      "domain": "B-research-and-evidence",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-EVIDENCE-002",
+        "REQ-EVIDENCE-003",
+        "REQ-AI-001"
+      ],
+      "control_ids": [
+        "CTRL-EVIDENCE",
+        "CTRL-EVIDENCE-REVISION",
+        "CTRL-GOV-TRACE",
+        "CTRL-HYPOTHESIS",
+        "CTRL-AI-CANDIDATE"
+      ],
+      "verification_ids": [
+        "V-CLAIM-EVIDENCE",
+        "V-CLAIMS",
+        "V-INDEPENDENT-REVIEW",
+        "V-RESEARCH-MANIFEST",
+        "V-EVIDENCE-CORRECTIONS",
+        "V-AI-SCHEMA",
+        "V-BLACKBOX",
+        "V-FAULTS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-EVIDENCE-DUPLICATE-CLUSTER",
+        "CASE-EVIDENCE-RETRACTION",
+        "CASE-EVIDENCE-CONTRADICTION"
+      ],
+      "residual_risk": "语义判断仍可能需要人",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "RES-06",
+      "aliases": [],
+      "domain": "B-research-and-evidence",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-001"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE"
+      ],
+      "verification_ids": [
+        "V-GOV-FREEZE",
+        "V-GOV-TRACE",
+        "V-GIT-STATE",
+        "V-REMOTE-OBSERVATION"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-OPEN-RESEARCH",
+        "CASE-REMOTE-REF-MISMATCH"
+      ],
+      "residual_risk": "新证据可能在停止后出现",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "RES-07",
+      "aliases": [],
+      "domain": "B-research-and-evidence",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-RESEARCH-002",
+        "REQ-RESEARCH-003"
+      ],
+      "control_ids": [
+        "CTRL-HYPOTHESIS",
+        "CTRL-RUN",
+        "CTRL-EXPERIMENT-FAMILY",
+        "CTRL-MARKET-SIMULATION"
+      ],
+      "verification_ids": [
+        "V-HOLDOUT",
+        "V-RUN-MANIFEST",
+        "V-EXPERIMENT-FAMILY",
+        "V-CONDITIONAL-CLAIMS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-CONTAMINATION-UNKNOWN",
+        "CASE-HOLDOUT-REUSE",
+        "CASE-RUN-MANIFEST-MISSING",
+        "CASE-FAMILY-RENAME"
+      ],
+      "residual_risk": "无法穷举模型训练数据",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "RES-08",
+      "aliases": [
+        "RC-18"
+      ],
+      "domain": "B-research-and-evidence",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-EVIDENCE-001",
+        "REQ-EVIDENCE-002",
+        "REQ-EVIDENCE-003"
+      ],
+      "control_ids": [
+        "CTRL-EVIDENCE",
+        "CTRL-SNAPSHOT",
+        "CTRL-SECURITY",
+        "CTRL-EVIDENCE-REVISION",
+        "CTRL-GOV-TRACE",
+        "CTRL-HYPOTHESIS"
+      ],
+      "verification_ids": [
+        "V-SOURCE-SNAPSHOT",
+        "V-EVIDENCE-CORRECTIONS",
+        "V-PROMPT-INJECTION",
+        "V-TRUSTED-TIME",
+        "V-CLAIM-EVIDENCE",
+        "V-CLAIMS",
+        "V-INDEPENDENT-REVIEW",
+        "V-RESEARCH-MANIFEST"
+      ],
+      "acceptance_case_ids": [
+        "CASE-EVIDENCE-DUPLICATE-CLUSTER",
+        "CASE-EVIDENCE-RETRACTION",
+        "CASE-PROMPT-INJECTION-CONTENT",
+        "CASE-EVIDENCE-CONTRADICTION"
+      ],
+      "residual_risk": "搜索仍不能证明所有反证已被发现，来源关系也可能不可见",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "CTX-01",
+      "aliases": [],
+      "domain": "C-context-memory-and-state",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-OPS-004",
+        "REQ-DOC-001"
+      ],
+      "control_ids": [
+        "CTRL-HEALTH",
+        "CTRL-POLICY",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-WEB",
+        "CTRL-DOCS",
+        "CTRL-BACKUP"
+      ],
+      "verification_ids": [
+        "V-HIATUS",
+        "V-RESTART",
+        "V-HEALTH",
+        "V-HUMAN-CAPABILITY",
+        "V-COLD-START",
+        "V-DOCS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-HIATUS-EXPIRES-AUTHORITY",
+        "CASE-DOC-COLD-START"
+      ],
+      "residual_risk": "文件本身可能过期",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "CTX-02",
+      "aliases": [],
+      "domain": "C-context-memory-and-state",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "检索器可能漏掉关键文件",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing requirement, verification ID, or acceptance case directly tests context-overload retrieval loss."
+      ]
+    },
+    {
+      "id": "CTX-03",
+      "aliases": [],
+      "domain": "C-context-memory-and-state",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-CORE-002",
+        "REQ-UX-003",
+        "REQ-OPS-004"
+      ],
+      "control_ids": [
+        "CTRL-DB",
+        "CTRL-GRAPH",
+        "CTRL-HEALTH",
+        "CTRL-POLICY",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [
+        "V-DB-INVARIANTS",
+        "V-EXPORT-CONSISTENCY",
+        "V-RESTART",
+        "V-GRAPHS",
+        "V-HIATUS",
+        "V-HEALTH",
+        "V-HUMAN-CAPABILITY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-DB-SHADOW-STATE",
+        "CASE-HIATUS-EXPIRES-AUTHORITY"
+      ],
+      "residual_risk": "权威源也可能被破坏",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "CTX-04",
+      "aliases": [],
+      "domain": "C-context-memory-and-state",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-OPS-002",
+        "REQ-DOC-001"
+      ],
+      "control_ids": [
+        "CTRL-BACKUP",
+        "CTRL-DOCS",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-GIT-RESTORE",
+        "V-REMOTE-OBSERVATION",
+        "V-RESTORE",
+        "V-COLD-START",
+        "V-DOCS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-REMOTE-REF-MISMATCH",
+        "CASE-DOC-COLD-START"
+      ],
+      "residual_risk": "交接本身会压缩信息",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "CTX-05",
+      "aliases": [],
+      "domain": "C-context-memory-and-state",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-002",
+        "REQ-GOV-003"
+      ],
+      "control_ids": [
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY",
+        "CTRL-GOV-FREEZE"
+      ],
+      "verification_ids": [
+        "V-GOV-TRACE",
+        "V-GOV-CASES",
+        "V-EVIDENCE-BINDING",
+        "V-USER-PROXY",
+        "V-GOV-AUTHORITY",
+        "V-INDEPENDENT-REVIEW",
+        "V-INDEPENDENCE-PROBE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-ORACLE-ALWAYS-PASS",
+        "CASE-GOV-EMPTY-NEGATIVE-CASES",
+        "CASE-GOV-MISSING-TARGET",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "新需求仍需用户表达",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "ORG-01",
+      "aliases": [],
+      "domain": "D-organization-agents-and-loops",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "切得过细会增加协调成本",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing requirement, verification ID, or acceptance case directly tests oversized work slices that leave partial state."
+      ]
+    },
+    {
+      "id": "ORG-02",
+      "aliases": [],
+      "domain": "D-organization-agents-and-loops",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-003"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-GOV-AUTHORITY",
+        "V-INDEPENDENT-REVIEW",
+        "V-INDEPENDENCE-PROBE",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "真正独立机制成本更高",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "ORG-03",
+      "aliases": [],
+      "domain": "D-organization-agents-and-loops",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "无文本冲突仍可能有行为冲突",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing requirement, verification ID, or acceptance case directly tests parallel-write conflicts or semantic overwrite."
+      ]
+    },
+    {
+      "id": "ORG-04",
+      "aliases": [],
+      "domain": "D-organization-agents-and-loops",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "复杂问题可能合理地需要更多轮",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "The contract has a loop budget, but no requirement ID, verification ID, or acceptance case directly tests no-progress retry behavior."
+      ]
+    },
+    {
+      "id": "ORG-05",
+      "aliases": [],
+      "domain": "D-organization-agents-and-loops",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "简单系统也可能不足",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing requirement, verification ID, or acceptance case directly tests harness-complexity value or component ablation."
+      ]
+    },
+    {
+      "id": "ORG-06",
+      "aliases": [],
+      "domain": "D-organization-agents-and-loops",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [
+        "REQ-GOV-003"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "修复后仍需重新审查",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "Reviewer authority is represented, but no existing verification ID and acceptance case directly prove that a reviewer cannot modify the candidate under review."
+      ]
+    },
+    {
+      "id": "ORG-07",
+      "aliases": [],
+      "domain": "D-organization-agents-and-loops",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-003"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-GOV-AUTHORITY",
+        "V-INDEPENDENT-REVIEW",
+        "V-INDEPENDENCE-PROBE",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "同一 OS 用户与平台无法提供组织级密码学独立",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "IMP-01",
+      "aliases": [],
+      "domain": "E-implementation-and-configuration",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-002"
+      ],
+      "control_ids": [
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-GOV-TRACE",
+        "V-GOV-CASES",
+        "V-EVIDENCE-BINDING",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-ORACLE-ALWAYS-PASS",
+        "CASE-GOV-EMPTY-NEGATIVE-CASES",
+        "CASE-GOV-MISSING-TARGET",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "需求本身可能错误",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "IMP-02",
+      "aliases": [],
+      "domain": "E-implementation-and-configuration",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-DATA-001",
+        "REQ-DATA-003",
+        "REQ-RISK-003",
+        "REQ-PROVIDER-001"
+      ],
+      "control_ids": [
+        "CTRL-SNAPSHOT",
+        "CTRL-TIINGO",
+        "CTRL-APPROVAL",
+        "CTRL-ACCOUNT"
+      ],
+      "verification_ids": [
+        "V-DATA-CONTRACT",
+        "V-DATA-FAULTS",
+        "V-TRUSTED-TIME",
+        "V-PROVIDER",
+        "V-RISK-STATE",
+        "V-CONCURRENCY",
+        "V-FAULTS",
+        "V-CONDITIONAL-CLAIMS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-PIT-LATE-RETRIEVAL",
+        "CASE-DATA-SILENT-FALLBACK",
+        "CASE-TIINGO-CREDENTIAL-PRESENT-PENDING",
+        "CASE-RISK-MISSING-AUTHORITATIVE-STATE"
+      ],
+      "residual_risk": "过度 fail closed 会降低可用性",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "IMP-03",
+      "aliases": [],
+      "domain": "E-implementation-and-configuration",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-CORE-003",
+        "REQ-DATA-001"
+      ],
+      "control_ids": [
+        "CTRL-RUN",
+        "CTRL-SNAPSHOT"
+      ],
+      "verification_ids": [
+        "V-RUN-MANIFEST",
+        "V-FAULTS",
+        "V-DATA-CONTRACT",
+        "V-DATA-FAULTS",
+        "V-TRUSTED-TIME"
+      ],
+      "acceptance_case_ids": [
+        "CASE-RUN-MANIFEST-MISSING",
+        "CASE-PIT-LATE-RETRIEVAL"
+      ],
+      "residual_risk": "外部服务行为仍会变化",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "IMP-04",
+      "aliases": [],
+      "domain": "E-implementation-and-configuration",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "零依赖也不等于零漏洞",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing requirement, verification ID, or acceptance case directly covers dependency provenance, lock integrity, license review, or supply-chain installation risk."
+      ]
+    },
+    {
+      "id": "IMP-05",
+      "aliases": [],
+      "domain": "E-implementation-and-configuration",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-RISK-003",
+        "REQ-PAPER-001",
+        "REQ-PAPER-002",
+        "REQ-PAPER-003",
+        "REQ-OPS-003",
+        "REQ-PROVIDER-002"
+      ],
+      "control_ids": [
+        "CTRL-APPROVAL",
+        "CTRL-ACCOUNT",
+        "CTRL-DB",
+        "CTRL-LEDGER",
+        "CTRL-EXT-PAPER",
+        "CTRL-MONEY-ACTIONS",
+        "CTRL-CORPORATE-ACTIONS",
+        "CTRL-HEALTH",
+        "CTRL-LOCAL-BOUNDARY"
+      ],
+      "verification_ids": [
+        "V-RISK-STATE",
+        "V-CONCURRENCY",
+        "V-FAULTS",
+        "V-ATOMICITY",
+        "V-RESTART",
+        "V-ORDER-STATE",
+        "V-REPLAY",
+        "V-MONEY",
+        "V-ACCOUNT-CORPORATE-ACTIONS",
+        "V-MIGRATION",
+        "V-HEALTH",
+        "V-NO-LIVE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-CORP-ACTION-UNKNOWN",
+        "CASE-CASH-MERGER-PENDING",
+        "CASE-STOCK-MERGER-PENDING",
+        "CASE-CASH-IN-LIEU-PENDING",
+        "CASE-DELISTING-NOT-ZERO-FILLED",
+        "CASE-RISK-MISSING-AUTHORITATIVE-STATE",
+        "CASE-STATE-CONCURRENT-CONSUME",
+        "CASE-NO-LIVE-EXECUTION-SURFACE",
+        "CASE-MIGRATION-FAIL-READONLY",
+        "CASE-EXTERNAL-PAPER-NETWORK-FORBIDDEN",
+        "CASE-MONEY-AUDIT-ROLLBACK",
+        "CASE-SPLIT-IDEMPOTENT",
+        "CASE-DIVIDEND-IDEMPOTENT",
+        "CASE-REVERSE-SPLIT-IDEMPOTENT",
+        "CASE-TICKER-CHANGE-STABLE-IDENTITY",
+        "CASE-MONEY-ROUNDING",
+        "CASE-MONEY-SELL-ROUNDING",
+        "CASE-CORP-ACTION-CORRECTION"
+      ],
+      "residual_risk": "跨系统事务只能通过对账收敛",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "IMP-06",
+      "aliases": [],
+      "domain": "E-implementation-and-configuration",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-RISK-002",
+        "REQ-RISK-003",
+        "REQ-PAPER-002"
+      ],
+      "control_ids": [
+        "CTRL-APPROVAL",
+        "CTRL-ACCOUNT",
+        "CTRL-EXT-PAPER"
+      ],
+      "verification_ids": [
+        "V-RISK-BINDING",
+        "V-CONCURRENCY",
+        "V-FAULTS",
+        "V-RISK-STATE",
+        "V-ORDER-STATE",
+        "V-REPLAY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-RISK-INTENT-MISMATCH",
+        "CASE-STATE-CONCURRENT-CONSUME",
+        "CASE-RISK-MISSING-AUTHORITATIVE-STATE"
+      ],
+      "residual_risk": "外部供应商幂等语义可能不同",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "IMP-07",
+      "aliases": [],
+      "domain": "E-implementation-and-configuration",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-PAPER-003"
+      ],
+      "control_ids": [
+        "CTRL-ACCOUNT",
+        "CTRL-MONEY-ACTIONS",
+        "CTRL-CORPORATE-ACTIONS"
+      ],
+      "verification_ids": [
+        "V-MONEY",
+        "V-ACCOUNT-CORPORATE-ACTIONS",
+        "V-REPLAY",
+        "V-RISK-STATE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-MONEY-AUDIT-ROLLBACK",
+        "CASE-MONEY-ROUNDING",
+        "CASE-MONEY-SELL-ROUNDING",
+        "CASE-CORP-ACTION-UNKNOWN",
+        "CASE-CASH-MERGER-PENDING",
+        "CASE-DELISTING-NOT-ZERO-FILLED",
+        "CASE-SPLIT-IDEMPOTENT",
+        "CASE-DIVIDEND-IDEMPOTENT",
+        "CASE-CORP-ACTION-CORRECTION",
+        "CASE-REVERSE-SPLIT-IDEMPOTENT",
+        "CASE-TICKER-CHANGE-STABLE-IDENTITY",
+        "CASE-STOCK-MERGER-PENDING",
+        "CASE-CASH-IN-LIEU-PENDING"
+      ],
+      "residual_risk": "券商、税务和未知公司行动语义仍不在 V1 自动化范围",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-01",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-BACKTEST-001",
+        "REQ-QUAL-001"
+      ],
+      "control_ids": [
+        "CTRL-PIT",
+        "CTRL-BACKTEST",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-PREFIX-CAUSALITY",
+        "V-BACKTEST-FAULTS",
+        "V-TEST-PEDIGREE",
+        "V-INDEPENDENT-REVIEW",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-PIT-LENGTH-MISMATCH",
+        "CASE-DECISION-NEXT-BAR",
+        "CASE-CALENDAR-MISSING-SESSION",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "隐藏测试也可能错",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-02",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-003",
+        "REQ-QUAL-001"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-GOV-AUTHORITY",
+        "V-INDEPENDENT-REVIEW",
+        "V-INDEPENDENCE-PROBE",
+        "V-USER-PROXY",
+        "V-TEST-PEDIGREE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "小项目中完全组织独立难以实现",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-03",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-EVIDENCE-002",
+        "REQ-BACKTEST-002",
+        "REQ-UX-004",
+        "REQ-QUAL-001",
+        "REQ-QUAL-002"
+      ],
+      "control_ids": [
+        "CTRL-EVIDENCE",
+        "CTRL-EVIDENCE-REVISION",
+        "CTRL-GOV-TRACE",
+        "CTRL-BACKTEST",
+        "CTRL-MARKET-SIMULATION",
+        "CTRL-RUN",
+        "CTRL-BEHAVIOR",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-REVIEW",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-CLAIM-EVIDENCE",
+        "V-CLAIMS",
+        "V-INDEPENDENT-REVIEW",
+        "V-BACKTEST",
+        "V-MARKET-SIMULATION",
+        "V-BENCHMARK",
+        "V-ARTIFACTS",
+        "V-FIELD-USE-PROTOCOL",
+        "V-HUMAN-CAPABILITY",
+        "V-UX",
+        "V-CONDITIONAL-CLAIMS",
+        "V-TEST-PEDIGREE",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-EVIDENCE-DUPLICATE-CLUSTER",
+        "CASE-EVIDENCE-RETRACTION",
+        "CASE-EVIDENCE-CONTRADICTION",
+        "CASE-BENCHMARK-TOTAL-RETURN",
+        "CASE-DECISION-NEXT-BAR",
+        "CASE-CALENDAR-MISSING-SESSION",
+        "CASE-RUN-MANIFEST-MISSING",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-FIELD-USE-FIXTURE-REJECTED",
+        "CASE-FIELD-USE-FAIL-REOPENS",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "用户评价具有主观性",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-04",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-QUAL-001"
+      ],
+      "control_ids": [
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-TEST-PEDIGREE",
+        "V-INDEPENDENT-REVIEW",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "组合空间无法穷尽",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-05",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-DATA-002",
+        "REQ-PROVIDER-001",
+        "REQ-QUAL-002"
+      ],
+      "control_ids": [
+        "CTRL-PIT",
+        "CTRL-SNAPSHOT",
+        "CTRL-TIINGO",
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-PIT",
+        "V-DATA-FAULTS",
+        "V-PREFIX-CAUSALITY",
+        "V-PROVIDER",
+        "V-CONDITIONAL-CLAIMS",
+        "V-CLAIMS",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-PIT-LATE-RETRIEVAL",
+        "CASE-PIT-LENGTH-MISMATCH",
+        "CASE-DATA-SILENT-FALLBACK",
+        "CASE-TIINGO-CREDENTIAL-PRESENT-PENDING",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-EVIDENCE-CONTRADICTION",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "真实供应商测试可能需账户",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-06",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-CORE-003",
+        "REQ-RESEARCH-002",
+        "REQ-RESEARCH-003",
+        "REQ-BACKTEST-002"
+      ],
+      "control_ids": [
+        "CTRL-RUN",
+        "CTRL-HYPOTHESIS",
+        "CTRL-EXPERIMENT-FAMILY",
+        "CTRL-MARKET-SIMULATION",
+        "CTRL-BACKTEST"
+      ],
+      "verification_ids": [
+        "V-RUN-MANIFEST",
+        "V-FAULTS",
+        "V-HOLDOUT",
+        "V-EXPERIMENT-FAMILY",
+        "V-CONDITIONAL-CLAIMS",
+        "V-BACKTEST",
+        "V-MARKET-SIMULATION",
+        "V-BENCHMARK",
+        "V-ARTIFACTS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-RUN-MANIFEST-MISSING",
+        "CASE-HOLDOUT-REUSE",
+        "CASE-CONTAMINATION-UNKNOWN",
+        "CASE-FAMILY-RENAME",
+        "CASE-BENCHMARK-TOTAL-RETURN",
+        "CASE-DECISION-NEXT-BAR",
+        "CASE-CALENDAR-MISSING-SESSION"
+      ],
+      "residual_risk": "外部环境仍不确定",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-07",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [
+        "REQ-GOV-001"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE"
+      ],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "合法变更仍需要 supersede",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "Frozen governance is represented, but no existing verification ID and acceptance case directly exercise deletion, weakening, or skipping of frozen tests."
+      ]
+    },
+    {
+      "id": "VER-08",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-002"
+      ],
+      "control_ids": [
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-GOV-TRACE",
+        "V-GOV-CASES",
+        "V-EVIDENCE-BINDING",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-ORACLE-ALWAYS-PASS",
+        "CASE-GOV-EMPTY-NEGATIVE-CASES",
+        "CASE-GOV-MISSING-TARGET",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "构造者仍可同时编写脚本与测试",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-09",
+      "aliases": [],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-002",
+        "REQ-GOV-003"
+      ],
+      "control_ids": [
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY",
+        "CTRL-GOV-FREEZE"
+      ],
+      "verification_ids": [
+        "V-GOV-TRACE",
+        "V-GOV-CASES",
+        "V-EVIDENCE-BINDING",
+        "V-USER-PROXY",
+        "V-GOV-AUTHORITY",
+        "V-INDEPENDENT-REVIEW",
+        "V-INDEPENDENCE-PROBE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-ORACLE-ALWAYS-PASS",
+        "CASE-GOV-EMPTY-NEGATIVE-CASES",
+        "CASE-GOV-MISSING-TARGET",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "若全部 provenance 都由同一恶意主体控制仍可伪造",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "VER-10",
+      "aliases": [
+        "RC-19"
+      ],
+      "domain": "F-verification-testing-and-false-green",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-RESEARCH-003",
+        "REQ-BACKTEST-001",
+        "REQ-BACKTEST-002"
+      ],
+      "control_ids": [
+        "CTRL-HYPOTHESIS",
+        "CTRL-EXPERIMENT-FAMILY",
+        "CTRL-MARKET-SIMULATION",
+        "CTRL-RUN",
+        "CTRL-PIT",
+        "CTRL-BACKTEST"
+      ],
+      "verification_ids": [
+        "V-EXPERIMENT-FAMILY",
+        "V-HOLDOUT",
+        "V-CONDITIONAL-CLAIMS",
+        "V-PREFIX-CAUSALITY",
+        "V-BACKTEST-FAULTS",
+        "V-BACKTEST",
+        "V-MARKET-SIMULATION",
+        "V-BENCHMARK",
+        "V-ARTIFACTS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-FAMILY-RENAME",
+        "CASE-CONTAMINATION-UNKNOWN",
+        "CASE-PIT-LENGTH-MISMATCH",
+        "CASE-DECISION-NEXT-BAR",
+        "CASE-CALENDAR-MISSING-SESSION",
+        "CASE-BENCHMARK-TOTAL-RETURN",
+        "CASE-RUN-MANIFEST-MISSING"
+      ],
+      "residual_risk": "历史/Paper 比较仍不能证明 live investability 或策略优势",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "SEC-01",
+      "aliases": [],
+      "domain": "G-permissions-security-and-privacy",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-EVIDENCE-001"
+      ],
+      "control_ids": [
+        "CTRL-EVIDENCE",
+        "CTRL-SNAPSHOT",
+        "CTRL-SECURITY"
+      ],
+      "verification_ids": [
+        "V-SOURCE-SNAPSHOT",
+        "V-EVIDENCE-CORRECTIONS",
+        "V-PROMPT-INJECTION",
+        "V-TRUSTED-TIME"
+      ],
+      "acceptance_case_ids": [
+        "CASE-EVIDENCE-DUPLICATE-CLUSTER",
+        "CASE-EVIDENCE-RETRACTION",
+        "CASE-PROMPT-INJECTION-CONTENT"
+      ],
+      "residual_risk": "模型仍可能被间接影响",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "SEC-02",
+      "aliases": [],
+      "domain": "G-permissions-security-and-privacy",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-CORE-001",
+        "REQ-AI-002",
+        "REQ-RISK-001"
+      ],
+      "control_ids": [
+        "CTRL-LOCAL-BOUNDARY",
+        "CTRL-SECURITY",
+        "CTRL-AI-CANDIDATE",
+        "CTRL-HUMAN-DECISION",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-APPROVAL",
+        "CTRL-POLICY",
+        "CTRL-BEHAVIOR"
+      ],
+      "verification_ids": [
+        "V-NO-LIVE",
+        "V-SECURITY",
+        "V-BLACKBOX",
+        "V-ACTOR-AUTH",
+        "V-HUMAN-CAPABILITY",
+        "V-RISK-POLICY",
+        "V-POLICY-QUALITY",
+        "V-FAULTS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-NO-LIVE-EXECUTION-SURFACE",
+        "CASE-EXTERNAL-PAPER-NETWORK-FORBIDDEN",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-HUMAN-REQUEST-ACTOR",
+        "CASE-AI-RUBBER-STAMP",
+        "CASE-PANIC-BLOCK",
+        "CASE-URGENT-COOLDOWN"
+      ],
+      "residual_risk": "本地用户拥有最终系统权限",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "SEC-03",
+      "aliases": [],
+      "domain": "G-permissions-security-and-privacy",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-SEC-002",
+        "REQ-SEC-003"
+      ],
+      "control_ids": [
+        "CTRL-SECURITY",
+        "CTRL-BACKUP",
+        "CTRL-DOCS"
+      ],
+      "verification_ids": [
+        "V-SECRETS",
+        "V-SECURITY",
+        "V-BACKUP",
+        "V-PRIVATE-DATA",
+        "V-RESTORE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-BACKUP-SYNC-ROOT-REJECTED",
+        "CASE-SECRET-EXPORT-REDACTION",
+        "CASE-BACKUP-PERMISSIONS",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-BACKUP-NO-OVERWRITE"
+      ],
+      "residual_risk": "第三方服务仍看到发给它的数据",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "SEC-04",
+      "aliases": [],
+      "domain": "G-permissions-security-and-privacy",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-CORE-001",
+        "REQ-PROVIDER-002"
+      ],
+      "control_ids": [
+        "CTRL-LOCAL-BOUNDARY",
+        "CTRL-SECURITY",
+        "CTRL-EXT-PAPER"
+      ],
+      "verification_ids": [
+        "V-NO-LIVE",
+        "V-SECURITY",
+        "V-BLACKBOX",
+        "V-ORDER-STATE",
+        "V-FAULTS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-NO-LIVE-EXECUTION-SURFACE",
+        "CASE-EXTERNAL-PAPER-NETWORK-FORBIDDEN"
+      ],
+      "residual_risk": "供应商 SDK 内部行为需审计",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "SEC-05",
+      "aliases": [],
+      "domain": "G-permissions-security-and-privacy",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-SEC-001"
+      ],
+      "control_ids": [
+        "CTRL-SECURITY",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [
+        "V-SECURITY",
+        "V-BLACKBOX"
+      ],
+      "acceptance_case_ids": [
+        "CASE-LOOPBACK-BAD-ORIGIN"
+      ],
+      "residual_risk": "本机恶意进程仍可攻击",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "SEC-06",
+      "aliases": [],
+      "domain": "G-permissions-security-and-privacy",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [
+        "REQ-SEC-002"
+      ],
+      "control_ids": [
+        "CTRL-SECURITY",
+        "CTRL-BACKUP"
+      ],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "标准库和系统也会有漏洞",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "REQ-SEC-002 names SEC-06, but no existing verification ID and acceptance case directly exercise malicious or telemetry-bearing dependency updates."
+      ]
+    },
+    {
+      "id": "SEC-07",
+      "aliases": [],
+      "domain": "G-permissions-security-and-privacy",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-DATA-001",
+        "REQ-AI-002",
+        "REQ-RISK-001"
+      ],
+      "control_ids": [
+        "CTRL-SNAPSHOT",
+        "CTRL-AI-CANDIDATE",
+        "CTRL-HUMAN-DECISION",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-APPROVAL",
+        "CTRL-POLICY",
+        "CTRL-BEHAVIOR"
+      ],
+      "verification_ids": [
+        "V-DATA-CONTRACT",
+        "V-DATA-FAULTS",
+        "V-TRUSTED-TIME",
+        "V-ACTOR-AUTH",
+        "V-HUMAN-CAPABILITY",
+        "V-BLACKBOX",
+        "V-SECURITY",
+        "V-RISK-POLICY",
+        "V-POLICY-QUALITY",
+        "V-FAULTS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-PIT-LATE-RETRIEVAL",
+        "CASE-HUMAN-REQUEST-ACTOR",
+        "CASE-AI-RUBBER-STAMP",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-PANIC-BLOCK",
+        "CASE-URGENT-COOLDOWN"
+      ],
+      "residual_risk": "同一 OS 用户恶意进程仍可能窃取能力或改时钟",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "SEC-08",
+      "aliases": [
+        "RC-22"
+      ],
+      "domain": "G-permissions-security-and-privacy",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-OPS-001",
+        "REQ-SEC-002",
+        "REQ-SEC-003"
+      ],
+      "control_ids": [
+        "CTRL-BACKUP",
+        "CTRL-ANCHOR",
+        "CTRL-SECURITY",
+        "CTRL-DOCS"
+      ],
+      "verification_ids": [
+        "V-BACKUP",
+        "V-RESTORE",
+        "V-SECRETS",
+        "V-SECURITY",
+        "V-PRIVATE-DATA"
+      ],
+      "acceptance_case_ids": [
+        "CASE-BACKUP-SYNC-ROOT-REJECTED",
+        "CASE-BACKUP-PERMISSIONS",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-BACKUP-NO-OVERWRITE",
+        "CASE-LEDGER-TAIL-TRUNCATION",
+        "CASE-SECRET-EXPORT-REDACTION"
+      ],
+      "residual_risk": "不抵御管理员、恶意软件，也不能恢复应用从未持有的 OS/FileVault 密钥",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-01",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-CORE-002",
+        "REQ-PAPER-002",
+        "REQ-OPS-004"
+      ],
+      "control_ids": [
+        "CTRL-DB",
+        "CTRL-ACCOUNT",
+        "CTRL-EXT-PAPER",
+        "CTRL-HEALTH",
+        "CTRL-POLICY",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [
+        "V-DB-INVARIANTS",
+        "V-EXPORT-CONSISTENCY",
+        "V-RESTART",
+        "V-ORDER-STATE",
+        "V-REPLAY",
+        "V-CONCURRENCY",
+        "V-FAULTS",
+        "V-HIATUS",
+        "V-HEALTH",
+        "V-HUMAN-CAPABILITY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-DB-SHADOW-STATE",
+        "CASE-HIATUS-EXPIRES-AUTHORITY",
+        "CASE-STATE-CONCURRENT-CONSUME"
+      ],
+      "residual_risk": "磁盘故障仍需备份",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-02",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-CORE-003",
+        "REQ-LEDGER-001",
+        "REQ-OPS-003"
+      ],
+      "control_ids": [
+        "CTRL-RUN",
+        "CTRL-LEDGER",
+        "CTRL-HEALTH",
+        "CTRL-DB"
+      ],
+      "verification_ids": [
+        "V-RUN-MANIFEST",
+        "V-FAULTS",
+        "V-LEDGER-TAMPER",
+        "V-DB-INVARIANTS",
+        "V-MIGRATION",
+        "V-HEALTH"
+      ],
+      "acceptance_case_ids": [
+        "CASE-RUN-MANIFEST-MISSING",
+        "CASE-MIGRATION-FAIL-READONLY",
+        "CASE-CORP-ACTION-CORRECTION"
+      ],
+      "residual_risk": "日志也可能被篡改",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-03",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-LEDGER-001",
+        "REQ-LEDGER-002"
+      ],
+      "control_ids": [
+        "CTRL-LEDGER",
+        "CTRL-ANCHOR",
+        "CTRL-BACKUP"
+      ],
+      "verification_ids": [
+        "V-LEDGER-TAMPER",
+        "V-DB-INVARIANTS",
+        "V-BACKUP",
+        "V-RESTORE"
+      ],
+      "acceptance_case_ids": [
+        "CASE-CORP-ACTION-CORRECTION",
+        "CASE-LEDGER-TAIL-TRUNCATION"
+      ],
+      "residual_risk": "有权修改全部副本者仍可重写",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-04",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-LEDGER-002",
+        "REQ-OPS-001",
+        "REQ-OPS-002",
+        "REQ-SEC-003"
+      ],
+      "control_ids": [
+        "CTRL-LEDGER",
+        "CTRL-ANCHOR",
+        "CTRL-BACKUP",
+        "CTRL-DOCS",
+        "CTRL-QUALITY",
+        "CTRL-SECURITY"
+      ],
+      "verification_ids": [
+        "V-LEDGER-TAMPER",
+        "V-BACKUP",
+        "V-RESTORE",
+        "V-GIT-RESTORE",
+        "V-REMOTE-OBSERVATION",
+        "V-COLD-START",
+        "V-PRIVATE-DATA",
+        "V-SECRETS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-LEDGER-TAIL-TRUNCATION",
+        "CASE-BACKUP-SYNC-ROOT-REJECTED",
+        "CASE-BACKUP-PERMISSIONS",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-BACKUP-NO-OVERWRITE",
+        "CASE-REMOTE-REF-MISMATCH",
+        "CASE-DOC-COLD-START",
+        "CASE-SECRET-EXPORT-REDACTION"
+      ],
+      "residual_risk": "外部远端也可能不可用",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-05",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-002",
+        "REQ-CORE-002",
+        "REQ-REVIEW-002",
+        "REQ-UX-002",
+        "REQ-UX-003",
+        "REQ-OPS-004"
+      ],
+      "control_ids": [
+        "CTRL-GOV-TRACE",
+        "CTRL-QUALITY",
+        "CTRL-DB",
+        "CTRL-REVIEW",
+        "CTRL-LEDGER",
+        "CTRL-WEB",
+        "CTRL-GRAPH",
+        "CTRL-HEALTH",
+        "CTRL-POLICY",
+        "CTRL-HUMAN-CAPABILITY"
+      ],
+      "verification_ids": [
+        "V-GOV-TRACE",
+        "V-GOV-CASES",
+        "V-EVIDENCE-BINDING",
+        "V-USER-PROXY",
+        "V-DB-INVARIANTS",
+        "V-EXPORT-CONSISTENCY",
+        "V-RESTART",
+        "V-REVIEW",
+        "V-LEDGER-TAMPER",
+        "V-BLACKBOX",
+        "V-BROWSER",
+        "V-GRAPHS",
+        "V-HIATUS",
+        "V-HEALTH",
+        "V-HUMAN-CAPABILITY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-ORACLE-ALWAYS-PASS",
+        "CASE-GOV-EMPTY-NEGATIVE-CASES",
+        "CASE-GOV-MISSING-TARGET",
+        "CASE-CONDITIONAL-MISSING-EXECUTOR",
+        "CASE-CONDITIONAL-RUN-REPLAY",
+        "CASE-GOV-STALE-EVIDENCE",
+        "CASE-USER-PROXY-INTENT-REPLAY",
+        "CASE-DB-SHADOW-STATE",
+        "CASE-HIATUS-EXPIRES-AUTHORITY",
+        "CASE-FIELD-USE-FAIL-REOPENS",
+        "CASE-FIELD-USE-FIXTURE-REJECTED"
+      ],
+      "residual_risk": "人工叙述仍可能滞后",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-06",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-OPS-001",
+        "REQ-OPS-003",
+        "REQ-OPS-004"
+      ],
+      "control_ids": [
+        "CTRL-BACKUP",
+        "CTRL-ANCHOR",
+        "CTRL-HEALTH",
+        "CTRL-DB",
+        "CTRL-POLICY",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [
+        "V-BACKUP",
+        "V-RESTORE",
+        "V-MIGRATION",
+        "V-HEALTH",
+        "V-FAULTS",
+        "V-HIATUS",
+        "V-RESTART",
+        "V-HUMAN-CAPABILITY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-BACKUP-SYNC-ROOT-REJECTED",
+        "CASE-BACKUP-PERMISSIONS",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-BACKUP-NO-OVERWRITE",
+        "CASE-LEDGER-TAIL-TRUNCATION",
+        "CASE-MIGRATION-FAIL-READONLY",
+        "CASE-HIATUS-EXPIRES-AUTHORITY"
+      ],
+      "residual_risk": "长期格式维护有成本",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-07",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-OPS-004"
+      ],
+      "control_ids": [
+        "CTRL-HEALTH",
+        "CTRL-POLICY",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [
+        "V-HIATUS",
+        "V-RESTART",
+        "V-HEALTH",
+        "V-HUMAN-CAPABILITY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-HIATUS-EXPIRES-AUTHORITY"
+      ],
+      "residual_risk": "机器离线时自动任务不运行",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-08",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "“根因”可能被过度简化",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing requirement, verification ID, or acceptance case directly tests incident root-cause analysis and conversion into a preventive control."
+      ]
+    },
+    {
+      "id": "OPS-09",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-DOC-001"
+      ],
+      "control_ids": [
+        "CTRL-DOCS",
+        "CTRL-BACKUP"
+      ],
+      "verification_ids": [
+        "V-COLD-START",
+        "V-DOCS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-DOC-COLD-START"
+      ],
+      "residual_risk": "外部服务消失或历史上下文本来就未记录",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-10",
+      "aliases": [],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-001",
+        "REQ-OPS-002"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-BACKUP",
+        "CTRL-DOCS",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-GOV-FREEZE",
+        "V-GOV-TRACE",
+        "V-GIT-STATE",
+        "V-REMOTE-OBSERVATION",
+        "V-GIT-RESTORE",
+        "V-RESTORE",
+        "V-COLD-START"
+      ],
+      "acceptance_case_ids": [
+        "CASE-GOV-OPEN-RESEARCH",
+        "CASE-REMOTE-REF-MISMATCH",
+        "CASE-DOC-COLD-START"
+      ],
+      "residual_risk": "远端服务、账号和网络仍可能失效",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "OPS-11",
+      "aliases": [
+        "RC-21"
+      ],
+      "domain": "H-operations-recovery-and-evolution",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-OPS-004"
+      ],
+      "control_ids": [
+        "CTRL-HEALTH",
+        "CTRL-POLICY",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [
+        "V-HIATUS",
+        "V-RESTART",
+        "V-HEALTH",
+        "V-HUMAN-CAPABILITY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-HIATUS-EXPIRES-AUTHORITY"
+      ],
+      "residual_risk": "不能预知所有语义变化；停用阈值本身需要按实际使用校准",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "HUM-01",
+      "aliases": [],
+      "domain": "I-human-factors-product-value-and-sustainable-use",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-UX-001",
+        "REQ-UX-004"
+      ],
+      "control_ids": [
+        "CTRL-BEHAVIOR",
+        "CTRL-WEB",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-REVIEW",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-UX",
+        "V-BROWSER",
+        "V-USER-PROXY",
+        "V-FIELD-USE-PROTOCOL",
+        "V-HUMAN-CAPABILITY",
+        "V-CONDITIONAL-CLAIMS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-FIELD-USE-FAIL-REOPENS",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-USER-PROXY-INTENT-REPLAY",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-FIELD-USE-FIXTURE-REJECTED"
+      ],
+      "residual_risk": "纪律本身需要有意摩擦",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "HUM-02",
+      "aliases": [],
+      "domain": "I-human-factors-product-value-and-sustainable-use",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-AI-001",
+        "REQ-AI-002",
+        "REQ-HUMAN-001",
+        "REQ-REVIEW-001",
+        "REQ-REVIEW-002",
+        "REQ-UX-001"
+      ],
+      "control_ids": [
+        "CTRL-AI-CANDIDATE",
+        "CTRL-HUMAN-DECISION",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-APPROVAL",
+        "CTRL-BEHAVIOR",
+        "CTRL-POLICY",
+        "CTRL-REVIEW",
+        "CTRL-LEDGER",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [
+        "V-AI-SCHEMA",
+        "V-BLACKBOX",
+        "V-FAULTS",
+        "V-ACTOR-AUTH",
+        "V-HUMAN-CAPABILITY",
+        "V-SECURITY",
+        "V-DECISION",
+        "V-BEHAVIOR-GATE",
+        "V-UX",
+        "V-THREE-TRACK",
+        "V-REVIEW",
+        "V-LEDGER-TAMPER",
+        "V-BROWSER",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-EVIDENCE-CONTRADICTION",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-FIELD-USE-FIXTURE-REJECTED",
+        "CASE-HUMAN-REQUEST-ACTOR",
+        "CASE-AI-RUBBER-STAMP",
+        "CASE-PANIC-BLOCK",
+        "CASE-URGENT-COOLDOWN",
+        "CASE-FIELD-USE-FAIL-REOPENS",
+        "CASE-BENCHMARK-TOTAL-RETURN",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "用户仍可能机械接受",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "HUM-03",
+      "aliases": [],
+      "domain": "I-human-factors-product-value-and-sustainable-use",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-HUMAN-001",
+        "REQ-REVIEW-001",
+        "REQ-UX-001"
+      ],
+      "control_ids": [
+        "CTRL-HUMAN-DECISION",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-BEHAVIOR",
+        "CTRL-POLICY",
+        "CTRL-REVIEW",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [
+        "V-DECISION",
+        "V-BEHAVIOR-GATE",
+        "V-BLACKBOX",
+        "V-UX",
+        "V-THREE-TRACK",
+        "V-REVIEW",
+        "V-BROWSER",
+        "V-USER-PROXY"
+      ],
+      "acceptance_case_ids": [
+        "CASE-PANIC-BLOCK",
+        "CASE-URGENT-COOLDOWN",
+        "CASE-AI-RUBBER-STAMP",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-FIELD-USE-FIXTURE-REJECTED",
+        "CASE-FIELD-USE-FAIL-REOPENS",
+        "CASE-BENCHMARK-TOTAL-RETURN",
+        "CASE-USER-PROXY-INTENT-REPLAY"
+      ],
+      "residual_risk": "市场本身仍会诱发情绪",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "HUM-04",
+      "aliases": [],
+      "domain": "I-human-factors-product-value-and-sustainable-use",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-UX-002",
+        "REQ-UX-004"
+      ],
+      "control_ids": [
+        "CTRL-WEB",
+        "CTRL-DB",
+        "CTRL-BEHAVIOR",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-REVIEW",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-BLACKBOX",
+        "V-BROWSER",
+        "V-EXPORT-CONSISTENCY",
+        "V-FIELD-USE-PROTOCOL",
+        "V-HUMAN-CAPABILITY",
+        "V-UX",
+        "V-CONDITIONAL-CLAIMS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-FIELD-USE-FIXTURE-REJECTED",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-FIELD-USE-FAIL-REOPENS"
+      ],
+      "residual_risk": "主观体验仍需用户使用",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "HUM-05",
+      "aliases": [],
+      "domain": "I-human-factors-product-value-and-sustainable-use",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [
+        "REQ-AI-001",
+        "REQ-EVIDENCE-002",
+        "REQ-UX-001"
+      ],
+      "control_ids": [
+        "CTRL-AI-CANDIDATE",
+        "CTRL-EVIDENCE",
+        "CTRL-EVIDENCE-REVISION",
+        "CTRL-GOV-TRACE",
+        "CTRL-BEHAVIOR",
+        "CTRL-WEB"
+      ],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "简化可能丢失细节",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "Evidence and UX requirements exist, but no existing verification ID and acceptance case directly test whether a non-specialist can understand risk and consequences."
+      ]
+    },
+    {
+      "id": "HUM-06",
+      "aliases": [],
+      "domain": "I-human-factors-product-value-and-sustainable-use",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-RISK-001",
+        "REQ-UX-004"
+      ],
+      "control_ids": [
+        "CTRL-POLICY",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-BEHAVIOR",
+        "CTRL-REVIEW",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-RISK-POLICY",
+        "V-POLICY-QUALITY",
+        "V-HUMAN-CAPABILITY",
+        "V-ACTOR-AUTH",
+        "V-FAULTS",
+        "V-FIELD-USE-PROTOCOL",
+        "V-UX",
+        "V-CONDITIONAL-CLAIMS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-PANIC-BLOCK",
+        "CASE-URGENT-COOLDOWN",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-BACKUP-UNENCRYPTED-STATUS",
+        "CASE-FIELD-USE-FIXTURE-REJECTED",
+        "CASE-FIELD-USE-FAIL-REOPENS"
+      ],
+      "residual_risk": "长期价值必须等待真实时间，不能在构造期证明",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "HUM-07",
+      "aliases": [
+        "RC-20"
+      ],
+      "domain": "I-human-factors-product-value-and-sustainable-use",
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-AI-002",
+        "REQ-HUMAN-001",
+        "REQ-RISK-001",
+        "REQ-UX-004"
+      ],
+      "control_ids": [
+        "CTRL-AI-CANDIDATE",
+        "CTRL-HUMAN-DECISION",
+        "CTRL-HUMAN-CAPABILITY",
+        "CTRL-APPROVAL",
+        "CTRL-BEHAVIOR",
+        "CTRL-POLICY",
+        "CTRL-REVIEW",
+        "CTRL-QUALITY"
+      ],
+      "verification_ids": [
+        "V-ACTOR-AUTH",
+        "V-HUMAN-CAPABILITY",
+        "V-BLACKBOX",
+        "V-SECURITY",
+        "V-DECISION",
+        "V-BEHAVIOR-GATE",
+        "V-UX",
+        "V-RISK-POLICY",
+        "V-POLICY-QUALITY",
+        "V-FAULTS",
+        "V-FIELD-USE-PROTOCOL",
+        "V-CONDITIONAL-CLAIMS"
+      ],
+      "acceptance_case_ids": [
+        "CASE-HUMAN-REQUEST-ACTOR",
+        "CASE-AI-RUBBER-STAMP",
+        "CASE-HUMAN-REAL-JOURNEY",
+        "CASE-FIELD-USE-FIXTURE-REJECTED",
+        "CASE-PANIC-BLOCK",
+        "CASE-URGENT-COOLDOWN",
+        "CASE-FIELD-USE-FAIL-REOPENS",
+        "CASE-BACKUP-UNENCRYPTED-STATUS"
+      ],
+      "residual_risk": "摩擦只能证明步骤完成，不能证明真诚、冷静或长期改善",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
+    },
+    {
+      "id": "ECO-01",
+      "aliases": [],
+      "domain": "J-cost-complexity-and-maintenance",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "高质量工作确实可能昂贵",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "The contract has a loop budget, but no requirement ID, verification ID, or acceptance case directly tests unbounded time or token consumption."
+      ]
+    },
+    {
+      "id": "ECO-02",
+      "aliases": [],
+      "domain": "J-cost-complexity-and-maintenance",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [
+        "REQ-GOV-001"
+      ],
+      "control_ids": [
+        "CTRL-GOV-FREEZE"
+      ],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "范围选择仍需判断",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "Frozen scope and non-goals exist, but no existing verification ID and acceptance case directly exercise scope expansion beyond the MVP."
+      ]
+    },
+    {
+      "id": "ECO-03",
+      "aliases": [],
+      "domain": "J-cost-complexity-and-maintenance",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "过早抽象也会制造债务",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing requirement, verification ID, or acceptance case directly tests maintainability degradation or technical-debt growth."
+      ]
+    },
+    {
+      "id": "ECO-04",
+      "aliases": [],
+      "domain": "J-cost-complexity-and-maintenance",
+      "impact": "high",
+      "status": "gap",
+      "requirement_ids": [],
+      "control_ids": [],
+      "verification_ids": [],
+      "acceptance_case_ids": [],
+      "residual_risk": "真正有价值的新工具也可能被延后",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": [
+        "No existing requirement, verification ID, or acceptance case directly tests terminology-driven rewrites or migration exit plans."
+      ]
+    }
+  ],
+  "open_gaps": [
+    {
+      "id": "GOV-04",
+      "domain": "A-goals-requirements-and-completion-authority",
+      "missing": [
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing verification ID and acceptance case directly exercise monotonic supersession or post-hoc weakening of completion criteria."
+    },
+    {
+      "id": "GOV-07",
+      "domain": "A-goals-requirements-and-completion-authority",
+      "missing": [
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing verification ID and acceptance case directly prove that conditional gates or a superseding contract cannot weaken requirements."
+    },
+    {
+      "id": "CTX-02",
+      "domain": "C-context-memory-and-state",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing requirement, verification ID, or acceptance case directly tests context-overload retrieval loss."
+    },
+    {
+      "id": "ORG-01",
+      "domain": "D-organization-agents-and-loops",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing requirement, verification ID, or acceptance case directly tests oversized work slices that leave partial state."
+    },
+    {
+      "id": "ORG-03",
+      "domain": "D-organization-agents-and-loops",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing requirement, verification ID, or acceptance case directly tests parallel-write conflicts or semantic overwrite."
+    },
+    {
+      "id": "ORG-04",
+      "domain": "D-organization-agents-and-loops",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "The contract has a loop budget, but no requirement ID, verification ID, or acceptance case directly tests no-progress retry behavior."
+    },
+    {
+      "id": "ORG-05",
+      "domain": "D-organization-agents-and-loops",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing requirement, verification ID, or acceptance case directly tests harness-complexity value or component ablation."
+    },
+    {
+      "id": "ORG-06",
+      "domain": "D-organization-agents-and-loops",
+      "missing": [
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "Reviewer authority is represented, but no existing verification ID and acceptance case directly prove that a reviewer cannot modify the candidate under review."
+    },
+    {
+      "id": "IMP-04",
+      "domain": "E-implementation-and-configuration",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing requirement, verification ID, or acceptance case directly covers dependency provenance, lock integrity, license review, or supply-chain installation risk."
+    },
+    {
+      "id": "VER-07",
+      "domain": "F-verification-testing-and-false-green",
+      "missing": [
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "Frozen governance is represented, but no existing verification ID and acceptance case directly exercise deletion, weakening, or skipping of frozen tests."
+    },
+    {
+      "id": "SEC-06",
+      "domain": "G-permissions-security-and-privacy",
+      "missing": [
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "REQ-SEC-002 names SEC-06, but no existing verification ID and acceptance case directly exercise malicious or telemetry-bearing dependency updates."
+    },
+    {
+      "id": "OPS-08",
+      "domain": "H-operations-recovery-and-evolution",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing requirement, verification ID, or acceptance case directly tests incident root-cause analysis and conversion into a preventive control."
+    },
+    {
+      "id": "HUM-05",
+      "domain": "I-human-factors-product-value-and-sustainable-use",
+      "missing": [
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "Evidence and UX requirements exist, but no existing verification ID and acceptance case directly test whether a non-specialist can understand risk and consequences."
+    },
+    {
+      "id": "ECO-01",
+      "domain": "J-cost-complexity-and-maintenance",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "The contract has a loop budget, but no requirement ID, verification ID, or acceptance case directly tests unbounded time or token consumption."
+    },
+    {
+      "id": "ECO-02",
+      "domain": "J-cost-complexity-and-maintenance",
+      "missing": [
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "Frozen scope and non-goals exist, but no existing verification ID and acceptance case directly exercise scope expansion beyond the MVP."
+    },
+    {
+      "id": "ECO-03",
+      "domain": "J-cost-complexity-and-maintenance",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing requirement, verification ID, or acceptance case directly tests maintainability degradation or technical-debt growth."
+    },
+    {
+      "id": "ECO-04",
+      "domain": "J-cost-complexity-and-maintenance",
+      "missing": [
+        "requirement_ids",
+        "control_ids",
+        "verification_ids",
+        "acceptance_case_ids"
+      ],
+      "reason": "No existing requirement, verification ID, or acceptance case directly tests terminology-driven rewrites or migration exit plans."
+    }
+  ]
+}

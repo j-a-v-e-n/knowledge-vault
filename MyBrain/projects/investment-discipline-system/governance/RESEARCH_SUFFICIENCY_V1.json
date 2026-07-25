@@ -1,0 +1,3010 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "derived_closure_eligible": false,
+  "derivation_rules": {
+    "evaluation_mode": "fail_closed_all_topics",
+    "status_semantics": "artifact_lifecycle_not_research_closure",
+    "input_snapshot": [
+      {
+        "id": "INPUT-01",
+        "path": "EVIDENCE_GOVERNED_AI_SYSTEM.md",
+        "sha256": "384407d4e61159003bfabb50a98e980cea925e0b8b30a577b28f2a292784975a"
+      },
+      {
+        "id": "INPUT-02",
+        "path": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+        "sha256": "60151a6965488bb191aaae39bb6235757b7587ddb0473a9d8022e771e0fc885a"
+      },
+      {
+        "id": "INPUT-03",
+        "path": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md",
+        "sha256": "a9e13be21de98e3c261eb38ae7f9ebd2d7704de9555b2d35ec4a943384a20002"
+      },
+      {
+        "id": "INPUT-04",
+        "path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+        "sha256": "06b1fa2978ab18149e77b3e346279515418d9b3d6ffc5c6ee333a2abcd04606b"
+      },
+      {
+        "id": "INPUT-05",
+        "path": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md",
+        "sha256": "e9bdfa24bda1676ec106636091bdb2f8e11c4412662d64b237a57db8da71a2c7"
+      },
+      {
+        "id": "INPUT-06",
+        "path": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
+        "sha256": "d94da3bc494fa6b5a2f1baa461a1fed1c0d04ed7184cf67c01054c3525556b0b"
+      },
+      {
+        "id": "INPUT-07",
+        "path": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md",
+        "sha256": "d80e5ae2da9e3a91a8ddf933ac8f831f919a00b33e0b82ba4b4f8e54f10d081e"
+      }
+    ],
+    "required_topic_fields": [
+      "claims",
+      "decision_served",
+      "deltas",
+      "evidence_clusters",
+      "gap_ids",
+      "id",
+      "impact",
+      "preregistration",
+      "reopen_triggers",
+      "search_protocol",
+      "source_outcomes",
+      "supplemental_rounds",
+      "title",
+      "unresolved_contradictions"
+    ],
+    "state_domains": {
+      "entailment_status": [
+        "contested_non_decision_changing",
+        "entailed",
+        "not_entailed",
+        "partial",
+        "unreviewed"
+      ],
+      "gap_state": [
+        "closure_blocking",
+        "non_blocking_boundary",
+        "resolved"
+      ],
+      "preregistration_timing_state": [
+        "not_verifiably_preregistered",
+        "verified_before_search"
+      ],
+      "screening_decision": [
+        "excluded_from_claim_support",
+        "included",
+        "included_limited",
+        "not_individually_manifested"
+      ],
+      "supplemental_round_result": [
+        "completed_stable",
+        "completed_with_architecture_delta",
+        "completed_with_decision_delta",
+        "completed_with_open_blockers",
+        "not_run"
+      ],
+      "topic_impact": [
+        "high"
+      ]
+    },
+    "closure_thresholds": {
+      "allowed_claim_entailment_statuses": [
+        "contested_non_decision_changing",
+        "entailed"
+      ],
+      "allowed_claim_review_states": [
+        "deterministic_receipt",
+        "explicit_human_receipt",
+        "independent_review_receipt"
+      ],
+      "allowed_delta_dispositions": [
+        "accepted",
+        "deferred",
+        "rejected"
+      ],
+      "allowed_delta_statuses": [
+        "accepted",
+        "deferred",
+        "rejected"
+      ],
+      "allowed_revision_check_states": [
+        "content_hash_verified_current",
+        "fixed_commit_verified",
+        "revision_graph_checked_current"
+      ],
+      "max_architecture_or_decision_changing_open_contradictions": 0,
+      "max_blocking_open_gaps": 0,
+      "minimum_operational_reopen_triggers_per_topic": 1,
+      "minimum_stability_rounds_after_latest_delta": 1,
+      "required_budget_consumption_receipt_state": "complete",
+      "required_budget_registration_state": "frozen_before_search",
+      "required_independent_challenge_result": "completed_stable",
+      "required_preregistration_timing_state": "verified_before_search",
+      "required_result_set_state": "frozen_complete",
+      "required_stability_round_result": "completed_stable",
+      "topic_set": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05"
+      ]
+    },
+    "predicates": [
+      {
+        "id": "DR-01",
+        "scope": "$.topics[*].id",
+        "test": "set_equals",
+        "threshold_ref": "closure_thresholds.topic_set"
+      },
+      {
+        "id": "DR-02",
+        "scope": "$.topics[*].preregistration.timing_state",
+        "test": "all_equal",
+        "threshold_ref": "closure_thresholds.required_preregistration_timing_state"
+      },
+      {
+        "id": "DR-03",
+        "scope": "$.topics[*].search_protocol.budget",
+        "test": "all_records_match",
+        "required_values": {
+          "consumption_receipt_state_ref": "closure_thresholds.required_budget_consumption_receipt_state",
+          "registration_state_ref": "closure_thresholds.required_budget_registration_state"
+        },
+        "required_non_null_fields": [
+          "planned_query_limit",
+          "planned_supplemental_round_limit"
+        ]
+      },
+      {
+        "id": "DR-04",
+        "scope": "$.topics[*]",
+        "test": "all_source_result_sets_complete",
+        "requirements": [
+          "search_protocol.result_set_state == closure_thresholds.required_result_set_state",
+          "every source_outcome has screening_decision, screening_reason, observed_result, source_class, and cluster_ids",
+          "every excluded source_outcome has a non-empty exclusion reason",
+          "every included source_outcome has a non-empty inclusion reason"
+        ]
+      },
+      {
+        "id": "DR-05",
+        "scope": "$.topics[*]",
+        "test": "all_required_source_classes_and_clusters_complete",
+        "requirements": [
+          "required source classes are a subset of screened source classes",
+          "every included source belongs to at least one evidence cluster",
+          "every evidence cluster identifies upstream roots and revision-check state",
+          "every revision-check state is in closure_thresholds.allowed_revision_check_states",
+          "no two members with the same upstream root are counted as independent"
+        ]
+      },
+      {
+        "id": "DR-06",
+        "scope": "$.topics[*].claims[?(@.impact == 'high')]",
+        "test": "all_claims_meet_entailment_threshold",
+        "requirements": [
+          "every evidence_cluster_id resolves within the same topic",
+          "entailment_status is in closure_thresholds.allowed_claim_entailment_statuses",
+          "review_state is in closure_thresholds.allowed_claim_review_states and is bound to the input snapshot"
+        ],
+        "threshold_refs": [
+          "closure_thresholds.allowed_claim_entailment_statuses",
+          "closure_thresholds.allowed_claim_review_states"
+        ]
+      },
+      {
+        "id": "DR-07",
+        "scope": "$.topics[*].supplemental_rounds",
+        "test": "all_topics_have_stability_round_after_latest_delta",
+        "requirements": [
+          "count of rounds after the last round with a non-empty architecture_delta_ids or decision_delta_ids and result == closure_thresholds.required_stability_round_result meets closure_thresholds.minimum_stability_rounds_after_latest_delta"
+        ],
+        "threshold_refs": [
+          "closure_thresholds.minimum_stability_rounds_after_latest_delta",
+          "closure_thresholds.required_stability_round_result"
+        ]
+      },
+      {
+        "id": "DR-08",
+        "scope": "$.topics[*].unresolved_contradictions",
+        "test": "count_where_state_is_open_and_decision_effect_is_architecture_or_decision_changing_at_most_threshold",
+        "threshold_ref": "closure_thresholds.max_architecture_or_decision_changing_open_contradictions"
+      },
+      {
+        "id": "DR-09",
+        "scope": "$.topics[*].deltas",
+        "test": "all_deltas_have_source_authority_status_rationale_and_resolved_disposition",
+        "requirements": [
+          "source_locator, authority, status, rationale, and disposition are non-empty",
+          "status is in closure_thresholds.allowed_delta_statuses",
+          "disposition is in closure_thresholds.allowed_delta_dispositions"
+        ],
+        "threshold_refs": [
+          "closure_thresholds.allowed_delta_dispositions",
+          "closure_thresholds.allowed_delta_statuses"
+        ]
+      },
+      {
+        "id": "DR-10",
+        "scope": "$.topics[*].reopen_triggers",
+        "test": "all_topics_have_operational_reopen_trigger",
+        "requirements": [
+          "trigger count meets closure_thresholds.minimum_operational_reopen_triggers_per_topic",
+          "every trigger has condition, action, and affected_claim_ids"
+        ],
+        "threshold_ref": "closure_thresholds.minimum_operational_reopen_triggers_per_topic"
+      },
+      {
+        "id": "DR-11",
+        "scope": "$.topics[*].supplemental_rounds",
+        "test": "all_high_impact_topics_have_completed_independent_challenge_without_open_critical_or_major",
+        "requirements": [
+          "at least one round has round_type == independent_challenge and result == closure_thresholds.required_independent_challenge_result"
+        ],
+        "threshold_ref": "closure_thresholds.required_independent_challenge_result"
+      },
+      {
+        "id": "DR-12",
+        "scope": "$.open_gaps",
+        "test": "count_where_state_equals_closure_blocking_at_most_threshold",
+        "threshold_ref": "closure_thresholds.max_blocking_open_gaps"
+      },
+      {
+        "id": "DR-13",
+        "scope": "$.derivation_rules.input_snapshot",
+        "test": "all_sha256_match_current_files"
+      }
+    ],
+    "closure_expression": {
+      "operator": "all",
+      "predicate_ids": [
+        "DR-01",
+        "DR-02",
+        "DR-03",
+        "DR-04",
+        "DR-05",
+        "DR-06",
+        "DR-07",
+        "DR-08",
+        "DR-09",
+        "DR-10",
+        "DR-11",
+        "DR-12",
+        "DR-13"
+      ]
+    },
+    "closure_state_derivation": {
+      "false": "bounded_incomplete",
+      "true": "candidate_closure_eligible"
+    },
+    "integration_observations": {
+      "candidate_verifier_state": "reads_derived_field_without_recomputing_predicates",
+      "freeze_transition_state": "legacy_boolean_transition_still_present",
+      "register_stop_link_state": "derived_link_present",
+      "status_does_not_imply_research_closure": "derived_closure_eligible_and_derived_research_state_are_authoritative_for_research_sufficiency"
+    },
+    "current_evaluation": {
+      "derived_research_state": "bounded_incomplete",
+      "evaluated_input_sha256_state": "matched",
+      "rule_results": [
+        {
+          "id": "DR-01",
+          "result": "pass"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-04",
+            "RS-05"
+          ],
+          "id": "DR-02",
+          "result": "fail"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-04",
+            "RS-05"
+          ],
+          "id": "DR-03",
+          "result": "fail"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-04",
+            "RS-05"
+          ],
+          "id": "DR-04",
+          "result": "fail"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-04",
+            "RS-05"
+          ],
+          "id": "DR-05",
+          "result": "fail"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-04",
+            "RS-05"
+          ],
+          "id": "DR-06",
+          "result": "fail"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-04",
+            "RS-05"
+          ],
+          "id": "DR-07",
+          "result": "fail"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-05"
+          ],
+          "id": "DR-08",
+          "result": "fail"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-04",
+            "RS-05"
+          ],
+          "id": "DR-09",
+          "result": "fail"
+        },
+        {
+          "id": "DR-10",
+          "result": "pass"
+        },
+        {
+          "failed_topic_ids": [
+            "RS-01",
+            "RS-02",
+            "RS-03",
+            "RS-04",
+            "RS-05"
+          ],
+          "id": "DR-11",
+          "result": "fail"
+        },
+        {
+          "failed_gap_ids": [
+            "GAP-001",
+            "GAP-002",
+            "GAP-003",
+            "GAP-004",
+            "GAP-005",
+            "GAP-006",
+            "GAP-007",
+            "GAP-008",
+            "GAP-009",
+            "GAP-010",
+            "GAP-011",
+            "GAP-012",
+            "GAP-013",
+            "GAP-014",
+            "GAP-015"
+          ],
+          "id": "DR-12",
+          "result": "fail"
+        },
+        {
+          "id": "DR-13",
+          "result": "pass"
+        }
+      ]
+    }
+  },
+  "topics": [
+    {
+      "id": "RS-01",
+      "title": "AI 工程方法与证据约束研究协议",
+      "impact": "high",
+      "decision_served": "下一阶段是否采用证据约束的轻量组织方法，并暂缓外部 Graph runtime 或 Harness",
+      "preregistration": {
+        "evidence_locators": [
+          "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#研究服务的决定",
+          "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#完成标准"
+        ],
+        "questions": [
+          {
+            "decision_change_if": "若外部工具以显著更低复杂度提供经独立验证的覆盖、恢复和保障能力，则改为优先试验外部工具",
+            "id": "RS-01-Q01",
+            "question": "Prompt、Context、Harness、Loop、Graph 与多代理分别解决什么底层问题，关系是否为替代"
+          },
+          {
+            "decision_change_if": "若一次深度研究能够可靠证明专家级覆盖，则可降低显式充分性门",
+            "id": "RS-01-Q02",
+            "question": "深度研究为何会浅层停止，怎样把充分性变成完成门"
+          },
+          {
+            "decision_change_if": "若图或多代理在本项目同题试验中净收益明确，则进入运行时试验",
+            "id": "RS-01-Q03",
+            "question": "图与多代理的收益、错误传播风险和采用阈值是什么"
+          },
+          {
+            "decision_change_if": "若当前 Codex 原语不足以提供恢复、权限和验证，则评估外部 Harness",
+            "id": "RS-01-Q04",
+            "question": "当前 Codex 能力是否足以先实现轻量目标、隔离挑战、验证和 Living Review"
+          },
+          {
+            "decision_change_if": "若隔离上下文不能发现新增遗漏，则升级不同证据路径或机制隔离",
+            "id": "RS-01-Q05",
+            "question": "独立挑战怎样避免共享摘要造成假独立"
+          },
+          {
+            "decision_change_if": "若真实任务对照不改善覆盖、冲突发现和可复现性，则不提升协议状态",
+            "id": "RS-01-Q06",
+            "question": "协议需要哪些本地任务证据才可从试验基线升级"
+          }
+        ],
+        "timing_state": "not_verifiably_preregistered",
+        "timing_reason": "文档包含决定、范围和完成标准，但现有材料没有冻结时间或不可变 receipt 证明它们早于检索与综合"
+      },
+      "search_protocol": {
+        "budget": {
+          "consumption_receipt_state": "partial",
+          "known_activity_locator": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#主要搜索路径",
+          "planned_query_limit": null,
+          "planned_supplemental_round_limit": null,
+          "registration_state": "missing"
+        },
+        "required_source_classes": [
+          "critical_and_negative_cases",
+          "official_vendor_engineering",
+          "open_source_code_and_issue_trackers",
+          "ordinary_user_experience",
+          "peer_reviewed_or_preprint_research",
+          "standards_and_public_handbooks"
+        ],
+        "result_set_state": "partial_not_frozen",
+        "scope": {
+          "excluded": [
+            "企业级多人治理",
+            "立即安装外部代理平台",
+            "真实交易自动执行",
+            "训练新基础模型"
+          ],
+          "included": [
+            "Codex 当前能力",
+            "Graph 与多代理",
+            "Harness 与权限",
+            "Living Review",
+            "Loop 与持续目标",
+            "Prompt 与 Context",
+            "可视化与事实源",
+            "深度研究充分性",
+            "独立验证"
+          ],
+          "time_sensitive": [
+            "Codex 能力",
+            "具体框架状态",
+            "近期 AI 工程术语和产品"
+          ]
+        }
+      },
+      "source_outcomes": [
+        {
+          "cluster_ids": [
+            "RS-01-EC01"
+          ],
+          "id": "RS-01-S01",
+          "locator": "https://adk.dev/graphs/",
+          "observed_result": "官方文档把图工作流表达为节点、边、状态和显式路由",
+          "screening_decision": "included",
+          "screening_reason": "直接描述已有图工作流能力，用于判断 Graph 是否为新范式",
+          "source_class": "official_vendor_engineering"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC02"
+          ],
+          "id": "RS-01-S02",
+          "locator": "https://learn.microsoft.com/en-us/agent-framework/workflows/orchestrations/",
+          "observed_result": "官方工作流编排资料支持节点、状态、路由与恢复属于既有工程能力",
+          "screening_decision": "included",
+          "screening_reason": "提供与 Google ADK 不同厂商的原始能力说明",
+          "source_class": "official_vendor_engineering"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC03"
+          ],
+          "id": "RS-01-S03",
+          "locator": "https://arxiv.org/abs/2601.12369",
+          "observed_result": "TaxoBench 报告深度研究代理在专家级覆盖与组织上的差距",
+          "screening_decision": "included",
+          "screening_reason": "直接服务深度研究覆盖问题",
+          "source_class": "peer_reviewed_or_preprint_research"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC04"
+          ],
+          "id": "RS-01-S04",
+          "locator": "https://arxiv.org/abs/2601.08536",
+          "observed_result": "DeepResearch Bench II 提供另一条深度研究评价证据",
+          "screening_decision": "included",
+          "screening_reason": "补充检索与知识组织的公开基准证据",
+          "source_class": "peer_reviewed_or_preprint_research"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC05"
+          ],
+          "id": "RS-01-S05",
+          "locator": "https://aclanthology.org/2026.acl-industry.116/",
+          "observed_result": "论文支持覆盖驱动拆解、依赖控制和证据充分终止可减少过早停止",
+          "screening_decision": "included_limited",
+          "screening_reason": "研究场景与个人投研项目不同，需本地复核",
+          "source_class": "peer_reviewed_or_preprint_research"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC06"
+          ],
+          "id": "RS-01-S06",
+          "locator": "https://arxiv.org/abs/2607.20891",
+          "observed_result": "MisKnow-Agent 提供长链研究吸收误导信息的风险证据",
+          "screening_decision": "included_limited",
+          "screening_reason": "是最新预印本，不能外推自然发生率",
+          "source_class": "peer_reviewed_or_preprint_research"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC07"
+          ],
+          "id": "RS-01-S07",
+          "locator": "https://arxiv.org/abs/2603.04474",
+          "observed_result": "From Spark to Fire 支持多代理错误级联、拓扑敏感和假共识风险",
+          "screening_decision": "included_limited",
+          "screening_reason": "实验设置不能直接当成自然发生率",
+          "source_class": "peer_reviewed_or_preprint_research"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC08"
+          ],
+          "id": "RS-01-S08",
+          "locator": "https://www.prisma-statement.org/prisma-2020",
+          "observed_result": "PRISMA 提供预定义问题、透明筛选和可复现记录原则",
+          "screening_decision": "included_limited",
+          "screening_reason": "成熟证据综合原则可裁剪使用，但原领域不是个人 AI 工程",
+          "source_class": "standards_and_public_handbooks"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC09"
+          ],
+          "id": "RS-01-S09",
+          "locator": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-04",
+          "observed_result": "Cochrane 指南支持广覆盖搜索、引用追踪和持续更新纪律",
+          "screening_decision": "included_limited",
+          "screening_reason": "只采用原则，不机械复制医疗综述流程",
+          "source_class": "standards_and_public_handbooks"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC10"
+          ],
+          "id": "RS-01-S10",
+          "locator": "https://developers.openai.com/codex/codex-manual.md",
+          "observed_result": "官方手册说明当前 Codex 具备目标、子任务、项目规则和定期更新等轻量原语",
+          "screening_decision": "included_limited",
+          "screening_reason": "能力说明不能代替本地稳定性试验",
+          "source_class": "official_vendor_engineering"
+        },
+        {
+          "cluster_ids": [
+            "RS-01-EC11"
+          ],
+          "id": "RS-01-S11",
+          "locator": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#当前挑战结果",
+          "observed_result": "只读反方评审发现循环采用、不可执行门槛、权限边界、伪独立和缺少可复现检索台账",
+          "screening_decision": "included",
+          "screening_reason": "直接挑战本项目采用判断并产生架构修改",
+          "source_class": "current_project_adversarial_experiments"
+        }
+      ],
+      "evidence_clusters": [
+        {
+          "id": "RS-01-EC01",
+          "member_source_ids": [
+            "RS-01-S01"
+          ],
+          "revision_check_state": "checked_at_document_cutoff",
+          "upstream_roots": [
+            "Google ADK documentation"
+          ]
+        },
+        {
+          "id": "RS-01-EC02",
+          "member_source_ids": [
+            "RS-01-S02"
+          ],
+          "revision_check_state": "checked_at_document_cutoff",
+          "upstream_roots": [
+            "Microsoft Agent Framework documentation"
+          ]
+        },
+        {
+          "id": "RS-01-EC03",
+          "member_source_ids": [
+            "RS-01-S03"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "TaxoBench"
+          ]
+        },
+        {
+          "id": "RS-01-EC04",
+          "member_source_ids": [
+            "RS-01-S04"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "DeepResearch Bench II"
+          ]
+        },
+        {
+          "id": "RS-01-EC05",
+          "member_source_ids": [
+            "RS-01-S05"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "Don't Stop Early"
+          ]
+        },
+        {
+          "id": "RS-01-EC06",
+          "member_source_ids": [
+            "RS-01-S06"
+          ],
+          "revision_check_state": "preprint_not_systematically_monitored",
+          "upstream_roots": [
+            "MisKnow-Agent"
+          ]
+        },
+        {
+          "id": "RS-01-EC07",
+          "member_source_ids": [
+            "RS-01-S07"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "From Spark to Fire"
+          ]
+        },
+        {
+          "id": "RS-01-EC08",
+          "member_source_ids": [
+            "RS-01-S08"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "PRISMA"
+          ]
+        },
+        {
+          "id": "RS-01-EC09",
+          "member_source_ids": [
+            "RS-01-S09"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "Cochrane"
+          ]
+        },
+        {
+          "id": "RS-01-EC10",
+          "member_source_ids": [
+            "RS-01-S10"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "OpenAI Codex manual"
+          ]
+        },
+        {
+          "id": "RS-01-EC11",
+          "member_source_ids": [
+            "RS-01-S11"
+          ],
+          "revision_check_state": "bound_to_current_project_artifact",
+          "upstream_roots": [
+            "current project independent challenge"
+          ]
+        }
+      ],
+      "claims": [
+        {
+          "claim": "图工作流的节点、边、状态和显式路由是既有工程模式",
+          "decision_effect": "Graph 作为可选表达方式而不是因名称热度改架构",
+          "entailment_reason": "Google ADK 与 Microsoft Agent Framework 的官方资料直接描述这些机制",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-01-EC01",
+            "RS-01-EC02"
+          ],
+          "id": "RS-01-C01",
+          "impact": "high",
+          "review_state": "author_ledger_with_direct_sources"
+        },
+        {
+          "claim": "当前深度研究代理与专家级领域综述仍存在明显检索和组织差距",
+          "decision_effect": "一次 Deep Research 输出不能自行证明研究充分",
+          "entailment_reason": "两个公开基准支持风险存在，但任务不等同本项目",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-01-EC03",
+            "RS-01-EC04"
+          ],
+          "id": "RS-01-C02",
+          "impact": "high",
+          "review_state": "author_ledger_with_direct_sources"
+        },
+        {
+          "claim": "覆盖驱动拆解、依赖控制和证据充分终止能减少过早停止",
+          "decision_effect": "把充分性条件写入研究节点",
+          "entailment_reason": "论文支持相邻场景，尚无本项目同题复核",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-01-EC05"
+          ],
+          "id": "RS-01-C03",
+          "impact": "high",
+          "review_state": "local_replication_pending"
+        },
+        {
+          "claim": "多代理会出现错误级联、拓扑敏感和假共识",
+          "decision_effect": "代理数量不计作独立性，跨节点主张需要证据门",
+          "entailment_reason": "公开实验支持存在性，但自然发生率与本项目控制效果未知",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-01-EC06",
+            "RS-01-EC07"
+          ],
+          "id": "RS-01-C04",
+          "impact": "high",
+          "review_state": "independent_local_effect_test_pending"
+        },
+        {
+          "claim": "系统综述方法可为 AI 研究提供透明搜索、引用追踪、偏差和更新纪律",
+          "decision_effect": "采用原则并按个人项目裁剪",
+          "entailment_reason": "成熟指南直接支持这些原则，但跨领域适用是工程推断",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-01-EC08",
+            "RS-01-EC09"
+          ],
+          "id": "RS-01-C05",
+          "impact": "high",
+          "review_state": "cross_domain_inference"
+        },
+        {
+          "claim": "当前 Codex 可以承担轻量目标、子任务、项目规则和定期更新",
+          "decision_effect": "先使用现有能力，不先安装外部运行时",
+          "entailment_reason": "官方能力说明存在，真实稳定性和权限组合尚未完成本地对照",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-01-EC10"
+          ],
+          "id": "RS-01-C06",
+          "impact": "high",
+          "review_state": "local_trial_pending"
+        },
+        {
+          "claim": "证据约束协议已足以正式采用",
+          "decision_effect": "若成立则可冻结方法；当前不成立",
+          "entailment_reason": "独立挑战发现架构级缺口，原研究文档明确否决正式采用",
+          "entailment_status": "not_entailed",
+          "evidence_cluster_ids": [
+            "RS-01-EC11"
+          ],
+          "id": "RS-01-C07",
+          "impact": "high",
+          "review_state": "challenged_and_rejected"
+        }
+      ],
+      "supplemental_rounds": [
+        {
+          "architecture_delta_ids": [
+            "RS-01-AD01",
+            "RS-01-AD02",
+            "RS-01-AD03"
+          ],
+          "decision_delta_ids": [
+            "RS-01-DD01"
+          ],
+          "id": "RS-01-R01",
+          "new_high_impact_node_ids": [
+            "assurance-provenance",
+            "executable-research-closure",
+            "permission-and-untrusted-content-boundary"
+          ],
+          "result": "completed_with_architecture_delta",
+          "round_type": "independent_challenge",
+          "source_locator": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#当前挑战结果"
+        }
+      ],
+      "deltas": {
+        "architecture": [
+          {
+            "authority": "candidate_research",
+            "change": "研究 stop rule 改为由机器可读 receipt 推导",
+            "disposition": "required_not_yet_enforced",
+            "id": "RS-01-AD01",
+            "rationale": "独立挑战证明自由布尔值可形成循环采用",
+            "source_locator": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#当前挑战结果",
+            "status": "candidate"
+          },
+          {
+            "authority": "candidate_research",
+            "change": "隔离上下文与真正证据独立性分层，不再把同源代理数量当独立",
+            "disposition": "adopted_as_boundary_not_validated_effect",
+            "id": "RS-01-AD02",
+            "rationale": "多代理错误传播与本地反方评审均发现假独立风险",
+            "source_locator": "EVIDENCE_GOVERNED_AI_SYSTEM.md#独立保障层",
+            "status": "experimental"
+          },
+          {
+            "authority": "candidate_research",
+            "change": "关系数据与可执行 Graph runtime 分开决策",
+            "disposition": "defer_runtime_until_local_trigger",
+            "id": "RS-01-AD03",
+            "rationale": "图模式已有且运行时净价值尚无本地证据",
+            "source_locator": "EVIDENCE_GOVERNED_AI_SYSTEM.md#当前项目的轻量实现",
+            "status": "current_candidate_direction"
+          }
+        ],
+        "decisions": [
+          {
+            "authority": "project_decision_log",
+            "change": "证据约束系统只作为试验性、非裁决性执行基线",
+            "disposition": "adopted_experimentally",
+            "id": "RS-01-DD01",
+            "rationale": "现有证据支持必要原则，但本地对照和独立闭合未完成",
+            "source_locator": "EVIDENCE_GOVERNED_AI_SYSTEM.md#版本与复核",
+            "status": "active_experiment"
+          }
+        ]
+      },
+      "unresolved_contradictions": [
+        {
+          "decision_effect": "architecture_changing",
+          "id": "RS-01-X01",
+          "needed_evidence": "在同一真实项目任务上比较单代理、分工代理和带证据门的分工代理",
+          "position_a": "拆解、图规划和多代理可提高覆盖",
+          "position_b": "共享未经验证的上游主张会传播错误并制造假共识",
+          "source_locator": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#冲突、反例与失败案例",
+          "state": "open"
+        },
+        {
+          "decision_effect": "architecture_changing",
+          "id": "RS-01-X02",
+          "needed_evidence": "外部 Harness 与当前 Codex 轻量路径的同题、同门槛本地对照",
+          "position_a": "图或外部 Harness 可提高可见性、恢复和控制",
+          "position_b": "额外运行时可能增加维护和调试成本",
+          "source_locator": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#未知",
+          "state": "open"
+        },
+        {
+          "decision_effect": "decision_changing",
+          "id": "RS-01-X03",
+          "needed_evidence": "正式数据供应商研究上的新旧流程对照与补充稳定轮",
+          "position_a": "证据约束协议应提高研究质量",
+          "position_b": "尚无同题本地证据证明其净效果",
+          "source_locator": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md#未知",
+          "state": "open"
+        }
+      ],
+      "reopen_triggers": [
+        {
+          "action": "重新检查能力边界并决定是否评估外部运行时",
+          "affected_claim_ids": [
+            "RS-01-C06"
+          ],
+          "condition": "Codex 能力、权限模型或定期任务语义发生变化",
+          "id": "RS-01-RT01"
+        },
+        {
+          "action": "重开 Graph runtime 选型节点并执行本地对照",
+          "affected_claim_ids": [
+            "RS-01-C01",
+            "RS-01-C06"
+          ],
+          "condition": "现有看板无法表达真实依赖，或出现可复现的节点恢复、权限隔离或上下文污染失败",
+          "id": "RS-01-RT02"
+        },
+        {
+          "action": "使旧研究充分性状态失效并运行差异检索",
+          "affected_claim_ids": [
+            "RS-01-C02",
+            "RS-01-C03",
+            "RS-01-C04"
+          ],
+          "condition": "关键论文撤回、更正、出现相反复现或新基准改变采用判断",
+          "id": "RS-01-RT03"
+        }
+      ],
+      "gap_ids": [
+        "GAP-001",
+        "GAP-002",
+        "GAP-003",
+        "GAP-004",
+        "GAP-005",
+        "GAP-006",
+        "GAP-008",
+        "GAP-013",
+        "GAP-014",
+        "GAP-015"
+      ]
+    },
+    {
+      "id": "RS-02",
+      "title": "AI 长周期项目失效地图与治理内核",
+      "impact": "high",
+      "decision_served": "失效地图与最小治理内核是否足以支持设计冻结",
+      "preregistration": {
+        "evidence_locators": [
+          "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md#先限定研究透的含义",
+          "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/decision_served"
+        ],
+        "questions": [
+          {
+            "decision_change_if": "若发现未覆盖的高影响损失路径，则扩展失效图并阻止冻结",
+            "id": "RS-02-Q01",
+            "question": "AI 长周期项目有哪些会造成不可接受损失的高影响失效类别"
+          },
+          {
+            "decision_change_if": "若控制可被标签、假证据或自评绕过，则必须转为可执行合同与独立 receipt",
+            "id": "RS-02-Q02",
+            "question": "每类失效的根因、信号、预防、独立检测、恢复和残余风险是什么"
+          },
+          {
+            "decision_change_if": "若独立挑战继续发现架构级类别或 open critical/major，则保持未冻结",
+            "id": "RS-02-Q03",
+            "question": "当前覆盖是否经不同证据路径和对抗探针达到决策所需充分性"
+          },
+          {
+            "decision_change_if": "若流程负担导致真实使用失败，则缩减控制而不降低关键损失边界",
+            "id": "RS-02-Q04",
+            "question": "个人项目中保障强度与使用负担怎样平衡"
+          }
+        ],
+        "timing_state": "not_verifiably_preregistered",
+        "timing_reason": "登记表记录了范围、来源类别和查询，但没有不可变证据证明问题、预算和覆盖节点均早于所有检索与挑战冻结"
+      },
+      "search_protocol": {
+        "budget": {
+          "consumption_receipt_state": "partial",
+          "known_activity_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/search_log",
+          "planned_query_limit": null,
+          "planned_supplemental_round_limit": null,
+          "registration_state": "missing"
+        },
+        "required_source_classes": [
+          "benchmarks_and_reproducible_experiments",
+          "critical_and_negative_cases",
+          "current_project_adversarial_experiments",
+          "official_vendor_engineering",
+          "open_source_code_and_issue_trackers",
+          "ordinary_user_experience",
+          "peer_reviewed_or_preprint_research",
+          "standards_and_public_handbooks"
+        ],
+        "result_set_state": "partial_not_frozen",
+        "scope": {
+          "excluded": [
+            "企业合规认证",
+            "估计所有 AI 工具的总体故障发生率",
+            "证明所有未知未知不存在",
+            "真实资金交易系统"
+          ],
+          "included": [
+            "上下文、记忆与状态",
+            "人因、产品价值与可持续使用",
+            "实现与配置",
+            "成本、复杂度与维护",
+            "权限、安全与隐私",
+            "目标、需求与完成权",
+            "研究与证据",
+            "组织、代理与循环",
+            "运行、恢复与长期演化",
+            "验证、测试与假绿灯"
+          ],
+          "time_sensitive": [
+            "AI 工具能力与故障报告",
+            "近期论文和基准",
+            "供应链与安全实践"
+          ]
+        }
+      },
+      "source_outcomes": [
+        {
+          "cluster_ids": [
+            "RS-02-EC01"
+          ],
+          "id": "RS-02-S01",
+          "locator": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+          "observed_result": "形成 GOV、RES、CTX、ORG、IMP、VER、SEC、OPS、HUM、ECO 的失效地图及控制与残余风险",
+          "screening_decision": "included",
+          "screening_reason": "本主题的主研究产物",
+          "source_class": "current_project_adversarial_experiments"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC02"
+          ],
+          "id": "RS-02-S02",
+          "locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+          "observed_result": "登记二十二个高影响覆盖节点和多轮 blocked-freeze 挑战",
+          "screening_decision": "included",
+          "screening_reason": "提供机器可读覆盖状态、挑战差异和当前 stop 状态",
+          "source_class": "current_project_adversarial_experiments"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC03"
+          ],
+          "id": "RS-02-S03",
+          "locator": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md#证据类型与限制",
+          "observed_result": "官方工程博客、论文、benchmark、GitHub issue、社区复盘与传统方法分别被限定证据用途",
+          "screening_decision": "included_limited",
+          "screening_reason": "来源类型齐全，但当前登记没有逐条冻结全部结果与筛选理由",
+          "source_class": "official_vendor_engineering"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC04"
+          ],
+          "id": "RS-02-S04",
+          "locator": "https://arxiv.org/abs/2605.21384",
+          "observed_result": "SpecBench 支持可见测试饱和而隐藏组合测试仍暴露 reward hacking 风险",
+          "screening_decision": "included_limited",
+          "screening_reason": "直接支持假绿灯风险，但任务分布不等同本项目",
+          "source_class": "benchmarks_and_reproducible_experiments"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC05"
+          ],
+          "id": "RS-02-S05",
+          "locator": "https://arxiv.org/abs/2607.11042",
+          "observed_result": "BackendForge 支持 oracle 设计会显著改变完成判断",
+          "screening_decision": "included_limited",
+          "screening_reason": "支持测试 oracle 风险，不外推到所有产品",
+          "source_class": "benchmarks_and_reproducible_experiments"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC06"
+          ],
+          "id": "RS-02-S06",
+          "locator": "https://www.nasa.gov/reference/system-engineering-handbook-appendix/",
+          "observed_result": "NASA 系统工程材料把追踪、配置、验证方法、对象 pedigree、集成和验收分开",
+          "screening_decision": "included_limited",
+          "screening_reason": "提供成熟控制原则，但需裁剪到个人项目",
+          "source_class": "standards_and_public_handbooks"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC07"
+          ],
+          "id": "RS-02-S07",
+          "locator": "https://psas.scripts.mit.edu/home/books-and-handbooks/",
+          "observed_result": "STPA 从损失与危险控制动作推导约束",
+          "screening_decision": "included_limited",
+          "screening_reason": "用于发现组件正常但控制关系仍致损的路径",
+          "source_class": "standards_and_public_handbooks"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC08"
+          ],
+          "id": "RS-02-S08",
+          "locator": "https://github.com/openai/codex/issues/11315",
+          "observed_result": "用户故障报告提供 compaction 后目标漂移的存在性案例",
+          "screening_decision": "included_limited",
+          "screening_reason": "只用于证明故障路径存在，不估计总体发生率",
+          "source_class": "open_source_code_and_issue_trackers"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC09"
+          ],
+          "id": "RS-02-S09",
+          "locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md",
+          "observed_result": "源码、测试和故障注入提供来源误报、未来信息、弱验证、旧结果污染与 audit fail-open 反例",
+          "screening_decision": "included",
+          "screening_reason": "是当前领域直接、可执行的负面样本",
+          "source_class": "critical_and_negative_cases"
+        },
+        {
+          "cluster_ids": [
+            "RS-02-EC10"
+          ],
+          "id": "RS-02-S10",
+          "locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds",
+          "observed_result": "多轮独立挑战持续发现可绕过控制、范围缺失和 provenance 缺口",
+          "screening_decision": "included",
+          "screening_reason": "直接决定设计冻结是否可关闭",
+          "source_class": "current_project_adversarial_experiments"
+        }
+      ],
+      "evidence_clusters": [
+        {
+          "id": "RS-02-EC01",
+          "member_source_ids": [
+            "RS-02-S01"
+          ],
+          "revision_check_state": "bound_to_current_input_hash",
+          "upstream_roots": [
+            "AI project failure taxonomy synthesis"
+          ]
+        },
+        {
+          "id": "RS-02-EC02",
+          "member_source_ids": [
+            "RS-02-S02"
+          ],
+          "revision_check_state": "bound_to_current_input_hash",
+          "upstream_roots": [
+            "AI project research register"
+          ]
+        },
+        {
+          "id": "RS-02-EC03",
+          "member_source_ids": [
+            "RS-02-S03"
+          ],
+          "revision_check_state": "source_family_not_individually_manifested",
+          "upstream_roots": [
+            "multiple official engineering sources"
+          ]
+        },
+        {
+          "id": "RS-02-EC04",
+          "member_source_ids": [
+            "RS-02-S04"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "SpecBench"
+          ]
+        },
+        {
+          "id": "RS-02-EC05",
+          "member_source_ids": [
+            "RS-02-S05"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "BackendForge"
+          ]
+        },
+        {
+          "id": "RS-02-EC06",
+          "member_source_ids": [
+            "RS-02-S06"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "NASA Systems Engineering Handbook"
+          ]
+        },
+        {
+          "id": "RS-02-EC07",
+          "member_source_ids": [
+            "RS-02-S07"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "MIT STPA handbook"
+          ]
+        },
+        {
+          "id": "RS-02-EC08",
+          "member_source_ids": [
+            "RS-02-S08"
+          ],
+          "revision_check_state": "issue_snapshot_not_revision_tracked",
+          "upstream_roots": [
+            "OpenAI Codex issue 11315"
+          ]
+        },
+        {
+          "id": "RS-02-EC09",
+          "member_source_ids": [
+            "RS-02-S09"
+          ],
+          "revision_check_state": "bound_to_reviewed_commit",
+          "upstream_roots": [
+            "HKUDS/Vibe-Trading commit 8643fcd357ccffb639892dfd7add2974fceb123a"
+          ]
+        },
+        {
+          "id": "RS-02-EC10",
+          "member_source_ids": [
+            "RS-02-S10"
+          ],
+          "revision_check_state": "challenge_artifacts_referenced_by_hash_in_register",
+          "upstream_roots": [
+            "current project design-freeze challenge artifacts"
+          ]
+        }
+      ],
+      "claims": [
+        {
+          "claim": "开放领域的研究充分性只能是受边界、可审计的决定充分性，不能证明未知未知不存在",
+          "decision_effect": "完成门必须保留范围、未知和重开触发器",
+          "entailment_reason": "失效分类与证据协议均明确采用 bounded sufficiency",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-02-EC01",
+            "RS-02-EC02"
+          ],
+          "id": "RS-02-C01",
+          "impact": "high",
+          "review_state": "project_definition"
+        },
+        {
+          "claim": "构造者自评、标签追踪和聚合脚本退出零均不足以批准完成",
+          "decision_effect": "冻结合同、执行 receipt、黑盒探针和只读挑战必须组合",
+          "entailment_reason": "公开 benchmark、系统工程原则与当前项目反例共同支持风险存在",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-02-EC04",
+            "RS-02-EC05",
+            "RS-02-EC06",
+            "RS-02-EC10"
+          ],
+          "id": "RS-02-C02",
+          "impact": "high",
+          "review_state": "direct_and_project_adversarial_support"
+        },
+        {
+          "claim": "单条引用正确不保证证据语料整体完整或无同源重复",
+          "decision_effect": "需要 retrieval manifest、来源簇、revision graph 和级联失效",
+          "entailment_reason": "第二轮独立挑战新增 RC-18，但控制尚未通过后续闭合",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-02-EC02",
+            "RS-02-EC10"
+          ],
+          "id": "RS-02-C03",
+          "impact": "high",
+          "review_state": "architecture_requirement_not_validated"
+        },
+        {
+          "claim": "当前失效地图已覆盖全部高影响架构类别",
+          "decision_effect": "若成立可讨论冻结；当前不成立",
+          "entailment_reason": "最新挑战仍新增 assurance trust boundary，且没有后续稳定轮",
+          "entailment_status": "not_entailed",
+          "evidence_cluster_ids": [
+            "RS-02-EC02",
+            "RS-02-EC10"
+          ],
+          "id": "RS-02-C04",
+          "impact": "high",
+          "review_state": "rejected_by_latest_challenge"
+        },
+        {
+          "claim": "当前控制已在本项目发现真实问题，而不只是写成建议",
+          "decision_effect": "保留独立挑战、机械反例和原始目标重放",
+          "entailment_reason": "登记的挑战和 Vibe 审查记录多个具体反例",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-02-EC09",
+            "RS-02-EC10"
+          ],
+          "id": "RS-02-C05",
+          "impact": "high",
+          "review_state": "project_specific_evidence"
+        },
+        {
+          "claim": "不同模型或代理何时构成真正证据独立已有可操作、已验证判据",
+          "decision_effect": "若不成立则只能准确标注较弱 assurance level",
+          "entailment_reason": "失效分类把该问题列为仍待独立研究关闭",
+          "entailment_status": "not_entailed",
+          "evidence_cluster_ids": [
+            "RS-02-EC01"
+          ],
+          "id": "RS-02-C06",
+          "impact": "high",
+          "review_state": "explicit_unknown"
+        }
+      ],
+      "supplemental_rounds": [
+        {
+          "architecture_delta_ids": [
+            "RS-02-AD01"
+          ],
+          "decision_delta_ids": [],
+          "id": "RS-02-R01",
+          "new_high_impact_node_ids": [
+            "RC-13",
+            "RC-14",
+            "RC-15",
+            "RC-16",
+            "RC-17"
+          ],
+          "result": "completed_with_architecture_delta",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/0"
+        },
+        {
+          "architecture_delta_ids": [
+            "RS-02-AD02"
+          ],
+          "decision_delta_ids": [],
+          "id": "RS-02-R02",
+          "new_high_impact_node_ids": [
+            "RC-18",
+            "RC-19",
+            "RC-20",
+            "RC-21",
+            "RC-22"
+          ],
+          "result": "completed_with_architecture_delta",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/1"
+        },
+        {
+          "architecture_delta_ids": [],
+          "decision_delta_ids": [],
+          "id": "RS-02-R03",
+          "new_high_impact_node_ids": [],
+          "result": "completed_with_open_blockers",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/2"
+        },
+        {
+          "architecture_delta_ids": [],
+          "decision_delta_ids": [],
+          "id": "RS-02-R04",
+          "new_high_impact_node_ids": [],
+          "result": "completed_with_open_blockers",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/3"
+        },
+        {
+          "architecture_delta_ids": [],
+          "decision_delta_ids": [],
+          "id": "RS-02-R05",
+          "new_high_impact_node_ids": [],
+          "result": "completed_with_open_blockers",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/4"
+        },
+        {
+          "architecture_delta_ids": [],
+          "decision_delta_ids": [],
+          "id": "RS-02-R06",
+          "new_high_impact_node_ids": [],
+          "result": "completed_with_open_blockers",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/5"
+        },
+        {
+          "architecture_delta_ids": [],
+          "decision_delta_ids": [],
+          "id": "RS-02-R07",
+          "new_high_impact_node_ids": [],
+          "result": "completed_with_open_blockers",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/6"
+        },
+        {
+          "architecture_delta_ids": [
+            "RS-02-AD03"
+          ],
+          "decision_delta_ids": [],
+          "id": "RS-02-R08",
+          "new_high_impact_node_ids": [
+            "assurance-reviewer-identity-and-result-origin-trust-boundary"
+          ],
+          "result": "completed_with_architecture_delta",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/7"
+        }
+      ],
+      "deltas": {
+        "architecture": [
+          {
+            "authority": "independent_challenge_candidate",
+            "change": "加入冻结边界、证据候选绑定、独立审查 provenance、语义蕴含、跨假设污染和真实 validation 类别",
+            "disposition": "incorporated_into_candidate_design",
+            "id": "RS-02-AD01",
+            "rationale": "首轮挑战新增 RC-13 至 RC-17",
+            "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/0",
+            "status": "not_frozen"
+          },
+          {
+            "authority": "independent_challenge_candidate",
+            "change": "加入证据语料完整性、市场模拟、人因误报、长期停用和私人恢复类别",
+            "disposition": "incorporated_into_candidate_design",
+            "id": "RS-02-AD02",
+            "rationale": "第二轮挑战新增 RC-18 至 RC-22",
+            "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/1",
+            "status": "not_frozen"
+          },
+          {
+            "authority": "independent_challenge_candidate",
+            "change": "把独立审查身份与结果来源的可信边界作为新架构类别，并要求分层 assurance provenance",
+            "disposition": "research_refresh_created_not_operationally_validated",
+            "id": "RS-02-AD03",
+            "rationale": "第六轮挑战证明自报 reviewer、command 和 stdout 可形成假绿灯",
+            "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/7",
+            "status": "open"
+          }
+        ],
+        "decisions": [
+          {
+            "authority": "project_status_and_research_register",
+            "change": "保持设计冻结 blocked，研究 challenge 继续 in_progress",
+            "disposition": "active",
+            "id": "RS-02-DD01",
+            "rationale": "最新挑战仍有 critical/major 且新增架构类别",
+            "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/status",
+            "status": "blocked_freeze"
+          }
+        ]
+      },
+      "unresolved_contradictions": [
+        {
+          "decision_effect": "architecture_changing",
+          "id": "RS-02-X01",
+          "needed_evidence": "不同模型、证据路径和确定性机制的预注册对照与失败率记录",
+          "position_a": "隔离上下文可发现主代理遗漏",
+          "position_b": "同源模型仍可能共享训练数据、工具和盲点",
+          "source_locator": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md#仍待独立研究关闭",
+          "state": "open"
+        },
+        {
+          "decision_effect": "decision_changing",
+          "id": "RS-02-X02",
+          "needed_evidence": "真实个人任务中的负担、放弃、恢复和纪律效果纵向数据",
+          "position_a": "更多控制可降低假绿灯和越界风险",
+          "position_b": "过重流程会造成疲惫、放弃和无进展",
+          "source_locator": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md#仍待独立研究关闭",
+          "state": "open"
+        },
+        {
+          "decision_effect": "architecture_changing",
+          "id": "RS-02-X03",
+          "needed_evidence": "机器 closure receipt、签名执行 provenance 和后续无 blocker 的独立挑战",
+          "position_a": "候选治理结构已覆盖多类风险",
+          "position_b": "现有挑战仍可构造假 reviewer、假 raw execution 和不完整范围",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/7",
+          "state": "open"
+        }
+      ],
+      "reopen_triggers": [
+        {
+          "action": "新增失效节点、下游控制与验证，并使旧 closure 失效",
+          "affected_claim_ids": [
+            "RS-02-C04"
+          ],
+          "condition": "任何新独立挑战或项目事故发现新的高影响失效类别",
+          "id": "RS-02-RT01"
+        },
+        {
+          "action": "重开对应 RC 节点并传播到 requirement、control、verification 和 case",
+          "affected_claim_ids": [
+            "RS-02-C02",
+            "RS-02-C03"
+          ],
+          "condition": "现有控制被 mutation、故障注入或真实入口绕过",
+          "id": "RS-02-RT02"
+        },
+        {
+          "action": "运行 living review 差异检索并重新评估来源簇与 claim entailment",
+          "affected_claim_ids": [
+            "RS-02-C01",
+            "RS-02-C06"
+          ],
+          "condition": "关键标准、论文、产品能力或安全边界发生实质变化",
+          "id": "RS-02-RT03"
+        }
+      ],
+      "gap_ids": [
+        "GAP-001",
+        "GAP-002",
+        "GAP-003",
+        "GAP-004",
+        "GAP-005",
+        "GAP-006",
+        "GAP-007",
+        "GAP-011",
+        "GAP-013",
+        "GAP-014",
+        "GAP-015"
+      ]
+    },
+    {
+      "id": "RS-03",
+      "title": "正式日线数据与本地 Paper 边界",
+      "impact": "high",
+      "decision_served": "正式日线、PIT universe、本地权威 PaperAccount 和未来外部 Paper 应怎样分工，并选择哪些试用候选",
+      "preregistration": {
+        "evidence_locators": [
+          "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#当前采用判断"
+        ],
+        "questions": [
+          {
+            "decision_change_if": "若单一供应商经许可、质量与恢复验证覆盖全部角色，可简化角色拆分",
+            "id": "RS-03-Q01",
+            "question": "哪些正式日线、PIT universe 和 Paper 角色必须分开"
+          },
+          {
+            "decision_change_if": "若 Tiingo 许可、金样本或真实账户试用失败，则替换首个日线试用候选",
+            "id": "RS-03-Q02",
+            "question": "固定人工小宇宙的首个正式日线试用候选是谁，进入门是什么"
+          },
+          {
+            "decision_change_if": "若产生历史动态选股需求，则启动 Security Master 或 PIT 数据源试用",
+            "id": "RS-03-Q03",
+            "question": "何时需要 Sharadar 或 Norgate 类 PIT/Security Master"
+          },
+          {
+            "decision_change_if": "若外部 Paper 能满足隔离、幂等、对账和人工决定绑定，则可作为第二协议观察器",
+            "id": "RS-03-Q04",
+            "question": "外部 Paper 能证明什么、不能证明什么，怎样不覆盖本地权威账"
+          },
+          {
+            "decision_change_if": "没有凭据时保持条件验收，不伪造通过",
+            "id": "RS-03-Q05",
+            "question": "无个人凭据时哪些验证可诚实完成，哪些必须保持条件性"
+          }
+        ],
+        "timing_state": "not_verifiably_preregistered",
+        "timing_reason": "文档明确决定与候选，但没有冻结的检索问题、筛选集合和预算 receipt 证明其为搜索前注册"
+      },
+      "search_protocol": {
+        "budget": {
+          "consumption_receipt_state": "missing",
+          "known_activity_locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
+          "planned_query_limit": null,
+          "planned_supplemental_round_limit": null,
+          "registration_state": "missing"
+        },
+        "required_source_classes": [
+          "official_vendor_documentation",
+          "ordinary_user_experience",
+          "provider_terms_and_licensing",
+          "current_project_fault_injection_requirements"
+        ],
+        "result_set_state": "partial_not_frozen",
+        "scope": {
+          "excluded": [
+            "以共享 demo 证明生产质量",
+            "无历史动态选股需求时购买 PIT 数据",
+            "真实交易自动执行",
+            "首期接入 IBKR"
+          ],
+          "included": [
+            "公司行动",
+            "外部 Paper 限制与进入门",
+            "日线价格与许可",
+            "本地 PaperAccount",
+            "稳定证券身份",
+            "历史动态选股的 PIT universe",
+            "故障注入",
+            "无凭据验证边界"
+          ],
+          "time_sensitive": [
+            "供应商条款和价格",
+            "数据覆盖与质量",
+            "外部 Paper 模拟限制"
+          ]
+        }
+      },
+      "source_outcomes": [
+        {
+          "candidate_disposition": "first_trial_candidate_not_passed",
+          "cluster_ids": [
+            "RS-03-EC01"
+          ],
+          "id": "RS-03-S01",
+          "locator": "https://www.tiingo.com/documentation/end-of-day",
+          "observed_result": "EOD 文档提供 raw/adjusted OHLCV、现金分红和拆分因子，并说明晚间可能修订",
+          "screening_decision": "included_limited",
+          "screening_reason": "进入首个试用候选，但许可、金样本和真实账户质量尚未验证",
+          "source_class": "official_vendor_documentation"
+        },
+        {
+          "candidate_disposition": "conditional_pit_candidate",
+          "cluster_ids": [
+            "RS-03-EC02"
+          ],
+          "id": "RS-03-S02",
+          "locator": "https://sharadar.com/",
+          "observed_result": "活跃/退市证券和历史成分适合在动态选股需求成立后试用",
+          "screening_decision": "included_limited",
+          "screening_reason": "精确报价、ETF 范围、缓存与退订保留权仍需供应商确认",
+          "source_class": "official_vendor_documentation"
+        },
+        {
+          "candidate_disposition": "conditional_pit_alternative",
+          "cluster_ids": [
+            "RS-03-EC03"
+          ],
+          "id": "RS-03-S03",
+          "locator": "https://norgatedata.com/data-content-tables.php",
+          "observed_result": "覆盖退市与历史成分，但 Windows-only 和专有格式增加当前 Mac 成本",
+          "screening_decision": "included_limited",
+          "screening_reason": "保留为 PIT/Security Master 备选，不作为当前首选",
+          "source_class": "official_vendor_documentation"
+        },
+        {
+          "candidate_disposition": "rejected_as_canonical_local_archive",
+          "cluster_ids": [
+            "RS-03-EC04"
+          ],
+          "id": "RS-03-S04",
+          "locator": "https://eodhd.com/financial-apis/terms-conditions",
+          "observed_result": "公开条款要求订阅结束后删除数据，与本地长期主档冲突",
+          "screening_decision": "included",
+          "screening_reason": "纳入为许可冲突的负面证据；供应商架构候选另行拒绝",
+          "source_class": "provider_terms_and_licensing"
+        },
+        {
+          "candidate_disposition": "cross_check_or_fault_sample_only",
+          "cluster_ids": [
+            "RS-03-EC05"
+          ],
+          "id": "RS-03-S05",
+          "locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#当前候选与拒绝",
+          "observed_result": "Alpha Vantage、yfinance/Yahoo 与 Stooq 只承担交叉检查或故障样本",
+          "screening_decision": "not_individually_manifested",
+          "screening_reason": "研究综合记录了限制，但本 receipt 没有逐个冻结原始结果和筛选记录",
+          "source_class": "grouped_provider_and_convenience_sources"
+        },
+        {
+          "candidate_disposition": "future_external_paper_observer",
+          "cluster_ids": [
+            "RS-03-EC06"
+          ],
+          "id": "RS-03-S06",
+          "locator": "https://docs.alpaca.markets/us/v1.4.2/docs/paper-trading",
+          "observed_result": "官方明确 Paper 不模拟多项真实市场执行因素，不能把 Paper 收益当实盘证据",
+          "screening_decision": "included_limited",
+          "screening_reason": "只作为未来第二协议实现和偏差观察器候选",
+          "source_class": "official_vendor_documentation"
+        },
+        {
+          "candidate_disposition": "rejected_for_first_phase",
+          "cluster_ids": [
+            "RS-03-EC07"
+          ],
+          "id": "RS-03-S07",
+          "locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#纸面执行",
+          "observed_result": "IBKR 首期拒绝接入，避免开户、会话认证和 live 端点耦合",
+          "screening_decision": "not_individually_manifested",
+          "screening_reason": "研究综合记录了首期拒绝，但本 receipt 没有可复核的独立供应商 source locator",
+          "source_class": "provider_candidate_review"
+        },
+        {
+          "candidate_disposition": "future_reference_engine_or_oracle",
+          "cluster_ids": [
+            "RS-03-EC08"
+          ],
+          "id": "RS-03-S08",
+          "locator": "https://www.quantconnect.com/docs/v2/cloud-platform/live-trading/brokerages/quantconnect-paper-trading",
+          "observed_result": "默认 Paper 无滑点且即时完整成交，数据许可与 LEAN 使用绑定",
+          "screening_decision": "included_limited",
+          "screening_reason": "只作为未来参考引擎或 oracle 候选",
+          "source_class": "official_vendor_documentation"
+        },
+        {
+          "cluster_ids": [
+            "RS-03-EC09"
+          ],
+          "id": "RS-03-S09",
+          "locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#首批故障注入",
+          "observed_result": "定义传输、完整性、价格语义、公司行动、身份、修订、Feed、订单、会计与安全故障期望",
+          "screening_decision": "included",
+          "screening_reason": "直接形成本项目供应商中立验收边界",
+          "source_class": "current_project_fault_injection_requirements"
+        }
+      ],
+      "evidence_clusters": [
+        {
+          "id": "RS-03-EC01",
+          "member_source_ids": [
+            "RS-03-S01"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "Tiingo EOD documentation"
+          ]
+        },
+        {
+          "id": "RS-03-EC02",
+          "member_source_ids": [
+            "RS-03-S02"
+          ],
+          "revision_check_state": "commercial_terms_not_confirmed",
+          "upstream_roots": [
+            "Sharadar"
+          ]
+        },
+        {
+          "id": "RS-03-EC03",
+          "member_source_ids": [
+            "RS-03-S03"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "Norgate Data"
+          ]
+        },
+        {
+          "id": "RS-03-EC04",
+          "member_source_ids": [
+            "RS-03-S04"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "EODHD terms"
+          ]
+        },
+        {
+          "id": "RS-03-EC05",
+          "member_source_ids": [
+            "RS-03-S05"
+          ],
+          "revision_check_state": "grouped_sources_not_individually_manifested",
+          "upstream_roots": [
+            "Alpha Vantage",
+            "Stooq",
+            "Yahoo/yfinance"
+          ]
+        },
+        {
+          "id": "RS-03-EC06",
+          "member_source_ids": [
+            "RS-03-S06"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "Alpaca Paper documentation"
+          ]
+        },
+        {
+          "id": "RS-03-EC07",
+          "member_source_ids": [
+            "RS-03-S07"
+          ],
+          "revision_check_state": "source_result_not_individually_manifested",
+          "upstream_roots": [
+            "IBKR candidate review"
+          ]
+        },
+        {
+          "id": "RS-03-EC08",
+          "member_source_ids": [
+            "RS-03-S08"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "QuantConnect Paper documentation"
+          ]
+        },
+        {
+          "id": "RS-03-EC09",
+          "member_source_ids": [
+            "RS-03-S09"
+          ],
+          "revision_check_state": "candidate_requirements_not_executed",
+          "upstream_roots": [
+            "current project fault-injection requirements"
+          ]
+        }
+      ],
+      "claims": [
+        {
+          "claim": "当前筛选中没有单一供应商同时满足正式日线、历史可复现证券宇宙、本地长期归档和可信纸面执行",
+          "decision_effect": "把价格、PIT universe、本地 Paper 和外部 Paper 分成四个角色",
+          "entailment_reason": "已筛选候选支持当前判断，但结果集未冻结，不能外推为市场全称",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-03-EC01",
+            "RS-03-EC02",
+            "RS-03-EC03",
+            "RS-03-EC04",
+            "RS-03-EC06",
+            "RS-03-EC08"
+          ],
+          "id": "RS-03-C01",
+          "impact": "high",
+          "review_state": "bounded_candidate_set"
+        },
+        {
+          "claim": "Tiingo 是固定人工小宇宙的首个试用候选，而不是已通过的正式来源",
+          "decision_effect": "可以实现离线适配器，但不能宣称真实账户、许可或质量验收通过",
+          "entailment_reason": "来源文档与研究边界直接支持候选状态及未验证条件",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-03-EC01",
+            "RS-03-EC09"
+          ],
+          "id": "RS-03-C02",
+          "impact": "high",
+          "review_state": "conditional_candidate"
+        },
+        {
+          "claim": "本地 PaperAccount 必须是唯一权威账，外部 Paper 只生成差异报告",
+          "decision_effect": "防止外部状态自动覆盖本地人工决定与事务账本",
+          "entailment_reason": "这是项目边界推导的架构决定，尚未由完整实现与故障注入验证",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-03-EC06",
+            "RS-03-EC09"
+          ],
+          "id": "RS-03-C03",
+          "impact": "high",
+          "review_state": "architecture_requirement_not_validated"
+        },
+        {
+          "claim": "Alpaca Paper 收益不能推断实盘可实现性",
+          "decision_effect": "外部 Paper 结果必须附执行模型限制",
+          "entailment_reason": "官方文档直接列出未模拟的执行因素",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-03-EC06"
+          ],
+          "id": "RS-03-C04",
+          "impact": "high",
+          "review_state": "official_limitation"
+        },
+        {
+          "claim": "无个人 token 时不能诚实宣称 Tiingo、PIT 供应商或 Alpaca Paper 的真实试用通过",
+          "decision_effect": "相关验收保持条件性，不阻塞供应商中立本地内核",
+          "entailment_reason": "真实认证、覆盖、许可和成交行为没有观察证据",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-03-EC01",
+            "RS-03-EC02",
+            "RS-03-EC03",
+            "RS-03-EC06"
+          ],
+          "id": "RS-03-C05",
+          "impact": "high",
+          "review_state": "explicit_unproven_condition"
+        }
+      ],
+      "supplemental_rounds": [
+        {
+          "architecture_delta_ids": [],
+          "decision_delta_ids": [],
+          "id": "RS-03-R01",
+          "new_high_impact_node_ids": [],
+          "result": "not_run",
+          "round_type": "independent_challenge",
+          "source_locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#无个人凭据可完成的验证边界"
+        }
+      ],
+      "deltas": {
+        "architecture": [
+          {
+            "authority": "candidate_domain_research",
+            "change": "拆分日线价格、PIT universe、本地 PaperAccount 与外部 Paper 观察器",
+            "disposition": "adopted_as_candidate_boundary",
+            "id": "RS-03-AD01",
+            "rationale": "现有候选没有同时满足四类要求",
+            "source_locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#当前采用判断",
+            "status": "not_frozen"
+          },
+          {
+            "authority": "candidate_domain_research",
+            "change": "禁止静默 fallback，保存 raw、normalized、请求、时间、覆盖和哈希",
+            "disposition": "required_for_adapter",
+            "id": "RS-03-AD02",
+            "rationale": "来源变化和后续修订会破坏可追溯决策快照",
+            "source_locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#正式数据适配器的硬要求",
+            "status": "not_implemented"
+          }
+        ],
+        "decisions": [
+          {
+            "authority": "candidate_domain_research",
+            "change": "Tiingo 为首个试用候选，Sharadar/Norgate 条件试用，EODHD 不作本地主档，IBKR 首期拒绝",
+            "disposition": "conditional_candidate_set",
+            "id": "RS-03-DD01",
+            "rationale": "许可、PIT 覆盖、平台成本和当前 Paper-only 边界不同",
+            "source_locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#当前候选与拒绝",
+            "status": "awaiting_authority_and_trials"
+          }
+        ]
+      },
+      "unresolved_contradictions": [
+        {
+          "decision_effect": "decision_changing",
+          "id": "RS-03-X01",
+          "needed_evidence": "个人许可文本、退订保留确认、固定金样本和真实账户试用 receipt",
+          "position_a": "Tiingo 文档能力适合固定小宇宙日线候选",
+          "position_b": "许可、真实覆盖、修订行为和质量尚未通过",
+          "source_locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#日线价格",
+          "state": "open"
+        },
+        {
+          "decision_effect": "architecture_changing",
+          "id": "RS-03-X02",
+          "needed_evidence": "明确历史动态选股需求和 PIT 供应商真实覆盖对照",
+          "position_a": "冻结人工小宇宙足够当前 MVP",
+          "position_b": "历史动态选股需要独立 Security Master 与 as-of universe",
+          "source_locator": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md#正式数据适配器的硬要求",
+          "state": "open"
+        }
+      ],
+      "reopen_triggers": [
+        {
+          "action": "重查许可、缓存和退订保留边界并使旧候选状态失效",
+          "affected_claim_ids": [
+            "RS-03-C01",
+            "RS-03-C02"
+          ],
+          "condition": "供应商条款、数据许可、覆盖或定价发生变化",
+          "id": "RS-03-RT01"
+        },
+        {
+          "action": "启动 Sharadar/Norgate 对称试用和 PIT 金样本验收",
+          "affected_claim_ids": [
+            "RS-03-C01",
+            "RS-03-C03"
+          ],
+          "condition": "项目确认需要历史动态选股",
+          "id": "RS-03-RT02"
+        },
+        {
+          "action": "执行固定故障集、认证、幂等和对账验收，不接 live",
+          "affected_claim_ids": [
+            "RS-03-C04",
+            "RS-03-C05"
+          ],
+          "condition": "取得个人凭据并明确启动 Tiingo 或 Alpaca Paper 条件试用",
+          "id": "RS-03-RT03"
+        }
+      ],
+      "gap_ids": [
+        "GAP-001",
+        "GAP-002",
+        "GAP-003",
+        "GAP-004",
+        "GAP-005",
+        "GAP-006",
+        "GAP-009",
+        "GAP-013",
+        "GAP-014",
+        "GAP-015"
+      ]
+    },
+    {
+      "id": "RS-04",
+      "title": "Vibe-Trading 复用适配性",
+      "impact": "high",
+      "decision_served": "是否 fork、整体依赖或只借鉴 HKUDS/Vibe-Trading 的原子模式",
+      "preregistration": {
+        "evidence_locators": [
+          "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#审查对象"
+        ],
+        "questions": [
+          {
+            "decision_change_if": "若固定提交的真实来源、PIT、验证、审计和人工边界满足本项目不变量，则可重新评估整体复用",
+            "id": "RS-04-Q01",
+            "question": "数据来源、回测因果、假设验证、影子账户和 live gate 是否符合本项目边界"
+          },
+          {
+            "decision_change_if": "若失败只是可隔离局部问题且整包净价值高于重写成本，则考虑受限 fork",
+            "id": "RS-04-Q02",
+            "question": "问题是局部缺陷还是跨数据、验证、状态与审计的系统性失配"
+          },
+          {
+            "decision_change_if": "若复制实质代码，则重新执行许可证和依赖审查",
+            "id": "RS-04-Q03",
+            "question": "哪些结构可借鉴，许可证边界是什么"
+          }
+        ],
+        "timing_state": "not_verifiably_preregistered",
+        "timing_reason": "审查对象和方式明确，但没有搜索前冻结的问题、预算、纳入/排除和停止 receipt"
+      },
+      "search_protocol": {
+        "budget": {
+          "consumption_receipt_state": "partial",
+          "known_activity_locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#验证摘要",
+          "planned_query_limit": null,
+          "planned_supplemental_round_limit": null,
+          "registration_state": "missing"
+        },
+        "required_source_classes": [
+          "license_and_notice",
+          "open_source_code",
+          "project_fault_injection",
+          "repository_tests"
+        ],
+        "result_set_state": "bounded_to_fixed_commit_but_screening_manifest_incomplete",
+        "scope": {
+          "excluded": [
+            "把 README 宣传当效果证据",
+            "复制未审查的实质代码",
+            "审查提交之后的仓库变化"
+          ],
+          "included": [
+            "audit 实现",
+            "data loader 与 fallback",
+            "hypothesis registry",
+            "license 与 NOTICE",
+            "live gate",
+            "shadow account",
+            "测试与故障注入",
+            "回测与 walk-forward 语义"
+          ],
+          "time_sensitive": [
+            "上游提交与依赖变化"
+          ]
+        }
+      },
+      "source_outcomes": [
+        {
+          "cluster_ids": [
+            "RS-04-EC01"
+          ],
+          "id": "RS-04-S01",
+          "locator": "HKUDS/Vibe-Trading@8643fcd357ccffb639892dfd7add2974fceb123a",
+          "observed_result": "源码审查发现来源记录、未来信息、验证、影子账户和 audit/live gate 与本项目不变量冲突",
+          "screening_decision": "included",
+          "screening_reason": "固定 commit 的实际代码是复用决定的直接对象",
+          "source_class": "open_source_code"
+        },
+        {
+          "cluster_ids": [
+            "RS-04-EC01"
+          ],
+          "id": "RS-04-S02",
+          "locator": "HKUDS/Vibe-Trading README at reviewed commit",
+          "observed_result": "宣传性自述不用于证明实现正确或效果",
+          "screening_decision": "excluded_from_claim_support",
+          "screening_reason": "审查要求不采信 README 宣传，以代码和执行结果为准",
+          "source_class": "open_source_code"
+        },
+        {
+          "cluster_ids": [
+            "RS-04-EC02"
+          ],
+          "id": "RS-04-S03",
+          "locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#验证摘要",
+          "observed_result": "选定测试结果为 197 passed, 4 failed；失败涉及临时输出仍写用户目录",
+          "screening_decision": "included_limited",
+          "screening_reason": "测试提供行为证据，但测试通过不能证明本项目不变量",
+          "source_class": "repository_tests"
+        },
+        {
+          "cluster_ids": [
+            "RS-04-EC03"
+          ],
+          "id": "RS-04-S04",
+          "locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#验证摘要",
+          "observed_result": "故障注入确认未来 signal 被接受、audit 失败返回 None、无 run card 可标 validated",
+          "screening_decision": "included",
+          "screening_reason": "直接复现关键 fail-open 与弱验证路径",
+          "source_class": "project_fault_injection"
+        },
+        {
+          "cluster_ids": [
+            "RS-04-EC04"
+          ],
+          "id": "RS-04-S05",
+          "locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#许可证边界",
+          "observed_result": "根许可证为 MIT，NOTICE 含 Qlib 特征定义的 Apache 2.0 归属",
+          "screening_decision": "included_limited",
+          "screening_reason": "当前不复制实质代码，只用于界定未来复制触发器",
+          "source_class": "license_and_notice"
+        }
+      ],
+      "evidence_clusters": [
+        {
+          "id": "RS-04-EC01",
+          "member_source_ids": [
+            "RS-04-S01",
+            "RS-04-S02"
+          ],
+          "revision_check_state": "bound_to_reviewed_commit",
+          "upstream_roots": [
+            "HKUDS/Vibe-Trading commit 8643fcd357ccffb639892dfd7add2974fceb123a"
+          ]
+        },
+        {
+          "id": "RS-04-EC02",
+          "member_source_ids": [
+            "RS-04-S03"
+          ],
+          "revision_check_state": "raw_test_receipt_not_preserved_in_this_record",
+          "upstream_roots": [
+            "repository test execution"
+          ]
+        },
+        {
+          "id": "RS-04-EC03",
+          "member_source_ids": [
+            "RS-04-S04"
+          ],
+          "revision_check_state": "fault_results_preserved_as_summary_not_signed_receipt",
+          "upstream_roots": [
+            "current project fault injection"
+          ]
+        },
+        {
+          "id": "RS-04-EC04",
+          "member_source_ids": [
+            "RS-04-S05"
+          ],
+          "revision_check_state": "bound_to_reviewed_commit",
+          "upstream_roots": [
+            "repository LICENSE and NOTICE"
+          ]
+        }
+      ],
+      "claims": [
+        {
+          "claim": "审查提交存在实际 loader 与记录来源不一致的 fail-open 路径",
+          "decision_effect": "拒绝其来源记录作为本项目 manifest 底座",
+          "entailment_reason": "代码审查与注入结果直接显示 actual loader 与 effective source 不一致",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-04-EC01",
+            "RS-04-EC03"
+          ],
+          "id": "RS-04-C01",
+          "impact": "high",
+          "review_state": "project_fault_injection"
+        },
+        {
+          "claim": "审查提交没有全局未来信息隔离，静态检查可接受未来 signal",
+          "decision_effect": "拒绝其回测因果边界，采用 prefix-causality 行为测试",
+          "entailment_reason": "源码路径和故障注入直接支持",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-04-EC01",
+            "RS-04-EC03"
+          ],
+          "id": "RS-04-C02",
+          "impact": "high",
+          "review_state": "project_fault_injection"
+        },
+        {
+          "claim": "其 Monte Carlo 与所谓 walk-forward 不能证明策略优势",
+          "decision_effect": "拒绝 validated、significant 或 walk-forward evidence 标签",
+          "entailment_reason": "审查显示其对同一已实现交易 PnL 或权益曲线切分，没有重新训练、冻结和独立前推",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-04-EC01"
+          ],
+          "id": "RS-04-C03",
+          "impact": "high",
+          "review_state": "source_code_semantics_review"
+        },
+        {
+          "claim": "live gate 与 audit 路径会越过 Paper-only 和记录失败即不改变状态的边界",
+          "decision_effect": "拒绝全部 live connector、mandate autonomy 和现有 audit 写法",
+          "entailment_reason": "外部订单先发送、计数和审计后更新，且审计异常被吞掉",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-04-EC01",
+            "RS-04-EC03"
+          ],
+          "id": "RS-04-C04",
+          "impact": "high",
+          "review_state": "source_code_and_fault_injection"
+        },
+        {
+          "claim": "不 fork、不整体依赖，只借鉴原子模式并按本项目不变量重写",
+          "decision_effect": "确定复用边界",
+          "entailment_reason": "多条跨层失败支持安全拒绝，但决定尚无独立重复审查 receipt",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-04-EC01",
+            "RS-04-EC02",
+            "RS-04-EC03",
+            "RS-04-EC04"
+          ],
+          "id": "RS-04-C05",
+          "impact": "high",
+          "review_state": "single_review_path"
+        }
+      ],
+      "supplemental_rounds": [
+        {
+          "architecture_delta_ids": [],
+          "decision_delta_ids": [],
+          "id": "RS-04-R01",
+          "new_high_impact_node_ids": [],
+          "result": "not_run",
+          "round_type": "independent_challenge",
+          "source_locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md"
+        }
+      ],
+      "deltas": {
+        "architecture": [
+          {
+            "authority": "candidate_reuse_review",
+            "change": "原始 payload、来源、fallback、查询、时间、universe、代码与人工决定进入本项目 manifest",
+            "disposition": "rewrite_required",
+            "id": "RS-04-AD01",
+            "rationale": "上游 run card 无法证明真实来源和决策时点边界",
+            "source_locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#可借鉴但必须重写",
+            "status": "not_implemented"
+          },
+          {
+            "authority": "candidate_reuse_review",
+            "change": "使用 prefix-causality 行为测试和受控假设状态机",
+            "disposition": "rewrite_required",
+            "id": "RS-04-AD02",
+            "rationale": "静态信号检查与可直接更新 validated 的 JSON registry 可被绕过",
+            "source_locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#拒绝原因",
+            "status": "not_implemented"
+          }
+        ],
+        "decisions": [
+          {
+            "authority": "candidate_reuse_review",
+            "change": "拒绝整体 fork 或依赖 Vibe-Trading",
+            "disposition": "active_candidate_decision",
+            "id": "RS-04-DD01",
+            "rationale": "来源、因果、验证、状态和 live/audit 边界均与项目核心不变量冲突",
+            "source_locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#采用结论",
+            "status": "current"
+          }
+        ]
+      },
+      "unresolved_contradictions": [
+        {
+          "decision_effect": "non_decision_changing_for_current_rejection",
+          "id": "RS-04-X01",
+          "needed_evidence": "若重开复用，固定新 commit 后重跑源码审查、全部测试、故障注入和许可证检查",
+          "position_a": "仓库包含可借鉴的序列化、哈希和 run-card 结构",
+          "position_b": "当前固定提交的跨层不变量不适合作为底座",
+          "source_locator": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md#可借鉴但必须重写",
+          "state": "bounded"
+        }
+      ],
+      "reopen_triggers": [
+        {
+          "action": "固定新 commit，并重新执行同一审查矩阵与独立复核",
+          "affected_claim_ids": [
+            "RS-04-C01",
+            "RS-04-C02",
+            "RS-04-C03",
+            "RS-04-C04",
+            "RS-04-C05"
+          ],
+          "condition": "上游提交声称修复来源、PIT、验证、状态和 audit/live 边界",
+          "id": "RS-04-RT01"
+        },
+        {
+          "action": "重做许可证、依赖、来源和逐文件适配审查",
+          "affected_claim_ids": [
+            "RS-04-C05"
+          ],
+          "condition": "项目拟复制实质代码而不只是借鉴结构原则",
+          "id": "RS-04-RT02"
+        }
+      ],
+      "gap_ids": [
+        "GAP-001",
+        "GAP-002",
+        "GAP-003",
+        "GAP-005",
+        "GAP-006",
+        "GAP-012",
+        "GAP-014",
+        "GAP-015"
+      ]
+    },
+    {
+      "id": "RS-05",
+      "title": "保障 provenance 与独立性信任边界",
+      "impact": "high",
+      "decision_served": "怎样区分机器执行 provenance、平台可观察语义审查和当前不能证明的组织级独立性",
+      "preregistration": {
+        "evidence_locators": [
+          "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#触发反例",
+          "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#当前外部能力核对"
+        ],
+        "questions": [
+          {
+            "decision_change_if": "若 Codex 提供可离线验证且绑定审查内容与候选的签名，则可升级语义审查 provenance",
+            "id": "RS-05-Q01",
+            "question": "Codex 子代理能证明上下文隔离、身份或内容绑定中的哪一层"
+          },
+          {
+            "decision_change_if": "若 GitHub attestation 无法绑定固定 workflow、repository、commit 与 artifact digest，则更换机器 receipt 机制",
+            "id": "RS-05-Q02",
+            "question": "GitHub Actions artifact attestation 能证明什么，不能证明什么"
+          },
+          {
+            "decision_change_if": "若当前 Paper V1 进入真实资金、多人或商业发布，则必须升级 functionary 和职责分离",
+            "id": "RS-05-Q03",
+            "question": "Sigstore、in-toto 与 SLSA 提供哪些身份、材料、产物和构建来源约束"
+          },
+          {
+            "decision_change_if": "若真实 workflow 和 gh attestation verify 失败，则当前外部机器 provenance 设计不能采用",
+            "id": "RS-05-Q04",
+            "question": "当前仓库能否实际观察到签名机器执行 provenance"
+          },
+          {
+            "decision_change_if": "若无法准确命名 assurance level，则不得关闭最终审查",
+            "id": "RS-05-Q05",
+            "question": "当前个人 Paper V1 可以诚实声称的 assurance level 是什么"
+          }
+        ],
+        "timing_state": "not_verifiably_preregistered",
+        "timing_reason": "专项刷新由第六轮反例触发，问题先于本轮外部核对，但没有冻结预算、结果集和筛选 receipt"
+      },
+      "search_protocol": {
+        "budget": {
+          "consumption_receipt_state": "partial",
+          "known_activity_locator": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#当前外部能力核对",
+          "planned_query_limit": null,
+          "planned_supplemental_round_limit": null,
+          "registration_state": "missing"
+        },
+        "required_source_classes": [
+          "current_project_adversarial_experiments",
+          "official_platform_documentation",
+          "supply_chain_provenance_standards",
+          "verified_local_platform_observation"
+        ],
+        "result_set_state": "partial_not_frozen",
+        "scope": {
+          "excluded": [
+            "声称抵御平台、仓库 owner 与全部代理串通",
+            "组织级职责分离",
+            "真实人类身份的密码学证明",
+            "同一 OS 管理员或恶意软件改写全部状态"
+          ],
+          "included": [
+            "Codex 子代理上下文隔离",
+            "GitHub Actions artifact attestations",
+            "Sigstore keyless signing",
+            "SLSA build provenance",
+            "in-toto functionary 与 layout",
+            "审查记录内容绑定",
+            "机器执行 receipt"
+          ],
+          "time_sensitive": [
+            "Codex 平台能力",
+            "GitHub Actions 与 attestation 可用性",
+            "公开验证接口和计划限制"
+          ]
+        }
+      },
+      "source_outcomes": [
+        {
+          "cluster_ids": [
+            "RS-05-EC01"
+          ],
+          "id": "RS-05-S01",
+          "locator": "https://learn.chatgpt.com/docs/agent-configuration/subagents.md",
+          "observed_result": "手册说明子代理线程可由用户在 App 中观察，支持平台可观察的上下文隔离",
+          "screening_decision": "included_limited",
+          "screening_reason": "文档未提供本项目可离线验证、绑定 subject、prompt、response 与候选的签名格式",
+          "source_class": "official_platform_documentation"
+        },
+        {
+          "cluster_ids": [
+            "RS-05-EC02"
+          ],
+          "id": "RS-05-S02",
+          "locator": "https://learn.chatgpt.com/docs/codex-sdk/app-server",
+          "observed_result": "App-server 提到 opaque upstream attestation token，但公开资料没有本项目需要的内容绑定、导出和验证语义",
+          "screening_decision": "included_limited",
+          "screening_reason": "只能作为能力线索，不能扩大为审查回执",
+          "source_class": "official_platform_documentation"
+        },
+        {
+          "cluster_ids": [
+            "RS-05-EC03"
+          ],
+          "id": "RS-05-S03",
+          "locator": "https://docs.github.com/en/actions/concepts/security/artifact-attestations",
+          "observed_result": "GitHub 资料说明 attestation 可绑定 repository、workflow、commit 与触发事件，验证者仍须检查 identity 与 policy",
+          "screening_decision": "included_limited",
+          "screening_reason": "证明 provenance，不证明内容语义正确",
+          "source_class": "official_platform_documentation"
+        },
+        {
+          "cluster_ids": [
+            "RS-05-EC04"
+          ],
+          "id": "RS-05-S04",
+          "locator": "https://docs.sigstore.dev/about/security/",
+          "observed_result": "Sigstore keyless signing 用 OIDC 身份、短期证书和透明日志提供签名来源",
+          "screening_decision": "included_limited",
+          "screening_reason": "验证仍必须约束 artifact digest、issuer 与预期 identity",
+          "source_class": "supply_chain_provenance_standards"
+        },
+        {
+          "cluster_ids": [
+            "RS-05-EC05"
+          ],
+          "id": "RS-05-S05",
+          "locator": "https://in-toto.readthedocs.io/en/latest/model.html",
+          "observed_result": "in-toto 分离预定义 layout、授权 functionary、命令、材料、产物和签名 link",
+          "screening_decision": "included_limited",
+          "screening_reason": "threshold 只有 functionary key 真正独立时才增加信任",
+          "source_class": "supply_chain_provenance_standards"
+        },
+        {
+          "cluster_ids": [
+            "RS-05-EC06"
+          ],
+          "id": "RS-05-S06",
+          "locator": "https://slsa.dev/spec/v1.2-rc2/build-provenance",
+          "observed_result": "SLSA 把 provenance 定位为构建来源证明，并要求评估 build platform",
+          "screening_decision": "included_limited",
+          "screening_reason": "不能把构建来源扩大为产物语义正确",
+          "source_class": "supply_chain_provenance_standards"
+        },
+        {
+          "cluster_ids": [
+            "RS-05-EC07"
+          ],
+          "id": "RS-05-S07",
+          "locator": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#GitHub Actions artifact attestations",
+          "observed_result": "当前仓库公开、Actions enabled、allowed actions all、默认 workflow token read，但尚无真实签名 artifact 验证",
+          "screening_decision": "included_limited",
+          "screening_reason": "只证明候选环境条件，不证明 workflow 已运行或 receipt 已验证",
+          "source_class": "verified_local_platform_observation"
+        },
+        {
+          "cluster_ids": [
+            "RS-05-EC08"
+          ],
+          "id": "RS-05-S08",
+          "locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/7",
+          "observed_result": "第六轮挑战证明 passing reviewer、raw command、退出码和 stdout 可由构造者自报",
+          "screening_decision": "included",
+          "screening_reason": "直接触发 assurance trust boundary 架构修改",
+          "source_class": "current_project_adversarial_experiments"
+        }
+      ],
+      "evidence_clusters": [
+        {
+          "id": "RS-05-EC01",
+          "member_source_ids": [
+            "RS-05-S01"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "OpenAI Codex subagent documentation"
+          ]
+        },
+        {
+          "id": "RS-05-EC02",
+          "member_source_ids": [
+            "RS-05-S02"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "OpenAI Codex app-server documentation"
+          ]
+        },
+        {
+          "id": "RS-05-EC03",
+          "member_source_ids": [
+            "RS-05-S03"
+          ],
+          "revision_check_state": "time_sensitive_not_continuously_monitored",
+          "upstream_roots": [
+            "GitHub artifact attestation documentation"
+          ]
+        },
+        {
+          "id": "RS-05-EC04",
+          "member_source_ids": [
+            "RS-05-S04"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "Sigstore security model"
+          ]
+        },
+        {
+          "id": "RS-05-EC05",
+          "member_source_ids": [
+            "RS-05-S05"
+          ],
+          "revision_check_state": "not_systematically_monitored",
+          "upstream_roots": [
+            "in-toto metadata model"
+          ]
+        },
+        {
+          "id": "RS-05-EC06",
+          "member_source_ids": [
+            "RS-05-S06"
+          ],
+          "revision_check_state": "release_candidate_spec_not_systematically_monitored",
+          "upstream_roots": [
+            "SLSA build provenance"
+          ]
+        },
+        {
+          "id": "RS-05-EC07",
+          "member_source_ids": [
+            "RS-05-S07"
+          ],
+          "revision_check_state": "point_in_time_local_observation",
+          "upstream_roots": [
+            "current GitHub repository settings observation"
+          ]
+        },
+        {
+          "id": "RS-05-EC08",
+          "member_source_ids": [
+            "RS-05-S08"
+          ],
+          "revision_check_state": "challenge_artifact_referenced_by_hash_in_register",
+          "upstream_roots": [
+            "design-freeze assurance review round 6"
+          ]
+        }
+      ],
+      "claims": [
+        {
+          "claim": "Codex 子代理当前支持平台可观察的上下文隔离，但本项目没有可离线验证的审查身份和内容签名",
+          "decision_effect": "准确命名为 platform_observable_context_isolation",
+          "entailment_reason": "官方文档支持线程可观察性；不存在公开绑定格式的结论受限于本轮已检索文档",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-05-EC01",
+            "RS-05-EC02"
+          ],
+          "id": "RS-05-C01",
+          "impact": "high",
+          "review_state": "date_bounded_absence_inference"
+        },
+        {
+          "claim": "GitHub artifact attestation 可证明固定机器执行 provenance，但不证明语义设计正确",
+          "decision_effect": "机器 receipt 与语义审查必须分层",
+          "entailment_reason": "GitHub、Sigstore、in-toto 与 SLSA 资料直接区分来源证明和内容正确性",
+          "entailment_status": "entailed",
+          "evidence_cluster_ids": [
+            "RS-05-EC03",
+            "RS-05-EC04",
+            "RS-05-EC05",
+            "RS-05-EC06"
+          ],
+          "id": "RS-05-C02",
+          "impact": "high",
+          "review_state": "direct_official_and_standard_sources"
+        },
+        {
+          "claim": "当前个人 Paper V1 可以把外部签名机器 receipt 与平台可观察语义审查组合为候选 assurance 模型",
+          "decision_effect": "采用两层证据并禁止夸大为组织级独立",
+          "entailment_reason": "是基于来源能力与当前威胁模型的工程判断，尚未由真实 end-to-end receipt 验证",
+          "entailment_status": "partial",
+          "evidence_cluster_ids": [
+            "RS-05-EC01",
+            "RS-05-EC03",
+            "RS-05-EC04",
+            "RS-05-EC05",
+            "RS-05-EC06",
+            "RS-05-EC08"
+          ],
+          "id": "RS-05-C03",
+          "impact": "high",
+          "review_state": "candidate_trust_model"
+        },
+        {
+          "claim": "当前仓库已经观察并验证 GitHub 签名 assurance artifact",
+          "decision_effect": "若成立可升级机器 provenance；当前不成立",
+          "entailment_reason": "只观察到仓库与 Actions 条件，专项刷新明确真实 workflow、下载和 gh attestation verify 尚未发生",
+          "entailment_status": "not_entailed",
+          "evidence_cluster_ids": [
+            "RS-05-EC07"
+          ],
+          "id": "RS-05-C04",
+          "impact": "high",
+          "review_state": "explicit_unobserved_condition"
+        },
+        {
+          "claim": "自报 reviewer、command、exit code、stdout 和内部哈希足以证明独立执行与审查",
+          "decision_effect": "若不成立则必须由固定 runner 与外部 provenance 生成 receipt",
+          "entailment_reason": "第六轮挑战构造反例并阻止冻结",
+          "entailment_status": "not_entailed",
+          "evidence_cluster_ids": [
+            "RS-05-EC08"
+          ],
+          "id": "RS-05-C05",
+          "impact": "high",
+          "review_state": "falsified_by_project_attack"
+        }
+      ],
+      "supplemental_rounds": [
+        {
+          "architecture_delta_ids": [
+            "RS-05-AD01",
+            "RS-05-AD02",
+            "RS-05-AD03"
+          ],
+          "decision_delta_ids": [
+            "RS-05-DD01"
+          ],
+          "id": "RS-05-R01",
+          "new_high_impact_node_ids": [
+            "assurance-reviewer-identity-and-result-origin-trust-boundary"
+          ],
+          "result": "completed_with_architecture_delta",
+          "round_type": "independent_challenge",
+          "source_locator": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json#/challenge/rounds/7"
+        }
+      ],
+      "deltas": {
+        "architecture": [
+          {
+            "authority": "candidate_assurance_research",
+            "change": "机器执行 provenance 与语义审查分层",
+            "disposition": "required_not_yet_observed",
+            "id": "RS-05-AD01",
+            "rationale": "内容寻址不能证明结果来自独立执行者",
+            "source_locator": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#采用的信任模型",
+            "status": "candidate"
+          },
+          {
+            "authority": "candidate_assurance_research",
+            "change": "固定 runner 生成 baseline、mutation、target 与 harness 的结构化 receipt",
+            "disposition": "required_not_yet_implemented",
+            "id": "RS-05-AD02",
+            "rationale": "任意 command 字符串和手写 stdout 不能作为权威结果",
+            "source_locator": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#对治理设计的直接要求",
+            "status": "open"
+          },
+          {
+            "authority": "candidate_assurance_research",
+            "change": "最终审查自动展开原始意图、方法、research primary artifacts、候选实现和测试",
+            "disposition": "required_not_yet_rechallenged",
+            "id": "RS-05-AD03",
+            "rationale": "第六轮挑战发现构造者可只审自己选择的摘要",
+            "source_locator": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#对治理设计的直接要求",
+            "status": "open"
+          }
+        ],
+        "decisions": [
+          {
+            "authority": "candidate_assurance_research",
+            "change": "当前语义保障强度命名为 platform_observable_context_isolation，不声称 cryptographic reviewer identity",
+            "disposition": "adopted_as_truthful_boundary",
+            "id": "RS-05-DD01",
+            "rationale": "现有公开文档和项目能力只支持较弱层级",
+            "source_locator": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#平台可观察的语义审查",
+            "status": "current_candidate"
+          }
+        ]
+      },
+      "unresolved_contradictions": [
+        {
+          "decision_effect": "architecture_changing",
+          "id": "RS-05-X01",
+          "needed_evidence": "真实 workflow 生成 artifact，下载后以精确 issuer、repository、workflow、commit 和 digest 执行验证",
+          "position_a": "当前仓库条件允许设计 GitHub Actions attestation 路径",
+          "position_b": "尚未观察真实签名 receipt 或 gh attestation verify 成功",
+          "source_locator": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#仍有条件",
+          "state": "open"
+        },
+        {
+          "decision_effect": "architecture_changing",
+          "id": "RS-05-X02",
+          "needed_evidence": "可导出、绑定 subject、prompt、response、candidate commit/tree 的平台 attestation 规范与验证器",
+          "position_a": "Codex App 中用户可观察隔离线程",
+          "position_b": "仓库内不能证明平台身份或审查内容来源",
+          "source_locator": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md#Codex 子代理",
+          "state": "open"
+        }
+      ],
+      "reopen_triggers": [
+        {
+          "action": "重新核对公开绑定、导出和验证语义，并升级或维持 assurance level",
+          "affected_claim_ids": [
+            "RS-05-C01",
+            "RS-05-C03"
+          ],
+          "condition": "Codex 发布可验证的 reviewer 或 thread attestation 格式",
+          "id": "RS-05-RT01"
+        },
+        {
+          "action": "记录真实失败或成功 receipt，重新计算 RS-05 资格",
+          "affected_claim_ids": [
+            "RS-05-C02",
+            "RS-05-C04"
+          ],
+          "condition": "首次运行 GitHub signed Actions workflow 或 gh attestation verify",
+          "id": "RS-05-RT02"
+        },
+        {
+          "action": "升级为独立 GitHub/Git identity、required review/ruleset 或受保护 functionary",
+          "affected_claim_ids": [
+            "RS-05-C03"
+          ],
+          "condition": "项目进入真实资金、多人服务或商业发布",
+          "id": "RS-05-RT03"
+        }
+      ],
+      "gap_ids": [
+        "GAP-001",
+        "GAP-002",
+        "GAP-003",
+        "GAP-004",
+        "GAP-005",
+        "GAP-006",
+        "GAP-007",
+        "GAP-010",
+        "GAP-013",
+        "GAP-014",
+        "GAP-015"
+      ]
+    }
+  ],
+  "open_gaps": [
+    {
+      "affected_rule_ids": [
+        "DR-02"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "为未来研究版本冻结问题、范围、状态枚举、来源类别、挑战方式和时间证明；不得把本轮事后重构冒充搜索前注册",
+      "id": "GAP-001",
+      "state": "closure_blocking",
+      "summary": "没有可验证的搜索前预注册时序"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-03"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "冻结查询上限、补充轮上限、预算耗尽状态与完整消费 receipt",
+      "id": "GAP-002",
+      "state": "closure_blocking",
+      "summary": "检索与补充轮预算未预注册，消费记录不完整"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-04"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "冻结每次查询的时间、平台、精确查询、结果集合以及逐条纳入或排除理由",
+      "id": "GAP-003",
+      "state": "closure_blocking",
+      "summary": "现有 search log 不是完整、冻结的 retrieval 与 screening manifest"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-05"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "为全部决定性来源记录上游根、同源关系、更正、撤回、supersession 和依赖 claim 级联",
+      "id": "GAP-004",
+      "state": "closure_blocking",
+      "summary": "来源簇与 revision graph 只部分建立"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-06"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "逐条保存原文范围与哈希，并由不同证据路径或确定性机制复核全部高影响 claim 的蕴含与边界",
+      "id": "GAP-005",
+      "state": "closure_blocking",
+      "summary": "存在 partial、not_entailed 或仅由作者台账判断的高影响 claim"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-07"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "在最后一次架构或决定变化之后执行预注册补充轮，结果不得新增高影响节点、架构变化、决定变化或 open critical/major",
+      "id": "GAP-006",
+      "state": "closure_blocking",
+      "summary": "没有满足稳定阈值的补充轮"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-11",
+        "DR-12"
+      ],
+      "affected_topic_ids": [
+        "RS-02",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "完成分层 provenance、真实 runner、完整审查范围和 novelty probe 后，在固定新候选上关闭全部 critical/major",
+      "id": "GAP-007",
+      "state": "closure_blocking",
+      "summary": "研究登记 challenge 仍为 in_progress，最新轮次仍 blocked-freeze"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-06",
+        "DR-07"
+      ],
+      "affected_topic_ids": [
+        "RS-01"
+      ],
+      "evidence_required_to_close": "用同一正式研究任务比较旧流程与证据约束流程的覆盖、冲突、来源质量、可复现性和决定清晰度",
+      "id": "GAP-008",
+      "state": "closure_blocking",
+      "summary": "研究协议尚无真实任务同题对照"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-06",
+        "DR-08"
+      ],
+      "affected_topic_ids": [
+        "RS-03"
+      ],
+      "evidence_required_to_close": "取得明确授权和个人凭据后完成 Tiingo 许可与金样本；按触发条件完成 PIT 或 Alpaca Paper 真实试用",
+      "id": "GAP-009",
+      "state": "closure_blocking",
+      "summary": "正式供应商许可、覆盖、认证、成交与对账条件验收尚未发生"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-06",
+        "DR-08",
+        "DR-11"
+      ],
+      "affected_topic_ids": [
+        "RS-05"
+      ],
+      "evidence_required_to_close": "真实 GitHub workflow 生成签名 manifest，下载并按精确 issuer、repository、workflow、commit 与 digest 验证；语义审查保留真实平台 locator 与完整内容绑定",
+      "id": "GAP-010",
+      "state": "closure_blocking",
+      "summary": "外部签名机器 provenance 尚未观察，语义审查仅具平台可观察隔离"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-06",
+        "DR-08"
+      ],
+      "affected_topic_ids": [
+        "RS-02"
+      ],
+      "evidence_required_to_close": "分别研究自评偏差效果量、证据独立判据、隐藏测试、记忆污染、流程负担、UI 审美偏差和事实源迁移成本",
+      "id": "GAP-011",
+      "state": "closure_blocking",
+      "summary": "失效分类列出的多项高影响未知仍未关闭"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-06",
+        "DR-11"
+      ],
+      "affected_topic_ids": [
+        "RS-04"
+      ],
+      "evidence_required_to_close": "保留可复演 raw test 与 fault-injection receipt，并由未参与原审查的路径复核固定 commit 和采用判断",
+      "id": "GAP-012",
+      "state": "closure_blocking",
+      "summary": "Vibe-Trading 审查只有单一审查路径，原始执行 receipt 未进入本记录"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-05",
+        "DR-07",
+        "DR-10"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "为每类时效敏感主题冻结事件触发器、差异扫描 receipt 与复核责任；用实际差异产出校准节奏",
+      "id": "GAP-013",
+      "state": "closure_blocking",
+      "summary": "Living Review 触发器已描述，但更新节奏和执行 receipt 未校准"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-12"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "由 verifier 从本文件重算全部 predicate，并拒绝手写 derived_closure_eligible 与 derived_research_state 不一致；只读取顶层字段不构成推导",
+      "id": "GAP-014",
+      "state": "closure_blocking",
+      "summary": "候选 verifier 已读取本记录，但尚未重算 derivation_rules"
+    },
+    {
+      "affected_rule_ids": [
+        "DR-12"
+      ],
+      "affected_topic_ids": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05"
+      ],
+      "evidence_required_to_close": "更新冻结转换，使其使用 research register 的 derived_not_declared 链接和本记录重算结果；删除对 stop_rule.met 的构造与检查",
+      "id": "GAP-015",
+      "state": "closure_blocking",
+      "summary": "研究登记已改为 derived link，但冻结程序仍保留旧 stop_rule.met 布尔转换"
+    }
+  ]
+}

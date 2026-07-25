@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "model_id": "ids-personal-paper-assurance-v1",
+  "scope": "单用户、本地优先、无真实资金、无自动实盘的 Paper V1",
+  "source_research": {
+    "path": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md",
+    "sha256": "e9bdfa24bda1676ec106636091bdb2f8e11c4412662d64b237a57db8da71a2c7"
+  },
+  "claims": [
+    {
+      "id": "ASSURANCE-CLAIM-CONTENT",
+      "level": "content_addressed_git_identity",
+      "proves": [
+        "候选 commit、tree、文件 mode/type/blob 与内容哈希可核对",
+        "审查与执行证据不能静默跨候选复用"
+      ],
+      "does_not_prove": [
+        "文件中的主体、命令或结果字段真实",
+        "作者与审查者组织独立"
+      ]
+    },
+    {
+      "id": "ASSURANCE-CLAIM-MACHINE",
+      "level": "externally_signed_machine_execution_provenance",
+      "proves": [
+        "固定 GitHub repository、workflow 与 commit 生成了指定 digest 的 assurance manifest",
+        "manifest 中的固定 runner 实际记录了 wrapper、baseline verifier 与 mutated target verifier 的不同退出状态"
+      ],
+      "does_not_prove": [
+        "测试 oracle 或设计语义正确",
+        "GitHub 平台、仓库 owner 与所有构造主体不串谋"
+      ]
+    },
+    {
+      "id": "ASSURANCE-CLAIM-SEMANTIC",
+      "level": "platform_observable_context_isolation",
+      "proves": [
+        "候选固定后存在可由用户在 Codex App 检查的独立子代理审查线程",
+        "审查输入、输出、候选与新增 novelty probe 的内容绑定可在仓库中核对"
+      ],
+      "does_not_prove": [
+        "审查者人类身份的密码学证明",
+        "组织级职责分离",
+        "仓库内 locator 字符串本身不可伪造"
+      ]
+    }
+  ],
+  "trust_roots": {
+    "git_content": {
+      "repository": "j-a-v-e-n/knowledge-vault",
+      "remote_name": "origin",
+      "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",
+      "branch": "main",
+      "project_prefix": "MyBrain/projects/investment-discipline-system/",
+      "required_observations": [
+        "exact commit and tree",
+        "direct remote branch observation",
+        "fresh clone verification"
+      ]
+    },
+    "github_actions_machine_execution": {
+      "status": "pending_first_signed_observation",
+      "repository": "j-a-v-e-n/knowledge-vault",
+      "repository_visibility": "public",
+      "workflow_path": ".github/workflows/investment-discipline-assurance.yml",
+      "workflow_sha256": "39f34cd20de4a2612c3c3c1a333e9e361e57b6bc19b9a5877fb3737024c55d42",
+      "workflow_ref_policy": "exact workflow path on the exact candidate commit",
+      "oidc_issuer": "https://token.actions.githubusercontent.com",
+      "attested_artifact_name": "investment-discipline-assurance-manifest",
+      "attested_artifact_path": "MyBrain/projects/investment-discipline-system/evidence/ci/assurance-manifest.json",
+      "required_permissions": {
+        "contents": "read",
+        "id-token": "write",
+        "attestations": "write",
+        "artifact-metadata": "write"
+      },
+      "local_verification_policy": [
+        "verify artifact digest with GitHub attestation verification",
+        "require repository j-a-v-e-n/knowledge-vault",
+        "require the exact workflow identity and candidate commit",
+        "parse the manifest and independently validate every required check and attack result",
+        "do not treat attestation as semantic approval"
+      ]
+    },
+    "codex_semantic_review": {
+      "status": "platform_observable_not_cryptographically_exported",
+      "required_platform": "Codex App subagent thread",
+      "required_binding": [
+        "agent or thread locator",
+        "review input sha256",
+        "review output sha256",
+        "candidate commit and tree",
+        "reviewed ground-truth manifest",
+        "candidate-postdated novelty probe spec and actual runner receipt",
+        "findings and open severity counts"
+      ],
+      "forbidden_claim": "cryptographically_independent_reviewer_identity",
+      "user_check": "Javen can open the named subagent thread in Codex App and compare its prompt/result with the stored hashes."
+    }
+  },
+  "release_rule": {
+    "type": "conjunction",
+    "required": [
+      "local frozen runner replay passes against the exact reviewed candidate",
+      "GitHub Actions signed machine-execution manifest is observed and verifies against exact repository/workflow/commit",
+      "post-candidate Codex semantic review covers the full ground-truth manifest",
+      "at least one post-candidate novelty probe is actually executed and rejected",
+      "no open critical, major, or minor final-review finding remains"
+    ],
+    "single_source_is_sufficient": false,
+    "unknown_or_missing": "blocked_freeze"
+  },
+  "machine_receipt_invariants": [
+    "runner process exit must equal receipt.runner_exit_code",
+    "unmutated candidate verifier exit must be zero",
+    "mutated target verifier exit must be nonzero",
+    "the expected invariant-specific rejection signal must occur in actual target stdout",
+    "arbitrary command strings are descriptive only and never authorize execution",
+    "runner bytes must match the exact reviewed candidate",
+    "stored receipts are re-executed; internal hash consistency alone is insufficient"
+  ],
+  "bounded_threat_model": {
+    "covered": [
+      "构造者手写 command、stdout、exit code 或自洽哈希冒充实际攻击结果",
+      "构造者用自己预先知道的 canonical tests 冒充 reviewer novelty",
+      "旧候选的机器或语义证据复用于新候选",
+      "只审衍生摘要而漏掉原始意图、决定、方法、研究主体或验证实现",
+      "单一 builder verdict 或单一脚本退出码批准完成"
+    ],
+    "not_covered": [
+      "同一 OS 管理员或恶意软件重写全部本地状态",
+      "仓库 owner、GitHub、OpenAI 平台、主代理和全部子代理共同串谋",
+      "组织级独立审计或受监管职责分离",
+      "审查者人类身份的密码学证明",
+      "真实资金系统所需的券商、密钥、权限和合规边界"
+    ]
+  },
+  "upgrade_triggers": [
+    {
+      "trigger": "任何真实资金、live broker 或自动订单执行",
+      "required_upgrade": "独立身份、受保护分支/ruleset、外部 functionary 签名、密钥与交易权限隔离及适用合规审查"
+    },
+    {
+      "trigger": "多人使用、对外服务或商业发布",
+      "required_upgrade": "多租户身份权限、隐私安全、组织级审查与责任边界"
+    },
+    {
+      "trigger": "GitHub 或 Codex 平台能力/证明格式变化",
+      "required_upgrade": "重新验证 trust root，不沿用旧观察"
+    }
+  ],
+  "anti_overclaim_vocabulary": {
+    "allowed": [
+      "content-addressed",
+      "externally signed machine-execution provenance",
+      "platform-observable context isolation",
+      "personal paper-scope assurance"
+    ],
+    "forbidden_without_new_evidence": [
+      "cryptographically independent reviewer",
+      "organizationally independent audit",
+      "tamper-proof against the machine owner",
+      "safe for live trading"
+    ]
+  },
+  "sources": [
+    {
+      "title": "OpenAI Codex manual - Subagents",
+      "url": "https://learn.chatgpt.com/docs/agent-configuration/subagents.md",
+      "supports": "Codex App exposes subagent work for user inspection; no project-verifiable content signature is documented."
+    },
+    {
+      "title": "GitHub artifact attestations",
+      "url": "https://docs.github.com/en/actions/concepts/security/artifact-attestations",
+      "supports": "GitHub Actions can generate signed provenance for artifacts and bind workflow context."
+    },
+    {
+      "title": "Using artifact attestations",
+      "url": "https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations",
+      "supports": "Public repositories can generate and verify artifact attestations with OIDC permissions."
+    },
+    {
+      "title": "Sigstore security model",
+      "url": "https://docs.sigstore.dev/about/security/",
+      "supports": "Keyless signatures require identity and issuer policy checks and do not prove semantic correctness."
+    },
+    {
+      "title": "in-toto metadata model",
+      "url": "https://in-toto.readthedocs.io/en/latest/model.html",
+      "supports": "Materials, products, commands and authorized functionaries are separate provenance concepts."
+    },
+    {
+      "title": "SLSA build provenance",
+      "url": "https://slsa.dev/spec/v1.2-rc2/build-provenance",
+      "supports": "Provenance describes how an artifact was produced and requires build-platform trust evaluation."
+    }
+  ]
+}

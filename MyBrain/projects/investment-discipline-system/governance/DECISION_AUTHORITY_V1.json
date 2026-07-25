@@ -1,0 +1,442 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "purpose": "记录会改变产品边界、证明义务或人工保留权的当前关键选择；把已确认的人类决定、可逆委托选择、技术推导和必须等待人工输入的事项分开，禁止把候选设计写成人工确认。",
+  "authority_model": {
+    "allowed": [
+      "human_delegated_reversible",
+      "human_explicit",
+      "human_only_required",
+      "technical_derived"
+    ],
+    "definitions": {
+      "human_delegated_reversible": "Javen 已授权在既定目标与安全边界内持续推进，但没有逐项确认这个具体选择；只能作为可逆 V1 候选，不能写成 human confirmed。",
+      "human_explicit": "可回到 Javen 提供或确认的项目规则、章程或决定日志中的明确语句。",
+      "human_only_required": "该选择、参数或残余风险接受不能由 builder、AI、导入或技术推导代替；缺失时保持阻塞或只读。",
+      "technical_derived": "由已确认目标、失效模式、证据或可证明能力边界推导；它仍须经过设计冻结审查，且不代表 Javen 亲自选择了该实现。"
+    },
+    "non_confirmation_rule": "只有 authority=human_explicit 且 source excerpt 可重算时，才允许把该项描述为 Javen 已确认；其他 authority 一律保留其候选、条件性或未设置状态。",
+    "source_hash_semantics": "excerpt_sha256 是 excerpt 精确 UTF-8 字节的 SHA-256，不追加换行。"
+  },
+  "status_model": {
+    "claim_blocked_no_threshold": "当前没有可用于通过策略优势主张的阈值，相关主张保持阻塞。",
+    "conditional_candidate_not_human_confirmed": "只有在列明条件与验证边界下才是候选；未集成、未验收，也未获得逐项人工确认。",
+    "confirmed_active": "有可核对的人类明确来源，当前有效。",
+    "delegated_candidate_v1_not_human_confirmed": "在既定授权内提出的可逆 V1 候选；尚未冻结，不能称为人工确认。",
+    "derived_candidate_v1_not_human_confirmed": "技术或证据推导出的候选边界；尚未冻结，不能称为人工确认。",
+    "unset_human_only_blocking": "没有可核对的人工选择或接受；依赖该项的路径必须阻塞或只读。"
+  },
+  "decisions": [
+    {
+      "id": "DA-001",
+      "topic": "personal_single_user_scope",
+      "decision": "当前系统只服务 Javen 本人；多用户、商业化和对外服务不进入当前阶段。",
+      "authority": "human_explicit",
+      "status": "confirmed_active",
+      "sources": [
+        {
+          "path": "PROJECT_CHARTER.md",
+          "line_start": 17,
+          "line_end": 17,
+          "excerpt": "当前只服务 Javen 本人。这是有意选择的第一阶段边界，不代表未来不能扩展为通用产品或多人系统。",
+          "excerpt_sha256": "9486b0ee454219d3d2fe2814d289de9d95eecd47b48e1563e12d97991d8fa5ee"
+        }
+      ],
+      "rationale": "先验证个人闭环，避免多人权限、隐私、部署、运营和合规变量污染 V1 内核。",
+      "reversibility": {
+        "class": "future_explicit_scope_change",
+        "human_confirmation_required": true,
+        "notes": "可以在未来扩展，但必须形成新的明确范围决定和相应威胁模型，不能由当前 V1 自动外推。"
+      },
+      "reopen_trigger": [
+        "Javen 明确要求多人或对外服务",
+        "当前个人工作流已通过真实使用验证且扩展目标被单独定义"
+      ]
+    },
+    {
+      "id": "DA-002",
+      "topic": "paper_first_no_live_funds",
+      "decision": "当前阶段保持个人使用和纸面优先，不接入真实资金，也不自动执行真实交易。",
+      "authority": "human_explicit",
+      "status": "confirmed_active",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "line_start": 38,
+          "line_end": 39,
+          "excerpt": "- 保持个人使用、纸面优先和人工最终决策。\n- 不接入真实资金，不自动执行真实交易。",
+          "excerpt_sha256": "40b44c3a4e07e9e9eeadd161dcdc3ec4a8debd00952443df6b00cee171e9a6b4"
+        }
+      ],
+      "rationale": "纸面阶段先证明研究、纪律、风险、记录和恢复闭环，不把 Paper 结果误当作实盘可实现性。",
+      "reversibility": {
+        "class": "future_explicit_scope_change",
+        "human_confirmation_required": true,
+        "notes": "任何 live broker、真实资金或真实订单路径都需要新的明确人工授权和升级后的安全、合规与恢复设计。"
+      },
+      "reopen_trigger": [
+        "Javen 明确提出进入真实资金或 live trading",
+        "纸面与长期验证完成且新的实盘威胁模型、授权和验收合同已建立"
+      ]
+    },
+    {
+      "id": "DA-003",
+      "topic": "ai_has_no_execution_or_policy_override_authority",
+      "decision": "AI 只能研究和提出候选建议，不拥有交易执行权，也不能自行修改或绕过风险规则。",
+      "authority": "human_explicit",
+      "status": "confirmed_active",
+      "sources": [
+        {
+          "path": "DECISIONS.md",
+          "line_start": 16,
+          "line_end": 16,
+          "excerpt": "- 决定：AI 不直接拥有交易执行权，也不能自行修改风险规则。",
+          "excerpt_sha256": "46c75331e64f26099ca797df181750b7fc670aa744c0f4c678ee1a340d5f5026"
+        }
+      ],
+      "rationale": "把概率性研究建议与确定性风险控制、人工责任和执行权限分离。",
+      "reversibility": {
+        "class": "core_principle_change",
+        "human_confirmation_required": true,
+        "notes": "不能作为普通 V1 实现选择改变；任何扩大 AI 权限的提案都属于目标与安全边界变化。"
+      },
+      "reopen_trigger": [
+        "Javen 以新的明确决定要求改变 AI 权限边界",
+        "新的产品阶段建立了不同的责任、身份、风险和合规模型"
+      ]
+    },
+    {
+      "id": "DA-004",
+      "topic": "market_universe_and_decision_cadence",
+      "decision": "当前候选 V1 使用人工冻结的小型美国上市股票与 ETF 宇宙，以日线数据支持周/月决策节奏。",
+      "authority": "human_delegated_reversible",
+      "status": "delegated_candidate_v1_not_human_confirmed",
+      "sources": [
+        {
+          "path": "DECISIONS.md",
+          "line_start": 51,
+          "line_end": 51,
+          "excerpt": "- 决定：目标、边界、核心理念和完成标准确认后，AI 在项目范围内持续研究、搭建、验证和记录，直到完成或触发暂停条件。",
+          "excerpt_sha256": "41606b1f3dc2ac1f0a73163fda26ef5c54cfe2ccabdf666f4ca4c4e7affec67f",
+          "context": "这是可逆 V1 候选的委托来源，不表示 Javen 逐项确认了本条选择。"
+        },
+        {
+          "path": "DECISIONS.md",
+          "line_start": 93,
+          "line_end": 93,
+          "excerpt": "- 目标市场和投资节奏的具体定义。",
+          "excerpt_sha256": "bcdcbe9a85373bcbec7e7ae9b34be51782f78bea5326ac23abf732db3cde7189",
+          "context": "该条位于“待确认决定”下，证明这不是已确认人工决定。"
+        },
+        {
+          "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+          "line_start": 28,
+          "line_end": 29,
+          "excerpt": "- 美国上市股票与 ETF 的研究记录；正式历史验证首期只允许人工冻结的小型宇宙。\n- 日线数据支持周/月节奏。",
+          "excerpt_sha256": "bb73ae1e27955195c8287c46036bce08e0555bcde3fad9e190b70dc498efeaca"
+        }
+      ],
+      "rationale": "该范围与中长线目标、可解释的市场日历和小规模 point-in-time 验证相匹配，同时避开高频与动态全市场历史成分的额外失效面。",
+      "reversibility": {
+        "class": "superseding_design_version",
+        "human_confirmation_required": false,
+        "notes": "设计冻结前可替换；冻结后改变市场或节奏必须创建新版本，并重验数据许可、日历、宇宙、基准、成交时序和回测契约。"
+      },
+      "reopen_trigger": [
+        "Javen 明确选择其他市场或节奏",
+        "数据许可、覆盖或市场日历无法满足当前候选",
+        "独立设计审查认为该候选与章程目标不相符"
+      ]
+    },
+    {
+      "id": "DA-005",
+      "topic": "sqlite_authoritative_store",
+      "decision": "当前候选 V1 以 SQLite 保存权威业务状态与事件，Markdown、JSON、Obsidian 和网页只作为同源导出或视图。",
+      "authority": "human_delegated_reversible",
+      "status": "delegated_candidate_v1_not_human_confirmed",
+      "sources": [
+        {
+          "path": "DECISIONS.md",
+          "line_start": 51,
+          "line_end": 51,
+          "excerpt": "- 决定：目标、边界、核心理念和完成标准确认后，AI 在项目范围内持续研究、搭建、验证和记录，直到完成或触发暂停条件。",
+          "excerpt_sha256": "41606b1f3dc2ac1f0a73163fda26ef5c54cfe2ccabdf666f4ca4c4e7affec67f",
+          "context": "这是可逆 V1 候选的委托来源，不表示 Javen 逐项确认了本条选择。"
+        },
+        {
+          "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+          "line_start": 48,
+          "line_end": 48,
+          "excerpt": "SQLite 保存权威状态与事件。Markdown、JSON、Obsidian 页面和网页视图都从同一事实源导出，不能各自维护状态。",
+          "excerpt_sha256": "6eccf20f01267d533c74b741866b0820277bc53b4947a8dd4889d24d826cb8ca"
+        },
+        {
+          "path": "PROJECT_CHARTER.md",
+          "line_start": 56,
+          "line_end": 56,
+          "excerpt": "- 采用何种数据模型、存储方式、校验方式和技术栈。",
+          "excerpt_sha256": "e39583826afe78a31397bb9cf5db08cbad817f81f70231c7391fdb5c80348b89",
+          "context": "该条位于“尚未决定的关键问题”下，证明 SQLite 尚不是人工确认。"
+        }
+      ],
+      "rationale": "SQLite 在单机规模下提供事务、唯一约束、外键、触发器、备份和恢复，可把账户变化与审计事件放入同一事务而无需云服务。",
+      "reversibility": {
+        "class": "superseding_architecture_version",
+        "human_confirmation_required": false,
+        "notes": "可在证明 SQLite 无法满足已冻结要求后迁移；迁移必须保持事件、哈希、关系、Decimal 语义和恢复证据，不允许静默换事实源。"
+      },
+      "reopen_trigger": [
+        "出现可复现的并发、容量、查询或恢复缺口",
+        "新的部署范围要求跨设备或多用户一致性",
+        "独立审查发现 SQLite 方案不能满足关键事务不变量"
+      ]
+    },
+    {
+      "id": "DA-006",
+      "topic": "tiingo_formal_daily_data_candidate",
+      "decision": "Tiingo 仅作为正式日线数据的条件性候选；V1 候选只承诺只读适配器、原始归档和离线契约测试，不表示真实账户、覆盖、质量或许可已经验收。",
+      "authority": "human_delegated_reversible",
+      "status": "conditional_candidate_not_human_confirmed",
+      "sources": [
+        {
+          "path": "DECISIONS.md",
+          "line_start": 51,
+          "line_end": 51,
+          "excerpt": "- 决定：目标、边界、核心理念和完成标准确认后，AI 在项目范围内持续研究、搭建、验证和记录，直到完成或触发暂停条件。",
+          "excerpt_sha256": "41606b1f3dc2ac1f0a73163fda26ef5c54cfe2ccabdf666f4ca4c4e7affec67f",
+          "context": "这是可逆 V1 候选的委托来源，不表示 Javen 逐项确认了本条选择。"
+        },
+        {
+          "path": "DECISIONS.md",
+          "line_start": 94,
+          "line_end": 94,
+          "excerpt": "- 数据源、券商和执行接口。",
+          "excerpt_sha256": "4851a90852f1ed4abff12b8b3246bc46b2f30020a1a5945fe5aa62775a680cb0",
+          "context": "该条位于“待确认决定”下，证明供应商尚不是人工确认。"
+        },
+        {
+          "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+          "line_start": 31,
+          "line_end": 31,
+          "excerpt": "- 本地 CSV/JSON 快照导入；Tiingo 只读适配器及离线契约测试。",
+          "excerpt_sha256": "fe35f458d4ab863de73a24904ffbc651beb5b6a242f2eb23540243c2d95a3f4f"
+        }
+      ],
+      "rationale": "研究把 Tiingo 识别为正式日线候选，但当前没有真实凭据试用证据；先冻结供应商中立契约和离线故障边界可避免把候选升级成事实源承诺。",
+      "reversibility": {
+        "class": "replaceable_provider_adapter",
+        "human_confirmation_required": false,
+        "notes": "核心 DataSnapshot/DataSource 契约保持供应商中立；可在覆盖、许可、稳定性、成本或数据质量不满足时更换候选。"
+      },
+      "reopen_trigger": [
+        "真实只读试用发现覆盖、许可、修订或稳定性问题",
+        "出现更符合冻结数据契约的候选",
+        "Javen 明确选择或拒绝某个正式数据源"
+      ]
+    },
+    {
+      "id": "DA-007",
+      "topic": "investment_mandate_and_numeric_risk_parameters",
+      "decision": "初始 PaperAccount 资金、单笔上限、单标的上限、总暴露、交易频率、损失边界及其他投资风险数值当前均未设置；必须由 Javen 在 human-only onboarding 中选择，在此之前系统只读。",
+      "authority": "human_only_required",
+      "status": "unset_human_only_blocking",
+      "sources": [
+        {
+          "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+          "line_start": 308,
+          "line_end": 308,
+          "excerpt": "具体参数不能由设计者替 Javen 猜测。首次使用必须由 Javen 设置 paper investment mandate、初始 PaperAccount 资金与风险政策；在此之前系统处于 `mandate_or_policy_missing/read_only`。",
+          "excerpt_sha256": "a46bb9cd159f921e87206c904a195bef74a617238c9aca49def4f32cc08db1cf"
+        }
+      ],
+      "rationale": "这些数值表达个人风险承受与投资约束，技术系统可以校验质量和一致性，但不能替 Javen 选择偏好。",
+      "reversibility": {
+        "class": "human_versioned_policy",
+        "human_confirmation_required": true,
+        "notes": "Javen 可通过不可变的新政策版本修改；必须遵守冷却、生效时间、审计和旧批准失效规则，AI 无运行时 override。"
+      },
+      "reopen_trigger": [
+        "首次真实 human onboarding",
+        "Javen 的 mandate、风险承受或账户规模发生变化",
+        "政策质量攻击发现数值极宽、矛盾、零保护或缺少损失边界"
+      ]
+    },
+    {
+      "id": "DA-008",
+      "topic": "behavioral_cooldown_durations",
+      "decision": "当前候选 V1 使用首个 mandate/政策至少 24h、urgent 新订单 4h、panic 新订单 24h 的不可覆盖冷却。",
+      "authority": "human_delegated_reversible",
+      "status": "delegated_candidate_v1_not_human_confirmed",
+      "sources": [
+        {
+          "path": "DECISIONS.md",
+          "line_start": 51,
+          "line_end": 51,
+          "excerpt": "- 决定：目标、边界、核心理念和完成标准确认后，AI 在项目范围内持续研究、搭建、验证和记录，直到完成或触发暂停条件。",
+          "excerpt_sha256": "41606b1f3dc2ac1f0a73163fda26ef5c54cfe2ccabdf666f4ca4c4e7affec67f",
+          "context": "这是可逆 V1 候选的委托来源，不表示 Javen 逐项确认了本条选择。"
+        },
+        {
+          "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+          "line_start": 443,
+          "line_end": 443,
+          "excerpt": "- 首个 mandate/政策至少冷静 `24h`；`urgent` 新订单等待 `4h`，`panic` 等待 `24h`；政策修改和频繁决定也受 active policy 冷却，不提供运行时 override。",
+          "excerpt_sha256": "2ccfe697edd84c885d9723dd918f0d22b7e7185bba5d50781f0e8ed80a1101e9"
+        }
+      ],
+      "rationale": "精确时长是抑制冲动的保守候选控制，不是已证明最优的人因参数，也不等同于 Javen 的投资风险偏好。",
+      "reversibility": {
+        "class": "superseding_behavior_policy_version",
+        "human_confirmation_required": false,
+        "notes": "设计冻结前可按证据调整；冻结后只能通过新版本和重新验收改变，不能为当前订单临场缩短。"
+      },
+      "reopen_trigger": [
+        "真实使用显示时长造成不可接受负担或不足以阻断冲动",
+        "人因研究或独立挑战提供更强证据",
+        "Javen 明确拒绝这些候选时长"
+      ]
+    },
+    {
+      "id": "DA-009",
+      "topic": "human_final_investment_decision",
+      "decision": "Javen 保留每项投资决定的最终权力，包括接受、拒绝、延后、修改和 no-trade。",
+      "authority": "human_explicit",
+      "status": "confirmed_active",
+      "sources": [
+        {
+          "path": "PROJECT_CHARTER.md",
+          "line_start": 8,
+          "line_end": 8,
+          "excerpt": "- 人保留最终投资决策权。",
+          "excerpt_sha256": "960c3f8351f3bcac59747fc00a797f60f96a29a1783a2ee3b8dc3d8fdcc54dd6"
+        }
+      ],
+      "rationale": "AI 建议是候选信息，不替代人的价值判断、责任和是否行动的选择。",
+      "reversibility": {
+        "class": "core_principle_change",
+        "human_confirmation_required": true,
+        "notes": "不能由 builder、AI、导入、CLI 或普通 API 改变；任何调整都属于新的产品目标与权限模型。"
+      },
+      "reopen_trigger": [
+        "Javen 以新的明确决定改变最终决策权边界",
+        "产品范围从个人 Paper 系统转变为具有不同法律与责任结构的系统"
+      ]
+    },
+    {
+      "id": "DA-010",
+      "topic": "threat_model_and_assurance_claim_boundary",
+      "decision": "V1 只在设定的个人本地协作威胁模型下主张篡改发现、职责分离和可审计来源；不主张绝对不可篡改、组织级独立，也不抵御拥有同一 OS 用户全部权限并重写所有状态的恶意主体。",
+      "authority": "technical_derived",
+      "status": "derived_candidate_v1_not_human_confirmed",
+      "sources": [
+        {
+          "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+          "line_start": 211,
+          "line_end": 211,
+          "excerpt": "本地拥有全部文件权限的人理论上可以同时重写数据库、锚和 Git 历史。因此产品只承诺“在设定威胁模型下具备篡改发现能力”，不宣称绝对不可篡改。",
+          "excerpt_sha256": "b26b4bd13efb167827377184e47c6a2b806e4812fd51d2a77401750b91979741"
+        }
+      ],
+      "rationale": "证明范围必须服从当前机制真正能观察和验证的能力，不能把内容哈希、平台上下文隔离或本地权限扩大为不存在的密码学身份与组织独立。",
+      "reversibility": {
+        "class": "monotonic_assurance_upgrade",
+        "human_confirmation_required": false,
+        "notes": "可以通过外部签名、独立身份或更强运行边界缩小剩余风险；没有新机制和证据时不能扩大保障主张。"
+      },
+      "reopen_trigger": [
+        "进入真实资金、多用户、商业化或远程部署",
+        "引入可验证的独立签名主体、硬件信任根或组织级职责分离",
+        "发现当前威胁模型遗漏会改变 Paper V1 安全结论的攻击者能力"
+      ]
+    },
+    {
+      "id": "DA-011",
+      "topic": "residual_privacy_and_security_risk_acceptance",
+      "decision": "目的卷加密状态未知或未保护等残余风险当前没有被视为 Javen 已接受；需要接受时必须由 Javen 在项目文件之外明确完成，AI 或 builder 不能代签。",
+      "authority": "human_only_required",
+      "status": "unset_human_only_blocking",
+      "sources": [
+        {
+          "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+          "line_start": 485,
+          "line_end": 485,
+          "excerpt": "V1 不自造应用层加密，也不声称能恢复应用从未持有的 OS/FileVault 密钥。目的卷加密状态未知或未保护时，阻断 personal acceptance，除非 Javen 在项目文件之外明确接受该残余风险。日志和公开导出只允许 allowlist 字段，token、session secret 与人工确认材料在持久化前脱敏；完整私人导出要求 authenticated human action。",
+          "excerpt_sha256": "d53d36c97ecf4686a858a0f1a9ca86dd9c042f2fde2b8e8cf372fbc8a143f517"
+        }
+      ],
+      "rationale": "残余风险接受是个人价值和后果承担，不是技术系统可以从缺失证据推导出的默认同意。",
+      "reversibility": {
+        "class": "human_explicit_acceptance_or_control_upgrade",
+        "human_confirmation_required": true,
+        "notes": "可以由更强保护消除阻塞，或由 Javen 对具体、列明的残余风险作项目外明确接受；泛化或永久接受无效。"
+      },
+      "reopen_trigger": [
+        "personal acceptance 被加密状态阻塞",
+        "备份目的地、权限、同步边界或保护机制变化",
+        "Javen 要求评估并明确接受一项具体残余风险"
+      ]
+    },
+    {
+      "id": "DA-012",
+      "topic": "historical_strategy_edge_claim_policy",
+      "decision": "V1 不从历史数据给出“策略优势通过/失败”或优势概率；历史与留出结果最多支持纸面前推，不能升级为真实资金或可交易优势证明。",
+      "authority": "technical_derived",
+      "status": "claim_blocked_no_threshold",
+      "sources": [
+        {
+          "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+          "line_start": 417,
+          "line_end": 417,
+          "excerpt": "首期记录全部试验、有效样本信息、依赖假设和不确定性，但不从历史数据输出“策略优势通过/失败”或自己无法可靠校准的“策略有效概率”。历史结果最多是 `historically_unpromising`、`historically_promising_but_unproved` 或 `contested`；决定性纵向状态只能等待预注册未来窗口关闭。留出通过只能成为继续纸面前推的证据，不能直接升级为真实资金。",
+          "excerpt_sha256": "2d721966a8894fcb78a74be1a9b2e8aeb2d0dad3436a67081c11aeff4f36a9cc"
+        }
+      ],
+      "rationale": "历史多重选择、AI 预训练污染、样本依赖和回测不等于实盘可实现性，使任何单一历史阈值都不足以证明 edge。",
+      "reversibility": {
+        "class": "evidence_monotonic_claim_policy",
+        "human_confirmation_required": false,
+        "notes": "只有预注册未来纸面窗口关闭、统计方法与全部试验谱系可审计且独立审查成立时，才可提出更强的候选主张；真实资金仍需单独人工授权。"
+      },
+      "reopen_trigger": [
+        "预注册未来纸面窗口已经关闭且原始数据完整",
+        "独立统计审查提出可复核的 claim rule",
+        "新的污染、依赖或多重选择证据使现有边界需要进一步收紧"
+      ]
+    },
+    {
+      "id": "DA-013",
+      "topic": "future_numeric_strategy_edge_threshold",
+      "decision": "当前没有采用任何数值化策略 edge 通过门槛、优势概率阈值、最小未来样本或可进入真实资金的阈值；未来如需设置，必须在结果可见前由 Javen 明确确认并预注册。",
+      "authority": "human_only_required",
+      "status": "unset_human_only_blocking",
+      "sources": [
+        {
+          "path": "AI_COLLABORATION_METHOD.md",
+          "line_start": 19,
+          "line_end": 19,
+          "excerpt": "- 让 AI 保持在授权范围内；高影响决定和最终验收保留在人。",
+          "excerpt_sha256": "8c4ae7de9449a5f2e463c9fcce1aa875d9140af75f5d93b8005f740efadeb9b7"
+        },
+        {
+          "path": "PROJECT_CHARTER.md",
+          "line_start": 58,
+          "line_end": 58,
+          "excerpt": "- 历史检验采用哪些指标、基准和通过门槛。",
+          "excerpt_sha256": "11299282f8c169a8ecf17cd711925a0e831a30a2a5d3c63e533aea8eac126ea1",
+          "context": "该条位于“尚未决定的关键问题”下，证明当前没有人工确认的通过门槛。"
+        }
+      ],
+      "rationale": "阈值同时表达证据标准、错误代价和个人风险偏好；技术研究可以提出方案，但不能把未确认方案写成 Javen 的投资授权。",
+      "reversibility": {
+        "class": "human_preregistered_claim_contract",
+        "human_confirmation_required": true,
+        "notes": "阈值只能在对应未来窗口和结果可见前冻结；结果可见后修改必须开启新的实验家族版本或新窗口，不能追认旧结果。"
+      },
+      "reopen_trigger": [
+        "Javen 决定启动策略 edge 的前瞻性评估",
+        "独立统计方案明确主指标、错误控制、样本依赖、停止规则和最小未来窗口",
+        "任何人提出从 Paper 或历史结果升级到真实资金"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "purpose": "定义设计冻结语义审查必须直接读取并核对的根事实、方法、研究主体、规范契约和威胁模型；不能只审查由这些依据派生的治理摘要。",
+  "selection_rules": {
+    "artifact_sort": "path_lexicographic_ascending",
+    "hash_algorithm": "sha256_file_bytes",
+    "path_base": "scope=project uses the investment-discipline-system root; scope=repository uses the Git top-level",
+    "required_semantics": "required=true 表示该路径必须存在、SHA-256 必须匹配当前候选，而且语义审查的 reviewed_files 必须包含它。",
+    "research_expansion": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json 的全部 primary_artifacts 必须逐项出现在 artifacts 中并使用相同 path/sha256。",
+    "self_reference": "本清单不把自身放入 artifacts，避免递归哈希；它必须由上层冻结文件边界和 frozen bundle 单独内容寻址。"
+  },
+  "excluded_categories": [
+    {
+      "category": "implementation_and_verifier_scope",
+      "examples": [
+        "acceptance/",
+        "governance_tests/",
+        "scripts/",
+        "src/",
+        "tests/",
+        "web/"
+      ],
+      "reason": "这些路径由实施目标和代码审查范围单独自动展开；本清单只定义语义 ground truth，不能替代实现、测试和验证器审查。"
+    },
+    {
+      "category": "mutable_project_state",
+      "examples": [
+        "LOOP_RUN_LOG.md",
+        "ROADMAP.md",
+        "STATUS.md",
+        "TASK_BOARD.md"
+      ],
+      "reason": "这些文件表达当前进度或计划，会随工作推进变化，不作为设计语义的内容寻址根事实。"
+    },
+    {
+      "category": "runtime_outputs_and_private_state",
+      "examples": [
+        "backups/",
+        "evidence/",
+        "prototype/data/runs/",
+        "runtime SQLite databases"
+      ],
+      "reason": "运行结果、条件证据、备份和私人状态有独立候选绑定、保密、保留和恢复规则，不进入设计 ground-truth 清单。"
+    },
+    {
+      "category": "self_reference",
+      "examples": [
+        "governance/GROUND_TRUTH_MANIFEST_V1.json"
+      ],
+      "reason": "自包含 SHA-256 会形成递归；清单本身由外层冻结包寻址。"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4702e67a59ad61d24170449bce98ba428e26d4f6553d73ee69e12aa6ea45e817",
+      "role": "project_work_rules_and_safety_boundary",
+      "required": true
+    },
+    {
+      "path": "AI_COLLABORATION_METHOD.md",
+      "sha256": "2351a0bbd9f5f7449feec7aee4cb3a7046438c26b293a26ffb5af30c84f09cfb",
+      "role": "ai_collaboration_method",
+      "required": true
+    },
+    {
+      "path": "DECISIONS.md",
+      "sha256": "db6734d68a04c953cb34c2066873d1b7f5aaee40253c27a2a8b436860af5fce7",
+      "role": "human_confirmed_decision_log_and_open_decisions",
+      "required": true
+    },
+    {
+      "path": "EVIDENCE_GOVERNED_AI_SYSTEM.md",
+      "sha256": "384407d4e61159003bfabb50a98e980cea925e0b8b30a577b28f2a292784975a",
+      "role": "evidence_governance_method",
+      "required": true
+    },
+    {
+      "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+      "sha256": "6a173a81dda9c1c749e140c93d70fdb12a3477bdf5f80710ef387afbdb40d3d3",
+      "role": "normative_product_blueprint_and_primary_research_artifact",
+      "required": true
+    },
+    {
+      "path": "PROJECT_CHARTER.md",
+      "sha256": "3ea9139f8647119cafbbce05404b77c50afcd688a5731a315032eb41b1201ca8",
+      "role": "root_project_intent_scope_and_success_criteria",
+      "required": true
+    },
+    {
+      "path": "audits/DESIGN_FREEZE_ASSURANCE_REVIEW_ROUND6_2026-07-25.md",
+      "sha256": "95809fe12e2397e5e15830c47649019551ccf070a6c5004fe4515dbcd50443a7",
+      "role": "independent_challenge_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md",
+      "sha256": "cf2b936632c2fb07bbf5bfc57db39490e92f9236293c7796a5e76315a3d63ffa",
+      "role": "independent_challenge_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND3_2026-07-25.json",
+      "sha256": "7561a43724d3b731bb07bf1bde91f2a34bb7e78ac0917bfc0ab17a9adcd0f627",
+      "role": "independent_challenge_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "audits/DESIGN_FREEZE_FOCUSED_REVIEW_ROUND3B_2026-07-25.md",
+      "sha256": "5de7b26415d43c96a85bcbf83b894935f9486879ec8df4d2f6756cb1a184f583",
+      "role": "independent_challenge_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "audits/DESIGN_FREEZE_MECHANISM_REVIEW_ROUND4_2026-07-25.md",
+      "sha256": "4d4d38d4e641ae6ebee1ab809f3edd53345cca0cfd3289458962d5f34c5c59c3",
+      "role": "independent_challenge_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md",
+      "sha256": "13b44dac90560a5ef810844692e3018e106a4bce8d149a365c20b19d80ee72d0",
+      "role": "independent_challenge_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "audits/EXISTING_SYSTEM_AUDIT_2026-07-25.md",
+      "sha256": "7e25e31a24c0b90c59d2f1a1ccc0674025274b63df18d4b98147f7dd7dd66734",
+      "role": "project_adversarial_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "governance/ACCEPTANCE_CASES_V1.json",
+      "sha256": "c210c741af2c0d313464e5c859552c5039c0b4ce8f9cffb78e24b915738c55c0",
+      "role": "acceptance_case_contract",
+      "required": true
+    },
+    {
+      "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
+      "sha256": "7164a01fbc27e7e1bd3fb6abaaee960517203baf187f2a7461167a79270dadb0",
+      "role": "top_level_acceptance_contract",
+      "required": true
+    },
+    {
+      "path": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+      "sha256": "60151a6965488bb191aaae39bb6235757b7587ddb0473a9d8022e771e0fc885a",
+      "role": "research_scope_coverage_and_primary_artifact_register",
+      "required": true
+    },
+    {
+      "path": "governance/ASSURANCE_SUBJECTS_V1.json",
+      "sha256": "f5fcd9d9467a4e1b56dae219ff195796281a419c4dbdac27e8c164eb8dcd2e92",
+      "role": "assurance_subjects_and_independence_threat_model",
+      "required": true
+    },
+    {
+      "path": "governance/ASSURANCE_TRUST_MODEL_V1.json",
+      "sha256": "765ef92367aa0f0a715cd09f22f088edda75b59e3b5a72761480509ae6882c62",
+      "role": "assurance_trust_and_provenance_threat_model",
+      "required": true
+    },
+    {
+      "path": "governance/DECISION_AUTHORITY_V1.json",
+      "sha256": "c54f93262755b413e56a7ef7ddcf33fc12a2b88da23c66e740d62298d0abbb57",
+      "role": "decision_authority_and_non_confirmation_contract",
+      "required": true
+    },
+    {
+      "path": "governance/FAILURE_CLASSES_V1.json",
+      "sha256": "1ab8dbdecf000fab7ad789778599c81902e4cdbdeafcc1d776515508a3a82fd9",
+      "role": "failure_class_coverage_and_gap_contract",
+      "required": true
+    },
+    {
+      "path": "governance/FIELD_USE_PROTOCOL_V1.json",
+      "sha256": "4251ca0b1fd4eaff63ff3e7cd44fac56c41ef4424f09d4aa2ff82370a4ed7a22",
+      "role": "human_onboarding_and_longitudinal_contract",
+      "required": true
+    },
+    {
+      "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
+      "sha256": "41c7062ef7f70fde663f267294a8d1a82dbbf9cdbb35d694468926ef544b85ea",
+      "role": "design_freeze_and_release_scope_contract",
+      "required": true
+    },
+    {
+      "path": "governance/MARKET_SIMULATION_POLICY_V1.json",
+      "sha256": "33dd6e81207ca2aeb35817f068f53d2a120ae35e40eae57a397d0095062cd721",
+      "role": "market_identity_causality_benchmark_and_edge_claim_contract",
+      "required": true
+    },
+    {
+      "path": "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json",
+      "sha256": "6e82b742e0860179c1c0621834c99a94f61b2b37ab4ca8ee56330689de33624b",
+      "role": "money_and_corporate_action_semantics_contract",
+      "required": true
+    },
+    {
+      "path": "governance/PRIVATE_DATA_POLICY_V1.json",
+      "sha256": "77897846ae2d782610f8731aca51228cc52eac14a2b9d5685143a660fd0b7f1e",
+      "role": "private_data_and_backup_threat_model_contract",
+      "required": true
+    },
+    {
+      "path": "governance/RESEARCH_SUFFICIENCY_V1.json",
+      "sha256": "f4b4b066887b576b0f6475606bfb5e35f077d6877fee88607a108016ccef4cc9",
+      "role": "research_sufficiency_and_stop_rule_receipt",
+      "required": true
+    },
+    {
+      "path": "governance/TRACEABILITY_V1.json",
+      "sha256": "54fbceee71122b4acada0089d6a588c86309ccab98a220f86cb0f75962e06fd8",
+      "role": "requirements_controls_verification_trace_contract",
+      "required": true
+    },
+    {
+      "path": "governance/USER_INTENT_V1.json",
+      "sha256": "89d776702d8d9bf69dcf90d179d70d6501f17c80e9b66282e82d3c77b94a9ba3",
+      "role": "machine_readable_user_intent",
+      "required": true
+    },
+    {
+      "path": "governance/USER_SOURCE_EXCERPTS_V1.json",
+      "sha256": "190a7e7283d7395d17c0de15153747c0ea894e801012f17dfc11107508cd8c3f",
+      "role": "non_circular_human_source_evidence",
+      "required": true
+    },
+    {
+      "path": "governance/VERIFICATION_SPECS_V1.json",
+      "sha256": "b81a8ad6b27a180fe0cb81ae3b92fd53ea5fa744ce78cb6c58d5aeef9f2e9f90",
+      "role": "verification_executor_oracle_and_evidence_contract",
+      "required": true
+    },
+    {
+      "path": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md",
+      "sha256": "a9e13be21de98e3c261eb38ae7f9ebd2d7704de9555b2d35ec4a943384a20002",
+      "role": "method_research_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "sha256": "06b1fa2978ab18149e77b3e346279515418d9b3d6ffc5c6ee333a2abcd04606b",
+      "role": "failure_map_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md",
+      "sha256": "e9bdfa24bda1676ec106636091bdb2f8e11c4412662d64b237a57db8da71a2c7",
+      "role": "assurance_trust_boundary_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
+      "sha256": "d94da3bc494fa6b5a2f1baa461a1fed1c0d04ed7184cf67c01054c3525556b0b",
+      "role": "data_and_paper_domain_boundary_primary_artifact",
+      "required": true
+    },
+    {
+      "path": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md",
+      "sha256": "d80e5ae2da9e3a91a8ddf933ac8f831f919a00b33e0b82ba4b4f8e54f10d081e",
+      "role": "open_source_reuse_primary_artifact",
+      "required": true
+    },
+    {
+      "path": ".github/workflows/investment-discipline-assurance.yml",
+      "scope": "repository",
+      "sha256": "39f34cd20de4a2612c3c3c1a333e9e361e57b6bc19b9a5877fb3737024c55d42",
+      "role": "externally_signed_machine_assurance_workflow",
+      "required": true
+    }
+  ]
+}
