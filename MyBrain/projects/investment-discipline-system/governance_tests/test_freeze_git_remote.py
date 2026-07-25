@@ -1304,7 +1304,10 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn(f"closure changed non-status content: {relative}", result.stdout)
+        self.assertIn(
+            f"closure changed immutable frozen file: {relative}",
+            result.stdout,
+        )
         self.assert_bundle_absent()
 
     def test_closure_rejects_chmod_smuggle(self) -> None:
