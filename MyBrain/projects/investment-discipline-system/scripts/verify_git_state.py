@@ -5,22 +5,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REQUIRED_NORMATIVE = (
-    "governance/USER_SOURCE_EXCERPTS_V1.json",
-    "governance/USER_INTENT_V1.json",
-    "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
-    "governance/ACCEPTANCE_CONTRACT_V1.json",
-    "governance/VERIFICATION_SPECS_V1.json",
-    "governance/TRACEABILITY_V1.json",
-    "governance/ASSURANCE_SUBJECTS_V1.json",
-    "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
-)
+PROJECT_ROOT = Path(
+    os.environ.get("IDS_PROJECT_ROOT", Path(__file__).resolve().parents[1])
+).resolve()
+CONTRACT = PROJECT_ROOT / "governance" / "ACCEPTANCE_CONTRACT_V1.json"
+FROZEN_BUNDLE_RELATIVE = "governance/FROZEN_BUNDLE_V1.json"
+FROZEN_BUNDLE = PROJECT_ROOT / FROZEN_BUNDLE_RELATIVE
 
 
 def git(*args: str) -> subprocess.CompletedProcess[str]:
@@ -41,8 +37,69 @@ def output(result: subprocess.CompletedProcess[str], label: str, errors: list[st
     return result.stdout.strip()
 
 
+def load_frozen_files(errors: list[str]) -> list[str]:
+    try:
+        contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        errors.append("governance acceptance contract is missing")
+        return []
+    except json.JSONDecodeError as exc:
+        errors.append(
+            "governance acceptance contract is invalid JSON: "
+            f"line {exc.lineno}, column {exc.colno}: {exc.msg}"
+        )
+        return []
+    if not isinstance(contract, dict):
+        errors.append("governance acceptance contract must be a JSON object")
+        return []
+    change_control = contract.get("change_control")
+    frozen_files = (
+        change_control.get("frozen_files") if isinstance(change_control, dict) else None
+    )
+    if not isinstance(frozen_files, list) or not frozen_files:
+        errors.append(
+            "contract change_control.frozen_files must be a nonempty string list"
+        )
+        return []
+
+    safe_files: list[str] = []
+    seen: set[str] = set()
+    for index, relative in enumerate(frozen_files):
+        if (
+            not isinstance(relative, str)
+            or not relative
+            or Path(relative).is_absolute()
+            or ".." in Path(relative).parts
+        ):
+            errors.append(f"contract frozen_files[{index}] has an unsafe path")
+            continue
+        if relative in seen:
+            errors.append(f"contract frozen_files contains duplicate path: {relative}")
+            continue
+        seen.add(relative)
+        safe_files.append(relative)
+    return safe_files
+
+
+def verify_versioned_file(
+    relative: str,
+    *,
+    label: str,
+    project_prefix: str,
+    errors: list[str],
+) -> None:
+    repo_relative = f"{project_prefix}{relative}"
+    tracked = git("ls-files", "--error-unmatch", "--", f":(top){repo_relative}")
+    if tracked.returncode != 0:
+        errors.append(f"{label} is not tracked: {relative}")
+    at_head = git("cat-file", "-e", f"HEAD:{repo_relative}")
+    if at_head.returncode != 0:
+        errors.append(f"{label} is absent from HEAD: {relative}")
+
+
 def verify(require_origin: bool, expected_commit: str | None) -> tuple[list[str], dict[str, str]]:
     errors: list[str] = []
+    frozen_files = load_frozen_files(errors)
     repo_root_text = output(git("rev-parse", "--show-toplevel"), "repo root", errors)
     head = output(git("rev-parse", "HEAD"), "HEAD", errors)
     tree = output(git("rev-parse", "HEAD^{tree}"), "HEAD tree", errors)
@@ -68,17 +125,20 @@ def verify(require_origin: bool, expected_commit: str | None) -> tuple[list[str]
     if diff_check.returncode != 0:
         errors.append(f"git diff --check failed:\n{diff_check.stdout}{diff_check.stderr}")
 
-    for relative in REQUIRED_NORMATIVE:
-        repo_relative = f"{prefix}{relative}"
-        tracked = git(
-            "ls-files", "--error-unmatch", "--", f":(top){repo_relative}"
+    for relative in frozen_files:
+        verify_versioned_file(
+            relative,
+            label="normative file",
+            project_prefix=prefix,
+            errors=errors,
         )
-        if tracked.returncode != 0:
-            errors.append(f"normative file is not tracked: {relative}")
-            continue
-        at_head = git("cat-file", "-e", f"HEAD:{repo_relative}")
-        if at_head.returncode != 0:
-            errors.append(f"normative file is absent from HEAD: {relative}")
+    if FROZEN_BUNDLE.exists():
+        verify_versioned_file(
+            FROZEN_BUNDLE_RELATIVE,
+            label="frozen bundle",
+            project_prefix=prefix,
+            errors=errors,
+        )
 
     upstream = ""
     if require_origin:

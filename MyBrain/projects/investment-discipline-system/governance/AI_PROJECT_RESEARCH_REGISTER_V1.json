@@ -228,14 +228,54 @@
     }
   ],
   "primary_artifacts": [
-    "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-    "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md",
-    "audits/EXISTING_SYSTEM_AUDIT_2026-07-25.md",
-    "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md",
-    "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
-    "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md",
-    "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md",
-    "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
+    {
+      "id": "ARTIFACT-AI-FAILURE-TAXONOMY",
+      "path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "sha256": "06b1fa2978ab18149e77b3e346279515418d9b3d6ffc5c6ee333a2abcd04606b",
+      "role": "failure_map"
+    },
+    {
+      "id": "ARTIFACT-AI-METHOD-REFRESH",
+      "path": "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md",
+      "sha256": "a9e13be21de98e3c261eb38ae7f9ebd2d7704de9555b2d35ec4a943384a20002",
+      "role": "method_research"
+    },
+    {
+      "id": "ARTIFACT-EXISTING-SYSTEM-AUDIT",
+      "path": "audits/EXISTING_SYSTEM_AUDIT_2026-07-25.md",
+      "sha256": "7e25e31a24c0b90c59d2f1a1ccc0674025274b63df18d4b98147f7dd7dd66734",
+      "role": "project_adversarial_evidence"
+    },
+    {
+      "id": "ARTIFACT-VIBE-TRADING-REVIEW",
+      "path": "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md",
+      "sha256": "d80e5ae2da9e3a91a8ddf933ac8f831f919a00b33e0b82ba4b4f8e54f10d081e",
+      "role": "open_source_reuse_review"
+    },
+    {
+      "id": "ARTIFACT-DATA-PAPER-BOUNDARY",
+      "path": "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
+      "sha256": "d94da3bc494fa6b5a2f1baa461a1fed1c0d04ed7184cf67c01054c3525556b0b",
+      "role": "domain_boundary_research"
+    },
+    {
+      "id": "ARTIFACT-CHALLENGE-R2",
+      "path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md",
+      "sha256": "cf2b936632c2fb07bbf5bfc57db39490e92f9236293c7796a5e76315a3d63ffa",
+      "role": "independent_challenge"
+    },
+    {
+      "id": "ARTIFACT-CHALLENGE-R2B",
+      "path": "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md",
+      "sha256": "13b44dac90560a5ef810844692e3018e106a4bce8d149a365c20b19d80ee72d0",
+      "role": "independent_challenge"
+    },
+    {
+      "id": "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
+      "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+      "sha256": "0cd033f04e38316db94ba377982af3fde2fb358e5808f23f7cd3f2414ccc8a80",
+      "role": "normative_blueprint"
+    }
   ],
   "challenge": {
     "status": "in_progress",
@@ -277,6 +317,7 @@
         "reviewer_subjects": ["SUBJECT-DESIGN-REVIEW-GOODALL-R2"],
         "result": "blocked_freeze",
         "evidence_path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md",
+        "evidence_sha256": "cf2b936632c2fb07bbf5bfc57db39490e92f9236293c7796a5e76315a3d63ffa",
         "new_architecture_changing_classes": ["RC-18", "RC-19", "RC-20", "RC-21", "RC-22"],
         "critical_findings": [
           "结构化 verification 标签仍可容纳 always-pass oracle、空负例和不存在的 selector/target",
@@ -302,6 +343,7 @@
         "reviewer_subjects": ["SUBJECT-DESIGN-REVIEW-BANACH-R2B"],
         "result": "blocked_freeze",
         "evidence_path": "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md",
+        "evidence_sha256": "13b44dac90560a5ef810844692e3018e106a4bce8d149a365c20b19d80ee72d0",
         "new_architecture_changing_classes": [],
         "critical_findings": [
           "候选阶段规则、结果 schema 和冻结边界与治理校验器不一致",

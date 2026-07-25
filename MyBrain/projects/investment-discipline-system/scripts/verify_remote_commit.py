@@ -38,6 +38,30 @@ def checked(cwd: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
+def resolve_branch(remote: str, requested_branch: str | None) -> str:
+    if requested_branch:
+        branch = requested_branch
+    else:
+        upstream = checked(
+            PROJECT_ROOT,
+            "rev-parse",
+            "--abbrev-ref",
+            "--symbolic-full-name",
+            "@{upstream}",
+        )
+        remote_prefix = f"{remote}/"
+        if not upstream.startswith(remote_prefix):
+            raise RuntimeError(
+                f"upstream {upstream!r} does not belong to requested remote {remote!r}; "
+                "pass --branch explicitly"
+            )
+        branch = upstream[len(remote_prefix) :]
+    valid = git(PROJECT_ROOT, "check-ref-format", "--branch", branch)
+    if valid.returncode != 0:
+        raise RuntimeError(f"invalid remote branch: {branch!r}")
+    return branch
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--commit", required=True)
@@ -52,19 +76,23 @@ def main() -> int:
     errors: list[str] = []
     facts: dict[str, str | bool] = {"requested_commit": args.commit}
     try:
-        upstream = checked(
-            PROJECT_ROOT,
-            "rev-parse",
-            "--abbrev-ref",
-            "--symbolic-full-name",
-            "@{upstream}",
-        )
-        branch = args.branch or upstream.removeprefix(f"{args.remote}/")
+        branch = resolve_branch(args.remote, args.branch)
         ref = f"refs/heads/{branch}"
         observed = checked(PROJECT_ROOT, "ls-remote", "--heads", args.remote, ref)
-        fields = observed.split()
-        remote_commit = fields[0] if len(fields) >= 2 and fields[1] == ref else ""
-        facts.update({"remote": args.remote, "branch": branch, "ref": ref, "remote_commit": remote_commit})
+        matching_lines = [
+            line.split()
+            for line in observed.splitlines()
+            if len(line.split()) == 2 and line.split()[1] == ref
+        ]
+        remote_commit = matching_lines[0][0] if len(matching_lines) == 1 else ""
+        facts.update(
+            {
+                "remote": args.remote,
+                "branch": branch,
+                "ref": ref,
+                "remote_commit": remote_commit,
+            }
+        )
         if remote_commit != args.commit:
             errors.append(
                 f"remote_commit_mismatch: expected {args.commit}, got {remote_commit or '<missing>'}"
@@ -88,7 +116,9 @@ def main() -> int:
                         f"fresh_clone_failed: {clone.stderr.strip() or clone.stdout.strip()}"
                     )
                 else:
-                    cloned_commit = checked(clone_root, "rev-parse", args.commit)
+                    cloned_commit = checked(
+                        clone_root, "rev-parse", f"{args.commit}^{{commit}}"
+                    )
                     cloned_tree = checked(clone_root, "rev-parse", f"{args.commit}^{{tree}}")
                     facts.update(
                         {

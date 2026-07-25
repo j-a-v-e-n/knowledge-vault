@@ -48,7 +48,8 @@
       "write_access_used": false,
       "participated_in_candidate_construction": false,
       "verdict": "blocked_freeze",
-      "evidence_path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md"
+      "evidence_path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md",
+      "evidence_sha256": "cf2b936632c2fb07bbf5bfc57db39490e92f9236293c7796a5e76315a3d63ffa"
     },
     {
       "id": "SUBJECT-DESIGN-REVIEW-SAGAN-R2-FAILED",
@@ -67,7 +68,8 @@
       "write_access_used": false,
       "participated_in_candidate_construction": false,
       "verdict": "blocked_freeze",
-      "evidence_path": "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md"
+      "evidence_path": "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md",
+      "evidence_sha256": "13b44dac90560a5ef810844692e3018e106a4bce8d149a365c20b19d80ee72d0"
     },
     {
       "id": "SUBJECT-JAVEN",

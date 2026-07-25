@@ -1420,6 +1420,27 @@ def verify_assurance_subjects(
                     errors.append(f"{subject_id} design reviewer is not independent")
                 if subject.get("write_access_used") is not False:
                     errors.append(f"{subject_id} design reviewer used write access")
+                evidence_path = subject.get("evidence_path")
+                if evidence_path is not None:
+                    if (
+                        not isinstance(evidence_path, str)
+                        or Path(evidence_path).is_absolute()
+                        or ".." in Path(evidence_path).parts
+                        or not (PROJECT_ROOT / evidence_path).is_file()
+                    ):
+                        errors.append(
+                            f"{subject_id} design reviewer evidence path is invalid"
+                        )
+                    else:
+                        evidence_hash = subject.get("evidence_sha256")
+                        if (
+                            not isinstance(evidence_hash, str)
+                            or not re.fullmatch(r"[0-9a-f]{64}", evidence_hash)
+                            or sha256(PROJECT_ROOT / evidence_path) != evidence_hash
+                        ):
+                            errors.append(
+                                f"{subject_id} design reviewer evidence sha256 mismatch"
+                            )
     if not builders:
         errors.append("assurance subjects has no builder")
     if not human_owners:
@@ -1496,19 +1517,52 @@ def verify_research_register(
                 errors.append(f"research search_log[{index}] is incomplete")
 
     artifacts = research.get("primary_artifacts")
-    if (
-        not isinstance(artifacts, list)
-        or not artifacts
-        or not all(isinstance(item, str) for item in artifacts)
-        or len(artifacts) != len(set(artifacts))
-    ):
-        errors.append("research primary_artifacts must be a nonempty unique string list")
-    else:
-        for relative in artifacts:
-            if Path(relative).is_absolute() or ".." in Path(relative).parts:
-                errors.append(f"research primary artifact has unsafe path: {relative}")
-            elif not (PROJECT_ROOT / relative).is_file():
+    artifact_ids = unique_ids(artifacts, "research primary artifacts", errors)
+    expected_artifact_ids = {
+        "ARTIFACT-AI-FAILURE-TAXONOMY",
+        "ARTIFACT-AI-METHOD-REFRESH",
+        "ARTIFACT-EXISTING-SYSTEM-AUDIT",
+        "ARTIFACT-VIBE-TRADING-REVIEW",
+        "ARTIFACT-DATA-PAPER-BOUNDARY",
+        "ARTIFACT-CHALLENGE-R2",
+        "ARTIFACT-CHALLENGE-R2B",
+        "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
+    }
+    if artifact_ids != expected_artifact_ids:
+        errors.append(
+            "research primary artifact ids differ: "
+            f"missing={sorted(expected_artifact_ids - artifact_ids)}, "
+            f"extra={sorted(artifact_ids - expected_artifact_ids)}"
+        )
+    artifact_paths: set[str] = set()
+    if isinstance(artifacts, list):
+        for artifact in artifacts:
+            if not isinstance(artifact, dict):
+                continue
+            artifact_id = artifact.get("id", "<unknown>")
+            relative = artifact.get("path")
+            expected_hash = artifact.get("sha256")
+            if (
+                not isinstance(relative, str)
+                or Path(relative).is_absolute()
+                or ".." in Path(relative).parts
+            ):
+                errors.append(f"{artifact_id} research artifact has unsafe path")
+                continue
+            if relative in artifact_paths:
+                errors.append(f"duplicate research primary artifact path: {relative}")
+            artifact_paths.add(relative)
+            path = PROJECT_ROOT / relative
+            if not path.is_file():
                 errors.append(f"research primary artifact is missing: {relative}")
+            elif (
+                not isinstance(expected_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", expected_hash)
+                or sha256(path) != expected_hash
+            ):
+                errors.append(f"{artifact_id} research artifact sha256 mismatch")
+            if not isinstance(artifact.get("role"), str) or not artifact.get("role"):
+                errors.append(f"{artifact_id} research artifact role is missing")
 
     challenge = research.get("challenge")
     if not isinstance(challenge, dict):
@@ -1553,6 +1607,14 @@ def verify_research_register(
                 or not (PROJECT_ROOT / evidence_path).is_file()
             ):
                 errors.append(f"{round_id} challenge evidence path is invalid")
+            else:
+                evidence_sha256 = challenge_round.get("evidence_sha256")
+                if (
+                    not isinstance(evidence_sha256, str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", evidence_sha256)
+                    or sha256(PROJECT_ROOT / evidence_path) != evidence_sha256
+                ):
+                    errors.append(f"{round_id} challenge evidence sha256 mismatch")
         new_classes = challenge_round.get("new_architecture_changing_classes")
         if not isinstance(new_classes, list) or not all(
             isinstance(item, str) for item in new_classes
