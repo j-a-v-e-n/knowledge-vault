@@ -51,12 +51,20 @@ jobs:
           --output evidence/ci/assurance-manifest.json
 
       - name: Attest the assurance manifest
+        if: >-
+          ${{ always() &&
+          hashFiles('MyBrain/projects/investment-discipline-system/evidence/ci/assurance-manifest.json')
+          != '' }}
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
         with:
           subject-path: >-
             ${{ env.IDS_PROJECT }}/evidence/ci/assurance-manifest.json
 
       - name: Upload the assurance manifest
+        if: >-
+          ${{ always() &&
+          hashFiles('MyBrain/projects/investment-discipline-system/evidence/ci/assurance-manifest.json')
+          != '' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: investment-discipline-assurance-manifest

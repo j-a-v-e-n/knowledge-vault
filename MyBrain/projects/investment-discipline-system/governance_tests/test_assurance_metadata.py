@@ -273,6 +273,26 @@ class AssuranceMetadataMutationTests(unittest.TestCase):
             "local attestation verification policy differs"
         )
 
+    def test_rejects_dropping_failed_manifest_preservation(self) -> None:
+        workflow = self.repository / WORKFLOW_PATH
+        workflow_text = workflow.read_text(encoding="utf-8")
+        self.assertEqual(workflow_text.count("always()"), 2)
+        workflow.write_text(
+            workflow_text.replace("always()", "success()", 1),
+            encoding="utf-8",
+        )
+        trust = self.read_document(TRUST_MODEL)
+        machine = trust["trust_roots"]["github_actions_machine_execution"]
+        machine["workflow_sha256"] = hashlib.sha256(
+            workflow.read_bytes()
+        ).hexdigest()
+        self.write_document(TRUST_MODEL, trust)
+        self.refresh_manifest_entries(TRUST_MODEL, WORKFLOW_PATH)
+        self.assert_rejected(
+            "failed assurance manifests must still be preserved by step "
+            "Attest the assurance manifest"
+        )
+
     def test_rejects_unpinned_action_reference(self) -> None:
         workflow = self.repository / WORKFLOW_PATH
         workflow_text = workflow.read_text(encoding="utf-8")

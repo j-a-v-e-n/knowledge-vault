@@ -76,26 +76,55 @@ def execute_check(
     *,
     cwd: Path = PROJECT_ROOT,
     parse_json: bool = False,
+    timeout_seconds: int = 300,
 ) -> dict[str, Any]:
-    completed = subprocess.run(
-        argv,
-        cwd=cwd,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        check=False,
+    print(
+        json.dumps(
+            {
+                "check_id": check_id,
+                "phase": "started",
+                "timeout_seconds": timeout_seconds,
+            },
+            sort_keys=True,
+        ),
+        file=sys.stderr,
+        flush=True,
     )
-    stdout = completed.stdout
+    timed_out = False
+    try:
+        completed = subprocess.run(
+            argv,
+            cwd=cwd,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+            timeout=timeout_seconds,
+        )
+        process_exit = completed.returncode
+        stdout = completed.stdout
+    except subprocess.TimeoutExpired as exc:
+        timed_out = True
+        process_exit = 124
+        captured = exc.stdout or ""
+        if isinstance(captured, bytes):
+            captured = captured.decode("utf-8", errors="replace")
+        stdout = (
+            captured
+            + f"\nassurance check timed out after {timeout_seconds} seconds\n"
+        )
     record: dict[str, Any] = {
         "check_id": check_id,
         "argv": normalize_argv(argv),
         "cwd": (
             "PROJECT_ROOT" if cwd == PROJECT_ROOT else "REPOSITORY_ROOT"
         ),
-        "actual_process_exit": completed.returncode,
+        "timeout_seconds": timeout_seconds,
+        "timed_out": timed_out,
+        "actual_process_exit": process_exit,
         "stdout_sha256": sha256_bytes(stdout.encode("utf-8")),
         "stdout_tail": stdout[-4000:],
-        "result": "pass" if completed.returncode == 0 else "fail",
+        "result": "pass" if process_exit == 0 else "fail",
     }
     if parse_json:
         try:
@@ -109,6 +138,26 @@ def execute_check(
             or parsed.get("status") != "pass"
         ):
             record["result"] = "fail"
+    print(
+        json.dumps(
+            {
+                "actual_process_exit": process_exit,
+                "check_id": check_id,
+                "phase": "completed",
+                "result": record["result"],
+                "timed_out": timed_out,
+            },
+            sort_keys=True,
+        ),
+        file=sys.stderr,
+        flush=True,
+    )
+    if record["result"] != "pass":
+        print(
+            f"{check_id} failure output tail:\n{record['stdout_tail']}",
+            file=sys.stderr,
+            flush=True,
+        )
     return record
 
 
@@ -166,6 +215,7 @@ def main() -> int:
                 commit,
             ],
             parse_json=True,
+            timeout_seconds=600,
         ),
         execute_check(
             "CHECK-GOVERNANCE-REGRESSION",
@@ -178,6 +228,7 @@ def main() -> int:
                 "governance_tests",
                 "-v",
             ],
+            timeout_seconds=1200,
         ),
         execute_check(
             "CHECK-COMPILEALL",

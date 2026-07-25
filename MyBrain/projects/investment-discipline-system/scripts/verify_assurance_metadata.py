@@ -467,6 +467,32 @@ def verify_workflow_execution_boundary(path: Path, errors: list[str]) -> None:
             "trust workflow: checkout must disable persisted Git credentials"
         )
 
+    failure_manifest_locator = (
+        "hashFiles('MyBrain/projects/investment-discipline-system/"
+        "evidence/ci/assurance-manifest.json')"
+    )
+    for step_name in (
+        "Attest the assurance manifest",
+        "Upload the assurance manifest",
+    ):
+        step_match = re.search(
+            rf"^      - name: {re.escape(step_name)}\n"
+            r"(?P<body>(?:^        .*(?:\n|$))+)",
+            text,
+            re.M,
+        )
+        if step_match is None:
+            errors.append(
+                f"trust workflow: required step is missing: {step_name}"
+            )
+            continue
+        body = step_match.group("body")
+        if "always()" not in body or failure_manifest_locator not in body:
+            errors.append(
+                "trust workflow: failed assurance manifests must still be "
+                f"preserved by step {step_name}"
+            )
+
 
 def verify_trust_model(
     trust: dict[str, Any],

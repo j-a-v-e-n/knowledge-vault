@@ -204,7 +204,7 @@
     },
     {
       "path": "governance/ASSURANCE_TRUST_MODEL_V1.json",
-      "sha256": "79407461e708ad18b9be4c12e1926df232ca83074beab3f1a0ed7093778e3ec7",
+      "sha256": "562b3c0b9fcd7fd637cfab83fe7ed49b214423e6a833e2fde5c79c72e5ef40f1",
       "role": "assurance_trust_and_provenance_threat_model",
       "required": true
     },
@@ -331,7 +331,7 @@
     {
       "path": ".github/workflows/investment-discipline-assurance.yml",
       "scope": "repository",
-      "sha256": "b577990eeb0310acc6e8a148c5b09303d0c9a3129985c82befcf09902fe3c8f7",
+      "sha256": "06a70e8ebb0de918ad6113eac93259beebc014f1d29bb5926c112b39d6d47f41",
       "role": "externally_signed_machine_assurance_workflow",
       "required": true
     }
