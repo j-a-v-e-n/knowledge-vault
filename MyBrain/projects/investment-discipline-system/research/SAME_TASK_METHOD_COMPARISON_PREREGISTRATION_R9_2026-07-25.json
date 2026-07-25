@@ -1,0 +1,1075 @@
+{
+  "schema_version": 1,
+  "round_id": "SAME-TASK-METHOD-COMPARISON-R9",
+  "status": "preregistered_not_executed",
+  "created_at_utc": "2026-07-25T17:18:58Z",
+  "contains_execution_results": false,
+  "purpose": "在任何 R9 生成输出出现之前，冻结一次 ordinary wrapper 与 evidence-governed minimum-core wrapper 的完全同题、同语料、同模型配置、同资源上限比较。R9 只判断 minimum core 在本预注册适用范围内是否产生足以覆盖额外成本的可观察收益，不预设 governed 胜出。",
+  "predecessor_problem": {
+    "r7": "R7 的 ordinary baseline 与 governed report 回答了不同问题，因此输出差异不能归因于方法 wrapper，且成本记录不完整。",
+    "r8": "R8 可以继续关闭其原有研究问题，但不能在看到既有输出后补写一套比较规则并把它称为预注册的 same-task 证据。",
+    "r9_correction": "先固定一个任务、一个有限语料、一个共同输出契约、两个 wrapper、资源上限、盲法、rubric、哈希、失败规则和三态裁决，再允许任何生成运行开始。"
+  },
+  "decision_scope": {
+    "decision_supported_by_this_experiment": "是否把本文件定义的 minimum core 作为高影响、有限冻结语料、离线研究综合任务的实验性默认 wrapper。",
+    "not_supported": [
+      "governed 方法在开放网络、所有领域、所有模型或长期项目中普遍优于 ordinary",
+      "完整 R7 或 R8 治理流程已经证明成本有效",
+      "更多结构、更多文字、更多引用或更多维护对象本身代表质量更高",
+      "任何真实资金、真实交易、私人账户、供应商账户或产品完成结论"
+    ],
+    "adopt_scope_if_passed": "只采用本文件列出的 minimum core wrapper，并只用于与本实验相近的高影响、有限冻结语料、离线综合任务；超出范围必须重新验证。",
+    "reject_scope_if_failed": "不把 minimum core 设为该范围的默认 wrapper；ordinary 仍可胜出，治理步骤也不得因更复杂而自动保留。"
+  },
+  "preregistration_freeze": {
+    "execution_may_start_only_after": [
+      "包含本文件精确字节的 Git commit 已存在",
+      "本文件原始字节 sha256 已记录",
+      "执行绑定 manifest 已在看不到任何生成输出时冻结并记录 sha256",
+      "随机分配记录已封存且其 sha256 已记录"
+    ],
+    "immutable_after_first_output": [
+      "共同任务",
+      "语料及切片",
+      "两个 wrapper",
+      "输出契约",
+      "模型与资源相等规则",
+      "rubric 与权重",
+      "盲法",
+      "adopt、reject 和 bounded_incomplete 规则"
+    ],
+    "change_rule": "上述任一字段在任何生成输出出现后改变，R9 自动失效；只能新建后续 round，不得回填或覆盖本文件。",
+    "prior_material_rule": "R7、R8 的报告和审查只用于设计本预注册，禁止进入 R9 生成者或盲评者输入。"
+  },
+  "primary_design": {
+    "design_type": "single_preregistered_parallel_paired_same_task_two_arm_comparison",
+    "experimental_unit": "一对在隔离上下文中并行启动的生成 artifact",
+    "replicates_per_arm": 1,
+    "arms": [
+      "ordinary",
+      "minimum_core"
+    ],
+    "only_permitted_treatment_difference": "method_wrapper",
+    "held_equal": [
+      "共同任务及措辞",
+      "语料切片、顺序和字节",
+      "共同输出 schema",
+      "system prompt",
+      "模型 provider、exact model id、revision、sampling 与 seed 支持状态",
+      "上下文上限",
+      "工具与网络权限",
+      "输出 token 上限",
+      "总 token 上限",
+      "wall-time 上限",
+      "启动窗口",
+      "停止和失败处理"
+    ],
+    "known_limit": "单个 paired task 只能支持范围受限的操作决定，不构成跨任务统计普遍性证明。",
+    "why_not_two_equivalent_tasks": "成对不同任务会引入难以证明的任务等价性；本轮选择字节级同一任务和同一语料作为更强的局部控制。"
+  },
+  "common_task": {
+    "task_id": "R9-TASK-CA-PIT-01",
+    "task_class": "high_impact_finite_frozen_corpus_decision_synthesis",
+    "prompt": "你正在为一个个人、本地、paper-only、人工最终决策的投研纪律系统设计 V1 公司行动与 point-in-time 数据政策。只能使用随任务提供的冻结语料，不得联网、不得使用先验项目记忆、不得读取其他项目文件。请在 policy_a、policy_b、policy_c 或 bounded_incomplete 中选择一个结果，并给出可执行但不接入真实资金的政策合同。policy_a：把当前完全复权的历史序列作为权威决策输入，供应商 restatement 时覆盖旧值。policy_b：保存决策时点可见的原始或未复权观察，后续公司行动、修订和取消以带时间与谱系的事件追加，派生视图不得改写既有决策包。policy_c：V1 排除全部公司行动处理，并排除所有受影响历史。必须说明：决策时点输入规则；需要区分的时间语义；forward/reverse split、ordinary cash dividend、special cash dividend 的 V1 边界；adjusted 与 unadjusted 数据何时可用；修订与取消如何处理；最强反证；未知、失败关闭条件和重开触发器。不得把某一供应商的方法外推为普遍事实，不得把 paper 结果或当前复权数据当作真实可用性证明。",
+    "allowed_decisions": [
+      "policy_a",
+      "policy_b",
+      "policy_c",
+      "bounded_incomplete"
+    ],
+    "safety_invariants": [
+      "决策输入不得包含决策时点尚不可见的信息",
+      "后来的修订、取消或公司行动不得改写已经冻结的决策输入包",
+      "不得捏造语料没有给出的 provider availability、许可、延迟或覆盖能力",
+      "不得把 ordinary cash dividend、special cash dividend 与 split 当成同一会计事件",
+      "对价格水平信号使用事后复权历史时必须处理未来 split 信息泄漏风险",
+      "任何建议保持 paper-only，且人保留最终决定"
+    ],
+    "task_completion_condition": "返回符合共同输出契约的单个 JSON artifact；若固定语料不足以安全选择政策，必须选择 bounded_incomplete 并准确说明阻塞项。"
+  },
+  "frozen_corpus": {
+    "corpus_id": "R9-CORPUS-CA-PIT-01",
+    "corpus_type": "finite_frozen_public_derived_text_slices",
+    "network_expansion": "forbidden",
+    "private_data": "forbidden_and_absent",
+    "total_exposed_slice_bytes": 16512,
+    "manifest_root_algorithm": "sha256 of ASCII bytes: r9-corpus-manifest-v1 LF, then for each slice_id in ascending bytewise order: slice_id TAB slice_sha256 LF",
+    "manifest_root_sha256": "379ea29e5f981e6c014ba244c4970a66bd3c9f5ece8b4ac003db658015a2a4d1",
+    "slice_extraction_rule": {
+      "precondition": "完整 derived text 文件原始字节 sha256 必须匹配 source_document_sha256，且行分隔符为 LF。",
+      "algorithm": "以 LF 分割原始字节并保留每行终止符；按 1-based inclusive start_line 与 end_line 取连续行；不得转码、trim、补 header 或改变换行。",
+      "validation": "每个切片原始字节 sha256 必须匹配 slice_sha256；任一不匹配即不得执行。"
+    },
+    "sources": [
+      {
+        "source_id": "R9-SRC-CRSP",
+        "upstream_cluster_id": "CRSP-MARKET-INDEXES-METHODOLOGY-JULY-2026",
+        "source_title": "CRSP Market Indexes Methodology Guide",
+        "source_kind": "official_methodology_derived_text",
+        "source_document_path": "research/evidence/r8/RS-03/extracted/CRSP_Market_Indexes_Methodology_Guide_July_2026.txt",
+        "source_document_sha256": "7ea2c507913fbd728d14760d3c3ba29c03c3a95a8c0af1650b7d4d5b6f6c07e6",
+        "slices": [
+          {
+            "slice_id": "R9-C01",
+            "start_line": 2469,
+            "end_line": 2492,
+            "byte_count": 1565,
+            "slice_sha256": "097db8585544c152a9de7a81014eefea29a6925f582c43ea2dfda49de4ccb2b6",
+            "topic": "ordinary, return-of-capital, and special cash dividend treatment"
+          },
+          {
+            "slice_id": "R9-C02",
+            "start_line": 2621,
+            "end_line": 2632,
+            "byte_count": 1062,
+            "slice_sha256": "ddd4397aa2faa52abf15f83544baea55eea888455e69c3dde02bbbe03b6cc8e3",
+            "topic": "forward and reverse stock splits"
+          },
+          {
+            "slice_id": "R9-C03",
+            "start_line": 3334,
+            "end_line": 3352,
+            "byte_count": 689,
+            "slice_sha256": "a8cb3178c1c45a0be3782bc7e4b32a907720bc6d8b02932ee3ee1ffc714a52e1",
+            "topic": "price and total return calculation"
+          },
+          {
+            "slice_id": "R9-C04",
+            "start_line": 3945,
+            "end_line": 3953,
+            "byte_count": 788,
+            "slice_sha256": "d46711e9ce9458758c79554c915e3bebea4bb588b8be68a2ed6b706070bcf72a",
+            "topic": "restatement file naming and replacement behavior"
+          }
+        ]
+      },
+      {
+        "source_id": "R9-SRC-NYSE",
+        "upstream_cluster_id": "NYSE-CORPORATE-ACTIONS-SPEC-V3.2A",
+        "source_title": "NYSE Corporate Actions Client Specification v3.2a",
+        "source_kind": "official_exchange_specification_derived_text",
+        "source_document_path": "research/evidence/r8/RS-03/extracted/NYSE_CorporateActions_Client_Specification_v3.2a.txt",
+        "source_document_sha256": "57685fad3cdffe2650abc35e67bc998f0729c231b224ea3139e093aae5601ca0",
+        "slices": [
+          {
+            "slice_id": "R9-C05",
+            "start_line": 354,
+            "end_line": 389,
+            "byte_count": 2185,
+            "slice_sha256": "4ebd99e5ab633b640cf8bc6ccc370feb92d23ff3031b82962232e5644cf93bab",
+            "topic": "declared, announcement, ex, record, pay dates and dividend amount"
+          },
+          {
+            "slice_id": "R9-C06",
+            "start_line": 437,
+            "end_line": 489,
+            "byte_count": 2968,
+            "slice_sha256": "e398709167d0ca096a79df2a40fdc48f4898137a8e4005a52cb4c1c3360197f8",
+            "topic": "split ratio, due bills, cancellation, notes, and updated date"
+          }
+        ]
+      },
+      {
+        "source_id": "R9-SRC-FACTSET",
+        "upstream_cluster_id": "FACTSET-PIT-CONSENSUS-METHODOLOGY",
+        "source_title": "Accurately Backtesting Financial Models Through Point-in-Time Consensus Estimates",
+        "source_kind": "provider_methodology_derived_text",
+        "source_document_path": "research/evidence/r8/RS-03/extracted/FactSet_Accurately_Backtesting_Point_in_Time.txt",
+        "source_document_sha256": "9b11301006d0ef081e8eb4dc3d1ff71ee003d49c621e75f5bbdbfe70c1a9de57",
+        "slices": [
+          {
+            "slice_id": "R9-C07",
+            "start_line": 29,
+            "end_line": 35,
+            "byte_count": 526,
+            "slice_sha256": "bc307d183076775eabf921b605648a39f378b7152dd46071c5f85b8d0ed500d8",
+            "topic": "point-in-time snapshot boundary"
+          },
+          {
+            "slice_id": "R9-C08",
+            "start_line": 64,
+            "end_line": 103,
+            "byte_count": 1815,
+            "slice_sha256": "1caaccb0429fed0ff5b81286c6d3796883d1e9eee41a0e2e4df622420f4fe8dd",
+            "topic": "research date, input date, corrections, deletions, and timezone limits"
+          },
+          {
+            "slice_id": "R9-C09",
+            "start_line": 191,
+            "end_line": 200,
+            "byte_count": 939,
+            "slice_sha256": "93547174bfcd9e78d611364f39a6e7ee80a8c6eb28d2c57d384a9ecaf203cb5d",
+            "topic": "local-market snapshot update process"
+          }
+        ]
+      },
+      {
+        "source_id": "R9-SRC-DB",
+        "upstream_cluster_id": "DB-SEVEN-SINS-2014",
+        "source_title": "Seven Sins of Quantitative Investing",
+        "source_kind": "practitioner_research_counterexample_derived_text",
+        "source_document_path": "research/evidence/r8/RS-03/extracted/Deutsche_Bank_Seven_Sins_of_Quantitative_Investing.txt",
+        "source_document_sha256": "b225d39ce9c62e83b0210638fe7408c5696d445feb78900009c8788a5ae77e86",
+        "slices": [
+          {
+            "slice_id": "R9-C10",
+            "start_line": 669,
+            "end_line": 730,
+            "byte_count": 3521,
+            "slice_sha256": "662cdd722d6296625d7fd895b18c12bb46112c99201fc92a1d70814caf076960",
+            "topic": "split-adjustment look-ahead counterexample"
+          },
+          {
+            "slice_id": "R9-C11",
+            "start_line": 796,
+            "end_line": 802,
+            "byte_count": 454,
+            "slice_sha256": "bf23c3f1141e37797d2523c55dbe42fc5d138a7b5976bb1fe16e4d1e7c04271d",
+            "topic": "PIT, conservative lag, split-adjustment caution, and paper validation"
+          }
+        ]
+      }
+    ],
+    "source_independence_rule": "同一 source 的多个切片只算一个 upstream cluster；引用数量和切片数量不得当作独立证据数量。",
+    "mirror_rule": {
+      "mirror_count": 2,
+      "construction": "在生成启动前，从通过 hash 的切片构造两个只读隔离镜像；两个镜像的切片顺序、字节、neutral index 和 manifest root 必须完全相同。",
+      "access": "每个生成 arm 只能看到被随机分配的一个镜像；不能看到原项目目录、另一个镜像、R7/R8/R9 报告、memory 或 Git 历史。",
+      "equality_gate": "两个镜像 manifest_root_sha256 不同、出现额外文件或可跨镜像读取时，结果为 bounded_incomplete。"
+    }
+  },
+  "common_output_contract": {
+    "format": "one strict JSON object and no surrounding prose",
+    "schema_id": "R9-ANSWER-V1",
+    "required_top_level_fields": [
+      "schema_id",
+      "decision",
+      "decision_scope",
+      "executive_reason",
+      "claims",
+      "counterevidence",
+      "uncertainties",
+      "policy_contract",
+      "alternatives",
+      "reopen_triggers"
+    ],
+    "field_contracts": {
+      "schema_id": {
+        "const": "R9-ANSWER-V1"
+      },
+      "decision": {
+        "enum": [
+          "policy_a",
+          "policy_b",
+          "policy_c",
+          "bounded_incomplete"
+        ]
+      },
+      "decision_scope": {
+        "type": "string"
+      },
+      "executive_reason": {
+        "type": "string"
+      },
+      "claims": {
+        "type": "array",
+        "minimum_items": 4,
+        "maximum_items": 12,
+        "item_required_fields": [
+          "claim_id",
+          "statement",
+          "claim_type",
+          "citations",
+          "confidence",
+          "decision_effect"
+        ],
+        "claim_type_enum": [
+          "corpus_fact",
+          "inference",
+          "recommendation"
+        ],
+        "confidence_enum": [
+          "high",
+          "medium",
+          "low"
+        ],
+        "citation_required_fields": [
+          "slice_id",
+          "source_line_start",
+          "source_line_end",
+          "relation"
+        ],
+        "citation_relation_enum": [
+          "supports",
+          "limits",
+          "contradicts"
+        ]
+      },
+      "counterevidence": {
+        "type": "array",
+        "minimum_items": 1,
+        "item_required_fields": [
+          "challenge",
+          "citations",
+          "effect_on_decision"
+        ]
+      },
+      "uncertainties": {
+        "type": "array",
+        "minimum_items": 1,
+        "item_required_fields": [
+          "unknown",
+          "decision_impact",
+          "resolution_condition"
+        ],
+        "decision_impact_enum": [
+          "blocking",
+          "non_blocking"
+        ]
+      },
+      "policy_contract": {
+        "type": "object",
+        "required_fields": [
+          "decision_time_input_rule",
+          "time_semantics",
+          "supported_v1_actions",
+          "adjustment_rule",
+          "revision_and_cancellation_rule",
+          "failure_closed_conditions"
+        ]
+      },
+      "alternatives": {
+        "type": "array",
+        "minimum_items": 2,
+        "item_required_fields": [
+          "policy",
+          "reason_not_selected"
+        ]
+      },
+      "reopen_triggers": {
+        "type": "array",
+        "minimum_items": 1
+      }
+    },
+    "common_constraints": [
+      "不得输出 arm、wrapper、ordinary、governed、minimum core 或实验方法标签",
+      "不得引用 frozen corpus 之外的事实来源",
+      "每个 corpus_fact 必须至少有一个精确切片行号引用",
+      "inference 与 recommendation 必须和 corpus_fact 区分",
+      "不奖励篇幅、claim 数量、citation 数量、结构复杂度或自信语气"
+    ],
+    "invalid_json_handling": "保留原始字节且不修复、不重试；将其包装为统一的 blind failure envelope 供 reviewer 查看。invalid JSON 是 arm 的可观察方法失败，不自动使实验失效。"
+  },
+  "method_wrappers": {
+    "ordinary": {
+      "wrapper_id": "R9-WRAPPER-ORDINARY-V1",
+      "instructions": "使用你通常的最佳研究判断完成共同任务。只能使用挂载的冻结语料和共同输出契约；不得访问网络、项目历史、先前 R7/R8/R9 输出、memory、另一个 arm 或其他文件。答案必须在共同资源上限内完成；证据不足时选择 bounded_incomplete。不要创建共同输出以外的 sidecar，也不要在输出中提及本实验或方法标签。"
+    },
+    "minimum_core": {
+      "wrapper_id": "R9-WRAPPER-MINCORE-V1",
+      "instructions": "使用以下 minimum core 完成完全相同的共同任务和共同输出契约：先在内部固定问题、范围、备选政策和决定对象；逐一清点全部语料切片并按 upstream source 去重；区分 corpus fact、inference 和 recommendation；分别执行支持证据与最强反证检查；逐项核对每个会改变决定的 claim 与精确切片行号是否蕴含；显式记录未知、限制和 decision effect；提交前只执行一次矛盾与引用复核。只能使用挂载的冻结语料；不得访问网络、项目历史、先前 R7/R8/R9 输出、memory、另一个 arm 或其他文件。达到共同资源上限或仍有决定性缺口时选择 bounded_incomplete。不要创建共同输出以外的 sidecar，也不要在输出中提及本实验或方法标签。"
+    },
+    "minimum_core_components_under_test": [
+      "预先固定问题、范围、备选与决定对象",
+      "有限语料逐项清点和 upstream 去重",
+      "事实、推断和建议分离",
+      "支持与反证的对称检查",
+      "决定性原子 claim 的引用蕴含核对",
+      "未知、限制和 decision effect",
+      "一次最终矛盾与引用审计",
+      "固定预算和 bounded_incomplete 失败关闭"
+    ],
+    "fairness_rule": "共同任务、共同输出字段和安全边界对两臂完全相同；wrapper 长度与由此产生的 token、时间负担是 treatment 成本，不做 padding，也不从成本统计中扣除。"
+  },
+  "prompt_assembly": {
+    "system_message": "两个生成 arm 必须使用字节相同的 system prompt；其 sha256 写入执行绑定 manifest。",
+    "user_message_order": [
+      "共同任务的 canonical JSON projection",
+      "共同输出契约的 canonical JSON projection",
+      "占据相同位置的 arm-specific wrapper",
+      "按 slice_id 升序排列的 neutral corpus index 与切片原始字节"
+    ],
+    "neutral_corpus_header": "每个切片只显示 slice_id、source_id、upstream_cluster_id、source_title、原始 source line range 和正文；不显示 R7/R8 结论、query id、筛选决定或预期答案。",
+    "only_allowed_byte_difference": "arm-specific wrapper 的 wrapper_id 与 instructions；执行绑定 manifest 必须验证其余 prompt component hashes 相等。"
+  },
+  "execution_binding_contract": {
+    "timing": "必须在随机化、prompt 组装和任何生成调用前冻结；选择者不得看到未来输出。",
+    "model_selection_rule": "选择当时两个隔离上下文都能使用的一个 exact model 配置并固定；不得根据输出切换模型。若平台不能提供 exact model id，仍须记录平台显示的最精确 locator 与不可见 revision 限制；两个 arm 的 locator 或配置不相等即 bounded_incomplete。",
+    "required_fields": [
+      "execution_id",
+      "created_at_utc",
+      "preregistration_raw_sha256",
+      "corpus_manifest_root_sha256",
+      "provider",
+      "surface",
+      "exact_model_id",
+      "model_revision_or_null",
+      "model_revision_visibility",
+      "system_prompt_raw_sha256",
+      "sampling_parameters",
+      "seed_value_or_null",
+      "seed_support_status",
+      "context_limit_tokens",
+      "generation_budget",
+      "judge_model_locator",
+      "tool_policy",
+      "network_policy",
+      "runtime_manifest_raw_sha256"
+    ],
+    "same_model_gate": [
+      "provider 相同",
+      "surface 相同",
+      "exact_model_id 相同",
+      "model_revision_or_null 和 visibility 相同",
+      "system_prompt_raw_sha256 相同",
+      "sampling_parameters 相同",
+      "seed_value_or_null 与 seed_support_status 相同",
+      "context_limit_tokens 相同",
+      "无 fallback、路由切换或中途模型替换"
+    ],
+    "runtime_unknown_rule": "任何会妨碍判断两臂是否同模型同配置的缺失字段，在运行前不能关闭时，禁止启动；运行后才发现则 bounded_incomplete。"
+  },
+  "resource_budget": {
+    "generation_per_arm": {
+      "maximum_wall_time_seconds": 900,
+      "maximum_total_accounted_tokens": 24000,
+      "maximum_output_tokens": 4096,
+      "maximum_tool_calls": 0,
+      "maximum_network_calls": 0,
+      "maximum_retries": 0,
+      "maximum_manual_interventions_after_launch": 0
+    },
+    "judge_per_context": {
+      "judge_context_count": 2,
+      "maximum_wall_time_seconds": 900,
+      "maximum_total_accounted_tokens": 16000,
+      "maximum_output_tokens": 4096,
+      "maximum_tool_calls": 0,
+      "maximum_network_calls": 0,
+      "maximum_retries": 0
+    },
+    "maximum_experiment_accounted_tokens": 80000,
+    "budget_equality_rule": "两个生成 arm 的上限必须字节相同；实际耗用可以不同并作为成本结果记录。",
+    "budget_exhaustion_rule": "单个 arm 在正常服务下达到自己的 cap 是该方法的可观察失败并保留 partial output；共享基础设施或总实验预算在两份生成和两份评审完成前耗尽则 bounded_incomplete。"
+  },
+  "order_randomization_and_leakage_control": {
+    "launch_mode": "parallel",
+    "maximum_request_submission_skew_seconds": 60,
+    "allocator_nonce": "在 preregistration commit 后、任何 prompt 组装前，从本地 CSPRNG 生成 32 bytes；nonce 只写入封存分配记录，盲评完成前不交给 reviewer。",
+    "allocation_algorithm": [
+      "d = sha256 ASCII bytes of r9-allocation-v1 LF plus lowercase nonce hex plus LF",
+      "d 的最低有效 bit 决定 ordinary 使用 mirror_1 还是 mirror_2；minimum_core 使用另一个镜像",
+      "blind artifact id = ART- 加 sha256 ASCII bytes of r9-blind-id-v1 LF plus nonce hex LF plus arm internal id LF 的前 16 个大写十六进制字符",
+      "分配记录在启动前保存 raw sha256；方法到 artifact 的映射在两个 reviewer 输出冻结前保持封存"
+    ],
+    "generation_isolation": [
+      "两个全新上下文，不复用对话、memory、缓存摘要或工具状态",
+      "两个上下文不能彼此读取消息、trace、partial output 或 final output",
+      "只能收到自己的 wrapper、共同任务、共同输出契约和被分配镜像",
+      "不把一个 arm 的错误、问题或完成状态反馈给另一个 arm",
+      "不允许人工中途提示、澄清、修复或继续"
+    ],
+    "launch_failure_rule": "无法在启动偏差上限内并行提交、任何上下文继承先前项目内容、或发生跨臂输出泄漏，均停止并记 bounded_incomplete；不得改成事后顺序重跑。",
+    "model_learning_claim_boundary": "本设计只控制可观察上下文与输入泄漏，不声称证明平台权重、服务端缓存或组织层完全独立。"
+  },
+  "blinding_and_review": {
+    "quality_reviewers": 2,
+    "reviewer_independence": "每位 reviewer 使用未参与两个生成 arm 的全新独立上下文。该独立性只称 platform-observable separate context，不称组织独立、密码学身份或安全隔离。",
+    "reviewer_inputs": [
+      "共同任务",
+      "共同输出契约",
+      "完整 frozen corpus neutral package",
+      "预注册 rubric、reference anchors 和 scoring rule",
+      "两个仅以 blind artifact id 标识的原始或 failure-envelope artifact"
+    ],
+    "withheld_until_both_reviews_are_hashed": [
+      "方法标签与 wrapper 文本",
+      "arm 到 artifact 的映射",
+      "mirror 分配",
+      "生成提交顺序",
+      "token、时间和维护成本",
+      "生成上下文 locator 与 trace"
+    ],
+    "artifact_order": {
+      "reviewer_1": "blind artifact id bytewise ascending",
+      "reviewer_2": "blind artifact id bytewise descending"
+    },
+    "blindness_checks": [
+      "artifact 出现 explicit method label 时不是静默删除，而是记录 blind contamination；若能直接揭示映射则 bounded_incomplete",
+      "每位 reviewer 必须先冻结全部分数、理由和 critical error，再记录 method_guess 与 guess_confidence",
+      "方法猜测不改变已冻结分数",
+      "两个 reviewer 输出 raw sha256 均固定后才允许解封映射并做成本比较"
+    ],
+    "no_third_judge": "两个 reviewer 的预注册一致性门不满足时直接 bounded_incomplete，不追加第三 judge 或事后改 rubric。"
+  },
+  "reviewer_locator_schema": {
+    "type": "object",
+    "required_fields": [
+      "locator_schema_id",
+      "provider",
+      "surface",
+      "thread_or_context_id",
+      "run_id",
+      "exact_model_id",
+      "model_revision_or_null",
+      "context_created_at_utc",
+      "review_started_at_utc",
+      "review_completed_at_utc",
+      "reviewer_role",
+      "review_input_raw_sha256",
+      "blind_artifact_ids",
+      "prior_generation_participation",
+      "method_labels_visible",
+      "mapping_visible",
+      "resource_metrics_visible",
+      "receipt_locator"
+    ],
+    "field_constraints": {
+      "locator_schema_id": {
+        "const": "R9-REVIEWER-LOCATOR-V1"
+      },
+      "reviewer_role": {
+        "enum": [
+          "blind_quality_judge_1",
+          "blind_quality_judge_2"
+        ]
+      },
+      "prior_generation_participation": {
+        "const": false
+      },
+      "method_labels_visible": {
+        "const": false
+      },
+      "mapping_visible": {
+        "const": false
+      },
+      "resource_metrics_visible": {
+        "const": false
+      },
+      "receipt_locator": {
+        "description": "可恢复 reviewer 原始输出与平台可观察上下文的本地相对路径或平台 opaque locator；不得用角色名冒充身份保证。"
+      }
+    }
+  },
+  "deterministic_pre_review_checks": {
+    "checks": [
+      "raw output bytes 已保存并哈希",
+      "strict JSON parse 状态已记录，且没有自动修复",
+      "所有 required top-level fields 存在或记录 schema failure",
+      "decision 值属于 enum",
+      "每个 citation 的 slice_id 存在且行号落在该切片暴露的 source line range 内",
+      "没有 corpus 外 URL、source id 或项目文件 locator",
+      "每个 corpus_fact 至少有 citation",
+      "artifact 没有显式方法标签",
+      "两个 blind package 除 artifact 内容和 blind id 外使用相同任务、语料、rubric 与封装 schema"
+    ],
+    "role": "这些检查只提供确定性结构证据，不替代 reviewer 对事实、蕴含、反证、未知和决定质量的判断。",
+    "method_failure_rule": "输出无效、漏字段、越界引用、拒答、正常 timeout 或正常 token cap 均作为 arm 结果送审，不做修复或重跑。",
+    "experiment_failure_rule": "输入 hash、模型相等、隔离、盲法、基础设施或 reviewer package 相等性失败会破坏因果解释，直接 bounded_incomplete。"
+  },
+  "reference_anchors_for_judges": [
+    {
+      "anchor_id": "R9-ANCHOR-01",
+      "expected_observation": "ordinary cash dividend、return of capital 和 special cash dividend 在 CRSP 摘录中不是同一种 price-adjustment 处理。",
+      "locators": [
+        "R9-C01"
+      ],
+      "overclaim_to_reject": "把一个 index methodology 的处理直接写成所有账户、供应商或法律上普遍正确的唯一规则。"
+    },
+    {
+      "anchor_id": "R9-ANCHOR-02",
+      "expected_observation": "forward/reverse split 会成比例改变 shares 与 price，并在该 index 方法中被视为 capitalization neutral；这不等于历史复权价格在所有研究信号中无泄漏。",
+      "locators": [
+        "R9-C02",
+        "R9-C10"
+      ],
+      "overclaim_to_reject": "因为 split 对市值中性，就断言事后复权历史对价格水平信号没有未来信息。"
+    },
+    {
+      "anchor_id": "R9-ANCHOR-03",
+      "expected_observation": "NYSE 摘录区分 declared、announcement、ex、record、pay/effective、updated 与 cancelled 语义；这些字段本身没有证明数据何时被当前使用者取得。",
+      "locators": [
+        "R9-C05",
+        "R9-C06"
+      ],
+      "overclaim_to_reject": "把 event date、updated date 或 ex-date 自动等同于 user-visible availability 或 retrieval time。"
+    },
+    {
+      "anchor_id": "R9-ANCHOR-04",
+      "expected_observation": "FactSet 摘录展示 research date 与 input date 的差异、事后 corrections/deletions 的限制，以及按市场本地时间建立 PIT snapshot 的方法。",
+      "locators": [
+        "R9-C07",
+        "R9-C08",
+        "R9-C09"
+      ],
+      "overclaim_to_reject": "把该 provider 的 consensus snapshot 机制外推为所有价格、公司行动或供应商的已验证能力。"
+    },
+    {
+      "anchor_id": "R9-ANCHOR-05",
+      "expected_observation": "DB 摘录给出价格水平因子使用事后 split-adjusted history 时的 look-ahead 机制，并建议 PIT、保守 lag、谨慎选择 split adjustment 和 paper validation。",
+      "locators": [
+        "R9-C10",
+        "R9-C11"
+      ],
+      "overclaim_to_reject": "把该反例外推为 adjusted data 在所有收益计算、所有信号和所有时间都不可使用。"
+    },
+    {
+      "anchor_id": "R9-ANCHOR-06",
+      "expected_observation": "CRSP 摘录显示 restatement 可以发布新文件并让最新 restatement 成为官方记录；由此建议本地保留决策快照属于项目设计推断，而不是来源直接规定。",
+      "locators": [
+        "R9-C04"
+      ],
+      "overclaim_to_reject": "把来源自身的 replacement policy 错写成来源保证保留所有历史版本，或把 append-only 设计说成来源原文要求。"
+    }
+  ],
+  "evaluation_rubric": {
+    "score_scale": {
+      "minimum": 0,
+      "maximum": 4,
+      "generic_anchors": {
+        "0": "缺失、不可评估、伪造或与语料直接冲突",
+        "1": "存在会改变决定的重大缺陷",
+        "2": "可部分使用，但有实质缺口或边界不清",
+        "3": "强且可用，只有非决定性缺口",
+        "4": "在固定任务与语料范围内完整、精确且无已发现缺陷"
+      }
+    },
+    "quality_dimensions": [
+      {
+        "dimension_id": "factual_accuracy",
+        "weight": "0.20",
+        "definition": "所有决定相关 corpus facts 是否忠实于切片，是否区分来源事实与项目推断。",
+        "critical_error": "捏造来源、与切片矛盾、或把不存在的 provider 能力写成事实并改变政策。"
+      },
+      {
+        "dimension_id": "citation_entailment_and_precision",
+        "weight": "0.20",
+        "definition": "引用是否存在、行号有效、真正蕴含相邻 claim，且没有用同一 upstream 的多个切片制造独立性。",
+        "critical_error": "决定性 claim 无支持、引用不蕴含、越界 locator 或 corpus 外引用。"
+      },
+      {
+        "dimension_id": "counterevidence",
+        "weight": "0.15",
+        "definition": "是否提出固定语料中最强的反证或替代解释，并让它真实限制或改变建议，而非装饰性免责声明。",
+        "critical_error": "隐藏会改变政策的 split look-ahead、revision、cancellation 或时间语义反例。"
+      },
+      {
+        "dimension_id": "uncertainty_and_boundaries",
+        "weight": "0.15",
+        "definition": "是否准确区分已知、推断、未知、blocking 与 non-blocking，并限制 provider、时间、许可和 paper-only 外推。",
+        "critical_error": "把未验证 availability、许可、真实账户行为或长期有效性写成已知。"
+      },
+      {
+        "dimension_id": "decision_quality",
+        "weight": "0.20",
+        "definition": "选择是否与安全 invariants、证据、备选方案、失败关闭和 V1 可执行性一致；bounded_incomplete 在证据不足时可以获得最高分。",
+        "critical_error": "允许未来信息进入决策包、允许后验改写既有决策输入、或越过 paper-only 与人工最终决定。"
+      },
+      {
+        "dimension_id": "reproducibility",
+        "weight": "0.10",
+        "definition": "独立读者能否仅凭 artifact、slice id、行号、hash-bound corpus 和明确政策合同复核同一决定。",
+        "critical_error": "核心结论依赖未给出的来源、隐藏步骤或不可恢复 locator。"
+      }
+    ],
+    "quality_score_formula": "对每个 artifact，先对两位 reviewer 的每个 dimension 取算术平均，再计算 25 * sum(weight_decimal * mean_dimension_score)，结果保留两位小数；不得加入长度、引用数量或复杂度 bonus。",
+    "decision_critical_dimensions": [
+      "factual_accuracy",
+      "citation_entailment_and_precision",
+      "counterevidence",
+      "uncertainty_and_boundaries",
+      "decision_quality"
+    ],
+    "reviewer_required_per_dimension": [
+      "integer score from 0 through 4",
+      "artifact claim_id or exact output field locator",
+      "corpus slice locator when applicable",
+      "one concise reason",
+      "critical_error boolean"
+    ],
+    "inter_reviewer_consistency_gate": "任一 artifact 的任一 decision-critical dimension 两位 reviewer 相差超过 1 分，或两位对同一 finding 的 critical_error 判断冲突，则 bounded_incomplete；不追加 judge。",
+    "method_inference_check": "每位 reviewer 在分数冻结后记录 guessed_method 为 artifact_1、artifact_2 或 unknown，以及 low、medium、high confidence；该字段只检查盲法风险，不改变分数。"
+  },
+  "cost_and_maintenance_accounting": {
+    "capture_source": "由同一执行 harness 自动记录；生成者自报不作为成本证据。",
+    "time_fields": [
+      "request_submitted_monotonic",
+      "first_response_byte_monotonic_or_null",
+      "final_response_byte_monotonic_or_stop",
+      "end_to_end_wall_seconds",
+      "provider_reported_generation_seconds_or_null",
+      "queue_or_transport_seconds_or_null"
+    ],
+    "token_fields": [
+      "input_tokens",
+      "cached_input_tokens_or_null",
+      "output_tokens",
+      "reasoning_tokens_or_null",
+      "total_accounted_tokens",
+      "provider_token_receipt_locator"
+    ],
+    "maintenance_fields": [
+      "wrapper_utf8_byte_count",
+      "wrapper_input_tokens",
+      "arm_specific_operator_setup_seconds",
+      "manual_intervention_count",
+      "manual_normalization_seconds",
+      "method_specific_persistent_artifact_count_excluding_common_output_and_automatic_receipts",
+      "method_specific_required_operator_field_count",
+      "retry_count",
+      "failure_recovery_action_count"
+    ],
+    "shared_cost_fields_reported_but_not_allocated_to_one_arm": [
+      "preregistration_design_seconds",
+      "corpus_preparation_seconds",
+      "blind_review_seconds",
+      "deterministic_validation_seconds"
+    ],
+    "maintenance_claim_boundary": "本轮只能比较一次运行中可观察的边际维护代理指标，不能证明长期维护成本；该限制必须进入最终结果。",
+    "missing_metric_rule": "time、total_accounted_tokens 或 maintenance required fields 任一缺失且不能由冻结 raw receipt 恢复时，结果 bounded_incomplete。"
+  },
+  "hash_and_locator_protocol": {
+    "hash_algorithm": "SHA-256",
+    "hex_encoding": "lowercase",
+    "raw_bytes_are_authoritative": true,
+    "canonical_json_for_derived_hashes": "严格解析 JSON 后，以 UTF-8、递归 key bytewise ascending、无多余空白、末尾单个 LF 序列化；manifest 中不允许 NaN、Infinity、负零或浮点数，比例与小数阈值用字符串保存。",
+    "input_manifest_schema": {
+      "schema_id": "R9-RUN-INPUT-MANIFEST-V1",
+      "required_fields": [
+        "execution_id",
+        "arm_internal_id",
+        "blind_artifact_id",
+        "preregistration_raw_sha256",
+        "runtime_binding_raw_sha256",
+        "allocation_record_raw_sha256",
+        "common_task_component_sha256",
+        "common_output_contract_component_sha256",
+        "method_wrapper_component_sha256",
+        "corpus_manifest_root_sha256",
+        "mirror_manifest_raw_sha256",
+        "system_prompt_raw_sha256",
+        "assembled_user_message_raw_sha256",
+        "full_request_raw_sha256",
+        "model_locator",
+        "budget",
+        "started_at_utc"
+      ]
+    },
+    "generation_output_receipt_schema": {
+      "schema_id": "R9-GENERATION-OUTPUT-RECEIPT-V1",
+      "required_fields": [
+        "execution_id",
+        "blind_artifact_id",
+        "input_manifest_raw_sha256",
+        "stop_reason",
+        "raw_output_byte_count",
+        "raw_output_sha256",
+        "strict_json_valid",
+        "canonical_json_sha256_or_null",
+        "deterministic_check_receipt_sha256",
+        "resource_receipt_sha256",
+        "generator_locator",
+        "completed_at_utc"
+      ],
+      "stop_reason_enum": [
+        "completed",
+        "wall_time_cap",
+        "token_cap",
+        "refusal",
+        "service_error",
+        "cancelled_for_integrity"
+      ]
+    },
+    "blind_review_package_schema": {
+      "schema_id": "R9-BLIND-REVIEW-PACKAGE-V1",
+      "required_fields": [
+        "common_task_component_sha256",
+        "common_output_contract_component_sha256",
+        "corpus_manifest_root_sha256",
+        "rubric_component_sha256",
+        "reference_anchor_component_sha256",
+        "ordered_blind_artifact_ids",
+        "blind_artifact_raw_sha256s",
+        "package_raw_sha256"
+      ],
+      "forbidden_fields": [
+        "arm_internal_id",
+        "wrapper_id",
+        "method_label",
+        "allocation_nonce",
+        "arm_to_artifact_mapping",
+        "resource_metrics",
+        "generator_locator"
+      ]
+    },
+    "review_output_schema": {
+      "schema_id": "R9-BLIND-REVIEW-OUTPUT-V1",
+      "required_fields": [
+        "reviewer_locator",
+        "review_package_raw_sha256",
+        "rubric_component_sha256",
+        "scores_by_blind_artifact_and_dimension",
+        "critical_errors",
+        "artifact_level_summary",
+        "scores_frozen_at_utc",
+        "guessed_method_after_scoring",
+        "raw_review_output_sha256"
+      ]
+    },
+    "final_result_schema": {
+      "schema_id": "R9-METHOD-COMPARISON-RESULT-V1",
+      "required_fields": [
+        "preregistration_raw_sha256",
+        "runtime_binding_raw_sha256",
+        "allocation_record_raw_sha256",
+        "corpus_manifest_root_sha256",
+        "generation_output_receipt_sha256s",
+        "reviewer_locators",
+        "review_output_sha256s",
+        "unsealed_mapping_sha256",
+        "quality_scores",
+        "dimension_deltas",
+        "time_token_and_maintenance_metrics",
+        "integrity_predicates",
+        "admission_predicates",
+        "outcome",
+        "outcome_reason",
+        "claim_boundary",
+        "created_at_utc"
+      ],
+      "outcome_enum": [
+        "adopt",
+        "reject",
+        "bounded_incomplete"
+      ]
+    },
+    "locator_rule": "所有 generator、reviewer、receipt 和 artifact locator 必须可由本地相对路径或平台 opaque id 恢复；显示名、角色名或模型自述不构成身份或独立性证明。"
+  },
+  "minimum_core_admission_rule": {
+    "evaluation_order": [
+      "先检查 experiment integrity 与 evaluability",
+      "再在仍盲的状态下冻结两个 reviewer 分数",
+      "再检查 reviewer consistency",
+      "之后解封方法映射",
+      "最后合并 quality、time、token 和 maintenance predicates"
+    ],
+    "machine_readable_thresholds": {
+      "score_storage_unit": "hundredths_of_one_point_or_hundredths_of_quality_score_as_named",
+      "minimum_core_quality_score_min_hundredths": 7500,
+      "minimum_core_quality_delta_min_hundredths": 800,
+      "dimension_improvement_min_hundredths": 50,
+      "dimension_improvement_count_min": 2,
+      "dimension_decline_max_hundredths": 50,
+      "core_quality_dimension_min_hundredths": 300,
+      "counterevidence_and_uncertainty_min_hundredths": 250,
+      "reproducibility_min_hundredths": 300,
+      "token_ratio_max_numerator": 3,
+      "token_ratio_max_denominator": 2,
+      "token_absolute_increase_max": 4000,
+      "wall_time_ratio_max_numerator": 3,
+      "wall_time_ratio_max_denominator": 2,
+      "wall_time_absolute_increase_seconds_max": 180,
+      "manual_time_absolute_increase_seconds_max": 300,
+      "manual_intervention_absolute_increase_max": 1,
+      "persistent_artifact_absolute_increase_max": 1,
+      "retry_count_max": 0,
+      "failure_recovery_action_count_max": 0
+    },
+    "machine_readable_adopt_predicates": [
+      {
+        "predicate_id": "R9-ADM-01",
+        "expression": "all(experiment_integrity_predicates == true)"
+      },
+      {
+        "predicate_id": "R9-ADM-02",
+        "expression": "minimum_core.artifact_evaluable == true"
+      },
+      {
+        "predicate_id": "R9-ADM-03",
+        "expression": "reviewer_consistency_gate == true"
+      },
+      {
+        "predicate_id": "R9-ADM-04",
+        "expression": "minimum_core.critical_error_count == 0"
+      },
+      {
+        "predicate_id": "R9-ADM-05",
+        "expression": "minimum_core.quality_score_hundredths >= minimum_core_quality_score_min_hundredths"
+      },
+      {
+        "predicate_id": "R9-ADM-06",
+        "expression": "minimum_core.quality_score_hundredths - ordinary.quality_score_hundredths >= minimum_core_quality_delta_min_hundredths"
+      },
+      {
+        "predicate_id": "R9-ADM-07",
+        "expression": "count(decision_critical_dimension_delta_hundredths >= dimension_improvement_min_hundredths) >= dimension_improvement_count_min"
+      },
+      {
+        "predicate_id": "R9-ADM-08",
+        "expression": "any_of(factual_accuracy_delta_hundredths, citation_entailment_and_precision_delta_hundredths, decision_quality_delta_hundredths) >= dimension_improvement_min_hundredths"
+      },
+      {
+        "predicate_id": "R9-ADM-09",
+        "expression": "all(decision_critical_dimension_delta_hundredths >= -dimension_decline_max_hundredths)"
+      },
+      {
+        "predicate_id": "R9-ADM-10",
+        "expression": "minimum_core.factual_accuracy_hundredths >= core_quality_dimension_min_hundredths and minimum_core.citation_entailment_and_precision_hundredths >= core_quality_dimension_min_hundredths and minimum_core.decision_quality_hundredths >= core_quality_dimension_min_hundredths"
+      },
+      {
+        "predicate_id": "R9-ADM-11",
+        "expression": "minimum_core.counterevidence_hundredths >= counterevidence_and_uncertainty_min_hundredths and minimum_core.uncertainty_and_boundaries_hundredths >= counterevidence_and_uncertainty_min_hundredths"
+      },
+      {
+        "predicate_id": "R9-ADM-12",
+        "expression": "minimum_core.reproducibility_hundredths >= reproducibility_min_hundredths"
+      },
+      {
+        "predicate_id": "R9-ADM-13",
+        "expression": "minimum_core.total_accounted_tokens * token_ratio_max_denominator <= ordinary.total_accounted_tokens * token_ratio_max_numerator and minimum_core.total_accounted_tokens - ordinary.total_accounted_tokens <= token_absolute_increase_max"
+      },
+      {
+        "predicate_id": "R9-ADM-14",
+        "expression": "minimum_core.end_to_end_wall_seconds * wall_time_ratio_max_denominator <= ordinary.end_to_end_wall_seconds * wall_time_ratio_max_numerator and minimum_core.end_to_end_wall_seconds - ordinary.end_to_end_wall_seconds <= wall_time_absolute_increase_seconds_max"
+      },
+      {
+        "predicate_id": "R9-ADM-15",
+        "expression": "minimum_core.arm_specific_operator_setup_seconds + minimum_core.manual_normalization_seconds - ordinary.arm_specific_operator_setup_seconds - ordinary.manual_normalization_seconds <= manual_time_absolute_increase_seconds_max"
+      },
+      {
+        "predicate_id": "R9-ADM-16",
+        "expression": "minimum_core.manual_intervention_count - ordinary.manual_intervention_count <= manual_intervention_absolute_increase_max"
+      },
+      {
+        "predicate_id": "R9-ADM-17",
+        "expression": "minimum_core.method_specific_persistent_artifact_count - ordinary.method_specific_persistent_artifact_count <= persistent_artifact_absolute_increase_max"
+      },
+      {
+        "predicate_id": "R9-ADM-18",
+        "expression": "minimum_core.retry_count <= retry_count_max and minimum_core.failure_recovery_action_count <= failure_recovery_action_count_max"
+      }
+    ],
+    "adopt_requires_all": [
+      "全部 experiment_integrity_predicates 为 true",
+      "至少一个 artifact 可评估，且 minimum_core artifact 可评估",
+      "reviewer consistency gate 通过",
+      "minimum_core 没有任何 critical_error",
+      "minimum_core quality_score 不低于 75.00",
+      "minimum_core quality_score 减 ordinary quality_score 至少为 8.00",
+      "至少两个 decision-critical dimensions 的 minimum_core 两 reviewer 平均分比 ordinary 高至少 0.50，且其中至少一个是 factual_accuracy、citation_entailment_and_precision 或 decision_quality",
+      "minimum_core 在任何 decision-critical dimension 上都不比 ordinary 低超过 0.50",
+      "minimum_core 的 factual_accuracy、citation_entailment_and_precision 与 decision_quality 平均分各不低于 3.00",
+      "minimum_core 的 counterevidence 与 uncertainty_and_boundaries 平均分各不低于 2.50",
+      "minimum_core 的 reproducibility 平均分不低于 3.00",
+      "minimum_core total_accounted_tokens 不高于 ordinary 的 1.50 倍，且绝对增加不超过 4000",
+      "minimum_core end_to_end_wall_seconds 不高于 ordinary 的 1.50 倍，且绝对增加不超过 180 秒",
+      "minimum_core arm_specific_operator_setup_seconds 加 manual_normalization_seconds 不高于 ordinary 对应和加 300 秒",
+      "minimum_core manual_intervention_count 不高于 ordinary 加 1",
+      "minimum_core method_specific_persistent_artifact_count 不高于 ordinary 加 1",
+      "minimum_core retry_count 与 failure_recovery_action_count 均为 0"
+    ],
+    "adopt_meaning": "把 R9-WRAPPER-MINCORE-V1 作为 decision_scope 内的实验性默认；不采用未被该 wrapper 包含的完整治理流程，也不声称普遍或统计 superiority。",
+    "reject_when": "实验完整、两份评审可用且一致，但任一 adopt predicate 为 false。平局、ordinary 质量更高、minimum_core 只增加审计痕迹、或收益不足以覆盖成本时都必须 reject。",
+    "reject_meaning": "不把 minimum core 设为该范围默认。不得因其更复杂、更长、更像治理流程而保留；可在新预注册任务中重新测试。",
+    "bounded_incomplete_when": [
+      "任一 experiment integrity predicate 为 false",
+      "模型或配置相等性不能证明",
+      "corpus、mirror、prompt common components 或 input hashes 不一致",
+      "跨臂学习或输出泄漏、显式方法标签泄漏、或 reviewer 提前看到映射",
+      "并行提交偏差超过上限",
+      "共享基础设施故障使任一 arm 没有收到请求",
+      "两个 artifact 都不可评估",
+      "任一 reviewer 未在预算内返回有效评分",
+      "reviewer consistency gate 未通过",
+      "必要 time、token 或 maintenance receipt 缺失",
+      "总实验预算在两臂与两份评审完成前耗尽"
+    ],
+    "bounded_incomplete_meaning": "没有方法胜负或采用结论；保留失败 receipt，不追加预算、不补第三 judge、不事后修改规则。",
+    "outcome_function": [
+      "若任一 bounded_incomplete_when 条件为 true，则 outcome = bounded_incomplete",
+      "否则若全部 machine_readable_adopt_predicates 为 true，则 outcome = adopt",
+      "否则 outcome = reject"
+    ],
+    "ordinary_win_is_allowed": true,
+    "complexity_is_not_a_benefit": true
+  },
+  "experiment_integrity_predicates": [
+    "preregistration commit 与 raw sha256 早于全部执行记录",
+    "runtime binding 与 allocation record 在任何 prompt 或输出前冻结并哈希",
+    "两个 corpus mirror 的 manifest root 均匹配冻结值",
+    "除 wrapper 外的 prompt component hashes 相同",
+    "两个 arm 通过 same_model_gate",
+    "两个 arm 的资源上限相同且无重试",
+    "两个生成上下文隔离且无 network、tool、memory 或项目历史访问",
+    "并行提交偏差在上限内",
+    "blind mapping 在两个 reviewer 分数冻结前未解封",
+    "两个 reviewer 输入除 artifact 顺序外相同，且顺序交叉",
+    "所有 raw input、output、review 与 resource receipts 可由 sha256 和 locator 恢复",
+    "没有对 arm 输出做人工修复、追加提示、选择性丢弃或 best-of-n"
+  ],
+  "stopping_and_failure_protocol": {
+    "generation_stop_order": [
+      "成功返回一个 artifact",
+      "达到 maximum_output_tokens 或 maximum_total_accounted_tokens",
+      "达到 maximum_wall_time_seconds",
+      "模型拒答",
+      "服务错误",
+      "检测到 experiment integrity failure"
+    ],
+    "review_stop_order": [
+      "两位 reviewer 各自返回完整评分并哈希",
+      "judge token 或 wall-time cap",
+      "judge 服务错误",
+      "检测到 blind contamination 或 package mismatch"
+    ],
+    "no_retry_rule": "不对生成或评审做重试、继续、补 prompt、修复 JSON、替换模型或 best-of-n 选择。",
+    "method_observed_failures_that_remain_scoreable": [
+      "invalid JSON",
+      "漏字段",
+      "正常 token cap",
+      "正常 wall-time cap",
+      "拒答",
+      "越界引用",
+      "未完成共同任务"
+    ],
+    "integrity_failures_that_block_comparison": [
+      "输入或模型不相等",
+      "基础设施只提交了一个 arm",
+      "context、output 或 mapping 泄漏",
+      "corpus hash 不一致",
+      "judge 看到方法标签或资源成本",
+      "无法恢复必要 raw receipt"
+    ],
+    "post_stop_rule": "停止后只允许运行预注册的确定性校验、盲评、解封和公式计算；不得搜索新资料、增加任务、改 rubric 或生成替代 artifact。"
+  },
+  "result_reporting_requirements": {
+    "must_report": [
+      "adopt、reject 或 bounded_incomplete 中且仅一个",
+      "全部 integrity 与 admission predicate 的逐项 true 或 false",
+      "两个 blind artifact raw hashes 与解封后的 method mapping hash",
+      "每个 dimension 的两位 reviewer 原始分数、平均分和 delta",
+      "critical errors 与精确 artifact/corpus locators",
+      "wall time、token 和 maintenance 原始指标与差值",
+      "ordinary 胜出、平局或 governed 胜出的维度",
+      "单任务、同源模型、平台可观察独立性和长期维护未知的限制",
+      "采用范围或拒绝范围"
+    ],
+    "forbidden_claims": [
+      "因 governed 产物更长、字段更多或引用更多而判胜",
+      "把一次 paired task 写成普遍统计 superiority",
+      "把 separate context 写成组织、密码学或安全独立",
+      "把 bounded_incomplete 改写成失败或通过",
+      "隐藏 ordinary 胜出的维度或治理成本",
+      "以已经投入时间或维护工作为理由降低 admission rule"
+    ]
+  },
+  "forbidden_actions_during_r9": [
+    "联网搜索、打开外部网页或扩展 frozen corpus",
+    "读取 Gmail、课程资料、私人通信、真实账户、API key、token、券商凭据或任何项目外私人数据",
+    "把 R7、R8 的 raw reports、reviews、synthesis、memory 或本项目既有结论放进生成者或 reviewer 上下文",
+    "让两个 arm 共享上下文、工具状态、输出或中途反馈",
+    "在看到任一生成输出后改变 task、corpus、wrapper、budget、rubric、blind mapping 或裁决阈值",
+    "执行交易、连接 broker、修改风险规则、改项目实现或把本实验结果自动写成项目决定",
+    "因 minimum_core 更复杂而默认采用"
+  ]
+}

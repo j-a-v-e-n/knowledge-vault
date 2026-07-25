@@ -61,6 +61,61 @@ RUNNER_FINGERPRINT_FIELDS = (
     "result",
     "runner_exit_code",
 )
+MACHINE_CHECK_SPECS = {
+    "CHECK-ASSURANCE-METADATA": {
+        "argv": ["PYTHON", "scripts/verify_assurance_metadata.py", "--json"],
+        "cwd": "PROJECT_ROOT",
+        "structured": True,
+    },
+    "CHECK-PROJECT-METHOD": {
+        "argv": ["PYTHON", "scripts/verify_project_method.py", "--json"],
+        "cwd": "PROJECT_ROOT",
+        "structured": True,
+    },
+    "CHECK-CANDIDATE-GOVERNANCE": {
+        "argv": ["PYTHON", "scripts/verify_governance.py", "--allow-candidate"],
+        "cwd": "PROJECT_ROOT",
+        "structured": False,
+    },
+    "CHECK-CANONICAL-ATTACK-REPLAY": {
+        "argv": [
+            "PYTHON",
+            "scripts/replay_design_freeze_attacks.py",
+            "--candidate-commit",
+            "__CANDIDATE_COMMIT__",
+        ],
+        "cwd": "PROJECT_ROOT",
+        "structured": True,
+    },
+    "CHECK-GOVERNANCE-REGRESSION": {
+        "argv": [
+            "PYTHON",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "governance_tests",
+            "-v",
+        ],
+        "cwd": "PROJECT_ROOT",
+        "structured": False,
+    },
+    "CHECK-COMPILEALL": {
+        "argv": ["PYTHON", "-m", "compileall", "-q", "."],
+        "cwd": "PROJECT_ROOT",
+        "structured": False,
+    },
+    "CHECK-RUFF": {
+        "argv": ["PYTHON", "-m", "ruff", "check", "."],
+        "cwd": "PROJECT_ROOT",
+        "structured": False,
+    },
+    "CHECK-GIT-DIFF": {
+        "argv": ["git", "diff", "--check", "__CANDIDATE_COMMIT__"],
+        "cwd": "REPOSITORY_ROOT",
+        "structured": False,
+    },
+}
 
 
 class DuplicateKeyError(ValueError):
@@ -570,7 +625,7 @@ def require_machine_and_attestation(
     reviewed_commit: str,
     reviewed_tree: str,
     trusted: dict[str, str],
-) -> None:
+) -> dict[str, dict]:
     repository = github_repository_from_url(trusted["fetch_url"])
     if repository is None:
         repository = machine_manifest.get("repository")
@@ -581,6 +636,7 @@ def require_machine_and_attestation(
         "assurance_level": "github_issued_workflow_provenance",
         "semantic_approval": False,
         "repository": repository,
+        "workflow": "Investment Discipline Machine Assurance",
         "candidate_commit": reviewed_commit,
         "candidate_tree": reviewed_tree,
         "project_prefix": trusted["project_prefix"],
@@ -601,31 +657,86 @@ def require_machine_and_attestation(
         or not workflow_ref.endswith(expected_workflow_suffix)
     ):
         raise SystemExit("machine-assurance manifest workflow_ref differs")
+    for field in (
+        "run_id",
+        "run_attempt",
+        "event_name",
+        "started_at",
+        "completed_at",
+    ):
+        if (
+            not isinstance(machine_manifest.get(field), str)
+            or not machine_manifest[field]
+        ):
+            raise SystemExit(
+                f"machine-assurance manifest {field} is missing"
+            )
     required_check_ids = machine_manifest.get("required_check_ids")
     checks = machine_manifest.get("checks")
     if (
         not isinstance(required_check_ids, list)
-        or not required_check_ids
-        or not all(isinstance(item, str) and item for item in required_check_ids)
-        or len(required_check_ids) != len(set(required_check_ids))
+        or required_check_ids != list(MACHINE_CHECK_SPECS)
         or not isinstance(checks, list)
+        or len(checks) != len(required_check_ids)
     ):
         raise SystemExit("machine-assurance manifest check catalog differs")
     check_by_id: dict[str, dict] = {}
-    for check in checks:
+    for index, check in enumerate(checks):
         check_id = check.get("check_id") if isinstance(check, dict) else None
+        spec = MACHINE_CHECK_SPECS.get(check_id)
+        expected_fields = {
+            "check_id",
+            "argv",
+            "cwd",
+            "actual_process_exit",
+            "stdout_sha256",
+            "stdout_tail",
+            "result",
+        }
+        if isinstance(spec, dict) and spec["structured"]:
+            expected_fields.add("structured_result")
+        expected_argv = (
+            [
+                reviewed_commit
+                if item == "__CANDIDATE_COMMIT__"
+                else item
+                for item in spec["argv"]
+            ]
+            if isinstance(spec, dict)
+            else None
+        )
+        structured = (
+            check.get("structured_result")
+            if isinstance(check, dict)
+            else None
+        )
         if (
             not isinstance(check_id, str)
             or check_id in check_by_id
+            or check_id != required_check_ids[index]
+            or not isinstance(spec, dict)
+            or set(check) != expected_fields
+            or check.get("argv") != expected_argv
+            or check.get("cwd") != spec["cwd"]
             or check.get("result") != "pass"
+            or check.get("actual_process_exit") != 0
+            or not isinstance(check.get("stdout_tail"), str)
+            or require_sha256(
+                check.get("stdout_sha256"),
+                f"machine-assurance manifest {check_id} stdout",
+            )
+            != check.get("stdout_sha256")
             or (
-                "actual_process_exit" in check
-                and check.get("actual_process_exit") != 0
+                spec["structured"]
+                and (
+                    not isinstance(structured, dict)
+                    or structured.get("status") != "pass"
+                )
             )
         ):
             raise SystemExit("machine-assurance manifest check result differs")
         check_by_id[check_id] = check
-    if set(check_by_id) != set(required_check_ids):
+    if list(check_by_id) != required_check_ids:
         raise SystemExit("machine-assurance manifest required checks differ")
 
     attestation_expected = {
@@ -662,6 +773,87 @@ def require_machine_and_attestation(
         }
     ):
         raise SystemExit("machine-attestation verification policy binding differs")
+    return check_by_id
+
+
+def require_machine_replay_binding(
+    *,
+    machine_checks: dict[str, dict],
+    reviewed_commit: str,
+    reviewed_tree: str,
+    canonical_fingerprints: dict[str, str],
+) -> None:
+    replay = machine_checks["CHECK-CANONICAL-ATTACK-REPLAY"].get(
+        "structured_result"
+    )
+    if not isinstance(replay, dict):
+        raise SystemExit("machine canonical replay result is missing")
+    replay_expected = {
+        "schema_version": 2,
+        "status": "pass",
+        "candidate_commit": reviewed_commit,
+        "candidate_tree": reviewed_tree,
+        "runner_id": RUNNER_ID,
+        "runner_sha256": sha256_bytes(ATTACK_RUNNER.read_bytes()),
+        "required_attack_ids": list(CANONICAL_ATTACK_IDS),
+    }
+    for key, expected in replay_expected.items():
+        if replay.get(key) != expected:
+            raise SystemExit(
+                f"machine canonical replay {key} differs"
+            )
+    for field in ("started_at", "completed_at"):
+        if not isinstance(replay.get(field), str) or not replay[field]:
+            raise SystemExit(
+                f"machine canonical replay {field} is missing"
+            )
+    results = replay.get("results")
+    if not isinstance(results, list) or len(results) != len(
+        CANONICAL_ATTACK_IDS
+    ):
+        raise SystemExit("machine canonical replay result set differs")
+    observed: dict[str, str] = {}
+    for index, result in enumerate(results):
+        attack_id = result.get("attack_id") if isinstance(result, dict) else None
+        if (
+            not isinstance(result, dict)
+            or set(result)
+            != {
+                "attack_id",
+                "actual_runner_process_exit",
+                "declared_runner_exit_code",
+                "baseline_verifier_exit",
+                "target_verifier_exit",
+                "baseline_stdout_sha256",
+                "target_stdout_sha256",
+                "execution_fingerprint",
+                "receipt_sha256",
+                "result",
+            }
+            or attack_id != CANONICAL_ATTACK_IDS[index]
+            or result.get("actual_runner_process_exit") != 0
+            or result.get("declared_runner_exit_code") != 0
+            or result.get("baseline_verifier_exit") != 0
+            or type(result.get("target_verifier_exit")) is not int
+            or result["target_verifier_exit"] == 0
+            or result.get("result") != "rejected"
+        ):
+            raise SystemExit("machine canonical replay result differs")
+        for field in (
+            "baseline_stdout_sha256",
+            "target_stdout_sha256",
+            "execution_fingerprint",
+            "receipt_sha256",
+        ):
+            require_sha256(
+                result.get(field),
+                f"machine canonical replay {attack_id} {field}",
+            )
+        observed[str(attack_id)] = str(result["execution_fingerprint"])
+    if observed != canonical_fingerprints:
+        raise SystemExit(
+            "machine canonical replay fingerprints differ from review receipts"
+        )
 
 
 def require_review_closure(
@@ -908,7 +1100,7 @@ def require_review_closure(
         commit_file_bytes(baseline, prefix, attestation_binding["path"]),
         attestation_binding["path"],
     )
-    require_machine_and_attestation(
+    machine_checks = require_machine_and_attestation(
         machine_manifest=machine_manifest,
         attestation=attestation,
         machine_path=machine_binding["path"],
@@ -947,6 +1139,12 @@ def require_review_closure(
         )
     if set(canonical_fingerprints) != set(CANONICAL_ATTACK_IDS):
         raise SystemExit("final review canonical attack coverage differs")
+    require_machine_replay_binding(
+        machine_checks=machine_checks,
+        reviewed_commit=reviewed_commit,
+        reviewed_tree=reviewed_tree,
+        canonical_fingerprints=canonical_fingerprints,
+    )
 
     novelty_closure_bindings: list[dict[str, object]] = []
     novelty_probes = evidence.get("novelty_probes")

@@ -728,6 +728,145 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         review_output_path.parent.mkdir(parents=True, exist_ok=True)
         review_output_path.write_text(review_output, encoding="utf-8")
 
+        machine_replay = {
+            "schema_version": 2,
+            "status": "pass",
+            "candidate_commit": reviewed_commit,
+            "candidate_tree": reviewed_tree,
+            "runner_id": "ids-design-freeze-attack-runner-v1",
+            "runner_sha256": canonical_receipts[0]["runner_sha256"],
+            "required_attack_ids": list(ATTACK_IDS),
+            "started_at": "2026-07-25T16:10:00Z",
+            "completed_at": "2026-07-25T16:11:00Z",
+            "results": [
+                {
+                    "attack_id": receipt["probe_id"],
+                    "actual_runner_process_exit": 0,
+                    "declared_runner_exit_code": receipt[
+                        "runner_exit_code"
+                    ],
+                    "baseline_verifier_exit": receipt["baseline"][
+                        "exit_code"
+                    ],
+                    "target_verifier_exit": receipt["target"][
+                        "exit_code"
+                    ],
+                    "baseline_stdout_sha256": receipt["baseline"][
+                        "stdout_sha256"
+                    ],
+                    "target_stdout_sha256": receipt["target"][
+                        "stdout_sha256"
+                    ],
+                    "execution_fingerprint": receipt[
+                        "execution_fingerprint"
+                    ],
+                    "receipt_sha256": sha256_file(
+                        self.root / binding["runner_receipt_path"]
+                    ),
+                    "result": "rejected",
+                }
+                for receipt, binding in zip(
+                    canonical_receipts,
+                    canonical_attacks,
+                    strict=True,
+                )
+            ],
+        }
+
+        def machine_check(
+            check_id: str,
+            argv: list[str],
+            *,
+            cwd: str = "PROJECT_ROOT",
+            stdout: str = "fixture check passed\n",
+            structured_result: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
+            check: dict[str, Any] = {
+                "check_id": check_id,
+                "argv": argv,
+                "cwd": cwd,
+                "actual_process_exit": 0,
+                "stdout_sha256": hashlib.sha256(
+                    stdout.encode("utf-8")
+                ).hexdigest(),
+                "stdout_tail": stdout[-4000:],
+                "result": "pass",
+            }
+            if structured_result is not None:
+                check["structured_result"] = structured_result
+            return check
+
+        machine_check_ids = [
+            "CHECK-ASSURANCE-METADATA",
+            "CHECK-PROJECT-METHOD",
+            "CHECK-CANDIDATE-GOVERNANCE",
+            "CHECK-CANONICAL-ATTACK-REPLAY",
+            "CHECK-GOVERNANCE-REGRESSION",
+            "CHECK-COMPILEALL",
+            "CHECK-RUFF",
+            "CHECK-GIT-DIFF",
+        ]
+        machine_checks = [
+            machine_check(
+                "CHECK-ASSURANCE-METADATA",
+                [
+                    "PYTHON",
+                    "scripts/verify_assurance_metadata.py",
+                    "--json",
+                ],
+                structured_result={"status": "pass", "errors": []},
+            ),
+            machine_check(
+                "CHECK-PROJECT-METHOD",
+                ["PYTHON", "scripts/verify_project_method.py", "--json"],
+                structured_result={"status": "pass", "errors": []},
+            ),
+            machine_check(
+                "CHECK-CANDIDATE-GOVERNANCE",
+                [
+                    "PYTHON",
+                    "scripts/verify_governance.py",
+                    "--allow-candidate",
+                ],
+                stdout=candidate_governance.stdout,
+            ),
+            machine_check(
+                "CHECK-CANONICAL-ATTACK-REPLAY",
+                [
+                    "PYTHON",
+                    "scripts/replay_design_freeze_attacks.py",
+                    "--candidate-commit",
+                    reviewed_commit,
+                ],
+                stdout=json.dumps(machine_replay, sort_keys=True) + "\n",
+                structured_result=machine_replay,
+            ),
+            machine_check(
+                "CHECK-GOVERNANCE-REGRESSION",
+                [
+                    "PYTHON",
+                    "-m",
+                    "unittest",
+                    "discover",
+                    "-s",
+                    "governance_tests",
+                    "-v",
+                ],
+            ),
+            machine_check(
+                "CHECK-COMPILEALL",
+                ["PYTHON", "-m", "compileall", "-q", "."],
+            ),
+            machine_check(
+                "CHECK-RUFF",
+                ["PYTHON", "-m", "ruff", "check", "."],
+            ),
+            machine_check(
+                "CHECK-GIT-DIFF",
+                ["git", "diff", "--check", reviewed_commit],
+                cwd="REPOSITORY_ROOT",
+            ),
+        ]
         machine_manifest = {
             "schema_version": 1,
             "manifest_id": "ids-github-machine-assurance-v1",
@@ -735,41 +874,24 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "assurance_level": "github_issued_workflow_provenance",
             "semantic_approval": False,
             "repository": FIXTURE_REPOSITORY,
+            "workflow": "Investment Discipline Machine Assurance",
             "workflow_ref": (
                 f"{FIXTURE_REPOSITORY}/{WORKFLOW_RELATIVE}"
                 "@refs/heads/main"
             ),
             "workflow_sha": reviewed_commit,
+            "run_id": "fixture-run-1",
+            "run_attempt": "1",
+            "event_name": "workflow_dispatch",
             "github_sha_matches_candidate": True,
             "runner_environment": "github-hosted",
             "candidate_commit": reviewed_commit,
             "candidate_tree": reviewed_tree,
             "project_prefix": TEST_PROJECT_PREFIX,
-            "required_check_ids": [
-                "CHECK-CANDIDATE-GOVERNANCE",
-                "CHECK-CANONICAL-ATTACKS",
-            ],
-            "checks": [
-                {
-                    "check_id": "CHECK-CANDIDATE-GOVERNANCE",
-                    "result": "pass",
-                    "actual_process_exit": (
-                        candidate_governance.returncode
-                    ),
-                    "stdout_sha256": hashlib.sha256(
-                        candidate_governance.stdout.encode("utf-8")
-                    ).hexdigest(),
-                },
-                {
-                    "check_id": "CHECK-CANONICAL-ATTACKS",
-                    "result": "pass",
-                    "actual_process_exit": 0,
-                    "execution_fingerprints": [
-                        receipt["execution_fingerprint"]
-                        for receipt in canonical_receipts
-                    ],
-                },
-            ],
+            "required_check_ids": machine_check_ids,
+            "started_at": "2026-07-25T16:00:00Z",
+            "completed_at": "2026-07-25T16:12:00Z",
+            "checks": machine_checks,
             "limitations": [
                 "The local unit fixture models an externally verified manifest."
             ],
