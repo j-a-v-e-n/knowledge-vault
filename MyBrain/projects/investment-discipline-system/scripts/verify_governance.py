@@ -2859,27 +2859,28 @@ def verify_research_register(
     expected_stop_rule = {
         "method": "derived_not_declared",
         "receipt_path": "governance/RESEARCH_SUFFICIENCY_V1.json",
-        "derived_field": "derived_closure_eligible",
+        "derived_field": "derived_pre_review_eligible",
         "required": (
             "RESEARCH_SUFFICIENCY_V1 的冻结 derivation_rules 必须从检索预算、纳入/排除、来源簇、"
             "claim entailment、矛盾、补充轮和 architecture/decision delta 推导 pre-review eligibility；"
-            "随后独立挑战还必须关闭所有 finding 且不再发现新架构类别。任何自由布尔值均不构成停止证据。"
+            "最终关闭还必须与外部签名机器执行、候选固定后的独立语义挑战、novelty probe "
+            "和零未关闭 finding 共同成立。任何自由布尔值均不构成停止证据。"
         ),
     }
     if stop_rule != expected_stop_rule:
         errors.append("research stop rule is not derived from sufficiency receipt")
-    closure_eligible = (
-        research_sufficiency.get("derived_closure_eligible") is True
+    pre_review_eligible = (
+        research_sufficiency.get("derived_pre_review_eligible") is True
     )
     last_result = rounds[-1].get("result") if isinstance(rounds[-1], dict) else None
     if challenge_status == "completed":
-        if not closure_eligible or last_result != "passed_freeze":
+        if not pre_review_eligible or last_result != "passed_freeze":
             errors.append(
                 "completed research challenge lacks derived eligibility or a passing final round"
             )
     if not allow_candidate and (
         challenge_status != "completed"
-        or not closure_eligible
+        or not pre_review_eligible
         or last_result != "passed_freeze"
     ):
         errors.append("frozen research has no valid completed challenge")
@@ -3998,6 +3999,36 @@ def verify(allow_candidate: bool) -> list[str]:
     if errors:
         return errors
 
+    research_sufficiency_verifier = (
+        PROJECT_ROOT / "scripts" / "verify_research_sufficiency.py"
+    )
+    if not research_sufficiency_verifier.is_file():
+        errors.append("research sufficiency verifier is missing")
+    else:
+        research_result = subprocess.run(
+            [sys.executable, str(research_sufficiency_verifier), "--json"],
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        try:
+            research_payload = json.loads(research_result.stdout)
+        except json.JSONDecodeError:
+            research_payload = {}
+        if (
+            research_result.returncode != 0
+            or research_payload.get("status") != "pass"
+        ):
+            detail = research_payload.get("errors")
+            if not isinstance(detail, list):
+                detail = [research_result.stdout.strip() or "<no verifier output>"]
+            errors.append(
+                "research sufficiency executable verification failed: "
+                + "; ".join(str(item) for item in detail)
+            )
+
     expected_status = "candidate_under_challenge" if allow_candidate else "frozen"
     allowed_contract_statuses = {expected_status}
     if allow_candidate:
@@ -4042,8 +4073,8 @@ def verify(allow_candidate: bool) -> list[str]:
         challenge = research.get("challenge")
         if not isinstance(challenge, dict) or challenge.get("status") != "completed":
             errors.append("research independent challenge is not completed")
-        if research_sufficiency.get("derived_closure_eligible") is not True:
-            errors.append("research sufficiency is not derived closure-eligible")
+        if research_sufficiency.get("derived_pre_review_eligible") is not True:
+            errors.append("research sufficiency is not derived pre-review eligible")
 
     value_ids = unique_ids(intent.get("core_values"), "core_values", errors)
     verify_source_excerpts(source_excerpts, value_ids, errors)

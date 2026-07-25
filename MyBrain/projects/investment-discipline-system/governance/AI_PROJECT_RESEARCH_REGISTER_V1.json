@@ -501,7 +501,7 @@
   "stop_rule": {
     "method": "derived_not_declared",
     "receipt_path": "governance/RESEARCH_SUFFICIENCY_V1.json",
-    "derived_field": "derived_closure_eligible",
-    "required": "RESEARCH_SUFFICIENCY_V1 的冻结 derivation_rules 必须从检索预算、纳入/排除、来源簇、claim entailment、矛盾、补充轮和 architecture/decision delta 推导 pre-review eligibility；随后独立挑战还必须关闭所有 finding 且不再发现新架构类别。任何自由布尔值均不构成停止证据。"
+    "derived_field": "derived_pre_review_eligible",
+    "required": "RESEARCH_SUFFICIENCY_V1 的冻结 derivation_rules 必须从检索预算、纳入/排除、来源簇、claim entailment、矛盾、补充轮和 architecture/decision delta 推导 pre-review eligibility；最终关闭还必须与外部签名机器执行、候选固定后的独立语义挑战、novelty probe 和零未关闭 finding 共同成立。任何自由布尔值均不构成停止证据。"
   }
 }
