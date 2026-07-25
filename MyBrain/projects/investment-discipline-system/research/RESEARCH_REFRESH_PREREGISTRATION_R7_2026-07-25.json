@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "status": "preregistered_before_counted_search",
+  "round_id": "RESEARCH-REFRESH-R7",
+  "created_at": "2026-07-25T15:38:00Z",
+  "purpose": "以前一轮审查暴露的研究充分性缺口为输入，执行一个从现在起可验证、预算固定、逐结果筛选、可重开的补充研究轮；不把此前研究事后伪装成预注册。",
+  "temporal_boundary": {
+    "counted_search_starts_after": "this file is committed to Git",
+    "pre_commit_activity": "此前浏览与研究只作为问题发现和先验材料，不计入本轮预注册检索预算或稳定性证明。",
+    "proof": "Git commit containing this exact file and sha256 must precede every counted retrieval timestamp."
+  },
+  "questions": [
+    {
+      "id": "RQ-R7-01",
+      "topic_id": "RS-01",
+      "question": "怎样让 AI 项目研究达到可核对的领域充分性，同时避免无限搜索、浅层停止和事后自我证明？"
+    },
+    {
+      "id": "RQ-R7-02",
+      "topic_id": "RS-02",
+      "question": "AI 长项目最重要的失效类别、自我袒护、上下文遗忘、代理组织和 loop/harness 控制怎样被机制化验证？"
+    },
+    {
+      "id": "RQ-R7-03",
+      "topic_id": "RS-03",
+      "question": "个人纸面投研系统在无需私人凭据时，正式数据、point-in-time、许可、公司行动和外部 paper 边界能冻结到什么强度？"
+    },
+    {
+      "id": "RQ-R7-04",
+      "topic_id": "RS-04",
+      "question": "现成开源投研系统和 AI trading harness 中哪些组件可安全复用，哪些应因边界、可验证性或维护成本被排除？"
+    },
+    {
+      "id": "RQ-R7-05",
+      "topic_id": "RS-05",
+      "question": "个人 Paper V1 如何组合 Git 内容身份、真实机器执行 provenance 和平台可观察语义审查，而不夸大独立性？"
+    }
+  ],
+  "budget": {
+    "per_topic_query_limit": 8,
+    "total_query_limit": 40,
+    "supplemental_round_limit": 2,
+    "minimum_distinct_upstream_clusters_per_high_impact_claim": 1,
+    "minimum_counterevidence_query_per_topic": 1,
+    "stop_when": [
+      "每个问题的必需来源类别均有结果或明确无结果 receipt",
+      "每个决定性高影响 claim 具有原文范围、内容哈希、上游簇和 entailment 复核",
+      "最后一个 architecture/decision delta 后至少一轮补充检索没有新增高影响类别或 open critical/major",
+      "预算耗尽时即使仍有缺口也停止并标记 bounded_incomplete，不扩大预算来制造通过"
+    ]
+  },
+  "required_source_classes_by_topic": {
+    "RS-01": [
+      "official_or_primary_method_documentation",
+      "peer_reviewed_or_preprint_research",
+      "practitioner_or_user_experience"
+    ],
+    "RS-02": [
+      "official_or_primary_method_documentation",
+      "peer_reviewed_or_preprint_research",
+      "practitioner_or_user_experience",
+      "open_source_implementation"
+    ],
+    "RS-03": [
+      "official_regulatory_exchange_or_provider_documentation",
+      "primary_method_or_standard",
+      "open_source_implementation"
+    ],
+    "RS-04": [
+      "open_source_repository_and_code",
+      "maintainer_documentation",
+      "independent_security_or_user_report"
+    ],
+    "RS-05": [
+      "official_platform_documentation",
+      "primary_provenance_standard",
+      "actual_platform_execution_receipt"
+    ]
+  },
+  "screening_protocol": {
+    "record_every_result": true,
+    "required_fields": [
+      "retrieved_at",
+      "channel",
+      "exact_query_or_locator",
+      "result_url_or_repo",
+      "source_class",
+      "upstream_cluster_id",
+      "screening_decision",
+      "screening_reason",
+      "revision_or_supersession_state"
+    ],
+    "include_when": [
+      "直接回答预注册问题或提供会改变边界的反证",
+      "来源身份、版本和时间可核对",
+      "可以保存支持 claim 的精确范围或确定性运行结果"
+    ],
+    "exclude_when": [
+      "只有营销声称且没有可核对机制或结果",
+      "重复同一上游来源而不增加独立证据",
+      "与当前个人 Paper V1 威胁模型无关",
+      "无法恢复来源、版本或精确支持范围"
+    ],
+    "same_upstream_not_independent": true
+  },
+  "claim_review_protocol": {
+    "decisive_claim_required_fields": [
+      "claim_id",
+      "claim_text",
+      "impact",
+      "evidence_cluster_ids",
+      "source_range_or_execution_receipt",
+      "entailment_status",
+      "reviewer_or_deterministic_check",
+      "limitations",
+      "decision_effect"
+    ],
+    "allowed_entailment_for_closure": [
+      "entailed",
+      "contested_non_decision_changing"
+    ],
+    "author_only_entailment_is_sufficient": false
+  },
+  "stage_boundary": {
+    "design_research_closure_can_defer": [
+      "Tiingo 或其他供应商的私人凭据、真实账户许可和真实网络质量试用",
+      "Alpaca 等外部 paper broker 的私人账户成交与对账试用",
+      "Javen 的真实 onboarding、风险数值选择和长期使用窗口",
+      "Living Review 的真实时间节奏校准"
+    ],
+    "deferral_requirements": [
+      "必须已有明确 conditional gate、触发器、失败状态和不得声称内容",
+      "不得把未发生的试用写成 provider 已验收、长期可用或策略有效",
+      "若该未知会改变当前无凭据本地 Paper 核心架构，则不能延期"
+    ]
+  },
+  "comparison_protocol": {
+    "same_task_comparison_required": true,
+    "task": "对一个固定 AI 项目方法问题分别运行无证据治理的普通检索摘要与本轮证据治理流程",
+    "dimensions": [
+      "来源集合完整性",
+      "来源簇去重",
+      "反证覆盖",
+      "claim entailment",
+      "不确定性与条件边界",
+      "可复现性",
+      "决定与架构 delta 清晰度",
+      "时间和维护负担"
+    ],
+    "success_rule": "不预设证据治理流程一定胜出；保存两套原始产物，由独立 reviewer 判断差异是否支持采用及其成本。"
+  },
+  "reopen_triggers": [
+    "关键平台、模型、Codex、GitHub Actions 或 attestation 能力变化",
+    "正式数据提供商许可、API、时间语义或公司行动字段变化",
+    "新的高影响失效类别、反例或开源实现出现",
+    "真实 onboarding、恢复演练或长期使用与研究假设冲突"
+  ],
+  "forbidden_shortcuts": [
+    "修改本文件的预算、问题或停止阈值以配合已经看到的结果",
+    "把搜索结果数量当作领域充分性的替代",
+    "把同一上游的转载计为独立支持",
+    "把 GitHub attestation 当作语义正确证明",
+    "把 Codex 子代理 locator 当作密码学身份",
+    "因私人凭据未授权而访问或记录用户敏感信息"
+  ]
+}
