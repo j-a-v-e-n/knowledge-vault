@@ -47,6 +47,16 @@ ATTACK_IDS = (
     "ATTACK-SPLIT-ACCOUNTING-SMUGGLE",
     "ATTACK-CONDITIONAL-SELF-ATTESTATION",
 )
+MACHINE_TIMEOUTS = {
+    "CHECK-ASSURANCE-METADATA": 300,
+    "CHECK-PROJECT-METHOD": 1800,
+    "CHECK-CANDIDATE-GOVERNANCE": 300,
+    "CHECK-CANONICAL-ATTACK-REPLAY": 600,
+    "CHECK-GOVERNANCE-REGRESSION": 1500,
+    "CHECK-COMPILEALL": 300,
+    "CHECK-RUFF": 300,
+    "CHECK-GIT-DIFF": 300,
+}
 FINGERPRINT_FIELDS = (
     "runner_id",
     "runner_sha256",
@@ -128,6 +138,8 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
         preserve_worktree_paths = {
             f"{source_prefix}scripts/freeze_governance.py",
+            f"{source_prefix}scripts/run_governance_regression.py",
+            f"{source_prefix}scripts/run_unittest_receipt.py",
             f"{source_prefix}scripts/verify_governance.py",
             (
                 f"{source_prefix}"
@@ -180,6 +192,8 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             cwd=source_repository,
         ).decode("utf-8").split("\0")
         for repo_relative in filter(None, untracked):
+            if repo_relative in preserve_worktree_paths:
+                continue
             destination = (
                 self.root / repo_relative.removeprefix(source_prefix)
                 if repo_relative.startswith(source_prefix)
@@ -693,6 +707,126 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             )
         return sorted(required)
 
+    def make_regression_receipt(
+        self,
+        *,
+        reviewed_commit: str,
+    ) -> dict[str, Any]:
+        freezer = load_module(
+            self.root / "scripts" / "freeze_governance.py",
+            "fixture_freezer_regression_inventory",
+            project_root=self.root,
+        )
+        inventory = freezer.discover_regression_inventory(
+            reviewed_commit=reviewed_commit,
+            project_prefix=TEST_PROJECT_PREFIX,
+        )
+        selectors = inventory["selectors"]
+        non_heavy_selectors = inventory["non_heavy_selectors"]
+        heavy_selectors = inventory["heavy_selectors"]
+        non_heavy_modules = inventory["non_heavy_modules"]
+        source_fingerprint = inventory["source_fingerprint"]
+        self.assertIsInstance(selectors, list)
+        self.assertIsInstance(non_heavy_selectors, list)
+        self.assertIsInstance(heavy_selectors, list)
+        self.assertIsInstance(non_heavy_modules, list)
+        self.assertIsInstance(source_fingerprint, str)
+        runner_sha256 = sha256_file(
+            self.root / "scripts" / "run_governance_regression.py"
+        )
+        worker_sha256 = sha256_file(
+            self.root / "scripts" / "run_unittest_receipt.py"
+        )
+
+        def worker_result(
+            *,
+            request_kind: str,
+            requested_names: list[str],
+            expected_test_ids: list[str],
+            timeout_seconds: int,
+        ) -> dict[str, Any]:
+            worker_receipt = {
+                "schema_version": 1,
+                "runner_id": "ids-unittest-receipt-v1",
+                "runner_sha256": worker_sha256,
+                "status": "pass",
+                "request_kind": request_kind,
+                "requested_names": requested_names,
+                "loaded_test_ids": expected_test_ids,
+                "started_test_ids": expected_test_ids,
+                "successful_test_ids": expected_test_ids,
+                "tests_run": len(expected_test_ids),
+                "failures": [],
+                "errors": [],
+                "skipped_test_ids": [],
+                "expected_failure_test_ids": [],
+                "unexpected_success_test_ids": [],
+                "source_fingerprint_before": source_fingerprint,
+                "source_fingerprint_after": source_fingerprint,
+                "exact_execution": True,
+            }
+            stdout = (
+                json.dumps(
+                    worker_receipt,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                )
+                + "\n"
+            )
+            return {
+                "request_kind": request_kind,
+                "requested_names": requested_names,
+                "expected_test_ids": expected_test_ids,
+                "actual_process_exit": 0,
+                "timed_out": False,
+                "timeout_seconds": timeout_seconds,
+                "effective_timeout_seconds": timeout_seconds,
+                "stdout_sha256": hashlib.sha256(
+                    stdout.encode("utf-8")
+                ).hexdigest(),
+                "worker_receipt": worker_receipt,
+                "temporary_root_removed": True,
+                "result": "pass",
+            }
+
+        planned = [*non_heavy_selectors, *heavy_selectors]
+        return {
+            "schema_version": 2,
+            "runner_id": "ids-governance-regression-v2",
+            "runner_sha256": runner_sha256,
+            "worker_runner_id": "ids-unittest-receipt-v1",
+            "worker_runner_sha256": worker_sha256,
+            "status": "pass",
+            "worker_count": min(2, len(heavy_selectors)),
+            "total_timeout_seconds": 1320,
+            "source_fingerprint_before": source_fingerprint,
+            "source_fingerprint_after": source_fingerprint,
+            "selector_inventory_sha256": digest_value(selectors),
+            "discovered_test_ids": selectors,
+            "planned_test_ids": planned,
+            "loaded_test_ids": planned,
+            "started_test_ids": planned,
+            "successful_test_ids": planned,
+            "non_heavy_worker": worker_result(
+                request_kind="module",
+                requested_names=non_heavy_modules,
+                expected_test_ids=non_heavy_selectors,
+                timeout_seconds=900,
+            ),
+            "heavy_workers": [
+                worker_result(
+                    request_kind="selector",
+                    requested_names=[selector],
+                    expected_test_ids=[selector],
+                    timeout_seconds=600,
+                )
+                for selector in heavy_selectors
+            ],
+            "coverage_complete": True,
+            "active_process_count_after": 0,
+            "all_temporary_roots_removed": True,
+        }
+
     def commit_and_push(self, message: str) -> str:
         self.run_git(self.root, "add", "-A")
         self.run_git(self.root, "commit", "-m", message)
@@ -872,19 +1006,35 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
                 )
             ],
         }
+        machine_regression = self.make_regression_receipt(
+            reviewed_commit=reviewed_commit
+        )
 
         def machine_check(
             check_id: str,
             argv: list[str],
             *,
             cwd: str = "PROJECT_ROOT",
-            stdout: str = "fixture check passed\n",
+            stdout: str | None = None,
             structured_result: dict[str, Any] | None = None,
         ) -> dict[str, Any]:
+            if stdout is None:
+                stdout = (
+                    json.dumps(
+                        structured_result,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                    )
+                    + "\n"
+                    if structured_result is not None
+                    else "fixture check passed\n"
+                )
             check: dict[str, Any] = {
                 "check_id": check_id,
                 "argv": argv,
                 "cwd": cwd,
+                "timeout_seconds": MACHINE_TIMEOUTS[check_id],
+                "timed_out": False,
                 "actual_process_exit": 0,
                 "stdout_sha256": hashlib.sha256(
                     stdout.encode("utf-8")
@@ -953,10 +1103,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
                     "PYTHON",
                     "scripts/run_governance_regression.py",
                 ],
-                structured_result={
-                    "status": "pass",
-                    "coverage_complete": True,
-                },
+                structured_result=machine_regression,
             ),
             machine_check(
                 "CHECK-COMPILEALL",

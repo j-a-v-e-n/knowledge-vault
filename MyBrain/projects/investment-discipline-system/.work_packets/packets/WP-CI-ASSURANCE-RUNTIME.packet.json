@@ -15,6 +15,10 @@
       "kind": "file"
     },
     {
+      "path": "governance_tests/test_assurance_runner.py",
+      "kind": "file"
+    },
+    {
       "path": "scripts/replay_design_freeze_attacks.py",
       "kind": "file"
     },
@@ -24,6 +28,10 @@
     },
     {
       "path": "scripts/run_governance_regression.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/run_unittest_receipt.py",
       "kind": "file"
     }
   ],

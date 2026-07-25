@@ -8,6 +8,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -70,6 +71,65 @@ def normalize_argv(argv: list[str]) -> list[str]:
     return normalized
 
 
+def terminate_process_group(process: subprocess.Popen[str]) -> None:
+    if process.poll() is not None:
+        return
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            return
+    else:
+        process.terminate()
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        if os.name == "posix":
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                return
+        else:
+            process.kill()
+        process.wait()
+
+
+def run_bounded_command(
+    argv: list[str],
+    *,
+    cwd: Path,
+    timeout_seconds: int,
+) -> tuple[int, str, bool]:
+    try:
+        process = subprocess.Popen(
+            argv,
+            cwd=cwd,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            start_new_session=(os.name == "posix"),
+        )
+    except OSError as exc:
+        return 125, f"{type(exc).__name__}: {exc}\n", False
+    try:
+        stdout, _ = process.communicate(timeout=timeout_seconds)
+        return process.returncode, stdout, False
+    except subprocess.TimeoutExpired as exc:
+        terminate_process_group(process)
+        stdout, _ = process.communicate()
+        if not stdout:
+            captured = exc.stdout or ""
+            stdout = (
+                captured.decode("utf-8", errors="replace")
+                if isinstance(captured, bytes)
+                else captured
+            )
+        return 124, stdout, True
+    finally:
+        if process.poll() is None:
+            terminate_process_group(process)
+
+
 def execute_check(
     check_id: str,
     argv: list[str],
@@ -90,28 +150,14 @@ def execute_check(
         file=sys.stderr,
         flush=True,
     )
-    timed_out = False
-    try:
-        completed = subprocess.run(
-            argv,
-            cwd=cwd,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            check=False,
-            timeout=timeout_seconds,
-        )
-        process_exit = completed.returncode
-        stdout = completed.stdout
-    except subprocess.TimeoutExpired as exc:
-        timed_out = True
-        process_exit = 124
-        captured = exc.stdout or ""
-        if isinstance(captured, bytes):
-            captured = captured.decode("utf-8", errors="replace")
-        stdout = (
-            captured
-            + f"\nassurance check timed out after {timeout_seconds} seconds\n"
+    process_exit, stdout, timed_out = run_bounded_command(
+        argv,
+        cwd=cwd,
+        timeout_seconds=timeout_seconds,
+    )
+    if timed_out:
+        stdout += (
+            f"\nassurance check timed out after {timeout_seconds} seconds\n"
         )
     record: dict[str, Any] = {
         "check_id": check_id,

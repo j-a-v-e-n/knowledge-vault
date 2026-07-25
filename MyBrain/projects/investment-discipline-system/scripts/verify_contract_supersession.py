@@ -206,6 +206,7 @@ def verify_change_control(
         "frozen_files",
         "repository_frozen_files",
         "after_freeze",
+        "closure_mutation_policy",
     }
     if (
         not isinstance(old_control, dict)
@@ -220,6 +221,7 @@ def verify_change_control(
         "freeze_action",
         "trusted_git_remote",
         "after_freeze",
+        "closure_mutation_policy",
     ):
         if new_control[field] != old_control[field]:
             errors.append(f"changed frozen change_control.{field}")

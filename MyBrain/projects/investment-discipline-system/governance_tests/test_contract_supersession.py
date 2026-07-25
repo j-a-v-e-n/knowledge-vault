@@ -120,6 +120,15 @@ class ContractSupersessionTests(unittest.TestCase):
             "weakened change_control.frozen_files",
         )
 
+    def test_changed_closure_mutation_policy_is_rejected(self) -> None:
+        self.assert_rejected(
+            lambda value: value["change_control"].__setitem__(
+                "closure_mutation_policy",
+                "closure evidence may be rewritten after freeze",
+            ),
+            "changed frozen change_control.closure_mutation_policy",
+        )
+
     def test_duplicate_json_key_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "duplicate.json"

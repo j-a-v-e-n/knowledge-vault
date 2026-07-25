@@ -2,32 +2,27 @@ from __future__ import annotations
 
 import contextlib
 import io
-import subprocess
+import json
+import sys
+import tempfile
+import time
 import unittest
-from unittest import mock
+from pathlib import Path
 
 from scripts import run_assurance_ci
 
 
 class AssuranceRunnerTests(unittest.TestCase):
     def test_success_emits_started_and_completed_progress(self) -> None:
-        completed = subprocess.CompletedProcess(
-            args=["fixture-check"],
-            returncode=0,
-            stdout='{"status":"pass"}\n',
-        )
         progress = io.StringIO()
-        with (
-            mock.patch.object(
-                run_assurance_ci.subprocess,
-                "run",
-                return_value=completed,
-            ),
-            contextlib.redirect_stderr(progress),
-        ):
+        with contextlib.redirect_stderr(progress):
             receipt = run_assurance_ci.execute_check(
                 "CHECK-FIXTURE",
-                ["fixture-check"],
+                [
+                    sys.executable,
+                    "-c",
+                    "import json; print(json.dumps({'status': 'pass'}))",
+                ],
                 parse_json=True,
                 timeout_seconds=7,
             )
@@ -39,33 +34,85 @@ class AssuranceRunnerTests(unittest.TestCase):
         self.assertIn('"phase": "started"', progress.getvalue())
         self.assertIn('"phase": "completed"', progress.getvalue())
 
-    def test_timeout_fails_closed_and_preserves_partial_output(self) -> None:
+    def test_malformed_structured_output_fails_closed(self) -> None:
         progress = io.StringIO()
-        timeout = subprocess.TimeoutExpired(
-            cmd=["fixture-check"],
-            timeout=3,
-            output="partial diagnostic",
-        )
-        with (
-            mock.patch.object(
-                run_assurance_ci.subprocess,
-                "run",
-                side_effect=timeout,
-            ),
-            contextlib.redirect_stderr(progress),
-        ):
+        with contextlib.redirect_stderr(progress):
             receipt = run_assurance_ci.execute_check(
-                "CHECK-TIMEOUT",
-                ["fixture-check"],
-                timeout_seconds=3,
+                "CHECK-MALFORMED",
+                [sys.executable, "-c", "print('not json')"],
+                parse_json=True,
+                timeout_seconds=7,
             )
-
+        self.assertEqual(receipt["actual_process_exit"], 0)
         self.assertEqual(receipt["result"], "fail")
-        self.assertEqual(receipt["actual_process_exit"], 124)
-        self.assertTrue(receipt["timed_out"])
-        self.assertIn("partial diagnostic", receipt["stdout_tail"])
-        self.assertIn("timed out after 3 seconds", receipt["stdout_tail"])
-        self.assertIn("CHECK-TIMEOUT failure output tail", progress.getvalue())
+        self.assertIsNone(receipt["structured_result"])
+
+    @unittest.skipUnless(
+        run_assurance_ci.os.name == "posix",
+        "process-group assertion requires POSIX",
+    )
+    def test_timeout_kills_grandchild_and_preserves_partial_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            marker = Path(temporary) / "grandchild-survived.txt"
+            child = (
+                "import time\n"
+                "from pathlib import Path\n"
+                "time.sleep(0.7)\n"
+                f"Path({str(marker)!r}).write_text('survived')\n"
+            )
+            parent = (
+                "import subprocess\n"
+                "import sys\n"
+                "import time\n"
+                f"subprocess.Popen([sys.executable, '-c', {child!r}])\n"
+                "print('partial diagnostic', flush=True)\n"
+                "time.sleep(5)\n"
+            )
+            progress = io.StringIO()
+            with contextlib.redirect_stderr(progress):
+                receipt = run_assurance_ci.execute_check(
+                    "CHECK-TIMEOUT",
+                    [sys.executable, "-c", parent],
+                    timeout_seconds=0.1,
+                )
+
+            self.assertEqual(receipt["result"], "fail")
+            self.assertEqual(receipt["actual_process_exit"], 124)
+            self.assertTrue(receipt["timed_out"])
+            self.assertIn("partial diagnostic", receipt["stdout_tail"])
+            self.assertIn(
+                "timed out after 0.1 seconds",
+                receipt["stdout_tail"],
+            )
+            self.assertIn(
+                "CHECK-TIMEOUT failure output tail",
+                progress.getvalue(),
+            )
+            time.sleep(1)
+            self.assertFalse(marker.exists())
+
+    def test_spawn_error_fails_closed(self) -> None:
+        receipt = run_assurance_ci.execute_check(
+            "CHECK-NOT-FOUND",
+            ["/definitely/not/a/real/executable"],
+            timeout_seconds=1,
+        )
+        self.assertEqual(receipt["result"], "fail")
+        self.assertEqual(receipt["actual_process_exit"], 125)
+        self.assertFalse(receipt["timed_out"])
+        self.assertIn("FileNotFoundError", receipt["stdout_tail"])
+
+    def test_normalized_python_argv_is_stable(self) -> None:
+        receipt = run_assurance_ci.execute_check(
+            "CHECK-ARGV",
+            [
+                sys.executable,
+                "-c",
+                f"print({json.dumps('ok')})",
+            ],
+            timeout_seconds=7,
+        )
+        self.assertEqual(receipt["argv"][0], "PYTHON")
 
 
 if __name__ == "__main__":

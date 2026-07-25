@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import collections
 import copy
 import datetime as dt
+import fnmatch
 import hashlib
 import importlib.util
 import json
@@ -13,6 +15,7 @@ import os
 import re
 import subprocess
 import sys
+import unittest
 from pathlib import Path
 
 
@@ -77,6 +80,7 @@ MACHINE_CHECK_SPECS = {
         "argv": ["PYTHON", "scripts/verify_assurance_metadata.py", "--json"],
         "cwd": "PROJECT_ROOT",
         "structured": True,
+        "timeout_seconds": 300,
     },
     "CHECK-PROJECT-METHOD": {
         "argv": [
@@ -88,11 +92,13 @@ MACHINE_CHECK_SPECS = {
         ],
         "cwd": "PROJECT_ROOT",
         "structured": True,
+        "timeout_seconds": 1800,
     },
     "CHECK-CANDIDATE-GOVERNANCE": {
         "argv": ["PYTHON", "scripts/verify_governance.py", "--allow-candidate"],
         "cwd": "PROJECT_ROOT",
         "structured": False,
+        "timeout_seconds": 300,
     },
     "CHECK-CANONICAL-ATTACK-REPLAY": {
         "argv": [
@@ -103,6 +109,7 @@ MACHINE_CHECK_SPECS = {
         ],
         "cwd": "PROJECT_ROOT",
         "structured": True,
+        "timeout_seconds": 600,
     },
     "CHECK-GOVERNANCE-REGRESSION": {
         "argv": [
@@ -111,11 +118,13 @@ MACHINE_CHECK_SPECS = {
         ],
         "cwd": "PROJECT_ROOT",
         "structured": True,
+        "timeout_seconds": 1500,
     },
     "CHECK-COMPILEALL": {
         "argv": ["PYTHON", "-m", "compileall", "-q", "."],
         "cwd": "PROJECT_ROOT",
         "structured": False,
+        "timeout_seconds": 300,
     },
     "CHECK-RUFF": {
         "argv": [
@@ -129,13 +138,25 @@ MACHINE_CHECK_SPECS = {
         ],
         "cwd": "PROJECT_ROOT",
         "structured": False,
+        "timeout_seconds": 300,
     },
     "CHECK-GIT-DIFF": {
         "argv": ["git", "diff", "--check", "__CANDIDATE_COMMIT__"],
         "cwd": "REPOSITORY_ROOT",
         "structured": False,
+        "timeout_seconds": 300,
     },
 }
+REGRESSION_RUNNER = SCRIPT_DIR / "run_governance_regression.py"
+UNITTEST_RECEIPT_RUNNER = SCRIPT_DIR / "run_unittest_receipt.py"
+REGRESSION_TEST_PACKAGE = "governance_tests"
+REGRESSION_HEAVY_MODULE = "governance_tests.test_freeze_git_remote"
+REGRESSION_RUNNER_ID = "ids-governance-regression-v2"
+UNITTEST_RECEIPT_RUNNER_ID = "ids-unittest-receipt-v1"
+REGRESSION_MAX_HEAVY_WORKERS = 2
+REGRESSION_NON_HEAVY_TIMEOUT_SECONDS = 900
+REGRESSION_HEAVY_TIMEOUT_SECONDS = 600
+REGRESSION_TOTAL_TIMEOUT_SECONDS = 1320
 
 
 class DuplicateKeyError(ValueError):
@@ -629,6 +650,507 @@ def github_repository_from_url(fetch_url: str) -> str | None:
     return match.group("repository") if match else None
 
 
+def flatten_unittest_suite(suite: unittest.TestSuite) -> list[str]:
+    selectors: list[str] = []
+    for item in suite:
+        if isinstance(item, unittest.TestSuite):
+            selectors.extend(flatten_unittest_suite(item))
+        else:
+            selectors.append(item.id())
+    return selectors
+
+
+def current_regression_source_inventory() -> list[dict[str, str]]:
+    package_root = PROJECT_ROOT / REGRESSION_TEST_PACKAGE
+    try:
+        resolved = package_root.resolve(strict=True)
+    except OSError as exc:
+        raise SystemExit(
+            f"governance regression package cannot be resolved: {exc}"
+        ) from exc
+    if resolved != package_root or not resolved.is_dir() or resolved.is_symlink():
+        raise SystemExit("governance regression package is unsafe")
+    inventory: list[dict[str, str]] = []
+    for directory, directory_names, filenames in os.walk(
+        package_root,
+        followlinks=False,
+    ):
+        directory_path = Path(directory)
+        for name in list(directory_names):
+            child = directory_path / name
+            if child.is_symlink():
+                raise SystemExit(
+                    "governance regression source directory is a symlink"
+                )
+            if name == "__pycache__":
+                directory_names.remove(name)
+        for filename in filenames:
+            if not fnmatch.fnmatchcase(filename, "test*.py"):
+                continue
+            source = directory_path / filename
+            if source.is_symlink() or not source.is_file():
+                raise SystemExit(
+                    "governance regression source is not a regular file"
+                )
+            inventory.append(
+                {
+                    "path": source.relative_to(PROJECT_ROOT).as_posix(),
+                    "sha256": sha256_bytes(source.read_bytes()),
+                }
+            )
+    inventory.sort(key=lambda item: item["path"])
+    if not inventory:
+        raise SystemExit("governance regression source inventory is empty")
+    return inventory
+
+
+def candidate_regression_source_inventory(
+    reviewed_commit: str,
+    project_prefix: str,
+) -> list[dict[str, str]]:
+    pathspec = (
+        f":(top,literal){project_prefix}{REGRESSION_TEST_PACKAGE}"
+    )
+    listing = git_bytes(
+        "ls-tree",
+        "-r",
+        "-z",
+        "--full-tree",
+        "--name-only",
+        reviewed_commit,
+        "--",
+        pathspec,
+    )
+    if listing.returncode != 0:
+        raise SystemExit(
+            "cannot enumerate reviewed-candidate governance tests"
+        )
+    inventory: list[dict[str, str]] = []
+    for raw_path in listing.stdout.split(b"\0"):
+        if not raw_path:
+            continue
+        try:
+            repository_path = raw_path.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise SystemExit(
+                "reviewed-candidate governance test path is not UTF-8"
+            ) from exc
+        if not repository_path.startswith(project_prefix):
+            raise SystemExit(
+                "reviewed-candidate governance test escaped project prefix"
+            )
+        relative = repository_path.removeprefix(project_prefix)
+        if not fnmatch.fnmatchcase(Path(relative).name, "test*.py"):
+            continue
+        inventory.append(
+            {
+                "path": relative,
+                "sha256": sha256_bytes(
+                    commit_file_bytes(
+                        reviewed_commit,
+                        project_prefix,
+                        relative,
+                    )
+                ),
+            }
+        )
+    inventory.sort(key=lambda item: item["path"])
+    if not inventory:
+        raise SystemExit(
+            "reviewed-candidate governance test inventory is empty"
+        )
+    return inventory
+
+
+def discover_regression_inventory(
+    *,
+    reviewed_commit: str,
+    project_prefix: str,
+) -> dict[str, object]:
+    source_inventory = current_regression_source_inventory()
+    candidate_inventory = candidate_regression_source_inventory(
+        reviewed_commit,
+        project_prefix,
+    )
+    if source_inventory != candidate_inventory:
+        raise SystemExit(
+            "governance regression sources differ from reviewed candidate"
+        )
+    package_root = PROJECT_ROOT / REGRESSION_TEST_PACKAGE
+    modules: list[str] = []
+    for item in source_inventory:
+        relative = (
+            PROJECT_ROOT / item["path"]
+        ).relative_to(package_root).with_suffix("")
+        modules.append(
+            ".".join([REGRESSION_TEST_PACKAGE, *relative.parts])
+        )
+    if (
+        len(modules) != len(set(modules))
+        or modules.count(REGRESSION_HEAVY_MODULE) != 1
+    ):
+        raise SystemExit(
+            "governance regression module inventory is invalid"
+        )
+    root_text = str(PROJECT_ROOT)
+    inserted = not sys.path or sys.path[0] != root_text
+    if inserted:
+        sys.path.insert(0, root_text)
+    try:
+        loader = unittest.TestLoader()
+        try:
+            suite = loader.loadTestsFromNames(modules)
+        except Exception as exc:
+            raise SystemExit(
+                "governance regression discovery raised "
+                f"{type(exc).__name__}: {exc}"
+            ) from exc
+        if loader.errors:
+            raise SystemExit(
+                "governance regression discovery errors: "
+                + " | ".join(loader.errors)
+            )
+        selectors = sorted(flatten_unittest_suite(suite))
+    finally:
+        if inserted and sys.path and sys.path[0] == root_text:
+            sys.path.pop(0)
+    counts = collections.Counter(selectors)
+    if not selectors or any(count != 1 for count in counts.values()):
+        raise SystemExit(
+            "governance regression selectors are empty or duplicated"
+        )
+    if current_regression_source_inventory() != candidate_inventory:
+        raise SystemExit(
+            "governance regression sources changed during discovery"
+        )
+    heavy_selectors = [
+        item
+        for item in selectors
+        if item.startswith(f"{REGRESSION_HEAVY_MODULE}.")
+    ]
+    non_heavy_selectors = [
+        item
+        for item in selectors
+        if not item.startswith(f"{REGRESSION_HEAVY_MODULE}.")
+    ]
+    non_heavy_modules = [
+        item for item in modules if item != REGRESSION_HEAVY_MODULE
+    ]
+    if (
+        not heavy_selectors
+        or not non_heavy_selectors
+        or not non_heavy_modules
+        or collections.Counter(
+            [*non_heavy_selectors, *heavy_selectors]
+        )
+        != counts
+    ):
+        raise SystemExit(
+            "governance regression partition is incomplete"
+        )
+    return {
+        "source_inventory": candidate_inventory,
+        "source_fingerprint": sha256_bytes(
+            canonical_json_bytes(candidate_inventory)
+        ),
+        "modules": modules,
+        "selectors": selectors,
+        "non_heavy_modules": non_heavy_modules,
+        "non_heavy_selectors": non_heavy_selectors,
+        "heavy_selectors": heavy_selectors,
+    }
+
+
+def require_exact_object(
+    value: object,
+    fields: set[str],
+    label: str,
+) -> dict:
+    if not isinstance(value, dict) or set(value) != fields:
+        raise SystemExit(f"{label} schema differs")
+    return value
+
+
+def require_exact_string_list(
+    value: object,
+    expected: list[str],
+    label: str,
+) -> None:
+    if (
+        not isinstance(value, list)
+        or any(not isinstance(item, str) or not item for item in value)
+        or value != expected
+    ):
+        raise SystemExit(f"{label} differs")
+
+
+REGRESSION_WORKER_RECEIPT_FIELDS = {
+    "schema_version",
+    "runner_id",
+    "runner_sha256",
+    "status",
+    "request_kind",
+    "requested_names",
+    "loaded_test_ids",
+    "started_test_ids",
+    "successful_test_ids",
+    "tests_run",
+    "failures",
+    "errors",
+    "skipped_test_ids",
+    "expected_failure_test_ids",
+    "unexpected_success_test_ids",
+    "source_fingerprint_before",
+    "source_fingerprint_after",
+    "exact_execution",
+}
+REGRESSION_WORKER_FIELDS = {
+    "request_kind",
+    "requested_names",
+    "expected_test_ids",
+    "actual_process_exit",
+    "timed_out",
+    "timeout_seconds",
+    "effective_timeout_seconds",
+    "stdout_sha256",
+    "worker_receipt",
+    "temporary_root_removed",
+    "result",
+}
+REGRESSION_RECEIPT_FIELDS = {
+    "schema_version",
+    "runner_id",
+    "runner_sha256",
+    "worker_runner_id",
+    "worker_runner_sha256",
+    "status",
+    "worker_count",
+    "total_timeout_seconds",
+    "source_fingerprint_before",
+    "source_fingerprint_after",
+    "selector_inventory_sha256",
+    "discovered_test_ids",
+    "planned_test_ids",
+    "loaded_test_ids",
+    "started_test_ids",
+    "successful_test_ids",
+    "non_heavy_worker",
+    "heavy_workers",
+    "coverage_complete",
+    "active_process_count_after",
+    "all_temporary_roots_removed",
+}
+
+
+def require_regression_worker(
+    value: object,
+    *,
+    request_kind: str,
+    requested_names: list[str],
+    expected_test_ids: list[str],
+    timeout_seconds: int,
+    worker_sha256: str,
+    source_fingerprint: str,
+    label: str,
+) -> None:
+    worker = require_exact_object(
+        value,
+        REGRESSION_WORKER_FIELDS,
+        label,
+    )
+    require_exact_string_list(
+        worker.get("requested_names"),
+        requested_names,
+        f"{label} requested_names",
+    )
+    require_exact_string_list(
+        worker.get("expected_test_ids"),
+        expected_test_ids,
+        f"{label} expected_test_ids",
+    )
+    effective_timeout = worker.get("effective_timeout_seconds")
+    if (
+        worker.get("request_kind") != request_kind
+        or type(worker.get("actual_process_exit")) is not int
+        or worker.get("actual_process_exit") != 0
+        or worker.get("timed_out") is not False
+        or type(worker.get("timeout_seconds")) is not int
+        or worker.get("timeout_seconds") != timeout_seconds
+        or type(effective_timeout) not in (int, float)
+        or not 0 < effective_timeout <= timeout_seconds
+        or worker.get("temporary_root_removed") is not True
+        or worker.get("result") != "pass"
+    ):
+        raise SystemExit(f"{label} process result differs")
+    require_sha256(worker.get("stdout_sha256"), f"{label} stdout")
+    receipt = require_exact_object(
+        worker.get("worker_receipt"),
+        REGRESSION_WORKER_RECEIPT_FIELDS,
+        f"{label} receipt",
+    )
+    for field in (
+        "requested_names",
+        "loaded_test_ids",
+        "started_test_ids",
+        "successful_test_ids",
+    ):
+        expected = (
+            requested_names
+            if field == "requested_names"
+            else expected_test_ids
+        )
+        require_exact_string_list(
+            receipt.get(field),
+            expected,
+            f"{label} receipt {field}",
+        )
+    if (
+        type(receipt.get("schema_version")) is not int
+        or receipt.get("schema_version") != 1
+        or receipt.get("runner_id") != UNITTEST_RECEIPT_RUNNER_ID
+        or receipt.get("runner_sha256") != worker_sha256
+        or receipt.get("status") != "pass"
+        or receipt.get("request_kind") != request_kind
+        or type(receipt.get("tests_run")) is not int
+        or receipt.get("tests_run") != len(expected_test_ids)
+        or receipt.get("failures") != []
+        or receipt.get("errors") != []
+        or receipt.get("skipped_test_ids") != []
+        or receipt.get("expected_failure_test_ids") != []
+        or receipt.get("unexpected_success_test_ids") != []
+        or receipt.get("source_fingerprint_before") != source_fingerprint
+        or receipt.get("source_fingerprint_after") != source_fingerprint
+        or receipt.get("exact_execution") is not True
+    ):
+        raise SystemExit(f"{label} receipt result differs")
+    expected_stdout = (
+        json.dumps(receipt, ensure_ascii=False, sort_keys=True) + "\n"
+    )
+    if worker.get("stdout_sha256") != sha256_bytes(
+        expected_stdout.encode("utf-8")
+    ):
+        raise SystemExit(f"{label} stdout binding differs")
+
+
+def require_governance_regression_binding(
+    *,
+    check: dict,
+    reviewed_commit: str,
+    project_prefix: str,
+) -> None:
+    receipt = require_exact_object(
+        check.get("structured_result"),
+        REGRESSION_RECEIPT_FIELDS,
+        "machine governance regression receipt",
+    )
+    inventory = discover_regression_inventory(
+        reviewed_commit=reviewed_commit,
+        project_prefix=project_prefix,
+    )
+    selectors = inventory["selectors"]
+    non_heavy_selectors = inventory["non_heavy_selectors"]
+    heavy_selectors = inventory["heavy_selectors"]
+    non_heavy_modules = inventory["non_heavy_modules"]
+    if not all(
+        isinstance(value, list)
+        for value in (
+            selectors,
+            non_heavy_selectors,
+            heavy_selectors,
+            non_heavy_modules,
+        )
+    ):
+        raise SystemExit("internal regression inventory type differs")
+    planned = [*non_heavy_selectors, *heavy_selectors]
+    for field, expected in (
+        ("discovered_test_ids", selectors),
+        ("planned_test_ids", planned),
+        ("loaded_test_ids", planned),
+        ("started_test_ids", planned),
+        ("successful_test_ids", planned),
+    ):
+        require_exact_string_list(
+            receipt.get(field),
+            expected,
+            f"machine governance regression {field}",
+        )
+    runner_sha256 = sha256_bytes(REGRESSION_RUNNER.read_bytes())
+    worker_sha256 = sha256_bytes(UNITTEST_RECEIPT_RUNNER.read_bytes())
+    source_fingerprint = inventory["source_fingerprint"]
+    expected_worker_count = min(
+        REGRESSION_MAX_HEAVY_WORKERS,
+        len(heavy_selectors),
+    )
+    if (
+        type(receipt.get("schema_version")) is not int
+        or receipt.get("schema_version") != 2
+        or receipt.get("runner_id") != REGRESSION_RUNNER_ID
+        or receipt.get("runner_sha256") != runner_sha256
+        or receipt.get("worker_runner_id")
+        != UNITTEST_RECEIPT_RUNNER_ID
+        or receipt.get("worker_runner_sha256") != worker_sha256
+        or receipt.get("status") != "pass"
+        or type(receipt.get("worker_count")) is not int
+        or receipt.get("worker_count") != expected_worker_count
+        or type(receipt.get("total_timeout_seconds")) is not int
+        or receipt.get("total_timeout_seconds")
+        != REGRESSION_TOTAL_TIMEOUT_SECONDS
+        or receipt.get("source_fingerprint_before")
+        != source_fingerprint
+        or receipt.get("source_fingerprint_after")
+        != source_fingerprint
+        or receipt.get("selector_inventory_sha256")
+        != sha256_bytes(canonical_json_bytes(selectors))
+        or receipt.get("coverage_complete") is not True
+        or type(receipt.get("active_process_count_after")) is not int
+        or receipt.get("active_process_count_after") != 0
+        or receipt.get("all_temporary_roots_removed") is not True
+    ):
+        raise SystemExit("machine governance regression result differs")
+    require_regression_worker(
+        receipt.get("non_heavy_worker"),
+        request_kind="module",
+        requested_names=non_heavy_modules,
+        expected_test_ids=non_heavy_selectors,
+        timeout_seconds=REGRESSION_NON_HEAVY_TIMEOUT_SECONDS,
+        worker_sha256=worker_sha256,
+        source_fingerprint=source_fingerprint,
+        label="machine governance regression non-heavy worker",
+    )
+    heavy_workers = receipt.get("heavy_workers")
+    if (
+        not isinstance(heavy_workers, list)
+        or len(heavy_workers) != len(heavy_selectors)
+    ):
+        raise SystemExit(
+            "machine governance regression heavy worker set differs"
+        )
+    for index, (worker, selector) in enumerate(
+        zip(heavy_workers, heavy_selectors, strict=True)
+    ):
+        require_regression_worker(
+            worker,
+            request_kind="selector",
+            requested_names=[selector],
+            expected_test_ids=[selector],
+            timeout_seconds=REGRESSION_HEAVY_TIMEOUT_SECONDS,
+            worker_sha256=worker_sha256,
+            source_fingerprint=source_fingerprint,
+            label=f"machine governance regression heavy worker {index}",
+        )
+    expected_stdout = (
+        json.dumps(receipt, ensure_ascii=False, sort_keys=True) + "\n"
+    )
+    if (
+        check.get("stdout_sha256")
+        != sha256_bytes(expected_stdout.encode("utf-8"))
+        or check.get("stdout_tail") != expected_stdout[-4000:]
+    ):
+        raise SystemExit(
+            "machine governance regression check stdout binding differs"
+        )
+
+
 def require_machine_and_attestation(
     *,
     machine_manifest: dict,
@@ -701,6 +1223,8 @@ def require_machine_and_attestation(
             "check_id",
             "argv",
             "cwd",
+            "timeout_seconds",
+            "timed_out",
             "actual_process_exit",
             "stdout_sha256",
             "stdout_tail",
@@ -731,6 +1255,9 @@ def require_machine_and_attestation(
             or set(check) != expected_fields
             or check.get("argv") != expected_argv
             or check.get("cwd") != spec["cwd"]
+            or type(check.get("timeout_seconds")) is not int
+            or check.get("timeout_seconds") != spec["timeout_seconds"]
+            or check.get("timed_out") is not False
             or check.get("result") != "pass"
             or check.get("actual_process_exit") != 0
             or not isinstance(check.get("stdout_tail"), str)
@@ -751,6 +1278,11 @@ def require_machine_and_attestation(
         check_by_id[check_id] = check
     if list(check_by_id) != required_check_ids:
         raise SystemExit("machine-assurance manifest required checks differ")
+    require_governance_regression_binding(
+        check=check_by_id["CHECK-GOVERNANCE-REGRESSION"],
+        reviewed_commit=reviewed_commit,
+        project_prefix=trusted["project_prefix"],
+    )
 
     attestation_expected = {
         "schema_version": 1,
