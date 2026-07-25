@@ -50,6 +50,85 @@ ALLOWED_GAP_STATES = {
     "longitudinal_conditional",
     "resolved",
 }
+EXPECTED_TOP_LEVEL_FIELDS = {
+    "schema_version",
+    "status",
+    "derived_pre_review_eligible",
+    "derived_research_state",
+    "derivation_rules",
+    "topics",
+    "open_gaps",
+}
+EXPECTED_TOPIC_FIELDS = {
+    "claims",
+    "decision_served",
+    "deltas",
+    "evidence_clusters",
+    "gap_ids",
+    "id",
+    "impact",
+    "preregistration",
+    "reopen_triggers",
+    "search_protocol",
+    "source_outcomes",
+    "supplemental_rounds",
+    "title",
+    "unresolved_contradictions",
+}
+EXPECTED_STATE_DOMAINS = {
+    "entailment_status": [
+        "contested_non_decision_changing",
+        "entailed",
+        "not_entailed",
+        "partial",
+        "unreviewed",
+    ],
+    "gap_state": sorted(ALLOWED_GAP_STATES),
+    "preregistration_timing_state": [
+        "not_verifiably_preregistered",
+        "verified_before_search",
+    ],
+    "screening_decision": [
+        "excluded_from_claim_support",
+        "included",
+        "included_limited",
+        "not_individually_manifested",
+    ],
+    "supplemental_round_result": [
+        "completed_stable",
+        "completed_with_architecture_delta",
+        "completed_with_decision_delta",
+        "completed_with_open_blockers",
+        "not_run",
+    ],
+    "topic_impact": ["high"],
+}
+EXPECTED_PREDICATE_TESTS = {
+    "DR-01": "set_equals",
+    "DR-02": "all_equal",
+    "DR-03": "all_records_match",
+    "DR-04": "all_source_result_sets_complete",
+    "DR-05": "all_required_source_classes_and_clusters_complete",
+    "DR-06": "all_claims_meet_entailment_threshold",
+    "DR-07": "all_topics_have_stability_round_after_latest_delta",
+    "DR-08": (
+        "count_where_state_is_open_and_decision_effect_is_"
+        "architecture_or_decision_changing_at_most_threshold"
+    ),
+    "DR-09": (
+        "all_deltas_have_source_authority_status_rationale_"
+        "and_resolved_disposition"
+    ),
+    "DR-10": "all_topics_have_operational_reopen_trigger",
+    "DR-11": (
+        "all_high_impact_topics_have_completed_independent_"
+        "challenge_without_open_critical_or_major"
+    ),
+    "DR-12": (
+        "count_where_state_equals_pre_review_blocking_at_most_threshold"
+    ),
+    "DR-13": "all_sha256_match_current_files",
+}
 
 
 def sha256(path: Path) -> str:
@@ -658,6 +737,8 @@ def evaluate(document: dict[str, Any]) -> dict[str, Any]:
 
 def verify_document(document: dict[str, Any]) -> list[str]:
     errors: list[str] = []
+    if set(document) != EXPECTED_TOP_LEVEL_FIELDS:
+        errors.append("research sufficiency top-level fields differ")
     if document.get("schema_version") != 2:
         errors.append("research sufficiency schema_version differs")
     if document.get("status") not in {"candidate_for_freeze", "frozen"}:
@@ -673,6 +754,37 @@ def verify_document(document: dict[str, Any]) -> list[str]:
     }
     if predicate_ids != PRE_REVIEW_RULE_IDS | {"DR-11"}:
         errors.append("research sufficiency predicate IDs differ")
+    predicates = rules.get("predicates")
+    if not isinstance(predicates, list):
+        errors.append("research sufficiency predicates must be a list")
+    else:
+        for predicate in predicates:
+            if not isinstance(predicate, dict):
+                errors.append("research sufficiency predicate must be an object")
+                continue
+            predicate_id = predicate.get("id")
+            if predicate.get("test") != EXPECTED_PREDICATE_TESTS.get(
+                predicate_id
+            ):
+                errors.append(
+                    f"research sufficiency predicate test differs: {predicate_id}"
+                )
+    if rules.get("required_topic_fields") != sorted(EXPECTED_TOPIC_FIELDS):
+        errors.append("research sufficiency required_topic_fields differ")
+    observed_domains = rules.get("state_domains")
+    if not isinstance(observed_domains, dict):
+        errors.append("research sufficiency state_domains differ")
+    else:
+        normalized_domains = {
+            key: sorted(value) if isinstance(value, list) else value
+            for key, value in observed_domains.items()
+        }
+        expected_domains = {
+            key: sorted(value)
+            for key, value in EXPECTED_STATE_DOMAINS.items()
+        }
+        if normalized_domains != expected_domains:
+            errors.append("research sufficiency state_domains differ")
     expression = rules.get("pre_review_closure_expression")
     if (
         not isinstance(expression, dict)
@@ -680,6 +792,43 @@ def verify_document(document: dict[str, Any]) -> list[str]:
         or set(expression.get("predicate_ids", [])) != PRE_REVIEW_RULE_IDS
     ):
         errors.append("research pre-review closure expression differs")
+    topics = document.get("topics")
+    if isinstance(topics, list):
+        for topic in topics:
+            if not isinstance(topic, dict) or set(topic) != EXPECTED_TOPIC_FIELDS:
+                errors.append("research sufficiency topic fields differ")
+                continue
+            if (
+                topic.get("impact") != "high"
+                or not nonempty(topic.get("title"))
+                or not nonempty(topic.get("decision_served"))
+                or not isinstance(topic.get("gap_ids"), list)
+                or len(topic["gap_ids"]) != len(set(topic["gap_ids"]))
+            ):
+                errors.append(
+                    f"research sufficiency topic metadata differs: "
+                    f"{topic.get('id')}"
+                )
+    gaps = document.get("open_gaps")
+    if isinstance(gaps, list):
+        for gap in gaps:
+            if (
+                not isinstance(gap, dict)
+                or set(gap)
+                != {
+                    "affected_rule_ids",
+                    "affected_topic_ids",
+                    "evidence_required_to_close",
+                    "id",
+                    "state",
+                    "summary",
+                }
+                or not nonempty(gap.get("evidence_required_to_close"))
+                or not nonempty(gap.get("summary"))
+                or not isinstance(gap.get("affected_rule_ids"), list)
+                or not isinstance(gap.get("affected_topic_ids"), list)
+            ):
+                errors.append("research sufficiency gap fields differ")
     evaluation = evaluate(document)
     if (
         document.get("derived_pre_review_eligible")
