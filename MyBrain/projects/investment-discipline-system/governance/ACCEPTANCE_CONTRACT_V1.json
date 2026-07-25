@@ -638,57 +638,128 @@
       "rule": "独立目录恢复与重验通过"
     }
   ],
+  "conditional_evidence_schema": {
+    "required": ["schema_version", "condition_id", "gate_id", "gate_stage", "state", "candidate_commit", "candidate_tree", "frozen_bundle_sha256", "executor_ids", "acceptance_case_ids", "raw_result_path", "raw_result_sha256", "completed_at"],
+    "state_enum": ["passed", "failed", "inconclusive"],
+    "binding_rule": "verify_conditionals independently observes prerequisite readiness; evidence cannot set readiness. A ready prerequisite accepts a terminal state only when the raw result exists, its hash recomputes, candidate/frozen bindings match requested values, gate/executor/case bindings match the frozen catalog, and target-verdict stage rules pass."
+  },
   "conditional_gates": [
     {
       "id": "COND-TIINGO-LIVE-PROBE",
       "applies_to_requirements": ["REQ-PROVIDER-001"],
       "severity": "major",
-      "prerequisite_probe": "只检测 TIINGO_API_TOKEN 是否存在，不记录值",
+      "prerequisite_probe": {
+        "id": "PROBE-TIINGO-TOKEN-PRESENCE",
+        "authority": "process_environment_presence",
+        "selector": "conditionals.tiingo_token_present",
+        "secret_value_read_allowed": false,
+        "ready_when": {"present": true}
+      },
       "allowed_states": ["not_run_missing_user_credential", "mandatory_pending", "passed", "failed"],
-      "when_prerequisite_absent": "not_run_missing_user_credential",
-      "when_prerequisite_present": "mandatory_pending_then_passed_or_failed",
+      "transition_table": {
+        "not_ready": "not_run_missing_user_credential",
+        "ready_without_valid_gate_evidence": "mandatory_pending",
+        "gate_pass": "passed",
+        "gate_fail": "failed"
+      },
       "mandatory_gate_when_ready": "GATE-TIINGO-LIVE-PROBE",
       "evidence_path": "evidence/conditional/tiingo_live_probe.json",
-      "release_mapping": "缺凭据时 core_pass_with_unproven_conditions；凭据存在而未跑或失败时 blocked",
+      "required_acceptance_case_ids_by_stage": {"live_probe": ["CASE-TIINGO-CREDENTIAL-PRESENT-PENDING"]},
+      "release_mapping": {
+        "not_run_missing_user_credential": {"core_release_candidate": "allowed_with_unproven_condition"},
+        "mandatory_pending": {"core_release_candidate": "blocked"},
+        "passed": {"core_release_candidate": "allowed"},
+        "failed": {"core_release_candidate": "blocked"}
+      },
       "must_not_be_claimed": "Tiingo 真实账户、质量、覆盖和许可验收通过"
     },
     {
       "id": "COND-EXTERNAL-PAPER",
       "applies_to_requirements": ["REQ-PROVIDER-002"],
       "severity": "critical",
-      "prerequisite_probe": "检查冻结 scope 是否仍明确禁止任何网络下单适配器",
-      "allowed_states": ["out_of_scope"],
-      "when_prerequisite_absent": "out_of_scope",
-      "when_prerequisite_present": "out_of_scope",
+      "prerequisite_probe": {
+        "id": "PROBE-FROZEN-EXTERNAL-PAPER-SCOPE",
+        "authority": "frozen_contract_scope",
+        "selector": "conditionals.external_paper_scope",
+        "ready_when": {"live_execution_surface_present": false}
+      },
+      "allowed_states": ["out_of_scope", "forbidden_surface_detected"],
+      "transition_table": {
+        "not_ready": "forbidden_surface_detected",
+        "ready_without_valid_gate_evidence": "out_of_scope"
+      },
       "mandatory_gate_when_ready": null,
       "evidence_path": "evidence/conditional/external_paper.json",
-      "release_mapping": "始终不属于 V1 core verdict；任何实现或凭据使 V-NO-LIVE 失败并阻止发布",
+      "required_acceptance_case_ids_by_stage": {"scope": ["CASE-NO-LIVE-EXECUTION-SURFACE", "CASE-EXTERNAL-PAPER-NETWORK-FORBIDDEN"]},
+      "release_mapping": {
+        "out_of_scope": {"core_release_candidate": "allowed"},
+        "forbidden_surface_detected": {"core_release_candidate": "blocked"}
+      },
       "must_not_be_claimed": "Alpaca/IBKR/其他外部 Paper 认证、成交和对账通过"
     },
     {
       "id": "COND-LONGITUDINAL-EDGE",
       "applies_to_requirements": ["REQ-RESEARCH-003", "REQ-REVIEW-001", "REQ-QUAL-002"],
       "severity": "critical",
-      "prerequisite_probe": "检查冻结后未来纸面样本数、预注册周期是否结束及 experiment-family 污染状态",
+      "prerequisite_probe": {
+        "id": "PROBE-LONGITUDINAL-EDGE-WINDOW",
+        "authority": "runtime_sqlite_event_chain",
+        "selector": "conditionals.longitudinal_edge_window",
+        "table": "condition_observations",
+        "required_observation_fields": ["condition_id", "stage", "ready", "source_event_seq", "source_state_hash", "observed_at"],
+        "ready_when": {"stage": "future_window_ready", "ready": true}
+      },
       "allowed_states": ["not_yet_observable", "mandatory_pending", "passed", "failed", "inconclusive"],
-      "when_prerequisite_absent": "not_yet_observable",
-      "when_prerequisite_present": "mandatory_pending_then_passed_failed_or_inconclusive",
+      "transition_table": {
+        "not_ready": "not_yet_observable",
+        "ready_without_valid_gate_evidence": "mandatory_pending",
+        "gate_pass": "passed",
+        "gate_fail": "failed",
+        "gate_inconclusive": "inconclusive"
+      },
       "mandatory_gate_when_ready": "GATE-LONGITUDINAL-EVALUATION",
       "evidence_path": "evidence/conditional/longitudinal_edge.json",
-      "release_mapping": "不影响本地工作台 core release；始终阻止盈利、跑赢市场和实盘可用主张，直到独立门通过",
+      "required_acceptance_case_ids_by_stage": {"future_window": ["CASE-FAMILY-RENAME", "CASE-CONTAMINATION-UNKNOWN", "CASE-BENCHMARK-TOTAL-RETURN"]},
+      "release_mapping": {
+        "not_yet_observable": {"core_release_candidate": "allowed", "investment_edge_claim": "blocked"},
+        "mandatory_pending": {"core_release_candidate": "allowed", "investment_edge_claim": "blocked"},
+        "passed": {"core_release_candidate": "allowed", "investment_edge_claim": "eligible_for_independent_review"},
+        "failed": {"core_release_candidate": "allowed", "investment_edge_claim": "blocked"},
+        "inconclusive": {"core_release_candidate": "allowed", "investment_edge_claim": "blocked"}
+      },
       "must_not_be_claimed": "系统或策略能赚钱、跑赢市场或可投入真实资金"
     },
     {
       "id": "COND-JAVEN-FIELD-USE",
       "applies_to_requirements": ["REQ-RISK-001", "REQ-UX-001", "REQ-UX-002", "REQ-UX-004", "REQ-REVIEW-002"],
       "severity": "major",
-      "prerequisite_probe": "检查 Javen 是否完成首次人工 onboarding、至少一次真实纸面研究决定复盘，以及预注册的持续使用窗口是否结束",
+      "prerequisite_probe": {
+        "id": "PROBE-JAVEN-FIELD-USE-STAGE",
+        "authority": "runtime_sqlite_event_chain",
+        "selector": "conditionals.javen_field_use_stage",
+        "table": "condition_observations",
+        "required_observation_fields": ["condition_id", "stage", "ready", "source_event_seq", "source_state_hash", "observed_at"],
+        "ready_when": {"stage_in": ["human_onboarding_ready", "longitudinal_window_ready"], "ready": true}
+      },
       "allowed_states": ["not_yet_observable", "mandatory_pending", "passed", "failed", "inconclusive"],
-      "when_prerequisite_absent": "not_yet_observable",
-      "when_prerequisite_present": "mandatory_pending_then_passed_failed_or_inconclusive",
+      "transition_table": {
+        "not_ready": "not_yet_observable",
+        "ready_without_valid_gate_evidence": "mandatory_pending",
+        "gate_pass": "passed",
+        "gate_fail": "failed",
+        "gate_inconclusive": "inconclusive"
+      },
       "mandatory_gate_when_ready": "GATE-JAVEN-FIELD-USE",
       "evidence_path": "evidence/conditional/javen_field_use.json",
-      "release_mapping": "自动化完成时只能称 core_release_candidate；真实非 fixture onboarding 后可称 human_onboarding_verified；持续采用和行为改善只有预注册窗口通过后才称 longitudinal_personal_validation，失败进入 design_reopened",
+      "required_acceptance_case_ids_by_stage": {
+        "human_onboarding": ["CASE-HUMAN-REAL-JOURNEY", "CASE-FIELD-USE-FIXTURE-REJECTED", "CASE-BACKUP-UNENCRYPTED-STATUS"],
+        "longitudinal": ["CASE-FIELD-USE-FAIL-REOPENS"]
+      },
+      "release_mapping": {
+        "core_release_candidate": {"required_state": "not_yet_observable_or_later", "on_failed": "design_reopened"},
+        "human_onboarding_verified": {"required_probe_stage": "human_onboarding_ready", "required_gate_stage": "human_onboarding", "required_state": "passed", "on_failed": "design_reopened"},
+        "longitudinal_personal_validation": {"required_probe_stage": "longitudinal_window_ready", "required_gate_stage": "longitudinal", "required_state": "passed", "on_failed": "design_reopened"}
+      },
       "must_not_be_claimed": "已经证明长期好用、降低情绪失控或 Javen 会持续采用"
     }
   ],

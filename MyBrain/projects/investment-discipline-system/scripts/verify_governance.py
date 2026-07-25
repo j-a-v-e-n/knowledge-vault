@@ -310,6 +310,7 @@ def verify_verification_specs(
     specs_doc: dict[str, Any],
     verification_ids: set[str],
     requirements: Any,
+    cases_doc: dict[str, Any],
     case_ids: set[str],
     errors: list[str],
 ) -> set[str]:
@@ -350,6 +351,7 @@ def verify_verification_specs(
                 )
 
     referenced_cases: set[str] = set()
+    fixture_cases_by_id: dict[str, set[str]] = {}
     if isinstance(fixture_sets, list):
         for fixture_set in fixture_sets:
             if not isinstance(fixture_set, dict):
@@ -372,6 +374,9 @@ def verify_verification_specs(
                     f"{fixture_id} references unknown acceptance cases: {sorted(unknown)}"
                 )
             referenced_cases.update(item for item in cases if item in case_ids)
+            fixture_cases_by_id[fixture_id] = {
+                item for item in cases if item in case_ids
+            }
     if referenced_cases != case_ids:
         errors.append(
             "negative fixture case coverage differs: "
@@ -382,6 +387,15 @@ def verify_verification_specs(
     expected_requirements: dict[str, set[str]] = {
         verification_id: set() for verification_id in verification_ids
     }
+    expected_cases: dict[str, set[str]] = {
+        verification_id: set() for verification_id in verification_ids
+    }
+    for case in cases_doc.get("cases", []):
+        if not isinstance(case, dict) or not isinstance(case.get("id"), str):
+            continue
+        for verification_id in case.get("verification_ids", []):
+            if verification_id in expected_cases:
+                expected_cases[verification_id].add(case["id"])
     if isinstance(requirements, list):
         for requirement in requirements:
             if not isinstance(requirement, dict):
@@ -415,6 +429,30 @@ def verify_verification_specs(
                 if unknown:
                     errors.append(
                         f"{spec_id} references unknown negative fixtures: {sorted(unknown)}"
+                    )
+            actual_cases = spec.get("acceptance_case_ids")
+            if (
+                not isinstance(actual_cases, list)
+                or not actual_cases
+                or not all(isinstance(item, str) for item in actual_cases)
+                or len(actual_cases) != len(set(actual_cases))
+            ):
+                errors.append(f"{spec_id} has no exact acceptance_case_ids")
+            elif set(actual_cases) != expected_cases.get(spec_id, set()):
+                errors.append(
+                    f"{spec_id} reverse acceptance case binding differs: "
+                    f"expected={sorted(expected_cases.get(spec_id, set()))}, "
+                    f"actual={sorted(set(actual_cases))}"
+                )
+            elif isinstance(negative_sets, list):
+                grouped_cases: set[str] = set()
+                for fixture_id in negative_sets:
+                    grouped_cases.update(fixture_cases_by_id.get(fixture_id, set()))
+                missing_group_membership = set(actual_cases) - grouped_cases
+                if missing_group_membership:
+                    errors.append(
+                        f"{spec_id} exact acceptance cases are absent from its fixture sets: "
+                        f"{sorted(missing_group_membership)}"
                     )
             path = spec.get("evidence_path")
             if not isinstance(path, str) or not path.startswith("evidence/verification/"):
@@ -789,22 +827,50 @@ def verify_assurance_subjects(
 
 
 def verify_conditionals(
-    conditional_gates: Any, requirement_ids: set[str], errors: list[str]
+    contract: dict[str, Any],
+    requirement_ids: set[str],
+    case_ids: set[str],
+    errors: list[str],
 ) -> None:
+    conditional_gates = contract.get("conditional_gates")
     if not isinstance(conditional_gates, list):
         return
+    evidence_schema = contract.get("conditional_evidence_schema")
+    required_evidence_fields = {
+        "schema_version",
+        "condition_id",
+        "gate_id",
+        "gate_stage",
+        "state",
+        "candidate_commit",
+        "candidate_tree",
+        "frozen_bundle_sha256",
+        "executor_ids",
+        "acceptance_case_ids",
+        "raw_result_path",
+        "raw_result_sha256",
+        "completed_at",
+    }
+    if (
+        not isinstance(evidence_schema, dict)
+        or set(evidence_schema.get("required", [])) != required_evidence_fields
+        or set(evidence_schema.get("state_enum", []))
+        != {"passed", "failed", "inconclusive"}
+    ):
+        errors.append("conditional evidence schema differs")
     required_fields = {
         "applies_to_requirements",
         "severity",
         "prerequisite_probe",
         "allowed_states",
-        "when_prerequisite_absent",
-        "when_prerequisite_present",
+        "transition_table",
         "mandatory_gate_when_ready",
         "evidence_path",
+        "required_acceptance_case_ids_by_stage",
         "release_mapping",
         "must_not_be_claimed",
     }
+    probe_ids: set[str] = set()
     for gate in conditional_gates:
         if not isinstance(gate, dict):
             continue
@@ -822,21 +888,96 @@ def verify_conditionals(
                     f"{gate_id} references unknown requirements: {sorted(unknown)}"
                 )
         states = gate.get("allowed_states")
-        if not isinstance(states, list) or not states:
+        if (
+            not isinstance(states, list)
+            or not states
+            or not all(isinstance(state, str) for state in states)
+            or len(states) != len(set(states))
+        ):
             errors.append(f"{gate_id} has no allowed_states")
         else:
-            for transition_field in (
-                "when_prerequisite_absent",
-                "when_prerequisite_present",
+            transition_table = gate.get("transition_table")
+            if not isinstance(transition_table, dict) or not transition_table:
+                errors.append(f"{gate_id} transition_table must be a nonempty object")
+            else:
+                unknown_states = {
+                    state
+                    for state in transition_table.values()
+                    if not isinstance(state, str) or state not in states
+                }
+                if unknown_states:
+                    errors.append(
+                        f"{gate_id} transition_table uses unknown states: "
+                        f"{sorted(str(state) for state in unknown_states)}"
+                    )
+        probe = gate.get("prerequisite_probe")
+        if not isinstance(probe, dict):
+            errors.append(f"{gate_id} prerequisite_probe must be structured")
+        else:
+            probe_id = probe.get("id")
+            authority = probe.get("authority")
+            selector = probe.get("selector")
+            if not isinstance(probe_id, str) or not probe_id:
+                errors.append(f"{gate_id} prerequisite probe id is missing")
+            elif probe_id in probe_ids:
+                errors.append(f"duplicate prerequisite probe id: {probe_id}")
+            else:
+                probe_ids.add(probe_id)
+            if authority not in {
+                "process_environment_presence",
+                "frozen_contract_scope",
+                "runtime_sqlite_event_chain",
+            }:
+                errors.append(f"{gate_id} prerequisite authority is not independent")
+            if (
+                not isinstance(selector, str)
+                or not re.fullmatch(
+                    r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+", selector
+                )
             ):
-                transition = gate.get(transition_field)
+                errors.append(f"{gate_id} prerequisite selector is not parseable")
+            if not isinstance(probe.get("ready_when"), dict):
+                errors.append(f"{gate_id} prerequisite ready_when must be structured")
+            if authority == "runtime_sqlite_event_chain":
+                required_observations = probe.get("required_observation_fields")
                 if (
-                    isinstance(transition, str)
-                    and "_then_" not in transition
-                    and transition not in states
+                    probe.get("table") != "condition_observations"
+                    or not isinstance(required_observations, list)
+                    or not {
+                        "condition_id",
+                        "stage",
+                        "ready",
+                        "source_event_seq",
+                        "source_state_hash",
+                        "observed_at",
+                    }.issubset(set(required_observations))
                 ):
                     errors.append(
-                        f"{gate_id} {transition_field} is outside allowed_states"
+                        f"{gate_id} runtime prerequisite lacks authoritative observation binding"
+                    )
+            if "prerequisite_ready" in probe:
+                errors.append(f"{gate_id} trusts self-reported prerequisite readiness")
+        release_mapping = gate.get("release_mapping")
+        if not isinstance(release_mapping, dict) or not release_mapping:
+            errors.append(f"{gate_id} release_mapping must be structured")
+        stage_cases = gate.get("required_acceptance_case_ids_by_stage")
+        if not isinstance(stage_cases, dict) or not stage_cases:
+            errors.append(f"{gate_id} has no stage acceptance cases")
+        else:
+            for stage, references in stage_cases.items():
+                if (
+                    not isinstance(stage, str)
+                    or not isinstance(references, list)
+                    or not references
+                    or not all(isinstance(item, str) for item in references)
+                ):
+                    errors.append(f"{gate_id} has invalid stage acceptance cases")
+                    continue
+                unknown_cases = set(references) - case_ids
+                if unknown_cases:
+                    errors.append(
+                        f"{gate_id} references unknown conditional cases: "
+                        f"{sorted(unknown_cases)}"
                     )
         evidence_path = gate.get("evidence_path")
         if not isinstance(evidence_path, str) or not evidence_path.startswith(
@@ -1029,10 +1170,15 @@ def verify(allow_candidate: bool) -> list[str]:
         acceptance_cases, requirement_ids, verification_ids, errors
     )
     executor_ids = verify_verification_specs(
-        verification_specs, verification_ids, requirements, case_ids, errors
+        verification_specs,
+        verification_ids,
+        requirements,
+        acceptance_cases,
+        case_ids,
+        errors,
     )
     verify_assurance_subjects(assurance_subjects, research, errors)
-    verify_conditionals(contract.get("conditional_gates"), requirement_ids, errors)
+    verify_conditionals(contract, requirement_ids, case_ids, errors)
     verify_gate_catalogs(contract, executor_ids, errors)
     for label, document in (
         ("money spec", money_spec),
