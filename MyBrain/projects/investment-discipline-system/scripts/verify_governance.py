@@ -2684,8 +2684,6 @@ def verify_research_register(
             "extra=[]"
         )
     artifact_paths: set[str] = set()
-    artifact_by_id: dict[str, dict[str, Any]] = {}
-    final_artifact_ids: set[str] = set()
     if isinstance(artifacts, list):
         for artifact in artifacts:
             if not isinstance(artifact, dict):
@@ -2695,7 +2693,6 @@ def verify_research_register(
                 r"ARTIFACT-[A-Z0-9-]+", artifact_id
             ):
                 errors.append(f"{artifact_id} research artifact id is invalid")
-            artifact_by_id[artifact_id] = artifact
             relative = artifact.get("path")
             expected_hash = artifact.get("sha256")
             if (
@@ -2756,14 +2753,11 @@ def verify_research_register(
                 )
             )
             final_role = role == "independent_final_challenge"
-            if final_id != final_role:
-                errors.append(f"{artifact_id} final challenge artifact role differs")
-            if final_id and final_role:
-                final_artifact_ids.add(artifact_id)
-    if len(final_artifact_ids) > 1:
-        errors.append(
-            "research contains more than one final challenge primary artifact"
-        )
+            if final_id or final_role:
+                errors.append(
+                    f"{artifact_id} post-candidate final review evidence must not "
+                    "be a candidate primary artifact"
+                )
 
     challenge = research.get("challenge")
     if not isinstance(challenge, dict):
@@ -2905,21 +2899,11 @@ def verify_research_register(
         errors.append("frozen research has no valid completed challenge")
     if last_result == "passed_freeze" and isinstance(rounds[-1], dict):
         final_round = rounds[-1]
-        matching_final_artifacts = [
-            artifact
-            for artifact_id, artifact in artifact_by_id.items()
-            if artifact_id in final_artifact_ids
-            and artifact.get("path") == final_round.get("evidence_path")
-            and artifact.get("sha256") == final_round.get("evidence_sha256")
-        ]
-        if len(matching_final_artifacts) != 1:
+        if final_round.get("evidence_path") in artifact_paths:
             errors.append(
-                "passing final challenge is not bound to one final research artifact"
+                "passing final challenge evidence is circularly registered as a "
+                "candidate primary artifact"
             )
-    elif final_artifact_ids:
-        errors.append(
-            "final challenge research artifact exists without a passing final round"
-        )
 
 
 def verify_conditionals(

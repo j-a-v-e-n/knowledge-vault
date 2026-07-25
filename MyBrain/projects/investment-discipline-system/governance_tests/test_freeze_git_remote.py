@@ -106,6 +106,17 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             self.root,
             ignore=shutil.ignore_patterns(".git", "__pycache__", "*.pyc"),
         )
+        source_repository = Path(
+            subprocess.check_output(
+                ["git", "rev-parse", "--show-toplevel"],
+                cwd=PROJECT_ROOT,
+                text=True,
+            ).strip()
+        )
+        source_workflow = source_repository / WORKFLOW_RELATIVE
+        fixture_workflow = self.repo_root / WORKFLOW_RELATIVE
+        fixture_workflow.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_workflow, fixture_workflow)
         self.run_git(
             self.temp_root,
             "init",
@@ -121,6 +132,25 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "project_prefix": TEST_PROJECT_PREFIX,
         }
         self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        trust = self.read_json("governance/ASSURANCE_TRUST_MODEL_V1.json")
+        git_content = trust["trust_roots"]["git_content"]
+        git_content.update(
+            {
+                "repository": FIXTURE_REPOSITORY,
+                "remote_name": "origin",
+                "fetch_url": str(self.remote),
+                "branch": "main",
+                "project_prefix": TEST_PROJECT_PREFIX,
+            }
+        )
+        machine_trust = trust["trust_roots"][
+            "github_actions_machine_execution"
+        ]
+        machine_trust["repository"] = FIXTURE_REPOSITORY
+        machine_trust["attested_artifact_path"] = (
+            f"{TEST_PROJECT_PREFIX}{MACHINE_MANIFEST_RELATIVE}"
+        )
+        self.write_json("governance/ASSURANCE_TRUST_MODEL_V1.json", trust)
         verifier = self.root / "scripts" / "verify_governance.py"
         verifier_source = verifier.read_text(encoding="utf-8")
         production_policy = (
@@ -149,6 +179,29 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+        assurance_verifier = (
+            self.root / "scripts" / "verify_assurance_metadata.py"
+        )
+        assurance_source = assurance_verifier.read_text(encoding="utf-8")
+        repository_parser = (
+            "def github_repository_from_url(value: Any) -> str | None:\n"
+            "    if not isinstance(value, str):\n"
+        )
+        fixture_repository_parser = (
+            "def github_repository_from_url(value: Any) -> str | None:\n"
+            f"    if value == {str(self.remote)!r}:\n"
+            f"        return {FIXTURE_REPOSITORY!r}\n"
+            "    if not isinstance(value, str):\n"
+        )
+        self.assertIn(repository_parser, assurance_source)
+        assurance_verifier.write_text(
+            assurance_source.replace(
+                repository_parser,
+                fixture_repository_parser,
+                1,
+            ),
+            encoding="utf-8",
+        )
         self.run_git(self.repo_root, "init", "--initial-branch=main")
         self.run_git(self.repo_root, "config", "user.name", "Governance Test")
         self.run_git(
@@ -157,6 +210,18 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "user.email",
             "governance@example.invalid",
         )
+        self.run_git(self.root, "add", ".")
+        self.run_git(self.root, "commit", "-m", "fixture preregistration anchor")
+        preregistration_commit = self.git_text(
+            self.root,
+            "rev-parse",
+            "HEAD",
+        )
+        self.make_research_sufficiency_eligible(preregistration_commit)
+        refresh = self.run_project_script(
+            PROJECT_ROOT / "scripts" / "refresh_ground_truth_manifest.py"
+        )
+        self.assertEqual(refresh.returncode, 0, refresh.stdout)
         self.run_git(self.root, "add", ".")
         self.run_git(self.root, "commit", "-m", "candidate fixture")
         self.run_git(self.root, "remote", "add", "origin", str(self.remote))

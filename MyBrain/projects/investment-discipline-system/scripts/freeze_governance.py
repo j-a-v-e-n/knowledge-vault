@@ -32,7 +32,6 @@ GROUND_TRUTH_RELATIVE = "governance/GROUND_TRUTH_MANIFEST_V1.json"
 IMPLEMENTATION_TARGETS_RELATIVE = "governance/IMPLEMENTATION_TARGETS_V1.json"
 RESEARCH_SUFFICIENCY_RELATIVE = "governance/RESEARCH_SUFFICIENCY_V1.json"
 ATTACK_RUNNER = SCRIPT_DIR / "run_design_freeze_attack.py"
-FINAL_ARTIFACT_ID = re.compile(r"ARTIFACT-CHALLENGE-FINAL-R[0-9]+")
 TRUSTED_REMOTE_FIELDS = {
     "name",
     "fetch_url",
@@ -777,19 +776,20 @@ def require_review_closure(
         challenge_after.get("rounds"),
         "research challenge rounds",
     )
-    _, final_artifact = require_prefix_append(
-        research_before.get("primary_artifacts"),
-        research_after.get("primary_artifacts"),
-        "research primary_artifacts",
-    )
-    if not isinstance(final_round, dict) or not isinstance(final_artifact, dict):
-        raise SystemExit("final review round and artifact must be objects")
+    if not isinstance(final_round, dict):
+        raise SystemExit("final review round must be an object")
+    if research_before.get("primary_artifacts") != research_after.get(
+        "primary_artifacts"
+    ):
+        raise SystemExit(
+            "post-candidate final review evidence must not enter "
+            "research primary_artifacts"
+        )
 
     expected_research = copy.deepcopy(research_before)
     expected_research["status"] = "adopted_with_explicit_limits"
     expected_research["challenge"]["status"] = "completed"
     expected_research["challenge"]["rounds"].append(copy.deepcopy(final_round))
-    expected_research["primary_artifacts"].append(copy.deepcopy(final_artifact))
     if expected_research != research_after:
         raise SystemExit("research closure changed fields outside the allowed metadata")
 
@@ -1010,15 +1010,6 @@ def require_review_closure(
     for key, expected in round_expected.items():
         if final_round.get(key) != expected:
             raise SystemExit(f"final review round {key} does not match evidence")
-
-    if (
-        not isinstance(final_artifact.get("id"), str)
-        or FINAL_ARTIFACT_ID.fullmatch(final_artifact["id"]) is None
-        or final_artifact.get("role") != "independent_final_challenge"
-        or final_artifact.get("path") != evidence_path
-        or final_artifact.get("sha256") != evidence_hash
-    ):
-        raise SystemExit("final research artifact does not match final review evidence")
 
     if (
         assurance_before.get("status") != "candidate_for_freeze"
