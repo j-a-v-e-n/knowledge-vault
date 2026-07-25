@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "topic_id": "RS-05",
+  "round_id": "RESEARCH-REFRESH-R8",
+  "generated_at_utc": "2026-07-25T16:36:58Z",
+  "preregistration": {
+    "commit": "7824a63afe923d5e38c0c6f06577a7d1adfb81d5",
+    "commit_utc": "2026-07-25T16:13:44Z",
+    "file_sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8"
+  },
+  "transport_note": "HTTP source files are the exact local response-body bytes emitted by curl after content-encoding decoding. byte_count and sha256 below describe those local bytes, not compressed transfer sizes.",
+  "source_snapshots": [
+    {
+      "source_id": "RS05-SRC-GH-DOC-LIVE",
+      "topic_id": "RS-05",
+      "local_path": "github_docs_artifact_attestations_2026-07-25.html",
+      "canonical_url_or_repo_commit": "https://docs.github.com/en/actions/concepts/security/artifact-attestations",
+      "retrieved_at_utc": "2026-07-25T16:28:29Z/2026-07-25T16:28:30Z",
+      "media_type": "text/html; charset=utf-8",
+      "byte_count": 298345,
+      "sha256": "d91064f240ea74e135440faf4c59585ba639dd907f68466347cdf250a4eb7c81",
+      "source_range_used": "HTML lines 20-25 and 46-51",
+      "license_or_quotation_boundary": "Exact bytes retained as internal research evidence; report uses paraphrase and only short attributed excerpts.",
+      "revision_or_supersession_state": "mutable live current page at retrieval"
+    },
+    {
+      "source_id": "RS05-SRC-GH-DOC-SOURCE-PIN",
+      "topic_id": "RS-05",
+      "local_path": "github_docs_artifact_attestations_b17436de8f10c3e7f6a185d6813bf94bc82d22f8.md",
+      "canonical_url_or_repo_commit": "https://github.com/github/docs/blob/b17436de8f10c3e7f6a185d6813bf94bc82d22f8/content/actions/concepts/security/artifact-attestations.md",
+      "retrieved_at_utc": "2026-07-25T16:32:44Z",
+      "media_type": "text/plain; charset=utf-8",
+      "byte_count": 3828,
+      "sha256": "664b528c604fb5b1cd0100b7dc5f785ccbef5091421840b460cd2a750d02f4dd",
+      "source_range_used": "lines 18-20, 28-30, 34-50",
+      "license_or_quotation_boundary": "Exact source retained for reproducibility; report uses paraphrase and short attributed excerpts.",
+      "revision_or_supersession_state": "immutable repository commit resolved from live page edit target"
+    },
+    {
+      "source_id": "RS05-SRC-GH-DOC-MAIN-REF",
+      "topic_id": "RS-05",
+      "local_path": "github_docs_main_ref_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/github/docs/git/ref/heads/main",
+      "retrieved_at_utc": "2026-07-25T16:32:43Z/2026-07-25T16:32:44Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 368,
+      "sha256": "2f08da2a1e1b0b86b2aed2e4f050dbe084a3feda50e5949b767b4a130f624add",
+      "source_range_used": "whole response; object.sha",
+      "license_or_quotation_boundary": "Factual API revision receipt.",
+      "revision_or_supersession_state": "mutable ref receipt resolving to b17436de8f10c3e7f6a185d6813bf94bc82d22f8"
+    },
+    {
+      "source_id": "RS05-SRC-GH-CLI-MANUAL-LIVE",
+      "topic_id": "RS-05",
+      "local_path": "github_cli_gh_attestation_verify_2026-07-25.html",
+      "canonical_url_or_repo_commit": "https://cli.github.com/manual/gh_attestation_verify",
+      "retrieved_at_utc": "2026-07-25T16:28:30Z",
+      "media_type": "text/html; charset=utf-8",
+      "byte_count": 110557,
+      "sha256": "b5cffef82b3ed36d64d74e7fe8eaef4eea08a9eed29cf8e616f43b6ef770fd62",
+      "source_range_used": "HTML lines 7395-7438, 7464-7509, 7514-7596",
+      "license_or_quotation_boundary": "Exact bytes retained as internal research evidence; report paraphrases and uses short attributed excerpts.",
+      "revision_or_supersession_state": "mutable live manual current at retrieval"
+    },
+    {
+      "source_id": "RS05-SRC-SLSA-V1.2-LIVE",
+      "topic_id": "RS-05",
+      "local_path": "slsa_v1.2_threats_2026-07-25.html",
+      "canonical_url_or_repo_commit": "https://slsa.dev/spec/v1.2/threats",
+      "retrieved_at_utc": "2026-07-25T16:28:30Z/2026-07-25T16:28:31Z",
+      "media_type": "text/html; charset=UTF-8",
+      "byte_count": 70463,
+      "sha256": "3f314dbd80cbe0c70ed9b514094b5b7c60e43ec27aa1a1b3ec933b69ca45a31e",
+      "source_range_used": "versioned sections Build process, Availability threats, Verification threats",
+      "license_or_quotation_boundary": "Exact bytes retained as internal research evidence; report paraphrases and uses short attributed excerpts.",
+      "revision_or_supersession_state": "versioned v1.2 live rendering"
+    },
+    {
+      "source_id": "RS05-SRC-SLSA-V1.2-TAG-REF",
+      "topic_id": "RS-05",
+      "local_path": "slsa_v1.2_tag_ref_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/slsa-framework/slsa/git/ref/tags/v1.2",
+      "retrieved_at_utc": "2026-07-25T16:29:26Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 378,
+      "sha256": "5f9a7511d6e0656f106220a74d973949e8d8ac5da94d7c144123f5d47f7fe5eb",
+      "source_range_used": "whole response; ref and object.sha",
+      "license_or_quotation_boundary": "Factual API revision receipt.",
+      "revision_or_supersession_state": "tag v1.2 resolves directly to commit 19e4e2f005f871270c4f555fc47afecfb37f3efe"
+    },
+    {
+      "source_id": "RS05-SRC-SLSA-V1.2-THREATS-PIN",
+      "topic_id": "RS-05",
+      "local_path": "slsa_v1.2_threats_19e4e2f005f871270c4f555fc47afecfb37f3efe.md",
+      "canonical_url_or_repo_commit": "https://github.com/slsa-framework/slsa/blob/19e4e2f005f871270c4f555fc47afecfb37f3efe/docs/spec/v1.2/threats.md",
+      "retrieved_at_utc": "2026-07-25T16:29:26Z/2026-07-25T16:29:27Z",
+      "media_type": "text/plain; charset=utf-8",
+      "byte_count": 48854,
+      "sha256": "2d86d5ed3b2d70771773eb79724ce6cc034ef131ade49ebb48f28a2fe2961cda",
+      "source_range_used": "lines 460-615 and 988-1038",
+      "license_or_quotation_boundary": "Versioned standard retained exactly; report paraphrases and uses only short attributed excerpts. License terms were not independently adjudicated in this topic.",
+      "revision_or_supersession_state": "immutable commit for tag v1.2"
+    },
+    {
+      "source_id": "RS05-SRC-OPENSSF-MINI-SHAI-HULUD",
+      "topic_id": "RS-05",
+      "local_path": "openssf_mini_shai_hulud_2026-06-10.html",
+      "canonical_url_or_repo_commit": "https://openssf.org/blog/2026/06/10/mini-shai-hulud-where-slsas-boundaries-fall/",
+      "retrieved_at_utc": "2026-07-25T16:28:31Z",
+      "media_type": "text/html; charset=UTF-8",
+      "byte_count": 112303,
+      "sha256": "59d5b13eab8bfcb4b9ee7044e64a3bfeb5ab573c1e43c967407daf92c28fd452",
+      "source_range_used": "HTML lines 895-929",
+      "license_or_quotation_boundary": "Independent analysis retained exactly; report paraphrases incident claims and treats them as counterevidence, not a universal incidence estimate.",
+      "revision_or_supersession_state": "dated 2026-06-10 live article; no immutable revision identifier shown"
+    },
+    {
+      "source_id": "RS05-SRC-INTOTO-V1.2.0-TAG-REF",
+      "topic_id": "RS-05",
+      "local_path": "in_toto_attestation_v1.2.0_tag_ref_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/in-toto/attestation/git/ref/tags/v1.2.0",
+      "retrieved_at_utc": "2026-07-25T16:29:27Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 386,
+      "sha256": "3067eec347ed40cec50abb28df103139cef5e0fd1edbf01d8d0804989596e22f",
+      "source_range_used": "whole response; ref and object.sha",
+      "license_or_quotation_boundary": "Factual API revision receipt.",
+      "revision_or_supersession_state": "tag v1.2.0 resolves directly to commit df02077bf97218a8860a5c534eff1f1381f56984"
+    },
+    {
+      "source_id": "RS05-SRC-INTOTO-LINK-PIN",
+      "topic_id": "RS-05",
+      "local_path": "in_toto_link_v0.3_df02077bf97218a8860a5c534eff1f1381f56984.md",
+      "canonical_url_or_repo_commit": "https://github.com/in-toto/attestation/blob/df02077bf97218a8860a5c534eff1f1381f56984/spec/predicates/link.md",
+      "retrieved_at_utc": "2026-07-25T16:29:27Z",
+      "media_type": "text/plain; charset=utf-8",
+      "byte_count": 4917,
+      "sha256": "23703e071424e2468382a90355493cdc2c0defe8b97250a93db2be24c14cfbb0",
+      "source_range_used": "lines 24-33 and 68-95",
+      "license_or_quotation_boundary": "Versioned primary specification retained exactly; report paraphrases and uses short attributed excerpts.",
+      "revision_or_supersession_state": "immutable commit for release v1.2.0; Link predicate v0.3"
+    },
+    {
+      "source_id": "RS05-SRC-INTOTO-STATEMENT-PIN",
+      "topic_id": "RS-05",
+      "local_path": "in_toto_statement_v1_df02077bf97218a8860a5c534eff1f1381f56984.md",
+      "canonical_url_or_repo_commit": "https://github.com/in-toto/attestation/blob/df02077bf97218a8860a5c534eff1f1381f56984/spec/v1/statement.md",
+      "retrieved_at_utc": "2026-07-25T16:29:27Z",
+      "media_type": "text/plain; charset=utf-8",
+      "byte_count": 2492,
+      "sha256": "cbe684a18b812b8b613d9202eb43b2ea24477f91a2ad6ca5be935185a455ebea",
+      "source_range_used": "lines 35-66",
+      "license_or_quotation_boundary": "Versioned primary specification retained exactly; report paraphrases and uses short attributed excerpts.",
+      "revision_or_supersession_state": "immutable commit for release v1.2.0; Statement v1"
+    },
+    {
+      "source_id": "RS05-SRC-GH-CLI-ISSUE-11803",
+      "topic_id": "RS-05",
+      "local_path": "github_cli_issue_11803_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/cli/cli/issues/11803",
+      "retrieved_at_utc": "2026-07-25T16:28:31Z/2026-07-25T16:28:32Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 4118,
+      "sha256": "fb8bdb0f23177c2c13ee1a594930d8ed9f3d80832e3f644b9f362000f2770f8a",
+      "source_range_used": "JSON fields number, state, created_at, updated_at, comments, labels, body",
+      "license_or_quotation_boundary": "Independent user report retained exactly; report paraphrases and does not infer universal incidence.",
+      "revision_or_supersession_state": "open; updated_at 2026-06-15T12:01:19Z; comments 18"
+    },
+    {
+      "source_id": "RS05-SRC-GH-CLI-ISSUE-11803-COMMENTS",
+      "topic_id": "RS-05",
+      "local_path": "github_cli_issue_11803_comments_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/cli/cli/issues/11803/comments?per_page=100",
+      "retrieved_at_utc": "2026-07-25T16:31:31Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 52081,
+      "sha256": "3c636a44a02ce411bafa3ec4b48f4c083c674c5c5186572567dda843534c06f1",
+      "source_range_used": "JSON comment bodies at local lines 261, 402, 449, 645 and their metadata",
+      "license_or_quotation_boundary": "Public issue discussion retained exactly; report paraphrases mechanism clarifications and failure probes.",
+      "revision_or_supersession_state": "complete first page at per_page=100; issue receipt reports 18 comments"
+    },
+    {
+      "source_id": "RS05-SRC-GH-CLI-ISSUE-9602",
+      "topic_id": "RS-05",
+      "local_path": "github_cli_issue_9602_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/cli/cli/issues/9602",
+      "retrieved_at_utc": "2026-07-25T16:28:32Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 6318,
+      "sha256": "b331c284413f42f96bcce40bdd064fa0d0e17224cdc865ca1b7d0bc3bb609cf6",
+      "source_range_used": "JSON fields number, state, state_reason, closed_at, labels, body",
+      "license_or_quotation_boundary": "Historical user report retained exactly; used only as supersession context.",
+      "revision_or_supersession_state": "closed; state_reason completed; closed_at 2025-04-11T21:01:44Z"
+    },
+    {
+      "source_id": "RS05-SRC-GH-CLI-ISSUE-9602-COMMENTS",
+      "topic_id": "RS-05",
+      "local_path": "github_cli_issue_9602_comments_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/cli/cli/issues/9602/comments?per_page=100",
+      "retrieved_at_utc": "2026-07-25T16:31:31Z/2026-07-25T16:31:32Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 33001,
+      "sha256": "21d6007c125e33b37fbebd7466a45bf9f75a46ae60e8bd3349b8c39280f698f0",
+      "source_range_used": "closing and shipped-implementation comments plus source/signer policy discussion",
+      "license_or_quotation_boundary": "Public issue discussion retained exactly; used only for revision/supersession and policy probes.",
+      "revision_or_supersession_state": "complete first page at per_page=100; issue receipt reports 12 comments"
+    },
+    {
+      "source_id": "RS05-SRC-GH-RUNS-BOUNDARY-NORESULT",
+      "topic_id": "RS-05",
+      "local_path": "github_actions_runs_head_7824a63_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/j-a-v-e-n/knowledge-vault/actions/runs?head_sha=7824a63afe923d5e38c0c6f06577a7d1adfb81d5&per_page=100",
+      "retrieved_at_utc": "2026-07-25T16:31:04Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 50,
+      "sha256": "52d589da93373d1efadfa660185a0970a1b2320703a8b87d6ed693946661e1cd",
+      "source_range_used": "whole response",
+      "license_or_quotation_boundary": "Factual read-only API no-result receipt.",
+      "revision_or_supersession_state": "high-drift live receipt; total_count 0"
+    },
+    {
+      "source_id": "RS05-SRC-GH-WORKFLOWS-LIVE-NORESULT",
+      "topic_id": "RS-05",
+      "local_path": "github_actions_workflows_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/j-a-v-e-n/knowledge-vault/actions/workflows?per_page=100",
+      "retrieved_at_utc": "2026-07-25T16:31:04Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 46,
+      "sha256": "37a29cf699d1251b9651999c771ba51c191614f7eb2c1101275948ba672c3045",
+      "source_range_used": "whole response",
+      "license_or_quotation_boundary": "Factual read-only API no-result receipt.",
+      "revision_or_supersession_state": "high-drift live receipt; total_count 0"
+    },
+    {
+      "source_id": "RS05-SRC-GH-COMMIT-BOUNDARY",
+      "topic_id": "RS-05",
+      "local_path": "github_commit_7824a63_2026-07-25.json",
+      "canonical_url_or_repo_commit": "https://api.github.com/repos/j-a-v-e-n/knowledge-vault/commits/7824a63afe923d5e38c0c6f06577a7d1adfb81d5",
+      "retrieved_at_utc": "2026-07-25T16:31:04Z/2026-07-25T16:31:05Z",
+      "media_type": "application/json; charset=utf-8",
+      "byte_count": 25825,
+      "sha256": "80667b71ae9e8b2f00f7680f03cf4e2613708b8c8dd3e11e78acf1268348bef1",
+      "source_range_used": "JSON fields sha, html_url, commit.verification, parents",
+      "license_or_quotation_boundary": "Factual public repository API receipt.",
+      "revision_or_supersession_state": "immutable commit locator; verification false with reason unsigned at retrieval"
+    }
+  ],
+  "procedural_artifacts": [
+    {
+      "path": "query_R8-RS05-D1.md",
+      "byte_count": 12728,
+      "sha256": "f6dd1ce59ecdf75cc729d2b5ed29503d47eec745c24f5b75a5b04133d09ab074"
+    },
+    {
+      "path": "query_R8-RS05-D2.md",
+      "byte_count": 9321,
+      "sha256": "0eb550297f41bbcd75bc15ccfc220c9ebb187a09dc050a1e16414de273bfb688"
+    },
+    {
+      "path": "discovery_freeze_2026-07-25T162143Z.md",
+      "byte_count": 7208,
+      "sha256": "f6a78fb207c68017ff1da2a51e60ab7995a3bde0a8442ece17eef1a882d73363"
+    },
+    {
+      "path": "query_R8-RS05-S1.md",
+      "byte_count": 17278,
+      "sha256": "688622f06da2cc208a6b1157338128cadde33b6ce9d4888470e91984b5b07be1"
+    },
+    {
+      "path": "query_R8-RS05-S2.md",
+      "byte_count": 14732,
+      "sha256": "dfa4ac2e64707237c6caeaa9d9470adff3dd467181351afea1e3c617318d763c"
+    },
+    {
+      "path": "query_R8-RS05-S3.md",
+      "byte_count": 12453,
+      "sha256": "bbf0ce014c2668f7b9bbfbfae5a556423b99d59319df2fb9d3236ee6f2f87549"
+    },
+    {
+      "path": "boundary_and_execution_status_receipt_2026-07-25.md",
+      "byte_count": 4942,
+      "sha256": "0e5d0ee5b8f7461f9374b33a8fc4d7f98a190ddfa775dac4adeaba1748018efd"
+    },
+    {
+      "path": "local_gh_capability_receipt_2026-07-25.md",
+      "byte_count": 2689,
+      "sha256": "5a420b7a9a04df1871cb165350170d2b64b21337595bfbbd8d4266eb1e0bfd26"
+    }
+  ],
+  "required_snapshot_classes": {
+    "current_official_github_verification_documentation": {
+      "status": "satisfied",
+      "source_ids": [
+        "RS05-SRC-GH-DOC-LIVE",
+        "RS05-SRC-GH-DOC-SOURCE-PIN",
+        "RS05-SRC-GH-CLI-MANUAL-LIVE"
+      ]
+    },
+    "versioned_provenance_threat_model_or_primary_standard": {
+      "status": "satisfied",
+      "source_ids": [
+        "RS05-SRC-SLSA-V1.2-TAG-REF",
+        "RS05-SRC-SLSA-V1.2-THREATS-PIN",
+        "RS05-SRC-INTOTO-V1.2.0-TAG-REF",
+        "RS05-SRC-INTOTO-LINK-PIN",
+        "RS05-SRC-INTOTO-STATEMENT-PIN"
+      ]
+    },
+    "independent_implementation_issue_or_explicit_no_result_receipt": {
+      "status": "satisfied",
+      "source_ids": [
+        "RS05-SRC-GH-CLI-ISSUE-11803",
+        "RS05-SRC-GH-CLI-ISSUE-11803-COMMENTS",
+        "RS05-SRC-GH-RUNS-BOUNDARY-NORESULT"
+      ]
+    }
+  },
+  "query_accounting": {
+    "R8-RS05-D1": {
+      "search_tool_calls": 1,
+      "visible_results": 14
+    },
+    "R8-RS05-D2": {
+      "search_tool_calls": 1,
+      "visible_results": 12
+    },
+    "R8-RS05-S1": {
+      "search_tool_calls": 1,
+      "visible_results": 21
+    },
+    "R8-RS05-S2": {
+      "search_tool_calls": 1,
+      "visible_results": 18
+    },
+    "R8-RS05-S3": {
+      "search_tool_calls": 1,
+      "visible_results": 11
+    },
+    "additional_search_queries": 0
+  },
+  "execution_boundary": {
+    "workflow_read_only_inspection": true,
+    "workflow_run_or_dispatch_by_rs05": false,
+    "workflow_modified_by_rs05": false,
+    "actual_artifact_or_attestation_bundle_observed": false,
+    "github_layer_state": "designed_not_observed"
+  }
+}

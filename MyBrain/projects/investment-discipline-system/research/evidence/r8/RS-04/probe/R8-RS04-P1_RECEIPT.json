@@ -1,0 +1,176 @@
+{
+  "adapter": {
+    "boundary": [
+      "loads one hash-verified member from one hash-verified pinned tar archive",
+      "does not import the ml4t package",
+      "uses no third-party dependency",
+      "contains no broker, credential, HTTP, socket, subprocess, or live-surface code",
+      "independent Decimal accounting shares no implementation with the external oracle"
+    ],
+    "path": "probe/run_differential_accounting.py",
+    "sha256": "91fcc6cac312d1236be8e5fd6ac5f1ec892b9ade019310f1942f95d1e0e05523"
+  },
+  "command": "python3 -I probe/run_differential_accounting.py",
+  "comparison": [
+    {
+      "absolute_difference": "0.0000",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "100.2",
+      "field": "entry_fill",
+      "independent_value": "100.2000",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.0000",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "109.78",
+      "field": "exit_fill",
+      "independent_value": "109.7800",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.00000000000002",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "95.79999999999998",
+      "field": "gross_pnl",
+      "independent_value": "95.80000",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.00000000",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "2.0998",
+      "field": "fees",
+      "independent_value": "2.09980000",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.00000000000002",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "93.70019999999998",
+      "field": "net_pnl",
+      "independent_value": "93.70020000",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.00000000000000001051896207585",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "0.09560878243512973",
+      "field": "pnl_percent",
+      "independent_value": "0.09560878243512974051896207585",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.00000000000000001077844311377",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "0.0935131736526946",
+      "field": "net_return",
+      "independent_value": "0.09351317365269461077844311377",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.0000000000000284",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "2.0000000000000284",
+      "field": "entry_slippage_cost",
+      "independent_value": "2.00000",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.0000000000000114",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "2.1999999999999886",
+      "field": "exit_slippage_cost",
+      "independent_value": "2.20000",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.00000000000002",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "93.70019999999998",
+      "field": "total_pnl",
+      "independent_value": "93.70020000",
+      "within_tolerance": true
+    },
+    {
+      "absolute_difference": "0.00000000",
+      "absolute_tolerance": "0.000000001",
+      "external_value": "100093.7002",
+      "field": "final_cash",
+      "independent_value": "100093.70020000",
+      "within_tolerance": true
+    }
+  ],
+  "component": {
+    "archive_path": "snapshots/ML4T_BACKTEST_459abd81f2f30dc70cf38a40da7591af3da2d02a_tests_architecture.tar",
+    "archive_sha256": "71639a2719b276ee13306f05482e51144d8724ab04870269017405a913e4e274",
+    "commit": "459abd81f2f30dc70cf38a40da7591af3da2d02a",
+    "member": "ml4t-backtest-459abd81f2f30dc70cf38a40da7591af3da2d02a/tests/oracle/engine.py",
+    "member_sha256": "3a663f95d233956185c7d83822d042ad790a2846380f09dc8d89456c8c7d950d",
+    "name": "ml4t-backtest reference oracle",
+    "repository": "https://github.com/ml4t/backtest"
+  },
+  "executed_utc": "2026-07-25T16:40:34.246724Z",
+  "external_observation": {
+    "entry_fill": 100.2,
+    "entry_slippage_cost": 2.0000000000000284,
+    "exit_fill": 109.78,
+    "exit_slippage_cost": 2.1999999999999886,
+    "fees": 2.0998,
+    "final_cash": 100093.7002,
+    "gross_pnl": 95.79999999999998,
+    "net_pnl": 93.70019999999998,
+    "net_return": 0.0935131736526946,
+    "pnl_percent": 0.09560878243512973,
+    "total_pnl": 93.70019999999998
+  },
+  "fixed_input": {
+    "case_id": "R8-RS04-fixed-long-same-bar-cost-accounting",
+    "path": "probe/FIXED_INPUT.json",
+    "semantics": {
+      "absolute_tolerance": 1e-09,
+      "commission": "fill_price multiplied by quantity multiplied by commission_rate, charged on entry and exit",
+      "entry_fill": "signal bar close multiplied by (1 + slippage_rate)",
+      "exit_fill": "signal bar close multiplied by (1 - slippage_rate)",
+      "fill_timing": "SAME_BAR",
+      "final_cash": "initial_cash + net_pnl",
+      "gross_pnl": "(exit_fill - entry_fill) multiplied by quantity",
+      "net_pnl": "gross_pnl - entry_commission - exit_commission",
+      "position": "one long round trip"
+    },
+    "sha256": "ff1fbcf608f23e450d09fde9ad54bb7bf0eb9195022ef74da1027649c48d782b"
+  },
+  "independent_observation": {
+    "entry_fill": "100.2000",
+    "entry_slippage_cost": "2.00000",
+    "exit_fill": "109.7800",
+    "exit_slippage_cost": "2.20000",
+    "fees": "2.09980000",
+    "final_cash": "100093.70020000",
+    "gross_pnl": "95.80000",
+    "net_pnl": "93.70020000",
+    "net_return": "0.09351317365269461077844311377",
+    "pnl_percent": "0.09560878243512974051896207585",
+    "total_pnl": "93.70020000"
+  },
+  "limitations": [
+    "One synthetic long round trip is not coverage of shorts, partial fills, corporate actions, event ordering, or prefix causality.",
+    "Agreement cannot establish correctness because both implementations may share the same semantic assumption.",
+    "The external observation executes only the repository's reference oracle, not the package system under test.",
+    "No live surface, broker, credential, network call, or dependency installation was used."
+  ],
+  "outcome": {
+    "all_fields_within_declared_tolerance": true,
+    "causality_claimed": false,
+    "classification": "agreement_within_tolerance",
+    "routing": "review_only",
+    "winner_selected": false
+  },
+  "probe_id": "R8-RS04-P1",
+  "runtime": {
+    "implementation": "CPython",
+    "isolated_mode": true,
+    "python": "3.14.0"
+  },
+  "schema_version": 1
+}

@@ -295,7 +295,6 @@
 - delta_id: `R8-RS05-DELTA-S1-VALID-ATTESTATION-COMPROMISED-PIPELINE`
 - delta: A build/pipeline compromise can use the expected hosted environment and legitimate OIDC identity and still emit an attestation matching expected builder, repository, and workflow. Exact identity policy narrows provenance origin but does not establish an uncompromised artifact or intended semantics.
 - evidence: Result 1, supported by versioned threat classes in result 2.
-- candidate_decision_effect: Keep all R7 downgraded terms. For the future machine gate, treat hosted-runner, repository, issuer, workflow identity, signer digest, source digest, predicate type, and subject digest checks as necessary but not sufficient. Preserve a separate artifact/manifest semantic review and explicitly assess build-environment, cache, untrusted-code, and OIDC exposure boundaries.
+- candidate_decision_effect: Keep all R7 downgraded terms. For the future machine gate, treat hosted-runner, repository, issuer, workflow identity, signer digest, source digest, predicate type, subject digest, and same-run successful conclusion/artifact linkage checks as necessary but not sufficient. Preserve a separate artifact/manifest semantic review and explicitly assess build-environment, cache, untrusted-code, and OIDC exposure boundaries.
 - open_critical_or_major_contradiction: `none; the counterexample narrows assurance and is compatible with the frozen non-semantic claim`
 - stability_implication: At least one of S2 or S3 must occur after this delta and yield no later high-impact failure class or open critical/major contradiction for the passing rule to be satisfiable.
-

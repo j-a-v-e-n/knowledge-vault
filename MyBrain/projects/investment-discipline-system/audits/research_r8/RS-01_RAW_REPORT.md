@@ -12,7 +12,7 @@
 - 每个 query 单独执行一次；不批量、不改写、不追加第六个查询。
 - 开放动态网络不允许产生“领域穷尽”结论。允许的最强结论仅是：在冻结问题、来源类别、查询、时间、预算、残余风险和重开触发器内，当前 Paper V1 决定充分或不足。
 - practitioner/community 资料只支持 failure hypothesis、用户负担、实现反例或 reopen trigger；不支持机制发生率或普遍能力。
-- 本文件当前只冻结 D1/D2 后的 discovery 状态；S1-S3 尚未执行。
+- D1/D2 后的 discovery freeze 保留在 Section 6；S1-S3 已按固定顺序执行并分别保留在 Sections 7-9。
 
 ## 2. 时间边界证明
 
@@ -24,10 +24,22 @@
 | 当前文件 SHA-256 | `613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8` | 与用户指定值一致 |
 | commit 内文件 SHA-256 | `613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8` | 与当前字节一致 |
 | 执行检索前 `HEAD` | `7824a63afe923d5e38c0c6f06577a7d1adfb81d5` | 等于 preregistration commit |
-| `origin/codex/investment-assurance-r7` | `7824a63afe923d5e38c0c6f06577a7d1adfb81d5` | 远端已含精确预注册字节 |
-| `git merge-base --is-ancestor prereg HEAD` | exit `0` | 通过；当前尚无本主题后续 evidence commit |
+| 检索开始前 `origin/codex/investment-assurance-r7` | `7824a63afe923d5e38c0c6f06577a7d1adfb81d5` | 远端已含精确预注册字节 |
+| 最后核验时 `HEAD` / origin | `c768ea481507a16a605cd7bdc05a83a7f8b5d8db` | 并发 vault backup 已产生后续 evidence commits |
+| `git merge-base --is-ancestor prereg HEAD` | exit `0` | 通过；merge base 为精确 preregistration commit |
 
 检索工具不暴露独立的后端完成时间。下文 `retrieved_at_utc` 使用每次搜索调用紧前记录的 UTC，作为保守的调用开始边界；它们均晚于 preregistration commit UTC。
+
+检索后由并发 vault backup 产生、且触及 RS-01 路径的 evidence commits：
+
+| evidence commit | commit UTC | RS-01 内容 | `merge-base(prereg, evidence_commit)` |
+|---|---|---|---|
+| `1ebc3f3592953cb4fe52821cd551a70921b657fb` | `2026-07-25T16:23:17Z` | 初始 raw report | `7824a63afe923d5e38c0c6f06577a7d1adfb81d5` |
+| `9a930cee9915510e01880b96b6f1f2d7be476bd0` | `2026-07-25T16:28:40Z` | report 更新与 `SRC-01/02/04/05/06` | `7824a63afe923d5e38c0c6f06577a7d1adfb81d5` |
+| `98bdf382cf34c7cc3ca5f6e889983e51c60e1695` | `2026-07-25T16:33:58Z` | `SRC-03` 与 HN parent context | `7824a63afe923d5e38c0c6f06577a7d1adfb81d5` |
+| `c768ea481507a16a605cd7bdc05a83a7f8b5d8db` | `2026-07-25T16:38:36Z` | report 更新、manifest 与 failure receipts | `7824a63afe923d5e38c0c6f06577a7d1adfb81d5` |
+
+四个 evidence commit UTC 均晚于 preregistration commit UTC，且逐 commit merge base 都等于 preregistration commit；当前线性祖先证明通过。
 
 ## 3. Query execution ledger
 
@@ -404,7 +416,7 @@ Required snapshot class 裁决：
 ### 10.5 剩余 gaps
 
 1. `independent_entailment_review`: 未执行。作者没有也不会充当独立 reviewer；`RS01-CL-01` 至 `RS01-CL-06` 必须由与作者分离的 reviewer 绑定本报告外部 SHA-256 和上述 source snapshot SHA-256 后逐 claim 裁决。
-2. `later_evidence_commit_ancestry`: 当前 raw artifacts 未由本代理提交；检索前 `HEAD` 等于 preregistration commit，当前祖先检查通过。若这些证据之后进入任一 evidence commit，提交者必须对该 commit 重新运行 `git merge-base --is-ancestor 7824a63... <evidence_commit>` 并保存结果。
+2. `future_evidence_commit_ancestry_recheck`: 检索前 `HEAD` 等于 preregistration commit；截至 `c768ea481507a16a605cd7bdc05a83a7f8b5d8db`，触及 RS-01 的后续 evidence commits 已逐个证明以 preregistration commit 为 merge base。若并发 backup 再产生含本报告最终字节的新 commit，仍须对新 commit 重跑同一检查。
 3. `search_backend_provenance`: 后端没有披露未显示结果、排名算法或全索引规模；因此只能证明完整记录“调用返回的可见集合”。
 4. `cross-domain_external_validity`: 决策停止与 deep-research benchmark 来源的任务/领域有限，不能推出跨领域普适性能。
 5. `practitioner_replication`: HN item 只产生 probe；本轮固定预算不允许新增第六 query 或另做产品 incidence 研究。
@@ -426,7 +438,7 @@ Required snapshot class 裁决：
 
 | predicate | verdict | 证据/原因 |
 |---|---|---|
-| 预注册 commit、文件 hash、祖先关系和检索时间通过 | `true_at_raw_artifact_stage` | prereg commit/hash 与 commit 内字节一致；检索 UTC 均晚于 commit UTC；检索前/当前 `HEAD` 等于 prereg commit，ancestor exit `0`。未来 evidence commit 仍须重跑。 |
+| 预注册 commit、文件 hash、祖先关系和检索时间通过 | `true` | prereg commit/hash 与 commit 内字节一致；检索 UTC 均晚于 commit UTC；检索前 `HEAD` 等于 prereg commit；截至 `c768ea...` 的四个 RS-01 evidence commits 逐个 merge-base 等于 prereg commit。未来新增 evidence commit 仍须重跑。 |
 | 五个 query_id 均有且仅有一次执行或明确工具失败 receipt | `true` | D1、D2、S1、S2、S3 各一次独立 exact-query 搜索；无改写、无批量、无第六 query。 |
 | 全部可见结果有逐结果筛选记录且归属唯一 query_id | `true` | Sections 4、5、7、8、9 保留每次调用的完整可见集合、原顺序、纳排、理由、class、cluster、revision。 |
 | required snapshot classes 均有保存字节与哈希，或明确 blocked | `true` | 三类均由 exact saved bytes 满足；preferred representation 失败另有 receipt，未用 URL/hash-only 冒充。 |

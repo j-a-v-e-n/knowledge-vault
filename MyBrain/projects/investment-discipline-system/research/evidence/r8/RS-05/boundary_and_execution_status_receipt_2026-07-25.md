@@ -11,6 +11,7 @@
 - commit_committer_epoch: `1784996024`
 - commit_utc: `2026-07-25T16:13:44Z`
 - commit_subject: `preregister investment research refresh r8`
+- commit_tree: `7cb2268e3715102c540f50f78ab0829dc0eaaeb6`
 - preregistration_file: `MyBrain/projects/investment-discipline-system/research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json`
 - required_and_observed_file_sha256: `613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8`
 - commit_file_git_blob: `0feba2836b8c83adf2bd6e109416bca8072a1c0c`
@@ -88,4 +89,3 @@ The final RS-05 raw report and newest evidence files were not yet all contained 
 - actual_negative_policy_test_observed: `no`
 - allowed_state: `github_issued_workflow_provenance: designed_not_observed`
 - forbidden_inference: The boundary commit's workflow file cannot be used to claim that GitHub ran it, that the artifact came from a hosted runner, that any predicate is true, or that machine assurance passed.
-

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "case_id": "R8-RS04-fixed-long-same-bar-cost-accounting",
+  "component": {
+    "name": "ml4t-backtest reference oracle",
+    "repository": "https://github.com/ml4t/backtest",
+    "commit": "459abd81f2f30dc70cf38a40da7591af3da2d02a",
+    "archive_sha256": "71639a2719b276ee13306f05482e51144d8724ab04870269017405a913e4e274",
+    "member": "ml4t-backtest-459abd81f2f30dc70cf38a40da7591af3da2d02a/tests/oracle/engine.py",
+    "member_sha256": "3a663f95d233956185c7d83822d042ad790a2846380f09dc8d89456c8c7d950d"
+  },
+  "semantics": {
+    "position": "one long round trip",
+    "fill_timing": "SAME_BAR",
+    "entry_fill": "signal bar close multiplied by (1 + slippage_rate)",
+    "exit_fill": "signal bar close multiplied by (1 - slippage_rate)",
+    "commission": "fill_price multiplied by quantity multiplied by commission_rate, charged on entry and exit",
+    "gross_pnl": "(exit_fill - entry_fill) multiplied by quantity",
+    "net_pnl": "gross_pnl - entry_commission - exit_commission",
+    "final_cash": "initial_cash + net_pnl",
+    "absolute_tolerance": 1e-09
+  },
+  "initial_cash": 100000.0,
+  "commission_rate": 0.001,
+  "slippage_rate": 0.002,
+  "bars": [
+    {
+      "open": 100.0,
+      "high": 100.0,
+      "low": 100.0,
+      "close": 100.0
+    },
+    {
+      "open": 105.0,
+      "high": 105.0,
+      "low": 105.0,
+      "close": 105.0
+    },
+    {
+      "open": 110.0,
+      "high": 110.0,
+      "low": 110.0,
+      "close": 110.0
+    }
+  ],
+  "signals": [
+    {
+      "bar_index": 0,
+      "direction": "long",
+      "action": "entry",
+      "quantity": 10.0
+    },
+    {
+      "bar_index": 2,
+      "direction": "long",
+      "action": "exit",
+      "quantity": 10.0
+    }
+  ]
+}
