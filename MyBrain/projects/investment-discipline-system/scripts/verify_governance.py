@@ -2267,6 +2267,8 @@ def verify_research_register(
         "ARTIFACT-CHALLENGE-R3",
         "ARTIFACT-CHALLENGE-R3B",
         "ARTIFACT-CHALLENGE-R4",
+        "ARTIFACT-ASSURANCE-PROVENANCE-REFRESH",
+        "ARTIFACT-CHALLENGE-R6",
         "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
     }
     missing_core_artifacts = core_artifact_ids - artifact_ids

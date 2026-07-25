@@ -289,6 +289,18 @@
       "role": "independent_challenge"
     },
     {
+      "id": "ARTIFACT-ASSURANCE-PROVENANCE-REFRESH",
+      "path": "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md",
+      "sha256": "e9bdfa24bda1676ec106636091bdb2f8e11c4412662d64b237a57db8da71a2c7",
+      "role": "assurance_trust_boundary_research"
+    },
+    {
+      "id": "ARTIFACT-CHALLENGE-R6",
+      "path": "audits/DESIGN_FREEZE_ASSURANCE_REVIEW_ROUND6_2026-07-25.md",
+      "sha256": "95809fe12e2397e5e15830c47649019551ccf070a6c5004fe4515dbcd50443a7",
+      "role": "independent_challenge"
+    },
+    {
       "id": "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
       "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
       "sha256": "6a173a81dda9c1c749e140c93d70fdb12a3477bdf5f80710ef387afbdb40d3d3",
@@ -454,6 +466,35 @@
         ],
         "minor_findings": [],
         "disposition": "候选 854dbb0 已 supersede；补齐完整夹具、保留来源 Git objects/prefix/origin 并强制每次变异前基线通过，再形成新 commit/tree、fresh clone 和独立审查"
+      },
+      {
+        "id": "CHALLENGE-06",
+        "candidate_commit": "0683a9c3b8d25854b08750641a62f88b4f86560c",
+        "candidate_tree": "41d04b1806c2b0eff6c72b0d26964b3a89fdf0d0",
+        "reviewer_subjects": [
+          "SUBJECT-DESIGN-REVIEW-ZENO-R6",
+          "SUBJECT-DESIGN-REVIEW-DARWIN-R6",
+          "SUBJECT-DESIGN-REVIEW-HILBERT-R6"
+        ],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/DESIGN_FREEZE_ASSURANCE_REVIEW_ROUND6_2026-07-25.md",
+        "evidence_sha256": "95809fe12e2397e5e15830c47649019551ccf070a6c5004fe4515dbcd50443a7",
+        "new_architecture_changing_classes": [
+          "独立审查身份与结果来源的可信边界"
+        ],
+        "critical_findings": [
+          "独立 reviewer 身份与结果来源只有构造者自报",
+          "最终审查范围漏掉完整 ground truth 与 research primary artifacts",
+          "research stop rule 没有可执行 closure receipt",
+          "schema 拒绝候选固定后真正的 reviewer novelty probe"
+        ],
+        "major_findings": [
+          "raw attack result 与实际目标执行没有机器绑定",
+          "高影响 failure class 到 requirement/control/verification/case 没有双向无孤儿检查",
+          "可逆 V1 技术选择缺少 authority/status/source/rationale/reversibility provenance"
+        ],
+        "minor_findings": [],
+        "disposition": "候选 0683a9c3 已 supersede；引入分层 assurance trust model、GitHub/Sigstore 机器执行 provenance、真实 attack runner、ground-truth 动态范围、research sufficiency receipt、novelty probe、failure registry 和 delegated-choice provenance 后重新挑战"
       }
     ]
   },
