@@ -1134,31 +1134,122 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
                 (self.root / FINAL_EVIDENCE_RELATIVE).read_bytes()
             ).hexdigest(),
         )
+        self.assertEqual(bundle["final_review_schema_version"], 2)
+        self.assertEqual(
+            bundle["review_output_sha256"],
+            sha256_file(self.root / REVIEW_OUTPUT_RELATIVE),
+        )
+        self.assertEqual(
+            bundle["ground_truth_manifest_sha256"],
+            sha256_file(self.root / GROUND_TRUTH_RELATIVE),
+        )
+        candidate_ground_truth = subprocess.check_output(
+            [
+                "git",
+                "show",
+                (
+                    f"{reviewed}:{TEST_PROJECT_PREFIX}"
+                    f"{GROUND_TRUTH_RELATIVE}"
+                ),
+            ],
+            cwd=self.root,
+        )
+        self.assertEqual(
+            bundle["reviewed_ground_truth_candidate_sha256"],
+            hashlib.sha256(candidate_ground_truth).hexdigest(),
+        )
+        self.assertEqual(
+            bundle["machine_assurance_manifest_sha256"],
+            sha256_file(self.root / MACHINE_MANIFEST_RELATIVE),
+        )
+        self.assertEqual(
+            bundle["machine_attestation_verification_sha256"],
+            sha256_file(self.root / ATTESTATION_RELATIVE),
+        )
+
+        research = self.read_json(RESEARCH_RELATIVE)
+        primary_paths = {
+            artifact["path"] for artifact in research["primary_artifacts"]
+        }
+        self.assertNotIn(FINAL_EVIDENCE_RELATIVE, primary_paths)
+        final_round = research["challenge"]["rounds"][-1]
+        self.assertEqual(final_round["candidate_commit"], reviewed)
+        self.assertEqual(
+            final_round["candidate_tree"],
+            bundle["reviewed_candidate_tree"],
+        )
+        self.assertEqual(
+            final_round["evidence_path"],
+            FINAL_EVIDENCE_RELATIVE,
+        )
+        self.assertEqual(
+            final_round["evidence_sha256"],
+            bundle["final_review_evidence_sha256"],
+        )
+
+        closure_artifacts = {
+            item["path"]: item
+            for item in bundle["review_closure_artifacts"]
+        }
+        expected_closure_paths = {
+            FINAL_EVIDENCE_RELATIVE,
+            REVIEW_OUTPUT_RELATIVE,
+            MACHINE_MANIFEST_RELATIVE,
+            ATTESTATION_RELATIVE,
+            NOVELTY_SPEC_RELATIVE,
+            NOVELTY_RECEIPT_RELATIVE,
+            *[
+                item["runner_receipt_path"]
+                for item in bundle["canonical_attacks"]
+            ],
+        }
+        self.assertEqual(set(closure_artifacts), expected_closure_paths)
+        for relative, binding in closure_artifacts.items():
+            self.assertEqual(binding["sha256"], sha256_file(self.root / relative))
+            self.assertEqual(binding["git_mode"], "100644")
+            self.assertEqual(binding["git_type"], "blob")
+            self.assertEqual(binding["git_object_kind"], "blob")
+            self.assertEqual(len(binding["git_blob"]), 40)
+
         replay = bundle["design_freeze_attack_replay"]
-        self.assertEqual(replay["schema_version"], 1)
+        self.assertEqual(replay["schema_version"], 2)
         self.assertEqual(replay["status"], "pass")
-        self.assertEqual(replay["candidate_commit"], baseline)
+        self.assertEqual(replay["candidate_commit"], reviewed)
         self.assertEqual(
             replay["candidate_tree"],
-            self.git_text(self.root, "rev-parse", f"{baseline}^{{tree}}"),
+            self.git_text(self.root, "rev-parse", f"{reviewed}^{{tree}}"),
         )
-        self.assertEqual(
-            set(replay["required_attack_ids"]),
-            set(CANONICAL_ATTACK_SELECTORS),
-        )
+        self.assertEqual(replay["required_attack_ids"], list(ATTACK_IDS))
         self.assertEqual(len(replay["required_attack_ids"]), 4)
         replay_results = {
             item["attack_id"]: item for item in replay["results"]
         }
-        self.assertEqual(set(replay_results), set(CANONICAL_ATTACK_SELECTORS))
+        self.assertEqual(set(replay_results), set(ATTACK_IDS))
         self.assertEqual(len(replay["results"]), 4)
-        for attack_id, selector in CANONICAL_ATTACK_SELECTORS.items():
+        bound_fingerprints = {
+            item["attack_id"]: self.read_json(
+                item["runner_receipt_path"]
+            )["execution_fingerprint"]
+            for item in bundle["canonical_attacks"]
+        }
+        for attack_id in ATTACK_IDS:
             attack_result = replay_results[attack_id]
-            self.assertEqual(attack_result["selector"], selector)
             self.assertEqual(attack_result["result"], "rejected")
-            self.assertEqual(attack_result["exit_code"], 0)
-            self.assertEqual(len(attack_result["output_sha256"]), 64)
-        self.assertEqual(len(replay["stdout_sha256"]), 64)
+            self.assertEqual(attack_result["actual_runner_process_exit"], 0)
+            self.assertEqual(attack_result["declared_runner_exit_code"], 0)
+            self.assertEqual(attack_result["baseline_verifier_exit"], 0)
+            self.assertNotEqual(attack_result["target_verifier_exit"], 0)
+            self.assertEqual(
+                attack_result["execution_fingerprint"],
+                bound_fingerprints[attack_id],
+            )
+            for field in (
+                "baseline_stdout_sha256",
+                "target_stdout_sha256",
+                "execution_fingerprint",
+                "receipt_sha256",
+            ):
+                self.assertEqual(len(attack_result[field]), 64)
         self.assertEqual(
             bundle["trusted_git_remote"],
             {
