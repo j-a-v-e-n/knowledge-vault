@@ -432,6 +432,28 @@
         ],
         "minor_findings": [],
         "disposition": "保持 challenge in_progress 与 stop_rule.met=false；增加主事件链 gate-run receipt、完整治理测试审查范围、冻结 remote URL/branch/prefix 和 D 的 clone 内验证后重新挑战"
+      },
+      {
+        "id": "CHALLENGE-05",
+        "candidate_commit": "854dbb0c900ad46aef2f86523d3ac4303705013a",
+        "candidate_tree": "f489e75c3aeb3095a914aea28dff236db4155314",
+        "reviewer_subjects": [
+          "SUBJECT-DESIGN-REVIEW-TESLA-R5-INCOMPLETE",
+          "SUBJECT-DESIGN-REVIEW-RAWLS-R5-INCOMPLETE",
+          "SUBJECT-DESIGN-REVIEW-ERDOS-R5-INCOMPLETE",
+          "SUBJECT-DESIGN-REVIEW-BOOLE-R5-INCOMPLETE"
+        ],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/DESIGN_FREEZE_ORACLE_REVIEW_ROUND5_2026-07-25.md",
+        "evidence_sha256": "2463e1425d24aa752e78e23d8631fd88a0cf33c6b428b24e94b8d11d8696627b",
+        "new_architecture_changing_classes": [],
+        "critical_findings": [],
+        "major_findings": [
+          "canonical attack 的未变异夹具因漏掉 governance_tests/ 已经失败，变异拒绝并非隔离 oracle",
+          "补齐目录后的夹具仍脱离 Git 候选上下文，passing final review 与 bundle 冻结路径无法执行候选 scope 校验"
+        ],
+        "minor_findings": [],
+        "disposition": "候选 854dbb0 已 supersede；补齐完整夹具、保留来源 Git objects/prefix/origin 并强制每次变异前基线通过，再形成新 commit/tree、fresh clone 和独立审查"
       }
     ]
   },

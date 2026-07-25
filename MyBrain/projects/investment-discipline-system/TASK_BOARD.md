@@ -4,7 +4,7 @@
 
 ## 进行中
 
-- [ ] 固定并直接核对 R4 修复后的精确候选 commit/tree，执行新一轮只读独立挑战。
+- [ ] 完成 R5 非隔离 oracle 修复的全量回归，形成新的精确候选 commit/tree，并执行 GitHub fresh clone 与新一轮只读独立挑战。
 
 ## 已排队
 
@@ -42,6 +42,9 @@
 - [x] 完成 R4 机制审查并保留 blocked 证据；修复同门 run 重放、审查范围漏项和 bundle D 未做 clone 内验证。
 - [x] 把 GitHub URL、branch、project prefix、inner/full-outer scope 和嵌套项目 pathspec 纳入确定性反例与校验。
 - [x] R4 修复工作树通过候选治理验证、四类固定攻击和 `Ran 113 tests` 的全量治理回归。
+- [x] 在最终证据采集前主动发现 R4 修复候选的 canonical attack 夹具基线已失败，撤销该候选并记录 `GOV-MECH-MAJ-004`。
+- [x] 修复固定攻击夹具，使其保留来源 Git 候选上下文、每次变异前必须先通过未变异基线，并局部确认四种目标变异均被对应控制拒绝。
+- [x] R5 修复工作树通过候选治理验证、四类固定攻击和 `Ran 113 tests` 的全量治理回归。
 
 ## 历史原型里程碑
 

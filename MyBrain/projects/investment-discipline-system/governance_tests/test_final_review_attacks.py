@@ -17,9 +17,100 @@ VERIFIER = PROJECT_ROOT / "scripts" / "verify_governance.py"
 class FinalReviewAttackTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
-        for directory in ("governance", "research", "audits", "scripts"):
-            shutil.copytree(PROJECT_ROOT / directory, self.root / directory)
+        temp_root = Path(self.temp.name)
+        source_repo = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        self.assertEqual(
+            source_repo.returncode,
+            0,
+            "canonical attack source must belong to a Git repository:\n"
+            f"{source_repo.stdout}",
+        )
+        source_prefix = subprocess.run(
+            ["git", "rev-parse", "--show-prefix"],
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        self.assertEqual(
+            source_prefix.returncode,
+            0,
+            "canonical attack source must have a resolvable project prefix:\n"
+            f"{source_prefix.stdout}",
+        )
+        repo_root = temp_root / "repository"
+        clone = subprocess.run(
+            [
+                "git",
+                "clone",
+                "--shared",
+                "--no-checkout",
+                source_repo.stdout.strip(),
+                str(repo_root),
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        self.assertEqual(
+            clone.returncode,
+            0,
+            "canonical attack fixture must retain candidate Git objects:\n"
+            f"{clone.stdout}",
+        )
+        source_origin = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        if source_origin.returncode == 0:
+            restore_origin = subprocess.run(
+                [
+                    "git",
+                    "remote",
+                    "set-url",
+                    "origin",
+                    source_origin.stdout.strip(),
+                ],
+                cwd=repo_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            self.assertEqual(
+                restore_origin.returncode,
+                0,
+                "canonical attack fixture must preserve the source origin:\n"
+                f"{restore_origin.stdout}",
+            )
+        self.root = repo_root / source_prefix.stdout.strip()
+        self.root.mkdir(parents=True, exist_ok=True)
+        for directory in (
+            "governance",
+            "research",
+            "audits",
+            "scripts",
+            "governance_tests",
+        ):
+            shutil.copytree(
+                PROJECT_ROOT / directory,
+                self.root / directory,
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+                dirs_exist_ok=True,
+            )
         for relative in (
             "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
             "PROJECT_CHARTER.md",
@@ -28,6 +119,13 @@ class FinalReviewAttackTests(unittest.TestCase):
             "STATUS.md",
         ):
             shutil.copy2(PROJECT_ROOT / relative, self.root / relative)
+        baseline = self.run_verifier()
+        self.assertEqual(
+            baseline.returncode,
+            0,
+            "canonical attack fixture must pass before an isolated mutation:\n"
+            f"{baseline.stdout}",
+        )
 
     def tearDown(self) -> None:
         self.temp.cleanup()

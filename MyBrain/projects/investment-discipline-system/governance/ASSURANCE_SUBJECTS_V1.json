@@ -117,6 +117,42 @@
       "counts_as_independent_review": false
     },
     {
+      "id": "SUBJECT-DESIGN-REVIEW-TESLA-R5-INCOMPLETE",
+      "role": "failed_review_attempt",
+      "locator": "subagent:019f9998-a194-7d43-8961-5f49d0269cd3",
+      "candidate_commit": "854dbb0c900ad46aef2f86523d3ac4303705013a",
+      "candidate_tree": "f489e75c3aeb3095a914aea28dff236db4155314",
+      "result": "platform_safety_filter_without_review_evidence",
+      "counts_as_independent_review": false
+    },
+    {
+      "id": "SUBJECT-DESIGN-REVIEW-RAWLS-R5-INCOMPLETE",
+      "role": "failed_review_attempt",
+      "locator": "subagent:019f9998-f28d-7941-b34f-7ed9c5ca1dc1",
+      "candidate_commit": "854dbb0c900ad46aef2f86523d3ac4303705013a",
+      "candidate_tree": "f489e75c3aeb3095a914aea28dff236db4155314",
+      "result": "platform_safety_filter_without_review_evidence",
+      "counts_as_independent_review": false
+    },
+    {
+      "id": "SUBJECT-DESIGN-REVIEW-ERDOS-R5-INCOMPLETE",
+      "role": "failed_review_attempt",
+      "locator": "subagent:019f99a0-2f12-7681-be29-ee5ab7200d74",
+      "candidate_commit": "854dbb0c900ad46aef2f86523d3ac4303705013a",
+      "candidate_tree": "f489e75c3aeb3095a914aea28dff236db4155314",
+      "result": "interrupted_after_candidate_superseded_with_incomplete_review",
+      "counts_as_independent_review": false
+    },
+    {
+      "id": "SUBJECT-DESIGN-REVIEW-BOOLE-R5-INCOMPLETE",
+      "role": "failed_review_attempt",
+      "locator": "subagent:019f99a1-3e96-7070-96ba-ecf8dd9e5b50",
+      "candidate_commit": "854dbb0c900ad46aef2f86523d3ac4303705013a",
+      "candidate_tree": "f489e75c3aeb3095a914aea28dff236db4155314",
+      "result": "interrupted_after_candidate_superseded_with_incomplete_review",
+      "counts_as_independent_review": false
+    },
+    {
       "id": "SUBJECT-JAVEN",
       "role": "human_owner",
       "locator": "local user; no secret, email or private account stored here",

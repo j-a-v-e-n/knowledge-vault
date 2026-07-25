@@ -43,8 +43,9 @@
 - `PRODUCT_ASSURANCE_BLUEPRINT_V2.md`、用户意图、验收合同、精确 case、Money/市场/field-use/私人数据规范均已形成候选，尚未冻结。
 - 第二轮独立挑战新增的证据更正、市场模拟、人因误报、长期停用和私人恢复类别已经进入候选设计。
 - R4 对候选 `698383b77dcb763e504a3706779f8cdb5779e632` 的机制审查没有新增架构类别，但以三个 open major 阻止冻结：同门 `run_id` 可覆盖重放、最终审查漏掉自身 schema 测试、bundle D 没有强制 clone 内冻结验证。
-- R4 修复候选已加入主事件链 gate-run receipt、从冻结实施目标自动展开的审查范围、精确 GitHub URL/branch/prefix、D 的 fresh clone + inner receipt + full-outer 验证，并修复嵌套项目 Git pathspec。
-- 当前候选治理验证、四类固定攻击和全量治理回归通过；最近一次全量回归实际输出为 `Ran 113 tests`、`OK`。这些绿灯只证明已知反例闭合，不等于独立审查通过。
+- R4 修复候选 `854dbb0c900ad46aef2f86523d3ac4303705013a` 已加入主事件链 gate-run receipt、从冻结实施目标自动展开的审查范围、精确 GitHub URL/branch/prefix、D 的 fresh clone + inner receipt + full-outer 验证，并修复嵌套项目 Git pathspec。
+- R5 在保存最终审查原始结果时发现 canonical attack 的未变异夹具因漏复制 `governance_tests/` 已经失败；原有变异测试存在非隔离 oracle 和假阳性可能，因此候选 `854dbb0...` 已被 supersede，不能冻结。
+- 后续工作树已让每次变异前的未变异夹具先通过候选治理验证，保留来源 Git objects/project prefix/origin，并确认四种变异分别只触发其目标拒绝原因；全量治理回归实际输出为 `Ran 113 tests`、`OK`。这些本地绿灯仍不等于新候选、fresh clone 和独立审查已经通过。
 - 研究登记仍保持 `challenge.status=in_progress`、`stop_rule.met=false`，机器可读验收合同仍未冻结。
 
 ## 尚未完成
@@ -61,7 +62,7 @@
 
 ## 当前下一步
 
-把 R4 修复形成精确候选 commit/tree，推送并从 GitHub fresh clone 重放候选治理检查；再让未参与构造的审查者攻击该固定候选。只有新审查不再发现 open critical/major 或新增架构类别，才关闭研究并执行 C→B→D 冻结；D 推送后必须再次从合同固定远端 fresh clone，并在 clone 内通过冻结治理验证。随后按依赖顺序重建，而不是继续给旧原型打补丁。
+把 R5 oracle 修复及其事故记录形成新的精确候选 commit/tree，执行全量回归，推送并从 GitHub fresh clone 重放候选治理检查；再让未参与构造的审查者检查该固定候选。只有新审查不再发现 open critical/major 或新增架构类别，才关闭研究并执行 C→B→D 冻结；D 推送后必须再次从合同固定远端 fresh clone，并在 clone 内通过冻结治理验证。随后按依赖顺序重建，而不是继续给旧原型打补丁。
 
 ## 主要残余风险
 
