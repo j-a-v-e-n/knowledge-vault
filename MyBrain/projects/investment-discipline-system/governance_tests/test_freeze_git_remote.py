@@ -47,24 +47,22 @@ ATTACK_IDS = (
     "ATTACK-SPLIT-ACCOUNTING-SMUGGLE",
     "ATTACK-CONDITIONAL-SELF-ATTESTATION",
 )
-CANONICAL_ATTACK_SELECTORS = {
-    "ATTACK-PIT-ORACLE-INVERSION": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_pit_oracle_inversion_is_rejected"
-    ),
-    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_same_bar_causality_smuggle_is_rejected"
-    ),
-    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_split_accounting_smuggle_is_rejected"
-    ),
-    "ATTACK-CONDITIONAL-SELF-ATTESTATION": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_conditional_self_attestation_is_rejected"
-    ),
-}
+FINGERPRINT_FIELDS = (
+    "runner_id",
+    "runner_sha256",
+    "candidate_commit",
+    "candidate_tree",
+    "project_prefix",
+    "mode",
+    "probe_id",
+    "mutation_spec_sha256",
+    "mutation_observation",
+    "baseline",
+    "target",
+    "expected_rejection_substring",
+    "result",
+    "runner_exit_code",
+)
 
 
 def canonical_json(value: Any) -> bytes:
@@ -243,7 +241,6 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.run_git(self.root, "commit", "-m", "candidate fixture")
         self.run_git(self.root, "remote", "add", "origin", str(self.remote))
         self.run_git(self.root, "push", "--set-upstream", "origin", "main")
-        self.initial_candidate = self.git_text(self.root, "rev-parse", "HEAD")
 
     def tearDown(self) -> None:
         self.temp.cleanup()
@@ -971,14 +968,16 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
     def test_freeze_runs_candidate_governance_verifier_first(self) -> None:
         missing = "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json"
         (self.root / missing).unlink()
-        baseline = self.commit_and_push("remove candidate governance input")
+        invalid_candidate = self.commit_and_push(
+            "remove candidate governance input"
+        )
 
         result = self.run_project_script(
             FREEZER,
             "--baseline-commit",
-            baseline,
+            invalid_candidate,
             "--reviewed-candidate-commit",
-            self.initial_candidate,
+            invalid_candidate,
         )
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
@@ -1579,99 +1578,53 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
         self.assertIn(frozen_commit, result.stdout)
 
-    def test_freeze_rejects_complete_forged_attack_replay_payload(self) -> None:
-        replay_runner = self.root / "scripts" / "replay_design_freeze_attacks.py"
-        replay_runner.write_text(
-            "#!/usr/bin/env python3\n"
-            "import json\n"
-            "import subprocess\n"
-            "def git(*args):\n"
-            "    return subprocess.check_output(['git', *args], text=True).strip()\n"
-            f"selectors = {CANONICAL_ATTACK_SELECTORS!r}\n"
-            "results = [\n"
-            "    {\n"
-            "        'attack_id': attack_id,\n"
-            "        'selector': selector,\n"
-            "        'exit_code': 0,\n"
-            "        'output_sha256': '0' * 64,\n"
-            "        'result': 'rejected',\n"
-            "    }\n"
-            "    for attack_id, selector in selectors.items()\n"
-            "]\n"
-            "print(json.dumps({\n"
-            "    'schema_version': 1,\n"
-            "    'status': 'pass',\n"
-            "    'candidate_commit': git('rev-parse', 'HEAD'),\n"
-            "    'candidate_tree': git('rev-parse', 'HEAD^{tree}'),\n"
-            "    'required_attack_ids': list(selectors),\n"
-            "    'started_at': 'fixture-start',\n"
-            "    'completed_at': 'fixture-end',\n"
-            "    'results': results,\n"
-            "    'stdout_sha256': '0' * 64,\n"
-            "}))\n",
-            encoding="utf-8",
+    def test_freeze_rejects_forged_schema_v2_runner_receipt(self) -> None:
+        reviewed = self.prepare_completed_freeze()
+        evidence = self.read_json(FINAL_EVIDENCE_RELATIVE)
+        attack_binding = evidence["canonical_attacks"][0]
+        receipt_relative = attack_binding["runner_receipt_path"]
+        receipt = self.read_json(receipt_relative)
+        forged_stdout = (
+            f"{receipt['expected_rejection_substring']}\n"
+            "fixture-forged-target-output"
         )
-        attack_tests = (
-            self.root / "governance_tests" / "test_final_review_attacks.py"
+        receipt["target"]["stdout"] = forged_stdout
+        receipt["target"]["stdout_sha256"] = hashlib.sha256(
+            forged_stdout.encode("utf-8")
+        ).hexdigest()
+        receipt["execution_fingerprint"] = digest_value(
+            {
+                field: receipt.get(field)
+                for field in FINGERPRINT_FIELDS
+            }
         )
-        with attack_tests.open("a", encoding="utf-8") as handle:
-            handle.write(
-                "\nraise RuntimeError("
-                "'canonical attack tests were replaced by a forged runner')\n"
-            )
-        baseline = self.commit_and_push("candidate with forged replay runner")
-        baseline_tree = self.git_text(
-            self.root,
-            "rev-parse",
-            f"{baseline}^{{tree}}",
+        self.write_json(receipt_relative, receipt)
+        attack_binding["runner_receipt_sha256"] = sha256_file(
+            self.root / receipt_relative
         )
-        env = os.environ.copy()
-        env["IDS_PROJECT_ROOT"] = str(self.root)
-        forged = self.run_command(
-            self.root,
-            sys.executable,
-            str(replay_runner),
-            env=env,
-            check=False,
-        )
-        self.assertEqual(forged.returncode, 0, forged.stdout)
-        forged_payload = json.loads(forged.stdout)
-        self.assertEqual(forged_payload["status"], "pass")
-        self.assertEqual(len(forged_payload["results"]), 4)
-        self.assertTrue(
-            all(
-                item["result"] == "rejected" and item["exit_code"] == 0
-                for item in forged_payload["results"]
-            )
-        )
-        env["IDS_FREEZER_PATH"] = str(FREEZER)
-        env["IDS_BASELINE_COMMIT"] = baseline
-        env["IDS_BASELINE_TREE"] = baseline_tree
-        probe = self.run_command(
-            self.root,
-            sys.executable,
-            "-c",
-            (
-                "import importlib.util, os\n"
-                "spec = importlib.util.spec_from_file_location("
-                "'freeze_probe', os.environ['IDS_FREEZER_PATH'])\n"
-                "module = importlib.util.module_from_spec(spec)\n"
-                "spec.loader.exec_module(module)\n"
-                "module.require_design_freeze_attack_replay(\n"
-                "    os.environ['IDS_BASELINE_COMMIT'],\n"
-                "    os.environ['IDS_BASELINE_TREE'],\n"
-                ")\n"
-            ),
-            env=env,
-            check=False,
+        self.write_json(FINAL_EVIDENCE_RELATIVE, evidence)
+        evidence_hash = sha256_file(self.root / FINAL_EVIDENCE_RELATIVE)
+
+        research = self.read_json(RESEARCH_RELATIVE)
+        research["challenge"]["rounds"][-1][
+            "evidence_sha256"
+        ] = evidence_hash
+        self.write_json(RESEARCH_RELATIVE, research)
+        assurance = self.read_json(ASSURANCE_RELATIVE)
+        assurance["subjects"][-1]["evidence_sha256"] = evidence_hash
+        self.write_json(ASSURANCE_RELATIVE, assurance)
+
+        baseline = self.commit_and_push("closure with forged runner receipt")
+        result = self.run_project_script(
+            FREEZER,
+            "--baseline-commit",
+            baseline,
+            "--reviewed-candidate-commit",
+            reviewed,
         )
 
-        self.assertNotEqual(probe.returncode, 0, probe.stdout)
-        self.assertIn(
-            "design-freeze canonical attack replay failed",
-            probe.stdout,
-        )
-        self.assertIn("canonical attack tests were replaced", probe.stdout)
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("actual runner replay differs", result.stdout)
         self.assert_bundle_absent()
 
     def test_origin_name_cannot_hide_changed_fetch_url(self) -> None:
