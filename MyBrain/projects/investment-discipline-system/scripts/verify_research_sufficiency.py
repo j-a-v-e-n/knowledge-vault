@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -78,6 +79,66 @@ def nonempty(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
+def safe_relative(value: Any) -> str | None:
+    if (
+        not isinstance(value, str)
+        or not value
+        or Path(value).is_absolute()
+        or ".." in Path(value).parts
+    ):
+        return None
+    return value
+
+
+def preregistration_bytes(commit: str, relative: str) -> bytes | None:
+    root_result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if root_result.returncode != 0:
+        return None
+    repository_root = Path(
+        root_result.stdout.decode("utf-8", "replace").strip()
+    ).resolve()
+    try:
+        project_prefix = PROJECT_ROOT.relative_to(repository_root)
+    except ValueError:
+        return None
+    repository_relative = (project_prefix / relative).as_posix()
+    commit_result = subprocess.run(
+        ["git", "rev-parse", "--verify", f"{commit}^{{commit}}"],
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if (
+        commit_result.returncode != 0
+        or commit_result.stdout.decode("ascii", "replace").strip() != commit
+    ):
+        return None
+    ancestor_result = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", commit, "HEAD"],
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if ancestor_result.returncode != 0:
+        return None
+    file_result = subprocess.run(
+        ["git", "show", f"{commit}:{repository_relative}"],
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    return file_result.stdout if file_result.returncode == 0 else None
+
+
 def evaluate(document: dict[str, Any]) -> dict[str, Any]:
     topics = document.get("topics")
     gaps = document.get("open_gaps")
@@ -103,26 +164,97 @@ def evaluate(document: dict[str, Any]) -> dict[str, Any]:
     failed: list[str] = []
     for topic_id, topic in topic_by_id.items():
         registration = topic.get("preregistration")
+        commit = (
+            registration.get("git_commit")
+            if isinstance(registration, dict)
+            else None
+        )
+        artifact_path = (
+            safe_relative(registration.get("artifact_path"))
+            if isinstance(registration, dict)
+            else None
+        )
+        artifact_hash = (
+            registration.get("artifact_sha256")
+            if isinstance(registration, dict)
+            else None
+        )
+        proof = (
+            registration.get("timing_proof")
+            if isinstance(registration, dict)
+            else None
+        )
+        artifact_bytes = (
+            preregistration_bytes(commit, artifact_path)
+            if isinstance(commit, str) and artifact_path is not None
+            else None
+        )
+        try:
+            preregistration = (
+                json.loads(artifact_bytes)
+                if artifact_bytes is not None
+                else None
+            )
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            preregistration = None
+        preregistered_topic_ids = {
+            item.get("topic_id")
+            for item in (
+                preregistration.get("questions", [])
+                if isinstance(preregistration, dict)
+                else []
+            )
+            if isinstance(item, dict)
+        }
         if (
             not isinstance(registration, dict)
             or registration.get("timing_state") != "verified_before_search"
-            or not re.fullmatch(
-                r"[0-9a-f]{40}",
-                str(registration.get("git_commit", "")),
+            or not isinstance(commit, str)
+            or re.fullmatch(r"[0-9a-f]{40}", commit) is None
+            or artifact_path is None
+            or not isinstance(artifact_hash, str)
+            or re.fullmatch(r"[0-9a-f]{64}", artifact_hash) is None
+            or artifact_bytes is None
+            or hashlib.sha256(artifact_bytes).hexdigest() != artifact_hash
+            or not isinstance(preregistration, dict)
+            or preregistration.get("status")
+            != "preregistered_before_counted_search"
+            or preregistered_topic_ids != TOPIC_IDS
+            or not isinstance(proof, dict)
+            or proof.get("executor_platform") != "Codex App subagents"
+            or not isinstance(proof.get("agent_or_thread_locators"), list)
+            or not proof["agent_or_thread_locators"]
+            or not all(
+                nonempty(locator)
+                for locator in proof["agent_or_thread_locators"]
             )
-            or not nonempty(registration.get("artifact_path"))
-            or not re.fullmatch(
-                r"[0-9a-f]{64}",
-                str(registration.get("artifact_sha256", "")),
-            )
+            or not nonempty(proof.get("observable_limitation"))
         ):
             failed.append(topic_id)
     results.append(rule_result("DR-02", failed_topic_ids=failed))
 
     failed = []
+    preregistration_documents: dict[str, dict[str, Any]] = {}
     for topic_id, topic in topic_by_id.items():
+        registration = topic.get("preregistration")
+        if isinstance(registration, dict):
+            commit = registration.get("git_commit")
+            relative = safe_relative(registration.get("artifact_path"))
+            if isinstance(commit, str) and relative is not None:
+                payload = preregistration_bytes(commit, relative)
+                try:
+                    parsed = json.loads(payload) if payload is not None else None
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    parsed = None
+                if isinstance(parsed, dict):
+                    preregistration_documents[topic_id] = parsed
         protocol = topic.get("search_protocol")
         budget = protocol.get("budget") if isinstance(protocol, dict) else None
+        executions = (
+            protocol.get("search_executions")
+            if isinstance(protocol, dict)
+            else None
+        )
         if not isinstance(budget, dict):
             failed.append(topic_id)
             continue
@@ -130,6 +262,30 @@ def evaluate(document: dict[str, Any]) -> dict[str, Any]:
         round_limit = budget.get("planned_supplemental_round_limit")
         consumed_queries = budget.get("consumed_query_count")
         consumed_rounds = budget.get("consumed_supplemental_round_count")
+        preregistration = preregistration_documents.get(topic_id, {})
+        prereg_budget = preregistration.get("budget")
+        execution_ids = [
+            item.get("id")
+            for item in executions
+            if isinstance(item, dict)
+        ] if isinstance(executions, list) else []
+        execution_shape_valid = (
+            isinstance(executions, list)
+            and bool(executions)
+            and len(execution_ids) == len(set(execution_ids))
+            and all(
+                isinstance(item, dict)
+                and nonempty(item.get("id"))
+                and nonempty(item.get("retrieved_at"))
+                and nonempty(item.get("channel"))
+                and nonempty(item.get("exact_query"))
+                and nonempty(item.get("executor_locator"))
+                and type(item.get("result_count")) is int
+                and item["result_count"] >= 0
+                and isinstance(item.get("result_source_ids"), list)
+                for item in executions
+            )
+        )
         if (
             budget.get("registration_state") != "frozen_before_search"
             or budget.get("consumption_receipt_state") != "complete"
@@ -141,6 +297,11 @@ def evaluate(document: dict[str, Any]) -> dict[str, Any]:
             or not 0 <= consumed_queries <= query_limit
             or type(consumed_rounds) is not int
             or not 0 <= consumed_rounds <= round_limit
+            or not isinstance(prereg_budget, dict)
+            or query_limit != prereg_budget.get("per_topic_query_limit")
+            or round_limit != prereg_budget.get("supplemental_round_limit")
+            or not execution_shape_valid
+            or consumed_queries != len(executions)
         ):
             failed.append(topic_id)
     results.append(rule_result("DR-03", failed_topic_ids=failed))
@@ -169,12 +330,15 @@ def evaluate(document: dict[str, Any]) -> dict[str, Any]:
             reason = source.get("screening_reason")
             required_strings = (
                 "retrieved_at",
+                "channel",
                 "exact_query_or_locator",
                 "locator",
                 "observed_result",
                 "source_class",
                 "revision_state",
+                "evidence_fingerprint",
             )
+            query_ids = source.get("query_ids")
             if (
                 not isinstance(source_id, str)
                 or source_id in source_map
@@ -187,10 +351,39 @@ def evaluate(document: dict[str, Any]) -> dict[str, Any]:
                 or not nonempty(reason)
                 or any(not nonempty(source.get(key)) for key in required_strings)
                 or not isinstance(source.get("cluster_ids"), list)
+                or not isinstance(query_ids, list)
+                or not query_ids
             ):
                 topic_failed = True
                 continue
             source_map[source_id] = source
+        executions = protocol.get("search_executions")
+        execution_map = {
+            item.get("id"): item
+            for item in executions
+            if isinstance(item, dict) and isinstance(item.get("id"), str)
+        } if isinstance(executions, list) else {}
+        declared_result_ids: list[str] = []
+        for execution in execution_map.values():
+            result_source_ids = execution.get("result_source_ids")
+            if not isinstance(result_source_ids, list):
+                topic_failed = True
+                continue
+            declared_result_ids.extend(result_source_ids)
+            if execution.get("result_count") != len(result_source_ids):
+                topic_failed = True
+        if (
+            len(declared_result_ids) != len(set(declared_result_ids))
+            or set(declared_result_ids) != set(source_map)
+        ):
+            topic_failed = True
+        for source in source_map.values():
+            query_ids = source.get("query_ids")
+            if (
+                not isinstance(query_ids, list)
+                or not set(query_ids).issubset(execution_map)
+            ):
+                topic_failed = True
         source_by_topic[topic_id] = source_map
         if topic_failed:
             failed.append(topic_id)

@@ -1,7 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "candidate_for_freeze",
-  "derived_closure_eligible": false,
+  "derived_pre_review_eligible": false,
+  "derived_research_state": "bounded_incomplete",
   "derivation_rules": {
     "evaluation_mode": "fail_closed_all_topics",
     "status_semantics": "artifact_lifecycle_not_research_closure",
@@ -14,7 +15,7 @@
       {
         "id": "INPUT-02",
         "path": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
-        "sha256": "60151a6965488bb191aaae39bb6235757b7587ddb0473a9d8022e771e0fc885a"
+        "sha256": "95f44fab47b7ab407bbde7639c69288a2202dfc0126747be86be2e77a8f76bc4"
       },
       {
         "id": "INPUT-03",
@@ -67,8 +68,11 @@
         "unreviewed"
       ],
       "gap_state": [
-        "closure_blocking",
-        "non_blocking_boundary",
+        "pre_review_blocking",
+        "final_closure_gate",
+        "product_release_conditional",
+        "human_onboarding_conditional",
+        "longitudinal_conditional",
         "resolved"
       ],
       "preregistration_timing_state": [
@@ -252,7 +256,7 @@
       {
         "id": "DR-12",
         "scope": "$.open_gaps",
-        "test": "count_where_state_equals_closure_blocking_at_most_threshold",
+        "test": "count_where_state_equals_pre_review_blocking_at_most_threshold",
         "threshold_ref": "closure_thresholds.max_blocking_open_gaps"
       },
       {
@@ -261,7 +265,7 @@
         "test": "all_sha256_match_current_files"
       }
     ],
-    "closure_expression": {
+    "pre_review_closure_expression": {
       "operator": "all",
       "predicate_ids": [
         "DR-01",
@@ -274,20 +278,19 @@
         "DR-08",
         "DR-09",
         "DR-10",
-        "DR-11",
         "DR-12",
         "DR-13"
       ]
     },
-    "closure_state_derivation": {
+    "pre_review_state_derivation": {
       "false": "bounded_incomplete",
-      "true": "candidate_closure_eligible"
+      "true": "candidate_pre_review_eligible"
     },
     "integration_observations": {
-      "candidate_verifier_state": "reads_derived_field_without_recomputing_predicates",
-      "freeze_transition_state": "legacy_boolean_transition_still_present",
+      "candidate_verifier_state": "recomputes_pre_review_predicates_with_scripts/verify_research_sufficiency.py",
+      "freeze_transition_state": "must_require_pre_review_eligibility_plus_external_machine_and_post_candidate_semantic_review",
       "register_stop_link_state": "derived_link_present",
-      "status_does_not_imply_research_closure": "derived_closure_eligible_and_derived_research_state_are_authoritative_for_research_sufficiency"
+      "status_does_not_imply_research_closure": "derived_pre_review_eligible only permits final review to begin; it is not final closure"
     },
     "current_evaluation": {
       "derived_research_state": "bounded_incomplete",
@@ -389,17 +392,6 @@
           "result": "pass"
         },
         {
-          "failed_topic_ids": [
-            "RS-01",
-            "RS-02",
-            "RS-03",
-            "RS-04",
-            "RS-05"
-          ],
-          "id": "DR-11",
-          "result": "fail"
-        },
-        {
           "failed_gap_ids": [
             "GAP-001",
             "GAP-002",
@@ -407,13 +399,9 @@
             "GAP-004",
             "GAP-005",
             "GAP-006",
-            "GAP-007",
             "GAP-008",
-            "GAP-009",
-            "GAP-010",
             "GAP-011",
             "GAP-012",
-            "GAP-013",
             "GAP-014",
             "GAP-015"
           ],
@@ -2795,7 +2783,7 @@
       ],
       "evidence_required_to_close": "为未来研究版本冻结问题、范围、状态枚举、来源类别、挑战方式和时间证明；不得把本轮事后重构冒充搜索前注册",
       "id": "GAP-001",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "没有可验证的搜索前预注册时序"
     },
     {
@@ -2811,7 +2799,7 @@
       ],
       "evidence_required_to_close": "冻结查询上限、补充轮上限、预算耗尽状态与完整消费 receipt",
       "id": "GAP-002",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "检索与补充轮预算未预注册，消费记录不完整"
     },
     {
@@ -2827,7 +2815,7 @@
       ],
       "evidence_required_to_close": "冻结每次查询的时间、平台、精确查询、结果集合以及逐条纳入或排除理由",
       "id": "GAP-003",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "现有 search log 不是完整、冻结的 retrieval 与 screening manifest"
     },
     {
@@ -2842,7 +2830,7 @@
       ],
       "evidence_required_to_close": "为全部决定性来源记录上游根、同源关系、更正、撤回、supersession 和依赖 claim 级联",
       "id": "GAP-004",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "来源簇与 revision graph 只部分建立"
     },
     {
@@ -2858,7 +2846,7 @@
       ],
       "evidence_required_to_close": "逐条保存原文范围与哈希，并由不同证据路径或确定性机制复核全部高影响 claim 的蕴含与边界",
       "id": "GAP-005",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "存在 partial、not_entailed 或仅由作者台账判断的高影响 claim"
     },
     {
@@ -2874,7 +2862,7 @@
       ],
       "evidence_required_to_close": "在最后一次架构或决定变化之后执行预注册补充轮，结果不得新增高影响节点、架构变化、决定变化或 open critical/major",
       "id": "GAP-006",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "没有满足稳定阈值的补充轮"
     },
     {
@@ -2888,7 +2876,7 @@
       ],
       "evidence_required_to_close": "完成分层 provenance、真实 runner、完整审查范围和 novelty probe 后，在固定新候选上关闭全部 critical/major",
       "id": "GAP-007",
-      "state": "closure_blocking",
+      "state": "final_closure_gate",
       "summary": "研究登记 challenge 仍为 in_progress，最新轮次仍 blocked-freeze"
     },
     {
@@ -2901,7 +2889,7 @@
       ],
       "evidence_required_to_close": "用同一正式研究任务比较旧流程与证据约束流程的覆盖、冲突、来源质量、可复现性和决定清晰度",
       "id": "GAP-008",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "研究协议尚无真实任务同题对照"
     },
     {
@@ -2914,7 +2902,7 @@
       ],
       "evidence_required_to_close": "取得明确授权和个人凭据后完成 Tiingo 许可与金样本；按触发条件完成 PIT 或 Alpaca Paper 真实试用",
       "id": "GAP-009",
-      "state": "closure_blocking",
+      "state": "product_release_conditional",
       "summary": "正式供应商许可、覆盖、认证、成交与对账条件验收尚未发生"
     },
     {
@@ -2928,7 +2916,7 @@
       ],
       "evidence_required_to_close": "真实 GitHub workflow 生成签名 manifest，下载并按精确 issuer、repository、workflow、commit 与 digest 验证；语义审查保留真实平台 locator 与完整内容绑定",
       "id": "GAP-010",
-      "state": "closure_blocking",
+      "state": "final_closure_gate",
       "summary": "外部签名机器 provenance 尚未观察，语义审查仅具平台可观察隔离"
     },
     {
@@ -2941,7 +2929,7 @@
       ],
       "evidence_required_to_close": "分别研究自评偏差效果量、证据独立判据、隐藏测试、记忆污染、流程负担、UI 审美偏差和事实源迁移成本",
       "id": "GAP-011",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "失效分类列出的多项高影响未知仍未关闭"
     },
     {
@@ -2954,7 +2942,7 @@
       ],
       "evidence_required_to_close": "保留可复演 raw test 与 fault-injection receipt，并由未参与原审查的路径复核固定 commit 和采用判断",
       "id": "GAP-012",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "Vibe-Trading 审查只有单一审查路径，原始执行 receipt 未进入本记录"
     },
     {
@@ -2971,7 +2959,7 @@
       ],
       "evidence_required_to_close": "为每类时效敏感主题冻结事件触发器、差异扫描 receipt 与复核责任；用实际差异产出校准节奏",
       "id": "GAP-013",
-      "state": "closure_blocking",
+      "state": "longitudinal_conditional",
       "summary": "Living Review 触发器已描述，但更新节奏和执行 receipt 未校准"
     },
     {
@@ -2985,9 +2973,9 @@
         "RS-04",
         "RS-05"
       ],
-      "evidence_required_to_close": "由 verifier 从本文件重算全部 predicate，并拒绝手写 derived_closure_eligible 与 derived_research_state 不一致；只读取顶层字段不构成推导",
+      "evidence_required_to_close": "由 verifier 从本文件重算全部 pre-review predicate，并拒绝手写 derived_pre_review_eligible 与 derived_research_state 不一致；只读取顶层字段不构成推导",
       "id": "GAP-014",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "候选 verifier 已读取本记录，但尚未重算 derivation_rules"
     },
     {
@@ -3003,7 +2991,7 @@
       ],
       "evidence_required_to_close": "更新冻结转换，使其使用 research register 的 derived_not_declared 链接和本记录重算结果；删除对 stop_rule.met 的构造与检查",
       "id": "GAP-015",
-      "state": "closure_blocking",
+      "state": "pre_review_blocking",
       "summary": "研究登记已改为 derived link，但冻结程序仍保留旧 stop_rule.met 布尔转换"
     }
   ]

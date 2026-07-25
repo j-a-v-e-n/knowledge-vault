@@ -138,13 +138,13 @@
     },
     {
       "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-      "sha256": "7164a01fbc27e7e1bd3fb6abaaee960517203baf187f2a7461167a79270dadb0",
+      "sha256": "5464be6760cf33c8bfc9a8730ba871315ce4f82b63219fc2ae301d067ff3ea2f",
       "role": "top_level_acceptance_contract",
       "required": true
     },
     {
       "path": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
-      "sha256": "60151a6965488bb191aaae39bb6235757b7587ddb0473a9d8022e771e0fc885a",
+      "sha256": "95f44fab47b7ab407bbde7639c69288a2202dfc0126747be86be2e77a8f76bc4",
       "role": "research_scope_coverage_and_primary_artifact_register",
       "required": true
     },
@@ -180,7 +180,7 @@
     },
     {
       "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
-      "sha256": "41c7062ef7f70fde663f267294a8d1a82dbbf9cdbb35d694468926ef544b85ea",
+      "sha256": "ccbcf892170949a655e1e6cf66273372ac0cc59b688c9f8b8a35238c656bc3ad",
       "role": "design_freeze_and_release_scope_contract",
       "required": true
     },
@@ -204,13 +204,13 @@
     },
     {
       "path": "governance/RESEARCH_SUFFICIENCY_V1.json",
-      "sha256": "f4b4b066887b576b0f6475606bfb5e35f077d6877fee88607a108016ccef4cc9",
+      "sha256": "147bd7ee0800b47e637c0f9b1ba574d8b79934633f48dd72df123d183f13394b",
       "role": "research_sufficiency_and_stop_rule_receipt",
       "required": true
     },
     {
       "path": "governance/TRACEABILITY_V1.json",
-      "sha256": "54fbceee71122b4acada0089d6a588c86309ccab98a220f86cb0f75962e06fd8",
+      "sha256": "c04952f235cf385bec59ce5aaee22b66cb52b33e5310be8a431ec105b278c373",
       "role": "requirements_controls_verification_trace_contract",
       "required": true
     },
