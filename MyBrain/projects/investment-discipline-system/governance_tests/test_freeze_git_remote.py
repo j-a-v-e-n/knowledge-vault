@@ -734,6 +734,11 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             1,
         )
         verifier.write_text(source, encoding="utf-8")
+        self.refresh_component_registry_locators()
+        refresh = self.run_project_script(
+            PROJECT_ROOT / "scripts" / "refresh_ground_truth_manifest.py"
+        )
+        self.assertEqual(refresh.returncode, 0, refresh.stdout)
         self.commit_and_push("candidate with failing inner clone verifier")
 
     def prepare_completed_freeze(
