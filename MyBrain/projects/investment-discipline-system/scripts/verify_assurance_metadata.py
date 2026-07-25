@@ -24,6 +24,30 @@ EXPECTED_WORKFLOW_PERMISSIONS = {
     "attestations": "write",
     "artifact-metadata": "write",
 }
+EXPECTED_MACHINE_STATUS = "designed_not_observed"
+EXPECTED_MACHINE_VERIFICATION_POLICY = [
+    "verify artifact digest with GitHub attestation verification",
+    "require repository j-a-v-e-n/knowledge-vault",
+    (
+        "require the expected OIDC issuer, signer repository, exact workflow "
+        "identity, source commit and predicate type"
+    ),
+    (
+        "reject an unexpected source ref, signer workflow, issuer, source "
+        "digest or self-hosted runner identity"
+    ),
+    (
+        "parse the manifest and independently validate every required check "
+        "and attack result"
+    ),
+    "do not treat attestation as semantic approval",
+]
+EXPECTED_CODEX_STATUS = (
+    "platform_observable_separate_thread_not_security_isolated"
+)
+EXPECTED_CODEX_FORBIDDEN_CLAIM = (
+    "security_isolated_or_cryptographically_independent_reviewer"
+)
 FAILURE_REFERENCE_FIELDS = (
     "requirement_ids",
     "control_ids",
@@ -408,6 +432,42 @@ def parse_workflow_permissions(path: Path, errors: list[str]) -> dict[str, str] 
     return permissions
 
 
+def verify_workflow_execution_boundary(path: Path, errors: list[str]) -> None:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append(f"trust workflow: cannot read UTF-8 workflow: {exc}")
+        return
+
+    uses: list[tuple[str, str]] = []
+    for line in text.splitlines():
+        match = re.fullmatch(
+            r"\s*uses:\s*([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)"
+            r"@([^ #]+)(?:\s+#.*)?",
+            line,
+        )
+        if match:
+            uses.append(match.groups())
+    if not uses:
+        errors.append("trust workflow: no external action uses were found")
+    for action, revision in uses:
+        if re.fullmatch(r"[0-9a-f]{40}", revision) is None:
+            errors.append(
+                f"trust workflow: {action} is not pinned to a full commit SHA"
+            )
+
+    runner_values = re.findall(r"^\s*runs-on:\s*([^#\s]+)\s*(?:#.*)?$", text, re.M)
+    if runner_values != ["ubuntu-latest"]:
+        errors.append(
+            "trust workflow: runner boundary must be exactly one GitHub-hosted "
+            "ubuntu-latest job"
+        )
+    if text.count("persist-credentials: false") != 1:
+        errors.append(
+            "trust workflow: checkout must disable persisted Git credentials"
+        )
+
+
 def verify_trust_model(
     trust: dict[str, Any],
     contract: dict[str, Any],
@@ -557,6 +617,11 @@ def verify_trust_model(
     if not isinstance(machine, dict):
         errors.append("assurance trust model: machine-execution trust root is missing")
     else:
+        if machine.get("status") != EXPECTED_MACHINE_STATUS:
+            errors.append(
+                "assurance trust model: machine status must remain "
+                "designed_not_observed until an external receipt is verified"
+            )
         if machine.get("repository") != repository_name:
             errors.append("assurance trust model: machine repository differs")
         if machine.get("workflow_path") != WORKFLOW_PATH:
@@ -594,11 +659,20 @@ def verify_trust_model(
                     "assurance trust model: root workflow permissions differ "
                     "from the least-privilege contract"
                 )
+            verify_workflow_execution_boundary(workflow, errors)
+        if (
+            machine.get("local_verification_policy")
+            != EXPECTED_MACHINE_VERIFICATION_POLICY
+        ):
+            errors.append(
+                "assurance trust model: local attestation verification policy "
+                "differs"
+            )
 
     if (
         not isinstance(codex, dict)
-        or codex.get("forbidden_claim")
-        != "security_isolated_or_cryptographically_independent_reviewer"
+        or codex.get("status") != EXPECTED_CODEX_STATUS
+        or codex.get("forbidden_claim") != EXPECTED_CODEX_FORBIDDEN_CLAIM
     ):
         errors.append(
             "assurance trust model: Codex semantic-review non-overclaim "

@@ -305,6 +305,66 @@
       "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
       "sha256": "6a173a81dda9c1c749e140c93d70fdb12a3477bdf5f80710ef387afbdb40d3d3",
       "role": "normative_blueprint"
+    },
+    {
+      "id": "ARTIFACT-R7-PREREGISTRATION",
+      "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R7_2026-07-25.json",
+      "sha256": "db7e630355719e62c4c9ccd5e50d038539327ef8de952a3bf47c9e4894f30d35",
+      "role": "preregistered_research_protocol"
+    },
+    {
+      "id": "ARTIFACT-R7-ORDINARY-BASELINE",
+      "path": "audits/research_r7/ORDINARY_BASELINE_RAW_AGENT_REPORT.md",
+      "sha256": "d51a94ecf90ad93b02fbfea90b25b7fdee8c8c0bcd8cffb688b8081f30f6c400",
+      "role": "ordinary_search_comparison_input"
+    },
+    {
+      "id": "ARTIFACT-R7-RS01",
+      "path": "audits/research_r7/RS-01_RAW_AGENT_REPORT.md",
+      "sha256": "3754a1115bb60b341ae9cc1ac6295f89b4d73a4c0de81dd9c0c29274472f2672",
+      "role": "evidence_governed_research_raw_report"
+    },
+    {
+      "id": "ARTIFACT-R7-RS02",
+      "path": "audits/research_r7/RS-02_RAW_AGENT_REPORT.md",
+      "sha256": "4db0da8447fd44b01c83121d38977327a1e0b8fbdc02c53a8e205928d324c4d6",
+      "role": "evidence_governed_research_raw_report"
+    },
+    {
+      "id": "ARTIFACT-R7-RS03",
+      "path": "audits/research_r7/RS-03_RAW_AGENT_REPORT.md",
+      "sha256": "814bfd6dd1a2bfe5e23f68ad5f5eeb57f8e3fe1938acf557f1fab66b4872ba88",
+      "role": "evidence_governed_research_raw_report"
+    },
+    {
+      "id": "ARTIFACT-R7-RS04",
+      "path": "audits/research_r7/RS-04_RAW_AGENT_REPORT.md",
+      "sha256": "fe2725f9963a5d60c482d128394f60562afb2f6fd0900eee1383ae9f25f92816",
+      "role": "evidence_governed_research_raw_report"
+    },
+    {
+      "id": "ARTIFACT-R7-RS05",
+      "path": "audits/research_r7/RS-05_RAW_AGENT_REPORT.md",
+      "sha256": "d905f7502db0fbf748a33a2a3df0bf5351df0c130ab5b5f6936586d6acfc0569",
+      "role": "evidence_governed_research_raw_report"
+    },
+    {
+      "id": "ARTIFACT-R7-COMPARISON",
+      "path": "audits/research_r7/ORDINARY_VS_GOVERNED_COMPARISON_REVIEW.md",
+      "sha256": "aaac6f179855e15dbde513729d6cf28141b77fff2fb533ccd137b5d7fb837b3a",
+      "role": "independent_method_comparison_review"
+    },
+    {
+      "id": "ARTIFACT-R7-SYNTHESIS",
+      "path": "audits/research_r7/R7_SYNTHESIS_AND_DISPOSITION.md",
+      "sha256": "892e39c985a4ac073fc0556b25a052aa2c8ea697990f17a63121362cbdf8c32f",
+      "role": "bounded_incomplete_round_disposition"
+    },
+    {
+      "id": "ARTIFACT-R8-PREREGISTRATION",
+      "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json",
+      "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8",
+      "role": "preregistered_gap_closure_protocol"
     }
   ],
   "challenge": {

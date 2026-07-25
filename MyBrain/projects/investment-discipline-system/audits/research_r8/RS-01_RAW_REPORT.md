@@ -1,6 +1,6 @@
 # R8 RS-01 原始研究报告
 
-> 状态：`in_progress_s1_recorded`
+> 状态：`retrieval_complete_snapshot_pending`
 >
 > 主题：怎样把开放动态网络研究约束成可复演、可停止且不夸大覆盖的决定充分性流程？
 >
@@ -36,8 +36,8 @@
 | `R8-RS01-D1` | `systematic review search stopping decision focused saturation residual risk 2025 2026` | `2026-07-25T16:16:08Z` | 是；一次 | 完整记录本次调用返回的全部可见结果；后端未声明总索引规模，故不推断网络完整性 |
 | `R8-RS01-D2` | `AI deep research evaluation citation completeness source quality user study 2025 2026` | `2026-07-25T16:16:19Z` | 是；一次 | 完整记录本次调用返回的全部可见结果；后端未声明总索引规模，故不推断网络完整性 |
 | `R8-RS01-S1` | `counterexample systematic review search saturation stopping rule misses studies` | `2026-07-25T16:20:54Z` | 是；一次 | 完整记录本次调用返回的全部可见结果；产生一个 high-impact delta |
-| `R8-RS01-S2` | `site:reddit.com AI deep research citations shallow missed sources workflow` | — | 尚未执行 | discovery freeze 后执行 |
-| `R8-RS01-S3` | `site:news.ycombinator.com deep research citations verify sources shallow` | — | 尚未执行 | discovery freeze 后执行 |
+| `R8-RS01-S2` | `site:reddit.com AI deep research citations shallow missed sources workflow` | `2026-07-25T16:22:50Z` | 是；一次 | 完整记录本次调用返回的全部可见结果；无 high-impact delta |
+| `R8-RS01-S3` | `site:news.ycombinator.com deep research citations verify sources shallow` | `2026-07-25T16:23:57Z` | 是；一次 | 完整记录本次调用返回的全部可见结果；无 high-impact delta |
 
 ## 4. D1 完整可见结果与逐结果筛选
 
@@ -194,17 +194,73 @@
 
 因此，S1 不能成为“最后 delta 后的无 delta 稳定性轮”。passing rule 仍未满足。
 
-## 8. 待执行稳定性阶段
+## 8. S2 完整可见结果与逐结果筛选
 
-剩余固定执行顺序为 `R8-RS01-S2` → `R8-RS01-S3`。每次执行后将记录：
+所有行的 `retrieved_at_utc` 均为 `2026-07-25T16:22:50Z`。搜索后端返回了 Reddit 多语言镜像、用户页和 Reddit Developers 页面；它们都属于本次调用的可见结果，因此即使无关也逐项保留。
 
-- 完整可见结果、原始顺序、逐结果纳排；
-- source class、upstream cluster、revision/supersession；
-- 是否出现新 high-impact failure class、决定反转或 open critical/major contradiction；
-- 最后一个 high-impact delta 后是否至少存在一个后续“无高影响 delta”查询。
+| order | title | URL / locator | source class | upstream cluster | 纳排 | 理由 | revision / supersession |
+|---:|---|---|---|---|---|---|---|
+| 1 | Building a better search workflow for academic research papers with ai | https://ja.reddit.com/r/searchengines/comments/1upwqei/building_a_better_search_workflow_for_academic/ | practitioner/community self-promotion | `S2-C01` | 纳入：user-burden hypothesis only | 描述搜索、筛选、组织与阅读优先级负担；不支持工具有效性或机制发生率 | mutable Reddit language mirror；post id `1upwqei` |
+| 2 | Reddit for Developers | https://developers.reddit.com/apps/venice-bot | developer app listing / implementation README | `S2-C02` | 排除 | 是 subreddit bot 的 missed-post recovery，不是 deep-research citation 失败 | mutable app listing |
+| 3 | Are hallucinated citations still a thing? I miss them already. | https://fr.reddit.com/r/Professors/comments/1otqkvh/are_hallucinated_citations_still_a_thing_i_miss/?sort=live | practitioner/community thread | `S2-C03` | 纳入：failure hypotheses only | 可生成 source-existence、DOI、作者、页码、quote 与 claim-source mismatch 的负向探针；匿名报告不能支持发生率 | mutable Reddit language mirror；post id `1otqkvh`；live sort |
+| 4 | Building a workflow tool for Radiology study materials—input needed. | https://vi.reddit.com/r/medicalschoolanki/comments/1uj9fvv/building_a_workflow_tool_for_radiology_study/ | practitioner/community product feedback | `S2-C04` | 排除 | 主题是 Radiopaedia 内容搬运与格式化，不是研究 citation 可靠性 | mutable Reddit language mirror |
+| 5 | Reddit for Developers | https://developers.reddit.com/apps/botforlazymods | developer app listing / implementation README | `S2-C05` | 排除 | 是宣传内容分类 bot；“verified sources”只出现在配置说明 | mutable app listing |
+| 6 | How do younger brands get mentioned in AI search recommendations when competing against legacy giants? | https://pl.reddit.com/r/AISEOTricks/comments/1u8ijio/how_do_younger_brands_get_mentioned_in_ai_search/?sort=top | practitioner/community promotional post | `S2-C06` | 排除 | 目标为 AI SEO，方法与商业动机不适合支持研究 workflow 机制 | mutable Reddit language mirror |
+| 7 | chrisq32 (u/chrisq32) - Reddit | https://www.reddit.com/user/chrisq32/ | practitioner/community user profile | `S2-C07` | 排除 | 可见片段是自动化节点连接错误，与 deep-research citation 无关 | mutable user profile |
+| 8 | revu pour justinnealey | https://fr.reddit.com/user/justinnealey | practitioner/community user profile/comment aggregation | `S2-C08` | 纳入：failure hypothesis only | 评论把 crawler access、referral、mention/citation 分开；只能生成“观测信号不可互相替代”探针 | mutable user profile aggregation |
+| 9 | State standardized tests were graded in less than 24 hours | https://vi.reddit.com/r/Teachers/comments/1t0h32i/state_standardized_tests_were_graded_in_less_than/ | practitioner/community thread | `S2-C09` | 纳入：failure hypothesis only | 可见片段提到带引用回答在 query variations 下互相矛盾；用于 metamorphic probe，不支持发生率 | mutable Reddit language mirror |
+| 10 | overzicht voor rahul_4040 | https://nl.reddit.com/user/rahul_4040 | practitioner/community user profile/comment aggregation | `S2-C10` | 排除 | AI SEO/local citation 讨论，不是研究报告可靠性 | mutable user profile aggregation |
+| 11 | Request to impliment report feature to remove AI generated images from search results | https://vi.reddit.com/r/duckduckgo/comments/1uzlrhm/request_to_impliment_report_feature_to_remove_ai/ | practitioner/community feature request | `S2-C11` | 排除 | 主题是图像搜索结果过滤 | mutable Reddit language mirror |
+| 12 | What's been working best with algos/AI connected to kite(websocket or live data kind of a thing? | https://vi.reddit.com/r/IndiaAlgoTrading/comments/1utw9p8/whats_been_working_best_with_algosai_connected_to/?sort=top | practitioner/community question | `S2-C12` | 排除 | 主题是交易 API/策略，不是 deep-research citation workflow | mutable Reddit language mirror |
 
-若 `S3` 仍产生 high-impact delta，则不追加第六个 query，最终状态必须为 `bounded_incomplete`。
+### 8.1 S2 稳定性裁决
 
-## 9. 快照、原子 claims、predicate 与最终状态
+裁决 UTC：`2026-07-25T16:23:13Z`。
+
+- `new_high_impact_failure_class = false`。
+- `decision_reversal = false`。
+- `open_critical_or_major_contradiction = false`。
+- S2-C03 产生的 source existence、作者/DOI/页码/quote mismatch probes 已被 `RS01-DD-02` 的 citation presence、source snapshot、source range 与 entailment 分离覆盖；S2-C08 的观测信号分层已被 `RS01-DD-04` 的通道分离覆盖；S2-C09 只为现有稳定性/metamorphic 检查增加实例。
+- 因此 S2 是 `RS01-DD-04` 之后的后续 reserved stability query，且没有新 high-impact delta。到 S2 为止，预注册 passing rule 已满足；S3 仍须执行，且可推翻该临时结论。
+
+## 9. S3 完整可见结果与逐结果筛选
+
+所有行的 `retrieved_at_utc` 均为 `2026-07-25T16:23:57Z`。全部结果均为 Hacker News 社区讨论，故只支持 failure hypothesis、用户负担、实现反例或 reopen trigger。
+
+| order | title | URL / locator | source class | upstream cluster | 纳排 | 理由 | revision / supersession |
+|---:|---|---|---|---|---|---|---|
+| 1 | None of those reports are any good though. Maybe for shallow research, but I hav... | https://news.ycombinator.com/item?id=43861012 | practitioner/community discussion | `S3-C01` | 纳入：failure/user-burden hypothesis only | 暴露来源判断不足、任务未完成却返回检索建议、报告过短等 probe；不能支持发生率 | mutable HN item `43861012` |
+| 2 | The Differences Between Deep Research, Deep Research, and Deep Research | https://news.ycombinator.com/item?id=43236184 | practitioner/community discussion | `S3-C02` | 纳入：failure/user-burden hypotheses only | 暴露 source attribution、veracity、source selection 与人工复核成本；不能比较产品普遍能力 | mutable HN item `43236184` |
+| 3 | Introducing deep research | https://news.ycombinator.com/item?id=42913251 | practitioner/community launch discussion | `S3-C03` | 纳入：implementation counterexample hypotheses only | 含“引用真实页面但误读字段/作者角色”的具体 probe，并讨论验证债务；匿名报告不支持发生率 | mutable HN item `42913251` |
+| 4 | The Deep Research problem | https://news.ycombinator.com/item?id=43133207 | practitioner/community article discussion | `S3-C04` | 纳入：failure/user-burden hypotheses only | 暴露 polished completeness overclaim、source-quality 漏检与“真事实拼成错误叙事”风险 | mutable HN item `43133207` |
+| 5 | This verification problem is general. As an experiment, I had Claude Cowork writ... | https://news.ycombinator.com/item?id=47289837 | practitioner/community comment | `S3-C05` | 纳入：implementation counterexample hypothesis only | 提供“来源真实但叙事完全错误”的组合型 negative-test 模板；不支持发生率 | mutable HN item `47289837` |
+| 6 | Are there good benchmarks for this type of tool? It seems not? Also, I'd compare... | https://news.ycombinator.com/item?id=43065221 | practitioner/community discussion | `S3-C06` | 纳入：failure hypothesis only | 暴露领域背景不足、作者动机/上下文判断缺失；不能把专家自测当标准 benchmark | mutable HN item `43065221` |
+| 7 | Ask HN: How to Use "Deep Research"? | https://news.ycombinator.com/item?id=43603574 | practitioner/community question | `S3-C07` | 纳入：source-quality failure hypothesis only | 报告引用 blogspam/listicle 的用户经历可产生低质量来源 probe | mutable HN item `43603574` |
+| 8 | I did a trial run with Deep Research this weekend to do a comparative analysis o... | https://news.ycombinator.com/item?id=43177105 | practitioner/community comment | `S3-C04` | 排除：同上游讨论重复 | 是 order 4 讨论中的具体评论/分支，不增加独立来源簇 | mutable HN item `43177105` |
+| 9 | How I Don't Use LLMs | https://news.ycombinator.com/item?id=43688005 | practitioner/community article discussion | `S3-C08` | 纳入：failure hypothesis only | 暴露浅层拼接、未回答 prompt 的报告形态；由 completeness/relevance probes 覆盖 | mutable HN item `43688005` |
+| 10 | Ask HN: Does acceptance of Wikipedia as reliable source foreshadow same for AI? | https://news.ycombinator.com/item?id=43673637 | practitioner/community question | `S3-C09` | 纳入：source-quality hypothesis only | 简短反例指向“有 citation 不等于 vet source”；不提供独立机制证据 | mutable HN item `43673637` |
+| 11 | The Unreliability of LLMs and What Lies Ahead | https://news.ycombinator.com/item?id=44160573 | practitioner/community discussion | `S3-C10` | 纳入：synthesis failure hypothesis only | 暴露词共现被误当因果/物理连接的推断错误；可构造组合型 entailment test | mutable HN item `44160573` |
+| 12 | I’ve reviewed a lot of papers, I don’t consider it the reviewers responsibility ... | https://news.ycombinator.com/item?id=46182431 | practitioner/community discussion | `S3-C11` | 纳入：review-burden hypothesis only | 暴露大量弱引用会稀释 reviewer 注意力；只能用于基于影响的复核优先级设计 | mutable HN item `46182431` |
+
+### 9.1 S3 稳定性裁决
+
+裁决 UTC：`2026-07-25T16:24:28Z`。
+
+- `new_high_impact_failure_class = false`。
+- `decision_reversal = false`。
+- `open_critical_or_major_contradiction = false`。
+- S3-C04、S3-C05、S3-C10 强化一个组合型 probe：所有 source locator 可解析、局部事实可各自为真，但跨来源的关系、因果链或总叙事仍不被来源蕴含。该 probe 已属于 `RS01-DD-02` 的 material-claim inventory/entailment 与 `RS01-DD-04` 的 synthesis-risk 通道，不产生新 architecture delta。
+- 对 `RS01-DD-02`/`RS01-DD-04` 的 test clarification（非 delta）：增加 negative case——`source_exists=true` 且 atomic supporting facts 为真，但 synthesized conclusion/causal relation 为 false；gate 必须拒绝。
+- practitioner 结果不支持任何产品错误率、能力排序或普遍机制结论。
+
+### 9.2 最终稳定性结果
+
+- 最后一个 high-impact delta：`RS01-DD-04`，由 S1 在 `2026-07-25T16:21:13Z` 冻结。
+- 后续 reserved stability query S2：无 high-impact delta、无 decision reversal、无 open critical/major contradiction。
+- 后续 reserved stability query S3：无 high-impact delta、无 decision reversal、无 open critical/major contradiction。
+- `stability_protocol.passing_rule = true`。
+- 没有执行或追加第六个 query。
+
+## 10. 快照、原子 claims、predicate 与最终状态
 
 尚未完成。决定性来源精确字节、manifest、反证、剩余 gaps、逐 predicate 裁决和最终状态将在 S1-S3 后补齐。任何无法保存 exact bytes 的来源都将保存失败 receipt，并使对应 snapshot predicate 为 false。

@@ -1,0 +1,102 @@
+{
+  "url": "https://api.github.com/repos/openclaw/openclaw/issues/42112",
+  "repository_url": "https://api.github.com/repos/openclaw/openclaw",
+  "labels_url": "https://api.github.com/repos/openclaw/openclaw/issues/42112/labels{/name}",
+  "comments_url": "https://api.github.com/repos/openclaw/openclaw/issues/42112/comments",
+  "events_url": "https://api.github.com/repos/openclaw/openclaw/issues/42112/events",
+  "html_url": "https://github.com/openclaw/openclaw/issues/42112",
+  "id": 4051356054,
+  "node_id": "I_kwDOQb6kR87xesmW",
+  "number": 42112,
+  "title": "Bug: persisted orphaned toolCall poisons session replay and makes chat agent stop responding",
+  "user": {
+    "login": "liaosvcaf",
+    "id": 51533973,
+    "node_id": "MDQ6VXNlcjUxNTMzOTcz",
+    "avatar_url": "https://avatars.githubusercontent.com/u/51533973?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/liaosvcaf",
+    "html_url": "https://github.com/liaosvcaf",
+    "followers_url": "https://api.github.com/users/liaosvcaf/followers",
+    "following_url": "https://api.github.com/users/liaosvcaf/following{/other_user}",
+    "gists_url": "https://api.github.com/users/liaosvcaf/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/liaosvcaf/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/liaosvcaf/subscriptions",
+    "organizations_url": "https://api.github.com/users/liaosvcaf/orgs",
+    "repos_url": "https://api.github.com/users/liaosvcaf/repos",
+    "events_url": "https://api.github.com/users/liaosvcaf/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/liaosvcaf/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+
+  ],
+  "state": "closed",
+  "locked": true,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 2,
+  "created_at": "2026-03-10T12:08:40Z",
+  "updated_at": "2026-04-27T04:53:34Z",
+  "closed_at": "2026-04-24T22:10:39Z",
+  "assignee": null,
+  "author_association": "CONTRIBUTOR",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": "resolved",
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "## Summary\nOn **OpenClaw 2026.3.8**, a persisted session can become unrecoverable if an assistant `toolCall` is written without the required immediate matching `toolResult`. Once that happens, later turns on the same session are rejected by the model provider, and the chat agent appears down until the bad session file is manually quarantined or reset.\n\nThis was observed on a **Telegram direct-chat agent** using **`openai-codex/gpt-5.4`**.\n\nThis does **not** look like a brand-new bug class. It appears to be a still-unfixed / newly resurfaced variant of the orphaned `tool_use` / `tool_result` session-corruption family.\n\n## Environment\n- **OpenClaw version:** 2026.3.8\n- **OS:** macOS arm64\n- **Channel:** Telegram\n- **Agent/session type:** main direct-chat agent (`main-telegram`)\n- **Model involved at time of incident:** `openai-codex/gpt-5.4`\n\n## User-visible symptom\nThe Telegram bot stopped replying after a prompt that triggered memory lookup. Telegram transport remained healthy; the failure was in session replay.\n\n## Concrete failure\nThe persisted session ended with:\n1. assistant `toolCall: read`\n2. matching `toolResult` for `read`\n3. assistant `toolCall: memory_search`\n4. **no matching `toolResult` persisted**\n\nOn the next run, the provider rejected the replayed history.\n\n### Exact error seen\n```text\nLLM request rejected: messages.29: `tool_use` ids were found without `tool_result` blocks immediately after: call36902724. Each `tool_use` block must have a corresponding `tool_result` block in the next message.\n```\n\n## Evidence\n### Session evidence\nAffected persisted session contained:\n- user asks for memory/vector/notes token search\n- assistant issues `read`\n- `toolResult` recorded for `read`\n- assistant issues `memory_search`\n- no subsequent `toolResult`\n\n### Gateway evidence\nGateway error log recorded:\n```text\n[agent/embedded] embedded run agent end: ... isError=true error=LLM request rejected: messages.29: `tool_use` ids were found without `tool_result` blocks immediately after: call36902724 ...\n```\n\n### Transport was not broken\nTelegram sends succeeded both:\n- before the failure\n- immediately after manual quarantine of the bad session and gateway restart\n\nSo this was **not** a Telegram outage.\n\n## Why this matters\nThe failure mode is bad for operators because:\n- the channel still looks healthy\n- the gateway service is still running\n- the bot simply stops replying\n- the poisoned session keeps failing until manually removed\n\n## Likely root cause\nOpenClaw’s session persistence / recovery path appears able to durably record an assistant `toolCall` without guaranteeing that the corresponding `toolResult` is also durably present in the next message block.\n\nThat leaves the session in a replay-invalid state for providers/models that strictly enforce tool-call sequencing.\n\n## Why this looks systemic, not one-off\nThe same class of error appears multiple times in historical logs with different tool-call IDs, so this looks like a recurring integrity bug rather than a single damaged file.\n\n## Expected behavior\nIf a persisted session is structurally invalid due to an orphaned tool call, OpenClaw should detect and recover automatically rather than repeatedly replaying poisoned history.\n\n## Actual behavior\nOpenClaw reuses the corrupted session, the provider rejects replay, and the agent stops responding until manual intervention.\n\n## Manual workaround used\n1. back up the bad session file\n2. move it out of the active session directory\n3. remove stale lock file\n4. restart gateway\n\nThat restored replies immediately.\n\n## Suggested fixes\n### 1. Add replay integrity validation\nBefore replaying a persisted session, validate:\n- every assistant `toolCall` has immediate matching `toolResult`\n- no dangling tool-call IDs\n- no assistant tool-call block at EOF without result\n\nIf invalid:\n- quarantine the session automatically, or\n- truncate the invalid tail safely, or\n- rotate to a fresh session\n\n### 2. Make tool persistence atomic\nDo not durably persist assistant `toolCall` state unless the corresponding tool-result transition can also be committed safely.\n\n### 3. Auto-heal on this exact error\nOn:\n```text\ntool_use ids were found without tool_result blocks immediately after\n```\nautomatically:\n- mark session corrupted\n- preserve backup\n- open fresh session\n- continue service\n\n### 4. Improve diagnostics\nInclude in logs:\n- session key\n- session file path\n- offending tool call ID\n- whether quarantine/rotation was attempted\n\n## Related prior issues / PRs\nThis report appears related to prior work in the same area:\n- #37834 — Session context corruption: orphaned tool_use ID causes permanent 400 loop after abort\n- #26936 — orphan tool_use persisted to session .jsonl after rate limit retry exhaustion\n- #19048 — Auto-repair orphaned tool_use blocks in session history\n- #33621 — Anthropic rejects history with dangling tool_use blocks after compaction\n- #27804 — Session compaction breaks tool_use/tool_result pairing, causing 400 API errors\n- #40416 — Post-compaction message serialization drops tool_result blocks → permanent session death\n- #20980 — pair-atomic tool_use/tool_result commit\n\n## Severity\nHigh for interactive agents:\n- causes apparent bot outage\n- difficult to distinguish from transport problems\n- recurring across sessions/log history\n",
+  "closed_by": {
+    "login": "steipete",
+    "id": 58493,
+    "node_id": "MDQ6VXNlcjU4NDkz",
+    "avatar_url": "https://avatars.githubusercontent.com/u/58493?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/steipete",
+    "html_url": "https://github.com/steipete",
+    "followers_url": "https://api.github.com/users/steipete/followers",
+    "following_url": "https://api.github.com/users/steipete/following{/other_user}",
+    "gists_url": "https://api.github.com/users/steipete/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/steipete/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/steipete/subscriptions",
+    "organizations_url": "https://api.github.com/users/steipete/orgs",
+    "repos_url": "https://api.github.com/users/steipete/repos",
+    "events_url": "https://api.github.com/users/steipete/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/steipete/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "reactions": {
+    "url": "https://api.github.com/repos/openclaw/openclaw/issues/42112/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/openclaw/openclaw/issues/42112/timeline",
+  "performed_via_github_app": null,
+  "state_reason": "completed",
+  "pinned_comment": null
+}

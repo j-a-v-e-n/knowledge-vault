@@ -2673,23 +2673,24 @@ def verify_research_register(
         "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
     }
     missing_core_artifacts = core_artifact_ids - artifact_ids
-    final_artifact_ids = artifact_ids - core_artifact_ids
-    if missing_core_artifacts or len(final_artifact_ids) > 1 or any(
-        not re.fullmatch(r"ARTIFACT-CHALLENGE-FINAL-R[0-9]+", item)
-        for item in final_artifact_ids
-    ):
+    if missing_core_artifacts:
         errors.append(
             "research primary artifact ids differ: "
             f"missing={sorted(missing_core_artifacts)}, "
-            f"extra={sorted(final_artifact_ids)}"
+            "extra=[]"
         )
     artifact_paths: set[str] = set()
     artifact_by_id: dict[str, dict[str, Any]] = {}
+    final_artifact_ids: set[str] = set()
     if isinstance(artifacts, list):
         for artifact in artifacts:
             if not isinstance(artifact, dict):
                 continue
             artifact_id = artifact.get("id", "<unknown>")
+            if not isinstance(artifact_id, str) or not re.fullmatch(
+                r"ARTIFACT-[A-Z0-9-]+", artifact_id
+            ):
+                errors.append(f"{artifact_id} research artifact id is invalid")
             artifact_by_id[artifact_id] = artifact
             relative = artifact.get("path")
             expected_hash = artifact.get("sha256")
@@ -2741,13 +2742,24 @@ def verify_research_register(
                     errors.append(
                         f"{artifact_id} frozen research artifact is not tracked in HEAD"
                     )
-            if not isinstance(artifact.get("role"), str) or not artifact.get("role"):
+            role = artifact.get("role")
+            if not isinstance(role, str) or not role:
                 errors.append(f"{artifact_id} research artifact role is missing")
-            if (
-                artifact_id in final_artifact_ids
-                and artifact.get("role") != "independent_final_challenge"
-            ):
+            final_id = bool(
+                isinstance(artifact_id, str)
+                and re.fullmatch(
+                    r"ARTIFACT-CHALLENGE-FINAL-R[0-9]+", artifact_id
+                )
+            )
+            final_role = role == "independent_final_challenge"
+            if final_id != final_role:
                 errors.append(f"{artifact_id} final challenge artifact role differs")
+            if final_id and final_role:
+                final_artifact_ids.add(artifact_id)
+    if len(final_artifact_ids) > 1:
+        errors.append(
+            "research contains more than one final challenge primary artifact"
+        )
 
     challenge = research.get("challenge")
     if not isinstance(challenge, dict):

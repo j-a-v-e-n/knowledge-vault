@@ -250,6 +250,70 @@ class AssuranceMetadataMutationTests(unittest.TestCase):
         self.refresh_manifest_entries(TRUST_MODEL, WORKFLOW_PATH)
         self.assert_rejected("permissions differ from the least-privilege contract")
 
+    def test_rejects_unobserved_machine_status_upgrade(self) -> None:
+        trust = self.read_document(TRUST_MODEL)
+        machine = trust["trust_roots"]["github_actions_machine_execution"]
+        machine["status"] = "independent_execution_verified"
+        self.write_document(TRUST_MODEL, trust)
+        self.refresh_manifest_entries(TRUST_MODEL)
+        self.assert_rejected(
+            "machine status must remain designed_not_observed"
+        )
+
+    def test_rejects_attestation_policy_weakening(self) -> None:
+        trust = self.read_document(TRUST_MODEL)
+        machine = trust["trust_roots"]["github_actions_machine_execution"]
+        machine["local_verification_policy"] = [
+            "verify artifact digest with GitHub attestation verification",
+            "require repository j-a-v-e-n/knowledge-vault",
+        ]
+        self.write_document(TRUST_MODEL, trust)
+        self.refresh_manifest_entries(TRUST_MODEL)
+        self.assert_rejected(
+            "local attestation verification policy differs"
+        )
+
+    def test_rejects_unpinned_action_reference(self) -> None:
+        workflow = self.repository / WORKFLOW_PATH
+        workflow_text = workflow.read_text(encoding="utf-8")
+        self.assertIn(
+            "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            workflow_text,
+        )
+        workflow.write_text(
+            workflow_text.replace(
+                "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                "actions/checkout@v4",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        trust = self.read_document(TRUST_MODEL)
+        machine = trust["trust_roots"]["github_actions_machine_execution"]
+        machine["workflow_sha256"] = hashlib.sha256(workflow.read_bytes()).hexdigest()
+        self.write_document(TRUST_MODEL, trust)
+        self.refresh_manifest_entries(TRUST_MODEL, WORKFLOW_PATH)
+        self.assert_rejected("is not pinned to a full commit SHA")
+
+    def test_rejects_self_hosted_runner(self) -> None:
+        workflow = self.repository / WORKFLOW_PATH
+        workflow_text = workflow.read_text(encoding="utf-8")
+        self.assertEqual(workflow_text.count("runs-on: ubuntu-latest"), 1)
+        workflow.write_text(
+            workflow_text.replace(
+                "runs-on: ubuntu-latest",
+                "runs-on: self-hosted",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        trust = self.read_document(TRUST_MODEL)
+        machine = trust["trust_roots"]["github_actions_machine_execution"]
+        machine["workflow_sha256"] = hashlib.sha256(workflow.read_bytes()).hexdigest()
+        self.write_document(TRUST_MODEL, trust)
+        self.refresh_manifest_entries(TRUST_MODEL, WORKFLOW_PATH)
+        self.assert_rejected("runner boundary must be exactly one GitHub-hosted")
+
 
 if __name__ == "__main__":
     unittest.main()

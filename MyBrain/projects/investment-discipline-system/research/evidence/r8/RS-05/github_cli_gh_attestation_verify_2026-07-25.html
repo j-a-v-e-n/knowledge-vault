@@ -1,0 +1,7780 @@
+<!doctype html>
+<html lang="en" data-color-mode="dark" data-dark-theme="dark">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta http-equiv="content-language" content="en-gb">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preload" href="/assets/fonts/Mona-Sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" type="text/css" href="/style.css?05e4cbe8b7ddaf296ad6ebf4d0bafd206ef148ab">
+  <link rel="icon" type="image/x-icon" href="https://github.githubassets.com/favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700" rel="stylesheet">
+  <meta name="google-site-verification" content="c1kuD-K2HIVF635lypcsWPoD4kilo5-jA_wBFyT4uMY">
+  <meta name="ha-url" content="https://collector.githubapp.com/github-cli/collect">
+  <script src="https://analytics.githubassets.com/hydro-marketing.min.js"></script>
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<title>GitHub CLI | Take GitHub to the command line</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="GitHub CLI" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Take GitHub to the command line" />
+<meta name="twitter:description" property="og:description" content="Take GitHub to the command line" />
+<meta property="og:site_name" content="GitHub CLI" />
+<meta property="og:image" content="/assets/images/social-card.png" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="/assets/images/social-card.png" />
+<meta name="twitter:title" content="GitHub CLI" />
+<meta name="twitter:site" content="@github" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Take GitHub to the command line","headline":"GitHub CLI","image":"/assets/images/social-card.png","url":"/manual/gh_attestation_verify"}</script>
+<!-- End Jekyll SEO tag -->
+
+</head>
+
+  <body class="manual">
+    <div>
+  <header>
+    
+    <nav class="d-flex flex-content-center flex-justify-between mx-auto px-3 px-md-6">
+      <a href="#main" class="p-3 color-bg-accent-emphasis color-fg-on-emphasis show-on-focus">Skip to content</a>
+      <a class="d-flex mr-4 flex-items-center f4-mktg color-fg-default" href="/">
+        <svg
+          viewBox="0 0 16 16"
+          width="32"
+          height="32"
+          class="octicon octicon-mark-github mr-2"
+          aria-hidden="true"
+          role="img"
+        >
+          <path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656"></path>
+        </svg>
+        CLI
+      </a>
+
+      <div class="d-flex flex-auto flex-items-center flex-justify-end">
+        <a href="https://github.com/features/copilot/cli" class="d-inline-block f5-mktg py-4 mr-4 color-fg-default">Copilot CLI</a>
+        <a href="/manual" class="d-inline-block f5-mktg py-4 mr-4 color-fg-default">Manual</a>
+        <a href="https://github.com/cli/cli/releases/latest" class="d-inline-block f5-mktg py-4 mr-4 color-fg-default">Release notes</a>
+      </div>
+    </nav>
+  </header>
+</div>
+
+    <div class="d-flex flex-wrap flex-justify-center">
+      <div class="col-lg-2">
+        <div class="height-full">
+  <nav aria-label="CLI commands" class="docs-nav d-none d-lg-flex flex-column p-6">
+    <ul class="list-style-none">
+  <li>
+    <h5 class="mt-3 text-mono">
+      <a
+        class="color-fg-default"
+        href="/manual/"
+        
+        >Getting started</a
+      >
+    </h5>
+  </li>
+  <li>
+    <h5 class="mt-3 text-mono">
+      <a
+        class="color-fg-default"
+        href="/manual/gh"
+        
+        >gh</a
+      >
+    </h5>
+  </li>
+  <!-- auto-generate table of contents for manual pages -->
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_agent-task"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >agent-task</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_agent-task_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_agent-task_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_agent-task_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_alias"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >alias</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_alias_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_alias_import"
+      
+      class="text-mono d-block"
+      
+    >import</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_alias_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_alias_set"
+      
+      class="text-mono d-block"
+      
+    >set</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_api"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >api</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_attestation"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >attestation</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_attestation_download"
+      
+      class="text-mono d-block"
+      
+    >download</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_attestation_trusted-root"
+      
+      class="text-mono d-block"
+      
+    >trusted-root</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_attestation_verify"
+      
+      class="text-mono d-block"
+      
+        style="font-weight:bold" aria-current="page"
+      
+    >verify</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_auth"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >auth</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_login"
+      
+      class="text-mono d-block"
+      
+    >login</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_logout"
+      
+      class="text-mono d-block"
+      
+    >logout</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_refresh"
+      
+      class="text-mono d-block"
+      
+    >refresh</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_setup-git"
+      
+      class="text-mono d-block"
+      
+    >setup-git</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_status"
+      
+      class="text-mono d-block"
+      
+    >status</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_switch"
+      
+      class="text-mono d-block"
+      
+    >switch</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_token"
+      
+      class="text-mono d-block"
+      
+    >token</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_browse"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >browse</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_cache"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >cache</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_cache_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_cache_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_codespace"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >codespace</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_code"
+      
+      class="text-mono d-block"
+      
+    >code</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_cp"
+      
+      class="text-mono d-block"
+      
+    >cp</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_jupyter"
+      
+      class="text-mono d-block"
+      
+    >jupyter</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_logs"
+      
+      class="text-mono d-block"
+      
+    >logs</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_ports"
+      
+      class="text-mono d-block"
+      
+    >ports</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_ports_forward"
+      
+      class="text-mono d-block"
+      
+    >ports forward</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_ports_visibility"
+      
+      class="text-mono d-block"
+      
+    >ports visibility</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_rebuild"
+      
+      class="text-mono d-block"
+      
+    >rebuild</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_ssh"
+      
+      class="text-mono d-block"
+      
+    >ssh</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_stop"
+      
+      class="text-mono d-block"
+      
+    >stop</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_completion"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >completion</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_config"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >config</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_config_clear-cache"
+      
+      class="text-mono d-block"
+      
+    >clear-cache</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_config_get"
+      
+      class="text-mono d-block"
+      
+    >get</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_config_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_config_set"
+      
+      class="text-mono d-block"
+      
+    >set</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_copilot"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >copilot</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_discussion"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >discussion</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_comment"
+      
+      class="text-mono d-block"
+      
+    >comment</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_extension"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >extension</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_browse"
+      
+      class="text-mono d-block"
+      
+    >browse</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_exec"
+      
+      class="text-mono d-block"
+      
+    >exec</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_install"
+      
+      class="text-mono d-block"
+      
+    >install</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_remove"
+      
+      class="text-mono d-block"
+      
+    >remove</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_search"
+      
+      class="text-mono d-block"
+      
+    >search</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_upgrade"
+      
+      class="text-mono d-block"
+      
+    >upgrade</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_gist"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >gist</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_clone"
+      
+      class="text-mono d-block"
+      
+    >clone</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_rename"
+      
+      class="text-mono d-block"
+      
+    >rename</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_gpg-key"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >gpg-key</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gpg-key_add"
+      
+      class="text-mono d-block"
+      
+    >add</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gpg-key_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gpg-key_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_help"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >help</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_environment"
+      
+      class="text-mono d-block"
+      
+    >environment</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_exit-codes"
+      
+      class="text-mono d-block"
+      
+    >exit-codes</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_formatting"
+      
+      class="text-mono d-block"
+      
+    >formatting</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_mintty"
+      
+      class="text-mono d-block"
+      
+    >mintty</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_reference"
+      
+      class="text-mono d-block"
+      
+    >reference</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_telemetry"
+      
+      class="text-mono d-block"
+      
+    >telemetry</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_issue"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >issue</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_close"
+      
+      class="text-mono d-block"
+      
+    >close</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_comment"
+      
+      class="text-mono d-block"
+      
+    >comment</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_develop"
+      
+      class="text-mono d-block"
+      
+    >develop</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_lock"
+      
+      class="text-mono d-block"
+      
+    >lock</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_pin"
+      
+      class="text-mono d-block"
+      
+    >pin</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_reopen"
+      
+      class="text-mono d-block"
+      
+    >reopen</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_status"
+      
+      class="text-mono d-block"
+      
+    >status</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_transfer"
+      
+      class="text-mono d-block"
+      
+    >transfer</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_unlock"
+      
+      class="text-mono d-block"
+      
+    >unlock</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_unpin"
+      
+      class="text-mono d-block"
+      
+    >unpin</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_label"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >label</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_clone"
+      
+      class="text-mono d-block"
+      
+    >clone</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_licenses"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >licenses</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_org"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >org</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_org_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_pr"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >pr</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_checkout"
+      
+      class="text-mono d-block"
+      
+    >checkout</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_checks"
+      
+      class="text-mono d-block"
+      
+    >checks</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_close"
+      
+      class="text-mono d-block"
+      
+    >close</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_comment"
+      
+      class="text-mono d-block"
+      
+    >comment</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_diff"
+      
+      class="text-mono d-block"
+      
+    >diff</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_lock"
+      
+      class="text-mono d-block"
+      
+    >lock</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_merge"
+      
+      class="text-mono d-block"
+      
+    >merge</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_ready"
+      
+      class="text-mono d-block"
+      
+    >ready</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_reopen"
+      
+      class="text-mono d-block"
+      
+    >reopen</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_revert"
+      
+      class="text-mono d-block"
+      
+    >revert</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_review"
+      
+      class="text-mono d-block"
+      
+    >review</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_status"
+      
+      class="text-mono d-block"
+      
+    >status</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_unlock"
+      
+      class="text-mono d-block"
+      
+    >unlock</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_update-branch"
+      
+      class="text-mono d-block"
+      
+    >update-branch</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_preview"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >preview</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_preview_prompter"
+      
+      class="text-mono d-block"
+      
+    >prompter</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_project"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >project</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_close"
+      
+      class="text-mono d-block"
+      
+    >close</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_copy"
+      
+      class="text-mono d-block"
+      
+    >copy</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_field-create"
+      
+      class="text-mono d-block"
+      
+    >field-create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_field-delete"
+      
+      class="text-mono d-block"
+      
+    >field-delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_field-list"
+      
+      class="text-mono d-block"
+      
+    >field-list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-add"
+      
+      class="text-mono d-block"
+      
+    >item-add</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-archive"
+      
+      class="text-mono d-block"
+      
+    >item-archive</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-create"
+      
+      class="text-mono d-block"
+      
+    >item-create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-delete"
+      
+      class="text-mono d-block"
+      
+    >item-delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-edit"
+      
+      class="text-mono d-block"
+      
+    >item-edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-list"
+      
+      class="text-mono d-block"
+      
+    >item-list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_link"
+      
+      class="text-mono d-block"
+      
+    >link</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_mark-template"
+      
+      class="text-mono d-block"
+      
+    >mark-template</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_unlink"
+      
+      class="text-mono d-block"
+      
+    >unlink</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_release"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >release</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_delete-asset"
+      
+      class="text-mono d-block"
+      
+    >delete-asset</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_download"
+      
+      class="text-mono d-block"
+      
+    >download</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_upload"
+      
+      class="text-mono d-block"
+      
+    >upload</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_verify-asset"
+      
+      class="text-mono d-block"
+      
+    >verify-asset</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_verify"
+      
+      class="text-mono d-block"
+      
+    >verify</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_repo"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >repo</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_archive"
+      
+      class="text-mono d-block"
+      
+    >archive</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink"
+      
+      class="text-mono d-block"
+      
+    >autolink</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink_create"
+      
+      class="text-mono d-block"
+      
+    >autolink create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink_delete"
+      
+      class="text-mono d-block"
+      
+    >autolink delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink_list"
+      
+      class="text-mono d-block"
+      
+    >autolink list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink_view"
+      
+      class="text-mono d-block"
+      
+    >autolink view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_clone"
+      
+      class="text-mono d-block"
+      
+    >clone</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_deploy-key"
+      
+      class="text-mono d-block"
+      
+    >deploy-key</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_deploy-key_add"
+      
+      class="text-mono d-block"
+      
+    >deploy-key add</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_deploy-key_delete"
+      
+      class="text-mono d-block"
+      
+    >deploy-key delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_deploy-key_list"
+      
+      class="text-mono d-block"
+      
+    >deploy-key list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_fork"
+      
+      class="text-mono d-block"
+      
+    >fork</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_gitignore"
+      
+      class="text-mono d-block"
+      
+    >gitignore</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_gitignore_list"
+      
+      class="text-mono d-block"
+      
+    >gitignore list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_gitignore_view"
+      
+      class="text-mono d-block"
+      
+    >gitignore view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_license"
+      
+      class="text-mono d-block"
+      
+    >license</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_license_list"
+      
+      class="text-mono d-block"
+      
+    >license list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_license_view"
+      
+      class="text-mono d-block"
+      
+    >license view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_read-dir"
+      
+      class="text-mono d-block"
+      
+    >read-dir</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_read-file"
+      
+      class="text-mono d-block"
+      
+    >read-file</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_rename"
+      
+      class="text-mono d-block"
+      
+    >rename</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_set-default"
+      
+      class="text-mono d-block"
+      
+    >set-default</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_sync"
+      
+      class="text-mono d-block"
+      
+    >sync</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_unarchive"
+      
+      class="text-mono d-block"
+      
+    >unarchive</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_ruleset"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >ruleset</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ruleset_check"
+      
+      class="text-mono d-block"
+      
+    >check</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ruleset_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ruleset_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_run"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >run</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_cancel"
+      
+      class="text-mono d-block"
+      
+    >cancel</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_download"
+      
+      class="text-mono d-block"
+      
+    >download</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_rerun"
+      
+      class="text-mono d-block"
+      
+    >rerun</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_watch"
+      
+      class="text-mono d-block"
+      
+    >watch</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_search"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >search</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_code"
+      
+      class="text-mono d-block"
+      
+    >code</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_commits"
+      
+      class="text-mono d-block"
+      
+    >commits</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_issues"
+      
+      class="text-mono d-block"
+      
+    >issues</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_prs"
+      
+      class="text-mono d-block"
+      
+    >prs</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_repos"
+      
+      class="text-mono d-block"
+      
+    >repos</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_secret"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >secret</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_secret_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_secret_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_secret_set"
+      
+      class="text-mono d-block"
+      
+    >set</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_skill"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >skill</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_install"
+      
+      class="text-mono d-block"
+      
+    >install</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_preview"
+      
+      class="text-mono d-block"
+      
+    >preview</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_publish"
+      
+      class="text-mono d-block"
+      
+    >publish</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_search"
+      
+      class="text-mono d-block"
+      
+    >search</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_update"
+      
+      class="text-mono d-block"
+      
+    >update</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_ssh-key"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >ssh-key</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ssh-key_add"
+      
+      class="text-mono d-block"
+      
+    >add</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ssh-key_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ssh-key_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_status"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >status</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_variable"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >variable</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_variable_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_variable_get"
+      
+      class="text-mono d-block"
+      
+    >get</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_variable_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_variable_set"
+      
+      class="text-mono d-block"
+      
+    >set</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_workflow"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >workflow</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_disable"
+      
+      class="text-mono d-block"
+      
+    >disable</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_enable"
+      
+      class="text-mono d-block"
+      
+    >enable</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_run"
+      
+      class="text-mono d-block"
+      
+    >run</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+  </nav>
+</div>
+
+      </div>
+      <details id="mobile-nav-container" class="docs-nav docs-nav-mobile details-reset d-lg-none">
+  <summary class="color-bg-default text-center left-0 right-0 p-3" style="z-index: 100;">
+    <svg viewBox="0 0 16 16" width="16" height="16" class="octicon octicon-three-bars" aria-hidden="true">
+      <path d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 7.75ZM1.75 12h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Z"></path>
+    </svg>
+    <span class="pl-2">CLI manual</span>
+  </summary>
+  <details-menu class="position-absolute width-full color-bg-subtle left-0" style="z-index: 50">
+    <nav aria-label="CLI commands" class="px-3 py-3 pb-3">
+      <ul class="list-style-none">
+  <li>
+    <h5 class="mt-3 text-mono">
+      <a
+        class="color-fg-default"
+        href="/manual/"
+        
+        >Getting started</a
+      >
+    </h5>
+  </li>
+  <li>
+    <h5 class="mt-3 text-mono">
+      <a
+        class="color-fg-default"
+        href="/manual/gh"
+        
+        >gh</a
+      >
+    </h5>
+  </li>
+  <!-- auto-generate table of contents for manual pages -->
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_agent-task"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >agent-task</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_agent-task_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_agent-task_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_agent-task_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_alias"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >alias</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_alias_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_alias_import"
+      
+      class="text-mono d-block"
+      
+    >import</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_alias_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_alias_set"
+      
+      class="text-mono d-block"
+      
+    >set</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_api"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >api</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_attestation"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >attestation</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_attestation_download"
+      
+      class="text-mono d-block"
+      
+    >download</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_attestation_trusted-root"
+      
+      class="text-mono d-block"
+      
+    >trusted-root</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_attestation_verify"
+      
+      class="text-mono d-block"
+      
+        style="font-weight:bold" aria-current="page"
+      
+    >verify</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_auth"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >auth</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_login"
+      
+      class="text-mono d-block"
+      
+    >login</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_logout"
+      
+      class="text-mono d-block"
+      
+    >logout</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_refresh"
+      
+      class="text-mono d-block"
+      
+    >refresh</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_setup-git"
+      
+      class="text-mono d-block"
+      
+    >setup-git</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_status"
+      
+      class="text-mono d-block"
+      
+    >status</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_switch"
+      
+      class="text-mono d-block"
+      
+    >switch</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_auth_token"
+      
+      class="text-mono d-block"
+      
+    >token</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_browse"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >browse</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_cache"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >cache</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_cache_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_cache_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_codespace"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >codespace</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_code"
+      
+      class="text-mono d-block"
+      
+    >code</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_cp"
+      
+      class="text-mono d-block"
+      
+    >cp</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_jupyter"
+      
+      class="text-mono d-block"
+      
+    >jupyter</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_logs"
+      
+      class="text-mono d-block"
+      
+    >logs</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_ports"
+      
+      class="text-mono d-block"
+      
+    >ports</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_ports_forward"
+      
+      class="text-mono d-block"
+      
+    >ports forward</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_ports_visibility"
+      
+      class="text-mono d-block"
+      
+    >ports visibility</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_rebuild"
+      
+      class="text-mono d-block"
+      
+    >rebuild</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_ssh"
+      
+      class="text-mono d-block"
+      
+    >ssh</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_stop"
+      
+      class="text-mono d-block"
+      
+    >stop</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_codespace_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_completion"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >completion</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_config"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >config</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_config_clear-cache"
+      
+      class="text-mono d-block"
+      
+    >clear-cache</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_config_get"
+      
+      class="text-mono d-block"
+      
+    >get</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_config_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_config_set"
+      
+      class="text-mono d-block"
+      
+    >set</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_copilot"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >copilot</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_discussion"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >discussion</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_comment"
+      
+      class="text-mono d-block"
+      
+    >comment</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_discussion_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_extension"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >extension</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_browse"
+      
+      class="text-mono d-block"
+      
+    >browse</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_exec"
+      
+      class="text-mono d-block"
+      
+    >exec</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_install"
+      
+      class="text-mono d-block"
+      
+    >install</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_remove"
+      
+      class="text-mono d-block"
+      
+    >remove</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_search"
+      
+      class="text-mono d-block"
+      
+    >search</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_extension_upgrade"
+      
+      class="text-mono d-block"
+      
+    >upgrade</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_gist"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >gist</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_clone"
+      
+      class="text-mono d-block"
+      
+    >clone</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_rename"
+      
+      class="text-mono d-block"
+      
+    >rename</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gist_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_gpg-key"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >gpg-key</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gpg-key_add"
+      
+      class="text-mono d-block"
+      
+    >add</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gpg-key_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_gpg-key_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_help"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >help</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_environment"
+      
+      class="text-mono d-block"
+      
+    >environment</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_exit-codes"
+      
+      class="text-mono d-block"
+      
+    >exit-codes</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_formatting"
+      
+      class="text-mono d-block"
+      
+    >formatting</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_mintty"
+      
+      class="text-mono d-block"
+      
+    >mintty</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_reference"
+      
+      class="text-mono d-block"
+      
+    >reference</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_help_telemetry"
+      
+      class="text-mono d-block"
+      
+    >telemetry</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_issue"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >issue</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_close"
+      
+      class="text-mono d-block"
+      
+    >close</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_comment"
+      
+      class="text-mono d-block"
+      
+    >comment</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_develop"
+      
+      class="text-mono d-block"
+      
+    >develop</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_lock"
+      
+      class="text-mono d-block"
+      
+    >lock</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_pin"
+      
+      class="text-mono d-block"
+      
+    >pin</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_reopen"
+      
+      class="text-mono d-block"
+      
+    >reopen</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_status"
+      
+      class="text-mono d-block"
+      
+    >status</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_transfer"
+      
+      class="text-mono d-block"
+      
+    >transfer</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_unlock"
+      
+      class="text-mono d-block"
+      
+    >unlock</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_unpin"
+      
+      class="text-mono d-block"
+      
+    >unpin</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_issue_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_label"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >label</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_clone"
+      
+      class="text-mono d-block"
+      
+    >clone</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_label_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_licenses"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >licenses</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_org"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >org</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_org_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_pr"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >pr</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_checkout"
+      
+      class="text-mono d-block"
+      
+    >checkout</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_checks"
+      
+      class="text-mono d-block"
+      
+    >checks</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_close"
+      
+      class="text-mono d-block"
+      
+    >close</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_comment"
+      
+      class="text-mono d-block"
+      
+    >comment</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_diff"
+      
+      class="text-mono d-block"
+      
+    >diff</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_lock"
+      
+      class="text-mono d-block"
+      
+    >lock</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_merge"
+      
+      class="text-mono d-block"
+      
+    >merge</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_ready"
+      
+      class="text-mono d-block"
+      
+    >ready</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_reopen"
+      
+      class="text-mono d-block"
+      
+    >reopen</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_revert"
+      
+      class="text-mono d-block"
+      
+    >revert</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_review"
+      
+      class="text-mono d-block"
+      
+    >review</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_status"
+      
+      class="text-mono d-block"
+      
+    >status</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_unlock"
+      
+      class="text-mono d-block"
+      
+    >unlock</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_update-branch"
+      
+      class="text-mono d-block"
+      
+    >update-branch</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_pr_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_preview"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >preview</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_preview_prompter"
+      
+      class="text-mono d-block"
+      
+    >prompter</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_project"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >project</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_close"
+      
+      class="text-mono d-block"
+      
+    >close</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_copy"
+      
+      class="text-mono d-block"
+      
+    >copy</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_field-create"
+      
+      class="text-mono d-block"
+      
+    >field-create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_field-delete"
+      
+      class="text-mono d-block"
+      
+    >field-delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_field-list"
+      
+      class="text-mono d-block"
+      
+    >field-list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-add"
+      
+      class="text-mono d-block"
+      
+    >item-add</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-archive"
+      
+      class="text-mono d-block"
+      
+    >item-archive</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-create"
+      
+      class="text-mono d-block"
+      
+    >item-create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-delete"
+      
+      class="text-mono d-block"
+      
+    >item-delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-edit"
+      
+      class="text-mono d-block"
+      
+    >item-edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_item-list"
+      
+      class="text-mono d-block"
+      
+    >item-list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_link"
+      
+      class="text-mono d-block"
+      
+    >link</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_mark-template"
+      
+      class="text-mono d-block"
+      
+    >mark-template</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_unlink"
+      
+      class="text-mono d-block"
+      
+    >unlink</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_project_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_release"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >release</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_delete-asset"
+      
+      class="text-mono d-block"
+      
+    >delete-asset</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_download"
+      
+      class="text-mono d-block"
+      
+    >download</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_upload"
+      
+      class="text-mono d-block"
+      
+    >upload</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_verify-asset"
+      
+      class="text-mono d-block"
+      
+    >verify-asset</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_verify"
+      
+      class="text-mono d-block"
+      
+    >verify</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_release_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_repo"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >repo</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_archive"
+      
+      class="text-mono d-block"
+      
+    >archive</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink"
+      
+      class="text-mono d-block"
+      
+    >autolink</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink_create"
+      
+      class="text-mono d-block"
+      
+    >autolink create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink_delete"
+      
+      class="text-mono d-block"
+      
+    >autolink delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink_list"
+      
+      class="text-mono d-block"
+      
+    >autolink list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_autolink_view"
+      
+      class="text-mono d-block"
+      
+    >autolink view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_clone"
+      
+      class="text-mono d-block"
+      
+    >clone</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_create"
+      
+      class="text-mono d-block"
+      
+    >create</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_deploy-key"
+      
+      class="text-mono d-block"
+      
+    >deploy-key</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_deploy-key_add"
+      
+      class="text-mono d-block"
+      
+    >deploy-key add</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_deploy-key_delete"
+      
+      class="text-mono d-block"
+      
+    >deploy-key delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_deploy-key_list"
+      
+      class="text-mono d-block"
+      
+    >deploy-key list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_edit"
+      
+      class="text-mono d-block"
+      
+    >edit</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_fork"
+      
+      class="text-mono d-block"
+      
+    >fork</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_gitignore"
+      
+      class="text-mono d-block"
+      
+    >gitignore</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_gitignore_list"
+      
+      class="text-mono d-block"
+      
+    >gitignore list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_gitignore_view"
+      
+      class="text-mono d-block"
+      
+    >gitignore view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_license"
+      
+      class="text-mono d-block"
+      
+    >license</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_license_list"
+      
+      class="text-mono d-block"
+      
+    >license list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_license_view"
+      
+      class="text-mono d-block"
+      
+    >license view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_read-dir"
+      
+      class="text-mono d-block"
+      
+    >read-dir</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_read-file"
+      
+      class="text-mono d-block"
+      
+    >read-file</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_rename"
+      
+      class="text-mono d-block"
+      
+    >rename</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_set-default"
+      
+      class="text-mono d-block"
+      
+    >set-default</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_sync"
+      
+      class="text-mono d-block"
+      
+    >sync</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_unarchive"
+      
+      class="text-mono d-block"
+      
+    >unarchive</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_repo_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_ruleset"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >ruleset</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ruleset_check"
+      
+      class="text-mono d-block"
+      
+    >check</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ruleset_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ruleset_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_run"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >run</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_cancel"
+      
+      class="text-mono d-block"
+      
+    >cancel</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_download"
+      
+      class="text-mono d-block"
+      
+    >download</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_rerun"
+      
+      class="text-mono d-block"
+      
+    >rerun</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_run_watch"
+      
+      class="text-mono d-block"
+      
+    >watch</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_search"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >search</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_code"
+      
+      class="text-mono d-block"
+      
+    >code</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_commits"
+      
+      class="text-mono d-block"
+      
+    >commits</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_issues"
+      
+      class="text-mono d-block"
+      
+    >issues</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_prs"
+      
+      class="text-mono d-block"
+      
+    >prs</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_search_repos"
+      
+      class="text-mono d-block"
+      
+    >repos</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_secret"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >secret</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_secret_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_secret_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_secret_set"
+      
+      class="text-mono d-block"
+      
+    >set</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_skill"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >skill</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_install"
+      
+      class="text-mono d-block"
+      
+    >install</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_preview"
+      
+      class="text-mono d-block"
+      
+    >preview</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_publish"
+      
+      class="text-mono d-block"
+      
+    >publish</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_search"
+      
+      class="text-mono d-block"
+      
+    >search</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_skill_update"
+      
+      class="text-mono d-block"
+      
+    >update</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_ssh-key"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >ssh-key</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ssh-key_add"
+      
+      class="text-mono d-block"
+      
+    >add</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ssh-key_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_ssh-key_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_status"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >status</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_variable"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >variable</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_variable_delete"
+      
+      class="text-mono d-block"
+      
+    >delete</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_variable_get"
+      
+      class="text-mono d-block"
+      
+    >get</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_variable_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_variable_set"
+      
+      class="text-mono d-block"
+      
+    >set</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    <h5 class="mt-3 text-mono">
+    <a
+      href="/manual/gh_workflow"
+      
+        class="color-fg-default" style="font-weight:normal"
+      
+      class="text-mono d-block"
+      
+    >workflow</a>
+    </h5>
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_disable"
+      
+      class="text-mono d-block"
+      
+    >disable</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_enable"
+      
+      class="text-mono d-block"
+      
+    >enable</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_list"
+      
+      class="text-mono d-block"
+      
+    >list</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_run"
+      
+      class="text-mono d-block"
+      
+    >run</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    <li>
+    
+    <a
+      href="/manual/gh_workflow_view"
+      
+      class="text-mono d-block"
+      
+    >view</a>
+    
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+    </nav>
+  </details-menu>
+</details>
+
+      <main id="main" class="main-content color-bg-subtle markdown-body col-12 col-lg-10 pt-7 pb-12 px-3 px-md-6">
+        <div class="container-lg">
+          <h2 id="gh-attestation-verify">gh attestation verify</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gh attestation verify [&lt;file-path&gt; | oci://&lt;image-uri&gt;] [--owner | --repo] [flags]
+</code></pre></div></div>
+
+<p>Verify the integrity and provenance of an artifact using its associated
+cryptographically signed attestations.</p>
+
+<h2 id="understanding-verification">Understanding Verification</h2>
+
+<p>An attestation is a claim (i.e. a provenance statement) made by an actor
+(i.e. a GitHub Actions workflow) regarding a subject (i.e. an artifact).</p>
+
+<p>In order to verify an attestation, you must provide an artifact and validate:</p>
+<ul>
+  <li>the identity of the actor that produced the attestation</li>
+  <li>the expected attestation predicate type (the nature of the claim)</li>
+</ul>
+
+<p>By default, this command enforces the <code class="language-plaintext highlighter-rouge">https://slsa.dev/provenance/v1</code>
+predicate type. To verify other attestation predicate types use the
+<code class="language-plaintext highlighter-rouge">--predicate-type</code> flag.</p>
+
+<p>The "actor identity" consists of:</p>
+<ul>
+  <li>the repository or the repository owner the artifact is linked with</li>
+  <li>the Actions workflow that produced the attestation (a.k.a the
+signer workflow)</li>
+</ul>
+
+<p>This identity is then validated against the attestation's certificate's
+SourceRepository, SourceRepositoryOwner, and SubjectAlternativeName
+(SAN) fields, among others.</p>
+
+<p>It is up to you to decide how precisely you want to enforce this identity.</p>
+
+<p>At a minimum, this command requires either:</p>
+<ul>
+  <li>the <code class="language-plaintext highlighter-rouge">--owner</code> flag (e.g. --owner github), or</li>
+  <li>the <code class="language-plaintext highlighter-rouge">--repo</code> flag (e.g. --repo github/example)</li>
+</ul>
+
+<p>The more precisely you specify the identity, the more control you will
+have over the security guarantees offered by the verification process.</p>
+
+<p>Ideally, the path of the signer workflow is also validated using the
+<code class="language-plaintext highlighter-rouge">--signer-workflow</code> or <code class="language-plaintext highlighter-rouge">--cert-identity</code> flags.</p>
+
+<p>Please note: if your attestation was generated via a reusable workflow then
+that reusable workflow is the signer whose identity needs to be validated.
+In this situation, you must use either the <code class="language-plaintext highlighter-rouge">--signer-workflow</code> or
+the <code class="language-plaintext highlighter-rouge">--signer-repo</code> flag.</p>
+
+<p>For more options, see the other available flags.</p>
+
+<h2 id="loading-artifacts-and-attestations">Loading Artifacts And Attestations</h2>
+
+<p>To specify the artifact, this command requires:</p>
+<ul>
+  <li>a file path to an artifact, or</li>
+  <li>a container image URI (e.g. <code class="language-plaintext highlighter-rouge">oci://&lt;image-uri&gt;</code>)
+    <ul>
+      <li>(note that if you provide an OCI URL, you must already be authenticated with
+its container registry)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>By default, this command will attempt to fetch relevant attestations via the
+GitHub API using the values provided to <code class="language-plaintext highlighter-rouge">--owner</code> or  <code class="language-plaintext highlighter-rouge">--repo</code>.</p>
+
+<p>To instead fetch attestations from your artifact's OCI registry, use the
+<code class="language-plaintext highlighter-rouge">--bundle-from-oci</code> flag.</p>
+
+<p>For offline verification using attestations stored on disk (c.f. the download command)
+provide a path to the <code class="language-plaintext highlighter-rouge">--bundle</code> flag.</p>
+
+<h2 id="additional-policy-enforcement">Additional Policy Enforcement</h2>
+
+<p>Given the <code class="language-plaintext highlighter-rouge">--format=json</code> flag, upon successful verification this
+command will output a JSON array containing one entry per verified attestation.</p>
+
+<p>This output can then be used for additional policy enforcement, i.e. by being
+piped into a policy engine.</p>
+
+<p>Each object in the array contains two properties:</p>
+<ul>
+  <li>an <code class="language-plaintext highlighter-rouge">attestation</code> object, which contains the bundle that was verified</li>
+  <li>a <code class="language-plaintext highlighter-rouge">verificationResult</code> object, which is a parsed representation of the
+contents of the bundle that was verified.</li>
+</ul>
+
+<p>Within the <code class="language-plaintext highlighter-rouge">verificationResult</code> object you will find:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">signature.certificate</code>, which is a parsed representation of the X.509
+certificate embedded in the attestation,</li>
+  <li><code class="language-plaintext highlighter-rouge">verifiedTimestamps</code>, an array of objects denoting when the attestation
+was witnessed by a transparency log or a timestamp authority</li>
+  <li><code class="language-plaintext highlighter-rouge">statement</code>, which contains the <code class="language-plaintext highlighter-rouge">subject</code> array referencing artifacts,
+the <code class="language-plaintext highlighter-rouge">predicateType</code> field, and the <code class="language-plaintext highlighter-rouge">predicate</code> object which contains
+additional, often user-controllable, metadata</li>
+</ul>
+
+<p>IMPORTANT: please note that only the <code class="language-plaintext highlighter-rouge">signature.certificate</code> and the
+<code class="language-plaintext highlighter-rouge">verifiedTimestamps</code> properties contain values that cannot be
+manipulated by the workflow that originated the attestation.</p>
+
+<p>When dealing with attestations created within GitHub Actions, the contents of
+<code class="language-plaintext highlighter-rouge">signature.certificate</code> are populated directly from the OpenID Connect
+token that GitHub has generated. The contents of the <code class="language-plaintext highlighter-rouge">verifiedTimestamps</code>
+array are populated from the signed timestamps originating from either a
+transparency log or a timestamp authority – and likewise cannot be forged by users.</p>
+
+<p>When designing policy enforcement using this output, special care must be taken
+when examining the contents of the <code class="language-plaintext highlighter-rouge">statement.predicate</code> property:
+should an attacker gain access to your workflow's execution context, they
+could then falsify the contents of the <code class="language-plaintext highlighter-rouge">statement.predicate</code>.</p>
+
+<p>To mitigate this attack vector, consider using a "trusted builder": when generating
+an artifact, have the build and attestation signing occur within a reusable workflow
+whose execution cannot be influenced by input provided through the caller workflow.</p>
+
+<p>See above re: <code class="language-plaintext highlighter-rouge">--signer-workflow</code>.</p>
+
+<h3 id="options">Options</h3>
+
+<dl class="flags">
+	<dt><code>-b</code>, 
+		<code>--bundle &lt;string&gt;</code></dt>
+	<dd>Path to bundle on disk, either a single bundle in a JSON file or a JSON lines file with multiple bundles</dd>
+
+	<dt>
+		<code>--bundle-from-oci</code></dt>
+	<dd>When verifying an OCI image, fetch the attestation bundle from the OCI registry instead of from GitHub</dd>
+
+	<dt>
+		<code>--cert-identity &lt;string&gt;</code></dt>
+	<dd>Enforce that the certificate&#39;s SubjectAlternativeName matches the provided value exactly</dd>
+
+	<dt><code>-i</code>, 
+		<code>--cert-identity-regex &lt;string&gt;</code></dt>
+	<dd>Enforce that the certificate&#39;s SubjectAlternativeName matches the provided regex</dd>
+
+	<dt>
+		<code>--cert-oidc-issuer &lt;string&gt; (default &#34;https://token.actions.githubusercontent.com&#34;)</code></dt>
+	<dd>Enforce that the issuer of the OIDC token matches the provided value</dd>
+
+	<dt>
+		<code>--custom-trusted-root &lt;string&gt;</code></dt>
+	<dd>Path to a trusted_root.jsonl file; likely for offline verification</dd>
+
+	<dt>
+		<code>--deny-self-hosted-runners</code></dt>
+	<dd>Fail verification for attestations generated on self-hosted runners</dd>
+
+	<dt><code>-d</code>, 
+		<code>--digest-alg &lt;string&gt; (default &#34;sha256&#34;)</code></dt>
+	<dd>The algorithm used to compute a digest of the artifact: {sha256|sha512}</dd>
+
+	<dt>
+		<code>--format &lt;string&gt;</code></dt>
+	<dd>Output format: {json}</dd>
+
+	<dt>
+		<code>--hostname &lt;string&gt;</code></dt>
+	<dd>Configure host to use</dd>
+
+	<dt><code>-q</code>, 
+		<code>--jq &lt;expression&gt;</code></dt>
+	<dd>Filter JSON output using a jq expression</dd>
+
+	<dt><code>-L</code>, 
+		<code>--limit &lt;int&gt; (default 30)</code></dt>
+	<dd>Maximum number of attestations to fetch</dd>
+
+	<dt>
+		<code>--no-public-good</code></dt>
+	<dd>Do not verify attestations signed with Sigstore public good instance</dd>
+
+	<dt><code>-o</code>, 
+		<code>--owner &lt;string&gt;</code></dt>
+	<dd>GitHub organization to scope attestation lookup by</dd>
+
+	<dt>
+		<code>--predicate-type &lt;string&gt; (default &#34;https://slsa.dev/provenance/v1&#34;)</code></dt>
+	<dd>Enforce that verified attestations&#39; predicate type matches the provided value</dd>
+
+	<dt><code>-R</code>, 
+		<code>--repo &lt;string&gt;</code></dt>
+	<dd>Repository name in the format &lt;owner&gt;/&lt;repo&gt;</dd>
+
+	<dt>
+		<code>--signer-digest &lt;string&gt;</code></dt>
+	<dd>Enforce that the digest associated with the signer workflow matches the provided value</dd>
+
+	<dt>
+		<code>--signer-repo &lt;string&gt;</code></dt>
+	<dd>Enforce that the workflow that signed the attestation&#39;s repository matches the provided value (&lt;owner&gt;/&lt;repo&gt;)</dd>
+
+	<dt>
+		<code>--signer-workflow &lt;string&gt;</code></dt>
+	<dd>Enforce that the workflow that signed the attestation matches the provided value ([host/]&lt;owner&gt;/&lt;repo&gt;/&lt;path&gt;/&lt;to&gt;/&lt;workflow&gt;)</dd>
+
+	<dt>
+		<code>--source-digest &lt;string&gt;</code></dt>
+	<dd>Enforce that the digest associated with the source repository matches the provided value</dd>
+
+	<dt>
+		<code>--source-ref &lt;string&gt;</code></dt>
+	<dd>Enforce that the git ref associated with the source repository matches the provided value</dd>
+
+	<dt><code>-t</code>, 
+		<code>--template &lt;string&gt;</code></dt>
+	<dd>Format JSON output using a Go template; see &#34;gh help formatting&#34;</dd>
+</dl>
+
+<h3 id="examples">Examples</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Verify an artifact linked with a repository</span>
+<span class="nv">$ </span>gh attestation verify example.bin <span class="nt">--repo</span> github/example
+
+<span class="c"># Verify an artifact linked with an organization</span>
+<span class="nv">$ </span>gh attestation verify example.bin <span class="nt">--owner</span> github
+
+<span class="c"># Verify an artifact and output the full verification result</span>
+<span class="nv">$ </span>gh attestation verify example.bin <span class="nt">--owner</span> github <span class="nt">--format</span> json
+
+<span class="c"># Verify an OCI image using attestations stored on disk</span>
+<span class="nv">$ </span>gh attestation verify oci://&lt;image-uri&gt; <span class="nt">--owner</span> github <span class="nt">--bundle</span> sha256:foo.jsonl
+
+<span class="c"># Verify an artifact signed with a reusable workflow</span>
+<span class="nv">$ </span>gh attestation verify example.bin <span class="nt">--owner</span> github <span class="nt">--signer-repo</span> actions/example</code></pre></figure>
+
+<h3 id="see-also">See also</h3>
+
+<ul>
+  <li><a href="./gh_attestation">gh attestation</a></li>
+</ul>
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <footer data-color-mode="light" data-light-theme="light" class="col-12 mb-lg-0 pb-lg-0 py-lg-0">
+  <div class="container-xl px-3 px-md-4">
+    <nav aria-label="footer">
+      <div class="d-flex flex-wrap py-5 mb-5">
+        <div class="col-12 col-lg-4 mb-5">
+          <a href="https://github.com/" class="color-fg-default" aria-label="GitHub">
+            <svg viewBox="0 0 103 24" height="30" class="octicon octicon-lockup-github" aria-hidden="true"><path d="M36.472 3.088c4.225 0 6.777 1.805 7.591 4.841l-3.784.902c-.462-1.65-1.783-2.552-3.807-2.552-3.015 0-4.643 1.98-4.643 5.743s1.584 5.787 4.555 5.787c2.502 0 4.079-1.406 4.323-3.829h-4.631v-3.168h8.45v2.002c0 5.26-3.059 8.186-8.208 8.186C31.213 21 28 17.501 28 12.022c0-5.48 3.279-8.934 8.472-8.934M79.62 15.741c0 1.518.682 2.355 1.98 2.355 1.497 0 2.64-1.387 2.64-3.28V8.304h3.5V20.67h-3.5v-2.09c-.66 1.342-2.244 2.31-3.938 2.31-2.707 0-4.181-1.496-4.181-4.225V8.303h3.499z"></path><path fill-rule="evenodd" d="M93.063 10.57C93.775 9.073 95.38 8.017 97 8.017c3.375 0 5.158 2.333 5.039 6.448.119 4.07-1.73 6.425-5.039 6.425-1.686 0-3.226-.968-3.96-2.355v2.135h-3.477V3.418h3.499zm2.706.374c-1.444 0-2.588 1.408-2.707 3.345v.198c.119 2.002 1.263 3.476 2.707 3.476 1.813 0 2.803-1.342 2.685-3.498.118-2.179-.872-3.521-2.685-3.521"></path><path d="M49.323 20.67h-3.477V8.303h3.477zm7.004-12.367h2.575v2.905h-2.575v5.611c0 .682.308.946.99.946h1.585v2.905h-2.839c-2.31 0-3.212-.99-3.212-3.08v-6.382H50.65V8.303h2.2V5.84l3.477-.814zm7.783-4.885v6.998h6.558V3.418h3.74V20.67h-3.74v-6.91H64.11v6.91h-3.74V3.418zM47.584 3c1.167 0 2.069.902 2.069 2.069a2.04 2.04 0 0 1-2.069 2.068 2.04 2.04 0 0 1-2.068-2.068c0-1.167.902-2.069 2.068-2.069M10.226 17.284c-2.965-.36-5.054-2.493-5.054-5.256 0-1.123.404-2.336 1.078-3.144-.292-.741-.247-2.314.09-2.965.898-.112 2.111.36 2.83 1.01.853-.269 1.752-.404 2.853-.404 1.1 0 1.999.135 2.807.382.696-.629 1.932-1.1 2.83-.988.315.606.36 2.179.067 2.942.72.854 1.101 2 1.101 3.167 0 2.763-2.089 4.852-5.098 5.234.763.494 1.28 1.572 1.28 2.807v2.336c0 .674.561 1.056 1.235.786 4.066-1.55 7.255-5.615 7.255-10.646C23.5 6.188 18.334 1 11.978 1 5.62 1 .5 6.188.5 12.545c0 4.986 3.167 9.12 7.435 10.669.606.225 1.19-.18 1.19-.786V20.63a2.9 2.9 0 0 1-1.078.224c-1.483 0-2.359-.808-2.987-2.313-.247-.607-.517-.966-1.034-1.033-.27-.023-.359-.135-.359-.27 0-.27.45-.471.898-.471.652 0 1.213.404 1.797 1.235.45.651.921.943 1.483.943.561 0 .92-.202 1.437-.719.382-.381.674-.718.944-.943"></path></svg>
+          </a>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-2 mb-6 mb-md-2 pr-3 pr-lg-0 pl-lg-4">
+          <h3 id="product-header" class="mb-3 text-mono text-normal">Product</h3>
+          <ul class="list-style-none f5" aria-labelledby="product-header">
+            <li class="lh-condensed mb-3"><a href="https://github.com/features" class="color-fg-subtle">Features</a></li>
+            <li class="lh-condensed mb-3"><a href="https://github.com/security" class="color-fg-subtle">Security</a></li>
+            <li class="lh-condensed mb-3">
+              <a href="https://github.com/enterprise" class="color-fg-subtle">Enterprise</a>
+            </li>
+            <li class="lh-condensed mb-3">
+              <a href="https://github.com/customer-stories" class="color-fg-subtle">Customer stories</a>
+            </li>
+            <li class="lh-condensed mb-3"><a href="https://github.com/pricing" class="color-fg-subtle">Pricing</a></li>
+            <li class="lh-condensed mb-3">
+              <a href="https://resources.github.com" class="color-fg-subtle">Resources</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-2 mb-6 mb-md-2 pr-3 pr-md-0 pl-md-4">
+          <h3 id="platform-header" class="mb-3 text-mono text-normal">Platform</h3>
+          <ul class="list-style-none f5" aria-labelledby="platform-header">
+            <li class="lh-condensed mb-3">
+              <a href="https://developer.github.com/" class="color-fg-subtle">Developer API</a>
+            </li>
+            <li class="lh-condensed mb-3"><a href="http://partner.github.com/" class="color-fg-subtle">Partners</a></li>
+            <li class="lh-condensed mb-3">
+              <a href="https://desktop.github.com/" class="color-fg-subtle">GitHub Desktop</a>
+            </li>
+            <li class="lh-condensed mb-3">
+              <a href="https://github.com/mobile" class="color-fg-subtle">GitHub Mobile</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-2 mb-6 mb-md-2 pr-3 pr-md-0 pl-md-4">
+          <h3 id="support-header" class="mb-3 text-mono text-normal">Support</h3>
+          <ul class="list-style-none f5" aria-labelledby="support-header">
+            <li class="lh-condensed mb-3"><a href="https://help.github.com/en" class="color-fg-subtle">Help</a></li>
+            <li class="lh-condensed mb-3">
+              <a href="https://github.community" class="color-fg-subtle">Community Forum</a>
+            </li>
+            <li class="lh-condensed mb-3">
+              <a href="https://github.com/services/" class="color-fg-subtle">Expert Services</a>
+            </li>
+            <li class="lh-condensed mb-3"><a href="https://githubstatus.com/" class="color-fg-subtle">Status</a></li>
+            <li class="lh-condensed mb-3">
+              <a href="https://github.com/contact" class="color-fg-subtle">Contact GitHub</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-2 mb-6 mb-md-2 pr-3 pr-md-0 pl-md-4">
+          <h3 id="company-header" class="mb-3 text-mono text-normal">Company</h3>
+          <ul class="list-style-none f5" aria-labelledby="company-header">
+            <li class="lh-condensed mb-3"><a href="https://github.com/about" class="color-fg-subtle">About</a></li>
+            <li class="lh-condensed mb-3"><a href="https://github.blog/" class="color-fg-subtle">Blog</a></li>
+            <li class="lh-condensed mb-3">
+              <a href="https://github.com/about/careers" class="color-fg-subtle">Careers</a>
+            </li>
+            <li class="lh-condensed mb-3"><a href="https://github.com/about/press" class="color-fg-subtle">Press</a></li>
+            <li class="lh-condensed mb-3"><a href="https://shop.github.com" class="color-fg-subtle">Shop</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+  <div class="color-bg-subtle">
+    <div class="container-xl px-3 px-md-4 f6 py-4 d-sm-flex flex-justify-between flex-row flex-items-center">
+      <ul class="list-style-none d-flex">
+        <li class="mr-3 color-fg-muted">&copy; 2026 GitHub, Inc.</li>
+        <li class="mr-3">
+          <a href="https://help.github.com/en/articles/github-terms-of-service/" class="color-fg-muted">Terms </a>
+        </li>
+        <li class="mr-3">
+          <a href="https://help.github.com/en/articles/github-privacy-statement/" class="color-fg-muted">Privacy</a>
+        </li>
+        <li class="mr-3">
+          <a href="https://docs.github.com/en/github-cli/github-cli/github-cli-telemetry" class="color-fg-muted">Telemetry</a>
+        </li>
+      </ul>
+      <ul class="list-style-none d-flex flex-items-center mb-3 mb-sm-0 lh-condensed-ultra">
+        <li class="mr-3 outline-on-focus-within">
+          <a href="https://twitter.com/github" title="GitHub on Twitter" class="color-fg-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 273.5 222.3" class="d-block" height="18">
+              <path d="M273.5 26.3a109.77 109.77 0 0 1-32.2 8.8 56.07 56.07 0 0 0 24.7-31 113.39 113.39 0 0 1-35.7 13.6 56.1 56.1 0 0 0-97 38.4 54 54 0 0 0 1.5 12.8A159.68 159.68 0 0 1 19.1 10.3a56.12 56.12 0 0 0 17.4 74.9 56.06 56.06 0 0 1-25.4-7v.7a56.11 56.11 0 0 0 45 55 55.65 55.65 0 0 1-14.8 2 62.39 62.39 0 0 1-10.6-1 56.24 56.24 0 0 0 52.4 39 112.87 112.87 0 0 1-69.7 24 119 119 0 0 1-13.4-.8 158.83 158.83 0 0 0 86 25.2c103.2 0 159.6-85.5 159.6-159.6 0-2.4-.1-4.9-.2-7.3a114.25 114.25 0 0 0 28.1-29.1" fill="currentColor"></path>
+            </svg>
+          </a>
+        </li>
+        <li class="mr-3 outline-on-focus-within">
+          <a href="https://www.facebook.com/GitHub" title="GitHub on Facebook" class="color-fg-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.3 15.4" class="d-block" height="18">
+              <path d="M14.5 0H.8a.88.88 0 0 0-.8.9v13.6a.88.88 0 0 0 .8.9h7.3v-6h-2V7.1h2V5.4a2.87 2.87 0 0 1 2.5-3.1h.5a10.87 10.87 0 0 1 1.8.1v2.1h-1.3c-1 0-1.1.5-1.1 1.1v1.5h2.3l-.3 2.3h-2v5.9h3.9a.88.88 0 0 0 .9-.8V.8a.86.86 0 0 0-.8-.8z" fill="currentColor"></path>
+            </svg>
+          </a>
+        </li>
+        <li class="mr-3 outline-on-focus-within">
+          <a href="https://www.youtube.com/github" title="GitHub on YouTube" class="color-fg-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.17 13.6" class="d-block" height="16">
+              <path d="M18.77 2.13A2.4 2.4 0 0 0 17.09.42C15.59 0 9.58 0 9.58 0a57.55 57.55 0 0 0-7.5.4A2.49 2.49 0 0 0 .39 2.13 26.27 26.27 0 0 0 0 6.8a26.15 26.15 0 0 0 .39 4.67 2.43 2.43 0 0 0 1.69 1.71c1.52.42 7.5.42 7.5.42a57.69 57.69 0 0 0 7.51-.4 2.4 2.4 0 0 0 1.68-1.71 25.63 25.63 0 0 0 .4-4.67 24 24 0 0 0-.4-4.69zM7.67 9.71V3.89l5 2.91z" fill="currentColor"></path>
+            </svg>
+          </a>
+        </li>
+        <li class="mr-3 flex-self-start outline-on-focus-within">
+          <a href="https://www.linkedin.com/company/github" title="GitHub on Linkedin" class="color-fg-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 18" class="d-block" height="18">
+              <path d="M3.94 2A2 2 0 1 1 2 0a2 2 0 0 1 1.94 2zM4 5.48H0V18h4zm6.32 0H6.34V18h3.94v-6.57c0-3.66 4.77-4 4.77 0V18H19v-7.93c0-6.17-7.06-5.94-8.72-2.91z" fill="currentColor"></path>
+            </svg>
+          </a>
+        </li>
+        <li class="outline-on-focus-within">
+          <a href="https://github.com/github" title="GitHub's organization" class="color-fg-muted">
+            <svg
+              viewBox="0 0 16 16"
+              width="20"
+              height="20"
+              class="octicon octicon-mark-github d-block"
+              alt="GitHub"
+              aria-hidden="true"
+            >
+              <path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656"></path>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<script src="/assets/dist.js?1784892490"></script>
+
+    </div>
+  </body>
+</html>

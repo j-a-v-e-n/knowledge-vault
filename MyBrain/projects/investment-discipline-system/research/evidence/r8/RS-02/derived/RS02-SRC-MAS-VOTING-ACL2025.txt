@@ -1,0 +1,1951 @@
+        Voting or Consensus? Decision-Making in Multi-Agent Debate
+
+
+ Lars Benedikt Kaesberg1,* , Jonas Becker1,2 , Jan Philip Wahle1 , Terry Ruas1 , Bela Gipp1
+               1
+                 University of Göttingen, Germany; 2 LKA NRW, Germany
+                                  *
+                                      Correspondence: l.kaesberg@uni-goettingen.de
+
+
+
+
+                     Abstract                                                             Consensus
+
+    Much of the success of multi-agent debates                       Step 1                    Step 2                         Step 3
+                                                                                         Agents Discuss                   Consensus
+    depends on carefully choosing the right param-              Create Agents
+                                                                                                                           Reached
+    eters. The decision-making protocol stands out             Create 3 agents for
+                                                              the following task: ...
+    as it can highly impact final model answers,
+    depending on how decisions are reached. Sys-                                                                         We agreed on this
+                                                                                                                            solution: ...
+    tematic comparison of decision protocols is                  I've created the
+    difficult because many studies alter multiple              following 3 agents
+                                                              with expert personas
+                                                                                        No consensus reached
+                                                                                                                   Decision          Decision
+    discussion parameters beyond the protocol. So             relevant for the task:
+                                                                                             Voting                Success           Success
+
+    far, it has been largely unknown how decision-
+                                                                                               Step 2
+    making influences different tasks. This work                 Medical Expert
+                                                                                         Agents Discuss
+                                                                                                                              Step 3
+                                                                                                                             Voting
+    systematically evaluates the impact of seven                                                                         Solutions   Votes
+                                                                    Scientist
+    decision protocols (e.g., majority voting, una-                                                                                    Ⅰ
+
+    nimity consensus). We change only one vari-                                                                                        Ⅲ
+                                                                     Student
+    able at a time — the decision protocol — to                                                                                        Ⅰ
+    analyze how different methods affect the col-
+    laboration between agents and measure differ-                                                        Tie in voting
+
+    ences in knowledge and reasoning tasks. Our
+                                                             Figure 1: Illustration of voting and consensus-based
+    results show that voting protocols improve per-
+                                                             decision protocols used in this study.
+    formance by 13.2% in reasoning tasks and
+    consensus protocols by 2.8% in knowledge
+    tasks compared to other decision protocols. In-          studies have investigated how decision-making in-
+    creasing the number of agents improves per-              fluences large language model (LLM) collabora-
+    formance, while more discussion rounds be-               tion and their ability to problem-solve.
+    fore voting reduce it. To improve decision-                 Current approaches often apply decision strate-
+    making by increasing answer diversity, we pro-           gies like majority voting (Yang et al., 2024b) or con-
+    pose two new methods, All-Agents Drafting
+                                                             sensus (Yin et al., 2023) indiscriminately to various
+    (AAD) and Collective Improvement (CI). Our
+    methods improve task performance by up to                tasks. Consensus strategies refine decisions while
+    3.3% with AAD and up to 7.4% with CI. This               voting approaches choose from proposed solutions.
+    work demonstrates the importance of decision-            Prior work often treats these strategies as fixed vari-
+    making in multi-agent debates beyond scaling.            ables without considering problem-specific charac-
+                                                             teristics (Yin et al., 2023). We show that changes
+1   Introduction
+                                                             in decision protocols lead to markedly different
+Humans are inherently social, and collaboration              results among tasks. Thus, we argue that decision-
+has been key to innovation and progress. We know             making is central to multi-agent processes.
+that generating solutions together is only benefi-              This study systematically quantifies the effec-
+cial if we can effectively select, agree, and com-           tiveness of decision-making protocols within multi-
+mit to them. History, sociology, and psychology              agent debates on knowledge tasks (i.e., MMLU
+have long demonstrated how different decision-               (Hendrycks et al., 2021), MLLU-Pro (Wang et al.,
+making processes influence collective outcomes               2024b), GPQA (Rein et al., 2023)) and reasoning
+(Jones, 1994; List, 2022). Multi-agent systems               tasks (i.e., SQuAD 2.0 (Rajpurkar et al., 2018),
+form a parallel to human behavior by solving prob-           StrategyQA (Geva et al., 2021), MuSR (Sprague
+lems collectively via debate. However, so far, few           et al., 2023)). In contrast to prior work, which
+                                                        11640
+               Findings of the Association for Computational Linguistics: ACL 2025, pages 11640–11671
+                      July 27 - August 1, 2025 ©2025 Association for Computational Linguistics
+varies the decision protocol concurrently to other       2   Related Work
+parameters (Yang et al., 2024b; Yin et al., 2023),
+we use a consistent setup to quantify changes for        LLMs as Agents. An agent differs from an LLM
+which only the decision mechanism is responsible.        in that it has a defined planning behavior, can use
+Specifically, we explore the impact of three consen-     tools, and maintains a state or memory across in-
+sus (Chen et al., 2023) and four voting (Yang et al.,    teractions. Techniques such as Chain-of-Thought
+2024b) methods and highlight their task-specific         (CoT) prompting (Wei et al., 2022), self-refinement
+strengths and weaknesses. An overview of how             (Madaan et al., 2023), and self-consistency (Wang
+consensus and voting decision protocols work in          et al., 2023) improve models’ ability to plan, cri-
+our setup can be seen in Figure 1. Throughout our        tique, and refine responses. Persona-based prompt-
+experiments, we observe that answer diversity and        ing (Jiang et al., 2024) enables LLMs to adopt
+independent answer generation have a marked im-          specialized roles, improving answer diversity. A
+pact on decision-making. To reap the benefits of         single-agent system operates as one entity with an
+these factors, we propose two methods: All-Agents        internal state, while a multi-agent debate consists
+Drafting (AAD) and Collective Improvement (CI).          of multiple agents with a private state that persists
+AAD ensures each agent independently drafts an           across calls and may operate asynchronously, lead-
+initial solution before any interaction, promoting       ing to emergent, independent behaviors (Du et al.,
+distinct reasoning paths. CI structures agent collab-    2023a; Zhao et al., 2023; Xu et al., 2023; Suzgun
+oration through iterative refinement while prevent-      and Kalai, 2024; Goldberg, 2024). In multi-agent
+ing excessive communication to avoid bias towards        debates, many parameter choices have to be made,
+similar answers between agents.                          such as in which turn order they communicate (Yin
+   Our experiments show that consensus protocols         et al., 2023), and which tools they can use (Yao
+perform better in knowledge tasks, improving per-        et al., 2023). Yet one choice is inevitable: How to
+formance by 2.8%, and voting protocols perform           make decisions between agents.
+better in reasoning tasks, improving results by          Decision-Making. Finding collective solutions
+13.2%. AAD increases accuracy by about 3.3%,             markedly impacts human decision-making (Jones,
+while CI further improves effectiveness, leading         1994). While consensus promotes shared decisions
+to an 7.4% performance boost. Our results under-         and allows everyone to contribute to the final solu-
+line the role of decision protocols for multi-agent      tion, it can be time-consuming and lead to power
+experiments. We recommend consensus strategies           concentration of individuals with “vetos”. Con-
+for knowledge tasks and voting for reasoning tasks       versely, voting can lead to a faster final decision
+while generally using AAD or CI to improve an-           because it streamlines decision-making, but is sus-
+swer diversity. Our investigations into the role         ceptible to manipulation and does not take into
+of decision protocols are particularly relevant for      account all opinions. For example, participants
+high-stakes domains such as medical diagnostics          can vote for a less preferred but more viable alter-
+and legal reasoning, where wrong decisions can           native to block an undesired outcome, leading to
+have real-world negative effects. We release the         outcomes that do not reflect the collective will of
+code and data for these experiments publicly1 .          the group (List, 2022).
+Key Contributions:                                          Research in multi-agent debate has implemented
+                                                         various human decision protocols (Yin et al., 2023;
+§4.1 A systematic comparison of decision proto-          Chen et al., 2023; Yang et al., 2024b). Exchange-
+     cols, revealing for the first time that consensus   of-Thought (Yin et al., 2023) employs a consensus-
+     is most effective for knowledge tasks, while        based approach, where agents iteratively refine an-
+     voting is better in reasoning tasks.                swers through discussion in reasoning tasks, but
+§4.2 An analysis of scaling differences between          they do not compare consensus to other decision
+     increasing the number of agents and extending       protocols. Yang et al. (2024b,a) introduce multi-
+     the number of communication rounds.                 ple voting protocols (e.g., approval voting) but do
+                                                         not compare the performance of these voting de-
+§4.3 Two new methods,AAD and CI, to enhance              cision protocols across different tasks, focussing
+     answer diversity in multi-agent debates by en-      more on a comparison of how humans vote com-
+     couraging independent thinking.                     pared to LLMs. ReConcile (Chen et al., 2023)
+   1
+       github.com/lkaesberg/decision-protocols           integrates a hybrid voting and consensus approach
+                                                    11641
+by iteratively refining answers through confidence-      how the discussion history is presented, what addi-
+weighting until consensus is reached. In summary,        tional information is provided, how the persona is
+prior work focuses on a single class of decision         introduced, and in which tone they should respond
+protocols without systematic comparison, partly          (e.g., neutral or critical). Additional details on the
+because many parameters change between experi-           experimental setup can be found in Appendix C.
+ments (Yin et al., 2023; Yang et al., 2024b; Chen           The LLMs used for the experiments are Llama
+et al., 2023). This work systematically evaluates        3 8B and 70B2 (META, 2024). Within one discus-
+seven voting and consensus approaches on both            sion, all prompted agents use the same base model.
+knowledge and reasoning datasets to show task-           The smaller model uses two NVIDIA RTX5000
+based advantages of one protocol over another.           with 16 GB of VRAM (for ∼ 250 hours), and the
+                                                         larger model uses eight NVIDIA A100 with 40GB
+3   Methodology                                          VRAM (for ∼ 40 hours). A list of experiment-
+                                                         specific parameters is available in Appendix F.
+In the following, we explain the multi-agent envi-
+ronment, decision protocols, response generators,        3.2   Agent Prompts and Decision Protocols
+and datasets used in our experiments.                    Prompt design has a marked impact on multi-agent
+                                                         debate. For this work, we propose three response
+3.1 Setup
+                                                         generators. The Simple Response Generator is
+We run multi-agent debates based on three key            our default in which agents are prompted to an-
+components: a discussion paradigm, a decision            swer neutral and unbiased to previous messages.
+protocol, and an agent response generator. Each          The Critical Response Generator encourages
+discussion consists of three automatically gener-        agents to critically assess prior answers and pro-
+ated expert personas for the task following Kim          pose new solutions, countering sycophantic ten-
+et al. (2024). While the number of personas can          dencies (Sharma et al., 2023). The Reasoning
+vary, Yin et al. (2023) found this number to be          Response Generator restricts agents to sharing
+the most efficient. Using personas is important          only reasoning paths, thus avoiding bias towards
+as it generates agents with expertise in different       agreeing with other agents’ final solutions.
+domains, incorporating diverse viewpoints for the           Decision protocols then determine the final solu-
+final decision. After that, the agents discuss the       tion of the discussion by selecting the most promis-
+problem for multiple turns. The number of turns          ing solution based on predefined mechanisms. We
+varies from one to five, depending on the exper-         use two classes of protocols in this work.
+iment setup and decision protocol. The decision             Consensus decision protocols decide on an an-
+protocol defines what criteria must be met for the       swer by prompting the agents to converge on one
+discussion to end and how the final solution will be     shared solution. The solution is selected when a re-
+created. Each agent can generate one answer per          quired level of agreement among agents is reached.
+turn and, based on the agent’s turn order, respond       We explore three major agreement levels: majority
+to the other agents as a default behavior. If not ex-    consensus - more than 50% agreement, supermajor-
+plicitly stated, all agents exchange messages with       ity consensus - more than 66% agreement, and una-
+one another. These discussion characteristics are        nimity consensus - all agents have to agree. We ex-
+defined by the discussion paradigm. For consen-          tend the majority consensus of Yin et al. (2023) by
+sus decision protocols, each agent also indicates        higher agreement levels, i.e., supermajority (66%),
+whether they agree with the previous message. We         unanimity (100%).
+repeat this process each round until a certain level        Voting decision protocols allow several possi-
+of agreement (defined by the decision protocol) is       ble solutions to be presented in parallel during the
+reached, which leads to the final solution. For vot-     discussion, and ultimately all agents must vote on
+ing decision protocols, the agents start voting after    a final solution. If there is a tie in the voting, all
+the third turn. If they successfully agree on a solu-    agents will discuss for another round and then vote
+tion in any turn after the third, the discussion ends.   again. Our work includes four different voting de-
+Agents can only memorize messages from up to             cision protocols inspired by Yang et al. (2024b):
+two turns to limit the context length provided to the       2
+                                                              The two models used for this study can be found at
+agent. We use a response generator to define how         meta-llama/Meta-Llama-3-8B-Instruct and meta-llama/Meta-
+agents respond to previous messages. It determines       Llama-3-70B-Instruct
+
+                                                    11642
+                                                    Knowledge-Based                                      Reasoning-Based
+                                         MMLU             MMLU-Pro           GPQA          SQuAD 2.0        StrategyQA       MuSR
+                                       (Accuracy)       | (Accuracy)     | (Accuracy)    | (F1-Score)    | (Accuracy)    | (Accuracy)
+                       Baseline           44.8219             28.5213                          52.3422         51.7225         25.8216
+                       Baseline with Cot [EER
+                                           SEE] Naeem                                          PERASSEN                        205.26
+                       Simple             53.3418                                                              58.5209         55.2415
+                       Ranked             49.2415             33.1446          27.3+39                                         52.5400
+
+
+           Voting
+                       Cumulative         52.6440             28.3431          31.3428                         61.2416         56.8+42
+                       Approval           43.0221             29.2452          31.3126        A6.5414          58.7404         50.94.0
+                       Average?           51.7424                1                             56.7416         58.6420         54.8419
+                       Majority                     5         36.4421          32.3429         43.1421         59.9+01         27.8425
+
+
+
+           Consensus
+                       Supermajority                          35.2+3.0         30.7221         44.4204                         29.3226
+                       Unanimity                              36.3204          30.023          43.4420         58.8426         28.2428
+                       Average                      7         36.0+18          31.0+24         43.6215         58.4216         28.4226
+
+Figure 2: Task performance±std for seven decision protocols (voting and consensus-based) on six tasks (knowledge
+and reasoning) based on agents with Llama 8B. Bold indicates the highest results per dataset. Standard deviation
+for three runs.
+
+
+simple voting - each agent casts one vote, and the                           4.1    Performance of Decision Protocols
+answer with the most votes wins; ranked voting -
+                                                                             Multi-agent debates for task solving have shown
+each agent ranks the solutions from best to worst
+                                                                             promise in recent research, but they rely on a vary-
+to find the solution that consistently has the highest
+                                                                             ing choice of decision protocols, hindering system-
+rank over all individual rankings; approval voting
+                                                                             atic comparison (Yin et al., 2023; Chen et al., 2023).
+- each agent casts unlimited votes, and the answer
+                                                                             This experiment systematically compares a set of
+with the most votes wins; and cumulative voting
+                                                                             seven decision protocols, changing only the deci-
+- each agent is allowed to divide up to 25 points
+                                                                             sion protocol used and nothing else. Specifically,
+between all solutions. The solution with the most
+                                                                             we determine whether some protocols have advan-
+points wins.
+                                                                             tages over others and how they behave in specific
+3.3 Datasets                                                                 edge cases, such as for unanswerable questions.
+                                                                                We experiment with four voting-based (Sim-
+We evaluate our decision protocols using six
+                                                                             ple, Ranked, Cumulative, Approval) and three
+datasets: three knowledge tasks (i.e., MMLU, a
+                                                                             consensus-based (Majority, Supermajority, Una-
+broad-topic test; MMLU-Pro, a domain-specific
+                                                                             nimity) methods and test them on three knowledge
+test with challenging questions; GPQA, a special-
+                                                                             tasks (MMLU, MMLU-Pro, GPQA) and three rea-
+ized question set difficult for web search) and three
+                                                                             soning tasks (SQuAD 2.0, StrategyQA, MuSR). We
+reasoning tasks (i.e., StrategyQA, a multistep rea-
+                                                                             use the Llama 3 8B model with and without CoT
+soning task; MuSR, a long-context murder mys-
+                                                                             prompting to generate baseline results for compari-
+tery; SQuAD 2.0, a reading comprehension task
+                                                                             son with multi-agent debate. We compare answer-
+with questions that may or may not have answers in
+                                                                             able and unanswerable questions of the SQuAD 2.0
+the context). Because of computational constraints,
+                                                                             dataset to inspect how decision protocols behave in
+we calculate the task performance on a subset of
+                                                                             edge cases.
+samples with three runs and report their standard
+deviation. More details about the datasets, the num-                            Figure 2 shows the baselines compared to multi-
+ber of samples, and the sampling strategy can be                             agent debate, with the decision protocols being
+found in Appendix B.                                                         the rows grouped by voting and consensus-based
+                                                                             protocols. The columns are the datasets grouped
+4       Experiments                                                          by knowledge and reasoning-based tasks. Over-
+                                                                             all, multi-agent debate with consensus and voting
+We use a set of diverse reasoning and knowledge                              decision protocols outperforms the CoT baseline.
+tasks to explore the effectiveness and limits of de-                         Notably, consensus protocols perform better on
+cision protocols in multi-agent debate.                                      knowledge-based tasks with average improvements
+    3
+    Approval Voting is left out as it consistently fails to reach            of 2.3% on MMLU, 4.9% on MMLU-Pro, and
+a voting decision as described in Section 4.1.                               1.3% on GPQA over the voting average. Voting
+                                                                       11643
+            80
+                                                            Simple Voting           voting can be easily tricked by generating answers
+            70
+            60                                              Cumulative Voting
+                                                                                    that seem to be correct but have some incorrect
+            50
+                                                                                    statements (see Appendix G.2). The consensus
+ F1-Score
+            40                                              Ranked Voting
+            30                                                                      method has a distinct advantage by incorporating a
+                                                            Majority Consensus
+            20                                                                      safeguard of repeated checks across agents to find
+            10
+             0
+                                                            Supermajority Con.
+                                                                                    these small errors. The detailed analysis of SQuAD
+                 All Samples   Sample has   Sample has no
+                                 Answer        Answer
+                                                            Unanimity Con.          2.0 further supports the finding that decision proto-
+                                                                                    col effectiveness is task-dependent.
+Figure 3: F1±std of different decision protocols on
+SQuAD 2.0 divided into three ablation groups: (middle)
+samples with an answer in the context (Sample has                                      Both experiments reveal that the decision proto-
+Answer), (right) samples with no answer in the context
+                                                                                    col used can significantly impact the overall perfor-
+(Sample has no Answer), and (left) the combination of
+both (All Samples). Standard deviation over three runs.                             mance of multi-agent debates. While multi-agent
+                                                                                    approaches generally require more computation
+                                                                                    than a single agent (approximately five times the
+protocols perform better in reasoning tasks with                                    compute resources for consensus protocols and ten
+average improvements of 13.1% on SQuAD 2.0,                                         times for voting protocols compared to the CoT
+0.2% on StrategyQA, and 26.4% on MuSR over the                                      baseline in our setup), the choice between proto-
+consensus average. The results for the Llama 3 70B                                  cols offers distinct advantages beyond simply scal-
+model can be found in Appendix A.1. On average,                                     ing resources. Notably, consensus protocols often
+voting-based protocols require 3.38 rounds and                                      reached a decision faster than voting protocols, par-
+consensus-based protocols 1.42 rounds to reach a                                    ticularly on knowledge tasks that also achieved
+decision, indicating that consensus is more suitable                                superior performance (Figure 2). Conversely, vot-
+for applications that require quick decision-making                                 ing excelled on reasoning tasks despite potentially
+as they use less test-time compute. Interestingly,                                  needing more rounds and compute. This demon-
+most conversations reach a decision before they                                     strates that with the correct choice, multi-agent
+are terminated after five turns. Approval voting                                    debates can be made more error-resistant by using
+is the only protocol that often leads to no agreed                                  consensus decision protocols and more explorative
+solution (59% of cases) due to the agreeableness                                    by using voting decision protocols. However, we
+of the agents. The agents often simply vote for                                     acknowledge that these performance improvements
+all answers as they do not have to decide, leading                                  must be weighed against the substantial increase in
+to many ties (see Appendix A.2 for details). Fig-                                   computational resources required compared to sim-
+ure 3 shows the F1-Score for SQuAD 2.0 divided                                      pler baseline methods. High token consumption
+into whether questions are answerable or not for                                    is a significant practical limitation of the multi-
+each decision protocol. Voting achieves a higher                                    agent debate (MAD) paradigm, and its prevalence
+overall F1-score (56.7%) than consensus (43.6%),                                    in the field does not diminish its importance as a
+especially for answerable samples. However, con-                                    challenge. Observed performance improvements,
+sensus is more effective for unanswerable samples,                                  although positive, may not always scale proportion-
+and stricter consensus methods (e.g., unanimity                                     ally with the increased computational resources.
+consensus) produce even higher scores.                                              Our study’s primary objective was to systematically
+   The effectiveness of decision protocols depends                                  compare how different decision protocols function
+on the nature of the task. Our results suggest that                                 within this resource-intensive MAD paradigm to
+consensus excels in knowledge tasks, and voting                                     help researchers select the most effective proto-
+works better for reasoning tasks. Voting protocols                                  col for their specific tasks. Therefore, researchers
+might outperform consensus in reasoning tasks be-                                   should carefully consider whether the incremen-
+cause they allow the exploration of multiple reason-                                tal performance gains justify the associated com-
+ing paths. One reason for the good performance of                                   putational costs in their particular use cases. An
+consensus in knowledge tasks is that it mitigates                                   additional experiment comparing solution count-
+individual agent errors by requiring multiple agents                                ing (selecting the answer that is given the most) to
+to agree on the same statement before reaching a                                    our prompted decision protocols showed similar
+conclusion. This approach is less susceptible to ma-                                trends and had little impact on our main findings
+nipulation or errors by any single agent. We found                                  (see Appendix D).
+                                                                                 11644
+             69%                                                                  69%
+             67%                                                                  67%
+             65%                                                                  65%
+
+
+  ACCURACY                                                             ACCURACY
+             63%                                                                  63%
+             61%                                                                  61%
+             59%                                                                  59%
+             57%                                                                  57%
+             55%                                                                  55%
+                   1   2   3    4 5 6 7           8   9   10                            1   2   3    4 5 6 7           8   9   10
+                               Number of Rounds                                                     Number of Agents
+
+
+Figure 4: Accuracy±std on StrategyQA when the agents              Figure 5: Accuracy±std on StrategyQA with a different
+have to talk for a given number of rounds before they             number of agents participating in the discussion. The
+are allowed to vote using the simple voting decision              final answer is created using the simple voting decision
+protocol. Standard deviation over three runs.                     protocol. Standard deviation over three runs.
+
+
+4.2          Number of Agents and Discussion Rounds               increase from nine to ten rounds a rather abrupt in-
+Research by Yin et al. (2023) suggests that increas-              crease in task performance can be seen. Separately,
+ing the number of rounds and agents participating                 Figure 5 shows the task performance relative to
+in a multi-agent debate is beneficial because of test-            the number of agents participating in the debate.
+time compute scaling. In our experimental setup,                  Here, a linear regression indicates that increasing
+agents communicate for three rounds before voting,                the number of agents leads to a slight upward trend
+following Du et al. (2023b). As our first experiment              in accuracy, suggesting that larger groups improve
+showed, consensus reaches a decision much faster                  task performance.
+than voting. Here, we investigate how the number                     Having more agents generating solutions gener-
+of discussion rounds before voting impacts task per-              ally leads to higher accuracy. This resembles the
+formance, as fewer rounds with the same accuracy                  effect seen in self-consistency (Wang et al., 2023),
+would improve computational efficiency. Becker                    where increasing the number of sampled answers
+(2024) suggests that extended discussions may lead                improves task performance. However, Figure 4
+to decreased accuracy because of agents drifting                  shows that increasing the number of debate rounds
+away from the original task. Wang et al. (2024a)                  decreases performance, contradicting the expected
+shows increasing the number of agents may have                    benefits of self-refinement. This aligns with recent
+positive effects.                                                 concerns about the reliability of self-refinement,
+   We conduct this experiment using the Strate-                   as Huang et al. (2023) questions the findings of
+gyQA dataset because multi-agent debate has con-                  Madaan et al. (2023), suggesting that the claimed
+sistently mitigated errors of single agents using                 improvements may not be robust.
+CoT as shown in the previous experiment. The ex-                     At the same time, we also have one case where
+periment is structured in two parts. First, we fix the            we see an increase in task performance as the num-
+number of agents to three and increase the number                 ber of rounds increases. Observe the sharp upside
+of discussion rounds from one to ten. Second, we                  arc in Figure 4 for turn ten. To test whether individ-
+fix the number of rounds to three and increase the                ual rounds can recover this performance decrease,
+number of agents from one to ten. Both experi-                    we create an ablation experiment where agents chal-
+ments use the simple voting decision protocol, and                lenge the final result and propose a new solution.
+each condition is evaluated across three indepen-                 This extra round allows us to verify the effects of
+dent runs.                                                        an extended discussion and also if agents would
+   Figure 4 shows accuracy relative to the number                 change their final solution. We create five different
+of rounds the agents have to communicate before                   challenge scenarios and test them on two knowl-
+voting starts. A linear regression, visualized by                 edge tasks (MMLU and MMLU-Pro) and two rea-
+the dotted line, indicates that increasing discussion             soning tasks (StrategyQA and SQuAD 2.0). In the
+rounds slightly reduces accuracy. Still, with the                 first setting, we provide agents with the final solu-
+                                                               11645
+                                   StrategyQA     MMLU       MMLU-Pro         SQuAD 2.0           effects on knowledge tasks (MMLU and MMLU-
+                            100%                                                                  Pro). Overall, the different challenge scenarios
+ Percentage of Challenged
+                            80%                                                                   (Only Solution, Discussion History, and Additional
+                            60%                                                                   Information) do not significantly impact the quality
+
+         Answers
+                            40%                                                                   of the challenged answers, as they all perform very
+                            20%                                                                   similarly.
+                             0%
+                                                                                                     These findings further support that more debate
+                                         Only   Discussion Additional Prompted Prompted
+                                       Solution   History Information Irrelevant Wrong            rounds harm task performance, suggesting the ex-
+                                                                       Answer    Answer
+                                                                                                  pected benefits of self-refinement may be unreli-
+Figure 6: Percentage of agents challenging the final
+                                                                                                  able and also differ from task to task. Therefore,
+solution with different levels of information.                                                    we recommend scaling the number of agents as
+                                                                                                  opposed to turns to create a larger knowledge base.
+                               StrategyQA         MMLU       MMLU-Pro         SQuAD 2.0
+                              2%                                                                  4.3   Answer Diversity
+ Percentage of Improved
+                              0%
+                             -2%                                                                  In multi-agent debates, answer diversity plays an
+                             -4%
+                                                                                                  important role in improving decision-making and
+        Answers
+                             -6%
+                             -8%
+                            -10%                                                                  task performance. A more diverse set of answers
+                                        Only Solution    Discussion History       Additional      is beneficial because selecting the correct solution
+                                                                                 Information
+                                                                                                  from multiple options is often easier than relying
+Figure 7: Percentage of answers that improve after being                                          on a single agent’s solution (Zheng et al., 2023).
+challenged using different levels of information.                                                 This principle is also key to self-consistency ap-
+                                                                                                  proaches (Wang et al., 2023) and explains why
+tion and ask whether they agree or want to change                                                 multiple-choice tests are often easier than open-
+it. In the second setting, agents can access the full                                             ended ones. The goal of this experiment is to ex-
+discussion history with prior reasoning. The third                                                ploit this property and explore ways to increase
+setting includes additional context we retrieve with                                              answer diversity to optimize task performance.
+RAG from Wikipedia4 . The fourth and fifth set-                                                      In typical multi-agent debates, the first agent
+tings act as a baseline, introducing intentionally                                                starts generating a possible solution for the given
+incorrect solutions—either irrelevant or wrong an-                                                task. The next agent can either propose a new solu-
+swers generated by the Qwen2 7B (Research, 2024)                                                  tion or improve on the previous solution. Through-
+model to test whether agents can detect incorrect                                                 out our experiments, we observe that agents are
+solutions. Solutions are generated with a different                                               agreeable and often only improve the answer from
+model than Llama 3, to remove any bias that might                                                 the first agent without proposing an idea based on
+occur if the same model used to detect the wrong                                                  their own expertise. While the idea of independent
+answer also generated it (Wahle et al., 2021).                                                    answer generation has been previously explored
+                                                                                                  in different multi-agent settings (Du et al., 2023b;
+    We find that agents are less likely to challenge
+                                                                                                  Liang et al., 2024), these studies did not system-
+the final result when the discussion history is pro-
+                                                                                                  atically formalize and evaluate it separately from
+vided (10% decrease), as seen in Figure 6. For the
+                                                                                                  other multi-agent discussion parameters. To ad-
+StrategyQA dataset, this change is more prominent,
+                                                                                                  dress these limitations, we explicitly formalize this
+with a 60% decrease in the challenge rate. Provid-
+                                                                                                  principle as All-Agents Drafting (AAD), a method
+ing additional information has no noticeable effect
+                                                                                                  that forces each agent to generate an independent
+compared to just providing the solution. Agents can
+                                                                                                  solution based on their own expertise in the first
+detect irrelevant solutions (99% challenge rate) and
+                                                                                                  round. Second, we propose Collective Improve-
+incorrect solutions (75% challenge rate) with high
+                                                                                                  ment (CI) which starts similarly to AAD with each
+accuracy. Figure 7 shows the percentage of chal-
+                                                                                                  agent generating an independent solution, but un-
+lenged answers with a changed final score based
+                                                                                                  like AAD where each agent can communicate with
+on the new solution. It can be seen that this has no
+                                                                                                  another after the first turn, CI prohibits commu-
+positive effect, especially on the reasoning tasks
+                                                                                                  nication and only shows the solutions from the
+(StrategyQA and SQuAD 2.0), where it leads to
+                                                                                                  previous turn to the agent in the next turn. The
+worse solutions in 3% of cases. There are no major
+                                                                                                  rationale behind this is that agents often immedi-
+          4
+              We use: github.com/Multi-Agent-LLMs/context-plus                                    ately get biased by other proposals rather than fol-
+                                                                                               11646
+                                 Strategy                          Baseline   All draft            Collective         Critical             Reasoning
+                                 Answer Cosine Similarity          0.888      0.870                0.845              0.843                0.916
+                                 Mean Accuracy                     58.3%      62.8%                65.7%              59.4%                51.9%
+                                 Delta Baseline                    0.0%       3.3%                 7.4%               1.1%                 -6.4%
+
+Table 1: Final answer similarity based on average cosine similarity between SBERT embeddings of final answers
+compared to task performance on StrategyQA dataset.
+
+
+                             Baseline    All Agents Drafting                                                           Baseline            Collective Improvment
+            70%                                                                                  75%
+                                                                                                 70%
+            65%
+
+                                                                                      ACCURACY
+                                                                                                 65%
+
+ ACCURACY
+            60%                                                                                  60%
+                                                                                                 55%
+            55%
+                                                                                                 50%
+            50%                                                                                              ting                   ting                       g                    g
+                                                                                                       le Vo                  ive V
+                                                                                                                                   o                     Votin              l Vot
+                                                                                                                                                                                  in
+                                                                         .                         Simp                ulat                          ked               rova
+                 ting      otin
+                                g  otin
+                                       g
+                                            otin
+                                                   g
+                                                       ensu
+                                                             s Con
+                                                                   .
+                                                                     Con                                                                       Ran                 App
+            le Vo     ive V anked V proval V y Cons majority animity                                                Cum
+        Simp umulat           R     Ap        r it       e r   U n
+              C                          Majo        Sup
+
+                                                                                  Figure 9: Comparison of agents discussing using the de-
+Figure 8: Comparison of agents iterating on one initial                           fault discussion protocol compared to the CI discussion
+draft (baseline) vs. each of the three agents generating                          protocol on the StrategyQA dataset. Standard deviation
+an initial draft separately on the StrategyQA dataset                             over three runs.
+using AAD. Standard deviation over three runs.
+                                                                                                  Baseline     Critical Response Generator              Reasoning Response Generator
+                                                                                                 70%
+lowing their own ideas which leads to less answer                                                65%
+                                                                                                 60%
+diversity. Thus, our new proposal, CI, extends the
+                                                                                      ACCURACY
+                                                                                                 55%
+independent generation method with a discussion                                                  50%
+                                                                                                 45%
+paradigm designed explicitly for voting protocols,                                               40%
+demonstrating improved exploration and diversity                                                    le Vo
+                                                                                                          ting        otin
+                                                                                                                           g  otin
+                                                                                                                                   g
+                                                                                                                                        otin
+                                                                                                                                                g
+                                                                                                                                                    ensu
+                                                                                                                                                          s Con
+                                                                                                                                                                .
+                                                                                                                                                                  Con
+                                                                                                                                                                      .
+                                                                                             Simp                ive V anked V proval V y Cons majority animity
+                                                                                                            ulat         R       p         r it         r     n
+of ideas in the multi-agent setting. CI only works                                                    C u m                    A
+                                                                                                                                     Ma jo        Su p e    U
+
+for voting decision protocols as it removes the turn
+order of the agents, and therefore, no iterative im-                              Figure 10: Comparison of agents using the default re-
+provements and agreements can be made. Third,                                     sponse generator compared to the reasoning and critical
+                                                                                  response generator on the StrategyQA dataset. Standard
+we introduce a critical response generator and a                                  deviation over three runs.
+reasoning response generator. Both test whether it
+is possible to improve answer diversity by prompt-
+ing agents to respond more critically or by allowing                              to the multi-agent baseline. CI is a voting–only
+them to exchange only reasoning steps and no final                                extension. On average, CI performs 7.4% better
+solutions during the discussion to avoid agreeable-                               than the baseline.
+ness towards final solutions and not reasoning ideas.                                Figure 10 shows the accuracy of different re-
+To quantify if these methods increase answer di-                                  sponse generators compared to the baseline for dif-
+versity, we calculate the cosine similarity between                               ferent decision protocols. The results show that
+the SBERT embeddings (Reimers and Gurevych,                                       the critical response generator does not provide
+2019) of the agent’s answers and correlate it with                                a reliable improvement, while the reasoning re-
+changes in task performance.                                                      sponse generator even leads to a decrease in task
+   Figure 8 shows the accuracy of AAD compared                                    performance.
+to the multi-agent baseline on StrategyQA for all                                    Table 1 shows the cosine similarity, mean ac-
+decision protocols. AAD increases the perfor-                                     curacy, and delta in performance as the rows for
+mance on average by 3.3% over the baseline. The                                   the different improvement methods (AAD, CI and
+strongest improvements are for simple and ranked                                  response generators) as columns. We observe a
+voting. Cumulative voting, supermajority, and una-                                general trend that if the answer diversity increases,
+nimity consensus perform a bit worse. Approval                                    task performance increases, too. The reasoning re-
+voting and majority have no real improvement but                                  sponse generator decreases answer diversity, which
+are within the standard deviation of the baseline.                                results in a drop in task performance.
+   Figure 9 shows the accuracy of CI compared                                        AAD and CI achieve higher answer diversity
+                                                                              11647
+and, therefore, higher task performance, but the        cal structure to investigate whether dominant or
+two response generators struggle to provide reliable    affectionate leaders are more effective in leading
+results and may even reduce task performance. The       discussions (Ames, 2009).
+critical and restrictive prompting style degrades the      We recommend using voting in reasoning tasks
+quality of the discussion by forcing a specific an-     and consensus in knowledge tasks, scaling up the
+swer style that is not always beneficial. Therefore,    number of agents instead of the number of rounds,
+we recommend using our methods AAD or CI to             and increasing the diversity of answers between
+limit group interactions and promote independent        agents using AAD and CI.
+thinking but caution against using methods that di-
+rectly change the response behavior of the agents,      Limitations
+as this may have unwanted side effects.                 Multi-agent debates are computationally expensive
+                                                        because they require a message from each agent in
+5   Conclusion                                          each round, quickly leading to hundreds of forward
+                                                        passes per model. Because of the high compu-
+We systematically evaluated the role of consensus
+                                                        tational cost and the range of decision protocols
+and voting decision protocols across three knowl-
+                                                        and tasks in our work, we used sampled subsets of
+edge and three reasoning tasks. Our study assessed
+                                                        the datasets, which can lead to some variance. To
+how the number of discussion rounds and agents
+                                                        control for that variance, we sampled with a 95%
+influences task performance. We proposed two new
+                                                        confidence level and calculated the standard devia-
+methods to improve answer diversity during multi-
+                                                        tion of three independent runs.Overall, the results
+agent discussions and decisions, i.e., All-Agents
+                                                        were markedly higher than what could be explained
+Drafting (AAD) and Collective Improvement (CI).
+                                                        by the standard deviation. More details about the
+AAD requires each agent to contribute draft ideas
+                                                        dataset and other parameters can be found in Ap-
+at the beginning of the discussion, and CI encour-
+                                                        pendix B. Despite efforts to improve answer diver-
+ages independent reasoning steps by limiting com-
+                                                        sity, agents often converged on similar responses,
+munication between agents and only allowing them
+                                                        suggesting that more advanced techniques to en-
+to exchange possible solutions after each turn.
+                                                        courage independent solutions are needed in the
+   Our findings show that voting performs well on       future.
+reasoning tasks, outperforming consensus by up             While this study focuses on decision protocols,
+to 13.2%, and outperforming a single CoT base-          we acknowledge that prompt design and persona
+line by 10.4%. This is likely because voting-based      selection are also relevant parameters. Initial ex-
+protocols allow agents to explore multiple reason-      plorations with more diverse prompt structures did
+ing paths instead of a single one, as in consen-        not yield consistent improvements over the sim-
+sus. In comparison, consensus outperforms voting        pler, reproducible design presented. Furthermore,
+in knowledge tasks by up to 2.8%, because it im-        Section 4.3 analyzes variations in agent response
+proves fact-checking by requiring at least the agree-   styles (critical, reasoning only), showing decision
+ment of the majority of agents. Increasing the num-     protocol dependent effects. A dedicated persona ab-
+ber of agents in the discussion improved task perfor-   lation was omitted due to significant computational
+mance, while increasing the number of discussion        cost and prior evidence suggesting limited impact
+rounds before voting decreased performance. One         on task performance in similar setups (Zheng et al.,
+possible reason for that could be problem drift, a      2024).
+recent limitation found in long multi-agent debate
+(Becker, 2024). AAD improved performance by             Acknowledgments
+up to 3.3%, and CI by up to 7.4% over multi-agent
+debate baselines, and 6.1% and 10.2% over sin-          This work was partially supported by the Lower
+gle model CoT baseline respectively. Our methods        Saxony Ministry of Science and Culture and the
+enhance answer diversity and reveal a connection        VW Foundation. Many thanks to Andreas Stephan,
+between answer diversity and task performance.          Florian Wunderlich, and Niklas Bauer for their
+                                                        thoughtful discussions and feedback.
+   Future work could explore other characteristics
+influencing decisions, such as power relations be-
+tween managers and employees. This could also
+involve examining personas within this hierarchi-
+                                                   11648
+References                                                  Junyi Li, Jie Chen, Ruiyang Ren, Xiaoxue Cheng,
+                                                              Wayne Xin Zhao, Jian-Yun Nie, and Ji-Rong Wen.
+Daniel Ames. 2009. Pushing up to a point: Assertive-          2024. The Dawn After the Dark: An Empirical Study
+  ness and effectiveness in leadership and interpersonal      on Factuality Hallucination in Large Language Mod-
+  dynamics. Research in Organizational Behavior,              els.
+  29:111–133.
+                                                            Tian Liang, Zhiwei He, Wenxiang Jiao, Xing Wang,
+Jonas Becker. 2024. Multi-Agent Large Language Mod-           Yan Wang, Rui Wang, Yujiu Yang, Shuming Shi, and
+  els for Conversational Task-Solving.                        Zhaopeng Tu. 2024. Encouraging divergent thinking
+                                                              in large language models through multi-agent debate.
+Justin Chih-Yao Chen, Swarnadeep Saha, and Mohit              In Proceedings of the 2024 Conference on Empiri-
+  Bansal. 2023. ReConcile: Round-Table Conference             cal Methods in Natural Language Processing, pages
+  Improves Reasoning via Consensus among Diverse              17889–17904, Miami, Florida, USA. Association for
+  LLMs.                                                       Computational Linguistics.
+
+William G. Cochran. 1953. Sampling techniques. Sam-         Christian List. 2022. Social Choice Theory. In The
+  pling techniques.                                           Stanford Encyclopedia of Philosophy, winter 2022
+                                                              edition.
+Yilun Du, Shuang Li, Antonio Torralba, Joshua B.
+  Tenenbaum, and Igor Mordatch. 2023a. Improving            Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler
+  factuality and reasoning in language models through        Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon,
+  multiagent debate. Preprint, arXiv:2305.14325.             Nouha Dziri, Shrimai Prabhumoye, Yiming Yang,
+                                                             Shashank Gupta, Bodhisattwa Prasad Majumder,
+Yilun Du, Shuang Li, Antonio Torralba, Joshua B.             Katherine Hermann, Sean Welleck, Amir Yazdan-
+  Tenenbaum, and Igor Mordatch. 2023b. Improv-               bakhsh, and Peter Clark. 2023. Self-refine: Itera-
+  ing Factuality and Reasoning in Language Models            tive refinement with self-feedback. In Advances in
+  through Multiagent Debate.                                 Neural Information Processing Systems 36: Annual
+                                                             Conference on Neural Information Processing Sys-
+Mor Geva, Daniel Khashabi, Elad Segal, Tushar Khot,          tems 2023, NeurIPS 2023, New Orleans, LA, USA,
+ Dan Roth, and Jonathan Berant. 2021. Did aristotle          December 10 - 16, 2023.
+ use a laptop? a question answering benchmark with
+ implicit reasoning strategies. Transactions of the         META. 2024. The Llama 3 Herd of Models.
+ Association for Computational Linguistics.
+                                                            Pranav Rajpurkar, Robin Jia, and Percy Liang. 2018.
+                                                              Know what you don’t know: Unanswerable ques-
+Yoav Goldberg. 2024. Are multi-llm-agent systems a
+                                                              tions for SQuAD. In Proceedings of the 56th Annual
+  thing? yes they are. but.
+                                                              Meeting of the Association for Computational Lin-
+                                                              guistics (Volume 2: Short Papers).
+Dan Hendrycks, Collin Burns, Steven Basart, Andy
+  Zou, Mantas Mazeika, Dawn Song, and Jacob Stein-          Nils Reimers and Iryna Gurevych. 2017. Reporting
+  hardt. 2021. Measuring massive multitask language           score distributions makes a difference: Performance
+  understanding. In 9th International Conference on           study of LSTM-networks for sequence tagging. In
+  Learning Representations, ICLR 2021, Virtual Event,         Proceedings of the 2017 Conference on Empirical
+  Austria, May 3-7, 2021.                                     Methods in Natural Language Processing.
+Jie Huang, Xinyun Chen, Swaroop Mishra,                     Nils Reimers and Iryna Gurevych. 2019. Sentence-bert:
+   Huaixiu Steven Zheng, Adams Wei Yu, Xiny-                  Sentence embeddings using siamese bert-networks.
+   ing Song, and Denny Zhou. 2023. Large Language             Preprint, arXiv:1908.10084.
+   Models Cannot Self-Correct Reasoning Yet.
+                                                            David Rein, Betty Li Hou, Asa Cooper Stickland, Jack-
+Hang Jiang, Xiajie Zhang, Xubo Cao, Cynthia Breazeal,         son Petty, Richard Yuanzhe Pang, Julien Dirani, Ju-
+  Deb Roy, and Jad Kabbara. 2024. PersonaLLM: In-             lian Michael, and Samuel R. Bowman. 2023. GPQA:
+  vestigating the ability of large language models to         A Graduate-Level Google-Proof Q&A Benchmark.
+  express personality traits. In Findings of the Associa-
+  tion for Computational Linguistics: NAACL 2024.           Alibaba Research. 2024. Qwen2 Technical Report.
+
+Bernie Jones. 1994. A comparison of consensus and vot-      Mrinank Sharma, Meg Tong, Tomasz Korbak, David
+  ing in public decision making. Negotiation Journal,         Duvenaud, Amanda Askell, Samuel R. Bowman,
+  (2).                                                        Newton Cheng, Esin Durmus, Zac Hatfield-Dodds,
+                                                              Scott R. Johnston, Shauna Kravec, Timothy Maxwell,
+Junseok Kim, Nakyeong Yang, and Kyomin Jung. 2024.            Sam McCandlish, Kamal Ndousse, Oliver Rausch,
+  Persona is a Double-edged Sword: Mitigating the             Nicholas Schiefer, Da Yan, Miranda Zhang, and
+  Negative Impact of Role-playing Prompts in Zero-            Ethan Perez. 2023. Towards Understanding Syco-
+  shot Reasoning Tasks.                                       phancy in Language Models.
+                                                       11649
+Zayne Sprague, Xi Ye, Kaj Bostrom, Swarat Chaudhuri,       Benfeng Xu, An Yang, Junyang Lin, Quan Wang, Chang
+  and Greg Durrett. 2023. MuSR: Testing the Limits           Zhou, Yongdong Zhang, and Zhendong Mao. 2023.
+  of Chain-of-thought with Multistep Soft Reasoning.         ExpertPrompting: Instructing Large Language Mod-
+                                                             els to be Distinguished Experts. arXiv preprint.
+Mirac Suzgun and Adam Tauman Kalai. 2024.                    ArXiv: 2305.14688 [cs].
+  Meta-Prompting: Enhancing Language Models
+  with Task-Agnostic Scaffolding. arXiv preprint.          Joshua C. Yang, Carina I. Hausladen, Dominik Peters,
+  ArXiv:2401.12954 [cs].                                     Evangelos Pournaras, Regula Hnggli Fricker, and
+                                                             Dirk Helbing. 2024a. Designing digital voting sys-
+Steven K. Thompson. 2012. Sampling, 3rd ed edition.          tems for citizens: Achieving fairness and legitimacy
+  Wiley series in probability and statistics.                in participatory budgeting. Digit. Gov.: Res. Pract.,
+                                                             5(3).
+Jan Philip Wahle, Terry Ruas, Norman Meuschke, and
+   Bela Gipp. 2021. Are Neural Language Models             Joshua C. Yang, Marcin Korecki, Damian Dailisan, Ca-
+   Good Plagiarists? A Benchmark for Neural Para-             rina I. Hausladen, and Dirk Helbing. 2024b. LLM
+   phrase Detection. In 2021 ACM/IEEE Joint Confer-          Voting: Human Choices and AI Collective Decision
+   ence on Digital Libraries (JCDL).                          Making.
+                                                           Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak
+Jan Philip Wahle, Terry Ruas, Saif M. Mohammad, Nor-         Shafran, Karthik Narasimhan, and Yuan Cao. 2023.
+   man Meuschke, and Bela Gipp. 2023. Ai usage cards:        React: Synergizing reasoning and acting in language
+   Responsibly reporting ai-generated content. Preprint,     models. Preprint, arXiv:2210.03629.
+   arXiv:2303.03886.
+                                                           Zhangyue Yin, Qiushi Sun, Cheng Chang, Qipeng
+Qineng Wang, Zihao Wang, Ying Su, Hanghang Tong,             Guo, Junqi Dai, Xuanjing Huang, and Xipeng Qiu.
+  and Yangqiu Song. 2024a. Rethinking the Bounds             2023. Exchange-of-thought: Enhancing large lan-
+  of LLM Reasoning: Are Multi-Agent Discussions              guage model capabilities through cross-model com-
+  the Key? In Proceedings of the 62nd Annual Meet-           munication. In Proceedings of the 2023 Conference
+  ing of the Association for Computational Linguistics       on Empirical Methods in Natural Language Process-
+  (Volume 1: Long Papers).                                   ing.
+Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc V.           Andrew Zhao, Daniel Huang, Quentin Xu, Matthieu Lin,
+  Le, Ed H. Chi, Sharan Narang, Aakanksha Chowd-             Yong-Jin Liu, and Gao Huang. 2023. ExpeL: LLM
+  hery, and Denny Zhou. 2023. Self-consistency               Agents Are Experiential Learners. arXiv preprint.
+  improves chain of thought reasoning in language            ArXiv:2308.10144 [cs].
+  models. In The Eleventh International Conference
+  on Learning Representations, ICLR 2023, Kigali,          Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan
+  Rwanda, May 1-5, 2023.                                     Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin,
+                                                             Zhuohan Li, Dacheng Li, Eric P. Xing, Hao Zhang,
+Yubo Wang, Xueguang Ma, Ge Zhang, Yuansheng Ni,              Joseph E. Gonzalez, and Ion Stoica. 2023. Judging
+  Abhranil Chandra, Shiguang Guo, Weiming Ren,               llm-as-a-judge with mt-bench and chatbot arena. In
+  Aaran Arulraj, Xuan He, Ziyan Jiang, Tianle Li, Max        Advances in Neural Information Processing Systems
+  Ku, Kai Wang, Alex Zhuang, Rongqi Fan, Xiang               36: Annual Conference on Neural Information Pro-
+  Yue, and Wenhu Chen. 2024b. MMLU-Pro: A More               cessing Systems 2023, NeurIPS 2023, New Orleans,
+  Robust and Challenging Multi-Task Language Un-             LA, USA, December 10 - 16, 2023.
+  derstanding Benchmark (Published at NeurIPS 2024
+  Track Datasets and Benchmarks).                          Mingqian Zheng, Jiaxin Pei, Lajanugen Logeswaran,
+                                                             Moontae Lee, and David Jurgens. 2024. When ”a
+Zhenhailong Wang, Shaoguang Mao, Wenshan Wu, Tao             helpful assistant” is not really helpful: Personas in
+  Ge, Furu Wei, and Heng Ji. 2024c. Unleashing the           system prompts do not improve performances of
+  emergent cognitive synergy in large language mod-          large language models. In Findings of the Associ-
+  els: A task-solving agent through multi-persona self-      ation for Computational Linguistics: EMNLP 2024,
+  collaboration. In Proceedings of the 2024 Conference       pages 15126–15154, Miami, Florida, USA. Associa-
+  of the North American Chapter of the Association for       tion for Computational Linguistics.
+  Computational Linguistics: Human Language Tech-
+  nologies (Volume 1: Long Papers).
+
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+   Bosma, Brian Ichter, Fei Xia, Ed H. Chi, Quoc V. Le,
+   and Denny Zhou. 2022. Chain-of-thought prompting
+   elicits reasoning in large language models. In Ad-
+   vances in Neural Information Processing Systems 35:
+  Annual Conference on Neural Information Process-
+   ing Systems 2022, NeurIPS 2022, New Orleans, LA,
+   USA, November 28 - December 9, 2022.
+                                                      11650
+Appendix                                                  highest agreement rate, but also cumulative and
+                                                          ranked voting only need in a few cases another
+A    Additional Results                                   round. In contrast, the approval decision protocol
+Additional results for the first experiment to pro-       only achieves this in ∼ 27% of the cases. About
+vide further information.                                 14% need another round and the rest is canceled
+                                                          after the fifth round. This happens because these
+A.1 Task Performance with Llama 3 70B                     models like to agree with each other, and therefore
+Compared to the results of the Llama 3 8B model,          they tend to vote for many of the answers, which
+the larger Llama 3 70B model performs much bet-           often leads to a tie. Therefore, more restrictive vot-
+ter overall, as seen in Figure 11. Most of the results    ing decision protocols can reach a decision more
+are a bit better than the baseline, but the multi-agent   easily, as a tie is less likely. The consensus deci-
+discussions are only in a few cases able to outper-       sion protocols require only one to two rounds to
+form the CoT baseline. This model does not fail           reach consensus and still achieve a higher task per-
+to follow the prompt for the MuSR baseline and            formance because these results are based on the
+consensus-based decision protocols. Therefore, the        MMLU dataset. The decision protocols tend to be-
+big performance gain from the smaller model can-          have similarly in terms of rounds needed to create
+not be observed here. SQuAD 2.0 and StrategyQA            a final answer, independent of task and model.
+had the largest performance gains, even outper-
+forming the CoT baseline, similar to the results          B     Additional Details on Datasets
+from the smaller model. This difference in task           The dataset selection is very important for this
+performance can have many reasons. As Li et al.           work. It needs to be tested whether decision
+(2024) showed, smaller models are more likely to          protocols perform well in multiple domains and
+hallucinate, which reduces task performance. This         whether some protocols perform better with spe-
+can be mitigated by using multiple agents because         cific tasks than others. Therefore, we selected
+it is less likely that two agents hallucinate the same    datasets from different domains and divided them
+things. Larger models tend to hallucinate less, re-       into two groups:
+ducing this effect for the Llama 3 70B model (Li
+et al., 2024). In general, Llama 3 70B has a much             • Knowledge-based Datasets:        MMLU,
+higher baseline for task performance, making it                 MMLU-Pro, and GPQA. These still require
+more difficult to improve baseline results. Many                some reasoning and domain knowledge.
+of the improvements by the Llama 3 8B model are
+quite small, except for the ones where the Llama              • Reasoning-based Datasets: StrategyQA,
+3 70B model also outperforms the CoT baseline.                  MuSR, and SQuAD 2.0. These emphasize
+This can be taken as evidence that these multi-agent            multistep reasoning and textual comprehen-
+discussions require specific problem structures, or             sion.
+else the agents are just talking about the same re-
+sults for multiple rounds and agreeing with each             An overview of all these datasets can be found
+other. If these discussions continue too long, they       in Table 3 with a description and the number of
+can drift away from the original task, which re-          samples used for evaluation.
+duces task performance. This has also been ob-
+                                                          B.1    Sampling Strategy
+served by Becker (2024) and an example can be
+seen in Appendix G.3. A positive example of how           Because multi-agent discussions are expensive, we
+discussion can help task performance can be seen          use a small subset of each dataset that still rep-
+in Appendix G.1.                                          resents the dataset effectively. This follows ap-
+                                                          proaches used by Yin et al. (2023); Chen et al.
+A.2 Termination percent                                   (2023); Becker (2024) and ensures a 95% confi-
+The data in Table 2 shows the number of turns             dence level with a 5% margin of error:
+that are needed for each decision protocol to reach
+a final decision for the MMLU dataset. Most of                              Z 2 · p · (1 − p)
+                                                                        n0 =                  ,
+the voting decision protocols are able to vote for                                  d2
+a final answer already in the first round in which          where Z = 1.96, p = 0.5, and d = 0.05
+they are allowed to vote. Simple voting has the           (Thompson, 2012). For finite datasets, a finite pop-
+                                                     11651
+                                                                    Pro           PQA                   AD         2.0            gyQA              R
+                                                cd             =|                    dl                      Ore                      d         q
+
+
+                                         72.7 208         57.5 30.7               45.2 42.0             69.5 40.8              76.6 42.3   63.2412
+                                         75.5 40.8        60.8 +1.0               45.9 21.5             68.0 1.4               78.2 41.0   66.8 +1.6
+                                         75.5413          56.5454                 45.7 40.3             69.5 40.5              81.2414     59.3 33.0
+                                         73.3419          54.3 40.9               44.2 42.1             70.6 41.1              80.3 +1.0   59.5 40.5
+                                         72.5319          53.0 10.4               43.9 43.1             69.7 41.1              80.0 +0.8   60.0 21.7
+                                           0)              °                              6              4               0     A6.4        AQ
+
+                                         73.8217          54.6 22.2               44.6 +1.8             69.9 40.9              80.5 40.7   59.6 41.7
+                                         74.0214          57.3 43.0               43.7 41.0             58.2 +10               80.1 +0.3   61.3 333
+                                         71.9 +12         57.0 41.7               46.6 +0.8             54.3219                80.313      60.2 +0.3
+                                         72.2324          57.3415                 45.3 42.5             56.7 42.2              78.1 42.3   61.3 10.8
+                                         72.7 47          57.2421                 45.2414               56.4 41.7              79,5 41.3   60.9 41.5
+
+Figure 11: Task performance±std for seven decision protocols (voting and consensus-based) on six tasks (knowledge
+and reasoning) based on agents with Llama 70B. Bold indicates the highest results per dataset. Standard deviation
+for three runs.
+
+               Group            Turn 1          Turn 2   Turn 3             Turn 4            Turn 55        Task Performance Score
+               Voting            0.00%           0.00%   99.33%             0.50%              0.17%                         53.3 ± 1.8
+               Cumulative        0.00%           0.00%   94.00%             5.50%              0.50%                         52.6 ± 4.0
+               Ranked            0.00%           0.00%   91.17%             7.83%              1.00%                         49.2 ± 1.5
+               Approval          0.00%           0.00%   26.67%            14.33%             59.00%                         43.0 ± 2.1
+               Majority         80.00%          13.67%    4.83%             1.00%             0.50%                          53.2 ± 2.5
+               Supermaj.        79.33%          14.33%    4.83%             1.00%             0.50%                          54.6 ± 3.6
+               Unanimity        59.50%          21.67%   12.67%             3.50%             2.67%                          54.2 ± 1.0
+
+Table 2: Number of rounds needed for each decision protocol to reach a final decision for the MMLU dataset with
+Llama 3 8B.
+
+
+ulation correction is applied:                                                C.1             Architecture Overview
+                                n0
+                      n=               ,                                      To better understand the different modules, we take
+                             1 + n0N−1
+                                                                              a closer look at each component and what role
+                                                                              it plays in creating multi-agent discussions. An
+   where N is the total number of samples in each                             overview can be found in Figure 12 as it provides
+dataset (Cochran, 1953). The specific sample sizes                            an example workflow for the framework and how
+reflecting this calculation are listed in Table 3.                            a discussion is created. The discussion starts with
+                                                                              generating personas relevant to the given task and
+B.2     Repeatability
+                                                                              assigning them to the participating agents. The per-
+Each dataset was tested three times to obtain a                               sonas are generated using the same LLM which is
+standard deviation of the results (Reimers and                                later used for the agents. After that the agents start
+Gurevych, 2017; Chen et al., 2023; Becker, 2024),                             to generate solutions and improve the suggestions
+ensuring reliable and robust performance estimates                            from the other agents. The turn order of the agents
+across multiple evaluations.                                                  is defined by the discussion paradigm. This also de-
+                                                                              fines which answers are visible to other agents and
+C       Multi-Agent Framework                                                 who can talk to whom. The response generator de-
+For our experiments, we use the Multi-Agent Large                             fines how an agent receives the other answers and
+Language Models (MALLM) framework7 .                                          also the way it responds. After a certain number
+    5
+                                                                              of rounds or when enough agents agree, a decision
+     In this round, the discussion is terminated.                             protocol is used to select the best answer either via
+    6
+     Approval Voting is left out as it consistently fails to reach
+a voting decision as described in Section 4.1.                                voting or just by looking for a certain consensus
+   7
+     Available here: github.com/Multi-Agent-LLMs/mallm                        threshold. If the decision protocol fails, for exam-
+                                                                          11652
+           Dataset         Description                                       Samples     Eval-Samples
+             Knowledge-based
+           MMLU            Massive Multitask Language Understanding            14,042          375 (x3)
+                           benchmark covering 57 subjects
+           MMLU Pro        Professional-level extension of MMLU with           12,032          374 (x3)
+                           advanced questions
+           GPQA            Challenging dataset of multiple-choice ques-           546          250 (x3)
+                           tions written by domain experts in biology,
+                           physics, and chemistry
+             Reasoning-based
+           StrategyQA      Dataset of questions requiring implicit multi-       2,289          330 (x3)
+                           hop reasoning
+           MuSR            Logic reasoning for solving murder mystery             250          152 (x3)
+                           stories
+           SQuAD 2.0       Stanford QA Dataset with answerable and             11,873          373 (x3)
+                           unanswerable questions
+
+Table 3: All datasets used for evaluation with a short description, number of samples in the test set, and number of
+samples used in this study. The datasets are divided into knowledge-based tasks and reasoning-based tasks.
+
+
+ple, due to a tied vote, the discussion continues           able as possible. The researcher has the possibility
+for another round. In the framework a parameter             to change the default behavior (neutral answers),
+can be defined to terminate discussions after a cer-        for example, by prompting the agent to be more
+tain number of rounds to make sure they do not              critical or changing the way the discussion history
+communicate forever.                                        is presented. The system prompt for the agent’s
+                                                            persona can also be adjusted. MALLM already has
+Agent Personalities. The first step of the dis-             many different built-in response generators. The
+cussion is the generation of agent personas. Each           ones relevant for this work are the following.
+of the agents participating in the discussion has
+a certain persona assigned to them. This can un-               • Free Text is the most basic form of the agent
+lock more knowledge for the LLM on a specific                    prompt. Each agent gets a predefined number
+topic (Kim et al., 2024). To get the best results,               of discussion history rounds as memory. The
+we want as diverse personas as possible while still              prompt language is neutral, and the task is
+maintaining them to be relevant to the task. The                 presented each round to mitigate the potential
+default setting for the framework is to prompt a                 drift from the topic of the discussion (Becker,
+LLM and ask for a persona relevant to the given                  2024). In addition, the agent is always asked
+task (Wang et al., 2024c). After each generation it              to agree or disagree with the answer of the
+also provides the generated personas to avoid dupli-             previous agent.
+cation. This way of generating personas provides a
+                                                               • Simple behaves very similar to the Free Text
+good starting point, but as this is built as a modu-
+                                                                 response generator, but the prompt is a bit
+lar component, it can be swapped out with another
+                                                                 simpler to make it easier to understand for the
+function, which, for example, generates half of the
+                                                                 LLM and reduce the context length.
+agents with this method and initializes the other
+ones as neutral agents without a persona.                      • Critical forces the agent to respond very crit-
+                                                                 ically to the previous answer and try to find
+Response Generators. Another important part                      new solutions. Some studies have shown that
+of multi-agent discussions is how each agent re-                 LLMs can show some form of sycophancy,
+sponds to the previous responses. Do we use CoT                  which is not helpful for a constructive discus-
+to improve performance, or does this result in too               sion (Sharma et al., 2023). Encouraging them
+long answers? By changing the way an agent is                    to be more critical may reduce this.
+prompted, a lot of performance can be gained or
+lost. Therefore, it is key to make this as customiz-           • Reasoning doesn’t allow the agents to com-
+                                                      11653
+                                                  Automatic Persona Generator
+
+
+                                                                                           Identified Personas
+              Identify 3 participants who will
+              contribute to solving the task...                                     Agent 1: Gustave Eiffel (Architect
+                                                                                    and designer of the Eiffel Tower)
+           Task: Answer the given question.
+         Sample: What is the height of the Eiffel                                   Agent 2: French Citizen (Lives for
+                       Tower?                                                       25 years in france)
+                Possible options are:
+             A: 101 meters, B: 41 meters,                       Persona             Agent 3: Engineer (Expertise in
+             C: 787 meters, D: 312 meters                  Assignemnt Agent         civil engineering)
+                                                                 (LLM)
+
+
+
+
+     Response Generator (Agent Prompt)                                             Discussion
+
+      System Prompt: You take part in a
+      discussion to solve a task.                                                              Message: I think that ...
+                                                                                               Solution: Option D
+      Task: Answer the given question.
+
+      Input: What is the height of the Eiffel
+      Tower? Possible options are ...
+                                                                                    Agent 1
+      Your role: Engineer (Expertise in ...)
+
+      This is the discussion to the current
+                                                                                    Memory
+      point:
+                                                                                    Protocol
+      Agent 1: I think that ...
+
+      Agent 2: I don't agree with ...
+
+      Message: I agree with Agent 1
+                 because ...                                Agent 3       Message: I don't agree with ...    Agent 2
+      Solution: Option D                                                  Solution: Option C
+
+
+
+
+                                              Decision Protocol (Cumulative Voting)
+
+              Agent 1 final answer:                    Agent 2 final answer:                Agent 3 final answer:
+
+        I think option D solves the problem       Option C sound for me the most       My final answer is option D with
+        the best.                                 feasible.                            312 meters.
+
+                 Voting Points:                          Voting Points:                       Voting Points:
+        Agent 1: 10                               Agent 1: 4                           Agent 1: 7
+        Agent 2: 7                                Agent 2: 1                           Agent 2: 11
+        Agent 3: 3                                Agent 3: 5                           Agent 3: 1
+
+
+                            Agent 1 wins the voting. The final solution is Option D (312 meters).
+
+
+
+
+Figure 12: Example multi-agent discussion conducted in the MALLM framework. It showcases the functionality of
+the four modules and how they work together to get an improved final solution.
+
+
+
+
+                                                             11654
+       municate their final solution with the other                                • Debate is similar to the report paradigm, as it
+       agents. They can only share reasoning that                                    also needs a moderator. Here, the other agents
+       can be used to find a final solution. In the                                  can communicate for a predefined number of
+       end, each agent has to come up with its own                                   rounds before they forward their reasoning
+       solution without being directly influenced by                                 to the moderator agent, which starts the next
+       other agents.                                                                 round of debate.
+
+Discussion Paradigms. These paradigms define                                       • Collective Refinement In this protocol, each
+the discussion format for the entire task. They can                                  agent first generates an answer independently.
+control the order in which the agents communicate                                    In each subsequent round, every agent re-
+with each other, and which answers are visible only                                  ceives the responses from all other agents at
+to certain agents. Currently, all the built-in dis-                                  the same time. Using this shared information,
+cussion paradigms are static, meaning that the turn                                  each agent refines their own answer. This pro-
+order is predefined and cannot be changed based on                                   cess continues throughout the rounds, help-
+specific events during the discussion. However, due                                  ing agents gradually reach a shared and im-
+to the modular nature of MALLM, a new discus-                                        proved solution. There is no turn order, and
+sion paradigm can be added, for example using an                                     all agents have the same level of knowledge
+LLM as a moderator to dynamically decide which                                       in each round.
+agent should respond next. Current research by Yin
+et al. (2023) and Becker (2024) shows that discus-                            Decision Protocols. These are crucial for the
+sion protocols have little impact on downstream                               framework as they decide which answer gets pre-
+task performance. MALLM includes the follow-                                  sented as the final answer to the problem. Multi-
+ing discussion paradigms, which are illustrated in                            agent discussions produce multiple results for the
+Figure 13. The first four paragdims are inspired by                           same problem because each agent has its own rea-
+the work of Yin et al. (2023), while the fifth was                            soning and ideas on how to solve the problem.
+developed as part of this work.                                               Therefore, some process is needed to decide which
+                                                                              answer looks the most promising. We divide these
+                                                           Collective
+                                                                              decision protocols into three subtypes that we want
+  Memory         Relay          Report         Debate                         to analyze. An overview of how each of these de-
+                                                           Refinement
+  a1        a2   a1        a2        a1           a1        a1   a2   a3      cision protocols works theoretically can be found
+                                                                              in Figure 1 and all prompts used for them can be
+       a3             a3        a2        a3   a2 (x) a3    a1   a2   a3
+                                                                              found in Appendix E.
+Figure 13: Illustration of Discussion Paradigms avail-
+                                                                                Consensus Based Decision Protocols. These
+able for use in MALLM
+                                                                              are the simplest kinds of decision protocols. After
+                                                                              each answer, the next agent has to agree or disagree
+   • Memory is the most basic discussion                                      with the previous statement. Depending on the re-
+     paradigm. The agents respond to the solu-                                sponse generator, this happens in the same message,
+     tion of the previous agents with feedback or                             and the agreement is extracted with a regular ex-
+     an improved solution. All answers are visible                            pression, or this is split into multiple answers. If
+     to the other agents.                                                     enough agents agree in order, there is a consensus.
+                                                                              The final answer is extracted by instructing the last
+   • Relay behaves similarly to the memory                                    agent to solve the given task with the information
+     paradigm. The turn order is the same, but                                available in the latest messages. The prompt used
+     each agent can only see the answer from the                              for this can be found in Appendix E.1. There are
+     previous agent.                                                          several types of consensus decision protocols avail-
+                                                                              able in MALLM. Majority consensus requires
+   • Report introduces one agent as a moderator                               50% of the agents to agree. Supermajority con-
+     that can communicate with other agents. The                              sensus requires 66% of the agents to agree, and
+     other agents can only communicate with the                               unanimity consensus requires all agents to agree.
+     moderator and have access to these messages
+     only. Only the moderator can see all mes-                                  Voting Based Decision Protocols. For vot-
+     sages.                                                                   ing based decision protocols, the process differs
+                                                                           11655
+                Decision Protocol            MMLU        MMLU-Pro      GPQA        StrategyQA
+                Baseline
+                  Solution Counting         53.6 ± 2.8   33.0 ± 3.5   28.6 ± 2.8   55.3 ± 1.6
+                Voting Protocols
+                  Simple Voting             53.3 ± 1.8   32.0 ± 2.7   30.5 ± 0.9   58.5 ± 0.9
+                  Ranked Voting             49.2 ± 1.5   33.1 ± 4.6   27.3 ± 3.9   56.2 ± 3.4
+                  Cumulative Voting         52.6 ± 4.0   28.3 ± 3.1   31.3 ± 2.8   61.2 ± 1.6
+                Consensus Protocols
+                  Majority Consensus        53.2 ± 2.5   36.4 ± 2.1   32.3 ± 2.9   59.9 ± 0.1
+                  Supermajority Consensus   54.6 ± 3.6   35.2 ± 3.0   30.7 ± 2.1   56.4 ± 2.1
+                  Unanimity Consensus       54.2 ± 1.0   36.3 ± 0.4   30.0 ± 2.3   58.8 ± 2.6
+
+Table 4: Comparison of solution counting with prompted decision protocols across four datasets. Performance is
+Accuracy ± std. Bold indicates the highest result per dataset.
+
+
+slightly compared to consensus-based decision pro-            the answer with the most approvals wins the
+tocols. The agents are forced to discuss for a prede-         vote.
+fined number of turns and afterward create a final
+solution. In the default setting, they have to discuss   D    Solution Counting Ablation
+for three rounds, as current research such as Du         We conducted an ablation study comparing solu-
+et al. (2023b) shows that this allows for reason-        tion counting with our prompted decision protocols
+able strong improvements considering computing           to investigate the effectiveness of simpler voting
+resources. If there happens to be a tie in the vot-      methods. Solution counting chooses the answer
+ing, the agents have to discuss it for another round,    the agents give most frequently as the final an-
+and after that, they are asked to vote again. If they    swer for evaluation. This analysis is performed
+do not reach a final decision before exceeding the       on four datasets for which direct counting of fi-
+maximum number of rounds (defined in the discus-         nal multiple-choice solutions is straightforward:
+sion configuration), the solution of the first agent     MMLU, MMLU-Pro, GPQA and StrategyQA.
+is used. To analyze the impact of the voting pro-           Table 4 summarizes these results. While solution
+cedure, different processes similar to the work of       counting is a feasible method, it generally underper-
+Yang et al. (2024b) are implemented.                     forms compared to consensus- and voting-based de-
+                                                         cision protocols. In particular, consensus methods
+   • Simple Voting Each of the agents has only           outperform solution counting on knowledge-based
+     one vote. They can vote for any other agent or      tasks (MMLU-Pro, GPQA), and voting notably
+     for themselves. The agent with the most votes       improves performance on the reasoning task (Strat-
+     wins.                                               egyQA). Thus, this ablation reinforces our main
+                                                         findings and illustrates the added value of decision
+   • Ranked Voting The agents have to rank all
+                                                         protocols.
+     final answers. The best solution is chosen by
+     adding the ranking indices for a given agent
+     and then selecting the answer with the best
+     cumulative rank.
+
+   • Cumulative Voting Each agent has to dis-
+     tribute up to 25 points to all possible answers.
+     They can also give fewer points and freely di-
+     vide the points between all agents (even them-
+     selves). The winner is selected by adding all
+     the points for a given agent and selecting the
+     final answer with the most points.
+
+   • Approval Voting The agent has to provide a
+     list of solutions that it approves. After that,
+     the approvals from all agents are counted, and
+                                                    11656
+E     Prompts
+                                                             System Prompt:
+E.1     Final Answer Extraction                              Your role:     <persona>         (<persona
+                                                             description>)
+                                                             User Prompt:
+      System Prompt:                                         You are tasked with approving any number
+      Your role:     <persona>        (<persona              of solutions from the list provided below
+      description>)                                          based on the given task.
+                                                             Task: <task>
+      User Prompt:
+                                                             Question: <input sample>
+      You are tasked with creating a final so-
+                                                             Here are the possible solutions:
+      lution based on the given input and your
+                                                             Solution 1: <agent 1 final answer>
+      previous response.
+                                                             Solution 2: <agent 2 final answer>
+      Task: <task>
+                                                             Solution 3: <agent 3 final answer>
+      Input: <input sample>
+                                                             Based on the above solutions, please pro-
+      Your previous response: <previous
+                                                             vide the numbers of the solutions you are
+      answer>
+                                                             approving, separated by commas. Answer
+      Extract the final solution to the task from
+                                                             only with the numbers.
+      the provided text. Remove statements
+      of agreement, disagreement, and expla-
+      nations. Do not modify the text. Do not
+                                                          Figure 17: Prompt used to get a vote from each agent
+      output any text besides the solution. If            for the Approval Voting decision protocol.
+      there is no solution provided, just copy the
+      previous response.
+
+
+Figure 15: Prompt used to extract the final answer of a
+given agent from its previous response.
+                                                             System Prompt:
+E.2     Voting Prompts                                       Your role:     <persona>         (<persona
+                                                             description>)
+                                                             User Prompt:
+      System Prompt:                                         You are tasked with distributing 10 points
+      Your role:     <persona>        (<persona              among the provided solutions based on the
+      description>)                                          given task.
+      User Prompt:                                           Task: <task>
+      You are tasked with voting for the best so-            Question: <input sample>
+      lution from the list provided below based              Here are the possible solutions:
+      on the given task.                                     Solution 1: <agent 1 final answer>
+      Task: <task>                                           Solution 2: <agent 2 final answer>
+      Question: <input sample>                               Solution 3: <agent 3 final answer>
+      Here are the possible solutions:                       Based on the above solutions, please dis-
+      Solution 1: <agent 1 final answer>                     tribute 10 points among the solutions. Pro-
+      Solution 2: <agent 2 final answer>                     vide your points allocation as a JSON dic-
+      Solution 3: <agent 3 final answer>                     tionary where keys are solution numbers
+      Based on the above solutions, please pro-              (as int) and values are the points. The total
+      vide the number of the solution you are                points should sum up to 10. Answer only
+      voting for. Answer only with the number.               with the JSON dictionary.
+
+
+Figure 16: Prompt used to get a vote from each agent      Figure 18: Prompt used to get a vote from each agent
+for the Simple Voting decision protocol.                  for the Cumulative Voting decision protocol.
+
+                                                     11657
+      System Prompt:                                        System Prompt:
+      Your role:     <persona>       (<persona              You are a participant in a group discus-
+      description>)                                         sion.
+      User Prompt:                                          Your role:      <persona> (<persona
+      You are tasked with ranking the solutions             description>)
+      from the most preferred to the least pre-             User Prompt:
+      ferred based on the given task.                       The task is: <task>. The question is:
+      Task: <task>                                          <question>.
+      Question: <input sample>                              This is the final answer generated by the
+      Here are the possible solutions:                      discussion: <final_answer>.
+      Solution 1: <agent 1 final answer>                    You dont agree with the final answer.
+      Solution 2: <agent 2 final answer>                    Please provide a new answer to the ques-
+      Solution 3: <agent 3 final answer>                    tion. Include the letter corresponding to
+      Based on the above solutions, please pro-             your answer in the solution.
+      vide the rankings of the solutions sepa-
+      rated by spaces. Example: ’0 2 1’ if you
+      prefer Solution 0 the most, then Solution         Figure 21: Prompt used to generate a new answer in
+      2, and finally Solution 1. Provide up to 5        case the final answer got challenged.
+      rankings. Only answer with the rankings.
+
+
+Figure 19: Prompt used to get a vote from each agent
+for the Ranked Voting decision protocol.
+
+
+
+
+E.3     Challenge Prompt
+
+
+
+
+      System Prompt:
+      You are a participant in a group discus-
+      sion.
+      Your role:      <persona> (<persona
+      description>)
+      User Prompt:
+      The task is: <task>. The question is:
+      <question>.
+      This is the final answer generated by the
+      discussion: <final_answer>.
+      Please critically evaluate this answer. If
+      you agree with the final answer, respond
+      with the exact word ’AGREE’ to confirm.
+      If you do not agree, respond with the ex-
+      act word ’DISAGREE’ to challenge the
+      answer.
+
+
+Figure 20: Prompt used to challenge the final answer.
+
+                                                    11658
+F   MALLM Setup
+
+input_json_file_path: str = None
+output_json_file_path: str = None
+task_instruction_prompt: str = None
+task_instruction_prompt_template: Optional[str] = None
+endpoint_url: str = "https://api.openai.com/v1"
+model_name: str = "gpt-3.5-turbo"
+api_key: str = "-"
+max_turns: int = 10
+skip_decision_making: bool = False
+discussion_paradigm: str = "memory"
+response_generator: str = "simple"
+decision_protocol: str = "hybrid_consensus"
+visible_turns_in_memory: int = 2
+debate_rounds: int = 2
+concurrent_api_requests: int = 100
+use_baseline: bool = False
+use_chain_of_thought: bool = True
+num_agents: int = 3
+num_neutral_agents: int = 0
+agent_generator: str = "expert"
+agent_generators_list: list = []
+trust_remote_code: bool = False
+num_samples: Optional[int] = None
+hf_dataset_split: Optional[str] = "test"
+hf_token: Optional[str] = None
+hf_dataset_version: Optional[str] = None
+hf_dataset_input_column: Optional[str] = None
+hf_dataset_reference_column: Optional[str] = None
+hf_dataset_context_column: Optional[str] = None
+use_ablation: bool = False
+shuffle_input_samples: bool = False
+all_agents_generate_first_draft: bool = False
+all_agents_generate_draft: bool = False
+policy: Optional[str] = None
+voting_protocols_with_alterations: bool = False
+calculate_persona_diversity: bool = False
+
+                         Listing 1: Default Parameters used for each experiment
+
+
+
+
+                                                11659
+G    Example Discussions
+
+G.1 Successfull Voting Discussion
+
+All decision protocols are attached as an example to this discussion. The original discussion was created
+using simple voting.
+
+
+
+    Overview
+    Task: Answer the following question. If the question is not answerable with the provided
+    information, write ’[UNKNOWN]’.
+    Input: What choir from the area has sung at the Guildhall?
+    Context: Southampton has two large live music venues, the Mayflower Theatre (formerly the
+    Gaumont Theatre) and the Guildhall. The Guildhall has seen concerts from a wide range of popular
+    artists including Pink Floyd, David Bowie, Delirious?, Manic Street Preachers, The Killers, The
+    Kaiser Chiefs, Amy Winehouse, Lostprophets, The Midnight Beast, Modestep, and All Time
+    Low. It also hosts classical concerts presented by the Bournemouth Symphony Orchestra, City of
+    Southampton Orchestra, Southampton Concert Orchestra, Southampton Philharmonic Choir and
+    Southampton Choral Society.
+
+       MALLM solution: Southampton Philharmonic Choir
+       Real solution: Southampton Philharmonic Choir
+
+
+
+    Turn 1
+
+       Music Connoisseur                             A knowledgeable musician who is familiar with various music genres and has attended concerts at the Guildhall.
+
+
+       Based on the information provided, I propose the following solution: Southampton Philhar-
+       monic Choir. The text states: "It also hosts classical concerts presented by the Bournemouth
+       Symphony Orchestra, City of Southampton Orchestra, Southampton Concert Orchestra,
+       Southampton Philharmonic Choir and Southampton Choral Society." This suggests that the
+       Southampton Philharmonic Choir is one of the choirs that has performed at the Guildhall,
+       as it is mentioned alongside the other organizations that host classical concerts at the venue.
+
+       Choir Conductor A dedicated choral conductor with extensive experience in leading local choirs and orchestras, familiar with the performances at the
+       Guildhall.
+
+
+       [AGREE] I agree with the current solution that the Southampton Philharmonic Choir has
+       sung at the Guildhall. The text explicitly mentions it as one of the organizations that hosts
+       classical concerts at the Guildhall, which indicates that the choir has performed at the
+       venue.
+
+       Music Journalist A music enthusiast who has written articles and reviews about various concerts and events at the Guildhall, including performances
+       by local choirs.
+
+
+       [AGREE] I completely agree with the current solution. The text explicitly mentions the
+       Southampton Philharmonic Choir as one of the organizations that hosts classical concerts
+       at the Guildhall, making it the most likely choice.
+
+
+
+
+                                                                             11660
+Turn 2
+
+   Music Connoisseur                             A knowledgeable musician who is familiar with various music genres and has attended concerts at the Guildhall.
+
+
+   [AGREE] I’m in agreement with the current solution, as the text explicitly mentions the
+   Southampton Philharmonic Choir as one of the organizations that hosts classical concerts
+   at the Guildhall. This makes it the most likely candidate to have sung at the venue.
+
+   Choir Conductor A dedicated choral conductor with extensive experience in leading local choirs and orchestras, familiar with the performances at the
+   Guildhall.
+
+
+   [AGREE] I agree with the current solution that the Southampton Philharmonic Choir has
+   sung at the Guildhall. The text explicitly mentions it as one of the organizations that hosts
+   classical concerts at the Guildhall, which indicates that the choir has performed at the
+   venue.
+
+   Music Journalist A music enthusiast who has written articles and reviews about various concerts and events at the Guildhall, including performances
+   by local choirs.
+
+
+   [AGREE] I completely agree with the current solution. The text explicitly mentions the
+   Southampton Philharmonic Choir as one of the organizations that hosts classical concerts
+   at the Guildhall, making it the most likely choice.
+
+
+
+
+Turn 3
+
+   Music Connoisseur                             A knowledgeable musician who is familiar with various music genres and has attended concerts at the Guildhall.
+
+
+   [AGREE] I agree with the current solution and the assessment that there is no need to
+   improve it. The text provides explicit evidence that the Southampton Philharmonic Choir
+   hosts classical concerts at the Guildhall, making it the most likely correct answer.
+
+   Choir Conductor A dedicated choral conductor with extensive experience in leading local choirs and orchestras, familiar with the performances at the
+   Guildhall.
+
+
+   [AGREE] I agree with the current solution that the Southampton Philharmonic Choir has
+   sung at the Guildhall. The text explicitly mentions it as one of the organizations that hosts
+   classical concerts at the Guildhall, which indicates that the choir has performed at the
+   venue.
+
+   Music Journalist A music enthusiast who has written articles and reviews about various concerts and events at the Guildhall, including performances
+   by local choirs.
+
+
+   [AGREE] I completely agree with the current solution. The text explicitly mentions the
+   Southampton Philharmonic Choir as one of the organizations that hosts classical concerts
+   at the Guildhall, making it the most likely choice.
+
+
+                                                                         11661
+Result Simple Voting
+
+Music Connoisseur final answer: Southampton Philharmonic Choir
+Choir Conductor final answer: Southampton Choral Society
+Music Journalist final answer: Southampton Philharmonic Choir
+
+Music Connoisseur voted for answer from Music Journalist
+Choir Conductor voted for answer from Music Journalist
+Music Journalist voted for answer from Music Journalist
+
+
+
+
+Result Approval Voting
+
+Music Critic final answer: Southampton Philharmonic Choir
+Local Music Event Coordinator final answer: Southampton Choral Society and Southampton
+Philharmonic Choir
+Information Architect final answer: Southampton Philharmonic Choir
+Southampton Choral Society
+
+Music Critic approved answers from Information Architect, Music Critic
+Local Music Event Coordinator approved answers from Information Architect
+Information Architect approved answers from Information Architect
+
+
+
+
+Result Cumulative Voting
+
+Local Music Enthusiast final answer: Southampton Choral Society
+Southampton Philharmonic Choir
+Archivist final answer: Southampton Philharmonic Choir
+Southampton Choral Society
+Music Journalist final answer: Southampton Philharmonic Choir and Southampton Choral
+Society
+
+Local Music Enthusiast allocated points:
+Archivist: 9
+Music Journalist: 1
+
+Archivist allocated points:
+Local Music Enthusiast: 2
+Archivist: 4
+Music Journalist: 4
+
+Music Journalist allocated points:
+Local Music Enthusiast: 1
+Archivist: 2
+Music Journalist: 7
+
+                                           11662
+Result Ranked Voting
+
+Music Journalist final answer: Southampton Philharmonic Choir and Southampton Choral
+Society.
+Local Music Expert final answer: Southampton Philharmonic Choir and Southampton Choral
+Society
+Concert Promoter final answer: Southampton Philharmonic Choir and Southampton Choral
+Society
+
+Music Journalist ranked answers:
+1. Music Journalist
+2. Local Music Expert
+3. Concert Promoter
+
+Local Music Expert ranked answers:
+1. Music Journalist
+2. Local Music Expert
+3. Concert Promoter
+
+Concert Promoter ranked answers:
+1. Music Journalist
+2. Local Music Expert
+3. Concert Promoter
+
+
+
+
+                                        11663
+G.2 Agents Tricked Discussion
+
+In this discussion, the agents were tricked by information provided in the context.
+
+
+
+   Overview
+   Task: Answer the following question. If the question is not answerable with the provided
+   information, write ’[UNKNOWN]’.
+   Input: What provides critical support for drug discovery and the availability of economic re-
+   sources?
+   Context: Biodiversity provides critical support for drug discovery and the availability of medicinal
+   resources. A significant proportion of drugs are derived, directly or indirectly, from biological
+   sources: at least 50% of the pharmaceutical compounds on the US market are derived from plants,
+   animals, and micro-organisms, while about 80% of the world population depends on medicines
+   from nature (used in either modern or traditional medical practice) for primary healthcare. Only a
+   tiny fraction of wild species has been investigated for medical potential. Biodiversity has been
+   critical to advances throughout the field of bionics. Evidence from analysis and biodiversity
+   science indicates that the decline in output from the pharmaceutical sector since the mid-1980s
+   can be attributed to a move away from natural product exploration ("bioprospecting") in favor of
+   genomics and synthetic chemistry, indeed claims about the value of undiscovered pharmaceuticals
+   may not provide enough incentive for companies in free markets to search for them because
+   of the high cost of development; meanwhile, natural products have a long history of supporting
+   significant economic and health innovation. Marine ecosystems are particularly important, although
+   inappropriate bioprospecting can increase biodiversity loss, as well as violating the laws of the
+   communities and states from which the resources are taken.
+
+       MALLM solution: Biodiversity provides critical support for drug discovery and the
+       availability of economic resources.
+       Real solution: Not included in context!
+
+
+
+   Turn 1
+
+       Economist A researcher who studies the impact of biodiversity on economic systems, with expertise in market analysis and the economic benefits of natural
+       resources.
+
+
+       As an economist, I’d like to propose a solution that addresses the decline in output from
+       the pharmaceutical sector since the mid-1980s and leverages the untapped potential of
+       biodiversity for drug discovery and economic innovation. Here’s a multi-faceted approach:
+       **Solution:** Establish a Public-Private Partnership (PPP) to incentivize the exploration
+       and development of natural products for pharmaceuticals, while ensuring responsible and
+       sustainable bioprospecting practices.
+
+       Ethnobotanist                    A scientist who studies the traditional uses of plants by indigenous communities and their potential for medicinal applications, with
+       expertise in deciphering the cultural and historical context of natural resources.
+
+
+       As an ethnobotanist, I agree with the current solution in principle. The Public-Private Part-
+       nership (PPP) framework has the potential to bring together the necessary stakeholders and
+       incentivize the exploration and development of natural products for pharmaceuticals while
+       ensuring responsible and sustainable bioprospecting practices. The multistep approach
+       outlined is comprehensive and addresses various aspects of the issue.
+
+
+                                                                                    11664
+   Research Biologist A scientist who studies the properties and potential applications of natural products from a wide range of living organisms, with
+   expertise in the discovery and development of new medicines from biodiversity sources.
+
+
+   I, as a Research Biologist, AGREE with the current solution and the additional sugges-
+   tions proposed by the Ethnobotanist. The Public-Private Partnership (PPP) framework
+   is a well-rounded approach that addresses the decline in output from the pharmaceutical
+   sector by providing a framework for responsible and sustainable bioprospecting, while
+   promoting economic innovation and job creation. I particularly appreciate the emphasis
+   on community engagement and empowerment, benefit-sharing agreements, traditional
+   knowledge protection, and capacity building for ecosystem-based medicine.
+
+
+
+
+Turn 2
+
+   Economist A researcher who studies the impact of biodiversity on economic systems, with expertise in market analysis and the economic benefits of natural
+   resources.
+
+
+  The current solution has been improved with additional considerations from the ethnob-
+  otanist and research biologist. I notice that the additional suggestions enhance the com-
+  prehensive approach, addressing community engagement, benefit-sharing, and traditional
+  knowledge protection.
+
+   Ethnobotanist                    A scientist who studies the traditional uses of plants by indigenous communities and their potential for medicinal applications, with
+   expertise in deciphering the cultural and historical context of natural resources.
+
+
+  As an ethnobotanist, I agree with the current solution in principle. The Public-Private Part-
+  nership (PPP) framework has the potential to bring together the necessary stakeholders and
+  incentivize the exploration and development of natural products for pharmaceuticals while
+  ensuring responsible and sustainable bioprospecting practices. The multistep approach
+  outlined is comprehensive and addresses various aspects of the issue.
+
+   Research Biologist A scientist who studies the properties and potential applications of natural products from a wide range of living organisms, with
+   expertise in the discovery and development of new medicines from biodiversity sources.
+
+
+  I, as a Research Biologist, AGREE with the current solution and the additional suggestions
+  proposed by the Ethnobotanist. The Public-Private Partnership (PPP) framework is a well-
+  rounded approach that addresses the decline in output from the pharmaceutical sector by
+  providing a framework for responsible and sustainable bioprospecting, while promoting
+  economic innovation and job creation. I particularly appreciate the emphasis on commu-
+  nity engagement and empowerment, benefit-sharing agreements, traditional knowledge
+  protection, and capacity building for ecosystem-based medicine. These considerations
+  will ensure that local communities are involved in the decision-making process, receive
+  fair compensation for their involvement, and that their traditional knowledge and cultural
+  heritage are respected.
+
+
+
+
+                                                                                11665
+Turn 3
+
+   Economist A researcher who studies the impact of biodiversity on economic systems, with expertise in market analysis and the economic benefits of natural
+   resources.
+
+
+   [AGREE] The revised solution has effectively incorporated the suggestions from the
+   ethnobotanist and research biologist, addressing community engagement, benefit-sharing,
+   traditional knowledge protection, and other crucial aspects of bioprospecting. The emphasis
+   on responsible and sustainable bioprospecting ensures that the development of novel
+   pharmaceuticals benefits both humans and the environment. To further refine the solution, I
+   agree with the research biologist’s suggestion to develop a clear and measurable framework
+   for assessing the impact of the Public-Private Partnership (PPP) on the pharmaceutical sector,
+   local communities, and the environment. Establishing Key Performance Indicators (KPIs)
+   and a monitoring and evaluation process will help ensure that the PPP is held accountable
+   for its impact and remains a responsible and effective approach to bioprospecting.
+
+   Ethnobotanist                    A scientist who studies the traditional uses of plants by indigenous communities and their potential for medicinal applications, with
+   expertise in deciphering the cultural and historical context of natural resources.
+
+
+   As an ethnobotanist, I agree with the current solution in principle. The Public-Private Part-
+   nership (PPP) framework has the potential to bring together the necessary stakeholders and
+   incentivize the exploration and development of natural products for pharmaceuticals while
+   ensuring responsible and sustainable bioprospecting practices. The multistep approach
+   outlined is comprehensive and addresses various aspects of the issue.
+
+   Research Biologist A scientist who studies the properties and potential applications of natural products from a wide range of living organisms, with
+   expertise in the discovery and development of new medicines from biodiversity sources.
+
+
+   I, as a Research Biologist, AGREE with the current solution and the additional suggestions
+   proposed by the Ethnobotanist. The Public-Private Partnership (PPP) framework is a well-
+   rounded approach that addresses the decline in output from the pharmaceutical sector by
+   providing a framework for responsible and sustainable bioprospecting, while promoting
+   economic innovation and job creation. I particularly appreciate the emphasis on commu-
+   nity engagement and empowerment, benefit-sharing agreements, traditional knowledge
+   protection, and capacity building for ecosystem-based medicine. These considerations
+   will ensure that local communities are involved in the decision-making process, receive
+   fair compensation for their involvement, and that their traditional knowledge and cultural
+   heritage are respected.
+
+
+Result
+Economist final answer: Biodiversity
+Ethnobotanist final answer: Biodiversity provides critical support for drug discovery and the
+availability of economic resources.
+Research Biologist final answer: Biodiversity
+
+Economist voted for answer from Ethnobotanist
+Ethnobotanist voted for answer from Ethnobotanist
+Research Biologist voted for answer from Ethnobotanist
+
+
+
+
+                                                                                11666
+G.3 Bad Voting Discussion
+
+
+
+In this discussion, the agents were tricked by one agent who came up with a solution not provided in the
+context.
+
+
+
+
+   Overview
+   Task: Answer the following question. If the question is not answerable with the provided
+   information, write ’[UNKNOWN]’.
+   Input: Where must enclitics appear in an English sentence?
+   Context: Because Czech uses grammatical case to convey word function in a sentence (instead
+   of relying on word order, as English does), its word order is flexible. As a pro-drop language, in
+   Czech an intransitive sentence can consist of only a verb; information about its subject is encoded
+   in the verb. Enclitics (primarily auxiliary verbs and pronouns) must appear in the second slot of a
+   sentence, after the first stressed unit. The first slot must contain a subject and object, a main form
+   of a verb, an adverb or a conjunction (except for the light conjunctions a, "and", i, "and even" or
+   ale, "but").
+
+       MALLM solution: C) In an English sentence, enclitics (auxiliary verbs and pronouns)
+       tend to appear next to the main verb, usually before any other adverbs or modifiers, but
+       their placement can vary depending on sentence structure and context.
+       Real solution: Not included in context!
+
+
+
+
+   Turn 1
+
+       Linguist                          A scholar specializing in Slavic languages, experienced in analyzing the grammatical structures of Czech and other languages.
+
+
+       As a linguist, I’d like to analyze the information given about Czech grammar. We know that
+       in Czech, enclitics (auxiliary verbs and pronouns) must appear in the second syntactic slot
+       of a sentence, after the first stressed unit. Now, we’re trying to apply this rule to an English
+       sentence. English does not have a similar grammatical case system, and its word order is
+       more fixed than Czech. However, we can try to find a rough equivalent. So, my proposed
+       solution is that in an English sentence, enclitics (auxiliary verbs and pronouns) tend to
+       appear next to the main verb, and usually before any other adverbs or modifiers. What do
+       you think? Would you like to refine this proposal or add any additional considerations?
+
+       English Language Teacher An expert in teaching English grammar and language structures, familiar with the challenges of translating and
+       comparing languages like Czech.
+
+
+       [DISAGREE] While I understand the thought process behind the proposed solution, I think
+       it’s essential to consider the unique characteristics of the English language. The idea that
+       enclitics in English tend to appear next to the main verb is accurate, but it’s not as rigid
+       as the rule in Czech. In Czech, enclitics must appear in the second syntactic slot, which
+       implies a more fixed position, whereas in English, the placement of auxiliary verbs and
+       pronouns can vary depending on sentence structure and context.
+
+
+                                                                               11667
+   Grammar Analyst A meticulous researcher who has studied the intricacies of languages and their grammatical structures, with a focus on comparing
+   and contrasting language features.
+
+
+   I agree with the English Language Teacher’s revised solution. The initial proposal tried to
+   apply the Czech rule to English, but the English language has its unique characteristics that
+   require a more nuanced approach. The revised solution accurately captures the flexibility
+   of English grammar, acknowledging that the placement of enclitics can vary depending on
+   sentence structure and context.
+
+
+
+
+Turn 2
+
+   Linguist                             A scholar specializing in Slavic languages, experienced in analyzing the grammatical structures of Czech and other languages.
+
+
+   I agree with the revised solution proposed by the English Language Teacher and the
+   Grammar Analyst. The revised solution accurately captures the flexibility of English
+   grammar and acknowledges that the placement of enclitics (auxiliary verbs and pronouns)
+   can vary depending on sentence structure and context. * The placement of enclitics in
+   English is not as rigid as in Czech, and their placement can vary depending on sentence
+   structure and context. * English sentence structure is more complex, including indirect
+   objects, passives, and compound verb forms, which can affect the placement of auxiliary
+   verbs and pronouns.
+
+   English Language Teacher An expert in teaching English grammar and language structures, familiar with the challenges of translating and
+   comparing languages like Czech.
+
+
+  While I understand the thought process behind the proposed solution, I think it’s essential
+  to consider the unique characteristics of the English language. The idea that enclitics in
+  English tend to appear next to the main verb is accurate, but it’s not as rigid as the rule in
+  Czech. In Czech, enclitics must appear in the second syntactic slot, which implies a more
+  fixed position, whereas in English, the placement of auxiliary verbs and pronouns can vary
+  depending on sentence structure and context. Additionally, the provided examples, while
+  correct in themselves, don’t fully demonstrate the complexity of English sentence structure.
+  For instance, consider sentences with indirect objects, passives, or compound verb forms,
+  where the placement of auxiliary verbs and pronouns can be more nuanced.
+
+   Grammar Analyst A meticulous researcher who has studied the intricacies of languages and their grammatical structures, with a focus on comparing
+   and contrasting language features.
+
+
+   I agree with the English Language Teacher’s revised solution. The initial proposal tried to
+   apply the Czech rule to English, but the English language has its unique characteristics that
+   require a more nuanced approach. The revised solution accurately captures the flexibility
+   of English grammar, acknowledging that the placement of enclitics can vary depending
+   on sentence structure and context. C) In an English sentence, enclitics (auxiliary verbs
+   and pronouns) tend to appear next to the main verb, usually before any other adverbs or
+   modifiers, but their placement can vary depending on sentence structure and context. I
+   believe this revised solution provides a more accurate and practical approximation of the
+   English language’s enclitic behavior, considering both the unique characteristics of English
+   and the complexity of sentence structure.
+
+
+
+
+                                                                              11668
+Turn 3
+
+   Linguist                             A scholar specializing in Slavic languages, experienced in analyzing the grammatical structures of Czech and other languages.
+
+
+   The current solution accurately captures the flexibility of English grammar and acknowl-
+   edges that the placement of enclitics (auxiliary verbs and pronouns) can vary depending on
+   sentence structure and context. There’s no need to improve it further. The revised solution:
+   C) In an English sentence, enclitics (auxiliary verbs and pronouns) tend to appear next to
+   the main verb, usually before any other adverbs or modifiers, but their placement can vary
+   depending on sentence structure and context. is a clear and accurate representation of the
+   English language’s enclitic behavior.
+
+   English Language Teacher An expert in teaching English grammar and language structures, familiar with the challenges of translating and
+   comparing languages like Czech.
+
+
+   While I understand the thought process behind the proposed solution, I think it’s essential
+   to consider the unique characteristics of the English language. The idea that enclitics in
+   English tend to appear next to the main verb is accurate, but it’s not as rigid as the rule in
+   Czech. In Czech, enclitics must appear in the second syntactic slot, which implies a more
+   fixed position, whereas in English, the placement of auxiliary verbs and pronouns can vary
+   depending on sentence structure and context. Here’s a revised solution: C) In an English
+   sentence, enclitics (auxiliary verbs and pronouns) tend to appear next to the main verb,
+   usually before any other adverbs or modifiers, but their placement can vary depending on
+   sentence structure and context. What do you think?
+
+   Grammar Analyst A meticulous researcher who has studied the intricacies of languages and their grammatical structures, with a focus on comparing
+   and contrasting language features.
+
+
+   I agree with the English Language Teacher’s revised solution. The initial proposal tried to
+   apply the Czech rule to English, but the English language has its unique characteristics that
+   require a more nuanced approach. The revised solution accurately captures the flexibility
+   of English grammar, acknowledging that the placement of enclitics can vary depending on
+   sentence structure and context. The revised solution is an improvement over the initial pro-
+   posal because it takes into account the complexity of English sentence structure, including
+   indirect objects, passives, and compound verb forms, which can affect the placement of
+   auxiliary verbs and pronouns. Additionally, the revised solution provides a more accurate
+   description of the typical placement of enclitics in English sentences, namely next to the
+   main verb, usually before any adverbs or modifiers.
+
+
+Result
+Linguist final answer: C) In an English sentence, enclitics (auxiliary verbs and pronouns) tend to
+appear next to the main verb, usually before any other adverbs or modifiers, but their placement
+can vary depending on sentence structure and context.
+English Language Teacher final answer: [UNKNOWN]
+Grammar Analyst final answer: [UNKNOWN]
+
+Linguist voted for answer from Linguist
+English Language Teacher voted for answer from Linguist
+Grammar Analyst voted for answer from Linguist
+
+
+
+
+                                                                              11669
+G.4 Majority Consensus Discussion
+In this discussion, the agents discussed only one round, as they already had a high enough agreement
+score.
+
+
+   Overview
+   Task: Answer the following question. If the question is not answerable with the provided
+   information, write ’[UNKNOWN]’.
+   Input: What choir from the area has sung at the Guildhall?
+   Context: Southampton has two large live music venues, the Mayflower Theatre (formerly the
+   Gaumont Theatre) and the Guildhall. The Guildhall has seen concerts from a wide range of popular
+   artists including Pink Floyd, David Bowie, Delirious?, Manic Street Preachers, The Killers, The
+   Kaiser Chiefs, Amy Winehouse, Lostprophets, The Midnight Beast, Modestep, and All Time
+   Low. It also hosts classical concerts presented by the Bournemouth Symphony Orchestra, City of
+   Southampton Orchestra, Southampton Concert Orchestra, Southampton Philharmonic Choir and
+   Southampton Choral Society.
+
+      MALLM solution: Southampton Choral Society
+      Real solution: Southampton Philharmonic Choir
+
+
+   Turn 1
+
+      Music Connoisseur (SOLUTION) A knowledgeable musician who is familiar with various music genres and has attended concerts at
+      the Guildhall.
+
+
+      As a Music Historian, I’ve been through the archives and checked the event schedules of
+      the Guildhall. According to my research, one of the choirs that has sung at the Guildhall
+      is... Southampton Choral Society!
+
+      Choir Conductor (AGREED) A dedicated choral conductor with extensive experience in leading local choirs and orchestras, familiar with
+      the performances at the Guildhall.
+
+
+      [AGREE] As a Choir Member of the Southampton Philharmonic Choir who has performed
+      at the Guildhall, I can confirm that the Southampton Choral Society is indeed one of the
+      choirs that have sung at the Guildhall. Our experiences have shown that we often share the
+      stage with the Southampton Choral Society during joint performances with orchestras and
+      other ensembles. So, I’m happy to confirm that Southampton Choral Society is a correct
+      answer.
+
+
+
+
+                                                                    11670
+H    AI Usage Card
+AI Usage card based on Wahle et al. (2023).
+
+    AI Usage Card
+
+
+     PROJECT         PROJECT NAME                     DOMAIN                 KEY APPLICATION
+     DETAILS         Voting or Consensus?             Paper                  Natural Language
+                     Decision-Making in                                      Processing
+                     Multi-Agent Debate
+     CONTACT(S)          NAME(S)                      EMAIL(S)               AFFILIATION(S)
+                         Lars Benedikt Kaesberg       l.kaesberg@uni-        University Göttingen
+                                                      goettingen.de
+     MODEL(S)            MODEL NAME(S)                VERSION(S)
+                         Llama                        3 70b, 3 8b
+                         ChatGPT                      4o, o1
+                         Github Copilot               latest
+
+
+
+     LITERATURE          FINDING LITERATURE           FINDING EXAMPLES       COMPARING
+     REVIEW              ChatGPT                      FROM KNOWN             LITERATURE
+                                                      LITERATURE OR ADDING
+                                                      LITERATURE FOR
+                                                      EXISTING STATEMENTS
+                                                      ChatGPT
+
+
+     WRITING             GENERATING NEW TEXT          ASSISTING IN           PUTTING OTHER
+                         BASED ON                     IMPROVING OWN          WORKS IN
+                         INSTRUCTIONS                 CONTENT OR             PERSPECTIVE
+                         Llama                        PARAPHRASING
+                                                      RELATED WORK
+                                                      ChatGPT
+
+
+     CODING              GENERATING NEW               REFACTORING AND        COMPARING ASPECTS
+                         CODE BASED ON                OPTIMIZING EXISTING    OF EXISTING CODE
+                         DESCRIPTIONS OR              CODE
+                         EXISTING CODE                ChatGPT
+                         ChatGPT                      Github Copilot
+                         Github Copilot
+
+
+     ETHICS              WHY DID WE USE AI            WHAT STEPS ARE WE      WHAT STEPS ARE WE
+                         FOR THIS PROJECT?            TAKING TO MITIGATE     TAKING TO MINIMIZE
+                         Efficiency / Speed           ERRORS OF AI?          THE CHANCE OF HARM
+                         Scalability                  None                   OR INAPPROPRIATE
+                         Expertise Access                                    USE OF AI?
+                                                                             None
+
+
+
+    THE CORRESPONDING AUTHORS VERIFY AND AGREE WITH THE MODIFICATIONS OR GENERA-
+    TIONS OF THEIR USED AI-GENERATED CONTENT
+
+    AI Usage Card v1.1                            https://ai-cards.org                   PDF | BibTeX
+
+
+
+
+                                                      11671
+

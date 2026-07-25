@@ -1,0 +1,128 @@
+{
+  "url": "https://api.github.com/repos/cli/cli/issues/9602",
+  "repository_url": "https://api.github.com/repos/cli/cli",
+  "labels_url": "https://api.github.com/repos/cli/cli/issues/9602/labels{/name}",
+  "comments_url": "https://api.github.com/repos/cli/cli/issues/9602/comments",
+  "events_url": "https://api.github.com/repos/cli/cli/issues/9602/events",
+  "html_url": "https://github.com/cli/cli/issues/9602",
+  "id": 2520121391,
+  "node_id": "I_kwDODKw3uc6WNgAv",
+  "number": 9602,
+  "title": "add `gh attestation verify` options `--ref` and `--commit`",
+  "user": {
+    "login": "ramonpetgrave64",
+    "id": 32398091,
+    "node_id": "MDQ6VXNlcjMyMzk4MDkx",
+    "avatar_url": "https://avatars.githubusercontent.com/u/32398091?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/ramonpetgrave64",
+    "html_url": "https://github.com/ramonpetgrave64",
+    "followers_url": "https://api.github.com/users/ramonpetgrave64/followers",
+    "following_url": "https://api.github.com/users/ramonpetgrave64/following{/other_user}",
+    "gists_url": "https://api.github.com/users/ramonpetgrave64/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/ramonpetgrave64/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/ramonpetgrave64/subscriptions",
+    "organizations_url": "https://api.github.com/users/ramonpetgrave64/orgs",
+    "repos_url": "https://api.github.com/users/ramonpetgrave64/repos",
+    "events_url": "https://api.github.com/users/ramonpetgrave64/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/ramonpetgrave64/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+    {
+      "id": 1698076173,
+      "node_id": "MDU6TGFiZWwxNjk4MDc2MTcz",
+      "url": "https://api.github.com/repos/cli/cli/labels/enhancement",
+      "name": "enhancement",
+      "color": "0dd8ac",
+      "default": true,
+      "description": "a request to improve CLI"
+    },
+    {
+      "id": 1726593890,
+      "node_id": "MDU6TGFiZWwxNzI2NTkzODkw",
+      "url": "https://api.github.com/repos/cli/cli/labels/more-info-needed",
+      "name": "more-info-needed",
+      "color": "830eb5",
+      "default": false,
+      "description": "More info needed from user/contributor"
+    },
+    {
+      "id": 6634517498,
+      "node_id": "LA_kwDODKw3uc8AAAABi3Kz-g",
+      "url": "https://api.github.com/repos/cli/cli/labels/gh-attestation",
+      "name": "gh-attestation",
+      "color": "0e8a16",
+      "default": false,
+      "description": "related to the gh attestation command"
+    }
+  ],
+  "state": "closed",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 12,
+  "created_at": "2024-09-11T15:50:49Z",
+  "updated_at": "2025-04-15T00:38:29Z",
+  "closed_at": "2025-04-11T21:01:44Z",
+  "assignee": null,
+  "author_association": "NONE",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "### Describe the feature or problem you’d like to solve\r\n\r\n`gh attestations verify ...` allows the user to verify various properties in the attestation, such as the source repo with `--repo` and the signing workflow with `--signer-repo`. You can also verify the signing workflow's ref with `--cert-identity`.\r\n\r\nThe problem is that there may be many artifacts that come from a source repo, so I can't easily be sure if the artifact came from approved changes, in the case of protected mainline branches or tags. Furthermore, verifying the source commit sha will allow me to pinpoint the exact code that produced the artifact.\r\n\r\n### Proposed solution\r\n\r\nI would like for be able to verify the source repo's ref, and also the source repo's commit sha, so I can easily be more sure about my received artifacts:\r\n\r\n* `--ref`\r\n* `--commit`\r\n\r\nWhile we are making these changes, we may also add:\r\n\r\n* `signer-ref`\r\n* `signer-commit`\r\n\r\n### Additional context\r\n\r\nMy current solution is cumbersome, involving `--jq` and piping to `grep`:\r\n\r\n```shell\r\nSOURCE_REPO=\"ramonpetgrave/github-build-attestations-rw\"\r\nSOURCE_REF=\"refs/heads/main\"\r\nSIGNER_WORKFLOW_CERT_IDENTITY=\"https://github.com/ramonpetgrave/github-build-attestations-rw/.github/workflows/attest-build-provenance-slsa3-rw.yml@refs/heads/dev\"\r\ngh attestation verify $ARTIFACT_PATH \\\r\n    --deny-self-hosted-runners \\\r\n    --repo \"$SOURCE_REPO\"  \\\r\n    --cert-identity \"$SIGNER_WORKFLOW_CERT_IDENTITY\" \r\n    --format json --jq '.[].verificationResult.signature.certificate.sourceRepositoryRef' \\\r\n| grep \"^$SOURCE_REF$\"\r\n```\r\n",
+  "closed_by": {
+    "login": "phillmv",
+    "id": 17770,
+    "node_id": "MDQ6VXNlcjE3Nzcw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/17770?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/phillmv",
+    "html_url": "https://github.com/phillmv",
+    "followers_url": "https://api.github.com/users/phillmv/followers",
+    "following_url": "https://api.github.com/users/phillmv/following{/other_user}",
+    "gists_url": "https://api.github.com/users/phillmv/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/phillmv/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/phillmv/subscriptions",
+    "organizations_url": "https://api.github.com/users/phillmv/orgs",
+    "repos_url": "https://api.github.com/users/phillmv/repos",
+    "events_url": "https://api.github.com/users/phillmv/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/phillmv/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": true
+  },
+  "reactions": {
+    "url": "https://api.github.com/repos/cli/cli/issues/9602/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/cli/cli/issues/9602/timeline",
+  "performed_via_github_app": null,
+  "state_reason": "completed",
+  "pinned_comment": null
+}

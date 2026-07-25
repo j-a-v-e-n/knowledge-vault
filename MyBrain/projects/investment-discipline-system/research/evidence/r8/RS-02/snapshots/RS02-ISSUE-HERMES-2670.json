@@ -1,0 +1,102 @@
+{
+  "url": "https://api.github.com/repos/NousResearch/hermes-agent/issues/2670",
+  "repository_url": "https://api.github.com/repos/NousResearch/hermes-agent",
+  "labels_url": "https://api.github.com/repos/NousResearch/hermes-agent/issues/2670/labels{/name}",
+  "comments_url": "https://api.github.com/repos/NousResearch/hermes-agent/issues/2670/comments",
+  "events_url": "https://api.github.com/repos/NousResearch/hermes-agent/issues/2670/events",
+  "html_url": "https://github.com/NousResearch/hermes-agent/issues/2670",
+  "id": 4123844175,
+  "node_id": "I_kwDOPRF1G871zN5P",
+  "number": 2670,
+  "title": "Memory flush agent overwrites live memory on session reset/gateway restart",
+  "user": {
+    "login": "rustyorb",
+    "id": 111198602,
+    "node_id": "U_kgDOBqDBig",
+    "avatar_url": "https://avatars.githubusercontent.com/u/111198602?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/rustyorb",
+    "html_url": "https://github.com/rustyorb",
+    "followers_url": "https://api.github.com/users/rustyorb/followers",
+    "following_url": "https://api.github.com/users/rustyorb/following{/other_user}",
+    "gists_url": "https://api.github.com/users/rustyorb/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/rustyorb/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/rustyorb/subscriptions",
+    "organizations_url": "https://api.github.com/users/rustyorb/orgs",
+    "repos_url": "https://api.github.com/users/rustyorb/repos",
+    "events_url": "https://api.github.com/users/rustyorb/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/rustyorb/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+
+  ],
+  "state": "closed",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 1,
+  "created_at": "2026-03-23T21:30:20Z",
+  "updated_at": "2026-03-23T23:08:40Z",
+  "closed_at": "2026-03-23T23:08:40Z",
+  "assignee": null,
+  "author_association": "NONE",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "## Bug Description\n\nThe gateway memory flush mechanism (gateway/run.py lines ~520-567) spawns a temporary AIAgent on session reset/inactivity timeout/gateway restart that reviews old conversation history and writes to MEMORY.md. This flush agent has no awareness of memory changes made since that conversation occurred — by the live agent, by other sessions, or by cron jobs — and silently overwrites them.\n\nThe result: an agent carefully curates its memory during a session, the gateway restarts (or a session times out), and the flush agent reverts memory to whatever it thinks is important from stale context. The agent's own memory decisions are discarded.\n\n## Reproduction\n\n1. Start a gateway session, have the agent write specific memory entries via the `memory` tool\n2. Confirm entries are persisted to `~/.hermes/memories/MEMORY.md` on disk\n3. Restart the gateway (`systemctl --user restart hermes-gateway`)\n4. Check MEMORY.md — entries written by the live agent are overwritten or reverted by the flush agent\n\n## Root Cause\n\n`gateway/run.py` `_flush_memories_for_session()` (line ~507):\n- Creates a temporary `AIAgent` with `enabled_toolsets=[\"memory\", \"skills\"]`\n- Feeds it the old conversation history\n- Prompts it: \"Review the conversation above and save any important facts to memory\"\n- The flush agent then calls the `memory` tool with `replace`/`add` actions based on **stale context**\n- No timestamp comparison, no conflict resolution, no awareness of concurrent writes\n\nAdditionally, `_start_session_expiry_watcher()` (line ~1017) triggers proactive memory flushes before sessions expire — same mechanism, same problem.\n\n## Impact\n\n- Agent memory is unreliable — entries revert unpredictably after restarts\n- Cron job memory writes are overwritten by flush agents reviewing unrelated sessions  \n- Multi-agent setups are especially affected since gateway restarts on either machine trigger flushes\n- Users lose trust in the memory system when entries they confirmed were saved disappear\n- The agent's own curation decisions are overridden by a context-less temporary agent\n\n## Observed Pattern\n\nTwo independent agents on separate machines both exhibited: working correctly → gateway restart → memory reverted to stale state. Confirmed via:\n- md5sum tracking of MEMORY.md before/after restart\n- Canary entries that disappeared post-restart\n- Cron session logs showing memory tool calls from flush agents\n- 566 cron sessions accumulated in state.db, each potentially triggering flushes\n\n## Suggested Fix\n\nOptions (not mutually exclusive):\n1. **Timestamp-based conflict resolution**: Memory entries should carry last-modified timestamps. Flush agent should not overwrite entries newer than the conversation it is reviewing.\n2. **Read-only flush**: The flush agent should only ADD entries, never REPLACE or REMOVE existing ones.\n3. **Opt-out config**: `memory.flush_on_reset: false` in config.yaml for users/agents that manage their own memory.\n4. **Disable flush for cron sessions**: Cron sessions should never trigger memory flushes — they run headless with different context than the primary agent.\n5. **Require explicit consent**: Instead of silent flush, show the user what the flush agent wants to write and let them approve.\n\n## Environment\n\n- Hermes Agent: latest (installed via git at ~/.hermes/hermes-agent)\n- Platform: Gateway mode (Telegram + Discord)\n- Model: claude-opus-4-6 (Anthropic)\n- OS: Ubuntu, two-machine setup\n- Config: 10 cron jobs, 151 skills, persistent memory enabled",
+  "closed_by": {
+    "login": "teknium1",
+    "id": 127238744,
+    "node_id": "U_kgDOB5WCWA",
+    "avatar_url": "https://avatars.githubusercontent.com/u/127238744?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/teknium1",
+    "html_url": "https://github.com/teknium1",
+    "followers_url": "https://api.github.com/users/teknium1/followers",
+    "following_url": "https://api.github.com/users/teknium1/following{/other_user}",
+    "gists_url": "https://api.github.com/users/teknium1/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/teknium1/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/teknium1/subscriptions",
+    "organizations_url": "https://api.github.com/users/teknium1/orgs",
+    "repos_url": "https://api.github.com/users/teknium1/repos",
+    "events_url": "https://api.github.com/users/teknium1/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/teknium1/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "reactions": {
+    "url": "https://api.github.com/repos/NousResearch/hermes-agent/issues/2670/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/NousResearch/hermes-agent/issues/2670/timeline",
+  "performed_via_github_app": null,
+  "state_reason": "completed",
+  "pinned_comment": null
+}
