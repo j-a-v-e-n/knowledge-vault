@@ -30,6 +30,27 @@ class DependencyBoundaryTests(unittest.TestCase):
         self.write("governance_tests/test_placeholder.py", "import unittest\n")
         self.write("research/evidence/r8/RS-04/probe/check.py", "import csv\n")
         self.write(
+            "governance/requirements-ci.txt",
+            "ruff==0.15.17 "
+            "--hash=sha256:ecfc3c7878fff94633ab0348524e093f9ce3243080416dd7d14f8ba400174719\n",
+        )
+        self.write(
+            "governance/RUFF_CI_CONFIG_V1.toml",
+            '[lint.per-file-ignores]\n'
+            '"prototype/tests/test_discipline_system.py" = ["F401"]\n'
+            '"research/evidence/r8/RS-04/probe/run_differential_accounting.py" = ["F401"]\n',
+        )
+        self.write(
+            "scripts/run_assurance_ci.py",
+            "import sys\n"
+            "def run():\n"
+            "    return execute_check(\n"
+            '        "CHECK-RUFF",\n'
+            "        [sys.executable, '-m', 'ruff', 'check', '--config', "
+            "'governance/RUFF_CI_CONFIG_V1.toml', '.'],\n"
+            "    )\n",
+        )
+        self.write(
             ".github/workflows/assurance.yml",
             """name: fixture
 on: [push]
@@ -38,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - run: python -m pip install --disable-pip-version-check ruff==0.15.17
+      - run: python -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: --no-deps -r governance/requirements-ci.txt
 """,
         )
         self.manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
@@ -151,7 +172,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: python -m pip install ruff==0.15.17
+      - run: python -m pip install --require-hashes --only-binary=:all: --no-deps -r governance/requirements-ci.txt
 """,
         )
         self.assert_rejected("DEP-ACTION-UNPINNED")
@@ -177,6 +198,65 @@ jobs:
         )
         self.write_manifest()
         self.assert_rejected("DEP-MANIFEST-HASH")
+
+    def test_ci_install_without_enforced_hash_mode_is_rejected(self) -> None:
+        self.write(
+            ".github/workflows/assurance.yml",
+            """name: fixture
+on: [push]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - run: python -m pip install -r governance/requirements-ci.txt
+""",
+        )
+        self.assert_rejected("DEP-CI-HASH-LOCK")
+
+    def test_requirement_hash_must_equal_registered_artifact(self) -> None:
+        self.write(
+            "governance/requirements-ci.txt",
+            "ruff==0.15.17 "
+            "--hash=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+        )
+        self.assert_rejected("DEP-REQUIREMENT-HASH")
+
+    def test_manifest_source_filename_must_match_registered_artifact(self) -> None:
+        self.manifest["third_party_dependencies"][0]["canonical_source"] = (
+            "https://files.pythonhosted.org/packages/ruff-0.15.17.tar.gz"
+        )
+        self.write_manifest()
+        self.assert_rejected("DEP-MANIFEST-HASH")
+
+    def test_missing_reviewed_ci_requirement_file_is_rejected(self) -> None:
+        (self.root / "governance" / "requirements-ci.txt").unlink()
+        self.assert_rejected("DEP-CI-HASH-LOCK")
+
+    def test_broadened_ci_lint_ignore_is_rejected(self) -> None:
+        self.write(
+            "governance/RUFF_CI_CONFIG_V1.toml",
+            '[lint.per-file-ignores]\n'
+            '"prototype/tests/test_discipline_system.py" = ["F401", "E501"]\n'
+            '"research/evidence/r8/RS-04/probe/run_differential_accounting.py" = ["F401"]\n',
+        )
+        self.assert_rejected("DEP-CI-LINT-CONFIG")
+
+    def test_missing_ci_lint_config_is_rejected(self) -> None:
+        (self.root / "governance" / "RUFF_CI_CONFIG_V1.toml").unlink()
+        self.assert_rejected("DEP-CI-LINT-CONFIG")
+
+    def test_assurance_runner_must_use_exact_ci_lint_config(self) -> None:
+        self.write(
+            "scripts/run_assurance_ci.py",
+            "import sys\n"
+            "def run():\n"
+            "    return execute_check(\n"
+            '        "CHECK-RUFF",\n'
+            "        [sys.executable, '-m', 'ruff', 'check', '.'],\n"
+            "    )\n",
+        )
+        self.assert_rejected("DEP-CI-LINT-CONFIG")
 
     def test_requirements_dependency_is_derived_and_must_be_registered(self) -> None:
         self.write("requirements.txt", "requests==2.32.4\n")

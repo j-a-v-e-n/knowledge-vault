@@ -72,7 +72,7 @@
         "locators": [
           {
             "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-            "sha256": "2e0003426a18df7aef813fd65a104bc2d18060fbbc9509ac43232ca7e0906b39",
+            "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
             "anchors": [
               "\"contract_id\": \"ids-local-paper-workbench-v1\"",
               "\"authority\""
@@ -80,7 +80,7 @@
           },
           {
             "path": "governance/PROJECT_METHOD_POLICY_V1.json",
-            "sha256": "af217a24acdcc2a8434abd9c2168e9a8d025b930cbc20bf3e5c4889a9b713a87",
+            "sha256": "8555e16d0808e76dc12443a056bfd9f23eb80030d768a3b9ffad511e834900a2",
             "anchors": [
               "\"maintainability_and_migration\"",
               "\"missing_exit_plan_outcome\": \"not_adopted\""
@@ -101,7 +101,7 @@
         "locators": [
           {
             "path": "scripts/verify_governance.py",
-            "sha256": "93bd713797f3fb9f632393812fd497c2643b36848fcf06939af780d8d4a36cff",
+            "sha256": "665842c823eabe4b381be98b9671d656bca6b0a8e986d95595d7f2136bf88f96",
             "anchors": [
               "def main() -> int:",
               "governance verification: FAIL"
@@ -116,7 +116,7 @@
           "evidence_locators": [
             {
               "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-              "sha256": "2e0003426a18df7aef813fd65a104bc2d18060fbbc9509ac43232ca7e0906b39",
+              "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
               "anchors": [
                 "\"research/\""
               ]
@@ -129,7 +129,7 @@
           "evidence_locators": [
             {
               "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-              "sha256": "2e0003426a18df7aef813fd65a104bc2d18060fbbc9509ac43232ca7e0906b39",
+              "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
               "anchors": [
                 "\"prototype/\""
               ]
@@ -157,7 +157,7 @@
         "blocker_locators": [
           {
             "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-            "sha256": "2e0003426a18df7aef813fd65a104bc2d18060fbbc9509ac43232ca7e0906b39",
+            "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
             "anchors": [
               "\"required_artifacts\"",
               "\"governance/TRACEABILITY_V1.json\""
@@ -206,7 +206,7 @@
       "evidence_locators": [
         {
           "path": "governance/PROJECT_METHOD_POLICY_V1.json",
-          "sha256": "af217a24acdcc2a8434abd9c2168e9a8d025b930cbc20bf3e5c4889a9b713a87",
+          "sha256": "8555e16d0808e76dc12443a056bfd9f23eb80030d768a3b9ffad511e834900a2",
           "anchors": [
             "\"failure_id\": \"ECO-03\""
           ]

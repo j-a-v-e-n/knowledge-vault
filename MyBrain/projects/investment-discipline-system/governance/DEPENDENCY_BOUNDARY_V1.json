@@ -45,6 +45,21 @@
     "remote_installer_outcome": "blocked",
     "new_python_root_outcome": "blocked",
     "unknown_telemetry_outcome": "blocked",
+    "ci_requirement_path": "governance/requirements-ci.txt",
+    "ci_install_required_flags": [
+      "--no-deps",
+      "--only-binary=:all:",
+      "--require-hashes"
+    ],
+    "ci_lint_config_path": "governance/RUFF_CI_CONFIG_V1.toml",
+    "ci_lint_per_file_ignores": {
+      "prototype/tests/test_discipline_system.py": [
+        "F401"
+      ],
+      "research/evidence/r8/RS-04/probe/run_differential_accounting.py": [
+        "F401"
+      ]
+    },
     "external_action_revision": "full_40_lowercase_hex_commit_or_docker_sha256",
     "manifest_dependency_required_fields": [
       "name",
@@ -65,7 +80,8 @@
         "ruff"
       ],
       "allowed_contexts": [
-        "workflow_ci_tool"
+        "workflow_ci_tool",
+        "project_config"
       ],
       "version_or_commit": "0.15.17",
       "sha256_or_lock_hash": {
@@ -75,7 +91,7 @@
       },
       "canonical_source": "https://files.pythonhosted.org/packages/11/93/f10377bb04109ca0e8cbc483ff1982c54b6d418210041776f93e8cdc7fa9/ruff-0.15.17-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
       "license": "MIT",
-      "necessity": "Pinned CI-only static checker; it is not imported by or required to run the paper product or governance verifier.",
+      "necessity": "Hash-locked CI-only static checker; it is not imported by or required to run the paper product or governance verifier.",
       "permissions_or_telemetry": {
         "status": "project_configuration_reviewed",
         "network": "Installation may contact the canonical package host; repository configuration grants no network operation to the checker itself.",
@@ -88,13 +104,14 @@
     }
   ],
   "claim_boundary": {
-    "proves": "For the declared repository bytes, the verifier derives Python imports, literal dynamic imports, statically visible installer commands, supported dependency configuration entries, and external GitHub Action revisions; it rejects unregistered or floating dependencies and unknown declared telemetry.",
+    "proves": "For the declared repository bytes, the verifier derives Python imports, literal dynamic imports, statically visible installer commands, supported dependency configuration entries, and external GitHub Action revisions; it rejects unregistered or floating dependencies and unknown declared telemetry, and binds the declared CI package install to a local exact-version SHA-256 requirement under hash-checking, binary-only, no-dependency mode; it also binds the assurance runner to the exact reviewed Ruff configuration whose only per-file exceptions are the two declared F401 findings.",
     "does_not_prove": [
       "absence of vulnerabilities or telemetry in the operating system, Python runtime, standard library, GitHub runner, external Actions, upstream binaries, or service providers",
       "behavior hidden behind runtime-generated non-shell process arguments",
       "correctness or safety of a dependency merely because its identity and review fields are registered",
-      "transitive artifacts selected by an installer unless a future enforced lock or hash installation path binds them"
+      "integrity of the GitHub runner image, Python and pip bootstrap, package availability, or the safety of an artifact whose bytes match the approved hash",
+      "semantic correctness or completeness of Ruff, or absence of defects hidden by the two exact file-and-rule exceptions"
     ],
-    "current_expected_observation": "runtime and governance Python third-party import sets are empty; the separately reported CI tool set contains only registered ruff"
+    "current_expected_observation": "runtime and governance Python third-party import sets are empty; the separately reported CI tool set contains only registered ruff, installed from the project-local hash-locked binary-only no-dependency requirement; the assurance runner uses the exact reviewed config with two F401-only per-file exceptions for immutable evidence files"
   }
 }

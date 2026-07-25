@@ -186,7 +186,7 @@
     },
     {
       "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-      "sha256": "2e0003426a18df7aef813fd65a104bc2d18060fbbc9509ac43232ca7e0906b39",
+      "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
       "role": "top_level_acceptance_contract",
       "required": true
     },
@@ -204,13 +204,13 @@
     },
     {
       "path": "governance/ASSURANCE_TRUST_MODEL_V1.json",
-      "sha256": "562b3c0b9fcd7fd637cfab83fe7ed49b214423e6a833e2fde5c79c72e5ef40f1",
+      "sha256": "5b26a7db14ce04418eb4c3da462ee5f05d6a68abf9c2b43ab7b9a1789bc003c9",
       "role": "assurance_trust_and_provenance_threat_model",
       "required": true
     },
     {
       "path": "governance/COMPONENT_REGISTRY_V1.json",
-      "sha256": "8d7253705af86367437e15a190e6def6e815de3994c5ac982bffc06a34ff1286",
+      "sha256": "9b7d496069dba0461fa206f13364b0e5d62c7301251a0f5dc76f615c2b23739d",
       "role": "component_boundary_dependency_and_removal_contract",
       "required": true
     },
@@ -228,7 +228,7 @@
     },
     {
       "path": "governance/DEPENDENCY_BOUNDARY_V1.json",
-      "sha256": "c3c21e5640f8ed858879e70aa9ec241821e39d75a5a6a7a8b9ff6658a2b37de7",
+      "sha256": "e9d79d28b8ff674b0de34e6de756dff6665598b4a18a28d6054c0eab50859fcc",
       "role": "runtime_dependency_supply_chain_and_telemetry_boundary",
       "required": true
     },
@@ -258,7 +258,7 @@
     },
     {
       "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
-      "sha256": "7322bc89a003ec32d54bb11f30c75e9c03ad847313c36ed60341debda0dd4d61",
+      "sha256": "a89adf960fbe61782edcd775d58a22131f98c9b4ae2a20c622087f52b67168be",
       "role": "design_freeze_and_release_scope_contract",
       "required": true
     },
@@ -294,7 +294,7 @@
     },
     {
       "path": "governance/PROJECT_METHOD_POLICY_V1.json",
-      "sha256": "af217a24acdcc2a8434abd9c2168e9a8d025b930cbc20bf3e5c4889a9b713a87",
+      "sha256": "8555e16d0808e76dc12443a056bfd9f23eb80030d768a3b9ffad511e834900a2",
       "role": "reusable_ai_project_method_contract",
       "required": true
     },
@@ -305,8 +305,14 @@
       "required": true
     },
     {
+      "path": "governance/RUFF_CI_CONFIG_V1.toml",
+      "sha256": "53e264a0e5340555a5316f10df1132735a55f091a9ecea85427d4d209b9fd0cc",
+      "role": "frozen_ci_lint_exception_contract",
+      "required": true
+    },
+    {
       "path": "governance/TRACEABILITY_V1.json",
-      "sha256": "6a3d4bdbc5d12182d927ac758c120041c5ed7a0b5bd54d3477bed5fcaf926f3c",
+      "sha256": "f713e8d46a467780e0c821ff63c4555e69dcc4736d82dfafb56db5de5382fae5",
       "role": "requirements_controls_verification_trace_contract",
       "required": true
     },
@@ -332,6 +338,12 @@
       "path": "governance/WORK_PACKET_POLICY_V1.json",
       "sha256": "123f1ddf9ab6c9e1aa684eb3d48f9872c778c5b29ad3d52fb13acc1a9cf91a53",
       "role": "bounded_work_packet_and_write_ownership_contract",
+      "required": true
+    },
+    {
+      "path": "governance/requirements-ci.txt",
+      "sha256": "ba6eb5590810c1bfc4b6913725a103108727233aac221064927d207c61971f02",
+      "role": "hash_locked_ci_tool_requirement",
       "required": true
     },
     {
@@ -385,7 +397,7 @@
     {
       "path": ".github/workflows/investment-discipline-assurance.yml",
       "scope": "repository",
-      "sha256": "06a70e8ebb0de918ad6113eac93259beebc014f1d29bb5926c112b39d6d47f41",
+      "sha256": "78f2c09834cb071977bcc6f71b4a1084df98c109282c5dd5d8f49285631f4ed5",
       "role": "externally_signed_machine_assurance_workflow",
       "required": true
     }

@@ -1,0 +1,3 @@
+[lint.per-file-ignores]
+"prototype/tests/test_discipline_system.py" = ["F401"]
+"research/evidence/r8/RS-04/probe/run_differential_accounting.py" = ["F401"]

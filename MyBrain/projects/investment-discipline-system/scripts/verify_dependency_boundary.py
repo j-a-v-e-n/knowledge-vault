@@ -21,6 +21,29 @@ SCRIPT_PROJECT_ROOT = Path(
     os.environ.get("IDS_PROJECT_ROOT", Path(__file__).resolve().parents[1])
 ).resolve()
 DEFAULT_MANIFEST_RELATIVE = Path("governance/DEPENDENCY_BOUNDARY_V1.json")
+EXPECTED_CI_REQUIREMENT_PATH = "governance/requirements-ci.txt"
+EXPECTED_CI_INSTALL_FLAGS = [
+    "--no-deps",
+    "--only-binary=:all:",
+    "--require-hashes",
+]
+EXPECTED_CI_LINT_CONFIG_PATH = "governance/RUFF_CI_CONFIG_V1.toml"
+EXPECTED_ASSURANCE_RUNNER_PATH = "scripts/run_assurance_ci.py"
+EXPECTED_CI_LINT_PER_FILE_IGNORES = {
+    "prototype/tests/test_discipline_system.py": ["F401"],
+    "research/evidence/r8/RS-04/probe/run_differential_accounting.py": ["F401"],
+}
+EXPECTED_CI_LINT_CONFIG = {
+    "lint": {"per-file-ignores": EXPECTED_CI_LINT_PER_FILE_IGNORES}
+}
+EXPECTED_RUFF_RUNNER_ARGUMENTS = [
+    "-m",
+    "ruff",
+    "check",
+    "--config",
+    EXPECTED_CI_LINT_CONFIG_PATH,
+    ".",
+]
 
 EXPECTED_PYTHON_ROOTS = [
     {"path": "prototype", "role": "runtime"},
@@ -46,6 +69,10 @@ EXPECTED_RULES = {
     "remote_installer_outcome": "blocked",
     "new_python_root_outcome": "blocked",
     "unknown_telemetry_outcome": "blocked",
+    "ci_requirement_path": EXPECTED_CI_REQUIREMENT_PATH,
+    "ci_install_required_flags": EXPECTED_CI_INSTALL_FLAGS,
+    "ci_lint_config_path": EXPECTED_CI_LINT_CONFIG_PATH,
+    "ci_lint_per_file_ignores": EXPECTED_CI_LINT_PER_FILE_IGNORES,
     "external_action_revision": "full_40_lowercase_hex_commit_or_docker_sha256",
     "manifest_dependency_required_fields": [
         "name",
@@ -63,17 +90,25 @@ EXPECTED_CLAIM_BOUNDARY = {
         "For the declared repository bytes, the verifier derives Python imports, "
         "literal dynamic imports, statically visible installer commands, supported "
         "dependency configuration entries, and external GitHub Action revisions; "
-        "it rejects unregistered or floating dependencies and unknown declared telemetry."
+        "it rejects unregistered or floating dependencies and unknown declared telemetry, "
+        "and binds the declared CI package install to a local exact-version SHA-256 "
+        "requirement under hash-checking, binary-only, no-dependency mode; it also "
+        "binds the assurance runner to the exact reviewed Ruff configuration whose "
+        "only per-file exceptions are the two declared F401 findings."
     ),
     "does_not_prove": [
         "absence of vulnerabilities or telemetry in the operating system, Python runtime, standard library, GitHub runner, external Actions, upstream binaries, or service providers",
         "behavior hidden behind runtime-generated non-shell process arguments",
         "correctness or safety of a dependency merely because its identity and review fields are registered",
-        "transitive artifacts selected by an installer unless a future enforced lock or hash installation path binds them",
+        "integrity of the GitHub runner image, Python and pip bootstrap, package availability, or the safety of an artifact whose bytes match the approved hash",
+        "semantic correctness or completeness of Ruff, or absence of defects hidden by the two exact file-and-rule exceptions",
     ],
     "current_expected_observation": (
         "runtime and governance Python third-party import sets are empty; the "
-        "separately reported CI tool set contains only registered ruff"
+        "separately reported CI tool set contains only registered ruff, installed "
+        "from the project-local hash-locked binary-only no-dependency requirement; "
+        "the assurance runner uses the exact reviewed config with two F401-only "
+        "per-file exceptions for immutable evidence files"
     ),
 }
 
@@ -200,6 +235,128 @@ def read_strict_json(
         add_error(errors, oracle_id, f"{label} top level must be an object")
         return None
     return value
+
+
+def verify_ci_lint_configuration(
+    project_root: Path,
+    errors: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    config_path = project_root / EXPECTED_CI_LINT_CONFIG_PATH
+    if config_path.is_symlink():
+        add_error(
+            errors,
+            "DEP-CI-LINT-CONFIG",
+            "reviewed CI lint config must not be a symlink",
+            path=EXPECTED_CI_LINT_CONFIG_PATH,
+        )
+        return None
+    try:
+        raw = config_path.read_bytes()
+    except OSError as exc:
+        add_error(
+            errors,
+            "DEP-CI-LINT-CONFIG",
+            f"reviewed CI lint config is unreadable: {exc}",
+            path=EXPECTED_CI_LINT_CONFIG_PATH,
+        )
+        return None
+    try:
+        config = tomllib.loads(raw.decode("utf-8", errors="strict"))
+    except (UnicodeDecodeError, tomllib.TOMLDecodeError) as exc:
+        add_error(
+            errors,
+            "DEP-CI-LINT-CONFIG",
+            f"reviewed CI lint config is not strict TOML: {exc}",
+            path=EXPECTED_CI_LINT_CONFIG_PATH,
+        )
+        return None
+    if config != EXPECTED_CI_LINT_CONFIG:
+        add_error(
+            errors,
+            "DEP-CI-LINT-CONFIG",
+            "CI lint config differs from the exact two F401-only per-file exceptions",
+            path=EXPECTED_CI_LINT_CONFIG_PATH,
+        )
+    return config
+
+
+def is_sys_executable(node: ast.AST) -> bool:
+    return (
+        isinstance(node, ast.Attribute)
+        and node.attr == "executable"
+        and isinstance(node.value, ast.Name)
+        and node.value.id == "sys"
+    )
+
+
+def verify_assurance_runner_lint_binding(
+    project_root: Path,
+    errors: list[dict[str, Any]],
+) -> None:
+    runner_path = project_root / EXPECTED_ASSURANCE_RUNNER_PATH
+    if runner_path.is_symlink():
+        add_error(
+            errors,
+            "DEP-CI-LINT-CONFIG",
+            "assurance runner must not be a symlink",
+            path=EXPECTED_ASSURANCE_RUNNER_PATH,
+        )
+        return
+    try:
+        source = runner_path.read_text(encoding="utf-8", errors="strict")
+        tree = ast.parse(source, filename=EXPECTED_ASSURANCE_RUNNER_PATH)
+    except (OSError, UnicodeDecodeError, SyntaxError, ValueError) as exc:
+        add_error(
+            errors,
+            "DEP-CI-LINT-CONFIG",
+            f"assurance runner cannot be parsed: {exc}",
+            path=EXPECTED_ASSURANCE_RUNNER_PATH,
+            line=getattr(exc, "lineno", None),
+        )
+        return
+
+    ruff_calls: list[ast.Call] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        if not isinstance(node.func, ast.Name) or node.func.id != "execute_check":
+            continue
+        if (
+            node.args
+            and isinstance(node.args[0], ast.Constant)
+            and node.args[0].value == "CHECK-RUFF"
+        ):
+            ruff_calls.append(node)
+    if len(ruff_calls) != 1:
+        add_error(
+            errors,
+            "DEP-CI-LINT-CONFIG",
+            "assurance runner must contain exactly one CHECK-RUFF execute_check call",
+            path=EXPECTED_ASSURANCE_RUNNER_PATH,
+        )
+        return
+
+    call = ruff_calls[0]
+    command = call.args[1] if len(call.args) == 2 and not call.keywords else None
+    valid = isinstance(command, ast.List) and len(command.elts) == 7
+    if valid:
+        assert isinstance(command, ast.List)
+        valid = is_sys_executable(command.elts[0]) and all(
+            isinstance(node, ast.Constant) and node.value == expected
+            for node, expected in zip(
+                command.elts[1:],
+                EXPECTED_RUFF_RUNNER_ARGUMENTS,
+                strict=True,
+            )
+        )
+    if not valid:
+        add_error(
+            errors,
+            "DEP-CI-LINT-CONFIG",
+            "CHECK-RUFF must invoke the exact reviewed config and repository-wide target",
+            path=EXPECTED_ASSURANCE_RUNNER_PATH,
+            line=call.lineno,
+        )
 
 
 def exact_fields(
@@ -418,6 +575,16 @@ def validate_manifest(
                     errors,
                     "DEP-MANIFEST-SOURCE",
                     f"{label}.canonical_source must be a canonical HTTPS URL without fragment",
+                )
+            elif (
+                isinstance(integrity, dict)
+                and nonempty_string(integrity.get("artifact"))
+                and PurePosixPath(parsed.path).name != integrity.get("artifact")
+            ):
+                add_error(
+                    errors,
+                    "DEP-MANIFEST-HASH",
+                    f"{label}.canonical_source artifact differs from sha256_or_lock_hash.artifact",
                 )
         for field in ("license", "necessity", "removal_plan"):
             if not nonempty_string(dependency.get(field)):
@@ -735,6 +902,44 @@ def inspect_install_tokens(
         if manager is None or install_index is None:
             continue
 
+        install_arguments = tokens[install_index + 1 :]
+        normalized_arguments = [item.casefold() for item in install_arguments]
+        requirement_files: list[str] = []
+        for argument_index, raw in enumerate(install_arguments):
+            if (
+                raw.casefold() in {"-r", "--requirement"}
+                and argument_index + 1 < len(install_arguments)
+            ):
+                requirement_files.append(install_arguments[argument_index + 1])
+        controls = {
+            "require_hashes": "--require-hashes" in normalized_arguments,
+            "binary_only": "--only-binary=:all:" in normalized_arguments,
+            "no_dependencies": "--no-deps" in normalized_arguments,
+            "requirement_files": requirement_files,
+        }
+        if manager == "pip" and context == "workflow_ci_tool":
+            missing_flags = [
+                flag
+                for flag in EXPECTED_CI_INSTALL_FLAGS
+                if flag not in normalized_arguments
+            ]
+            if missing_flags:
+                add_error(
+                    errors,
+                    "DEP-CI-HASH-LOCK",
+                    f"CI pip install lacks required controls: {missing_flags}",
+                    path=path,
+                    line=line,
+                )
+            if requirement_files != [EXPECTED_CI_REQUIREMENT_PATH]:
+                add_error(
+                    errors,
+                    "DEP-CI-HASH-LOCK",
+                    "CI pip install must consume exactly the reviewed local requirement file",
+                    path=path,
+                    line=line,
+                )
+
         specs: list[str] = []
         skip_next = False
         options_with_values = {
@@ -750,7 +955,7 @@ def inspect_install_tokens(
             "--requirement",
             "--hash",
         }
-        for raw in tokens[install_index + 1 :]:
+        for raw in install_arguments:
             if raw in CONTROL_TOKENS:
                 break
             if skip_next:
@@ -771,6 +976,7 @@ def inspect_install_tokens(
                     "path": path,
                     "line": line,
                     "kind": f"{manager}_install",
+                    "controls": controls,
                 }
             )
             return
@@ -785,6 +991,7 @@ def inspect_install_tokens(
                     "line": line,
                     "kind": f"{manager}_install",
                     "raw": spec,
+                    "controls": controls,
                 }
             )
             if name is None or version is None or is_floating_version(version):
@@ -964,6 +1171,7 @@ def add_config_dependency(
     version: Any,
     path: str,
     source: str,
+    hashes: list[str] | None = None,
 ) -> None:
     if not isinstance(name, str) or not PACKAGE_NAME_RE.fullmatch(name):
         add_error(
@@ -983,16 +1191,17 @@ def add_config_dependency(
         version_value = None
     else:
         version_value = version
-    observed.append(
-        {
-            "name": name,
-            "version": version_value,
-            "context": "project_config",
-            "path": path,
-            "line": None,
-            "kind": source,
-        }
-    )
+    record = {
+        "name": name,
+        "version": version_value,
+        "context": "project_config",
+        "path": path,
+        "line": None,
+        "kind": source,
+    }
+    if hashes is not None:
+        record["hashes"] = sorted(hashes)
+    observed.append(record)
 
 
 def parse_requirement_string(value: str) -> tuple[str | None, str | None]:
@@ -1002,6 +1211,27 @@ def parse_requirement_string(value: str) -> tuple[str | None, str | None]:
         stripped,
     )
     return (match.group(1), match.group(2)) if match else (None, None)
+
+
+def parse_hashed_requirement(
+    value: str,
+) -> tuple[str | None, str | None, list[str], list[str]]:
+    try:
+        tokens = shlex.split(value, comments=True, posix=True)
+    except ValueError:
+        return None, None, [], ["<unparseable>"]
+    if not tokens:
+        return None, None, [], []
+    name, version = parse_requirement_string(tokens[0])
+    hashes: list[str] = []
+    unsupported: list[str] = []
+    for token in tokens[1:]:
+        match = re.fullmatch(r"--hash=sha256:([0-9a-f]{64})", token)
+        if match:
+            hashes.append(match.group(1))
+        else:
+            unsupported.append(token)
+    return name, version, hashes, unsupported
 
 
 def scan_dependency_file(
@@ -1033,10 +1263,10 @@ def scan_dependency_file(
             )
             return
         for number, line in enumerate(text.splitlines(), start=1):
-            value = line.split("#", 1)[0].strip()
-            if not value or value.startswith("-"):
+            value = line.strip()
+            if not value or value.startswith(("-", "#")):
                 continue
-            name, version = parse_requirement_string(value)
+            name, version, hashes, unsupported = parse_hashed_requirement(value)
             if name is None:
                 add_error(
                     errors,
@@ -1046,6 +1276,30 @@ def scan_dependency_file(
                     line=number,
                 )
             else:
+                if unsupported:
+                    add_error(
+                        errors,
+                        "DEP-REQUIREMENT-HASH",
+                        f"requirement has unsupported trailing tokens: {unsupported!r}",
+                        path=relative,
+                        line=number,
+                    )
+                if not hashes:
+                    add_error(
+                        errors,
+                        "DEP-REQUIREMENT-HASH",
+                        "requirement lacks a local sha256 hash",
+                        path=relative,
+                        line=number,
+                    )
+                if len(hashes) != len(set(hashes)):
+                    add_error(
+                        errors,
+                        "DEP-REQUIREMENT-HASH",
+                        "requirement repeats a sha256 hash",
+                        path=relative,
+                        line=number,
+                    )
                 add_config_dependency(
                     observed,
                     errors,
@@ -1053,6 +1307,7 @@ def scan_dependency_file(
                     version=version,
                     path=relative,
                     source="requirements",
+                    hashes=hashes,
                 )
         return
     if path.name in {"pyproject.toml", "poetry.lock", "uv.lock"}:
@@ -1415,6 +1670,24 @@ def verify_observed_dependencies(
                 path=install["path"],
                 line=install.get("line"),
             )
+        if install.get("kind") == "requirements":
+            integrity = dependency.get("sha256_or_lock_hash")
+            expected_hash = (
+                integrity.get("value") if isinstance(integrity, dict) else None
+            )
+            hashes = install.get("hashes")
+            if (
+                not isinstance(expected_hash, str)
+                or not isinstance(hashes, list)
+                or set(hashes) != {expected_hash}
+            ):
+                add_error(
+                    errors,
+                    "DEP-REQUIREMENT-HASH",
+                    f"requirements hashes for {name!r} do not bind exactly the registered artifact",
+                    path=install["path"],
+                    line=install.get("line"),
+                )
 
     for name in sorted(set(registered) - observed_registered):
         add_error(
@@ -1445,6 +1718,8 @@ def verify_dependency_boundary(
     registered: dict[str, dict[str, Any]] = {}
     if manifest is not None:
         registered = validate_manifest(manifest, errors)
+    lint_config = verify_ci_lint_configuration(project_root, errors)
+    verify_assurance_runner_lint_binding(project_root, errors)
 
     imports: list[dict[str, Any]] = []
     installs: list[dict[str, Any]] = []
@@ -1462,6 +1737,16 @@ def verify_dependency_boundary(
         )
 
     dependency_files = dependency_file_candidates(project_root)
+    dependency_file_relatives = {
+        path.relative_to(project_root).as_posix() for path in dependency_files
+    }
+    if EXPECTED_CI_REQUIREMENT_PATH not in dependency_file_relatives:
+        add_error(
+            errors,
+            "DEP-CI-HASH-LOCK",
+            "reviewed CI requirement file is missing from dependency scan",
+            path=EXPECTED_CI_REQUIREMENT_PATH,
+        )
     for path in dependency_files:
         scan_dependency_file(project_root, path, installs, errors)
     actions, workflow_files = scan_workflows(repository_root, errors, installs)
@@ -1505,7 +1790,10 @@ def verify_dependency_boundary(
         {
             normalize_package_name(item["name"])
             for item in installs
-            if item["context"] == "workflow_ci_tool"
+            if (
+                item["context"] == "workflow_ci_tool"
+                or item["path"] == EXPECTED_CI_REQUIREMENT_PATH
+            )
             and isinstance(item.get("name"), str)
         }
     )
@@ -1524,6 +1812,15 @@ def verify_dependency_boundary(
             "runtime_third_party_dependencies": runtime_third_party,
             "governance_third_party_dependencies": governance_third_party,
             "ci_tool_dependencies": ci_tools,
+            "ci_lint_config": {
+                "path": EXPECTED_CI_LINT_CONFIG_PATH,
+                "per_file_ignores": (
+                    lint_config.get("lint", {}).get("per-file-ignores", {})
+                    if isinstance(lint_config, dict)
+                    else None
+                ),
+                "assurance_runner_path": EXPECTED_ASSURANCE_RUNNER_PATH,
+            },
         },
         "errors": errors,
         "claim_boundary": manifest.get("claim_boundary") if manifest else None,

@@ -208,7 +208,7 @@ FAILURE_CASES: list[dict[str, Any]] = [
             ]
         ],
         "limitations": [
-            "The static boundary binds declared imports, supported installer/config syntax, registered direct artifacts, and external Action revisions; it does not prove transitive installer resolution, upstream binary behavior, vulnerabilities, or every runtime-generated process argument."
+            "The static boundary binds declared imports, supported installer/config syntax, the local exact-version artifact hash, binary-only no-dependency CI flags, and external Action revisions; it does not prove the GitHub runner, Python or pip bootstrap, upstream binary safety, vulnerabilities, or every runtime-generated process argument."
         ],
     },
     {

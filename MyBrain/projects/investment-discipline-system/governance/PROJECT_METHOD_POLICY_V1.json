@@ -127,7 +127,7 @@
     "framework_name_or_popularity_is_evidence": false
   },
   "supply_chain": {
-    "core_runtime_policy": "python_standard_library_only_until_a_dependency_manifest_is_accepted",
+    "core_runtime_policy": "python_standard_library_runtime; third_party_ci_only_through_accepted_hash_locked_manifest",
     "boundary_manifest": "governance/DEPENDENCY_BOUNDARY_V1.json",
     "boundary_verifier": "scripts/verify_dependency_boundary.py",
     "boundary_tests": "governance_tests/test_dependency_boundary.py",

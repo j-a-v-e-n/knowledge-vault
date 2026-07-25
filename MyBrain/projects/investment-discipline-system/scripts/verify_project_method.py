@@ -403,7 +403,8 @@ def verify_harness_and_supply_chain(
         errors.append("supply-chain policy is missing")
         return
     if supply.get("core_runtime_policy") != (
-        "python_standard_library_only_until_a_dependency_manifest_is_accepted"
+        "python_standard_library_runtime; "
+        "third_party_ci_only_through_accepted_hash_locked_manifest"
     ):
         errors.append("core runtime dependency boundary differs")
     for field, expected in (

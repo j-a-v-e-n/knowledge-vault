@@ -1,0 +1,39 @@
+{
+  "schema_version": "work-packet-instance/v1",
+  "packet_id": "WP-CI-LINT-BASELINE",
+  "goal_id": "METHOD-GOVERNANCE-CLOSURE",
+  "state": "active",
+  "owner": "main-agent",
+  "reviewer": "independent-reviewer",
+  "bounded_write_paths": [
+    {
+      "path": "governance/RUFF_CI_CONFIG_V1.toml",
+      "kind": "file"
+    }
+  ],
+  "read_dependencies": [
+    "governance/ACCEPTANCE_CONTRACT_V1.json",
+    "governance/DEPENDENCY_BOUNDARY_V1.json",
+    "governance/WORK_PACKET_POLICY_V1.json",
+    "scripts/run_assurance_ci.py"
+  ],
+  "acceptance_checks": [
+    {
+      "check_id": "CHECK-CI-LINT-BASELINE",
+      "kind": "process_exit",
+      "argv": [
+        "ruff",
+        "check",
+        "--config",
+        "governance/RUFF_CI_CONFIG_V1.toml",
+        "."
+      ],
+      "expected_exit_code": 0
+    }
+  ],
+  "checkpoint_path": null,
+  "acceptance_receipt_path": null,
+  "retry_budget": 3,
+  "external_side_effects": [],
+  "semantic_invariants": []
+}

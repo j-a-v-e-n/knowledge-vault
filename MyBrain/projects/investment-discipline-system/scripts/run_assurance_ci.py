@@ -243,7 +243,15 @@ def main() -> int:
         ),
         execute_check(
             "CHECK-RUFF",
-            [sys.executable, "-m", "ruff", "check", "."],
+            [
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                "--config",
+                "governance/RUFF_CI_CONFIG_V1.toml",
+                ".",
+            ],
         ),
         execute_check(
             "CHECK-GIT-DIFF",

@@ -7,7 +7,15 @@
   "reviewer": "independent-reviewer",
   "bounded_write_paths": [
     {
+      "path": "governance/ASSURANCE_TRUST_MODEL_V1.json",
+      "kind": "file"
+    },
+    {
       "path": "governance/DEPENDENCY_BOUNDARY_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/requirements-ci.txt",
       "kind": "file"
     },
     {
@@ -22,7 +30,9 @@
   "read_dependencies": [
     "governance/ACCEPTANCE_CONTRACT_V1.json",
     "governance/PROJECT_METHOD_POLICY_V1.json",
-    "governance/WORK_PACKET_POLICY_V1.json"
+    "governance/RUFF_CI_CONFIG_V1.toml",
+    "governance/WORK_PACKET_POLICY_V1.json",
+    "scripts/run_assurance_ci.py"
   ],
   "acceptance_checks": [
     {

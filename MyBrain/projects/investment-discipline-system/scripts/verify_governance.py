@@ -126,6 +126,8 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "governance_tests/test_verify_governance.py",
     "governance_tests/test_verify_money_semantics.py",
     "governance_tests/test_work_packets.py",
+    "governance/RUFF_CI_CONFIG_V1.toml",
+    "governance/requirements-ci.txt",
     f"{REPOSITORY_SCOPE_PREFIX}{ASSURANCE_WORKFLOW_REPO_PATH}",
 }
 NORMATIVE_JSON_PATHS = (
@@ -157,6 +159,10 @@ NORMATIVE_JSON_PATHS = (
     "governance/DECISION_AUTHORITY_V1.json",
     "governance/WORK_PACKET_POLICY_V1.json",
     "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json",
+)
+NORMATIVE_AUXILIARY_PATHS = (
+    "governance/RUFF_CI_CONFIG_V1.toml",
+    "governance/requirements-ci.txt",
 )
 
 
@@ -4367,7 +4373,9 @@ def verify(allow_candidate: bool) -> list[str]:
         case_ids,
         errors,
     )
-    expected_frozen_files = set(NORMATIVE_JSON_PATHS) | {
+    expected_frozen_files = set(NORMATIVE_JSON_PATHS) | set(
+        NORMATIVE_AUXILIARY_PATHS
+    ) | {
         "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
     }
     change_control = contract.get("change_control")
