@@ -290,6 +290,14 @@ def verify_acceptance_cases(
                 errors.append(f"{operation_id} has invalid implementation target")
             if operation.get("required_by") not in PHASES:
                 errors.append(f"{operation_id} has invalid required_by phase")
+            expected_target = {
+                "design_freeze": "governance_tests/",
+                "product_release": "acceptance/",
+                "human_onboarding": "src/investment_discipline/conditionals.py",
+                "longitudinal": "src/investment_discipline/conditionals.py",
+            }.get(operation.get("required_by"))
+            if expected_target is not None and target != expected_target:
+                errors.append(f"{operation_id} implementation stage target differs")
     if operation_case_ids != case_ids:
         errors.append(
             "acceptance operation case coverage differs: "
@@ -368,6 +376,12 @@ def verify_verification_specs(
 ) -> set[str]:
     executor_ids = unique_ids(specs_doc.get("executors"), "verification executors", errors)
     input_ids = unique_ids(specs_doc.get("input_profiles"), "input profiles", errors)
+    assertion_evaluators = specs_doc.get("assertion_evaluators")
+    assertion_evaluator_ids = unique_ids(
+        assertion_evaluators, "assertion evaluators", errors
+    )
+    assertion_catalog = specs_doc.get("assertion_catalog")
+    assertion_ids = unique_ids(assertion_catalog, "assertion catalog", errors)
     oracles = specs_doc.get("oracles")
     oracle_ids = unique_ids(oracles, "oracles", errors)
     fixture_sets = specs_doc.get("negative_fixture_sets")
@@ -383,6 +397,7 @@ def verify_verification_specs(
             f"extra={sorted(spec_ids - verification_ids)}"
         )
 
+    oracle_assertions: set[str] = set()
     if isinstance(oracles, list):
         for oracle in oracles:
             if not isinstance(oracle, dict):
@@ -401,6 +416,60 @@ def verify_verification_specs(
                 errors.append(
                     f"{oracle_id} oracle definition is not structurally enforceable"
                 )
+            else:
+                oracle_assertions.update(assertions)
+                unknown_assertions = set(assertions) - assertion_ids
+                if unknown_assertions:
+                    errors.append(
+                        f"{oracle_id} references undefined assertions: "
+                        f"{sorted(unknown_assertions)}"
+                    )
+    if oracle_assertions != assertion_ids:
+        errors.append(
+            "assertion catalog coverage differs: "
+            f"unused={sorted(assertion_ids - oracle_assertions)}, "
+            f"missing={sorted(oracle_assertions - assertion_ids)}"
+        )
+    if isinstance(assertion_evaluators, list):
+        for evaluator in assertion_evaluators:
+            if not isinstance(evaluator, dict):
+                continue
+            evaluator_id = evaluator.get("id", "<unknown>")
+            if not isinstance(evaluator.get("kind"), str):
+                errors.append(f"{evaluator_id} evaluator kind is missing")
+            if (
+                not isinstance(evaluator.get("selector"), str)
+                or not re.fullmatch(
+                    r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+",
+                    evaluator.get("selector", ""),
+                )
+            ):
+                errors.append(f"{evaluator_id} evaluator selector is not parseable")
+            if evaluator.get("implementation_target") != "scripts/verify_release.py":
+                errors.append(f"{evaluator_id} evaluator implementation target differs")
+    if isinstance(assertion_catalog, list):
+        for assertion in assertion_catalog:
+            if not isinstance(assertion, dict):
+                continue
+            assertion_id = assertion.get("id", "<unknown>")
+            if assertion.get("evaluator_id") not in assertion_evaluator_ids:
+                errors.append(f"{assertion_id} references unknown assertion evaluator")
+            observation_schema = assertion.get("observation_schema")
+            if (
+                not isinstance(observation_schema, dict)
+                or set(observation_schema.get("required", []))
+                != {
+                    "assertion_id",
+                    "observed",
+                    "expected",
+                    "raw_evidence_hash",
+                }
+                or observation_schema.get("bare_boolean_without_raw_evidence_allowed")
+                is not False
+            ):
+                errors.append(f"{assertion_id} observation schema differs")
+            if assertion.get("failure_outcome") != "verification_fail":
+                errors.append(f"{assertion_id} failure outcome differs")
 
     referenced_cases: set[str] = set()
     fixture_cases_by_id: dict[str, set[str]] = {}
@@ -596,11 +665,79 @@ def verify_reference_cases(
         errors.append(f"{label} references unknown acceptance cases: {sorted(unknown)}")
 
 
+def verify_bound_items(
+    items: Any,
+    label: str,
+    expected_ids: set[str],
+    value_key: str,
+    requirement_ids: set[str],
+    verification_ids: set[str],
+    case_ids: set[str],
+    errors: list[str],
+    *,
+    shared_binding: dict[str, Any] | None = None,
+) -> None:
+    item_ids = unique_ids(items, label, errors)
+    if item_ids != expected_ids:
+        errors.append(
+            f"{label} clause ids differ: "
+            f"missing={sorted(expected_ids - item_ids)}, "
+            f"extra={sorted(item_ids - expected_ids)}"
+        )
+    if not isinstance(items, list):
+        return
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        item_id = item.get("id", "<unknown>")
+        if not isinstance(item.get(value_key), str) or not item.get(value_key):
+            errors.append(f"{item_id} has no {value_key}")
+        binding = shared_binding if shared_binding is not None else item
+        for key, known in (
+            ("requirement_ids", requirement_ids),
+            ("verification_ids", verification_ids),
+            ("acceptance_case_ids", case_ids),
+        ):
+            references = binding.get(key) if isinstance(binding, dict) else None
+            if (
+                not isinstance(references, list)
+                or not references
+                or not all(isinstance(reference, str) for reference in references)
+            ):
+                errors.append(f"{item_id} has no {key}")
+                continue
+            unknown = set(references) - known
+            if unknown:
+                errors.append(f"{item_id} references unknown {key}: {sorted(unknown)}")
+
+
+def verify_expression(
+    node: Any, allowed_operators: set[str], label: str, errors: list[str]
+) -> None:
+    if isinstance(node, str):
+        return
+    if not isinstance(node, dict):
+        errors.append(f"{label} expression node must be string or object")
+        return
+    operator = node.get("op")
+    arguments = node.get("args")
+    if operator not in allowed_operators:
+        errors.append(f"{label} uses unknown expression operator: {operator!r}")
+    if not isinstance(arguments, list) or not arguments:
+        errors.append(f"{label} expression has no args")
+        return
+    for index, argument in enumerate(arguments):
+        verify_expression(argument, allowed_operators, f"{label}.args[{index}]", errors)
+
+
 def verify_normative_policy_anchors(
     money: dict[str, Any],
     market: dict[str, Any],
     field: dict[str, Any],
     private: dict[str, Any],
+    requirement_ids: set[str],
+    verification_ids: set[str],
+    case_ids: set[str],
     errors: list[str],
 ) -> None:
     decimal = money.get("decimal_context")
@@ -619,11 +756,96 @@ def verify_normative_policy_anchors(
         }
         if decimal != expected_decimal:
             errors.append("money decimal_context differs from the frozen V1 semantics")
+    expression_language = money.get("expression_language")
+    allowed_operators = (
+        set(expression_language.get("operators", {}))
+        if isinstance(expression_language, dict)
+        else set()
+    )
+    if (
+        not isinstance(expression_language, dict)
+        or expression_language.get("numeric_type")
+        != "Decimal_from_canonical_base10_string"
+        or not {
+            "add",
+            "subtract",
+            "multiply",
+            "sum",
+            "negate",
+            "quantize",
+            "map_quantized_multiply",
+        }.issubset(allowed_operators)
+    ):
+        errors.append("money expression language differs")
+    evaluator_ids = unique_ids(
+        money.get("invariant_evaluators"), "money invariant evaluators", errors
+    )
+    booking_rules = money.get("booking_rules")
+    booking_ids = unique_ids(booking_rules, "money booking rules", errors)
+    if booking_ids != {"MONEY-BOOK-BUY", "MONEY-BOOK-SELL", "MONEY-NAV"}:
+        errors.append("money booking rule ids differ")
+    if isinstance(booking_rules, list):
+        for booking in booking_rules:
+            if not isinstance(booking, dict):
+                continue
+            booking_id = booking.get("id", "<unknown>")
+            for key, known in (
+                ("requirement_ids", requirement_ids),
+                ("verification_ids", verification_ids),
+                ("acceptance_case_ids", case_ids),
+            ):
+                references = booking.get(key)
+                if (
+                    not isinstance(references, list)
+                    or not references
+                    or set(references) - known
+                ):
+                    errors.append(f"{booking_id} has invalid {key}")
+            steps = booking.get("calculation_steps")
+            step_ids = unique_ids(steps, f"{booking_id} calculation steps", errors)
+            if not step_ids:
+                errors.append(f"{booking_id} has no calculation steps")
+            if isinstance(steps, list):
+                outputs: set[str] = set()
+                for step in steps:
+                    if not isinstance(step, dict):
+                        continue
+                    output = step.get("output")
+                    if not isinstance(output, str) or output in outputs:
+                        errors.append(f"{booking_id} has invalid or duplicate output")
+                    else:
+                        outputs.add(output)
+                    verify_expression(
+                        {"op": step.get("op"), "args": step.get("args")},
+                        allowed_operators,
+                        f"{booking_id}.{step.get('id')}",
+                        errors,
+                    )
+            invariants = booking.get("invariants")
+            invariant_ids = unique_ids(invariants, f"{booking_id} invariants", errors)
+            if not invariant_ids:
+                errors.append(f"{booking_id} has no structured invariants")
+            if isinstance(invariants, list):
+                for invariant in invariants:
+                    if not isinstance(invariant, dict):
+                        continue
+                    if invariant.get("evaluator_id") not in evaluator_ids:
+                        errors.append(
+                            f"{invariant.get('id', '<unknown>')} uses unknown evaluator"
+                        )
+                    for expression_key in ("left", "right"):
+                        if expression_key in invariant:
+                            verify_expression(
+                                invariant[expression_key],
+                                allowed_operators,
+                                f"{invariant.get('id')}.{expression_key}",
+                                errors,
+                            )
+
+    actions = money.get("corporate_action_matrix")
     action_types = {
-        item.get("type")
-        for item in money.get("corporate_action_matrix", [])
-        if isinstance(item, dict)
-    }
+        item.get("type") for item in actions if isinstance(item, dict)
+    } if isinstance(actions, list) else set()
     expected_actions = {
         "split",
         "reverse_split",
@@ -638,6 +860,36 @@ def verify_normative_policy_anchors(
     }
     if action_types != expected_actions:
         errors.append("money corporate action matrix differs")
+    expected_action_ids = {
+        "ACTION-SPLIT",
+        "ACTION-REVERSE-SPLIT",
+        "ACTION-CASH-DIVIDEND",
+        "ACTION-TICKER-NAME-CHANGE",
+        "ACTION-CASH-MERGER",
+        "ACTION-STOCK-MERGER",
+        "ACTION-SPINOFF",
+        "ACTION-CASH-IN-LIEU",
+        "ACTION-DELISTING-BANKRUPTCY",
+        "ACTION-CORRECTION-REVERSAL",
+    }
+    verify_bound_items(
+        actions,
+        "money corporate actions",
+        expected_action_ids,
+        "effect",
+        requirement_ids,
+        verification_ids,
+        case_ids,
+        errors,
+    )
+    if money.get("corporate_action_idempotency_key_fields") != [
+        "provider",
+        "stable_security_id",
+        "effective_at",
+        "action_type",
+        "revision_id",
+    ]:
+        errors.append("money corporate action idempotency key differs")
     if "one SQLite transaction" not in str(money.get("transaction_boundary", "")):
         errors.append("money transaction boundary is not atomic")
 
@@ -648,10 +900,49 @@ def verify_normative_policy_anchors(
         "next eligible session T+1 using the preregistered fill-price model"
     ):
         errors.append("market default fill timing differs")
-    if not isinstance(benchmark, dict) or "total-return method" not in set(
-        benchmark.get("required_fields", [])
+    benchmark_fields = benchmark.get("required_fields") if isinstance(benchmark, dict) else None
+    verify_bound_items(
+        benchmark_fields,
+        "market benchmark fields",
+        {
+            "BENCHMARK-SECURITY",
+            "BENCHMARK-SUITABILITY",
+            "BENCHMARK-CURRENCY",
+            "BENCHMARK-CALENDAR",
+            "BENCHMARK-TOTAL-RETURN",
+            "BENCHMARK-COST",
+            "BENCHMARK-CASH",
+        },
+        "field",
+        requirement_ids,
+        verification_ids,
+        case_ids,
+        errors,
+    )
+    if not isinstance(benchmark, dict) or not any(
+        isinstance(item, dict) and item.get("field") == "total-return method"
+        for item in (benchmark_fields or [])
     ):
         errors.append("market benchmark lacks total-return semantics")
+    lineage_fields = lineage.get("root_fingerprint_fields") if isinstance(lineage, dict) else None
+    verify_bound_items(
+        lineage_fields,
+        "market root fingerprint fields",
+        {
+            "ROOT-ECONOMIC-MECHANISM",
+            "ROOT-SIGNAL-GRAPH",
+            "ROOT-DECISION-CADENCE",
+            "ROOT-UNIVERSE-FAMILY",
+            "ROOT-DATA-TRANSFORMS",
+            "ROOT-BENCHMARK-FAMILY",
+            "ROOT-PRIMARY-METRIC",
+        },
+        "field",
+        requirement_ids,
+        verification_ids,
+        case_ids,
+        errors,
+    )
     if (
         not isinstance(lineage, dict)
         or lineage.get("rename_does_not_reset") is not True
@@ -671,6 +962,39 @@ def verify_normative_policy_anchors(
         or onboarding.get("initial_policy_cooling", {}).get("minimum_hours") != 24
     ):
         errors.append("field-use human onboarding boundary differs")
+    if isinstance(onboarding, dict):
+        verify_bound_items(
+            onboarding.get("required_inputs"),
+            "field-use onboarding inputs",
+            {
+                "ONBOARD-HUMAN-CAPABILITY",
+                "ONBOARD-PAPER-MANDATE",
+                "ONBOARD-RISK-PARAMETERS",
+                "ONBOARD-REAL-SNAPSHOT",
+                "ONBOARD-REAL-RESEARCH",
+                "ONBOARD-HUMAN-DECISION",
+            },
+            "field",
+            requirement_ids,
+            verification_ids,
+            case_ids,
+            errors,
+        )
+        verify_bound_items(
+            onboarding.get("prohibited_substitutes"),
+            "field-use prohibited substitutes",
+            {
+                "SUBSTITUTE-FIXTURE-JOURNEY",
+                "SUBSTITUTE-AI-HUMAN-FIELDS",
+                "SUBSTITUTE-ACTOR-LABEL",
+                "SUBSTITUTE-BUILDER-SCREENSHOT",
+            },
+            "field",
+            requirement_ids,
+            verification_ids,
+            case_ids,
+            errors,
+        )
     urgency_states = (
         {
             item.get("id"): item.get("new_order_delay_hours")
@@ -694,6 +1018,45 @@ def verify_normative_policy_anchors(
         or "design_reopened" not in str(longitudinal.get("failure_rule", ""))
     ):
         errors.append("field-use longitudinal failure rule differs")
+    if isinstance(longitudinal, dict):
+        verify_bound_items(
+            longitudinal.get("required_human_fields_without_defaults"),
+            "field-use required human fields",
+            {
+                "FIELD-WINDOW-START",
+                "FIELD-WINDOW-END",
+                "FIELD-MIN-REAL-RESEARCH",
+                "FIELD-MIN-NO-TRADE",
+                "FIELD-MAX-ACTIVE-MINUTES",
+                "FIELD-MAX-OVERDUE-RATE",
+                "FIELD-ABANDONMENT",
+                "FIELD-BEHAVIOR-SUCCESS",
+                "FIELD-FAILURE-ACTION",
+            },
+            "field",
+            requirement_ids,
+            verification_ids,
+            case_ids,
+            errors,
+            shared_binding=longitudinal.get("required_human_fields_binding"),
+        )
+        verify_bound_items(
+            longitudinal.get("minimum_structure"),
+            "field-use minimum structure",
+            {
+                "FIELD-ORDERED-WINDOW",
+                "FIELD-POST-REGISTRATION-ONLY",
+                "FIELD-NO-FIXTURE-COUNT",
+                "FIELD-ALL-ATTEMPTS-COUNT",
+                "FIELD-NATURAL-LONG-GAP",
+            },
+            "rule",
+            requirement_ids,
+            verification_ids,
+            case_ids,
+            errors,
+            shared_binding=longitudinal.get("minimum_structure_binding"),
+        )
 
     runtime = private.get("runtime_storage")
     backup = private.get("backup_storage")
@@ -706,6 +1069,21 @@ def verify_normative_policy_anchors(
         or runtime.get("symlink_components_allowed") is not False
     ):
         errors.append("private runtime storage boundary differs")
+    if isinstance(runtime, dict):
+        verify_bound_items(
+            runtime.get("must_be_outside"),
+            "private runtime exclusion clauses",
+            {
+                "PRIVATE-OUTSIDE-GIT",
+                "PRIVATE-OUTSIDE-PROJECT",
+                "PRIVATE-OUTSIDE-SYNC",
+            },
+            "field",
+            requirement_ids,
+            verification_ids,
+            case_ids,
+            errors,
+        )
     if (
         not isinstance(backup, dict)
         or backup.get("application_encryption") != "not_implemented_do_not_invent_crypto"
@@ -713,6 +1091,28 @@ def verify_normative_policy_anchors(
         or "no automatic deletion" not in str(backup.get("retention", ""))
     ):
         errors.append("private backup lifecycle boundary differs")
+    if isinstance(backup, dict):
+        verify_bound_items(
+            backup.get("manifest"),
+            "private backup manifest clauses",
+            {
+                "BACKUP-MANIFEST-CLASSIFICATION",
+                "BACKUP-MANIFEST-DATABASE-HASH",
+                "BACKUP-MANIFEST-ANCHOR-HASH",
+                "BACKUP-MANIFEST-ARTIFACT-HASHES",
+                "BACKUP-MANIFEST-SCHEMA",
+                "BACKUP-MANIFEST-APP-COMMIT",
+                "BACKUP-MANIFEST-PERMISSIONS",
+                "BACKUP-MANIFEST-ENCRYPTION",
+                "BACKUP-MANIFEST-CREATED-AT",
+            },
+            "field",
+            requirement_ids,
+            verification_ids,
+            case_ids,
+            errors,
+            shared_binding=backup.get("manifest_clause_binding"),
+        )
 
 
 def verify_implementation_targets(
@@ -1240,7 +1640,14 @@ def verify(allow_candidate: bool) -> list[str]:
     ):
         verify_reference_cases(label, document, case_ids, errors)
     verify_normative_policy_anchors(
-        money_spec, market_policy, field_protocol, private_data_policy, errors
+        money_spec,
+        market_policy,
+        field_protocol,
+        private_data_policy,
+        requirement_ids,
+        verification_ids,
+        case_ids,
+        errors,
     )
     expected_frozen_files = set(NORMATIVE_JSON_PATHS) | {
         "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"

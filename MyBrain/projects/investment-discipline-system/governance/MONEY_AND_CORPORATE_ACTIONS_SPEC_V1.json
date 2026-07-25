@@ -57,7 +57,7 @@
       "id": "MONEY-BOOK-SELL",
       "requirement_ids": ["REQ-PAPER-003"],
       "verification_ids": ["V-MONEY", "V-ATOMICITY"],
-      "acceptance_case_ids": ["CASE-MONEY-AUDIT-ROLLBACK", "CASE-MONEY-ROUNDING"],
+      "acceptance_case_ids": ["CASE-MONEY-SELL-ROUNDING"],
       "inputs": ["price", "filled_quantity", "fee", "cash_before", "position_before"],
       "calculation_steps": [
         {"id": "SELL-NOTIONAL", "output": "notional", "op": "quantize", "quantum": "money", "args": [{"op": "multiply", "args": ["price", "filled_quantity"]}]},
@@ -188,6 +188,7 @@
   "required_reference_cases": [
     "CASE-MONEY-AUDIT-ROLLBACK",
     "CASE-MONEY-ROUNDING",
+    "CASE-MONEY-SELL-ROUNDING",
     "CASE-SPLIT-IDEMPOTENT",
     "CASE-REVERSE-SPLIT-IDEMPOTENT",
     "CASE-DIVIDEND-IDEMPOTENT",
