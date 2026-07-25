@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify that the project candidate is tracked, clean, and present on its upstream."""
+"""Verify tracked files, cleanliness, and the local upstream-tracking state."""
 
 from __future__ import annotations
 

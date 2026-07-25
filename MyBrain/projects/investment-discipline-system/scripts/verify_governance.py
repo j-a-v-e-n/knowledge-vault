@@ -1468,7 +1468,10 @@ def verify_assurance_subjects(
 
 
 def verify_research_register(
-    research: dict[str, Any], allow_candidate: bool, errors: list[str]
+    research: dict[str, Any],
+    contract: dict[str, Any],
+    allow_candidate: bool,
+    errors: list[str],
 ) -> None:
     expected_source_classes = {
         "official_vendor_engineering",
@@ -1621,12 +1624,120 @@ def verify_research_register(
         ):
             errors.append(f"{round_id} new architecture class list differs")
         if result == "passed_freeze":
+            candidate_commit = challenge_round.get("candidate_commit")
+            candidate_tree = challenge_round.get("candidate_tree")
+            if not isinstance(candidate_commit, str) or not re.fullmatch(
+                r"[0-9a-f]{40}", candidate_commit
+            ):
+                errors.append(f"{round_id} passing round lacks candidate_commit")
+            if not isinstance(candidate_tree, str) or not re.fullmatch(
+                r"[0-9a-f]{40}", candidate_tree
+            ):
+                errors.append(f"{round_id} passing round lacks candidate_tree")
             if new_classes:
                 errors.append(f"{round_id} passed while adding architecture classes")
             if challenge_round.get("open_critical_count") != 0:
                 errors.append(f"{round_id} passed with open critical findings")
             if challenge_round.get("open_major_count") != 0:
                 errors.append(f"{round_id} passed with open major findings")
+            if not isinstance(evidence_path, str) or not evidence_path.endswith(".json"):
+                errors.append(
+                    f"{round_id} passing review evidence must be machine-readable JSON"
+                )
+            elif (PROJECT_ROOT / evidence_path).is_file():
+                evidence = load_json(PROJECT_ROOT / evidence_path, errors)
+                required_evidence_fields = {
+                    "schema_version",
+                    "subject_id",
+                    "review_locator",
+                    "review_input",
+                    "review_input_sha256",
+                    "candidate_commit",
+                    "candidate_tree",
+                    "verdict",
+                    "open_critical_count",
+                    "open_major_count",
+                    "new_architecture_changing_classes",
+                    "participated_in_candidate_construction",
+                    "write_access_used",
+                    "reviewed_files",
+                    "finding_ids",
+                }
+                missing_evidence = required_evidence_fields - set(evidence)
+                if missing_evidence:
+                    errors.append(
+                        f"{round_id} passing review evidence missing fields: "
+                        f"{sorted(missing_evidence)}"
+                    )
+                if evidence.get("schema_version") != 1:
+                    errors.append(f"{round_id} passing review evidence schema differs")
+                if evidence.get("subject_id") not in set(reviewers or []):
+                    errors.append(
+                        f"{round_id} passing review evidence subject differs"
+                    )
+                if (
+                    not isinstance(evidence.get("review_locator"), str)
+                    or not evidence.get("review_locator")
+                    or not isinstance(evidence.get("review_input"), str)
+                    or not evidence.get("review_input")
+                    or not isinstance(evidence.get("review_input_sha256"), str)
+                    or not re.fullmatch(
+                        r"[0-9a-f]{64}", evidence.get("review_input_sha256", "")
+                    )
+                    or sha256_text(evidence.get("review_input", ""))
+                    != evidence.get("review_input_sha256")
+                ):
+                    errors.append(
+                        f"{round_id} passing review provenance is incomplete"
+                    )
+                expected_evidence = {
+                    "candidate_commit": candidate_commit,
+                    "candidate_tree": candidate_tree,
+                    "verdict": "passed_freeze",
+                    "open_critical_count": 0,
+                    "open_major_count": 0,
+                    "new_architecture_changing_classes": [],
+                    "participated_in_candidate_construction": False,
+                    "write_access_used": False,
+                }
+                for key, expected in expected_evidence.items():
+                    if evidence.get(key) != expected:
+                        errors.append(
+                            f"{round_id} passing review evidence {key} differs"
+                        )
+                for key in ("reviewed_files", "finding_ids"):
+                    values = evidence.get(key)
+                    if (
+                        not isinstance(values, list)
+                        or not all(isinstance(item, str) for item in values)
+                        or len(values) != len(set(values))
+                    ):
+                        errors.append(
+                            f"{round_id} passing review evidence {key} differs"
+                        )
+                if not evidence.get("reviewed_files"):
+                    errors.append(
+                        f"{round_id} passing review evidence has no reviewed files"
+                    )
+                frozen_files = contract.get("change_control", {}).get("frozen_files")
+                if isinstance(frozen_files, list) and isinstance(
+                    evidence.get("reviewed_files"), list
+                ):
+                    missing_review_scope = set(frozen_files) - set(
+                        evidence["reviewed_files"]
+                    )
+                    if missing_review_scope:
+                        errors.append(
+                            f"{round_id} passing review omitted frozen files: "
+                            f"{sorted(missing_review_scope)}"
+                        )
+                resolved_tree = run_git(
+                    ["rev-parse", f"{candidate_commit}^{{tree}}"], errors
+                )
+                if resolved_tree and resolved_tree != candidate_tree:
+                    errors.append(
+                        f"{round_id} passing review candidate tree differs"
+                    )
 
     stop_rule = research.get("stop_rule")
     stop_met = isinstance(stop_rule, dict) and stop_rule.get("met") is True
@@ -1998,7 +2109,7 @@ def verify(allow_candidate: bool) -> list[str]:
         errors,
     )
     verify_assurance_subjects(assurance_subjects, research, errors)
-    verify_research_register(research, allow_candidate, errors)
+    verify_research_register(research, contract, allow_candidate, errors)
     verify_conditionals(contract, requirement_ids, case_ids, errors)
     verify_gate_catalogs(contract, executor_ids, errors)
     for label, document in (

@@ -20,7 +20,6 @@ PROJECT_ROOT = Path(
 SCRIPT_DIR = Path(__file__).resolve().parent
 GOVERNANCE = PROJECT_ROOT / "governance"
 CONTRACT = GOVERNANCE / "ACCEPTANCE_CONTRACT_V1.json"
-RESEARCH = GOVERNANCE / "AI_PROJECT_RESEARCH_REGISTER_V1.json"
 BUNDLE = GOVERNANCE / "FROZEN_BUNDLE_V1.json"
 CANDIDATE_VERIFIER = SCRIPT_DIR / "verify_governance.py"
 REMOTE_VERIFIER = SCRIPT_DIR / "verify_remote_commit.py"
@@ -50,9 +49,7 @@ def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
-def run_python(
-    script: Path, *args: str
-) -> subprocess.CompletedProcess[str]:
+def run_python(script: Path, *args: str) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env["IDS_PROJECT_ROOT"] = str(PROJECT_ROOT)
     return subprocess.run(
@@ -113,9 +110,7 @@ def frozen_file_paths(contract: dict) -> list[str]:
     return safe_files
 
 
-def require_frozen_statuses(
-    frozen_files: list[str],
-) -> tuple[dict, dict]:
+def require_frozen_statuses(frozen_files: list[str]) -> dict:
     documents: dict[str, dict] = {}
     for relative in frozen_files:
         if Path(relative).suffix.lower() != ".json":
@@ -143,7 +138,7 @@ def require_frozen_statuses(
     stop_rule = research.get("stop_rule")
     if not isinstance(stop_rule, dict) or stop_rule.get("met") is not True:
         raise SystemExit("research stop rule is not met")
-    return contract, research
+    return contract
 
 
 def require_clean_exact_baseline(baseline: str) -> None:
@@ -202,8 +197,7 @@ def main() -> int:
         CONTRACT, "governance/ACCEPTANCE_CONTRACT_V1.json"
     )
     frozen_files = frozen_file_paths(candidate_contract)
-    contract, research = require_frozen_statuses(frozen_files)
-    del research
+    contract = require_frozen_statuses(frozen_files)
 
     require_clean_exact_baseline(baseline)
     remote_facts = require_direct_remote(baseline, args.remote, args.branch)
@@ -240,7 +234,11 @@ def main() -> int:
         "upstream_ref_at_creation": remote_facts.get("ref"),
         "remote_at_creation": remote_facts.get("remote"),
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "creation_rule": "two-stage: candidate governance validated and normative baseline directly observed on the remote before this bundle; bundle itself must be committed and pushed next",
+        "creation_rule": (
+            "two-stage: candidate governance validated and normative baseline "
+            "directly observed on the remote before this bundle; bundle itself "
+            "must be committed and pushed next"
+        ),
         "files": entries,
     }
     payload = (json.dumps(bundle, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
