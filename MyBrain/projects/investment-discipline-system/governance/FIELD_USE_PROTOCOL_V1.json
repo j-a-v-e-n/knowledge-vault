@@ -10,18 +10,23 @@
   "human_onboarding": {
     "requires_real_human_executor": true,
     "required_inputs": [
-      "human-only local confirmation capability",
-      "Javen-authored paper mandate",
-      "Javen-selected risk parameters",
-      "one real current market snapshot with non-fixture pedigree",
-      "one real research case containing at least one support, one challenge and one unknown",
-      "one human decision including no-trade as an available outcome"
+      {"id": "ONBOARD-HUMAN-CAPABILITY", "field": "human-only local confirmation capability", "requirement_ids": ["REQ-AI-002", "REQ-UX-004"], "verification_ids": ["V-HUMAN-CAPABILITY", "V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-HUMAN-REAL-JOURNEY"]},
+      {"id": "ONBOARD-PAPER-MANDATE", "field": "Javen-authored paper mandate", "requirement_ids": ["REQ-RISK-001", "REQ-UX-004"], "verification_ids": ["V-HUMAN-CAPABILITY", "V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-HUMAN-REAL-JOURNEY"]},
+      {"id": "ONBOARD-RISK-PARAMETERS", "field": "Javen-selected risk parameters", "requirement_ids": ["REQ-RISK-001", "REQ-UX-004"], "verification_ids": ["V-HUMAN-CAPABILITY", "V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-HUMAN-REAL-JOURNEY"]},
+      {"id": "ONBOARD-REAL-SNAPSHOT", "field": "one real current market snapshot with non-fixture pedigree", "requirement_ids": ["REQ-UX-004"], "verification_ids": ["V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-HUMAN-REAL-JOURNEY", "CASE-FIELD-USE-FIXTURE-REJECTED"]},
+      {"id": "ONBOARD-REAL-RESEARCH", "field": "one real research case containing at least one support, one challenge and one unknown", "requirement_ids": ["REQ-UX-004"], "verification_ids": ["V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-HUMAN-REAL-JOURNEY"]},
+      {"id": "ONBOARD-HUMAN-DECISION", "field": "one human decision including no-trade as an available outcome", "requirement_ids": ["REQ-HUMAN-001", "REQ-UX-004"], "verification_ids": ["V-HUMAN-CAPABILITY", "V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-HUMAN-REAL-JOURNEY"]}
     ],
     "initial_policy_cooling": {
       "minimum_hours": 24,
       "rule": "first mandate and policy are scheduled, not immediately active; changes during cooling restart the interval"
     },
-    "prohibited_substitutes": ["fixture-only journey", "AI-authored human fields", "request actor label", "builder screenshot without raw run"]
+    "prohibited_substitutes": [
+      {"id": "SUBSTITUTE-FIXTURE-JOURNEY", "field": "fixture-only journey", "requirement_ids": ["REQ-UX-004"], "verification_ids": ["V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-FIELD-USE-FIXTURE-REJECTED"]},
+      {"id": "SUBSTITUTE-AI-HUMAN-FIELDS", "field": "AI-authored human fields", "requirement_ids": ["REQ-AI-002", "REQ-UX-004"], "verification_ids": ["V-BEHAVIOR-GATE", "V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-AI-RUBBER-STAMP"]},
+      {"id": "SUBSTITUTE-ACTOR-LABEL", "field": "request actor label", "requirement_ids": ["REQ-AI-002"], "verification_ids": ["V-ACTOR-AUTH"], "acceptance_case_ids": ["CASE-HUMAN-REQUEST-ACTOR"]},
+      {"id": "SUBSTITUTE-BUILDER-SCREENSHOT", "field": "builder screenshot without raw run", "requirement_ids": ["REQ-UX-004", "REQ-QUAL-001"], "verification_ids": ["V-FIELD-USE-PROTOCOL"], "acceptance_case_ids": ["CASE-FIELD-USE-FIXTURE-REJECTED"]}
+    ]
   },
   "urgency_state_machine": {
     "states": [
@@ -36,23 +41,33 @@
   "longitudinal_protocol": {
     "must_be_preregistered_by_human_before_window": true,
     "required_human_fields_without_defaults": [
-      "window_start",
-      "window_end",
-      "minimum_real_research_cases",
-      "minimum_no_trade_or_defer_cases",
-      "maximum_acceptable_active_minutes_per_case",
-      "maximum_acceptable_overdue_review_rate",
-      "abandonment_definition",
-      "behavioral_success_criterion",
-      "failure_action"
+      {"id": "FIELD-WINDOW-START", "field": "window_start"},
+      {"id": "FIELD-WINDOW-END", "field": "window_end"},
+      {"id": "FIELD-MIN-REAL-RESEARCH", "field": "minimum_real_research_cases"},
+      {"id": "FIELD-MIN-NO-TRADE", "field": "minimum_no_trade_or_defer_cases"},
+      {"id": "FIELD-MAX-ACTIVE-MINUTES", "field": "maximum_acceptable_active_minutes_per_case"},
+      {"id": "FIELD-MAX-OVERDUE-RATE", "field": "maximum_acceptable_overdue_review_rate"},
+      {"id": "FIELD-ABANDONMENT", "field": "abandonment_definition"},
+      {"id": "FIELD-BEHAVIOR-SUCCESS", "field": "behavioral_success_criterion"},
+      {"id": "FIELD-FAILURE-ACTION", "field": "failure_action"}
     ],
+    "required_human_fields_binding": {
+      "requirement_ids": ["REQ-UX-004"],
+      "verification_ids": ["V-FIELD-USE-PROTOCOL", "V-CONDITIONAL-CLAIMS"],
+      "acceptance_case_ids": ["CASE-FIELD-USE-FAIL-REOPENS"]
+    },
     "minimum_structure": [
-      "window_end > window_start",
-      "only post-registration real cases count",
-      "fixture/demo/import-only cases do not count",
-      "all attempts and abandoned starts count",
-      "long-gap resume is exercised at least once if such a gap naturally occurs"
+      {"id": "FIELD-ORDERED-WINDOW", "rule": "window_end > window_start"},
+      {"id": "FIELD-POST-REGISTRATION-ONLY", "rule": "only post-registration real cases count"},
+      {"id": "FIELD-NO-FIXTURE-COUNT", "rule": "fixture/demo/import-only cases do not count"},
+      {"id": "FIELD-ALL-ATTEMPTS-COUNT", "rule": "all attempts and abandoned starts count"},
+      {"id": "FIELD-NATURAL-LONG-GAP", "rule": "long-gap resume is exercised at least once if such a gap naturally occurs"}
     ],
+    "minimum_structure_binding": {
+      "requirement_ids": ["REQ-UX-004", "REQ-OPS-004"],
+      "verification_ids": ["V-FIELD-USE-PROTOCOL", "V-HIATUS"],
+      "acceptance_case_ids": ["CASE-FIELD-USE-FAIL-REOPENS", "CASE-HIATUS-EXPIRES-AUTHORITY"]
+    },
     "failure_rule": "failed burden, abandonment, recovery or discipline criterion yields design_reopened; it cannot be converted to pass by changing the window after results are visible"
   },
   "required_reference_cases": [

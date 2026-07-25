@@ -235,6 +235,7 @@ def verify_acceptance_cases(
     schema = cases_doc.get("case_schema")
     required_fields = {
         "id",
+        "operation_id",
         "phase",
         "requirement_ids",
         "verification_ids",
@@ -253,6 +254,48 @@ def verify_acceptance_cases(
 
     cases = cases_doc.get("cases")
     case_ids = unique_ids(cases, "acceptance cases", errors)
+    operations = cases_doc.get("operation_catalog")
+    operation_ids = unique_ids(operations, "acceptance operation catalog", errors)
+    operation_by_id: dict[str, dict[str, Any]] = {}
+    operation_case_ids: set[str] = set()
+    if isinstance(operations, list):
+        for operation in operations:
+            if not isinstance(operation, dict):
+                continue
+            operation_id = operation.get("id", "<unknown>")
+            operation_by_id[operation_id] = operation
+            case_id = operation.get("case_id")
+            if not isinstance(case_id, str):
+                errors.append(f"{operation_id} has no case_id")
+            elif case_id in operation_case_ids:
+                errors.append(f"duplicate operation case binding: {case_id}")
+            else:
+                operation_case_ids.add(case_id)
+            if operation.get("kind") not in {"command", "domain_action"}:
+                errors.append(f"{operation_id} has invalid operation kind")
+            selector = operation.get("selector")
+            if (
+                not isinstance(selector, str)
+                or not re.fullmatch(
+                    r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+", selector
+                )
+            ):
+                errors.append(f"{operation_id} has no parseable selector")
+            target = operation.get("implementation_target")
+            if (
+                not isinstance(target, str)
+                or Path(target).is_absolute()
+                or ".." in Path(target).parts
+            ):
+                errors.append(f"{operation_id} has invalid implementation target")
+            if operation.get("required_by") not in PHASES:
+                errors.append(f"{operation_id} has invalid required_by phase")
+    if operation_case_ids != case_ids:
+        errors.append(
+            "acceptance operation case coverage differs: "
+            f"missing={sorted(case_ids - operation_case_ids)}, "
+            f"extra={sorted(operation_case_ids - case_ids)}"
+        )
     covered_requirements: set[str] = set()
     if not isinstance(cases, list):
         return case_ids
@@ -265,6 +308,15 @@ def verify_acceptance_cases(
             errors.append(f"{case_id} missing acceptance fields: {sorted(missing)}")
         if case.get("phase") not in PHASES:
             errors.append(f"{case_id} has invalid phase")
+        operation_id = case.get("operation_id")
+        operation = operation_by_id.get(operation_id)
+        if operation_id not in operation_ids or operation is None:
+            errors.append(f"{case_id} references unknown operation_id")
+        elif (
+            operation.get("case_id") != case_id
+            or operation.get("required_by") != case.get("phase")
+        ):
+            errors.append(f"{case_id} operation binding differs")
         for field, known_ids in (
             ("requirement_ids", requirement_ids),
             ("verification_ids", verification_ids),

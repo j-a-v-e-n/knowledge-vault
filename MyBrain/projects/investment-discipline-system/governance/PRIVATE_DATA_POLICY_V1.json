@@ -7,7 +7,11 @@
   },
   "runtime_storage": {
     "default": "~/Library/Application Support/InvestmentDisciplineSystem",
-    "must_be_outside": ["Git repository", "project directory", "known cloud-sync roots"],
+    "must_be_outside": [
+      {"id": "PRIVATE-OUTSIDE-GIT", "field": "Git repository", "requirement_ids": ["REQ-SEC-003"], "verification_ids": ["V-PRIVATE-DATA"], "acceptance_case_ids": ["CASE-BACKUP-SYNC-ROOT-REJECTED"]},
+      {"id": "PRIVATE-OUTSIDE-PROJECT", "field": "project directory", "requirement_ids": ["REQ-SEC-003"], "verification_ids": ["V-PRIVATE-DATA"], "acceptance_case_ids": ["CASE-BACKUP-SYNC-ROOT-REJECTED"]},
+      {"id": "PRIVATE-OUTSIDE-SYNC", "field": "known cloud-sync roots", "requirement_ids": ["REQ-SEC-003"], "verification_ids": ["V-PRIVATE-DATA"], "acceptance_case_ids": ["CASE-BACKUP-SYNC-ROOT-REJECTED"]}
+    ],
     "directory_mode": "0700",
     "file_mode": "0600",
     "symlink_components_allowed": false
@@ -18,7 +22,22 @@
     "application_encryption": "not_implemented_do_not_invent_crypto",
     "immutability": "backup writes a new nonexisting directory and never overwrites an earlier backup",
     "retention": "no automatic deletion in V1; deletion is a separate explicit user action and not delegated to AI",
-    "manifest": ["classification", "source database hash", "anchor hash", "artifact hashes", "schema", "app commit", "permissions", "encryption-status observation", "created_at"]
+    "manifest": [
+      {"id": "BACKUP-MANIFEST-CLASSIFICATION", "field": "classification"},
+      {"id": "BACKUP-MANIFEST-DATABASE-HASH", "field": "source database hash"},
+      {"id": "BACKUP-MANIFEST-ANCHOR-HASH", "field": "anchor hash"},
+      {"id": "BACKUP-MANIFEST-ARTIFACT-HASHES", "field": "artifact hashes"},
+      {"id": "BACKUP-MANIFEST-SCHEMA", "field": "schema"},
+      {"id": "BACKUP-MANIFEST-APP-COMMIT", "field": "app commit"},
+      {"id": "BACKUP-MANIFEST-PERMISSIONS", "field": "permissions"},
+      {"id": "BACKUP-MANIFEST-ENCRYPTION", "field": "encryption-status observation"},
+      {"id": "BACKUP-MANIFEST-CREATED-AT", "field": "created_at"}
+    ],
+    "manifest_clause_binding": {
+      "requirement_ids": ["REQ-OPS-001", "REQ-SEC-003"],
+      "verification_ids": ["V-BACKUP", "V-PRIVATE-DATA", "V-RESTORE"],
+      "acceptance_case_ids": ["CASE-BACKUP-PERMISSIONS", "CASE-BACKUP-UNENCRYPTED-STATUS", "CASE-BACKUP-NO-OVERWRITE", "CASE-LEDGER-TAIL-TRUNCATION"]
+    }
   },
   "classification": {
     "public_git_ok": ["code", "schemas", "fixtures", "redacted acceptance summaries"],

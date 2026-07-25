@@ -24,13 +24,29 @@
   },
   "benchmark_policy": {
     "selection_time": "frozen with hypothesis before testing",
-    "required_fields": ["benchmark security or series", "suitability rationale", "currency", "calendar", "total-return method", "cost treatment", "cash treatment"],
+    "required_fields": [
+      {"id": "BENCHMARK-SECURITY", "field": "benchmark security or series", "requirement_ids": ["REQ-BACKTEST-002"], "verification_ids": ["V-BENCHMARK", "V-MARKET-SIMULATION"], "acceptance_case_ids": ["CASE-BENCHMARK-TOTAL-RETURN"]},
+      {"id": "BENCHMARK-SUITABILITY", "field": "suitability rationale", "requirement_ids": ["REQ-BACKTEST-002"], "verification_ids": ["V-BENCHMARK"], "acceptance_case_ids": ["CASE-BENCHMARK-TOTAL-RETURN"]},
+      {"id": "BENCHMARK-CURRENCY", "field": "currency", "requirement_ids": ["REQ-BACKTEST-002"], "verification_ids": ["V-BENCHMARK"], "acceptance_case_ids": ["CASE-BENCHMARK-TOTAL-RETURN"]},
+      {"id": "BENCHMARK-CALENDAR", "field": "calendar", "requirement_ids": ["REQ-BACKTEST-002"], "verification_ids": ["V-BENCHMARK", "V-MARKET-SIMULATION"], "acceptance_case_ids": ["CASE-CALENDAR-MISSING-SESSION"]},
+      {"id": "BENCHMARK-TOTAL-RETURN", "field": "total-return method", "requirement_ids": ["REQ-BACKTEST-002"], "verification_ids": ["V-BENCHMARK", "V-MARKET-SIMULATION"], "acceptance_case_ids": ["CASE-BENCHMARK-TOTAL-RETURN"]},
+      {"id": "BENCHMARK-COST", "field": "cost treatment", "requirement_ids": ["REQ-BACKTEST-002"], "verification_ids": ["V-BENCHMARK"], "acceptance_case_ids": ["CASE-BENCHMARK-TOTAL-RETURN"]},
+      {"id": "BENCHMARK-CASH", "field": "cash treatment", "requirement_ids": ["REQ-BACKTEST-002"], "verification_ids": ["V-BENCHMARK"], "acceptance_case_ids": ["CASE-BENCHMARK-TOTAL-RETURN"]}
+    ],
     "comparison_rule": "strategy and benchmark use identical start/end eligible sessions and explicit coverage differences",
     "reference_rule": "golden fixtures are checked against an independently calculated reference sequence",
     "claim_boundary": "beating a benchmark in historical or paper data does not establish live investability"
   },
   "experiment_lineage": {
-    "root_fingerprint_fields": ["economic mechanism", "signal dependency graph", "decision cadence", "universe family", "data transformations", "benchmark family", "primary metric"],
+    "root_fingerprint_fields": [
+      {"id": "ROOT-ECONOMIC-MECHANISM", "field": "economic mechanism", "requirement_ids": ["REQ-RESEARCH-003"], "verification_ids": ["V-EXPERIMENT-FAMILY"], "acceptance_case_ids": ["CASE-FAMILY-RENAME"]},
+      {"id": "ROOT-SIGNAL-GRAPH", "field": "signal dependency graph", "requirement_ids": ["REQ-RESEARCH-003"], "verification_ids": ["V-EXPERIMENT-FAMILY"], "acceptance_case_ids": ["CASE-FAMILY-RENAME"]},
+      {"id": "ROOT-DECISION-CADENCE", "field": "decision cadence", "requirement_ids": ["REQ-RESEARCH-003"], "verification_ids": ["V-EXPERIMENT-FAMILY"], "acceptance_case_ids": ["CASE-FAMILY-RENAME"]},
+      {"id": "ROOT-UNIVERSE-FAMILY", "field": "universe family", "requirement_ids": ["REQ-RESEARCH-003"], "verification_ids": ["V-EXPERIMENT-FAMILY", "V-MARKET-SIMULATION"], "acceptance_case_ids": ["CASE-FAMILY-RENAME"]},
+      {"id": "ROOT-DATA-TRANSFORMS", "field": "data transformations", "requirement_ids": ["REQ-RESEARCH-003"], "verification_ids": ["V-EXPERIMENT-FAMILY"], "acceptance_case_ids": ["CASE-FAMILY-RENAME"]},
+      {"id": "ROOT-BENCHMARK-FAMILY", "field": "benchmark family", "requirement_ids": ["REQ-RESEARCH-003"], "verification_ids": ["V-EXPERIMENT-FAMILY", "V-BENCHMARK"], "acceptance_case_ids": ["CASE-FAMILY-RENAME", "CASE-BENCHMARK-TOTAL-RETURN"]},
+      {"id": "ROOT-PRIMARY-METRIC", "field": "primary metric", "requirement_ids": ["REQ-RESEARCH-003"], "verification_ids": ["V-EXPERIMENT-FAMILY"], "acceptance_case_ids": ["CASE-FAMILY-RENAME"]}
+    ],
     "rule": "parameter, symbol, cleaning, benchmark or presentation changes create descendants under the same root unless an independent adjudicator records a substantively new mechanism before seeing results",
     "rename_does_not_reset": true,
     "ai_origin_contamination_default": "unknown_contaminated",

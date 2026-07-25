@@ -21,11 +21,18 @@
       "multiply": {"arity": 2},
       "sum": {"minimum_arity": 1},
       "negate": {"arity": 1},
-      "quantize": {"arity": 1, "requires_quantum": true}
+      "quantize": {"arity": 1, "requires_quantum": true},
+      "map_quantized_multiply": {"arity": 2, "requires_quantum": true}
     },
     "quantum_symbols": ["price", "quantity", "money", "fee", "ratio"],
     "evaluation_rule": "evaluate the declared AST with Decimal only, then compare typed outputs and invariant operands exactly; the human formula string is non-normative."
   },
+  "invariant_evaluators": [
+    {"id": "EVAL-DECIMAL-EQUALITY", "kind": "typed_decimal_exact_equality"},
+    {"id": "EVAL-DECIMAL-GTE", "kind": "typed_decimal_greater_than_or_equal"},
+    {"id": "EVAL-SET-EQUALITY-OR-INCOMPLETE", "kind": "set_equality_else_explicit_incomplete_state"},
+    {"id": "EVAL-STATE-PREDICATE", "kind": "named_state_predicate"}
+  ],
   "booking_rules": [
     {
       "id": "MONEY-BOOK-BUY",
@@ -36,7 +43,9 @@
       "calculation_steps": [
         {"id": "BUY-NOTIONAL", "output": "notional", "op": "quantize", "quantum": "money", "args": [{"op": "multiply", "args": ["price", "filled_quantity"]}]},
         {"id": "BUY-CASH-AFTER", "output": "cash_after", "op": "quantize", "quantum": "money", "args": [{"op": "subtract", "args": ["cash_before", "notional", "fee"]}]},
-        {"id": "BUY-POSITION-AFTER", "output": "position_after", "op": "quantize", "quantum": "quantity", "args": [{"op": "add", "args": ["position_before", "filled_quantity"]}]}
+        {"id": "BUY-POSITION-AFTER", "output": "position_after", "op": "quantize", "quantum": "quantity", "args": [{"op": "add", "args": ["position_before", "filled_quantity"]}]},
+        {"id": "BUY-CASH-DELTA", "output": "cash_delta", "op": "subtract", "args": ["cash_after", "cash_before"]},
+        {"id": "BUY-QUANTITY-DELTA", "output": "quantity_delta", "op": "subtract", "args": ["position_after", "position_before"]}
       ],
       "formula": "notional=Q(price*quantity,money); cash_after=Q(cash_before-notional-fee,money); position_after=Q(position_before+quantity,quantity)",
       "invariants": [
@@ -53,7 +62,9 @@
       "calculation_steps": [
         {"id": "SELL-NOTIONAL", "output": "notional", "op": "quantize", "quantum": "money", "args": [{"op": "multiply", "args": ["price", "filled_quantity"]}]},
         {"id": "SELL-CASH-AFTER", "output": "cash_after", "op": "quantize", "quantum": "money", "args": [{"op": "add", "args": ["cash_before", "notional", {"op": "negate", "args": ["fee"]}]}]},
-        {"id": "SELL-POSITION-AFTER", "output": "position_after", "op": "quantize", "quantum": "quantity", "args": [{"op": "subtract", "args": ["position_before", "filled_quantity"]}]}
+        {"id": "SELL-POSITION-AFTER", "output": "position_after", "op": "quantize", "quantum": "quantity", "args": [{"op": "subtract", "args": ["position_before", "filled_quantity"]}]},
+        {"id": "SELL-CASH-DELTA", "output": "cash_delta", "op": "subtract", "args": ["cash_after", "cash_before"]},
+        {"id": "SELL-QUANTITY-DELTA", "output": "quantity_delta", "op": "subtract", "args": ["position_after", "position_before"]}
       ],
       "formula": "notional=Q(price*quantity,money); cash_after=Q(cash_before+notional-fee,money); position_after=Q(position_before-quantity,quantity)",
       "invariants": [
@@ -79,55 +90,95 @@
       ]
     }
   ],
+  "corporate_action_idempotency_key_fields": ["provider", "stable_security_id", "effective_at", "action_type", "revision_id"],
   "corporate_action_matrix": [
     {
+      "id": "ACTION-SPLIT",
       "type": "split",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
+      "acceptance_case_ids": ["CASE-SPLIT-IDEMPOTENT"],
       "v1_mode": "automatic",
-      "effect": "quantity=Q(quantity*ratio,quantity); per_share_cost=Q(per_share_cost/ratio,price); total_cost unchanged subject only to declared quantization",
-      "idempotency_key": "provider+security_id+effective_at+action_type+revision_id"
+      "effect": "quantity=Q(quantity*ratio,quantity); per_share_cost=Q(per_share_cost/ratio,price); total_cost unchanged subject only to declared quantization"
     },
     {
+      "id": "ACTION-REVERSE-SPLIT",
       "type": "reverse_split",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
+      "acceptance_case_ids": ["CASE-REVERSE-SPLIT-IDEMPOTENT"],
       "v1_mode": "automatic_with_cash_in_lieu_pending_if_fraction_disallowed",
       "effect": "same conservation rule as split; unresolved cash-in-lieu enters action_pending_manual and freezes affected security"
     },
     {
+      "id": "ACTION-CASH-DIVIDEND",
       "type": "cash_dividend",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
+      "acceptance_case_ids": ["CASE-DIVIDEND-IDEMPOTENT"],
       "v1_mode": "automatic",
       "effect": "cash_delta=Q(eligible_quantity*cash_per_share,money); position quantity unchanged; event uses ex/pay dates separately"
     },
     {
+      "id": "ACTION-TICKER-NAME-CHANGE",
       "type": "ticker_or_name_change",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
+      "acceptance_case_ids": ["CASE-TICKER-CHANGE-STABLE-IDENTITY"],
       "v1_mode": "automatic_identity_alias",
       "effect": "stable security_id unchanged; symbol validity interval closes and new interval opens"
     },
     {
+      "id": "ACTION-CASH-MERGER",
       "type": "cash_merger",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "acceptance_case_ids": ["CASE-CASH-MERGER-PENDING"],
       "v1_mode": "pending_manual",
       "effect": "affected security and dependent NAV/risk enter action_pending_manual until terms are confirmed"
     },
     {
+      "id": "ACTION-STOCK-MERGER",
       "type": "stock_merger",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "acceptance_case_ids": ["CASE-STOCK-MERGER-PENDING"],
       "v1_mode": "pending_manual",
       "effect": "no automatic quantity/cost transformation in V1"
     },
     {
+      "id": "ACTION-SPINOFF",
       "type": "spinoff",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "acceptance_case_ids": ["CASE-CORP-ACTION-UNKNOWN"],
       "v1_mode": "pending_manual",
       "effect": "no automatic basis allocation in V1"
     },
     {
+      "id": "ACTION-CASH-IN-LIEU",
       "type": "cash_in_lieu",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "acceptance_case_ids": ["CASE-CASH-IN-LIEU-PENDING"],
       "v1_mode": "pending_manual",
       "effect": "no guessed cash amount; affected reconciliation remains open"
     },
     {
+      "id": "ACTION-DELISTING-BANKRUPTCY",
       "type": "delisting_or_bankruptcy",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "acceptance_case_ids": ["CASE-DELISTING-NOT-ZERO-FILLED"],
       "v1_mode": "pending_manual",
       "effect": "position is never silently valued at zero; mark status unresolved until explicit evidence and event"
     },
     {
+      "id": "ACTION-CORRECTION-REVERSAL",
       "type": "correction_or_reversal",
+      "requirement_ids": ["REQ-PAPER-003", "REQ-LEDGER-001"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-LEDGER-TAMPER"],
+      "acceptance_case_ids": ["CASE-CORP-ACTION-CORRECTION"],
       "v1_mode": "compensating_event_only",
       "effect": "original action/event is immutable; correction creates a linked revision and compensating account event"
     }
