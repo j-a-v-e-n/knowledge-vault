@@ -14,6 +14,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FREEZER = PROJECT_ROOT / "scripts" / "freeze_governance.py"
 GIT_VERIFIER = PROJECT_ROOT / "scripts" / "verify_git_state.py"
+GOVERNANCE_VERIFIER = PROJECT_ROOT / "scripts" / "verify_governance.py"
 RESEARCH_RELATIVE = "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json"
 ASSURANCE_RELATIVE = "governance/ASSURANCE_SUBJECTS_V1.json"
 BUNDLE_RELATIVE = "governance/FROZEN_BUNDLE_V1.json"
@@ -342,6 +343,11 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             hashlib.sha256(
                 (self.root / FINAL_EVIDENCE_RELATIVE).read_bytes()
             ).hexdigest(),
+        )
+        self.commit_and_push("commit frozen bundle")
+        frozen_verification = self.run_project_script(GOVERNANCE_VERIFIER)
+        self.assertEqual(
+            frozen_verification.returncode, 0, frozen_verification.stdout
         )
 
     def test_direct_remote_mismatch_defeats_stale_local_upstream(self) -> None:
