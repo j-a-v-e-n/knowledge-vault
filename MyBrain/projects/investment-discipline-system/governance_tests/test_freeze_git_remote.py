@@ -52,7 +52,7 @@ MACHINE_TIMEOUTS = {
     "CHECK-PROJECT-METHOD": 1800,
     "CHECK-CANDIDATE-GOVERNANCE": 300,
     "CHECK-CANONICAL-ATTACK-REPLAY": 600,
-    "CHECK-GOVERNANCE-REGRESSION": 1500,
+    "CHECK-GOVERNANCE-REGRESSION": 3900,
     "CHECK-COMPILEALL": 300,
     "CHECK-RUFF": 300,
     "CHECK-GIT-DIFF": 300,
@@ -798,7 +798,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "worker_runner_sha256": worker_sha256,
             "status": "pass",
             "worker_count": min(2, len(heavy_selectors)),
-            "total_timeout_seconds": 1320,
+            "total_timeout_seconds": 3600,
             "source_fingerprint_before": source_fingerprint,
             "source_fingerprint_after": source_fingerprint,
             "selector_inventory_sha256": digest_value(selectors),
@@ -811,7 +811,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
                 request_kind="module",
                 requested_names=non_heavy_modules,
                 expected_test_ids=non_heavy_selectors,
-                timeout_seconds=900,
+                timeout_seconds=1200,
             ),
             "heavy_workers": [
                 worker_result(

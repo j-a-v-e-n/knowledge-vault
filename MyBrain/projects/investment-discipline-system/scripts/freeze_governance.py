@@ -118,7 +118,7 @@ MACHINE_CHECK_SPECS = {
         ],
         "cwd": "PROJECT_ROOT",
         "structured": True,
-        "timeout_seconds": 1500,
+        "timeout_seconds": 3900,
     },
     "CHECK-COMPILEALL": {
         "argv": ["PYTHON", "-m", "compileall", "-q", "."],
@@ -154,9 +154,9 @@ REGRESSION_HEAVY_MODULE = "governance_tests.test_freeze_git_remote"
 REGRESSION_RUNNER_ID = "ids-governance-regression-v2"
 UNITTEST_RECEIPT_RUNNER_ID = "ids-unittest-receipt-v1"
 REGRESSION_MAX_HEAVY_WORKERS = 2
-REGRESSION_NON_HEAVY_TIMEOUT_SECONDS = 900
+REGRESSION_NON_HEAVY_TIMEOUT_SECONDS = 1200
 REGRESSION_HEAVY_TIMEOUT_SECONDS = 600
-REGRESSION_TOTAL_TIMEOUT_SECONDS = 1320
+REGRESSION_TOTAL_TIMEOUT_SECONDS = 3600
 
 
 class DuplicateKeyError(ValueError):

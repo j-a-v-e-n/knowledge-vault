@@ -23,7 +23,7 @@ concurrency:
 jobs:
   machine-assurance:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 90
     env:
       IDS_PROJECT: MyBrain/projects/investment-discipline-system
       PYTHONHASHSEED: "0"

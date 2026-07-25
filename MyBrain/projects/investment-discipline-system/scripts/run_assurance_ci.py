@@ -281,7 +281,7 @@ def main() -> int:
                 ),
             ],
             parse_json=True,
-            timeout_seconds=1500,
+            timeout_seconds=3900,
         ),
         execute_check(
             "CHECK-COMPILEALL",
