@@ -25,8 +25,31 @@ RESEARCH_REGISTER = GOVERNANCE / "AI_PROJECT_RESEARCH_REGISTER_V1.json"
 SOURCE_EXCERPTS = GOVERNANCE / "USER_SOURCE_EXCERPTS_V1.json"
 VERIFICATION_SPECS = GOVERNANCE / "VERIFICATION_SPECS_V1.json"
 ASSURANCE_SUBJECTS = GOVERNANCE / "ASSURANCE_SUBJECTS_V1.json"
+ACCEPTANCE_CASES = GOVERNANCE / "ACCEPTANCE_CASES_V1.json"
+MONEY_SPEC = GOVERNANCE / "MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json"
+MARKET_POLICY = GOVERNANCE / "MARKET_SIMULATION_POLICY_V1.json"
+FIELD_PROTOCOL = GOVERNANCE / "FIELD_USE_PROTOCOL_V1.json"
+PRIVATE_DATA_POLICY = GOVERNANCE / "PRIVATE_DATA_POLICY_V1.json"
+IMPLEMENTATION_TARGETS = GOVERNANCE / "IMPLEMENTATION_TARGETS_V1.json"
 BLUEPRINT = PROJECT_ROOT / "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
 FROZEN_BUNDLE = GOVERNANCE / "FROZEN_BUNDLE_V1.json"
+
+PHASES = {"design_freeze", "product_release", "human_onboarding", "longitudinal"}
+NORMATIVE_JSON_PATHS = (
+    "governance/USER_SOURCE_EXCERPTS_V1.json",
+    "governance/USER_INTENT_V1.json",
+    "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+    "governance/ACCEPTANCE_CONTRACT_V1.json",
+    "governance/ACCEPTANCE_CASES_V1.json",
+    "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json",
+    "governance/MARKET_SIMULATION_POLICY_V1.json",
+    "governance/FIELD_USE_PROTOCOL_V1.json",
+    "governance/PRIVATE_DATA_POLICY_V1.json",
+    "governance/IMPLEMENTATION_TARGETS_V1.json",
+    "governance/VERIFICATION_SPECS_V1.json",
+    "governance/TRACEABILITY_V1.json",
+    "governance/ASSURANCE_SUBJECTS_V1.json",
+)
 
 
 class DuplicateKeyError(ValueError):
@@ -203,25 +226,157 @@ def verify_source_excerpts(
         )
 
 
+def verify_acceptance_cases(
+    cases_doc: dict[str, Any],
+    requirement_ids: set[str],
+    verification_ids: set[str],
+    errors: list[str],
+) -> set[str]:
+    schema = cases_doc.get("case_schema")
+    required_fields = {
+        "id",
+        "phase",
+        "requirement_ids",
+        "verification_ids",
+        "preconditions",
+        "operation",
+        "expected",
+    }
+    if not isinstance(schema, dict):
+        errors.append("acceptance case_schema must be an object")
+    else:
+        declared = schema.get("required")
+        if not isinstance(declared, list) or set(declared) != required_fields:
+            errors.append("acceptance case_schema required fields differ")
+        if set(schema.get("phase_enum", [])) != PHASES:
+            errors.append("acceptance case_schema phases differ")
+
+    cases = cases_doc.get("cases")
+    case_ids = unique_ids(cases, "acceptance cases", errors)
+    covered_requirements: set[str] = set()
+    if not isinstance(cases, list):
+        return case_ids
+    for index, case in enumerate(cases):
+        if not isinstance(case, dict):
+            continue
+        case_id = case.get("id", f"acceptance cases[{index}]")
+        missing = required_fields - set(case)
+        if missing:
+            errors.append(f"{case_id} missing acceptance fields: {sorted(missing)}")
+        if case.get("phase") not in PHASES:
+            errors.append(f"{case_id} has invalid phase")
+        for field, known_ids in (
+            ("requirement_ids", requirement_ids),
+            ("verification_ids", verification_ids),
+        ):
+            values = case.get(field)
+            if (
+                not isinstance(values, list)
+                or not values
+                or not all(isinstance(value, str) for value in values)
+                or len(values) != len(set(values))
+            ):
+                errors.append(f"{case_id} {field} must be a nonempty unique string list")
+                continue
+            unknown = set(values) - known_ids
+            if unknown:
+                errors.append(f"{case_id} references unknown {field}: {sorted(unknown)}")
+            if field == "requirement_ids":
+                covered_requirements.update(value for value in values if value in known_ids)
+        for field in ("preconditions", "operation", "expected"):
+            value = case.get(field)
+            if not isinstance(value, dict) or not value:
+                errors.append(f"{case_id} {field} must be a nonempty object")
+        expected = case.get("expected")
+        if isinstance(expected, dict):
+            serialized = json.dumps(expected, ensure_ascii=False).strip().lower()
+            if expected in ({"status": "pass"}, {"result": "pass"}) or serialized in {
+                '"pass"',
+                '{"pass": true}',
+            }:
+                errors.append(f"{case_id} has a bare pass oracle")
+            if any(term in serialized for term in ("does not crash", "looks correct")):
+                errors.append(f"{case_id} has a non-observable oracle")
+    if covered_requirements != requirement_ids:
+        errors.append(
+            "acceptance case requirement coverage differs: "
+            f"missing={sorted(requirement_ids - covered_requirements)}, "
+            f"extra={sorted(covered_requirements - requirement_ids)}"
+        )
+    return case_ids
+
+
 def verify_verification_specs(
     specs_doc: dict[str, Any],
     verification_ids: set[str],
     requirements: Any,
+    case_ids: set[str],
     errors: list[str],
-) -> None:
+) -> set[str]:
     executor_ids = unique_ids(specs_doc.get("executors"), "verification executors", errors)
     input_ids = unique_ids(specs_doc.get("input_profiles"), "input profiles", errors)
-    oracle_ids = unique_ids(specs_doc.get("oracles"), "oracles", errors)
-    fixture_ids = unique_ids(
-        specs_doc.get("negative_fixture_sets"), "negative fixture sets", errors
-    )
+    oracles = specs_doc.get("oracles")
+    oracle_ids = unique_ids(oracles, "oracles", errors)
+    fixture_sets = specs_doc.get("negative_fixture_sets")
+    fixture_ids = unique_ids(fixture_sets, "negative fixture sets", errors)
     specs = specs_doc.get("specs")
     spec_ids = unique_ids(specs, "verification specs", errors)
+    if set(specs_doc.get("phase_rules", {})) != PHASES:
+        errors.append("verification phase rules differ")
     if spec_ids != verification_ids:
         errors.append(
             "verification spec coverage differs: "
             f"missing={sorted(verification_ids - spec_ids)}, "
             f"extra={sorted(spec_ids - verification_ids)}"
+        )
+
+    if isinstance(oracles, list):
+        for oracle in oracles:
+            if not isinstance(oracle, dict):
+                continue
+            oracle_id = oracle.get("id", "<unknown>")
+            assertions = oracle.get("assertions")
+            if (
+                not isinstance(assertions, list)
+                or len(assertions) < 2
+                or not all(isinstance(item, str) and item for item in assertions)
+                or oracle.get("failure_is_nonzero") is not True
+                or oracle.get("bare_pass_forbidden") is not True
+                or "rule" in oracle
+                or any("always pass" in item.lower() for item in assertions if isinstance(item, str))
+            ):
+                errors.append(
+                    f"{oracle_id} oracle definition is not structurally enforceable"
+                )
+
+    referenced_cases: set[str] = set()
+    if isinstance(fixture_sets, list):
+        for fixture_set in fixture_sets:
+            if not isinstance(fixture_set, dict):
+                continue
+            fixture_id = fixture_set.get("id", "<unknown>")
+            cases = fixture_set.get("case_ids")
+            if (
+                not isinstance(cases, list)
+                or not cases
+                or not all(isinstance(item, str) for item in cases)
+                or len(cases) != len(set(cases))
+            ):
+                errors.append(f"{fixture_id} has no acceptance cases")
+                continue
+            if "cases" in fixture_set:
+                errors.append(f"{fixture_id} uses unbound free-text cases")
+            unknown = set(cases) - case_ids
+            if unknown:
+                errors.append(
+                    f"{fixture_id} references unknown acceptance cases: {sorted(unknown)}"
+                )
+            referenced_cases.update(item for item in cases if item in case_ids)
+    if referenced_cases != case_ids:
+        errors.append(
+            "negative fixture case coverage differs: "
+            f"missing={sorted(case_ids - referenced_cases)}, "
+            f"extra={sorted(referenced_cases - case_ids)}"
         )
 
     expected_requirements: dict[str, set[str]] = {
@@ -232,7 +387,10 @@ def verify_verification_specs(
             if not isinstance(requirement, dict):
                 continue
             req_id = requirement.get("id")
-            for verification_id in requirement.get("verification", []):
+            verifications = requirement.get("verification", [])
+            if not isinstance(verifications, list):
+                continue
+            for verification_id in verifications:
                 if verification_id in expected_requirements and isinstance(req_id, str):
                     expected_requirements[verification_id].add(req_id)
 
@@ -266,15 +424,24 @@ def verify_verification_specs(
             else:
                 evidence_paths.add(path)
             selector = spec.get("test_selector")
-            if not isinstance(selector, str) or not selector:
-                errors.append(f"{spec_id} has no test_selector")
+            if (
+                not isinstance(selector, str)
+                or not re.fullmatch(r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+", selector)
+            ):
+                errors.append(f"{spec_id} has no parseable test_selector")
             elif selector in selectors:
                 errors.append(f"duplicate verification test_selector: {selector}")
             else:
                 selectors.add(selector)
             required_for = spec.get("required_for")
-            if not isinstance(required_for, list) or "product_release" not in required_for:
-                errors.append(f"{spec_id} is not required for product_release")
+            if (
+                not isinstance(required_for, list)
+                or not required_for
+                or not all(isinstance(item, str) for item in required_for)
+                or len(required_for) != len(set(required_for))
+                or not set(required_for).issubset(PHASES)
+            ):
+                errors.append(f"{spec_id} has invalid required_for phases")
             actual_requirements = spec.get("requirement_ids")
             if not isinstance(actual_requirements, list):
                 errors.append(f"{spec_id} has no requirement_ids")
@@ -294,12 +461,16 @@ def verify_verification_specs(
         "run_id",
         "executor_id",
         "subject_id",
+        "started_at",
+        "completed_at",
         "status",
         "input_hashes",
         "raw_result_hashes",
+        "spec_sha256",
         "oracle_id",
         "oracle_observations",
-        "negative_cases",
+        "acceptance_case_results",
+        "selector_observation",
         "finding_ids",
     }
     if not isinstance(result_schema, dict):
@@ -310,6 +481,261 @@ def verify_verification_specs(
             set(actual_fields)
         ):
             errors.append("verification result_schema is missing release-binding fields")
+        if "not_run_preimplementation" not in set(result_schema.get("status_enum", [])):
+            errors.append("verification result_schema lacks preimplementation state")
+    return executor_ids
+
+
+def verify_reference_cases(
+    label: str,
+    document: dict[str, Any],
+    case_ids: set[str],
+    errors: list[str],
+) -> None:
+    references = document.get("required_reference_cases")
+    if (
+        not isinstance(references, list)
+        or not references
+        or not all(isinstance(item, str) for item in references)
+        or len(references) != len(set(references))
+    ):
+        errors.append(f"{label} required_reference_cases must be nonempty and unique")
+        return
+    unknown = set(references) - case_ids
+    if unknown:
+        errors.append(f"{label} references unknown acceptance cases: {sorted(unknown)}")
+
+
+def verify_normative_policy_anchors(
+    money: dict[str, Any],
+    market: dict[str, Any],
+    field: dict[str, Any],
+    private: dict[str, Any],
+    errors: list[str],
+) -> None:
+    decimal = money.get("decimal_context")
+    if not isinstance(decimal, dict):
+        errors.append("money decimal_context must be an object")
+    else:
+        expected_decimal = {
+            "rounding": "ROUND_HALF_EVEN",
+            "price_quantum": "0.000001",
+            "quantity_quantum": "0.00000001",
+            "money_quantum": "0.01",
+            "fee_quantum": "0.01",
+            "ratio_quantum": "0.00000001",
+            "float_input_allowed": False,
+            "canonical_input": "base-10 string parsed directly as Decimal",
+        }
+        if decimal != expected_decimal:
+            errors.append("money decimal_context differs from the frozen V1 semantics")
+    action_types = {
+        item.get("type")
+        for item in money.get("corporate_action_matrix", [])
+        if isinstance(item, dict)
+    }
+    expected_actions = {
+        "split",
+        "reverse_split",
+        "cash_dividend",
+        "ticker_or_name_change",
+        "cash_merger",
+        "stock_merger",
+        "spinoff",
+        "cash_in_lieu",
+        "delisting_or_bankruptcy",
+        "correction_or_reversal",
+    }
+    if action_types != expected_actions:
+        errors.append("money corporate action matrix differs")
+    if "one SQLite transaction" not in str(money.get("transaction_boundary", "")):
+        errors.append("money transaction boundary is not atomic")
+
+    calendar = market.get("calendar_and_causality")
+    benchmark = market.get("benchmark_policy")
+    lineage = market.get("experiment_lineage")
+    if not isinstance(calendar, dict) or calendar.get("earliest_default_fill") != (
+        "next eligible session T+1 using the preregistered fill-price model"
+    ):
+        errors.append("market default fill timing differs")
+    if not isinstance(benchmark, dict) or "total-return method" not in set(
+        benchmark.get("required_fields", [])
+    ):
+        errors.append("market benchmark lacks total-return semantics")
+    if (
+        not isinstance(lineage, dict)
+        or lineage.get("rename_does_not_reset") is not True
+        or lineage.get("ai_origin_contamination_default") != "unknown_contaminated"
+        or "does not emit strategy-edge pass/fail" not in str(
+            lineage.get("statistical_claim_rule", "")
+        )
+    ):
+        errors.append("market experiment lineage or claim boundary differs")
+
+    onboarding = field.get("human_onboarding")
+    urgency = field.get("urgency_state_machine")
+    longitudinal = field.get("longitudinal_protocol")
+    if (
+        not isinstance(onboarding, dict)
+        or onboarding.get("requires_real_human_executor") is not True
+        or onboarding.get("initial_policy_cooling", {}).get("minimum_hours") != 24
+    ):
+        errors.append("field-use human onboarding boundary differs")
+    urgency_states = (
+        {
+            item.get("id"): item.get("new_order_delay_hours")
+            for item in urgency.get("states", [])
+            if isinstance(item, dict)
+        }
+        if isinstance(urgency, dict)
+        else {}
+    )
+    if urgency_states != {"calm": 0, "elevated": 0, "urgent": 4, "panic": 24}:
+        errors.append("field-use urgency state machine differs")
+    if (
+        not isinstance(urgency, dict)
+        or "AI/import cannot set it" not in str(urgency.get("rule", ""))
+        or "does not prove reflection" not in str(urgency.get("anti_rubber_stamp", ""))
+    ):
+        errors.append("field-use anti-rubber-stamp boundary differs")
+    if (
+        not isinstance(longitudinal, dict)
+        or longitudinal.get("must_be_preregistered_by_human_before_window") is not True
+        or "design_reopened" not in str(longitudinal.get("failure_rule", ""))
+    ):
+        errors.append("field-use longitudinal failure rule differs")
+
+    runtime = private.get("runtime_storage")
+    backup = private.get("backup_storage")
+    if (
+        not isinstance(runtime, dict)
+        or runtime.get("default")
+        != "~/Library/Application Support/InvestmentDisciplineSystem"
+        or runtime.get("directory_mode") != "0700"
+        or runtime.get("file_mode") != "0600"
+        or runtime.get("symlink_components_allowed") is not False
+    ):
+        errors.append("private runtime storage boundary differs")
+    if (
+        not isinstance(backup, dict)
+        or backup.get("application_encryption") != "not_implemented_do_not_invent_crypto"
+        or "never overwrites" not in str(backup.get("immutability", ""))
+        or "no automatic deletion" not in str(backup.get("retention", ""))
+    ):
+        errors.append("private backup lifecycle boundary differs")
+
+
+def verify_implementation_targets(
+    targets_doc: dict[str, Any],
+    trace_targets: set[str],
+    allow_candidate: bool,
+    errors: list[str],
+) -> set[str]:
+    targets = targets_doc.get("targets")
+    if not isinstance(targets, list):
+        errors.append("implementation targets must be a list")
+        return set()
+    seen: set[str] = set()
+    declared: set[str] = set()
+    for index, target in enumerate(targets):
+        if not isinstance(target, dict):
+            errors.append(f"implementation targets[{index}] must be object")
+            continue
+        relative = target.get("path")
+        kind = target.get("kind")
+        required_by = target.get("required_by")
+        if (
+            not isinstance(relative, str)
+            or not relative
+            or Path(relative).is_absolute()
+            or ".." in Path(relative).parts
+        ):
+            errors.append(f"implementation targets[{index}] has unsafe path")
+            continue
+        if relative in seen:
+            errors.append(f"duplicate implementation target: {relative}")
+        seen.add(relative)
+        declared.add(relative)
+        if kind not in {"file", "directory"}:
+            errors.append(f"{relative} has invalid target kind")
+        if required_by not in {"design_freeze", "bundle_creation", "product_release"}:
+            errors.append(f"{relative} has invalid required_by stage")
+            continue
+        path = PROJECT_ROOT / relative
+        must_exist = required_by == "design_freeze" or (
+            not allow_candidate and required_by == "bundle_creation"
+        )
+        if must_exist:
+            exists = path.is_file() if kind == "file" else path.is_dir()
+            if not exists:
+                errors.append(f"required {required_by} implementation target missing: {relative}")
+    if declared != trace_targets:
+        errors.append(
+            "implementation target coverage differs: "
+            f"missing={sorted(trace_targets - declared)}, "
+            f"extra={sorted(declared - trace_targets)}"
+        )
+    return declared
+
+
+def markdown_anchors(path: Path) -> set[str]:
+    anchors: set[str] = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        match = re.match(r"^#{1,6}\s+(.+?)\s*$", line)
+        if not match:
+            continue
+        heading = match.group(1).strip().lower()
+        heading = re.sub(r"[`*_{}\[\]()#+.!?\"'“”‘’：:，,。、/\\|]", "", heading)
+        heading = re.sub(r"\s+", "-", heading)
+        anchors.add(heading)
+    return anchors
+
+
+def verify_gate_catalogs(
+    contract: dict[str, Any], executor_ids: set[str], errors: list[str]
+) -> None:
+    gates = contract.get("gates")
+    conditional_catalog = contract.get("conditional_gate_catalog")
+    gate_ids = unique_ids(gates, "gates", errors)
+    conditional_catalog_ids = unique_ids(
+        conditional_catalog, "conditional gate catalog", errors
+    )
+    for label, entries in (("gate", gates), ("conditional gate", conditional_catalog)):
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            entry_id = entry.get("id", "<unknown>")
+            command = entry.get("command")
+            executors = entry.get("executor_ids")
+            if not isinstance(command, str) or not command:
+                errors.append(f"{entry_id} {label} command is missing")
+            if (
+                not isinstance(executors, list)
+                or not executors
+                or set(executors) - executor_ids
+            ):
+                errors.append(f"{entry_id} {label} executor is missing")
+    used_conditional_catalog: set[str] = set()
+    for condition in contract.get("conditional_gates", []):
+        if not isinstance(condition, dict):
+            continue
+        mandatory = condition.get("mandatory_gate_when_ready")
+        if mandatory is not None:
+            if mandatory not in conditional_catalog_ids:
+                errors.append(
+                    f"{condition.get('id', '<unknown>')} conditional gate executor is missing"
+                )
+            else:
+                used_conditional_catalog.add(mandatory)
+    if used_conditional_catalog != conditional_catalog_ids:
+        errors.append(
+            "conditional gate catalog coverage differs: "
+            f"unused={sorted(conditional_catalog_ids - used_conditional_catalog)}"
+        )
+    if "GATE-09-GIT-STATE" not in gate_ids:
+        errors.append("local git state gate is missing")
 
 
 def verify_assurance_subjects(
@@ -531,6 +957,12 @@ def verify(allow_candidate: bool) -> list[str]:
     source_excerpts = load_json(SOURCE_EXCERPTS, errors)
     verification_specs = load_json(VERIFICATION_SPECS, errors)
     assurance_subjects = load_json(ASSURANCE_SUBJECTS, errors)
+    acceptance_cases = load_json(ACCEPTANCE_CASES, errors)
+    money_spec = load_json(MONEY_SPEC, errors)
+    market_policy = load_json(MARKET_POLICY, errors)
+    field_protocol = load_json(FIELD_PROTOCOL, errors)
+    private_data_policy = load_json(PRIVATE_DATA_POLICY, errors)
+    implementation_targets = load_json(IMPLEMENTATION_TARGETS, errors)
 
     if errors:
         return errors
@@ -555,6 +987,12 @@ def verify(allow_candidate: bool) -> list[str]:
         ("verification specs", verification_specs),
         ("traceability", trace),
         ("assurance subjects", assurance_subjects),
+        ("acceptance cases", acceptance_cases),
+        ("money and corporate actions spec", money_spec),
+        ("market simulation policy", market_policy),
+        ("field use protocol", field_protocol),
+        ("private data policy", private_data_policy),
+        ("implementation targets", implementation_targets),
     ):
         if document.get("status") not in allowed_baseline_statuses:
             errors.append(
@@ -586,22 +1024,28 @@ def verify(allow_candidate: bool) -> list[str]:
     verification_ids = unique_ids(
         contract.get("verification_catalog"), "verification_catalog", errors
     )
-    unique_ids(contract.get("gates"), "gates", errors)
     unique_ids(contract.get("conditional_gates"), "conditional_gates", errors)
-    verify_verification_specs(
-        verification_specs, verification_ids, requirements, errors
+    case_ids = verify_acceptance_cases(
+        acceptance_cases, requirement_ids, verification_ids, errors
+    )
+    executor_ids = verify_verification_specs(
+        verification_specs, verification_ids, requirements, case_ids, errors
     )
     verify_assurance_subjects(assurance_subjects, research, errors)
     verify_conditionals(contract.get("conditional_gates"), requirement_ids, errors)
-    expected_frozen_files = {
-        "governance/USER_SOURCE_EXCERPTS_V1.json",
-        "governance/USER_INTENT_V1.json",
-        "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
-        "governance/ACCEPTANCE_CONTRACT_V1.json",
-        "governance/VERIFICATION_SPECS_V1.json",
-        "governance/TRACEABILITY_V1.json",
-        "governance/ASSURANCE_SUBJECTS_V1.json",
-        "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+    verify_gate_catalogs(contract, executor_ids, errors)
+    for label, document in (
+        ("money spec", money_spec),
+        ("market policy", market_policy),
+        ("field use protocol", field_protocol),
+        ("private data policy", private_data_policy),
+    ):
+        verify_reference_cases(label, document, case_ids, errors)
+    verify_normative_policy_anchors(
+        money_spec, market_policy, field_protocol, private_data_policy, errors
+    )
+    expected_frozen_files = set(NORMATIVE_JSON_PATHS) | {
+        "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
     }
     change_control = contract.get("change_control")
     frozen_files = (
@@ -697,6 +1141,8 @@ def verify(allow_candidate: bool) -> list[str]:
     if unused_controls:
         errors.append(f"traceability has unused controls: {sorted(unused_controls)}")
 
+    trace_targets: set[str] = set()
+    blueprint_anchors = markdown_anchors(BLUEPRINT) if BLUEPRINT.is_file() else set()
     if isinstance(controls, list):
         for control in controls:
             if not isinstance(control, dict):
@@ -705,9 +1151,25 @@ def verify(allow_candidate: bool) -> list[str]:
             targets = control.get("implementation_targets")
             if not isinstance(targets, list) or not targets:
                 errors.append(f"{control_id} has no implementation targets")
+            elif not all(isinstance(target, str) for target in targets):
+                errors.append(f"{control_id} implementation targets must be strings")
+            else:
+                trace_targets.update(targets)
             design_ref = control.get("design_ref")
             if not isinstance(design_ref, str) or "#" not in design_ref:
                 errors.append(f"{control_id} has invalid design_ref")
+            else:
+                design_path, anchor = design_ref.split("#", 1)
+                if design_path != "PRODUCT_ASSURANCE_BLUEPRINT_V2.md":
+                    errors.append(f"{control_id} design_ref uses an unknown document")
+                elif anchor not in blueprint_anchors:
+                    errors.append(
+                        f"{control_id} design_ref anchor is missing: {anchor}"
+                    )
+
+    verify_implementation_targets(
+        implementation_targets, trace_targets, allow_candidate, errors
+    )
 
     if not allow_candidate:
         bundle = load_json(FROZEN_BUNDLE, errors)
