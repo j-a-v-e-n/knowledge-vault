@@ -1,4 +1,6 @@
-# 可执行系统设计｜个人版 MVP
+# 可执行系统设计｜历史原型（已被 V2 取代）
+
+> 状态：`superseded-prototype-design`。独立审计已经证明本文若干强主张不成立；它只保留为历史设计与迁移参考。当前候选设计见 `PRODUCT_ASSURANCE_BLUEPRINT_V2.md`，当前事实见 `STATUS.md`，审计见 `audits/EXISTING_SYSTEM_AUDIT_2026-07-25.md`。
 
 ## 一句话定义
 

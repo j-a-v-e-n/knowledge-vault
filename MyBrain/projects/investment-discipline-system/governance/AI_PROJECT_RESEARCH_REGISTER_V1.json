@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "status": "under_independent_challenge",
+  "cutoff_date": "2026-07-25",
+  "decision_served": "是否已经形成足以冻结本项目 AI 协作方法和产品保障设计的失效地图与最小治理内核",
+  "scope": [
+    "AI 长上下文、记忆和连续性",
+    "迎合、自我评价和确认偏差",
+    "研究覆盖、过早停止和来源独立性",
+    "Harness、Loop、Graph、多代理和工作交接",
+    "需求、配置、变更、V&V 和 assurance",
+    "测试 oracle、奖励投机和假绿灯",
+    "权限、提示注入、隐私和供应链",
+    "部分失败、幂等、恢复、可观测性和事故复盘",
+    "人因、可用性、情绪设计和长期维护",
+    "成本、预算、无进展和过度工程"
+  ],
+  "out_of_scope": [
+    "真实资金交易系统",
+    "企业合规认证",
+    "证明所有未知未知不存在",
+    "估计所有 AI 工具的总体故障发生率"
+  ],
+  "required_source_classes": [
+    "official_vendor_engineering",
+    "standards_and_public_handbooks",
+    "peer_reviewed_or_preprint_research",
+    "benchmarks_and_reproducible_experiments",
+    "open_source_code_and_issue_trackers",
+    "ordinary_user_experience",
+    "critical_and_negative_cases",
+    "current_project_adversarial_experiments"
+  ],
+  "coverage": [
+    {
+      "id": "RC-01",
+      "topic": "目标、需求、变更与完成权",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-02",
+      "topic": "深度研究、证据谱系与过早停止",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-03",
+      "topic": "长上下文、记忆和冷启动恢复",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-04",
+      "topic": "自我袒护、迎合与 LLM judge 偏差",
+      "impact": "high",
+      "status": "contested",
+      "note": "风险路径有实验和本项目反例支持；不同任务中的发生率与控制效果量仍未知"
+    },
+    {
+      "id": "RC-05",
+      "topic": "多代理独立性、协同和相关错误",
+      "impact": "high",
+      "status": "contested",
+      "note": "证据支持条件性使用，不支持代理数量等于独立性"
+    },
+    {
+      "id": "RC-06",
+      "topic": "测试 oracle、评价污染与奖励投机",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-07",
+      "topic": "工具权限、提示注入、隐私与供应链",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-08",
+      "topic": "事务、幂等、并发、恢复与可观测性",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-09",
+      "topic": "人因、可用性与情绪性风险",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-10",
+      "topic": "成本、无进展、复杂度与维护",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-11",
+      "topic": "传统系统工程生命周期与项目裁剪",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-12",
+      "topic": "当前投研项目的实际反例",
+      "impact": "high",
+      "status": "supported"
+    }
+  ],
+  "search_log": [
+    {
+      "date": "2026-07-24",
+      "channel": "web",
+      "query": "Graph Engineering Loop Engineering Harness Engineering AI coding agents"
+    },
+    {
+      "date": "2026-07-24",
+      "channel": "official_and_research",
+      "query": "deep research coverage early stopping provenance multi-agent cascading errors"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "web",
+      "query": "coding agent long context specification drift tests pass wrong implementation"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "reddit_hn_github",
+      "query": "coding agent long project context lost self review harness user experience"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "research",
+      "query": "long-horizon coding agents reward hacking held-out tests test oracle"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "official",
+      "query": "Anthropic effective harnesses long-running agents OpenAI harness engineering"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "standards",
+      "query": "NASA systems engineering V&V requirements traceability configuration management"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "standards",
+      "query": "NIST SSDF assurance secure software provenance threat modeling"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "standards",
+      "query": "MIT STPA unsafe control actions losses recovery"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "project_experiment",
+      "query": "independent audit of existing investment prototype and adversarial probes"
+    },
+    {
+      "date": "2026-07-25",
+      "channel": "open_source_experiment",
+      "query": "Vibe-Trading source audit, tests and fault injection"
+    }
+  ],
+  "primary_artifacts": [
+    "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+    "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md",
+    "audits/EXISTING_SYSTEM_AUDIT_2026-07-25.md",
+    "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md",
+    "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
+  ],
+  "challenge": {
+    "status": "in_progress",
+    "required_checks": [
+      "missing_high_impact_failure_class",
+      "claim_source_entailment",
+      "source_cluster_independence",
+      "control_can_be_gamed",
+      "product_can_pass_but_fail_user_goal",
+      "remaining_unknown_changes_architecture"
+    ]
+  },
+  "stop_rule": {
+    "required": "独立挑战关闭所有 critical/major，补充检索不再新增会改变架构的高影响类别；否则保持 bounded-incomplete",
+    "met": false
+  }
+}

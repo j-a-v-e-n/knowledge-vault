@@ -25,7 +25,11 @@
 - PAPER_RUN_EVIDENCE.md：当前真实来源纸面案例的可复核证据和边界。
 - PAPER_SUITE_EVIDENCE.md：连续纸面运行套件的分支覆盖证据和边界。
 - SYSTEM_ARCHITECTURE.md：系统层次、状态转换、权限和验证边界。
-- EXECUTABLE_SYSTEM_DESIGN.md：当前个人版 MVP 的单一可执行设计入口。
+- EXECUTABLE_SYSTEM_DESIGN.md：已被独立审计取代的历史原型设计。
+- PRODUCT_ASSURANCE_BLUEPRINT_V2.md：当前候选产品保障设计；冻结前仍可被反方审查修改。
+- governance/USER_INTENT_V1.json：用户目标、边界和完成权的候选机器可读入口。
+- governance/AI_PROJECT_RESEARCH_REGISTER_V1.json：AI 项目方法研究的覆盖、查询和挑战状态。
+- audits/EXISTING_SYSTEM_AUDIT_2026-07-25.md：既有原型的独立审计与撤回依据。
 - MARKET_DATA_BROKER_DECISION.md：市场、数据和纸面券商的暂定约束与选择门槛。
 - BACKTEST_EVIDENCE.md：历史检验引擎及真实来源开发/留出运行证据。
 - UNIFIED_RUN_EVIDENCE.md：历史检验、纸面执行、账本和复盘统一运行的证据与边界。
