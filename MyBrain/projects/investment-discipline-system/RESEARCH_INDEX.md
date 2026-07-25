@@ -12,6 +12,41 @@
 
 ## AI 协作与搭建
 
+### 2026-07-24 方法更新：从 Loop 到 Graph，再回到底层问题
+
+- 来源：[Graph Engineering 概念溯源](https://datasciencedojo.com/blog/graph-engineering-frameworks/)、[批判性核查](https://www.turingpost.com/p/is-graph-engineering-real-why-everyone-is-talking-about-it)、[Google ADK 图工作流](https://adk.dev/graphs/)、[Graphroom 原型](https://github.com/Akshay-a/AI-Agents/tree/main/AI-GraphAgent)
+- 类型：行业讨论、批判性报道、官方框架文档和新开源原型
+- 可借鉴：显式节点、边、状态、输入输出契约、权限和人工门能让多个循环的关系可观察；Graph 不替代节点内部 Loop。
+- 边界：近期术语传播没有伴随新的模型或统一标准；新原型展示了结构，但没有独立基准证明其通用效果。成熟图工作流早已存在，不能把重新命名当成能力突破。
+
+### 深度研究覆盖与过早停止
+
+- 来源：[TaxoBench](https://arxiv.org/abs/2601.12369)、[DeepResearch Bench II](https://arxiv.org/abs/2601.08536)、[Don’t Stop Early](https://aclanthology.org/2026.acl-industry.116/)
+- 类型：独立研究、公开基准与同行评审论文
+- 可借鉴：深度研究需要分别评估信息召回、分析和表达；先建立覆盖目标，通过依赖控制限制上下文，并在执行前定义证据充分条件。
+- 边界：基准任务与个人投研系统并不完全相同；动态生成的评价标准也可能遗漏未知未知，需要专家来源、人工判断和本地保留测试校准。
+
+### 研究中的误导信息与多代理错误传播
+
+- 来源：[MisKnow-Agent](https://arxiv.org/abs/2607.20891)、[From Spark to Fire](https://arxiv.org/abs/2603.04474)
+- 类型：最新预印本与多代理实验研究
+- 可借鉴：长链研究可能吸收看似可信的错误；多个代理会形成级联放大和假共识。跨节点传播应原子化主张、保存来源谱系，并在高影响节点投入独立验证。
+- 边界：预印本需要后续同行评审和复现；实验攻击设置不等于日常任务发生率，但足以作为失效模式进入设计。
+
+### 系统综述与 Living Review
+
+- 来源：[PRISMA 2020](https://www.prisma-statement.org/prisma-2020)、[Cochrane 搜索与筛选指南](https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-04)、[Cochrane Living Review](https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-22)
+- 类型：成熟证据综合规范
+- 可借鉴：预先定义问题和纳入标准；按主题选择多类来源；保存完整搜索路径；进行向前向后引用追踪；记录排除、冲突和偏差；对快速变化问题执行持续更新。
+- 边界：这些方法主要源自医疗证据综合，不能机械搬用全部流程；本项目采用其透明、覆盖、偏差和更新原则。
+
+### 图的可视化与本地事实源
+
+- 来源：[Obsidian JSON Canvas](https://obsidian.md/blog/json-canvas/)、[React Flow](https://reactflow.dev/)、[Cytoscape.js](https://js.cytoscape.org/)、[Mermaid](https://mermaid.ai/docs/getting-started/what-is-mermaid)
+- 类型：官方格式说明和开源库文档
+- 可借鉴：JSON Canvas 适合本地开放格式的空间视图；React Flow 适合自定义交互节点工作台；Cytoscape.js 适合更复杂的图分析；Mermaid 适合由文本生成可版本化的静态快照。
+- 边界：可视化库只解决呈现和交互，不负责证据真实性、运行状态或完成判断。项目必须先定义独立的结构化事实源，再从同一事实源生成多个视图。
+
 ### Codex 与项目上下文
 
 - 来源：[Codex best practices](https://learn.chatgpt.com/guides/best-practices)
