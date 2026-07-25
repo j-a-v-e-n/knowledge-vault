@@ -108,7 +108,14 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
       "acceptance_case_ids": ["CASE-SPLIT-IDEMPOTENT"],
       "v1_mode": "automatic",
-      "effect": "quantity=Q(quantity*ratio,quantity); per_share_cost=Q(per_share_cost/ratio,price); total_cost unchanged subject only to declared quantization"
+      "semantics": {
+        "terminal_state": "applied",
+        "quantity_rule": "multiply_ratio_then_quantize_quantity",
+        "per_share_cost_rule": "divide_ratio_then_quantize_price",
+        "total_cost_rule": "conserve_subject_only_to_declared_quantization",
+        "cash_rule": "unchanged",
+        "replay_rule": "idempotency_key_applies_once"
+      }
     },
     {
       "id": "ACTION-REVERSE-SPLIT",
@@ -117,7 +124,14 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
       "acceptance_case_ids": ["CASE-REVERSE-SPLIT-IDEMPOTENT"],
       "v1_mode": "automatic_with_cash_in_lieu_pending_if_fraction_disallowed",
-      "effect": "same conservation rule as split; unresolved cash-in-lieu enters action_pending_manual and freezes affected security"
+      "semantics": {
+        "terminal_state": "applied_or_action_pending_manual",
+        "quantity_rule": "multiply_ratio_then_quantize_quantity",
+        "per_share_cost_rule": "divide_ratio_then_quantize_price",
+        "total_cost_rule": "conserve_subject_only_to_declared_quantization",
+        "fraction_rule": "unresolved_cash_in_lieu_freezes_affected_security",
+        "replay_rule": "idempotency_key_applies_once"
+      }
     },
     {
       "id": "ACTION-CASH-DIVIDEND",
@@ -126,7 +140,13 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
       "acceptance_case_ids": ["CASE-DIVIDEND-IDEMPOTENT"],
       "v1_mode": "automatic",
-      "effect": "cash_delta=Q(eligible_quantity*cash_per_share,money); position quantity unchanged; event uses ex/pay dates separately"
+      "semantics": {
+        "terminal_state": "applied",
+        "cash_rule": "add_eligible_quantity_times_cash_per_share_quantized_money",
+        "quantity_rule": "unchanged",
+        "date_rule": "ex_date_and_pay_date_are_distinct",
+        "replay_rule": "idempotency_key_applies_once"
+      }
     },
     {
       "id": "ACTION-TICKER-NAME-CHANGE",
@@ -135,7 +155,13 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
       "acceptance_case_ids": ["CASE-TICKER-CHANGE-STABLE-IDENTITY"],
       "v1_mode": "automatic_identity_alias",
-      "effect": "stable security_id unchanged; symbol validity interval closes and new interval opens"
+      "semantics": {
+        "terminal_state": "applied",
+        "stable_security_id_rule": "unchanged",
+        "old_symbol_rule": "close_validity_interval",
+        "new_symbol_rule": "open_validity_interval",
+        "replay_rule": "idempotency_key_applies_once"
+      }
     },
     {
       "id": "ACTION-CASH-MERGER",
@@ -144,7 +170,14 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
       "acceptance_case_ids": ["CASE-CASH-MERGER-PENDING"],
       "v1_mode": "pending_manual",
-      "effect": "affected security and dependent NAV/risk enter action_pending_manual until terms are confirmed"
+      "semantics": {
+        "terminal_state": "action_pending_manual",
+        "automatic_transform_rule": "forbidden",
+        "cash_rule": "no_guessed_amount",
+        "affected_security_rule": "frozen",
+        "nav_rule": "incomplete",
+        "risk_rule": "new_approval_blocked"
+      }
     },
     {
       "id": "ACTION-STOCK-MERGER",
@@ -153,7 +186,15 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
       "acceptance_case_ids": ["CASE-STOCK-MERGER-PENDING"],
       "v1_mode": "pending_manual",
-      "effect": "no automatic quantity/cost transformation in V1"
+      "semantics": {
+        "terminal_state": "action_pending_manual",
+        "automatic_transform_rule": "forbidden",
+        "quantity_rule": "no_guessed_quantity",
+        "cost_rule": "no_guessed_basis",
+        "affected_security_rule": "frozen",
+        "nav_rule": "incomplete",
+        "risk_rule": "new_approval_blocked"
+      }
     },
     {
       "id": "ACTION-SPINOFF",
@@ -162,7 +203,15 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
       "acceptance_case_ids": ["CASE-CORP-ACTION-UNKNOWN"],
       "v1_mode": "pending_manual",
-      "effect": "no automatic basis allocation in V1"
+      "semantics": {
+        "terminal_state": "action_pending_manual",
+        "automatic_transform_rule": "forbidden",
+        "quantity_rule": "no_guessed_quantity",
+        "cost_rule": "no_guessed_basis_allocation",
+        "affected_security_rule": "frozen",
+        "nav_rule": "incomplete",
+        "risk_rule": "new_approval_blocked"
+      }
     },
     {
       "id": "ACTION-CASH-IN-LIEU",
@@ -171,7 +220,14 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
       "acceptance_case_ids": ["CASE-CASH-IN-LIEU-PENDING"],
       "v1_mode": "pending_manual",
-      "effect": "no guessed cash amount; affected reconciliation remains open"
+      "semantics": {
+        "terminal_state": "action_pending_manual",
+        "automatic_transform_rule": "forbidden",
+        "cash_rule": "no_guessed_amount",
+        "reconciliation_rule": "open",
+        "affected_security_rule": "frozen",
+        "nav_rule": "incomplete"
+      }
     },
     {
       "id": "ACTION-DELISTING-BANKRUPTCY",
@@ -180,7 +236,14 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
       "acceptance_case_ids": ["CASE-DELISTING-NOT-ZERO-FILLED"],
       "v1_mode": "pending_manual",
-      "effect": "position is never silently valued at zero; mark status unresolved until explicit evidence and event"
+      "semantics": {
+        "terminal_state": "action_pending_manual",
+        "automatic_transform_rule": "forbidden",
+        "mark_rule": "never_silently_zero",
+        "resolution_rule": "explicit_evidence_and_compensating_event_required",
+        "nav_rule": "incomplete",
+        "risk_rule": "new_approval_blocked"
+      }
     },
     {
       "id": "ACTION-CORRECTION-REVERSAL",
@@ -189,7 +252,13 @@
       "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-LEDGER-TAMPER"],
       "acceptance_case_ids": ["CASE-CORP-ACTION-CORRECTION"],
       "v1_mode": "compensating_event_only",
-      "effect": "original action/event is immutable; correction creates a linked revision and compensating account event"
+      "semantics": {
+        "terminal_state": "corrected_by_compensation",
+        "original_event_rule": "immutable",
+        "revision_rule": "linked_revision_required",
+        "account_rule": "append_compensating_event",
+        "replay_rule": "rebuild_from_original_plus_compensation"
+      }
     }
   ],
   "transaction_boundary": "order/fill, fee, cash, position, action event, materialized state, audit event and anchor outbox are committed in one SQLite transaction; any injected failure leaves all pre-transaction values unchanged.",

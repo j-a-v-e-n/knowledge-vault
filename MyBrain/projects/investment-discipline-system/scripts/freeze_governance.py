@@ -28,6 +28,24 @@ CONTRACT_RELATIVE = "governance/ACCEPTANCE_CONTRACT_V1.json"
 RESEARCH_RELATIVE = "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json"
 ASSURANCE_RELATIVE = "governance/ASSURANCE_SUBJECTS_V1.json"
 FINAL_ARTIFACT_ID = re.compile(r"ARTIFACT-CHALLENGE-FINAL-R[0-9]+")
+CANONICAL_ATTACK_SELECTORS = {
+    "ATTACK-PIT-ORACLE-INVERSION": (
+        "governance_tests.test_final_review_attacks."
+        "FinalReviewAttackTests.test_pit_oracle_inversion_is_rejected"
+    ),
+    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE": (
+        "governance_tests.test_final_review_attacks."
+        "FinalReviewAttackTests.test_same_bar_causality_smuggle_is_rejected"
+    ),
+    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE": (
+        "governance_tests.test_final_review_attacks."
+        "FinalReviewAttackTests.test_split_accounting_smuggle_is_rejected"
+    ),
+    "ATTACK-CONDITIONAL-SELF-ATTESTATION": (
+        "governance_tests.test_final_review_attacks."
+        "FinalReviewAttackTests.test_conditional_self_attestation_is_rejected"
+    ),
+}
 
 
 class DuplicateKeyError(ValueError):
@@ -135,6 +153,89 @@ def commit_has_file(commit: str, prefix: str, relative: str) -> bool:
     )
 
 
+def commit_tree_entry(commit: str, prefix: str, relative: str) -> dict[str, str]:
+    repo_relative = f"{prefix}{relative}"
+    result = git_bytes(
+        "ls-tree",
+        "--full-name",
+        "-z",
+        commit,
+        "--",
+        f":(top,literal){repo_relative}",
+    )
+    if result.returncode != 0 or not result.stdout:
+        raise SystemExit(f"cannot resolve Git tree entry for {commit}:{relative}")
+    records = [item for item in result.stdout.split(b"\0") if item]
+    if len(records) != 1 or b"\t" not in records[0]:
+        raise SystemExit(f"ambiguous Git tree entry for {commit}:{relative}")
+    metadata, observed_path = records[0].split(b"\t", 1)
+    fields = metadata.decode("ascii").split()
+    if len(fields) != 3 or observed_path.decode("utf-8") != repo_relative:
+        raise SystemExit(f"invalid Git tree entry for {commit}:{relative}")
+    mode, tree_type, object_id = fields
+    kind = git_text("cat-file", "-t", object_id)
+    if tree_type != "blob" or kind != "blob":
+        raise SystemExit(
+            f"frozen file is not a Git blob: {relative} "
+            f"(tree_type={tree_type}, object_kind={kind})"
+        )
+    return {
+        "mode": mode,
+        "tree_type": tree_type,
+        "object_id": object_id,
+        "object_kind": kind,
+    }
+
+
+def parse_raw_diff(
+    reviewed_commit: str,
+    baseline: str,
+) -> dict[str, dict[str, str]]:
+    result = git_bytes(
+        "diff",
+        "--raw",
+        "--no-renames",
+        "-z",
+        reviewed_commit,
+        baseline,
+        "--",
+        ".",
+    )
+    if result.returncode != 0:
+        raise SystemExit("cannot enumerate raw reviewed-candidate closure delta")
+    tokens = [item for item in result.stdout.split(b"\0") if item]
+    entries: dict[str, dict[str, str]] = {}
+    index = 0
+    while index < len(tokens):
+        header = tokens[index]
+        index += 1
+        if b"\t" in header:
+            metadata, path_bytes = header.split(b"\t", 1)
+        else:
+            metadata = header
+            if index >= len(tokens):
+                raise SystemExit("raw closure delta has a pathless entry")
+            path_bytes = tokens[index]
+            index += 1
+        fields = metadata.decode("ascii").removeprefix(":").split()
+        if len(fields) != 5:
+            raise SystemExit("raw closure delta entry has invalid metadata")
+        old_mode, new_mode, old_object, new_object, status = fields
+        if status not in {"A", "D", "M", "T"}:
+            raise SystemExit(f"raw closure delta has unsupported status: {status}")
+        path = path_bytes.decode("utf-8")
+        if path in entries:
+            raise SystemExit(f"raw closure delta repeats path: {path}")
+        entries[path] = {
+            "status": status,
+            "old_mode": old_mode,
+            "new_mode": new_mode,
+            "old_object": old_object,
+            "new_object": new_object,
+        }
+    return entries
+
+
 def require_safe_relative(relative: object, label: str) -> str:
     if (
         not isinstance(relative, str)
@@ -172,7 +273,19 @@ def require_review_closure(
     prefix = git_text("rev-parse", "--show-prefix")
     reviewed_docs: dict[str, dict] = {}
     baseline_docs: dict[str, dict] = {}
+    reviewed_entries: dict[str, dict[str, str]] = {}
+    baseline_entries: dict[str, dict[str, str]] = {}
     for relative in frozen_files:
+        before_entry = commit_tree_entry(reviewed_commit, prefix, relative)
+        after_entry = commit_tree_entry(baseline, prefix, relative)
+        reviewed_entries[relative] = before_entry
+        baseline_entries[relative] = after_entry
+        for field in ("mode", "tree_type", "object_kind"):
+            if before_entry[field] != after_entry[field]:
+                raise SystemExit(
+                    f"closure changed Git mode/type for frozen file: {relative} "
+                    f"({field}: {before_entry[field]} -> {after_entry[field]})"
+                )
         before = commit_file_bytes(reviewed_commit, prefix, relative)
         after = commit_file_bytes(baseline, prefix, relative)
         if Path(relative).suffix.lower() != ".json":
@@ -283,6 +396,9 @@ def require_review_closure(
         raise SystemExit("final review evidence_sha256 is invalid")
     if commit_has_file(reviewed_commit, prefix, evidence_path):
         raise SystemExit("final review evidence already existed in reviewed candidate")
+    evidence_entry = commit_tree_entry(baseline, prefix, evidence_path)
+    if evidence_entry["mode"] != "100644":
+        raise SystemExit("final review evidence must be a non-executable regular blob")
     evidence_bytes = commit_file_bytes(baseline, prefix, evidence_path)
     if sha256_bytes(evidence_bytes) != evidence_hash:
         raise SystemExit("final review evidence hash differs from baseline bytes")
@@ -311,6 +427,7 @@ def require_review_closure(
         "verdict": "passed_freeze",
         "open_critical_count": 0,
         "open_major_count": 0,
+        "open_minor_count": 0,
         "new_architecture_changing_classes": [],
         "participated_in_candidate_construction": False,
         "write_access_used": False,
@@ -326,6 +443,173 @@ def require_review_closure(
         or not evidence.get("review_locator")
     ):
         raise SystemExit("final review evidence identity/provenance is incomplete")
+    finding_ids = evidence.get("finding_ids")
+    findings = evidence.get("findings")
+    if (
+        not isinstance(finding_ids, list)
+        or not all(isinstance(item, str) and item for item in finding_ids)
+        or len(finding_ids) != len(set(finding_ids))
+        or not isinstance(findings, list)
+        or not all(isinstance(item, dict) for item in findings)
+    ):
+        raise SystemExit("final review findings are not machine-verifiable")
+    observed_finding_ids: list[str] = []
+    open_counts = {"critical": 0, "major": 0, "minor": 0}
+    for finding in findings:
+        finding_id = finding.get("id")
+        severity = finding.get("severity")
+        status = finding.get("status")
+        if (
+            not isinstance(finding_id, str)
+            or not finding_id
+            or finding_id in observed_finding_ids
+            or not isinstance(severity, str)
+            or not isinstance(status, str)
+        ):
+            raise SystemExit("final review finding identity is invalid or duplicate")
+        observed_finding_ids.append(finding_id)
+        if status == "open":
+            if severity not in open_counts:
+                raise SystemExit(
+                    f"final review finding has unsupported open severity: {finding_id}"
+                )
+            open_counts[severity] += 1
+    if finding_ids != observed_finding_ids:
+        raise SystemExit("final review finding_ids do not exactly match findings")
+    for severity, count in open_counts.items():
+        if evidence.get(f"open_{severity}_count") != count:
+            raise SystemExit(
+                f"final review open_{severity}_count does not match findings"
+            )
+
+    commands_run = evidence.get("commands_run")
+    if (
+        not isinstance(commands_run, list)
+        or not commands_run
+        or not all(isinstance(item, str) and item.strip() for item in commands_run)
+        or len(commands_run) != len(set(commands_run))
+    ):
+        raise SystemExit("final review commands_run must be nonempty unique strings")
+    for field in ("what_would_falsify_pass", "limitations"):
+        values = evidence.get(field)
+        if (
+            not isinstance(values, list)
+            or not values
+            or not all(isinstance(item, str) and item for item in values)
+        ):
+            raise SystemExit(f"final review {field} must be nonempty strings")
+
+    attacks = evidence.get("independent_attacks")
+    if not isinstance(attacks, list) or len(attacks) < 3:
+        raise SystemExit("final review requires at least three independent attacks")
+    attack_ids: set[str] = set()
+    replay_selectors: set[str] = set()
+    raw_result_paths: set[str] = set()
+    for attack in attacks:
+        if not isinstance(attack, dict):
+            raise SystemExit("final review independent attack must be an object")
+        attack_id = attack.get("attack_id")
+        mutation = attack.get("mutation")
+        replay_selector = attack.get("replay_selector")
+        if (
+            not isinstance(attack_id, str)
+            or not attack_id
+            or attack_id in attack_ids
+        ):
+            raise SystemExit("final review independent attack_id is invalid or duplicate")
+        attack_ids.add(attack_id)
+        if (
+            not isinstance(mutation, str)
+            or not mutation
+            or not isinstance(attack.get("expected"), str)
+            or not attack["expected"]
+            or not isinstance(attack.get("observed"), str)
+            or not attack["observed"]
+            or attack.get("mutation_sha256")
+            != sha256_bytes(mutation.encode("utf-8"))
+            or attack.get("result") != "rejected"
+        ):
+            raise SystemExit(f"final review attack is not a bound rejection: {attack_id}")
+        if (
+            not isinstance(replay_selector, str)
+            or not replay_selector
+            or replay_selector in replay_selectors
+        ):
+            raise SystemExit(
+                f"final review attack replay_selector is invalid or duplicate: "
+                f"{attack_id}"
+            )
+        replay_selectors.add(replay_selector)
+        raw_path = require_safe_relative(
+            attack.get("raw_result_path"),
+            f"final review attack {attack_id} raw result",
+        )
+        raw_hash = attack.get("raw_result_sha256")
+        if (
+            raw_path == evidence_path
+            or raw_path in raw_result_paths
+            or not isinstance(raw_hash, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", raw_hash)
+        ):
+            raise SystemExit(f"final review attack raw result is invalid: {attack_id}")
+        raw_result_paths.add(raw_path)
+        if commit_has_file(reviewed_commit, prefix, raw_path):
+            raise SystemExit(
+                f"final review attack raw result existed in candidate: {attack_id}"
+            )
+        raw_entry = commit_tree_entry(baseline, prefix, raw_path)
+        if raw_entry["mode"] != "100644":
+            raise SystemExit(
+                f"final review attack raw result must be regular blob: {attack_id}"
+            )
+        raw_bytes = commit_file_bytes(baseline, prefix, raw_path)
+        if sha256_bytes(raw_bytes) != raw_hash:
+            raise SystemExit(
+                f"final review attack raw result hash differs: {attack_id}"
+            )
+        raw_result = parse_json_object(raw_bytes, raw_path)
+        expected_raw = {
+            "attack_id": attack_id,
+            "candidate_commit": reviewed_commit,
+            "candidate_tree": reviewed_tree,
+            "result": "rejected",
+            "mutation_sha256": attack.get("mutation_sha256"),
+            "replay_selector": replay_selector,
+            "expected": attack.get("expected"),
+            "observed": attack.get("observed"),
+        }
+        for key, expected in expected_raw.items():
+            if raw_result.get(key) != expected:
+                raise SystemExit(
+                    f"final review attack raw result {key} differs: {attack_id}"
+                )
+        if (
+            type(raw_result.get("exit_code")) is not int
+            or raw_result["exit_code"] == 0
+        ):
+            raise SystemExit(
+                f"final review attack raw result exit_code is not rejecting: {attack_id}"
+            )
+        raw_command = raw_result.get("command")
+        stdout_hash = raw_result.get("stdout_sha256")
+        if (
+            not isinstance(raw_command, str)
+            or not raw_command
+            or raw_command not in commands_run
+            or not isinstance(stdout_hash, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", stdout_hash)
+        ):
+            raise SystemExit(
+                f"final review attack raw command/stdout binding is invalid: "
+                f"{attack_id}"
+            )
+        if "stdout" in raw_result and (
+            not isinstance(raw_result["stdout"], str)
+            or sha256_bytes(raw_result["stdout"].encode("utf-8")) != stdout_hash
+        ):
+            raise SystemExit(
+                f"final review attack raw stdout hash differs: {attack_id}"
+            )
 
     round_expected = {
         "candidate_commit": reviewed_commit,
@@ -336,6 +620,8 @@ def require_review_closure(
         "evidence_sha256": evidence_hash,
         "open_critical_count": 0,
         "open_major_count": 0,
+        "open_minor_count": 0,
+        "finding_ids": [],
         "new_architecture_changing_classes": [],
     }
     for key, expected in round_expected.items():
@@ -384,28 +670,50 @@ def require_review_closure(
         if final_subject.get(key) != expected:
             raise SystemExit(f"final reviewer subject {key} does not match evidence")
 
-    diff = git_bytes(
-        "diff", "--name-only", "-z", reviewed_commit, baseline, "--", "."
-    )
-    if diff.returncode != 0:
-        raise SystemExit("cannot enumerate reviewed-candidate closure paths")
-    repo_paths = {
-        item.decode("utf-8")
-        for item in diff.stdout.split(b"\0")
-        if item
-    }
+    raw_entries = parse_raw_diff(reviewed_commit, baseline)
+    repo_paths = set(raw_entries)
     expected_paths = {
         f"{prefix}{relative}"
         for relative in frozen_files
         if Path(relative).suffix.lower() == ".json"
     }
     expected_paths.add(f"{prefix}{evidence_path}")
+    expected_paths.update(f"{prefix}{path}" for path in raw_result_paths)
     if repo_paths != expected_paths:
         raise SystemExit(
             "closure changed paths outside the allowed metadata set: "
             f"missing={sorted(expected_paths - repo_paths)}, "
             f"extra={sorted(repo_paths - expected_paths)}"
         )
+    evidence_repo_path = f"{prefix}{evidence_path}"
+    for repo_path, raw_entry in raw_entries.items():
+        if repo_path == evidence_repo_path or repo_path in {
+            f"{prefix}{path}" for path in raw_result_paths
+        }:
+            if (
+                raw_entry["status"] != "A"
+                or raw_entry["old_mode"] != "000000"
+                or raw_entry["new_mode"] != "100644"
+            ):
+                raise SystemExit(
+                    "final review evidence/raw-result Git delta is not a clean add"
+                )
+            continue
+        relative = repo_path.removeprefix(prefix)
+        if raw_entry["status"] != "M":
+            raise SystemExit(
+                f"closure used non-modify Git delta for frozen file: {relative}"
+            )
+        before_entry = reviewed_entries[relative]
+        after_entry = baseline_entries[relative]
+        if (
+            raw_entry["old_mode"] != before_entry["mode"]
+            or raw_entry["new_mode"] != after_entry["mode"]
+            or raw_entry["old_mode"] != raw_entry["new_mode"]
+        ):
+            raise SystemExit(
+                f"closure raw delta changed Git mode/type for frozen file: {relative}"
+            )
 
     return {
         "reviewed_candidate_tree": reviewed_tree,
@@ -488,7 +796,7 @@ def require_clean_exact_baseline(baseline: str) -> None:
 
 def require_direct_remote(
     baseline: str, remote: str, branch: str | None
-) -> dict[str, object]:
+) -> dict[str, str]:
     command = ["--commit", baseline, "--remote", remote, "--json"]
     if branch:
         command.extend(["--branch", branch])
@@ -506,9 +814,102 @@ def require_direct_remote(
     if not isinstance(payload, dict) or payload.get("status") != "pass":
         raise SystemExit("direct remote verifier returned an invalid success result")
     facts = payload.get("facts")
-    if not isinstance(facts, dict) or facts.get("remote_commit") != baseline:
+    observation = facts.get("remote_observation") if isinstance(facts, dict) else None
+    if (
+        not isinstance(observation, dict)
+        or observation.get("remote") != remote
+        or observation.get("commit") != baseline
+        or not isinstance(observation.get("ref"), str)
+        or not observation["ref"].startswith("refs/heads/")
+        or not isinstance(observation.get("observed_at"), str)
+        or not observation["observed_at"]
+    ):
         raise SystemExit("direct remote verifier did not bind the requested baseline")
-    return facts
+    if branch is not None and observation["ref"] != f"refs/heads/{branch}":
+        raise SystemExit("direct remote verifier observed an unexpected branch")
+    return observation
+
+
+def require_design_freeze_attack_replay(
+    baseline: str,
+    baseline_tree: str,
+) -> dict[str, object]:
+    started_at = dt.datetime.now(dt.timezone.utc).isoformat()
+    env = os.environ.copy()
+    env["IDS_PROJECT_ROOT"] = str(PROJECT_ROOT)
+    results: list[dict[str, object]] = []
+    outputs: dict[str, bytes] = {}
+    transcript = bytearray()
+    for attack_id, selector in CANONICAL_ATTACK_SELECTORS.items():
+        command = [sys.executable, "-m", "unittest", selector, "-v"]
+        completed = subprocess.run(
+            command,
+            cwd=PROJECT_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            env=env,
+            check=False,
+        )
+        output = completed.stdout
+        outputs[attack_id] = output
+        result_name = (
+            "rejected" if completed.returncode == 0 else "escaped_or_error"
+        )
+        results.append(
+            {
+                "attack_id": attack_id,
+                "selector": selector,
+                "exit_code": completed.returncode,
+                "output_sha256": sha256_bytes(output),
+                "result": result_name,
+            }
+        )
+        header = json.dumps(
+            {
+                "attack_id": attack_id,
+                "selector": selector,
+                "exit_code": completed.returncode,
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        transcript.extend(len(header).to_bytes(8, "big"))
+        transcript.extend(header)
+        transcript.extend(len(output).to_bytes(8, "big"))
+        transcript.extend(output)
+
+    passed = all(
+        item["result"] == "rejected" and item["exit_code"] == 0
+        for item in results
+    )
+    payload = {
+        "schema_version": 1,
+        "status": "pass" if passed else "fail",
+        "candidate_commit": baseline,
+        "candidate_tree": baseline_tree,
+        "required_attack_ids": list(CANONICAL_ATTACK_SELECTORS),
+        "started_at": started_at,
+        "completed_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "results": results,
+        "stdout_sha256": sha256_bytes(bytes(transcript)),
+    }
+    if not passed:
+        failed_details = []
+        for item in results:
+            if item["exit_code"] == 0:
+                continue
+            attack_id = str(item["attack_id"])
+            output = outputs[attack_id].decode("utf-8", "replace").strip()
+            failed_details.append(
+                f"{attack_id} exit={item['exit_code']}:\n"
+                f"{output or '<no output>'}"
+            )
+        raise SystemExit(
+            "design-freeze canonical attack replay failed:\n"
+            + "\n".join(failed_details)
+        )
+    return payload
 
 
 def main() -> int:
@@ -538,12 +939,21 @@ def main() -> int:
     contract = require_frozen_statuses(frozen_files)
 
     require_clean_exact_baseline(baseline)
+    observation_before = require_direct_remote(
+        baseline,
+        args.remote,
+        args.branch,
+    )
+    observed_branch = observation_before["ref"].removeprefix("refs/heads/")
     closure_facts = require_review_closure(
         reviewed_commit,
         baseline,
         frozen_files,
     )
-    remote_facts = require_direct_remote(baseline, args.remote, args.branch)
+    attack_replay = require_design_freeze_attack_replay(
+        baseline,
+        closure_facts["baseline_tree"],
+    )
     require_clean_exact_baseline(baseline)
 
     prefix = git_text("rev-parse", "--show-prefix")
@@ -556,17 +966,24 @@ def main() -> int:
         current = (PROJECT_ROOT / relative).read_bytes()
         if current != content.stdout:
             raise SystemExit(f"working file differs from baseline: {relative}")
-        tree_line = git_text("ls-tree", baseline, "--", repo_relative)
-        fields = tree_line.split()
-        if len(fields) < 3:
-            raise SystemExit(f"cannot resolve git blob for {relative}")
+        tree_entry = commit_tree_entry(baseline, prefix, relative)
         entries.append(
             {
                 "path": relative,
                 "sha256": sha256_bytes(current),
-                "git_blob": fields[2],
+                "git_mode": tree_entry["mode"],
+                "git_type": tree_entry["tree_type"],
+                "git_object_kind": tree_entry["object_kind"],
+                "git_blob": tree_entry["object_id"],
             }
         )
+    require_clean_exact_baseline(baseline)
+    observation_after = require_direct_remote(
+        baseline,
+        args.remote,
+        observed_branch,
+    )
+    require_clean_exact_baseline(baseline)
 
     bundle = {
         "schema_version": 1,
@@ -579,14 +996,24 @@ def main() -> int:
         "final_review_subject_id": closure_facts["review_subject_id"],
         "final_review_evidence_path": closure_facts["review_evidence_path"],
         "final_review_evidence_sha256": closure_facts["review_evidence_sha256"],
-        "upstream_ref_at_creation": remote_facts.get("ref"),
-        "remote_at_creation": remote_facts.get("remote"),
+        "design_freeze_attack_replay": attack_replay,
+        "baseline_remote_observations": [
+            {
+                "phase": "before_baseline_verification",
+                **observation_before,
+            },
+            {
+                "phase": "after_baseline_verification",
+                **observation_after,
+            },
+        ],
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "creation_rule": (
             "non-circular two-stage: an independent review binds candidate C; "
             "baseline B may add only structurally verified review-closure metadata, "
-            "must be clean and directly observed on the remote; this bundle must "
-            "then be committed and pushed"
+            "must be clean and directly observed on trusted origin before and after "
+            "baseline verification; observations are non-atomic and this bundle "
+            "must then be committed, pushed, and independently verified"
         ),
         "files": entries,
     }

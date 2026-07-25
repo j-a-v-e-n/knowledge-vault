@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "subject_id": "SUBJECT-DESIGN-REVIEW-BERNOULLI-R3",
+  "review_locator": "subagent:019f990e-1917-7df0-a645-c3d09ffdd3ae",
+  "candidate_commit": "6dc1bb3a155a44106cdfb2774e32c198b6624b36",
+  "candidate_tree": "f75b0053435608db755731dd8ce1c505c53caf75",
+  "verdict": "blocked_freeze",
+  "open_critical_count": 3,
+  "open_major_count": 0,
+  "open_minor_count": 1,
+  "new_architecture_changing_classes": [],
+  "participated_in_candidate_construction": false,
+  "write_access_used": false,
+  "reviewed_files": [
+    "governance/USER_SOURCE_EXCERPTS_V1.json",
+    "governance/USER_INTENT_V1.json",
+    "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+    "governance/ACCEPTANCE_CONTRACT_V1.json",
+    "governance/ACCEPTANCE_CASES_V1.json",
+    "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json",
+    "governance/MARKET_SIMULATION_POLICY_V1.json",
+    "governance/FIELD_USE_PROTOCOL_V1.json",
+    "governance/PRIVATE_DATA_POLICY_V1.json",
+    "governance/IMPLEMENTATION_TARGETS_V1.json",
+    "governance/VERIFICATION_SPECS_V1.json",
+    "governance/TRACEABILITY_V1.json",
+    "governance/ASSURANCE_SUBJECTS_V1.json",
+    "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+    "scripts/verify_governance.py",
+    "scripts/freeze_governance.py",
+    "scripts/verify_git_state.py",
+    "scripts/verify_remote_commit.py",
+    "scripts/verify_conditionals.py",
+    "scripts/verify_contract_supersession.py",
+    "governance_tests/test_freeze_git_remote.py",
+    "governance_tests/test_research_evidence_governance.py",
+    "governance_tests/test_verify_conditionals.py",
+    "governance_tests/test_verify_governance.py",
+    "governance_tests/test_verify_money_semantics.py",
+    "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md",
+    "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md",
+    "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+    "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md",
+    "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
+    "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md"
+  ],
+  "commands_run": [
+    "resolved the exact candidate commit and tree",
+    "archived the exact candidate into an isolated temporary directory",
+    "python3 scripts/verify_governance.py --allow-candidate",
+    "python3 -m unittest discover -s governance_tests -v",
+    "git ls-files --others --ignored --exclude-standard",
+    "isolated PIT oracle inversion mutation",
+    "isolated same-bar causality mutation",
+    "isolated split accounting mutation",
+    "isolated conditional self-attestation attack"
+  ],
+  "independent_attacks": [
+    {
+      "id": "ATTACK-R3-PIT-ORACLE-INVERSION",
+      "mutation": "Changed CASE-PIT-LATE-RETRIEVAL expected.accepted from false to true and changed its rejection reason to accept late retrieval as PIT-valid.",
+      "expected": "verify_governance.py rejects inversion of a causality oracle",
+      "observed": "exit code 0: governance verification PASS candidate",
+      "result": "escaped"
+    },
+    {
+      "id": "ATTACK-R3-SAME-BAR-SEMANTIC-SMUGGLE",
+      "mutation": "Changed calendar_and_causality.same_bar_fill to allow same-bar fill by default.",
+      "expected": "verify_governance.py rejects a policy mutation that enables same-bar lookahead",
+      "observed": "exit code 0: governance verification PASS candidate",
+      "result": "escaped"
+    },
+    {
+      "id": "ATTACK-R3-CORPORATE-ACTION-SEMANTIC-SMUGGLE",
+      "mutation": "Changed ACTION-SPLIT.effect to leave quantity unchanged and allow arbitrary total-cost changes.",
+      "expected": "verify_governance.py rejects corruption of split accounting semantics",
+      "observed": "exit code 0: governance verification PASS candidate",
+      "result": "escaped"
+    },
+    {
+      "id": "ATTACK-R3-CONDITIONAL-SELF-ATTESTATION",
+      "mutation": "Created an attacker-authored condition_observations SQLite row, claimed passing evidence, arbitrary all-zero frozen-bundle hash and raw result reporting zero cases run.",
+      "expected": "verify_conditionals.py rejects evidence without trusted provenance, real bundle binding and executed case results",
+      "observed": "exit code 0; effective_state passed and target human_onboarding_verified passed",
+      "result": "escaped"
+    }
+  ],
+  "findings": [
+    {
+      "id": "R3-CRIT-001",
+      "severity": "critical",
+      "title": "Conditional gates accept entirely self-authored prerequisite and execution evidence",
+      "evidence": "A forged one-row SQLite database, arbitrary bundle hash and raw result with zero cases run produced a passing human_onboarding_verified decision.",
+      "required_fix": "Derive candidate and bundle identity independently, verify an append-only state chain, parse exact per-case results, enforce freshness and anti-replay, and reject caller-selected authority."
+    },
+    {
+      "id": "R3-CRIT-002",
+      "severity": "critical",
+      "title": "Governance closes identifiers but not decisive financial and causal semantics",
+      "evidence": "PIT acceptance inversion, same-bar lookahead and corrupted split accounting all retained a PASS verdict.",
+      "required_fix": "Replace freeze-critical free text with canonical executable structures or exact semantic invariants and add value-preserving-ID mutation tests."
+    },
+    {
+      "id": "R3-CRIT-003",
+      "severity": "critical",
+      "title": "Final independent-review closure can attest success without machine-checked attack evidence",
+      "evidence": "The final review schema binds summary metadata but does not validate commands, attacks, findings consistency or raw attack results.",
+      "required_fix": "Enforce a strict final-review schema, bind each attack to mutation and raw-result hashes, validate counts and replay required attacks before closure."
+    },
+    {
+      "id": "R3-MIN-001",
+      "severity": "minor",
+      "title": "Conditional evidence permits unbounded extra case claims",
+      "evidence": "required_cases is checked as a subset of evidence cases rather than exact equality.",
+      "required_fix": "Require exact case-set equality and one parsed result per case."
+    }
+  ],
+  "finding_ids": [
+    "R3-CRIT-001",
+    "R3-CRIT-002",
+    "R3-CRIT-003",
+    "R3-MIN-001"
+  ],
+  "what_would_falsify_pass": [
+    "Any semantics-changing mutation passes while identifiers remain intact.",
+    "Any caller-authored prerequisite or evidence can obtain a conditional verdict.",
+    "A final passing review can omit independently replayable attacks.",
+    "The resolved commit or tree differs from the reviewed identities.",
+    "A closure or bundle cannot be proven to descend non-circularly from the exact reviewed candidate."
+  ],
+  "limitations": [
+    "The reviewer could not directly resolve github.com from its sandbox; the main agent separately completed direct remote and fresh-clone verification.",
+    "The existing governance suite passed before the independent attacks, but did not detect the four reported escapes.",
+    "No closure baseline or bundle was created because the verdict was blocked.",
+    "Project write access was not used; mutations existed only in isolated temporary copies."
+  ]
+}

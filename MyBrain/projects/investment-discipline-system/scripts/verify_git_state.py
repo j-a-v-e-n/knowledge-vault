@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Verify tracked files, cleanliness, and the local upstream-tracking state."""
+"""Verify project Git state and directly observe the trusted origin branch."""
 
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import os
 import subprocess
@@ -17,6 +18,7 @@ PROJECT_ROOT = Path(
 CONTRACT = PROJECT_ROOT / "governance" / "ACCEPTANCE_CONTRACT_V1.json"
 FROZEN_BUNDLE_RELATIVE = "governance/FROZEN_BUNDLE_V1.json"
 FROZEN_BUNDLE = PROJECT_ROOT / FROZEN_BUNDLE_RELATIVE
+TRUSTED_REMOTE = "origin"
 
 
 def git(*args: str) -> subprocess.CompletedProcess[str]:
@@ -97,13 +99,82 @@ def verify_versioned_file(
         errors.append(f"{label} is absent from HEAD: {relative}")
 
 
-def verify(require_origin: bool, expected_commit: str | None) -> tuple[list[str], dict[str, str]]:
+def trusted_branch(
+    requested_branch: str | None,
+    errors: list[str],
+) -> tuple[str, str]:
+    branch = requested_branch or output(
+        git("symbolic-ref", "--short", "HEAD"),
+        "current branch",
+        errors,
+    )
+    if branch:
+        valid = git("check-ref-format", "--branch", branch)
+        if valid.returncode != 0:
+            errors.append(f"trusted branch is invalid: {branch!r}")
+    upstream = output(
+        git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"),
+        "upstream",
+        errors,
+    )
+    expected_upstream = f"{TRUSTED_REMOTE}/{branch}" if branch else ""
+    if upstream and expected_upstream and upstream != expected_upstream:
+        errors.append(
+            f"upstream is not trusted {expected_upstream}: got {upstream}"
+        )
+    return branch, upstream
+
+
+def observe_origin(
+    head: str,
+    branch: str,
+    errors: list[str],
+) -> dict[str, str]:
+    ref = f"refs/heads/{branch}"
+    result = git("ls-remote", "--heads", TRUSTED_REMOTE, ref)
+    if result.returncode != 0:
+        errors.append(
+            "direct origin observation failed: "
+            f"{result.stderr.strip() or result.stdout.strip()}"
+        )
+        remote_commit = ""
+    else:
+        matches = []
+        for line in result.stdout.splitlines():
+            fields = line.split()
+            if len(fields) == 2 and fields[1] == ref:
+                matches.append(fields)
+        remote_commit = matches[0][0] if len(matches) == 1 else ""
+        if remote_commit != head:
+            errors.append(
+                "direct origin commit mismatch: "
+                f"expected {head}, got {remote_commit or '<missing>'}"
+            )
+    return {
+        "remote": TRUSTED_REMOTE,
+        "ref": ref,
+        "commit": remote_commit,
+        "observed_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+    }
+
+
+def verify(
+    require_origin: bool,
+    expected_commit: str | None,
+    remote: str = TRUSTED_REMOTE,
+    branch: str | None = None,
+) -> tuple[list[str], dict[str, object]]:
     errors: list[str] = []
     frozen_files = load_frozen_files(errors)
     repo_root_text = output(git("rev-parse", "--show-toplevel"), "repo root", errors)
     head = output(git("rev-parse", "HEAD"), "HEAD", errors)
     tree = output(git("rev-parse", "HEAD^{tree}"), "HEAD tree", errors)
     prefix = output(git("rev-parse", "--show-prefix"), "project prefix", errors)
+    if expected_commit and (
+        len(expected_commit) != 40
+        or any(character not in "0123456789abcdef" for character in expected_commit)
+    ):
+        errors.append("expected commit must be a full lowercase Git object id")
     if expected_commit and head != expected_commit:
         errors.append(f"HEAD differs from expected commit: expected {expected_commit}, got {head}")
 
@@ -141,24 +212,27 @@ def verify(require_origin: bool, expected_commit: str | None) -> tuple[list[str]
         )
 
     upstream = ""
+    trusted_branch_name = ""
+    remote_observation: dict[str, str] = {}
     if require_origin:
-        upstream = output(
-            git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"),
-            "upstream",
+        if remote != TRUSTED_REMOTE:
+            errors.append(
+                f"remote is not trusted {TRUSTED_REMOTE!r}: got {remote!r}"
+            )
+        trusted_branch_name, upstream = trusted_branch(branch, errors)
+        remote_url = output(
+            git("remote", "get-url", TRUSTED_REMOTE),
+            "origin URL",
             errors,
         )
-        upstream_head = (
-            output(git("rev-parse", "@{upstream}"), "upstream HEAD", errors)
-            if upstream
-            else ""
-        )
-        if head and upstream_head and head != upstream_head:
-            errors.append(
-                f"HEAD is not pushed to upstream {upstream}: local={head}, upstream={upstream_head}"
-            )
-        remote_url = output(git("remote", "get-url", "origin"), "origin URL", errors)
         if not remote_url:
             errors.append("origin remote has no URL")
+        if head and trusted_branch_name and remote_url:
+            remote_observation = observe_origin(
+                head,
+                trusted_branch_name,
+                errors,
+            )
 
     facts = {
         "repo_root": repo_root_text,
@@ -166,6 +240,9 @@ def verify(require_origin: bool, expected_commit: str | None) -> tuple[list[str]
         "head": head,
         "tree": tree,
         "upstream": upstream,
+        "trusted_remote": TRUSTED_REMOTE if require_origin else "",
+        "trusted_branch": trusted_branch_name,
+        "remote_observation": remote_observation,
     }
     return errors, facts
 
@@ -174,9 +251,16 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--require-origin", action="store_true")
     parser.add_argument("--expected-commit")
+    parser.add_argument("--remote", default=TRUSTED_REMOTE)
+    parser.add_argument("--branch")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
-    errors, facts = verify(args.require_origin, args.expected_commit)
+    errors, facts = verify(
+        args.require_origin,
+        args.expected_commit,
+        args.remote,
+        args.branch,
+    )
     if args.json:
         print(json.dumps({"status": "fail" if errors else "pass", "facts": facts, "errors": errors}, ensure_ascii=False, indent=2))
     elif errors:
@@ -186,7 +270,8 @@ def main() -> int:
     else:
         print(
             "git state verification: PASS "
-            f"(head={facts['head']}, tree={facts['tree']}, upstream={facts['upstream'] or 'not-required'})"
+            f"(head={facts['head']}, tree={facts['tree']}, "
+            f"origin_ref={facts['remote_observation'].get('ref', 'not-required')})"
         )
     return 1 if errors else 0
 

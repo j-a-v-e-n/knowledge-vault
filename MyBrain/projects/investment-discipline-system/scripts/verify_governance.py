@@ -36,6 +36,35 @@ BLUEPRINT = PROJECT_ROOT / "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
 FROZEN_BUNDLE = GOVERNANCE / "FROZEN_BUNDLE_V1.json"
 
 PHASES = {"design_freeze", "product_release", "human_onboarding", "longitudinal"}
+FINAL_REVIEW_ATTACK_SELECTORS = {
+    "ATTACK-PIT-ORACLE-INVERSION": (
+        "governance_tests.test_final_review_attacks."
+        "FinalReviewAttackTests.test_pit_oracle_inversion_is_rejected"
+    ),
+    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE": (
+        "governance_tests.test_final_review_attacks."
+        "FinalReviewAttackTests.test_same_bar_causality_smuggle_is_rejected"
+    ),
+    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE": (
+        "governance_tests.test_final_review_attacks."
+        "FinalReviewAttackTests.test_split_accounting_smuggle_is_rejected"
+    ),
+    "ATTACK-CONDITIONAL-SELF-ATTESTATION": (
+        "governance_tests.test_final_review_attacks."
+        "FinalReviewAttackTests.test_conditional_self_attestation_is_rejected"
+    ),
+}
+FINAL_REVIEW_REQUIRED_SCOPE = {
+    "scripts/verify_governance.py",
+    "scripts/verify_conditionals.py",
+    "scripts/freeze_governance.py",
+    "scripts/verify_git_state.py",
+    "scripts/verify_remote_commit.py",
+    "scripts/replay_design_freeze_attacks.py",
+    "governance_tests/test_final_review_attacks.py",
+    "governance_tests/test_verify_conditionals.py",
+    "governance_tests/test_freeze_git_remote.py",
+}
 NORMATIVE_JSON_PATHS = (
     "governance/USER_SOURCE_EXCERPTS_V1.json",
     "governance/USER_INTENT_V1.json",
@@ -99,6 +128,28 @@ def sha256(path: Path) -> str:
 
 def sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def nonempty_unique_strings(value: Any) -> bool:
+    return (
+        isinstance(value, list)
+        and bool(value)
+        and all(isinstance(item, str) and bool(item) for item in value)
+        and len(value) == len(set(value))
+    )
+
+
+def safe_relative_file(value: Any, *, prefix: str | None = None) -> Path | None:
+    if (
+        not isinstance(value, str)
+        or not value
+        or Path(value).is_absolute()
+        or ".." in Path(value).parts
+        or (prefix is not None and not value.startswith(prefix))
+    ):
+        return None
+    path = PROJECT_ROOT / value
+    return path if path.is_file() else None
 
 
 def run_git(args: list[str], errors: list[str]) -> str:
@@ -306,12 +357,15 @@ def verify_acceptance_cases(
             f"extra={sorted(operation_case_ids - case_ids)}"
         )
     covered_requirements: set[str] = set()
+    case_by_id: dict[str, dict[str, Any]] = {}
     if not isinstance(cases, list):
         return case_ids
     for index, case in enumerate(cases):
         if not isinstance(case, dict):
             continue
         case_id = case.get("id", f"acceptance cases[{index}]")
+        if isinstance(case_id, str):
+            case_by_id[case_id] = case
         missing = required_fields - set(case)
         if missing:
             errors.append(f"{case_id} missing acceptance fields: {sorted(missing)}")
@@ -364,6 +418,105 @@ def verify_acceptance_cases(
             f"missing={sorted(requirement_ids - covered_requirements)}, "
             f"extra={sorted(covered_requirements - requirement_ids)}"
         )
+    freeze_critical_case_semantics = {
+        "CASE-PIT-LATE-RETRIEVAL": {
+            "preconditions": {
+                "decision_at": "2024-01-02T21:00:00Z",
+                "system_recorded_at": "2026-01-02T21:00:00Z",
+                "verifiable_vintage": False,
+            },
+            "operation": {
+                "action": "admit snapshot to historical decision/backtest"
+            },
+            "expected": {
+                "accepted": False,
+                "reason": "snapshot_recorded_after_decision_without_vintage",
+            },
+        },
+        "CASE-PIT-LENGTH-MISMATCH": {
+            "preconditions": {
+                "visible_dates_count": 0,
+                "strategy_dates_count": 1,
+            },
+            "operation": {"action": "validate temporal coverage"},
+            "expected": {
+                "accepted": False,
+                "reason": "date_domain_mismatch",
+            },
+        },
+        "CASE-CALENDAR-MISSING-SESSION": {
+            "preconditions": {
+                "exchange_calendar_sessions": 3,
+                "strategy_rows": 2,
+                "benchmark_rows": 3,
+            },
+            "operation": {"action": "run backtest using row intersection"},
+            "expected": {
+                "run_status": "rejected",
+                "coverage_missing_sessions": 1,
+            },
+        },
+        "CASE-BENCHMARK-TOTAL-RETURN": {
+            "preconditions": {
+                "benchmark_start_price": "100.00",
+                "benchmark_end_price": "100.00",
+                "cash_dividend": "2.00",
+                "shares": "1.00000000",
+            },
+            "operation": {"action": "compute benchmark ending value"},
+            "expected": {
+                "ending_value": "102.00",
+                "price_only_value_is_invalid": "100.00",
+            },
+        },
+        "CASE-DECISION-NEXT-BAR": {
+            "preconditions": {
+                "signal_basis": "session_T_close",
+                "fill_attempt": "session_T_close",
+            },
+            "operation": {"action": "validate fill timing"},
+            "expected": {
+                "accepted": False,
+                "earliest_default_fill": "next eligible session open",
+            },
+        },
+        "CASE-DATA-SILENT-FALLBACK": {
+            "preconditions": {
+                "approved_feed": "tiingo_raw_eod",
+                "observed_feed": "unapproved_fallback",
+            },
+            "operation": {
+                "action": (
+                    "admit snapshot to a run without an explicit "
+                    "feed-change record"
+                )
+            },
+            "expected": {
+                "accepted": False,
+                "reason": "unapproved_data_source_change",
+                "observed_feed_recorded": True,
+            },
+        },
+        "CASE-CORP-ACTION-ADJUSTED-MISMATCH": {
+            "preconditions": {
+                "local_raw_plus_actions_value": "102.00",
+                "provider_adjusted_value": "100.00",
+            },
+            "operation": {"action": "reconcile adjusted series"},
+            "expected": {
+                "provider_adjusted_used_as_authority": False,
+                "mismatch_recorded": True,
+                "run_status": "incomplete",
+            },
+        },
+    }
+    for case_id, expected_semantics in freeze_critical_case_semantics.items():
+        case = case_by_id.get(case_id)
+        if case is None or any(
+            case.get(field) != expected
+            for field, expected in expected_semantics.items()
+        ):
+            errors.append(f"{case_id} freeze-critical semantics differ")
     return case_ids
 
 
@@ -1041,16 +1194,126 @@ def verify_normative_policy_anchors(
         "ACTION-DELISTING-BANKRUPTCY",
         "ACTION-CORRECTION-REVERSAL",
     }
+    expected_action_modes = {
+        "ACTION-SPLIT": "automatic",
+        "ACTION-REVERSE-SPLIT": (
+            "automatic_with_cash_in_lieu_pending_if_fraction_disallowed"
+        ),
+        "ACTION-CASH-DIVIDEND": "automatic",
+        "ACTION-TICKER-NAME-CHANGE": "automatic_identity_alias",
+        "ACTION-CASH-MERGER": "pending_manual",
+        "ACTION-STOCK-MERGER": "pending_manual",
+        "ACTION-SPINOFF": "pending_manual",
+        "ACTION-CASH-IN-LIEU": "pending_manual",
+        "ACTION-DELISTING-BANKRUPTCY": "pending_manual",
+        "ACTION-CORRECTION-REVERSAL": "compensating_event_only",
+    }
+    expected_action_semantics = {
+        "ACTION-SPLIT": {
+            "terminal_state": "applied",
+            "quantity_rule": "multiply_ratio_then_quantize_quantity",
+            "per_share_cost_rule": "divide_ratio_then_quantize_price",
+            "total_cost_rule": "conserve_subject_only_to_declared_quantization",
+            "cash_rule": "unchanged",
+            "replay_rule": "idempotency_key_applies_once",
+        },
+        "ACTION-REVERSE-SPLIT": {
+            "terminal_state": "applied_or_action_pending_manual",
+            "quantity_rule": "multiply_ratio_then_quantize_quantity",
+            "per_share_cost_rule": "divide_ratio_then_quantize_price",
+            "total_cost_rule": "conserve_subject_only_to_declared_quantization",
+            "fraction_rule": "unresolved_cash_in_lieu_freezes_affected_security",
+            "replay_rule": "idempotency_key_applies_once",
+        },
+        "ACTION-CASH-DIVIDEND": {
+            "terminal_state": "applied",
+            "cash_rule": (
+                "add_eligible_quantity_times_cash_per_share_quantized_money"
+            ),
+            "quantity_rule": "unchanged",
+            "date_rule": "ex_date_and_pay_date_are_distinct",
+            "replay_rule": "idempotency_key_applies_once",
+        },
+        "ACTION-TICKER-NAME-CHANGE": {
+            "terminal_state": "applied",
+            "stable_security_id_rule": "unchanged",
+            "old_symbol_rule": "close_validity_interval",
+            "new_symbol_rule": "open_validity_interval",
+            "replay_rule": "idempotency_key_applies_once",
+        },
+        "ACTION-CASH-MERGER": {
+            "terminal_state": "action_pending_manual",
+            "automatic_transform_rule": "forbidden",
+            "cash_rule": "no_guessed_amount",
+            "affected_security_rule": "frozen",
+            "nav_rule": "incomplete",
+            "risk_rule": "new_approval_blocked",
+        },
+        "ACTION-STOCK-MERGER": {
+            "terminal_state": "action_pending_manual",
+            "automatic_transform_rule": "forbidden",
+            "quantity_rule": "no_guessed_quantity",
+            "cost_rule": "no_guessed_basis",
+            "affected_security_rule": "frozen",
+            "nav_rule": "incomplete",
+            "risk_rule": "new_approval_blocked",
+        },
+        "ACTION-SPINOFF": {
+            "terminal_state": "action_pending_manual",
+            "automatic_transform_rule": "forbidden",
+            "quantity_rule": "no_guessed_quantity",
+            "cost_rule": "no_guessed_basis_allocation",
+            "affected_security_rule": "frozen",
+            "nav_rule": "incomplete",
+            "risk_rule": "new_approval_blocked",
+        },
+        "ACTION-CASH-IN-LIEU": {
+            "terminal_state": "action_pending_manual",
+            "automatic_transform_rule": "forbidden",
+            "cash_rule": "no_guessed_amount",
+            "reconciliation_rule": "open",
+            "affected_security_rule": "frozen",
+            "nav_rule": "incomplete",
+        },
+        "ACTION-DELISTING-BANKRUPTCY": {
+            "terminal_state": "action_pending_manual",
+            "automatic_transform_rule": "forbidden",
+            "mark_rule": "never_silently_zero",
+            "resolution_rule": (
+                "explicit_evidence_and_compensating_event_required"
+            ),
+            "nav_rule": "incomplete",
+            "risk_rule": "new_approval_blocked",
+        },
+        "ACTION-CORRECTION-REVERSAL": {
+            "terminal_state": "corrected_by_compensation",
+            "original_event_rule": "immutable",
+            "revision_rule": "linked_revision_required",
+            "account_rule": "append_compensating_event",
+            "replay_rule": "rebuild_from_original_plus_compensation",
+        },
+    }
     verify_bound_items(
         actions,
         "money corporate actions",
         expected_action_ids,
-        "effect",
+        "v1_mode",
         requirement_ids,
         verification_ids,
         case_ids,
         errors,
     )
+    if isinstance(actions, list):
+        for action in actions:
+            if not isinstance(action, dict):
+                continue
+            action_id = action.get("id", "<unknown>")
+            if action.get("v1_mode") != expected_action_modes.get(action_id):
+                errors.append(f"{action_id} corporate action mode differs")
+            if action.get("semantics") != expected_action_semantics.get(action_id):
+                errors.append(f"{action_id} corporate action semantics differ")
+            if "effect" in action:
+                errors.append(f"{action_id} uses free-text corporate action effect")
     if money.get("corporate_action_idempotency_key_fields") != [
         "provider",
         "stable_security_id",
@@ -1065,10 +1328,28 @@ def verify_normative_policy_anchors(
     calendar = market.get("calendar_and_causality")
     benchmark = market.get("benchmark_policy")
     lineage = market.get("experiment_lineage")
-    if not isinstance(calendar, dict) or calendar.get("earliest_default_fill") != (
-        "next eligible session T+1 using the preregistered fill-price model"
-    ):
-        errors.append("market default fill timing differs")
+    expected_calendar = {
+        "calendar": (
+            "explicit exchange session table with timezone; "
+            "data-row intersection is never a calendar"
+        ),
+        "decision_bar_rule": (
+            "a close-derived signal at session T is available only after that close"
+        ),
+        "earliest_default_fill": (
+            "next eligible session T+1 using the preregistered fill-price model"
+        ),
+        "same_bar_fill": (
+            "forbidden unless the signal was provably available before the chosen "
+            "executable price and the alternate timing was preregistered"
+        ),
+        "missing_session_rule": (
+            "report coverage and fail the run when required strategy/benchmark "
+            "sessions differ; never hide via zip or intersection"
+        ),
+    }
+    if calendar != expected_calendar:
+        errors.append("market calendar and causality semantics differ")
     benchmark_fields = benchmark.get("required_fields") if isinstance(benchmark, dict) else None
     verify_bound_items(
         benchmark_fields,
@@ -1466,6 +1747,386 @@ def verify_assurance_subjects(
         for role in ("acceptance_reviewer", "user_proxy", "independence_probe"):
             if role not in constraints:
                 errors.append(f"assurance role constraint missing: {role}")
+    expected_final_review_schema = {
+        "schema_version": 1,
+        "additional_fields_allowed": False,
+        "required": [
+            "schema_version",
+            "subject_id",
+            "review_locator",
+            "review_input",
+            "review_input_sha256",
+            "candidate_commit",
+            "candidate_tree",
+            "verdict",
+            "open_critical_count",
+            "open_major_count",
+            "open_minor_count",
+            "new_architecture_changing_classes",
+            "participated_in_candidate_construction",
+            "write_access_used",
+            "reviewed_files",
+            "commands_run",
+            "independent_attacks",
+            "findings",
+            "finding_ids",
+            "what_would_falsify_pass",
+            "limitations",
+        ],
+        "required_attack_selectors": [
+            {"attack_id": attack_id, "replay_selector": selector}
+            for attack_id, selector in FINAL_REVIEW_ATTACK_SELECTORS.items()
+        ],
+        "attack_required": [
+            "attack_id",
+            "mutation",
+            "mutation_sha256",
+            "expected",
+            "observed",
+            "result",
+            "replay_selector",
+            "raw_result_path",
+            "raw_result_sha256",
+        ],
+        "raw_result_required": [
+            "schema_version",
+            "attack_id",
+            "candidate_commit",
+            "candidate_tree",
+            "mutation_sha256",
+            "replay_selector",
+            "command",
+            "exit_code",
+            "stdout",
+            "stdout_sha256",
+            "expected",
+            "observed",
+            "result",
+        ],
+        "passing_rule": (
+            "候选 commit/tree、审查主体、输入、完整 scope、finding 计数和四个固定攻击必须一致；"
+            "每个攻击都要由非零目标退出状态、原始 stdout/hash 与独立可复演 selector 证明已被拒绝；"
+            "任一遗漏、escaped、跨候选复用或 open finding 都保持 blocked_freeze。"
+        ),
+    }
+    if subjects_doc.get("final_review_evidence_schema") != (
+        expected_final_review_schema
+    ):
+        errors.append("assurance final review evidence schema differs")
+
+
+def verify_final_review_evidence(
+    evidence: dict[str, Any],
+    *,
+    round_id: str,
+    reviewers: Any,
+    candidate_commit: Any,
+    candidate_tree: Any,
+    frozen_files: Any,
+    errors: list[str],
+) -> None:
+    required_fields = {
+        "schema_version",
+        "subject_id",
+        "review_locator",
+        "review_input",
+        "review_input_sha256",
+        "candidate_commit",
+        "candidate_tree",
+        "verdict",
+        "open_critical_count",
+        "open_major_count",
+        "open_minor_count",
+        "new_architecture_changing_classes",
+        "participated_in_candidate_construction",
+        "write_access_used",
+        "reviewed_files",
+        "commands_run",
+        "independent_attacks",
+        "findings",
+        "finding_ids",
+        "what_would_falsify_pass",
+        "limitations",
+    }
+    missing = required_fields - set(evidence)
+    if missing:
+        errors.append(
+            f"{round_id} passing review evidence missing fields: {sorted(missing)}"
+        )
+    unexpected = set(evidence) - required_fields
+    if unexpected:
+        errors.append(
+            f"{round_id} passing review evidence has unexpected fields: "
+            f"{sorted(unexpected)}"
+        )
+    if evidence.get("schema_version") != 1:
+        errors.append(f"{round_id} passing review evidence schema differs")
+    reviewer_set = set(reviewers) if isinstance(reviewers, list) else set()
+    if evidence.get("subject_id") not in reviewer_set:
+        errors.append(f"{round_id} passing review evidence subject differs")
+    review_input = evidence.get("review_input")
+    if (
+        not isinstance(evidence.get("review_locator"), str)
+        or not evidence.get("review_locator")
+        or not isinstance(review_input, str)
+        or not review_input
+        or evidence.get("review_input_sha256") != sha256_text(review_input)
+    ):
+        errors.append(f"{round_id} passing review provenance is incomplete")
+
+    expected_evidence = {
+        "candidate_commit": candidate_commit,
+        "candidate_tree": candidate_tree,
+        "verdict": "passed_freeze",
+        "new_architecture_changing_classes": [],
+        "participated_in_candidate_construction": False,
+        "write_access_used": False,
+    }
+    for key, expected in expected_evidence.items():
+        if evidence.get(key) != expected:
+            errors.append(f"{round_id} passing review evidence {key} differs")
+
+    reviewed_files = evidence.get("reviewed_files")
+    if not nonempty_unique_strings(reviewed_files):
+        errors.append(f"{round_id} passing review evidence reviewed_files differs")
+    else:
+        required_scope = set(FINAL_REVIEW_REQUIRED_SCOPE)
+        if isinstance(frozen_files, list):
+            required_scope.update(
+                item for item in frozen_files if isinstance(item, str)
+            )
+        omitted = required_scope - set(reviewed_files)
+        if omitted:
+            errors.append(
+                f"{round_id} passing review omitted required files: "
+                f"{sorted(omitted)}"
+            )
+        project_prefix = run_git(["rev-parse", "--show-prefix"], errors)
+        can_resolve_reviewed_files = isinstance(
+            candidate_commit, str
+        ) and bool(re.fullmatch(r"[0-9a-f]{40}", candidate_commit))
+        for relative in reviewed_files:
+            if (
+                Path(relative).is_absolute()
+                or ".." in Path(relative).parts
+                or "\\" in relative
+            ):
+                errors.append(
+                    f"{round_id} passing review has unsafe reviewed file: {relative}"
+                )
+                continue
+            if not can_resolve_reviewed_files:
+                continue
+            tree_entry = run_git(
+                ["ls-tree", candidate_commit, "--", f"{project_prefix}{relative}"],
+                errors,
+            )
+            fields = tree_entry.split()
+            if len(fields) < 3 or fields[1] != "blob":
+                errors.append(
+                    f"{round_id} passing review file is absent from candidate: "
+                    f"{relative}"
+                )
+
+    commands_run = evidence.get("commands_run")
+    if not nonempty_unique_strings(commands_run):
+        errors.append(
+            f"{round_id} passing review commands_run must be nonempty and unique"
+        )
+        commands: set[str] = set()
+    else:
+        commands = set(commands_run)
+    required_commands = {
+        f"python3 -m unittest {selector}"
+        for selector in FINAL_REVIEW_ATTACK_SELECTORS.values()
+    }
+    if not required_commands.issubset(commands):
+        errors.append(
+            f"{round_id} passing review omitted canonical replay commands: "
+            f"{sorted(required_commands - commands)}"
+        )
+
+    for field in ("what_would_falsify_pass", "limitations"):
+        if not nonempty_unique_strings(evidence.get(field)):
+            errors.append(
+                f"{round_id} passing review {field} must be nonempty and unique"
+            )
+
+    findings = evidence.get("findings")
+    finding_ids = evidence.get("finding_ids")
+    if (
+        not isinstance(finding_ids, list)
+        or not all(isinstance(item, str) and item for item in finding_ids)
+        or len(finding_ids) != len(set(finding_ids))
+    ):
+        errors.append(f"{round_id} passing review finding_ids differs")
+        declared_finding_ids: set[str] = set()
+    else:
+        declared_finding_ids = set(finding_ids)
+    observed_finding_ids: set[str] = set()
+    open_counts = {"critical": 0, "major": 0, "minor": 0}
+    if not isinstance(findings, list):
+        errors.append(f"{round_id} passing review findings must be a list")
+    else:
+        for index, finding in enumerate(findings):
+            label = f"{round_id} passing review findings[{index}]"
+            if not isinstance(finding, dict):
+                errors.append(f"{label} must be an object")
+                continue
+            finding_id = finding.get("id")
+            severity = finding.get("severity")
+            status = finding.get("status")
+            if (
+                not isinstance(finding_id, str)
+                or not finding_id
+                or finding_id in observed_finding_ids
+            ):
+                errors.append(f"{label} id is invalid or duplicate")
+            else:
+                observed_finding_ids.add(finding_id)
+            if severity not in open_counts:
+                errors.append(f"{label} severity differs")
+            if status not in {"open", "resolved"}:
+                errors.append(f"{label} status differs")
+            if not isinstance(finding.get("title"), str) or not finding.get("title"):
+                errors.append(f"{label} title is missing")
+            if not isinstance(finding.get("evidence"), str) or not finding.get(
+                "evidence"
+            ):
+                errors.append(f"{label} evidence is missing")
+            if severity in open_counts and status == "open":
+                open_counts[severity] += 1
+    if declared_finding_ids != observed_finding_ids:
+        errors.append(f"{round_id} passing review finding_ids/findings differ")
+    for severity in ("critical", "major", "minor"):
+        field = f"open_{severity}_count"
+        if evidence.get(field) != open_counts[severity]:
+            errors.append(f"{round_id} passing review evidence {field} differs")
+    if any(open_counts.values()):
+        errors.append(f"{round_id} passed with open review findings")
+
+    attacks = evidence.get("independent_attacks")
+    attack_ids: set[str] = set()
+    raw_paths: set[str] = set()
+    if not isinstance(attacks, list):
+        errors.append(f"{round_id} passing review independent_attacks must be a list")
+    else:
+        for index, attack in enumerate(attacks):
+            label = f"{round_id} passing review independent_attacks[{index}]"
+            if not isinstance(attack, dict):
+                errors.append(f"{label} must be an object")
+                continue
+            expected_attack_fields = {
+                "attack_id",
+                "mutation",
+                "mutation_sha256",
+                "expected",
+                "observed",
+                "result",
+                "replay_selector",
+                "raw_result_path",
+                "raw_result_sha256",
+            }
+            if set(attack) != expected_attack_fields:
+                errors.append(f"{label} fields differ")
+            attack_id = attack.get("attack_id")
+            if (
+                not isinstance(attack_id, str)
+                or not attack_id
+                or attack_id in attack_ids
+            ):
+                errors.append(f"{label} attack_id is invalid or duplicate")
+                continue
+            attack_ids.add(attack_id)
+            expected_selector = FINAL_REVIEW_ATTACK_SELECTORS.get(attack_id)
+            mutation = attack.get("mutation")
+            expected = attack.get("expected")
+            observed = attack.get("observed")
+            if (
+                expected_selector is None
+                or attack.get("replay_selector") != expected_selector
+            ):
+                errors.append(f"{attack_id} replay selector differs")
+            if (
+                not isinstance(mutation, str)
+                or not mutation
+                or attack.get("mutation_sha256") != sha256_text(mutation)
+            ):
+                errors.append(f"{attack_id} mutation/hash binding differs")
+            if not isinstance(expected, str) or not expected:
+                errors.append(f"{attack_id} expected observation is missing")
+            if not isinstance(observed, str) or not observed:
+                errors.append(f"{attack_id} observed result is missing")
+            if attack.get("result") != "rejected":
+                errors.append(f"{attack_id} did not produce a rejected attack")
+
+            raw_relative = attack.get("raw_result_path")
+            raw_path = safe_relative_file(raw_relative, prefix="audits/")
+            raw_hash = attack.get("raw_result_sha256")
+            if (
+                raw_path is None
+                or raw_relative in raw_paths
+                or not isinstance(raw_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", raw_hash)
+            ):
+                errors.append(f"{attack_id} raw result binding is invalid")
+                continue
+            raw_paths.add(raw_relative)
+            if sha256(raw_path) != raw_hash:
+                errors.append(f"{attack_id} raw result sha256 mismatch")
+                continue
+            raw_result = load_json(raw_path, errors)
+            expected_raw_fields = {
+                "schema_version",
+                "attack_id",
+                "candidate_commit",
+                "candidate_tree",
+                "mutation_sha256",
+                "replay_selector",
+                "command",
+                "exit_code",
+                "stdout",
+                "stdout_sha256",
+                "expected",
+                "observed",
+                "result",
+            }
+            if set(raw_result) != expected_raw_fields:
+                errors.append(f"{attack_id} raw result fields differ")
+            expected_raw = {
+                "schema_version": 1,
+                "attack_id": attack_id,
+                "candidate_commit": candidate_commit,
+                "candidate_tree": candidate_tree,
+                "mutation_sha256": attack.get("mutation_sha256"),
+                "replay_selector": expected_selector,
+                "expected": expected,
+                "observed": observed,
+                "result": "rejected",
+            }
+            for key, value in expected_raw.items():
+                if raw_result.get(key) != value:
+                    errors.append(f"{attack_id} raw result {key} differs")
+            exit_code = raw_result.get("exit_code")
+            if type(exit_code) is not int or exit_code == 0:
+                errors.append(f"{attack_id} raw result exit_code is not rejecting")
+            stdout = raw_result.get("stdout")
+            if (
+                not isinstance(raw_result.get("command"), str)
+                or not raw_result.get("command")
+                or not isinstance(stdout, str)
+                or not stdout
+                or raw_result.get("stdout_sha256") != sha256_text(stdout)
+            ):
+                errors.append(f"{attack_id} raw command/output binding differs")
+
+    required_attack_ids = set(FINAL_REVIEW_ATTACK_SELECTORS)
+    if attack_ids != required_attack_ids:
+        errors.append(
+            f"{round_id} passing review attack coverage differs: "
+            f"missing={sorted(required_attack_ids - attack_ids)}, "
+            f"extra={sorted(attack_ids - required_attack_ids)}"
+        )
 
 
 def verify_research_register(
@@ -1530,6 +2191,8 @@ def verify_research_register(
         "ARTIFACT-DATA-PAPER-BOUNDARY",
         "ARTIFACT-CHALLENGE-R2",
         "ARTIFACT-CHALLENGE-R2B",
+        "ARTIFACT-CHALLENGE-R3",
+        "ARTIFACT-CHALLENGE-R3B",
         "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
     }
     missing_core_artifacts = core_artifact_ids - artifact_ids
@@ -1688,91 +2351,27 @@ def verify_research_register(
                 )
             elif (PROJECT_ROOT / evidence_path).is_file():
                 evidence = load_json(PROJECT_ROOT / evidence_path, errors)
-                required_evidence_fields = {
-                    "schema_version",
-                    "subject_id",
-                    "review_locator",
-                    "review_input",
-                    "review_input_sha256",
-                    "candidate_commit",
-                    "candidate_tree",
-                    "verdict",
-                    "open_critical_count",
-                    "open_major_count",
-                    "new_architecture_changing_classes",
-                    "participated_in_candidate_construction",
-                    "write_access_used",
-                    "reviewed_files",
-                    "finding_ids",
-                }
-                missing_evidence = required_evidence_fields - set(evidence)
-                if missing_evidence:
-                    errors.append(
-                        f"{round_id} passing review evidence missing fields: "
-                        f"{sorted(missing_evidence)}"
-                    )
-                if evidence.get("schema_version") != 1:
-                    errors.append(f"{round_id} passing review evidence schema differs")
-                if evidence.get("subject_id") not in set(reviewers or []):
-                    errors.append(
-                        f"{round_id} passing review evidence subject differs"
-                    )
-                if (
-                    not isinstance(evidence.get("review_locator"), str)
-                    or not evidence.get("review_locator")
-                    or not isinstance(evidence.get("review_input"), str)
-                    or not evidence.get("review_input")
-                    or not isinstance(evidence.get("review_input_sha256"), str)
-                    or not re.fullmatch(
-                        r"[0-9a-f]{64}", evidence.get("review_input_sha256", "")
-                    )
-                    or sha256_text(evidence.get("review_input", ""))
-                    != evidence.get("review_input_sha256")
-                ):
-                    errors.append(
-                        f"{round_id} passing review provenance is incomplete"
-                    )
-                expected_evidence = {
-                    "candidate_commit": candidate_commit,
-                    "candidate_tree": candidate_tree,
-                    "verdict": "passed_freeze",
-                    "open_critical_count": 0,
-                    "open_major_count": 0,
-                    "new_architecture_changing_classes": [],
-                    "participated_in_candidate_construction": False,
-                    "write_access_used": False,
-                }
-                for key, expected in expected_evidence.items():
-                    if evidence.get(key) != expected:
-                        errors.append(
-                            f"{round_id} passing review evidence {key} differs"
-                        )
-                for key in ("reviewed_files", "finding_ids"):
-                    values = evidence.get(key)
-                    if (
-                        not isinstance(values, list)
-                        or not all(isinstance(item, str) for item in values)
-                        or len(values) != len(set(values))
-                    ):
-                        errors.append(
-                            f"{round_id} passing review evidence {key} differs"
-                        )
-                if not evidence.get("reviewed_files"):
-                    errors.append(
-                        f"{round_id} passing review evidence has no reviewed files"
-                    )
                 frozen_files = contract.get("change_control", {}).get("frozen_files")
-                if isinstance(frozen_files, list) and isinstance(
-                    evidence.get("reviewed_files"), list
+                verify_final_review_evidence(
+                    evidence,
+                    round_id=round_id,
+                    reviewers=reviewers,
+                    candidate_commit=candidate_commit,
+                    candidate_tree=candidate_tree,
+                    frozen_files=frozen_files,
+                    errors=errors,
+                )
+                if (
+                    challenge_round.get("open_minor_count")
+                    != evidence.get("open_minor_count")
                 ):
-                    missing_review_scope = set(frozen_files) - set(
-                        evidence["reviewed_files"]
+                    errors.append(
+                        f"{round_id} passing review round open_minor_count differs"
                     )
-                    if missing_review_scope:
-                        errors.append(
-                            f"{round_id} passing review omitted frozen files: "
-                            f"{sorted(missing_review_scope)}"
-                        )
+                if challenge_round.get("finding_ids") != evidence.get("finding_ids"):
+                    errors.append(
+                        f"{round_id} passing review round finding_ids differs"
+                    )
                 resolved_tree = run_git(
                     ["rev-parse", f"{candidate_commit}^{{tree}}"], errors
                 )
@@ -1826,27 +2425,247 @@ def verify_conditionals(
     if not isinstance(conditional_gates, list):
         return
     evidence_schema = contract.get("conditional_evidence_schema")
-    required_evidence_fields = {
-        "schema_version",
-        "condition_id",
-        "gate_id",
-        "gate_stage",
-        "state",
-        "candidate_commit",
-        "candidate_tree",
-        "frozen_bundle_sha256",
-        "executor_ids",
-        "acceptance_case_ids",
-        "raw_result_path",
-        "raw_result_sha256",
-        "completed_at",
+    expected_conditional_evidence_schema = {
+        "schema_version": 2,
+        "required": [
+            "schema_version",
+            "condition_id",
+            "gate_id",
+            "gate_stage",
+            "state",
+            "candidate_commit",
+            "candidate_tree",
+            "frozen_bundle_path",
+            "frozen_bundle_sha256",
+            "run_id",
+            "producer_id",
+            "executor_ids",
+            "acceptance_case_ids",
+            "observation",
+            "raw_result_path",
+            "raw_result_sha256",
+            "completed_at",
+        ],
+        "additional_fields_allowed": False,
+        "state_enum": ["passed", "failed", "inconclusive"],
+        "identity_authority": {
+            "candidate_commit": "project_root_git_head",
+            "candidate_tree": "project_root_git_head_tree",
+            "frozen_bundle_path": "governance/FROZEN_BUNDLE_V1.json",
+            "frozen_bundle_sha256": "sha256_file_bytes",
+            "cli_and_evidence_role": "expected_values_only",
+        },
+        "observation_schema": {
+            "required": [
+                "authority",
+                "condition_id",
+                "source_event_seq",
+                "source_event_hash",
+                "source_state_hash",
+                "source_anchor_hash",
+                "observed_at",
+            ],
+            "additional_fields_allowed": False,
+            "runtime_event_seq_minimum": 1,
+            "environment_presence_event_seq": 0,
+        },
+        "raw_result_schema": {
+            "schema_version": 1,
+            "required": [
+                "schema_version",
+                "condition_id",
+                "gate_id",
+                "gate_stage",
+                "state",
+                "candidate_commit",
+                "candidate_tree",
+                "frozen_bundle_path",
+                "frozen_bundle_sha256",
+                "run_id",
+                "producer_id",
+                "executor_ids",
+                "acceptance_case_ids",
+                "observation",
+                "started_at",
+                "completed_at",
+                "status",
+                "actual_cases_run",
+                "case_results",
+            ],
+            "additional_fields_allowed": False,
+            "required_status": "pass",
+        },
+        "case_result_schema": {
+            "required": [
+                "case_id",
+                "status",
+                "input_hashes",
+                "raw_result_hashes",
+            ],
+            "additional_fields_allowed": False,
+            "required_status": "pass",
+            "hash_algorithm": "sha256",
+        },
+        "runtime_authority": {
+            "production_config_path": (
+                "~/Library/Application Support/InvestmentDisciplineSystem/"
+                "runtime-authority.json"
+            ),
+            "config_schema_version": 1,
+            "runtime_database_relative_path": "runtime.sqlite3",
+            "anchor_relative_path": "anchors.jsonl",
+            "fixture_override_env": "IDS_RUNTIME_AUTHORITY_CONFIG",
+            "fixture_mode_env": "IDS_CONDITIONAL_FIXTURE_MODE",
+            "fixture_release_allowed": False,
+            "cli_runtime_db_role": "expected_value_only",
+            "production_root_mode_max": "0700",
+            "production_file_mode_max": "0600",
+            "production_owner": "current_uid",
+            "production_forbidden_roots": [
+                "project_root",
+                "~/Library/CloudStorage",
+                "~/Library/Mobile Documents",
+                "~/Dropbox",
+                "~/Google Drive",
+                "~/OneDrive",
+            ],
+            "production_anchor_trust": (
+                "fail_closed_until_pinned_external_signature_verifier"
+            ),
+            "fixture_anchor_trust": "hash_chain_test_only",
+            "fixture_permission_exempt": True,
+        },
+        "runtime_event_chain_schema": {
+            "schema_version": 1,
+            "event_table": "events",
+            "event_domain": "main_application",
+            "observation_table": "condition_observations",
+            "event_columns": [
+                "sequence",
+                "event_type",
+                "producer_id",
+                "occurred_at",
+                "payload_json",
+                "prev_hash",
+                "event_hash",
+            ],
+            "event_column_types": {
+                "sequence": "INTEGER",
+                "event_type": "TEXT",
+                "producer_id": "TEXT",
+                "occurred_at": "TEXT",
+                "payload_json": "TEXT",
+                "prev_hash": "TEXT",
+                "event_hash": "TEXT",
+            },
+            "event_primary_key": ["sequence"],
+            "observation_columns": [
+                "source_event_seq",
+                "condition_id",
+                "stage",
+                "ready",
+                "source_event_hash",
+                "source_state_hash",
+                "source_anchor_hash",
+                "observed_at",
+                "producer_id",
+            ],
+            "observation_column_types": {
+                "source_event_seq": "INTEGER",
+                "condition_id": "TEXT",
+                "stage": "TEXT",
+                "ready": "INTEGER",
+                "source_event_hash": "TEXT",
+                "source_state_hash": "TEXT",
+                "source_anchor_hash": "TEXT",
+                "observed_at": "TEXT",
+                "producer_id": "TEXT",
+            },
+            "observation_primary_key": ["source_event_seq"],
+            "append_only_triggers": [
+                {
+                    "name": "events_no_update",
+                    "table": "events",
+                    "operation": "update",
+                },
+                {
+                    "name": "events_no_delete",
+                    "table": "events",
+                    "operation": "delete",
+                },
+                {
+                    "name": "condition_observations_no_update",
+                    "table": "condition_observations",
+                    "operation": "update",
+                },
+                {
+                    "name": "condition_observations_no_delete",
+                    "table": "condition_observations",
+                    "operation": "delete",
+                },
+            ],
+            "event_type": "condition_observation",
+            "genesis_prev_hash": "0" * 64,
+            "payload_required": [
+                "condition_id",
+                "stage",
+                "ready",
+                "observed_at",
+                "producer_id",
+                "candidate_commit",
+                "candidate_tree",
+                "frozen_bundle_path",
+                "frozen_bundle_sha256",
+            ],
+            "event_hash_algorithm": "sha256_canonical_json_v1",
+            "event_hash_fields": [
+                "sequence",
+                "event_type",
+                "producer_id",
+                "occurred_at",
+                "payload",
+                "prev_hash",
+            ],
+            "source_state_hash_algorithm": "sha256_canonical_json_v1",
+            "source_state_hash_fields": [
+                "through_sequence",
+                "through_event_hash",
+                "condition_states",
+            ],
+            "canonical_json": {
+                "sort_keys": True,
+                "ensure_ascii": False,
+                "allow_nan": False,
+                "separators": [",", ":"],
+            },
+            "anchor_schema": {
+                "schema_version": 1,
+                "format": "canonical_jsonl",
+                "required": [
+                    "schema_version",
+                    "sequence",
+                    "event_hash",
+                    "anchored_at",
+                    "previous_anchor_hash",
+                    "anchor_hash",
+                ],
+                "genesis_previous_anchor_hash": "0" * 64,
+                "hash_algorithm": "sha256_canonical_json_v1",
+                "tail_must_equal_main_event_chain": True,
+            },
+        },
+        "binding_rule": (
+            "Git HEAD and the fixed frozen-bundle file are authoritative; CLI, raw "
+            "results, evidence and --runtime-db are expected values only. Runtime "
+            "readiness requires the fixed private runtime authority, a "
+            "contract-authorized producer, the recomputed append-only main event "
+            "chain and its external anchor; fixture authority cannot satisfy human "
+            "or longitudinal release. Passing evidence requires one fresh unique "
+            "run, the latest observation binding, exact case-set equality and "
+            "recomputable per-case input/raw hashes."
+        ),
     }
-    if (
-        not isinstance(evidence_schema, dict)
-        or set(evidence_schema.get("required", [])) != required_evidence_fields
-        or set(evidence_schema.get("state_enum", []))
-        != {"passed", "failed", "inconclusive"}
-    ):
+    if evidence_schema != expected_conditional_evidence_schema:
         errors.append("conditional evidence schema differs")
     required_fields = {
         "applies_to_requirements",
@@ -1932,15 +2751,24 @@ def verify_conditionals(
                 required_observations = probe.get("required_observation_fields")
                 if (
                     probe.get("table") != "condition_observations"
+                    or probe.get("event_table") != "events"
+                    or probe.get("producer_id")
+                    != "PRODUCER-RUNTIME-CONDITION-OBSERVER-V1"
+                    or probe.get("producer_authority_source")
+                    != "frozen_conditional_contract"
+                    or probe.get("caller_producer_override_allowed") is not False
                     or not isinstance(required_observations, list)
-                    or not {
+                    or set(required_observations) != {
                         "condition_id",
                         "stage",
                         "ready",
                         "source_event_seq",
+                        "source_event_hash",
                         "source_state_hash",
+                        "source_anchor_hash",
                         "observed_at",
-                    }.issubset(set(required_observations))
+                        "producer_id",
+                    }
                 ):
                     errors.append(
                         f"{gate_id} runtime prerequisite lacks authoritative observation binding"
@@ -1974,6 +2802,86 @@ def verify_conditionals(
             "evidence/conditional/"
         ):
             errors.append(f"{gate_id} has invalid conditional evidence_path")
+
+
+def verify_design_freeze_attack_replay_payload(
+    payload: Any,
+    *,
+    expected_commit: str,
+    expected_tree: str,
+    label: str,
+    require_stdout_hash: bool,
+    errors: list[str],
+) -> None:
+    if not isinstance(payload, dict):
+        errors.append(f"{label} must be an object")
+        return
+    expected_attack_ids = list(FINAL_REVIEW_ATTACK_SELECTORS)
+    if (
+        payload.get("schema_version") != 1
+        or payload.get("status") != "pass"
+        or payload.get("candidate_commit") != expected_commit
+        or payload.get("candidate_tree") != expected_tree
+        or payload.get("required_attack_ids") != expected_attack_ids
+        or not isinstance(payload.get("started_at"), str)
+        or not payload.get("started_at")
+        or not isinstance(payload.get("completed_at"), str)
+        or not payload.get("completed_at")
+    ):
+        errors.append(f"{label} identity or coverage differs")
+    if require_stdout_hash and (
+        not isinstance(payload.get("stdout_sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", payload.get("stdout_sha256", ""))
+    ):
+        errors.append(f"{label} stdout hash differs")
+    results = payload.get("results")
+    if not isinstance(results, list) or len(results) != len(expected_attack_ids):
+        errors.append(f"{label} result set differs")
+        return
+    observed_ids: set[str] = set()
+    for index, result in enumerate(results):
+        if not isinstance(result, dict):
+            errors.append(f"{label} results[{index}] must be an object")
+            continue
+        attack_id = result.get("attack_id")
+        if (
+            not isinstance(attack_id, str)
+            or attack_id in observed_ids
+            or attack_id not in FINAL_REVIEW_ATTACK_SELECTORS
+            or result.get("selector")
+            != FINAL_REVIEW_ATTACK_SELECTORS.get(attack_id)
+            or type(result.get("exit_code")) is not int
+            or result.get("exit_code") != 0
+            or result.get("result") != "rejected"
+            or not isinstance(result.get("output_sha256"), str)
+            or not re.fullmatch(
+                r"[0-9a-f]{64}", result.get("output_sha256", "")
+            )
+        ):
+            errors.append(f"{label} results[{index}] differs")
+        if isinstance(attack_id, str):
+            observed_ids.add(attack_id)
+    if observed_ids != set(expected_attack_ids):
+        errors.append(f"{label} attack IDs differ")
+
+
+def run_canonical_design_freeze_attacks(
+    *, label: str, errors: list[str]
+) -> None:
+    for attack_id, selector in FINAL_REVIEW_ATTACK_SELECTORS.items():
+        result = subprocess.run(
+            [sys.executable, "-m", "unittest", selector, "-v"],
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        if result.returncode != 0:
+            errors.append(
+                f"{label} {attack_id} escaped or errored: "
+                f"{result.stdout.strip() or '<no test output>'}"
+            )
 
 
 def verify_bundle(
@@ -2039,6 +2947,16 @@ def verify_bundle(
                 "frozen bundle cannot prove reviewed candidate is an ancestor "
                 "of the baseline"
             )
+
+    if baseline_commit and baseline_tree:
+        verify_design_freeze_attack_replay_payload(
+            bundle.get("design_freeze_attack_replay"),
+            expected_commit=baseline_commit,
+            expected_tree=baseline_tree,
+            label="frozen bundle design-freeze attack replay",
+            require_stdout_hash=True,
+            errors=errors,
+        )
 
     evidence_path = bundle.get("final_review_evidence_path")
     evidence_hash = bundle.get("final_review_evidence_sha256")
@@ -2127,9 +3045,57 @@ def verify_bundle(
                     errors.append(
                         f"frozen bundle final review subject {key} differs"
                     )
-    for field in ("remote_at_creation", "upstream_ref_at_creation", "creation_rule"):
-        if not isinstance(bundle.get(field), str) or not bundle.get(field):
-            errors.append(f"frozen bundle {field} is missing")
+    observations = bundle.get("baseline_remote_observations")
+    expected_phases = {
+        "before_baseline_verification",
+        "after_baseline_verification",
+    }
+    observed_phases: set[str] = set()
+    observed_refs: set[str] = set()
+    if not isinstance(observations, list) or len(observations) != 2:
+        errors.append("frozen bundle baseline remote observations differ")
+    else:
+        for index, observation in enumerate(observations):
+            if not isinstance(observation, dict):
+                errors.append(
+                    f"frozen bundle baseline remote observation[{index}] is invalid"
+                )
+                continue
+            phase = observation.get("phase")
+            if not isinstance(phase, str) or phase in observed_phases:
+                errors.append(
+                    f"frozen bundle baseline remote observation[{index}] phase differs"
+                )
+            else:
+                observed_phases.add(phase)
+            ref = observation.get("ref")
+            if (
+                observation.get("remote") != "origin"
+                or observation.get("commit") != baseline_commit
+                or not isinstance(ref, str)
+                or not ref.startswith("refs/heads/")
+                or not isinstance(observation.get("observed_at"), str)
+                or not observation.get("observed_at")
+            ):
+                errors.append(
+                    f"frozen bundle baseline remote observation[{index}] binding differs"
+                )
+            else:
+                observed_refs.add(ref)
+        if observed_phases != expected_phases:
+            errors.append("frozen bundle baseline remote observation phases differ")
+        if len(observed_refs) != 1:
+            errors.append("frozen bundle baseline remote refs differ")
+    if not isinstance(bundle.get("created_at"), str) or not bundle.get("created_at"):
+        errors.append("frozen bundle created_at is missing")
+    creation_rule = bundle.get("creation_rule")
+    if (
+        not isinstance(creation_rule, str)
+        or not creation_rule
+        or "non-atomic" not in creation_rule
+        or "committed, pushed" not in creation_rule
+    ):
+        errors.append("frozen bundle creation_rule overstates its provenance")
 
     entries = bundle.get("files")
     if not isinstance(entries, list):
@@ -2178,15 +3144,27 @@ def verify_bundle(
         relative = entry.get("path")
         expected_hash = entry.get("sha256")
         expected_blob = entry.get("git_blob")
+        expected_mode = entry.get("git_mode")
+        expected_type = entry.get("git_type")
+        expected_object_kind = entry.get("git_object_kind")
         if (
             not isinstance(relative, str)
             or not isinstance(expected_hash, str)
             or not isinstance(expected_blob, str)
+            or not isinstance(expected_mode, str)
+            or not isinstance(expected_type, str)
+            or not isinstance(expected_object_kind, str)
         ):
             errors.append(
-                f"frozen bundle files[{index}] needs path, sha256 and git_blob"
+                f"frozen bundle files[{index}] lacks content and Git identity fields"
             )
             continue
+        if (
+            expected_mode != "100644"
+            or expected_type != "blob"
+            or expected_object_kind != "blob"
+        ):
+            errors.append(f"frozen bundle Git mode/type differs for {relative}")
         if relative in actual_paths:
             errors.append(f"duplicate frozen bundle path: {relative}")
         actual_paths.add(relative)
@@ -2221,7 +3199,15 @@ def verify_bundle(
                 ["ls-tree", baseline_commit, "--", repo_relative], errors
             )
             fields = tree_line.split()
+            actual_mode = fields[0] if len(fields) >= 3 else ""
+            actual_type = fields[1] if len(fields) >= 3 else ""
             actual_blob = fields[2] if len(fields) >= 3 else ""
+            if actual_mode != expected_mode or actual_type != expected_type:
+                errors.append(
+                    f"baseline Git mode/type mismatch for {relative}: "
+                    f"expected {expected_mode}/{expected_type}, "
+                    f"got {actual_mode or '<missing>'}/{actual_type or '<missing>'}"
+                )
             if actual_blob != expected_blob:
                 errors.append(
                     f"baseline git blob mismatch for {relative}: "
@@ -2233,6 +3219,64 @@ def verify_bundle(
             f"missing={sorted(expected_paths - actual_paths)}, "
             f"extra={sorted(actual_paths - expected_paths)}"
         )
+
+    head = run_git(["rev-parse", "HEAD"], errors)
+    if baseline_commit and head:
+        ancestry = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", baseline_commit, head],
+            cwd=PROJECT_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        if ancestry.returncode != 0:
+            errors.append("frozen bundle baseline is not an ancestor of HEAD")
+        current_tree = run_git(["rev-parse", "HEAD^{tree}"], errors)
+        if current_tree:
+            run_canonical_design_freeze_attacks(
+                label="current design-freeze attack replay",
+                errors=errors,
+            )
+        remote_verifier = PROJECT_ROOT / "scripts" / "verify_remote_commit.py"
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(remote_verifier),
+                "--verify-frozen-bundle",
+                "--commit",
+                head,
+                "--remote",
+                "origin",
+                "--json",
+            ],
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        try:
+            remote_payload = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            remote_payload = {}
+        remote_facts = (
+            remote_payload.get("facts")
+            if isinstance(remote_payload, dict)
+            and isinstance(remote_payload.get("facts"), dict)
+            else {}
+        )
+        if (
+            result.returncode != 0
+            or remote_payload.get("status") != "pass"
+            or remote_facts.get("head") != head
+            or remote_facts.get("bundle_sha256") != sha256(FROZEN_BUNDLE)
+            or remote_facts.get("bundle_git_mode") != "100644"
+            or remote_facts.get("bundle_git_type") != "blob"
+        ):
+            errors.append(
+                "frozen bundle is not the tracked HEAD blob on trusted origin: "
+                f"{result.stdout.strip() or '<no verifier output>'}"
+            )
 
 
 def verify(allow_candidate: bool) -> list[str]:

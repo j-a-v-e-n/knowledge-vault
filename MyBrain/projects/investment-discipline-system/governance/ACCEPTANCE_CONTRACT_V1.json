@@ -597,19 +597,37 @@
       "id": "GATE-TIINGO-LIVE-PROBE",
       "command": "python3 scripts/verify_conditionals.py --gate COND-TIINGO-LIVE-PROBE",
       "expected_exit_when_prerequisite_ready": 0,
-      "executor_ids": ["EX-CONDITIONAL"]
+      "executor_ids": ["EX-CONDITIONAL"],
+      "evidence_producer_id": "EX-CONDITIONAL",
+      "producer_authority_source": "frozen_conditional_gate_catalog",
+      "caller_producer_override_allowed": false,
+      "raw_result_path_prefix": "evidence/conditional/raw/",
+      "artifact_path_prefix": "evidence/conditional/artifacts/",
+      "max_evidence_age_seconds": 86400
     },
     {
       "id": "GATE-LONGITUDINAL-EVALUATION",
       "command": "python3 scripts/verify_conditionals.py --gate COND-LONGITUDINAL-EDGE",
       "expected_exit_when_prerequisite_ready": 0,
-      "executor_ids": ["EX-CONDITIONAL"]
+      "executor_ids": ["EX-CONDITIONAL"],
+      "evidence_producer_id": "EX-CONDITIONAL",
+      "producer_authority_source": "frozen_conditional_gate_catalog",
+      "caller_producer_override_allowed": false,
+      "raw_result_path_prefix": "evidence/conditional/raw/",
+      "artifact_path_prefix": "evidence/conditional/artifacts/",
+      "max_evidence_age_seconds": 86400
     },
     {
       "id": "GATE-JAVEN-FIELD-USE",
       "command": "python3 scripts/verify_conditionals.py --gate COND-JAVEN-FIELD-USE",
       "expected_exit_when_prerequisite_ready": 0,
-      "executor_ids": ["EX-CONDITIONAL", "EX-HUMAN"]
+      "executor_ids": ["EX-CONDITIONAL", "EX-HUMAN"],
+      "evidence_producer_id": "EX-CONDITIONAL",
+      "producer_authority_source": "frozen_conditional_gate_catalog",
+      "caller_producer_override_allowed": false,
+      "raw_result_path_prefix": "evidence/conditional/raw/",
+      "artifact_path_prefix": "evidence/conditional/artifacts/",
+      "max_evidence_age_seconds": 86400
     }
   ],
   "manual_or_tool_evidence": [
@@ -639,9 +657,117 @@
     }
   ],
   "conditional_evidence_schema": {
-    "required": ["schema_version", "condition_id", "gate_id", "gate_stage", "state", "candidate_commit", "candidate_tree", "frozen_bundle_sha256", "executor_ids", "acceptance_case_ids", "raw_result_path", "raw_result_sha256", "completed_at"],
+    "schema_version": 2,
+    "required": ["schema_version", "condition_id", "gate_id", "gate_stage", "state", "candidate_commit", "candidate_tree", "frozen_bundle_path", "frozen_bundle_sha256", "run_id", "producer_id", "executor_ids", "acceptance_case_ids", "observation", "raw_result_path", "raw_result_sha256", "completed_at"],
+    "additional_fields_allowed": false,
     "state_enum": ["passed", "failed", "inconclusive"],
-    "binding_rule": "verify_conditionals independently observes prerequisite readiness; evidence cannot set readiness. A ready prerequisite accepts a terminal state only when the raw result exists, its hash recomputes, candidate/frozen bindings match requested values, gate/executor/case bindings match the frozen catalog, and target-verdict stage rules pass."
+    "identity_authority": {
+      "candidate_commit": "project_root_git_head",
+      "candidate_tree": "project_root_git_head_tree",
+      "frozen_bundle_path": "governance/FROZEN_BUNDLE_V1.json",
+      "frozen_bundle_sha256": "sha256_file_bytes",
+      "cli_and_evidence_role": "expected_values_only"
+    },
+    "observation_schema": {
+      "required": ["authority", "condition_id", "source_event_seq", "source_event_hash", "source_state_hash", "source_anchor_hash", "observed_at"],
+      "additional_fields_allowed": false,
+      "runtime_event_seq_minimum": 1,
+      "environment_presence_event_seq": 0
+    },
+    "raw_result_schema": {
+      "schema_version": 1,
+      "required": ["schema_version", "condition_id", "gate_id", "gate_stage", "state", "candidate_commit", "candidate_tree", "frozen_bundle_path", "frozen_bundle_sha256", "run_id", "producer_id", "executor_ids", "acceptance_case_ids", "observation", "started_at", "completed_at", "status", "actual_cases_run", "case_results"],
+      "additional_fields_allowed": false,
+      "required_status": "pass"
+    },
+    "case_result_schema": {
+      "required": ["case_id", "status", "input_hashes", "raw_result_hashes"],
+      "additional_fields_allowed": false,
+      "required_status": "pass",
+      "hash_algorithm": "sha256"
+    },
+    "runtime_authority": {
+      "production_config_path": "~/Library/Application Support/InvestmentDisciplineSystem/runtime-authority.json",
+      "config_schema_version": 1,
+      "runtime_database_relative_path": "runtime.sqlite3",
+      "anchor_relative_path": "anchors.jsonl",
+      "fixture_override_env": "IDS_RUNTIME_AUTHORITY_CONFIG",
+      "fixture_mode_env": "IDS_CONDITIONAL_FIXTURE_MODE",
+      "fixture_release_allowed": false,
+      "cli_runtime_db_role": "expected_value_only",
+      "production_root_mode_max": "0700",
+      "production_file_mode_max": "0600",
+      "production_owner": "current_uid",
+      "production_forbidden_roots": [
+        "project_root",
+        "~/Library/CloudStorage",
+        "~/Library/Mobile Documents",
+        "~/Dropbox",
+        "~/Google Drive",
+        "~/OneDrive"
+      ],
+      "production_anchor_trust": "fail_closed_until_pinned_external_signature_verifier",
+      "fixture_anchor_trust": "hash_chain_test_only",
+      "fixture_permission_exempt": true
+    },
+    "runtime_event_chain_schema": {
+      "schema_version": 1,
+      "event_table": "events",
+      "event_domain": "main_application",
+      "observation_table": "condition_observations",
+      "event_columns": ["sequence", "event_type", "producer_id", "occurred_at", "payload_json", "prev_hash", "event_hash"],
+      "event_column_types": {
+        "sequence": "INTEGER",
+        "event_type": "TEXT",
+        "producer_id": "TEXT",
+        "occurred_at": "TEXT",
+        "payload_json": "TEXT",
+        "prev_hash": "TEXT",
+        "event_hash": "TEXT"
+      },
+      "event_primary_key": ["sequence"],
+      "observation_columns": ["source_event_seq", "condition_id", "stage", "ready", "source_event_hash", "source_state_hash", "source_anchor_hash", "observed_at", "producer_id"],
+      "observation_column_types": {
+        "source_event_seq": "INTEGER",
+        "condition_id": "TEXT",
+        "stage": "TEXT",
+        "ready": "INTEGER",
+        "source_event_hash": "TEXT",
+        "source_state_hash": "TEXT",
+        "source_anchor_hash": "TEXT",
+        "observed_at": "TEXT",
+        "producer_id": "TEXT"
+      },
+      "observation_primary_key": ["source_event_seq"],
+      "append_only_triggers": [
+        {"name": "events_no_update", "table": "events", "operation": "update"},
+        {"name": "events_no_delete", "table": "events", "operation": "delete"},
+        {"name": "condition_observations_no_update", "table": "condition_observations", "operation": "update"},
+        {"name": "condition_observations_no_delete", "table": "condition_observations", "operation": "delete"}
+      ],
+      "event_type": "condition_observation",
+      "genesis_prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "payload_required": ["condition_id", "stage", "ready", "observed_at", "producer_id", "candidate_commit", "candidate_tree", "frozen_bundle_path", "frozen_bundle_sha256"],
+      "event_hash_algorithm": "sha256_canonical_json_v1",
+      "event_hash_fields": ["sequence", "event_type", "producer_id", "occurred_at", "payload", "prev_hash"],
+      "source_state_hash_algorithm": "sha256_canonical_json_v1",
+      "source_state_hash_fields": ["through_sequence", "through_event_hash", "condition_states"],
+      "canonical_json": {
+        "sort_keys": true,
+        "ensure_ascii": false,
+        "allow_nan": false,
+        "separators": [",", ":"]
+      },
+      "anchor_schema": {
+        "schema_version": 1,
+        "format": "canonical_jsonl",
+        "required": ["schema_version", "sequence", "event_hash", "anchored_at", "previous_anchor_hash", "anchor_hash"],
+        "genesis_previous_anchor_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "hash_algorithm": "sha256_canonical_json_v1",
+        "tail_must_equal_main_event_chain": true
+      }
+    },
+    "binding_rule": "Git HEAD and the fixed frozen-bundle file are authoritative; CLI, raw results, evidence and --runtime-db are expected values only. Runtime readiness requires the fixed private runtime authority, a contract-authorized producer, the recomputed append-only main event chain and its external anchor; fixture authority cannot satisfy human or longitudinal release. Passing evidence requires one fresh unique run, the latest observation binding, exact case-set equality and recomputable per-case input/raw hashes."
   },
   "conditional_gates": [
     {
@@ -652,6 +778,7 @@
         "id": "PROBE-TIINGO-TOKEN-PRESENCE",
         "authority": "process_environment_presence",
         "selector": "conditionals.tiingo_token_present",
+        "presence_semantics": "environment_key_exists",
         "secret_value_read_allowed": false,
         "ready_when": {"present": true}
       },
@@ -706,7 +833,11 @@
         "authority": "runtime_sqlite_event_chain",
         "selector": "conditionals.longitudinal_edge_window",
         "table": "condition_observations",
-        "required_observation_fields": ["condition_id", "stage", "ready", "source_event_seq", "source_state_hash", "observed_at"],
+        "event_table": "events",
+        "producer_id": "PRODUCER-RUNTIME-CONDITION-OBSERVER-V1",
+        "producer_authority_source": "frozen_conditional_contract",
+        "caller_producer_override_allowed": false,
+        "required_observation_fields": ["condition_id", "stage", "ready", "source_event_seq", "source_event_hash", "source_state_hash", "source_anchor_hash", "observed_at", "producer_id"],
         "ready_when": {"stage": "future_window_ready", "ready": true}
       },
       "allowed_states": ["not_yet_observable", "mandatory_pending", "passed", "failed", "inconclusive"],
@@ -738,7 +869,11 @@
         "authority": "runtime_sqlite_event_chain",
         "selector": "conditionals.javen_field_use_stage",
         "table": "condition_observations",
-        "required_observation_fields": ["condition_id", "stage", "ready", "source_event_seq", "source_state_hash", "observed_at"],
+        "event_table": "events",
+        "producer_id": "PRODUCER-RUNTIME-CONDITION-OBSERVER-V1",
+        "producer_authority_source": "frozen_conditional_contract",
+        "caller_producer_override_allowed": false,
+        "required_observation_fields": ["condition_id", "stage", "ready", "source_event_seq", "source_event_hash", "source_state_hash", "source_anchor_hash", "observed_at", "producer_id"],
         "ready_when": {"stage_in": ["human_onboarding_ready", "longitudinal_window_ready"], "ready": true}
       },
       "allowed_states": ["not_yet_observable", "mandatory_pending", "passed", "failed", "inconclusive"],
@@ -779,7 +914,7 @@
   },
   "change_control": {
     "before_freeze": "独立挑战发现可修改本文件，并保留 Git 历史",
-    "freeze_action": "先把全部规范文件提交并推送为 baseline commit，再生成只引用该 baseline commit/tree/blob/hash 的 FROZEN_BUNDLE_V1.json 并第二次提交推送；研究 challenge=completed、stop_rule.met=true、全部规范文件 tracked 且项目作用域 clean 是硬前置",
+    "freeze_action": "三次提交、非原子且 fail-closed：先把全部候选规范提交并直接推送到可信 origin branch，形成 candidate C；独立审查后，closure B 只允许修改挑战状态、审查证据与原始结果，并在提交推送后由冻结程序重放固定攻击；随后生成引用 C/B commit、tree、mode/type/blob、直接远端观察和证据哈希的 FROZEN_BUNDLE_V1.json，作为 bundle commit D 单独提交推送并执行 tracked=HEAD、可信 origin、fresh-clone 后验证。研究 challenge=completed、stop_rule.met=true、全部规范文件 tracked 且项目作用域 clean 是硬前置；任何远端观察均不得宣称消除 TOCTOU",
     "frozen_files": [
       "governance/USER_SOURCE_EXCERPTS_V1.json",
       "governance/USER_INTENT_V1.json",

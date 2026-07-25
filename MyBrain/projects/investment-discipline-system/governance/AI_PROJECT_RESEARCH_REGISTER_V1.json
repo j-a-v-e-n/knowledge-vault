@@ -271,9 +271,21 @@
       "role": "independent_challenge"
     },
     {
+      "id": "ARTIFACT-CHALLENGE-R3",
+      "path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND3_2026-07-25.json",
+      "sha256": "7561a43724d3b731bb07bf1bde91f2a34bb7e78ac0917bfc0ab17a9adcd0f627",
+      "role": "independent_challenge"
+    },
+    {
+      "id": "ARTIFACT-CHALLENGE-R3B",
+      "path": "audits/DESIGN_FREEZE_FOCUSED_REVIEW_ROUND3B_2026-07-25.md",
+      "sha256": "5de7b26415d43c96a85bcbf83b894935f9486879ec8df4d2f6756cb1a184f583",
+      "role": "independent_challenge"
+    },
+    {
       "id": "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
       "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
-      "sha256": "0cd033f04e38316db94ba377982af3fde2fb358e5808f23f7cd3f2414ccc8a80",
+      "sha256": "932a03bc3b4b393f55b6fd0446b6cc6743456c37cf3824e6f1a35a0459531f49",
       "role": "normative_blueprint"
     }
   ],
@@ -357,6 +369,45 @@
           "六类公司行动缺少逐项精确 acceptance case"
         ],
         "disposition": "没有新增 RC 类别，但现有控制尚未闭合；保持 challenge in_progress，全部转为结构校验、精确 case、权威 prerequisite、mutation test 和冻结流程修订，等待新 commit/tree 独立挑战"
+      },
+      {
+        "id": "CHALLENGE-03",
+        "candidate_commit": "6dc1bb3a155a44106cdfb2774e32c198b6624b36",
+        "candidate_tree": "f75b0053435608db755731dd8ce1c505c53caf75",
+        "reviewer_subjects": ["SUBJECT-DESIGN-REVIEW-BERNOULLI-R3"],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND3_2026-07-25.json",
+        "evidence_sha256": "7561a43724d3b731bb07bf1bde91f2a34bb7e78ac0917bfc0ab17a9adcd0f627",
+        "new_architecture_changing_classes": [],
+        "critical_findings": [
+          "条件门接受调用者自造的 prerequisite、bundle identity 和零案例 evidence",
+          "PIT、same-bar 因果和 split 会计语义被改坏后治理检查仍通过",
+          "最终独立审查闭合没有机器检查攻击执行与原始结果"
+        ],
+        "major_findings": [],
+        "minor_findings": [
+          "条件 evidence 用 subset 而非精确 case 集合"
+        ],
+        "disposition": "保持 challenge in_progress 与 stop_rule.met=false；把四个逃逸变成 canonical 语义、可信条件证据和可复演 final-review schema 后重新挑战"
+      },
+      {
+        "id": "CHALLENGE-03B",
+        "candidate_commit": "6dc1bb3a155a44106cdfb2774e32c198b6624b36",
+        "candidate_tree": "f75b0053435608db755731dd8ce1c505c53caf75",
+        "reviewer_subjects": ["SUBJECT-DESIGN-REVIEW-PASCAL-R3B"],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/DESIGN_FREEZE_FOCUSED_REVIEW_ROUND3B_2026-07-25.md",
+        "evidence_sha256": "5de7b26415d43c96a85bcbf83b894935f9486879ec8df4d2f6756cb1a184f583",
+        "new_architecture_changing_classes": [],
+        "critical_findings": [
+          "本地 Git gate 接受不属于 origin 的任意 upstream"
+        ],
+        "major_findings": [
+          "C→B allowlist 未验证 Git mode/type",
+          "bundle provenance 可自报且未证明 bundle 位于 HEAD/可信远端",
+          "远端观察与 bundle 创建之间的 TOCTOU 语义被夸大"
+        ],
+        "disposition": "保持未冻结；固定 trusted remote/branch、tree mode、bundle-commit 远端证明和准确的 observed-at 语义后重新挑战"
       }
     ]
   },

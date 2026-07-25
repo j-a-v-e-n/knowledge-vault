@@ -72,12 +72,108 @@
       "evidence_sha256": "13b44dac90560a5ef810844692e3018e106a4bce8d149a365c20b19d80ee72d0"
     },
     {
+      "id": "SUBJECT-DESIGN-REVIEW-BERNOULLI-R3",
+      "role": "design_reviewer",
+      "locator": "subagent:019f990e-1917-7df0-a645-c3d09ffdd3ae",
+      "candidate_commit": "6dc1bb3a155a44106cdfb2774e32c198b6624b36",
+      "candidate_tree": "f75b0053435608db755731dd8ce1c505c53caf75",
+      "write_access_used": false,
+      "participated_in_candidate_construction": false,
+      "verdict": "blocked_freeze",
+      "evidence_path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND3_2026-07-25.json",
+      "evidence_sha256": "7561a43724d3b731bb07bf1bde91f2a34bb7e78ac0917bfc0ab17a9adcd0f627"
+    },
+    {
+      "id": "SUBJECT-DESIGN-REVIEW-PASCAL-R3B",
+      "role": "design_reviewer",
+      "locator": "subagent:019f990e-4e75-77f1-b4f9-75287dad9cab",
+      "candidate_commit": "6dc1bb3a155a44106cdfb2774e32c198b6624b36",
+      "candidate_tree": "f75b0053435608db755731dd8ce1c505c53caf75",
+      "write_access_used": false,
+      "participated_in_candidate_construction": false,
+      "verdict": "blocked_freeze",
+      "evidence_path": "audits/DESIGN_FREEZE_FOCUSED_REVIEW_ROUND3B_2026-07-25.md",
+      "evidence_sha256": "5de7b26415d43c96a85bcbf83b894935f9486879ec8df4d2f6756cb1a184f583"
+    },
+    {
       "id": "SUBJECT-JAVEN",
       "role": "human_owner",
       "locator": "local user; no secret, email or private account stored here",
       "reserved_authority": ["initial_mandate", "risk_policy", "paper_decision", "residual_risk", "future_scope_change"]
     }
   ],
+  "final_review_evidence_schema": {
+    "schema_version": 1,
+    "additional_fields_allowed": false,
+    "required": [
+      "schema_version",
+      "subject_id",
+      "review_locator",
+      "review_input",
+      "review_input_sha256",
+      "candidate_commit",
+      "candidate_tree",
+      "verdict",
+      "open_critical_count",
+      "open_major_count",
+      "open_minor_count",
+      "new_architecture_changing_classes",
+      "participated_in_candidate_construction",
+      "write_access_used",
+      "reviewed_files",
+      "commands_run",
+      "independent_attacks",
+      "findings",
+      "finding_ids",
+      "what_would_falsify_pass",
+      "limitations"
+    ],
+    "required_attack_selectors": [
+      {
+        "attack_id": "ATTACK-PIT-ORACLE-INVERSION",
+        "replay_selector": "governance_tests.test_final_review_attacks.FinalReviewAttackTests.test_pit_oracle_inversion_is_rejected"
+      },
+      {
+        "attack_id": "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE",
+        "replay_selector": "governance_tests.test_final_review_attacks.FinalReviewAttackTests.test_same_bar_causality_smuggle_is_rejected"
+      },
+      {
+        "attack_id": "ATTACK-SPLIT-ACCOUNTING-SMUGGLE",
+        "replay_selector": "governance_tests.test_final_review_attacks.FinalReviewAttackTests.test_split_accounting_smuggle_is_rejected"
+      },
+      {
+        "attack_id": "ATTACK-CONDITIONAL-SELF-ATTESTATION",
+        "replay_selector": "governance_tests.test_final_review_attacks.FinalReviewAttackTests.test_conditional_self_attestation_is_rejected"
+      }
+    ],
+    "attack_required": [
+      "attack_id",
+      "mutation",
+      "mutation_sha256",
+      "expected",
+      "observed",
+      "result",
+      "replay_selector",
+      "raw_result_path",
+      "raw_result_sha256"
+    ],
+    "raw_result_required": [
+      "schema_version",
+      "attack_id",
+      "candidate_commit",
+      "candidate_tree",
+      "mutation_sha256",
+      "replay_selector",
+      "command",
+      "exit_code",
+      "stdout",
+      "stdout_sha256",
+      "expected",
+      "observed",
+      "result"
+    ],
+    "passing_rule": "候选 commit/tree、审查主体、输入、完整 scope、finding 计数和四个固定攻击必须一致；每个攻击都要由非零目标退出状态、原始 stdout/hash 与独立可复演 selector 证明已被拒绝；任一遗漏、escaped、跨候选复用或 open finding 都保持 blocked_freeze。"
+  },
   "future_role_constraints": {
     "acceptance_reviewer": {
       "must_be_assigned_after_candidate_tree_is_fixed": true,
