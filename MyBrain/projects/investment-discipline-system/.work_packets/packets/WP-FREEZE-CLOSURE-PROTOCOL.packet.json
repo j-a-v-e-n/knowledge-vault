@@ -1,0 +1,61 @@
+{
+  "schema_version": "work-packet-instance/v1",
+  "packet_id": "WP-FREEZE-CLOSURE-PROTOCOL",
+  "goal_id": "METHOD-GOVERNANCE-CLOSURE",
+  "state": "active",
+  "owner": "main-agent",
+  "reviewer": "independent-reviewer",
+  "bounded_write_paths": [
+    {
+      "path": "governance_tests/test_freeze_git_remote.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_verify_governance.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/freeze_governance.py",
+      "kind": "file"
+    }
+  ],
+  "read_dependencies": [
+    "governance/ACCEPTANCE_CONTRACT_V1.json",
+    "governance/ASSURANCE_SUBJECTS_V1.json",
+    "governance/COMPONENT_REGISTRY_V1.json",
+    "governance/GROUND_TRUTH_MANIFEST_V1.json",
+    "governance/WORK_PACKET_POLICY_V1.json",
+    "scripts/verify_governance.py"
+  ],
+  "acceptance_checks": [
+    {
+      "check_id": "CHECK-FREEZE-CLOSURE-TESTS",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "governance_tests.test_freeze_git_remote",
+        "-v"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-GOVERNANCE-MUTATION-TESTS",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "governance_tests.test_verify_governance",
+        "-v"
+      ],
+      "expected_exit_code": 0
+    }
+  ],
+  "checkpoint_path": null,
+  "acceptance_receipt_path": null,
+  "retry_budget": 3,
+  "external_side_effects": [],
+  "semantic_invariants": []
+}

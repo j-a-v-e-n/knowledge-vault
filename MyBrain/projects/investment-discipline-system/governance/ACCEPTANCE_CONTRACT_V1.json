@@ -990,7 +990,16 @@
   },
   "change_control": {
     "before_freeze": "独立挑战发现可修改本文件，并保留 Git 历史",
-    "freeze_action": "三次提交、非原子且 fail-closed：先把全部候选规范、ground-truth hash、固定 attack runner、研究充分性推导和仓库级 assurance workflow 提交并直接推送到可信 origin branch，形成 candidate C；GitHub Actions 在 C 上生成并签名机器 assurance manifest。候选固定后的 Codex 只读语义审查必须覆盖完整 ground truth，并新增至少一个受限 novelty probe。closure B 只允许追加审查输入输出、机器 manifest/attestation verification、probe spec、runner 实际 receipt、挑战轮次和相应状态；冻结程序重新执行 C 上 runner，核对实际 wrapper/baseline/target exit，并在线或离线验证 GitHub attestation。随后生成引用 C/B commit、tree、mode/type/blob、直接远端观察、attestation identity 和证据哈希的 FROZEN_BUNDLE_V1.json，作为 bundle commit D 单独提交推送并执行 tracked=HEAD、可信 origin、fresh-clone 后验证。研究 challenge=completed 且 RESEARCH_SUFFICIENCY_V1 的 closure eligibility 可推导、全部规范文件 tracked 且项目作用域 clean 是硬前置；任何远端观察均不得宣称消除 TOCTOU",
+    "freeze_action": "三次提交、非原子且 fail-closed：先把全部候选规范、ground-truth hash、固定 attack runner、研究充分性推导和仓库级 assurance workflow 提交并直接推送到可信 origin branch，形成 candidate C；GitHub Actions 在 C 上生成并签名机器 assurance manifest。候选固定后的 Codex 只读语义审查必须覆盖完整 ground truth，并新增至少一个受限 novelty probe。closure B 只允许追加审查输入输出、机器 manifest/attestation verification、probe spec、runner 实际 receipt，以及对研究 register 和 assurance subjects 的精确受限追加；其他 frozen_files（包括其内部 status 字段）必须与 C 字节一致，不能用批量改写 status 制造完成假象。冻结程序重新执行 C 上 runner，核对实际 wrapper/baseline/target exit，并在线或离线验证 GitHub attestation。随后生成引用 C/B commit、tree、mode/type/blob、直接远端观察、attestation identity 和证据哈希的 FROZEN_BUNDLE_V1.json；只有该 bundle 是冻结状态的权威载体。它作为 bundle commit D 单独提交推送并执行 tracked=HEAD、可信 origin、fresh-clone 后验证。研究 challenge=completed 且 RESEARCH_SUFFICIENCY_V1 的 closure eligibility 可推导、全部规范文件 tracked 且项目作用域 clean 是硬前置；任何远端观察均不得宣称消除 TOCTOU",
+    "closure_mutation_policy": {
+      "mutable_existing_files": [
+        "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+        "governance/ASSURANCE_SUBJECTS_V1.json"
+      ],
+      "ordinary_frozen_file_rule": "byte_identical_between_reviewed_candidate_and_closure",
+      "ordinary_internal_status_rewrite": "blocked",
+      "freeze_state_authority": "governance/FROZEN_BUNDLE_V1.json"
+    },
     "trusted_git_remote": {
       "name": "origin",
       "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",

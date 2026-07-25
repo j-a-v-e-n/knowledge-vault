@@ -72,7 +72,7 @@
         "locators": [
           {
             "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-            "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
+            "sha256": "b39553a215daf6698eb19a6eb132d855cb41c0cdb29ab969b68298178ddde222",
             "anchors": [
               "\"contract_id\": \"ids-local-paper-workbench-v1\"",
               "\"authority\""
@@ -101,7 +101,7 @@
         "locators": [
           {
             "path": "scripts/verify_governance.py",
-            "sha256": "665842c823eabe4b381be98b9671d656bca6b0a8e986d95595d7f2136bf88f96",
+            "sha256": "3ab1310cb2390d5744b38dca31eb7f3177f50337d6209ebc9c40aa3fe5906ffc",
             "anchors": [
               "def main() -> int:",
               "governance verification: FAIL"
@@ -116,7 +116,7 @@
           "evidence_locators": [
             {
               "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-              "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
+              "sha256": "b39553a215daf6698eb19a6eb132d855cb41c0cdb29ab969b68298178ddde222",
               "anchors": [
                 "\"research/\""
               ]
@@ -129,7 +129,7 @@
           "evidence_locators": [
             {
               "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-              "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
+              "sha256": "b39553a215daf6698eb19a6eb132d855cb41c0cdb29ab969b68298178ddde222",
               "anchors": [
                 "\"prototype/\""
               ]
@@ -157,7 +157,7 @@
         "blocker_locators": [
           {
             "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-            "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
+            "sha256": "b39553a215daf6698eb19a6eb132d855cb41c0cdb29ab969b68298178ddde222",
             "anchors": [
               "\"required_artifacts\"",
               "\"governance/TRACEABILITY_V1.json\""

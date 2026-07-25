@@ -791,16 +791,24 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             candidate_commit=reviewed_commit
         )
 
+        closure_policy = contract["change_control"]["closure_mutation_policy"]
+        mutable_existing_files = set(closure_policy["mutable_existing_files"])
+        self.assertEqual(
+            {RESEARCH_RELATIVE, ASSURANCE_RELATIVE},
+            mutable_existing_files,
+        )
         for relative in frozen_files:
             if Path(relative).suffix.lower() != ".json":
                 continue
             document = self.read_json(relative)
             if relative == RESEARCH_RELATIVE:
                 document["status"] = "adopted_with_explicit_limits"
-            elif relative == incomplete_relative:
-                document["status"] = "candidate_for_freeze"
-            else:
+            elif relative == ASSURANCE_RELATIVE:
                 document["status"] = "frozen"
+            elif relative == incomplete_relative:
+                document["status"] = "closure_status_rewrite_is_forbidden"
+            else:
+                continue
             self.write_json(relative, document)
 
         review_output = (
@@ -951,7 +959,15 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             ),
             machine_check(
                 "CHECK-RUFF",
-                ["PYTHON", "-m", "ruff", "check", "."],
+                [
+                    "PYTHON",
+                    "-m",
+                    "ruff",
+                    "check",
+                    "--config",
+                    "governance/RUFF_CI_CONFIG_V1.toml",
+                    ".",
+                ],
             ),
             machine_check(
                 "CHECK-GIT-DIFF",
@@ -1232,10 +1248,10 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
         self.assert_bundle_absent()
 
-    def test_freeze_rejects_incomplete_dynamic_json_status(self) -> None:
-        incomplete = "governance/ACCEPTANCE_CASES_V1.json"
-        reviewed = self.prepare_completed_freeze(incomplete_relative=incomplete)
-        baseline = self.commit_and_push("leave one normative JSON incomplete")
+    def test_freeze_rejects_ordinary_status_rewrite(self) -> None:
+        rewritten = "governance/ACCEPTANCE_CASES_V1.json"
+        reviewed = self.prepare_completed_freeze(incomplete_relative=rewritten)
+        baseline = self.commit_and_push("rewrite an immutable internal status")
 
         result = self.run_project_script(
             FREEZER,
@@ -1246,7 +1262,10 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn(f"{incomplete} status must be frozen", result.stdout)
+        self.assertIn(
+            f"closure changed immutable frozen file: {rewritten}",
+            result.stdout,
+        )
         self.assert_bundle_absent()
 
     def test_freeze_rejects_dirty_exact_baseline(self) -> None:

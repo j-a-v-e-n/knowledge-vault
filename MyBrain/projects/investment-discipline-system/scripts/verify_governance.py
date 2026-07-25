@@ -66,6 +66,17 @@ EXPECTED_TRUSTED_GIT_REMOTE = {
     "branch": "main",
     "project_prefix": "MyBrain/projects/investment-discipline-system/",
 }
+EXPECTED_CLOSURE_MUTATION_POLICY = {
+    "mutable_existing_files": [
+        "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+        "governance/ASSURANCE_SUBJECTS_V1.json",
+    ],
+    "ordinary_frozen_file_rule": (
+        "byte_identical_between_reviewed_candidate_and_closure"
+    ),
+    "ordinary_internal_status_rewrite": "blocked",
+    "freeze_state_authority": "governance/FROZEN_BUNDLE_V1.json",
+}
 
 PHASES = {"design_freeze", "product_release", "human_onboarding", "longitudinal"}
 FINAL_REVIEW_ATTACK_IDS = [
@@ -4271,26 +4282,18 @@ def verify(allow_candidate: bool) -> list[str]:
                 + "; ".join(str(item) for item in detail)
             )
 
-    expected_status = "candidate_under_challenge" if allow_candidate else "frozen"
-    allowed_contract_statuses = {expected_status}
-    if allow_candidate:
-        allowed_contract_statuses.add("frozen")
-    if contract.get("status") not in allowed_contract_statuses:
+    if contract.get("status") != "candidate_under_challenge":
         errors.append(
-            f"contract status must be one of {sorted(allowed_contract_statuses)}, "
+            "contract status must remain the reviewed candidate state "
+            "'candidate_under_challenge'; FROZEN_BUNDLE_V1 is the freeze authority, "
             f"got {contract.get('status')!r}"
         )
 
-    expected_baseline_status = "candidate_for_freeze" if allow_candidate else "frozen"
-    allowed_baseline_statuses = {expected_baseline_status}
-    if allow_candidate:
-        allowed_baseline_statuses.add("frozen")
     for label, document in (
         ("user intent", intent),
         ("source excerpts", source_excerpts),
         ("verification specs", verification_specs),
         ("traceability", trace),
-        ("assurance subjects", assurance_subjects),
         ("acceptance cases", acceptance_cases),
         ("money and corporate actions spec", money_spec),
         ("market simulation policy", market_policy),
@@ -4304,11 +4307,19 @@ def verify(allow_candidate: bool) -> list[str]:
         ("decision authority", decision_authority),
         ("project method policy", project_method_policy),
     ):
-        if document.get("status") not in allowed_baseline_statuses:
+        if document.get("status") != "candidate_for_freeze":
             errors.append(
-                f"{label} status must be one of {sorted(allowed_baseline_statuses)}, "
+                f"{label} status must remain the reviewed candidate state "
+                "'candidate_for_freeze'; FROZEN_BUNDLE_V1 is the freeze authority, "
                 f"got {document.get('status')!r}"
             )
+    expected_assurance_status = "candidate_for_freeze" if allow_candidate else "frozen"
+    if assurance_subjects.get("status") != expected_assurance_status:
+        errors.append(
+            "assurance subjects status differs for the candidate/closure phase: "
+            f"expected={expected_assurance_status!r}, "
+            f"actual={assurance_subjects.get('status')!r}"
+        )
 
     if not allow_candidate:
         if research.get("status") != "adopted_with_explicit_limits":
@@ -4379,6 +4390,13 @@ def verify(allow_candidate: bool) -> list[str]:
         "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
     }
     change_control = contract.get("change_control")
+    closure_mutation_policy = (
+        change_control.get("closure_mutation_policy")
+        if isinstance(change_control, dict)
+        else None
+    )
+    if closure_mutation_policy != EXPECTED_CLOSURE_MUTATION_POLICY:
+        errors.append("closure mutation policy differs from the fail-closed boundary")
     frozen_files = (
         change_control.get("frozen_files") if isinstance(change_control, dict) else None
     )

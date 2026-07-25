@@ -447,6 +447,14 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
         self.assert_rejected("trusted Git remote policy differs")
 
+    def test_closure_mutation_policy_cannot_add_component_registry(self) -> None:
+        contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
+        contract["change_control"]["closure_mutation_policy"][
+            "mutable_existing_files"
+        ].append("governance/COMPONENT_REGISTRY_V1.json")
+        self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        self.assert_rejected("closure mutation policy differs")
+
     def test_frozen_mode_rejects_open_research(self) -> None:
         self.write_json("governance/FROZEN_BUNDLE_V1.json", {})
         result = self.run_verifier(frozen=True)

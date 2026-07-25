@@ -38,6 +38,17 @@ TRUSTED_REMOTE_FIELDS = {
     "branch",
     "project_prefix",
 }
+EXPECTED_CLOSURE_MUTATION_POLICY = {
+    "mutable_existing_files": [
+        RESEARCH_RELATIVE,
+        ASSURANCE_RELATIVE,
+    ],
+    "ordinary_frozen_file_rule": (
+        "byte_identical_between_reviewed_candidate_and_closure"
+    ),
+    "ordinary_internal_status_rewrite": "blocked",
+    "freeze_state_authority": "governance/FROZEN_BUNDLE_V1.json",
+}
 CANONICAL_ATTACK_IDS = (
     "ATTACK-PIT-ORACLE-INVERSION",
     "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE",
@@ -112,7 +123,15 @@ MACHINE_CHECK_SPECS = {
         "structured": False,
     },
     "CHECK-RUFF": {
-        "argv": ["PYTHON", "-m", "ruff", "check", "."],
+        "argv": [
+            "PYTHON",
+            "-m",
+            "ruff",
+            "check",
+            "--config",
+            "governance/RUFF_CI_CONFIG_V1.toml",
+            ".",
+        ],
         "cwd": "PROJECT_ROOT",
         "structured": False,
     },
@@ -560,19 +579,10 @@ def require_candidate_ground_truth(
     reviewed_document: dict,
     baseline_document: dict,
 ) -> dict[str, str]:
-    if (
-        reviewed_document.get("status") != "candidate_for_freeze"
-        or baseline_document.get("status") != "frozen"
-    ):
-        raise SystemExit("ground-truth lifecycle transition differs")
-    candidate_body = copy.deepcopy(reviewed_document)
-    baseline_body = copy.deepcopy(baseline_document)
-    candidate_body.pop("status", None)
-    baseline_body.pop("status", None)
-    if candidate_body != baseline_body:
-        raise SystemExit(
-            "ground-truth closure may change only its lifecycle status"
-        )
+    if reviewed_document.get("status") != "candidate_for_freeze":
+        raise SystemExit("candidate ground-truth lifecycle status differs")
+    if reviewed_document != baseline_document:
+        raise SystemExit("ground-truth must be byte-identical through closure")
     artifacts = reviewed_document.get("artifacts")
     if not isinstance(artifacts, list) or not artifacts:
         raise SystemExit("candidate ground-truth artifacts must be nonempty")
@@ -607,6 +617,8 @@ def require_candidate_ground_truth(
         prefix,
         GROUND_TRUTH_RELATIVE,
     )
+    if candidate_bytes != baseline_bytes:
+        raise SystemExit("ground-truth must be byte-identical through closure")
     return {
         "candidate_sha256": sha256_bytes(candidate_bytes),
         "baseline_sha256": sha256_bytes(baseline_bytes),
@@ -879,6 +891,8 @@ def require_review_closure(
     prefix = git_text("rev-parse", "--show-prefix")
     reviewed_docs: dict[str, dict] = {}
     baseline_docs: dict[str, dict] = {}
+    reviewed_payloads: dict[str, bytes] = {}
+    baseline_payloads: dict[str, bytes] = {}
     reviewed_entries: dict[str, dict[str, str]] = {}
     baseline_entries: dict[str, dict[str, str]] = {}
     for relative in frozen_files:
@@ -894,6 +908,8 @@ def require_review_closure(
                 )
         before = commit_file_bytes(reviewed_commit, prefix, relative)
         after = commit_file_bytes(baseline, prefix, relative)
+        reviewed_payloads[relative] = before
+        baseline_payloads[relative] = after
         if Path(relative).suffix.lower() != ".json":
             if before != after:
                 raise SystemExit(
@@ -907,31 +923,20 @@ def require_review_closure(
             after, f"{baseline}:{relative}"
         )
 
+    reviewed_contract = reviewed_docs.get(CONTRACT_RELATIVE)
+    if not isinstance(reviewed_contract, dict):
+        raise SystemExit("acceptance contract must be a JSON object in frozen_files")
+    mutable_existing_files = closure_mutable_existing_files(
+        reviewed_contract,
+        frozen_files,
+    )
     for relative in frozen_files:
-        if Path(relative).suffix.lower() != ".json" or relative in {
-            RESEARCH_RELATIVE,
-            ASSURANCE_RELATIVE,
-        }:
+        if relative in mutable_existing_files:
             continue
-        before = reviewed_docs[relative]
-        after = baseline_docs[relative]
-        expected_candidate_status = (
-            "candidate_under_challenge"
-            if relative == CONTRACT_RELATIVE
-            else "candidate_for_freeze"
-        )
-        if before.get("status") != expected_candidate_status:
+        if reviewed_payloads[relative] != baseline_payloads[relative]:
             raise SystemExit(
-                f"reviewed candidate status is not eligible for closure: {relative}"
+                f"closure changed immutable frozen file: {relative}"
             )
-        if after.get("status") != "frozen":
-            raise SystemExit(f"baseline status is not frozen: {relative}")
-        before_body = copy.deepcopy(before)
-        after_body = copy.deepcopy(after)
-        before_body.pop("status", None)
-        after_body.pop("status", None)
-        if before_body != after_body:
-            raise SystemExit(f"closure changed non-status content: {relative}")
 
     research_before = reviewed_docs.get(RESEARCH_RELATIVE)
     research_after = baseline_docs.get(RESEARCH_RELATIVE)
@@ -1252,8 +1257,7 @@ def require_review_closure(
     repo_paths = set(raw_entries)
     expected_paths = {
         f"{prefix}{relative}"
-        for relative in frozen_files
-        if Path(relative).suffix.lower() == ".json"
+        for relative in mutable_existing_files
     }
     expected_paths.update(f"{prefix}{path}" for path in added_paths)
     if repo_paths != expected_paths:
@@ -1341,6 +1345,28 @@ def frozen_file_paths(contract: dict) -> list[str]:
     return safe_files
 
 
+def closure_mutable_existing_files(
+    contract: dict,
+    frozen_files: list[str],
+) -> set[str]:
+    change_control = contract.get("change_control")
+    policy = (
+        change_control.get("closure_mutation_policy")
+        if isinstance(change_control, dict)
+        else None
+    )
+    if policy != EXPECTED_CLOSURE_MUTATION_POLICY:
+        raise SystemExit(
+            "contract closure_mutation_policy differs from the fail-closed policy"
+        )
+    mutable = policy["mutable_existing_files"]
+    if any(relative not in frozen_files for relative in mutable):
+        raise SystemExit(
+            "closure mutable existing file is outside contract frozen_files"
+        )
+    return set(mutable)
+
+
 def trusted_git_remote(contract: dict) -> dict[str, str]:
     change_control = contract.get("change_control")
     trusted = (
@@ -1404,21 +1430,22 @@ def require_frozen_statuses(frozen_files: list[str]) -> dict:
             continue
         document = load_json_object(PROJECT_ROOT / relative, relative)
         documents[relative] = document
-        if relative == RESEARCH_RELATIVE:
-            if document.get("status") != "adopted_with_explicit_limits":
-                raise SystemExit(
-                    "research register must be adopted_with_explicit_limits"
-                )
-        elif document.get("status") != "frozen":
-            raise SystemExit(f"{relative} status must be frozen")
 
     contract_relative = "governance/ACCEPTANCE_CONTRACT_V1.json"
     contract = documents.get(contract_relative)
     if contract is None:
         raise SystemExit("acceptance contract must be included in frozen_files")
+    mutable_existing_files = closure_mutable_existing_files(contract, frozen_files)
+    if mutable_existing_files != {RESEARCH_RELATIVE, ASSURANCE_RELATIVE}:
+        raise SystemExit("closure mutable existing file set differs")
     research = documents.get(RESEARCH_RELATIVE)
     if research is None:
         raise SystemExit("research register must be included in frozen_files")
+    if research.get("status") != "adopted_with_explicit_limits":
+        raise SystemExit("research register must be adopted_with_explicit_limits")
+    assurance = documents.get(ASSURANCE_RELATIVE)
+    if assurance is None or assurance.get("status") != "frozen":
+        raise SystemExit("assurance subjects must have closure status frozen")
     challenge = research.get("challenge")
     if not isinstance(challenge, dict) or challenge.get("status") != "completed":
         raise SystemExit("research challenge is not completed")

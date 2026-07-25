@@ -186,7 +186,7 @@
     },
     {
       "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-      "sha256": "ec3a3fafaa79060e0ae8ab5a7e091b2a84349cd81904e17252cca6fe8d758d99",
+      "sha256": "b39553a215daf6698eb19a6eb132d855cb41c0cdb29ab969b68298178ddde222",
       "role": "top_level_acceptance_contract",
       "required": true
     },
@@ -210,7 +210,7 @@
     },
     {
       "path": "governance/COMPONENT_REGISTRY_V1.json",
-      "sha256": "9b7d496069dba0461fa206f13364b0e5d62c7301251a0f5dc76f615c2b23739d",
+      "sha256": "df3c8026d4763bb7726b2ef3466ed5e4ed3c7f810af2ddfaa390c08983239155",
       "role": "component_boundary_dependency_and_removal_contract",
       "required": true
     },
