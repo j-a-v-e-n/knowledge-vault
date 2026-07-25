@@ -362,31 +362,31 @@ The observer manifest must bind public document version/retrieval, feed entitlem
 
 ## Counterevidence, contradictions, and sanity checks
 
-1. **Return convention versus ledger settlement**  
+1. **Return convention versus ledger settlement**
    CRSP's ex-date reinvestment convention and exchange payment-date fields answer different questions. Collapsing them would create a false contradiction and likely a ledger timing error. The calculation-context discriminator resolves the category difference.
 
-2. **“Updated date” versus PIT availability**  
+2. **“Updated date” versus PIT availability**
    NYSE/Cboe update fields establish that records change, but a date-granular update does not prove first provider availability. The contract therefore cannot infer `available_time`.
 
-3. **Current official record versus historical observation**  
+3. **Current official record versus historical observation**
    CRSP may publish newly named restatement files while later exposing the newest restatement as official. Provider “official current” does not preserve what a decision saw. Local append-only bytes are necessary.
 
-4. **Adjusted continuity versus future leakage**  
+4. **Adjusted continuity versus future leakage**
    Adjusted series avoid mechanical split/dividend gaps, but current back-adjustment can leak later actions into old signals. Raw and adjusted are both useful; admissibility depends on replay view, adjustment cutoff, and calculation context.
 
-5. **Tiingo terms revision marker**  
+5. **Tiingo terms revision marker**
    The exact Tiingo terms page showed `Version 1` and `Last Updated Date: July 18th, 2026`. A version label alone is therefore insufficient; exact bytes plus date are required.
 
-6. **Tiingo EOD snapshot limitation**  
+6. **Tiingo EOD snapshot limitation**
    The public direct locator was readable through the extraction tool, but the exact curl response saved only the Angular shell. Search/tool text was not substituted. CRSP/NYSE bytes close the required method/timing classes, while current Tiingo field semantics remain a provider-onboarding revalidation item.
 
-7. **Provider-specific license duties**  
+7. **Provider-specific license duties**
    MarketData public terms require deletion at subscription end; its addenda and CME's visible update show scope/exception differences. These cannot be generalized into a Tiingo deletion duty. They validate the state-machine failure class, not a universal legal conclusion.
 
-8. **Alpaca “same end to end” versus omissions**  
+8. **Alpaca “same end to end” versus omissions**
    The public page describes Paper as similar except routing, then lists missing market impact, information leakage, latency slippage, queue position, price improvement, fees, and dividends. Both statements are preserved; the result cannot be summarized as live-equivalent.
 
-9. **Source migration**  
+9. **Source migration**
    The D1 legacy CRSP calculations URLs returned 404 after the CRSP Research Data Products migration. The saved July 2026 CRSP guide is a current primary corporate-action/return method, but it is an index method rather than proof of a candidate provider's data implementation.
 
 Sanity result: the design remains provider-neutral, paper-first, human-decision-controlled, no-future-information, and local-ledger-authoritative. No source supports weakening those boundaries.

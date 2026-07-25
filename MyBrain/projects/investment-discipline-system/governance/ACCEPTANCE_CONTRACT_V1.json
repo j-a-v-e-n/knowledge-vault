@@ -456,6 +456,14 @@
       "verification": ["V-COLD-START", "V-DOCS"]
     },
     {
+      "id": "REQ-METHOD-001",
+      "statement": "AI 项目工作必须从可恢复状态包和有界工作包启动，以单调完成标准、有限重试、互斥写入、只读审查、同任务 harness 消融、冻结反例、供应链边界、事故回归、非技术解释和迁移退出计划约束执行；预算耗尽、上下文丢失、未验证依赖或范围扩大不得改写为成功。",
+      "source_values": ["UV-01", "UV-06", "UV-07", "UV-08", "UV-09", "UV-10", "UV-11"],
+      "hazards": ["GOV-04", "GOV-07", "CTX-02", "ORG-01", "ORG-03", "ORG-04", "ORG-05", "ORG-06", "IMP-04", "VER-07", "SEC-06", "OPS-08", "HUM-05", "ECO-01", "ECO-02", "ECO-03", "ECO-04"],
+      "severity": "critical",
+      "verification": ["V-PROJECT-METHOD"]
+    },
+    {
       "id": "REQ-QUAL-001",
       "statement": "验收同时包含单元、集成、黑盒、属性/变形、故障、并发、重启、恢复、浏览器和独立补充测试；任何单一绿灯都不构成完成。",
       "source_values": ["UV-01", "UV-06", "UV-09"],
@@ -545,7 +553,8 @@
     {"id": "V-DOCS", "kind": "executable_documentation", "description": "文档命令在干净环境可运行"},
     {"id": "V-TEST-PEDIGREE", "kind": "review", "description": "区分开发测试、独立测试、fixture 和真实候选"},
     {"id": "V-CLAIMS", "kind": "deterministic_plus_review", "description": "最终主张不超过证据"},
-    {"id": "V-CONDITIONAL-CLAIMS", "kind": "deterministic", "description": "前置条件、允许状态转换、必跑门、证据和总 verdict 一致；未证明条件不能被写成无条件通过"}
+    {"id": "V-CONDITIONAL-CLAIMS", "kind": "deterministic", "description": "前置条件、允许状态转换、必跑门、证据和总 verdict 一致；未证明条件不能被写成无条件通过"},
+    {"id": "V-PROJECT-METHOD", "kind": "deterministic_plus_mutation", "description": "项目方法策略、状态恢复、完成权、工作包、审查边界、供应链、测试完整性、事故学习、范围预算和迁移退出规则由独立 verifier 与 17 个定向反例逐项拒绝弱化"}
   ],
   "gates": [
     {

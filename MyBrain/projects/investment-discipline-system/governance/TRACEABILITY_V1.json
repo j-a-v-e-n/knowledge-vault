@@ -169,6 +169,11 @@
       "implementation_targets": ["README.md", "STATUS.md", "docs/OPERATIONS.md"]
     },
     {
+      "id": "CTRL-PROJECT-METHOD",
+      "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-做项目的用户立场检察官",
+      "implementation_targets": ["governance/PROJECT_METHOD_POLICY_V1.json", "scripts/verify_project_method.py", "governance_tests/"]
+    },
+    {
       "id": "CTRL-QUALITY",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-做项目的用户立场检察官",
       "implementation_targets": ["governance_tests/", "tests/", "acceptance/", "scripts/verify_all.py", "scripts/verify_conditionals.py", "scripts/user_proxy_gate.py"]
@@ -220,6 +225,7 @@
     {"requirement_id": "REQ-PROVIDER-001", "control_ids": ["CTRL-TIINGO", "CTRL-SNAPSHOT"]},
     {"requirement_id": "REQ-PROVIDER-002", "control_ids": ["CTRL-EXT-PAPER", "CTRL-LOCAL-BOUNDARY"]},
     {"requirement_id": "REQ-DOC-001", "control_ids": ["CTRL-DOCS", "CTRL-BACKUP"]},
+    {"requirement_id": "REQ-METHOD-001", "control_ids": ["CTRL-PROJECT-METHOD"]},
     {"requirement_id": "REQ-QUAL-001", "control_ids": ["CTRL-QUALITY"]},
     {"requirement_id": "REQ-QUAL-002", "control_ids": ["CTRL-GOV-TRACE", "CTRL-QUALITY"]}
   ]

@@ -53,6 +53,8 @@ created later commits touching the authorized RS-02 paths:
   (`2026-07-25T16:38:36Z`);
 - `3a0a44285b960d172e240a87567ce62dd90a0cb1`
   (`2026-07-25T16:43:02Z`).
+- `a06f96efc3fb50ef89f5910e5eba4e8871a1d0b8`
+  (`2026-07-25T16:46:58Z`).
 
 `git merge-base --is-ancestor` returned exit `0` for the preregistration commit
 against each listed evidence commit. Any automatic backup created after this
@@ -745,7 +747,7 @@ Reopen triggers:
 
 | Preregistered topic predicate | Verdict | Evidence / reason |
 |---|---|---|
-| prereg commit, file hash, ancestor relation, and retrieval time pass | `true` for every audited evidence commit | commit/hash verified; all five retrieval UTCs are later; ancestry passed for all five later automatic evidence commits listed in Section 1 |
+| prereg commit, file hash, ancestor relation, and retrieval time pass | `true` for every audited evidence commit | commit/hash verified; all five retrieval UTCs are later; ancestry passed for all six later automatic evidence commits listed in Section 1 |
 | five query IDs each have exactly one execution or explicit tool-failure receipt | `true` | five exact single-query calls; no changed/sixth query |
 | every visible result has a per-result screen and unique query ownership | `true` | Sections 3.1-3.5 preserve returned order, URL, source class, cluster, reason, and revision |
 | required snapshot classes have saved bytes/hash, or blocked makes topic incomplete | `true` | all three classes have successful exact-byte snapshots and manifest entries |
