@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "verdicts": {
+    "core_release_candidate": "all frozen automated and independent core evidence passes; no claim about Javen adoption or behavior improvement",
+    "human_onboarding_verified": "core candidate plus a real Javen-authenticated onboarding and non-fixture paper journey; still no longitudinal claim",
+    "longitudinal_personal_validation": "a Javen-preregistered field-use window closes and its burden, abandonment, recovery and discipline criteria pass",
+    "design_reopened": "field-use fails or reveals a new high-impact workflow hazard"
+  },
+  "human_onboarding": {
+    "requires_real_human_executor": true,
+    "required_inputs": [
+      "human-only local confirmation capability",
+      "Javen-authored paper mandate",
+      "Javen-selected risk parameters",
+      "one real current market snapshot with non-fixture pedigree",
+      "one real research case containing at least one support, one challenge and one unknown",
+      "one human decision including no-trade as an available outcome"
+    ],
+    "initial_policy_cooling": {
+      "minimum_hours": 24,
+      "rule": "first mandate and policy are scheduled, not immediately active; changes during cooling restart the interval"
+    },
+    "prohibited_substitutes": ["fixture-only journey", "AI-authored human fields", "request actor label", "builder screenshot without raw run"]
+  },
+  "urgency_state_machine": {
+    "states": [
+      {"id": "calm", "level": 0, "new_order_delay_hours": 0},
+      {"id": "elevated", "level": 1, "new_order_delay_hours": 0},
+      {"id": "urgent", "level": 2, "new_order_delay_hours": 4},
+      {"id": "panic", "level": 3, "new_order_delay_hours": 24}
+    ],
+    "rule": "human selects urgency in the authenticated UI; AI/import cannot set it. urgent/panic creates a server-time cooldown and invalidates any earlier approval. The delay has no runtime override.",
+    "anti_rubber_stamp": "emotion text alone never satisfies the gate; human must answer a randomly selected counterfactual prompt after authentication, and the server records prompt id, elapsed interval and answer hash. This adds friction but does not prove reflection; that residual limit remains visible."
+  },
+  "longitudinal_protocol": {
+    "must_be_preregistered_by_human_before_window": true,
+    "required_human_fields_without_defaults": [
+      "window_start",
+      "window_end",
+      "minimum_real_research_cases",
+      "minimum_no_trade_or_defer_cases",
+      "maximum_acceptable_active_minutes_per_case",
+      "maximum_acceptable_overdue_review_rate",
+      "abandonment_definition",
+      "behavioral_success_criterion",
+      "failure_action"
+    ],
+    "minimum_structure": [
+      "window_end > window_start",
+      "only post-registration real cases count",
+      "fixture/demo/import-only cases do not count",
+      "all attempts and abandoned starts count",
+      "long-gap resume is exercised at least once if such a gap naturally occurs"
+    ],
+    "failure_rule": "failed burden, abandonment, recovery or discipline criterion yields design_reopened; it cannot be converted to pass by changing the window after results are visible"
+  },
+  "required_reference_cases": [
+    "CASE-HUMAN-REQUEST-ACTOR",
+    "CASE-HUMAN-REAL-JOURNEY",
+    "CASE-PANIC-BLOCK",
+    "CASE-URGENT-COOLDOWN",
+    "CASE-AI-RUBBER-STAMP",
+    "CASE-FIELD-USE-FIXTURE-REJECTED",
+    "CASE-FIELD-USE-FAIL-REOPENS"
+  ]
+}

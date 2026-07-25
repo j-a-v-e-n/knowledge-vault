@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "scope": "人工冻结小宇宙、美国上市股票/ETF、日线输入、周/月决策、本地 long-only PaperAccount。",
+  "security_identity": {
+    "primary_key": "stable_security_id",
+    "symbol_rule": "symbol is an alias with valid_from/valid_to; ticker changes never create a new economic identity by themselves",
+    "universe_rule": "each hypothesis freezes an as-of universe snapshot and inclusion rationale before any test",
+    "dynamic_historical_universe": "out_of_scope_unproven"
+  },
+  "calendar_and_causality": {
+    "calendar": "explicit exchange session table with timezone; data-row intersection is never a calendar",
+    "decision_bar_rule": "a close-derived signal at session T is available only after that close",
+    "earliest_default_fill": "next eligible session T+1 using the preregistered fill-price model",
+    "same_bar_fill": "forbidden unless the signal was provably available before the chosen executable price and the alternate timing was preregistered",
+    "missing_session_rule": "report coverage and fail the run when required strategy/benchmark sessions differ; never hide via zip or intersection"
+  },
+  "price_and_cashflow": {
+    "source_of_truth": "raw prices plus separately stored split/dividend actions",
+    "strategy_returns": "account cash, positions, fills, fees and corporate-action cashflows",
+    "benchmark_returns": "total return including split and dividend cashflows under the same calendar and currency",
+    "provider_adjusted_field": "cross-check only",
+    "unresolved_action": "run or account result is incomplete, not zero-filled"
+  },
+  "benchmark_policy": {
+    "selection_time": "frozen with hypothesis before testing",
+    "required_fields": ["benchmark security or series", "suitability rationale", "currency", "calendar", "total-return method", "cost treatment", "cash treatment"],
+    "comparison_rule": "strategy and benchmark use identical start/end eligible sessions and explicit coverage differences",
+    "reference_rule": "golden fixtures are checked against an independently calculated reference sequence",
+    "claim_boundary": "beating a benchmark in historical or paper data does not establish live investability"
+  },
+  "experiment_lineage": {
+    "root_fingerprint_fields": ["economic mechanism", "signal dependency graph", "decision cadence", "universe family", "data transformations", "benchmark family", "primary metric"],
+    "rule": "parameter, symbol, cleaning, benchmark or presentation changes create descendants under the same root unless an independent adjudicator records a substantively new mechanism before seeing results",
+    "rename_does_not_reset": true,
+    "ai_origin_contamination_default": "unknown_contaminated",
+    "historical_statuses": ["historically_unpromising", "historically_promising_but_unproved", "contested"],
+    "prospective_status": "not_observable_until_preregistered_future_window_closes",
+    "statistical_claim_rule": "V1 records all trials, effective sample information, dependence assumptions and uncertainty; it does not emit strategy-edge pass/fail or probability-of-edge from historical data."
+  },
+  "required_reference_cases": [
+    "CASE-PIT-LATE-RETRIEVAL",
+    "CASE-PIT-LENGTH-MISMATCH",
+    "CASE-CALENDAR-MISSING-SESSION",
+    "CASE-BENCHMARK-TOTAL-RETURN",
+    "CASE-DECISION-NEXT-BAR",
+    "CASE-FAMILY-RENAME",
+    "CASE-CONTAMINATION-UNKNOWN"
+  ]
+}

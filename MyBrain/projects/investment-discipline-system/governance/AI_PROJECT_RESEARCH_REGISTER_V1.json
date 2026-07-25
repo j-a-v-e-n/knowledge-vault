@@ -138,6 +138,36 @@
       "topic": "机械正确、真实采用与长期价值之间的 validation 缺口",
       "impact": "high",
       "status": "supported"
+    },
+    {
+      "id": "RC-18",
+      "topic": "证据语料完整性、更正撤回传播、检索 manifest 与来源簇去重",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-19",
+      "topic": "benchmark suitability、模拟市场口径、证券身份与决策成交因果",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-20",
+      "topic": "行为表格被机械填写、自我误报与 human presence 不等于冷静决定",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-21",
+      "topic": "长期停用后的重新授权、批准失效与语义过期",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-22",
+      "topic": "私人运行数据的保密恢复、目的地与保留生命周期",
+      "impact": "high",
+      "status": "supported"
     }
   ],
   "search_log": [
@@ -236,6 +266,31 @@
           "PaperAccount 未覆盖公司行动作用于账户生命周期"
         ],
         "disposition": "全部转为候选合同、蓝图、verification specs、主体记录和用户原文证据的设计修改；等待第二轮独立挑战"
+      },
+      {
+        "id": "CHALLENGE-02",
+        "candidate_commit": "c33ecbf19d07d2bf25ec07aeae974c51a8cd323f",
+        "candidate_tree": "7fb9c3a2157064ac4406afe032f54543263dd060",
+        "reviewer_subjects": ["SUBJECT-DESIGN-REVIEW-GOODALL-R2"],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md",
+        "new_architecture_changing_classes": ["RC-18", "RC-19", "RC-20", "RC-21", "RC-22"],
+        "critical_findings": [
+          "结构化 verification 标签仍可容纳 always-pass oracle、空负例和不存在的 selector/target",
+          "用户原文存在语义扩写，真实 validation 可被单次演示替代",
+          "Tiingo、长期评估和 field-use 条件门及其执行器不存在",
+          "来源模型没有更正撤回传播、检索 manifest 和来源簇去重",
+          "PIT、证券身份、市场日历、total-return benchmark 和决策成交时序不完整",
+          "experiment family 可重命名逃逸且没有统计裁决协议",
+          "human capability 未约束紧迫冲动或机械填表",
+          "Git 已推送只由本地 remote-tracking ref 声称"
+        ],
+        "major_findings": [
+          "Money 精度、守恒和复杂公司行动语义未冻结",
+          "restart/restore 未覆盖长期停用后的语义过期",
+          "私人备份缺少 at-rest 保密、目的地和保留边界"
+        ],
+        "disposition": "保持 challenge in_progress 与 stop_rule.met=false；补充领域规范、可执行 case、状态机和条件执行器后进行下一轮独立挑战"
       }
     ]
   },

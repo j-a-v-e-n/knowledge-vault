@@ -6,12 +6,12 @@
     {
       "id": "CTRL-GOV-FREEZE",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-做项目的用户立场检察官",
-      "implementation_targets": ["scripts/verify_governance.py", "scripts/verify_git_state.py", "scripts/freeze_governance.py", "scripts/verify_contract_supersession.py", "governance/FROZEN_BUNDLE_V1.json"]
+      "implementation_targets": ["scripts/verify_governance.py", "scripts/verify_git_state.py", "scripts/verify_remote_commit.py", "scripts/freeze_governance.py", "scripts/verify_contract_supersession.py", "governance/FROZEN_BUNDLE_V1.json"]
     },
     {
       "id": "CTRL-GOV-TRACE",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#保障主张",
-      "implementation_targets": ["governance/TRACEABILITY_V1.json", "governance/VERIFICATION_SPECS_V1.json", "governance/ASSURANCE_SUBJECTS_V1.json", "scripts/verify_release.py", "scripts/user_proxy_gate.py"]
+      "implementation_targets": ["governance/TRACEABILITY_V1.json", "governance/VERIFICATION_SPECS_V1.json", "governance/ACCEPTANCE_CASES_V1.json", "governance/IMPLEMENTATION_TARGETS_V1.json", "governance/ASSURANCE_SUBJECTS_V1.json", "scripts/verify_release.py", "scripts/user_proxy_gate.py"]
     },
     {
       "id": "CTRL-LOCAL-BOUNDARY",
@@ -59,6 +59,11 @@
       "implementation_targets": ["src/investment_discipline/evidence.py", "src/investment_discipline/sources.py", "src/investment_discipline/schema.sql"]
     },
     {
+      "id": "CTRL-EVIDENCE-REVISION",
+      "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#来源主张与新闻",
+      "implementation_targets": ["src/investment_discipline/evidence.py", "src/investment_discipline/sources.py", "src/investment_discipline/research.py"]
+    },
+    {
       "id": "CTRL-AI-CANDIDATE",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-是离线研究协作者",
       "implementation_targets": ["src/investment_discipline/recommendations.py", "src/investment_discipline/schemas.py"]
@@ -91,7 +96,7 @@
     {
       "id": "CTRL-MONEY-ACTIONS",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#纪律与账户",
-      "implementation_targets": ["src/investment_discipline/money.py", "src/investment_discipline/paper.py", "src/investment_discipline/market_data.py"]
+      "implementation_targets": ["governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json", "src/investment_discipline/money.py", "src/investment_discipline/corporate_actions.py", "src/investment_discipline/paper.py", "src/investment_discipline/market_data.py"]
     },
     {
       "id": "CTRL-HYPOTHESIS",
@@ -109,6 +114,11 @@
       "implementation_targets": ["src/investment_discipline/backtest.py"]
     },
     {
+      "id": "CTRL-MARKET-SIMULATION",
+      "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#回测与诚实评估",
+      "implementation_targets": ["governance/MARKET_SIMULATION_POLICY_V1.json", "src/investment_discipline/market_data.py", "src/investment_discipline/backtest.py", "src/investment_discipline/benchmark.py"]
+    },
+    {
       "id": "CTRL-REVIEW",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#三轨评估",
       "implementation_targets": ["src/investment_discipline/reviews.py", "src/investment_discipline/performance.py"]
@@ -116,7 +126,7 @@
     {
       "id": "CTRL-BEHAVIOR",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#行为设计",
-      "implementation_targets": ["src/investment_discipline/decisions.py", "web/index.html", "web/app.js", "web/styles.css"]
+      "implementation_targets": ["governance/FIELD_USE_PROTOCOL_V1.json", "src/investment_discipline/decisions.py", "src/investment_discipline/conditionals.py", "web/index.html", "web/app.js", "web/styles.css"]
     },
     {
       "id": "CTRL-WEB",
@@ -131,17 +141,17 @@
     {
       "id": "CTRL-BACKUP",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#私人运行备份",
-      "implementation_targets": ["src/investment_discipline/backup.py", "scripts/restore_drill.py"]
+      "implementation_targets": ["governance/PRIVATE_DATA_POLICY_V1.json", "src/investment_discipline/backup.py", "scripts/restore_drill.py"]
     },
     {
       "id": "CTRL-HEALTH",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#恢复与版本",
-      "implementation_targets": ["src/investment_discipline/health.py", "src/investment_discipline/migrations.py"]
+      "implementation_targets": ["src/investment_discipline/health.py", "src/investment_discipline/hiatus.py", "src/investment_discipline/migrations.py"]
     },
     {
       "id": "CTRL-SECURITY",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#本地网页工作台",
-      "implementation_targets": ["src/investment_discipline/server.py", "scripts/verify_static.py"]
+      "implementation_targets": ["governance/PRIVATE_DATA_POLICY_V1.json", "src/investment_discipline/server.py", "src/investment_discipline/backup.py", "scripts/verify_static.py"]
     },
     {
       "id": "CTRL-TIINGO",
@@ -161,12 +171,12 @@
     {
       "id": "CTRL-QUALITY",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-做项目的用户立场检察官",
-      "implementation_targets": ["governance_tests/", "tests/", "acceptance/", "scripts/verify_all.py", "scripts/user_proxy_gate.py"]
+      "implementation_targets": ["governance_tests/", "tests/", "acceptance/", "scripts/verify_all.py", "scripts/verify_conditionals.py", "scripts/user_proxy_gate.py"]
     }
   ],
   "links": [
     {"requirement_id": "REQ-GOV-001", "control_ids": ["CTRL-GOV-FREEZE"]},
-    {"requirement_id": "REQ-GOV-002", "control_ids": ["CTRL-GOV-TRACE"]},
+    {"requirement_id": "REQ-GOV-002", "control_ids": ["CTRL-GOV-TRACE", "CTRL-QUALITY"]},
     {"requirement_id": "REQ-GOV-003", "control_ids": ["CTRL-GOV-FREEZE", "CTRL-GOV-TRACE", "CTRL-QUALITY"]},
     {"requirement_id": "REQ-CORE-001", "control_ids": ["CTRL-LOCAL-BOUNDARY", "CTRL-SECURITY"]},
     {"requirement_id": "REQ-CORE-002", "control_ids": ["CTRL-DB"]},
@@ -178,10 +188,11 @@
     {"requirement_id": "REQ-DATA-003", "control_ids": ["CTRL-SNAPSHOT", "CTRL-TIINGO"]},
     {"requirement_id": "REQ-DATA-004", "control_ids": ["CTRL-CORPORATE-ACTIONS"]},
     {"requirement_id": "REQ-EVIDENCE-001", "control_ids": ["CTRL-EVIDENCE", "CTRL-SNAPSHOT", "CTRL-SECURITY"]},
-    {"requirement_id": "REQ-EVIDENCE-002", "control_ids": ["CTRL-EVIDENCE", "CTRL-GOV-TRACE"]},
+    {"requirement_id": "REQ-EVIDENCE-002", "control_ids": ["CTRL-EVIDENCE", "CTRL-EVIDENCE-REVISION", "CTRL-GOV-TRACE"]},
+    {"requirement_id": "REQ-EVIDENCE-003", "control_ids": ["CTRL-EVIDENCE", "CTRL-EVIDENCE-REVISION", "CTRL-HYPOTHESIS"]},
     {"requirement_id": "REQ-AI-001", "control_ids": ["CTRL-AI-CANDIDATE"]},
     {"requirement_id": "REQ-AI-002", "control_ids": ["CTRL-AI-CANDIDATE", "CTRL-HUMAN-DECISION", "CTRL-HUMAN-CAPABILITY", "CTRL-APPROVAL"]},
-    {"requirement_id": "REQ-HUMAN-001", "control_ids": ["CTRL-HUMAN-DECISION", "CTRL-HUMAN-CAPABILITY", "CTRL-BEHAVIOR"]},
+    {"requirement_id": "REQ-HUMAN-001", "control_ids": ["CTRL-HUMAN-DECISION", "CTRL-HUMAN-CAPABILITY", "CTRL-BEHAVIOR", "CTRL-POLICY"]},
     {"requirement_id": "REQ-RISK-001", "control_ids": ["CTRL-POLICY", "CTRL-HUMAN-CAPABILITY", "CTRL-BEHAVIOR"]},
     {"requirement_id": "REQ-RISK-002", "control_ids": ["CTRL-APPROVAL"]},
     {"requirement_id": "REQ-RISK-003", "control_ids": ["CTRL-APPROVAL", "CTRL-ACCOUNT"]},
@@ -190,19 +201,22 @@
     {"requirement_id": "REQ-PAPER-003", "control_ids": ["CTRL-ACCOUNT", "CTRL-MONEY-ACTIONS", "CTRL-CORPORATE-ACTIONS"]},
     {"requirement_id": "REQ-RESEARCH-001", "control_ids": ["CTRL-HYPOTHESIS"]},
     {"requirement_id": "REQ-RESEARCH-002", "control_ids": ["CTRL-HYPOTHESIS", "CTRL-RUN"]},
-    {"requirement_id": "REQ-RESEARCH-003", "control_ids": ["CTRL-HYPOTHESIS", "CTRL-EXPERIMENT-FAMILY", "CTRL-RUN"]},
+    {"requirement_id": "REQ-RESEARCH-003", "control_ids": ["CTRL-HYPOTHESIS", "CTRL-EXPERIMENT-FAMILY", "CTRL-MARKET-SIMULATION", "CTRL-RUN"]},
     {"requirement_id": "REQ-BACKTEST-001", "control_ids": ["CTRL-PIT", "CTRL-BACKTEST"]},
-    {"requirement_id": "REQ-BACKTEST-002", "control_ids": ["CTRL-BACKTEST", "CTRL-RUN"]},
+    {"requirement_id": "REQ-BACKTEST-002", "control_ids": ["CTRL-BACKTEST", "CTRL-MARKET-SIMULATION", "CTRL-RUN"]},
     {"requirement_id": "REQ-REVIEW-001", "control_ids": ["CTRL-REVIEW"]},
     {"requirement_id": "REQ-REVIEW-002", "control_ids": ["CTRL-REVIEW", "CTRL-LEDGER"]},
     {"requirement_id": "REQ-UX-001", "control_ids": ["CTRL-BEHAVIOR", "CTRL-WEB"]},
     {"requirement_id": "REQ-UX-002", "control_ids": ["CTRL-WEB", "CTRL-DB"]},
     {"requirement_id": "REQ-UX-003", "control_ids": ["CTRL-GRAPH", "CTRL-DB"]},
+    {"requirement_id": "REQ-UX-004", "control_ids": ["CTRL-BEHAVIOR", "CTRL-HUMAN-CAPABILITY", "CTRL-REVIEW", "CTRL-QUALITY"]},
     {"requirement_id": "REQ-OPS-001", "control_ids": ["CTRL-BACKUP", "CTRL-ANCHOR"]},
     {"requirement_id": "REQ-OPS-002", "control_ids": ["CTRL-BACKUP", "CTRL-DOCS", "CTRL-QUALITY"]},
     {"requirement_id": "REQ-OPS-003", "control_ids": ["CTRL-HEALTH", "CTRL-DB"]},
+    {"requirement_id": "REQ-OPS-004", "control_ids": ["CTRL-HEALTH", "CTRL-POLICY", "CTRL-HUMAN-CAPABILITY", "CTRL-WEB"]},
     {"requirement_id": "REQ-SEC-001", "control_ids": ["CTRL-SECURITY", "CTRL-WEB"]},
     {"requirement_id": "REQ-SEC-002", "control_ids": ["CTRL-SECURITY", "CTRL-BACKUP"]},
+    {"requirement_id": "REQ-SEC-003", "control_ids": ["CTRL-SECURITY", "CTRL-BACKUP", "CTRL-DOCS"]},
     {"requirement_id": "REQ-PROVIDER-001", "control_ids": ["CTRL-TIINGO", "CTRL-SNAPSHOT"]},
     {"requirement_id": "REQ-PROVIDER-002", "control_ids": ["CTRL-EXT-PAPER", "CTRL-LOCAL-BOUNDARY"]},
     {"requirement_id": "REQ-DOC-001", "control_ids": ["CTRL-DOCS", "CTRL-BACKUP"]},

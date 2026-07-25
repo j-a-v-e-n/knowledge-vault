@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "threat_model": {
+    "protects_against": ["accidental Git inclusion", "other local users under normal OS permissions", "accidental cloud-sync placement", "unredacted export/log leakage", "corrupt or incomplete backup"],
+    "does_not_claim": ["protection from malware or an administrator with full OS access", "application-level encryption in V1", "recovery of an OS/FileVault key the application never possesses"]
+  },
+  "runtime_storage": {
+    "default": "~/Library/Application Support/InvestmentDisciplineSystem",
+    "must_be_outside": ["Git repository", "project directory", "known cloud-sync roots"],
+    "directory_mode": "0700",
+    "file_mode": "0600",
+    "symlink_components_allowed": false
+  },
+  "backup_storage": {
+    "default": "~/Library/Application Support/InvestmentDisciplineSystem/backups",
+    "destination_rule": "destination must be outside project/Git/known sync roots and reside on an OS-encrypted volume whose status is recorded; unknown or unprotected status blocks personal acceptance unless Javen explicitly accepts that residual risk outside the project files",
+    "application_encryption": "not_implemented_do_not_invent_crypto",
+    "immutability": "backup writes a new nonexisting directory and never overwrites an earlier backup",
+    "retention": "no automatic deletion in V1; deletion is a separate explicit user action and not delegated to AI",
+    "manifest": ["classification", "source database hash", "anchor hash", "artifact hashes", "schema", "app commit", "permissions", "encryption-status observation", "created_at"]
+  },
+  "classification": {
+    "public_git_ok": ["code", "schemas", "fixtures", "redacted acceptance summaries"],
+    "private_runtime_only": ["research database", "full prompts", "human decision text", "market data whose license forbids redistribution", "human capability verifier"],
+    "secret_never_export": ["plaintext passphrase", "session secret", "provider token", "broker credential"]
+  },
+  "logs_and_exports": {
+    "allowlist_fields_only": true,
+    "tokens_and_confirmation_material": "redacted before persistence",
+    "full_private_export": "requires authenticated human action and writes only to a validated private destination"
+  },
+  "required_reference_cases": [
+    "CASE-BACKUP-SYNC-ROOT-REJECTED",
+    "CASE-BACKUP-PERMISSIONS",
+    "CASE-BACKUP-UNENCRYPTED-STATUS",
+    "CASE-BACKUP-NO-OVERWRITE",
+    "CASE-SECRET-EXPORT-REDACTION"
+  ]
+}

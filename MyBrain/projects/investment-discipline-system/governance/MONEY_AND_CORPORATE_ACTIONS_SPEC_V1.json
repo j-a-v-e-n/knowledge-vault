@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "scope": "本地 USD、long-only PaperAccount 的确定性会计语义；不是券商会计、税务或实盘成交模型。",
+  "decimal_context": {
+    "rounding": "ROUND_HALF_EVEN",
+    "price_quantum": "0.000001",
+    "quantity_quantum": "0.00000001",
+    "money_quantum": "0.01",
+    "fee_quantum": "0.01",
+    "ratio_quantum": "0.00000001",
+    "float_input_allowed": false,
+    "canonical_input": "base-10 string parsed directly as Decimal"
+  },
+  "booking_rules": [
+    {
+      "id": "MONEY-BOOK-BUY",
+      "formula": "notional=Q(price*quantity,money); cash_after=Q(cash_before-notional-fee,money); position_after=Q(position_before+quantity,quantity)",
+      "invariants": ["cash_delta + notional + fee == 0", "quantity_delta == filled_quantity"]
+    },
+    {
+      "id": "MONEY-BOOK-SELL",
+      "formula": "notional=Q(price*quantity,money); cash_after=Q(cash_before+notional-fee,money); position_after=Q(position_before-quantity,quantity)",
+      "invariants": ["cash_delta - notional + fee == 0", "quantity_delta == -filled_quantity", "position_after >= 0"]
+    },
+    {
+      "id": "MONEY-NAV",
+      "formula": "nav=Q(cash + sum(Q(mark_price*position_quantity,money)),money)",
+      "invariants": ["each position has one as-of mark or NAV status is incomplete", "stale or unresolved action never becomes zero silently"]
+    }
+  ],
+  "corporate_action_matrix": [
+    {
+      "type": "split",
+      "v1_mode": "automatic",
+      "effect": "quantity=Q(quantity*ratio,quantity); per_share_cost=Q(per_share_cost/ratio,price); total_cost unchanged subject only to declared quantization",
+      "idempotency_key": "provider+security_id+effective_at+action_type+revision_id"
+    },
+    {
+      "type": "reverse_split",
+      "v1_mode": "automatic_with_cash_in_lieu_pending_if_fraction_disallowed",
+      "effect": "same conservation rule as split; unresolved cash-in-lieu enters action_pending_manual and freezes affected security"
+    },
+    {
+      "type": "cash_dividend",
+      "v1_mode": "automatic",
+      "effect": "cash_delta=Q(eligible_quantity*cash_per_share,money); position quantity unchanged; event uses ex/pay dates separately"
+    },
+    {
+      "type": "ticker_or_name_change",
+      "v1_mode": "automatic_identity_alias",
+      "effect": "stable security_id unchanged; symbol validity interval closes and new interval opens"
+    },
+    {
+      "type": "cash_merger",
+      "v1_mode": "pending_manual",
+      "effect": "affected security and dependent NAV/risk enter action_pending_manual until terms are confirmed"
+    },
+    {
+      "type": "stock_merger",
+      "v1_mode": "pending_manual",
+      "effect": "no automatic quantity/cost transformation in V1"
+    },
+    {
+      "type": "spinoff",
+      "v1_mode": "pending_manual",
+      "effect": "no automatic basis allocation in V1"
+    },
+    {
+      "type": "cash_in_lieu",
+      "v1_mode": "pending_manual",
+      "effect": "no guessed cash amount; affected reconciliation remains open"
+    },
+    {
+      "type": "delisting_or_bankruptcy",
+      "v1_mode": "pending_manual",
+      "effect": "position is never silently valued at zero; mark status unresolved until explicit evidence and event"
+    },
+    {
+      "type": "correction_or_reversal",
+      "v1_mode": "compensating_event_only",
+      "effect": "original action/event is immutable; correction creates a linked revision and compensating account event"
+    }
+  ],
+  "transaction_boundary": "order/fill, fee, cash, position, action event, materialized state, audit event and anchor outbox are committed in one SQLite transaction; any injected failure leaves all pre-transaction values unchanged.",
+  "unknown_action_policy": "fail closed for affected security, NAV confidence and new risk approvals; unaffected securities remain available if portfolio-level exposure can still be computed without guessing.",
+  "required_reference_cases": [
+    "CASE-MONEY-AUDIT-ROLLBACK",
+    "CASE-MONEY-ROUNDING",
+    "CASE-SPLIT-IDEMPOTENT",
+    "CASE-DIVIDEND-IDEMPOTENT",
+    "CASE-CORP-ACTION-UNKNOWN",
+    "CASE-CORP-ACTION-CORRECTION"
+  ]
+}
