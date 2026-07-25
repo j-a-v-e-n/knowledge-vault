@@ -297,6 +297,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "HEAD",
         )
         self.make_research_sufficiency_eligible(preregistration_commit)
+        self.refresh_component_registry_locators()
         refresh = self.run_project_script(
             PROJECT_ROOT / "scripts" / "refresh_ground_truth_manifest.py"
         )
@@ -365,6 +366,27 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             json.dumps(value, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
+
+    def refresh_component_registry_locators(self) -> None:
+        relative = "governance/COMPONENT_REGISTRY_V1.json"
+        registry = self.read_json(relative)
+
+        def refresh(value: Any) -> None:
+            if isinstance(value, dict):
+                path = value.get("path")
+                declared_hash = value.get("sha256")
+                if isinstance(path, str) and isinstance(declared_hash, str):
+                    target = self.root / path
+                    if target.is_file() and not target.is_symlink():
+                        value["sha256"] = sha256_file(target)
+                for child in value.values():
+                    refresh(child)
+            elif isinstance(value, list):
+                for child in value:
+                    refresh(child)
+
+        refresh(registry)
+        self.write_json(relative, registry)
 
     def make_research_sufficiency_eligible(
         self,

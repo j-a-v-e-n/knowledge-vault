@@ -448,6 +448,7 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.assert_rejected("trusted Git remote policy differs")
 
     def test_frozen_mode_rejects_open_research(self) -> None:
+        self.write_json("governance/FROZEN_BUNDLE_V1.json", {})
         result = self.run_verifier(frozen=True)
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("research independent challenge is not completed", result.stdout)
