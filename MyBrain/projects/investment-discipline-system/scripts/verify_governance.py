@@ -81,6 +81,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "governance_tests/test_final_review_attacks.py",
     "governance_tests/test_final_review_schema.py",
     "governance_tests/test_attack_runner.py",
+    "governance_tests/test_research_sufficiency.py",
     "governance_tests/test_research_evidence_governance.py",
     "governance_tests/test_verify_conditionals.py",
     "governance_tests/test_freeze_git_remote.py",
