@@ -205,14 +205,20 @@ class FrozenTestIntegrityMutationTests(unittest.TestCase):
         path.write_text(source.replace(old, new, 1), encoding="utf-8")
 
     def test_unmodified_isolated_baseline_executes_every_selector(self) -> None:
+        manifest = self.read_json(MANIFEST_RELATIVE)
+        expected_selector_count = len(manifest["tests"])
+        self.assertGreater(expected_selector_count, 0)
         self.assertEqual(
             0, self.baseline_result.returncode, self.baseline_result.stdout
         )
         self.assertEqual("pass", self.baseline_payload["status"])
-        self.assertEqual(6, self.baseline_payload["selectors_checked"])
+        self.assertEqual(
+            expected_selector_count,
+            self.baseline_payload["selectors_checked"],
+        )
         baseline = self.baseline_payload["baseline"]
         self.assertEqual("pass", baseline["status"])
-        self.assertEqual(6, baseline["tests_run"])
+        self.assertEqual(expected_selector_count, baseline["tests_run"])
         for field in (
             "failures",
             "errors",
@@ -222,7 +228,7 @@ class FrozenTestIntegrityMutationTests(unittest.TestCase):
         ):
             self.assertEqual(0, baseline[field], field)
         self.assertEqual(
-            [1] * 6,
+            [1] * expected_selector_count,
             [item["count"] for item in baseline["loaded_counts"]],
         )
 
@@ -242,19 +248,27 @@ class FrozenTestIntegrityMutationTests(unittest.TestCase):
     def test_real_baseline_execution_rejects_broken_transitive_behavior(self) -> None:
         self.replace_once(
             RUN_ASSURANCE_RELATIVE,
-            "        process_exit = 124\n",
-            "        process_exit = 0\n",
+            '        "timed_out": timed_out,\n'
+            '        "actual_process_exit": process_exit,\n'
+            '        "stdout_sha256": sha256_bytes(stdout.encode("utf-8")),\n',
+            '        "timed_out": timed_out,\n'
+            '        "actual_process_exit": 0,\n'
+            '        "stdout_sha256": sha256_bytes(stdout.encode("utf-8")),\n',
         )
         payload = self.assert_baseline_rejection(
             "frozen-test baseline failures differs"
         )
-        self.assertEqual(6, payload["baseline"]["tests_run"])
+        expected_selector_count = len(self.read_json(MANIFEST_RELATIVE)["tests"])
+        self.assertEqual(
+            expected_selector_count,
+            payload["baseline"]["tests_run"],
+        )
         self.assertEqual(1, payload["baseline"]["failures"])
 
     def test_manifest_cannot_drop_selector_and_lower_claimed_test_count(self) -> None:
         manifest = self.read_json(MANIFEST_RELATIVE)
         manifest["tests"].pop()
-        manifest["baseline"]["expected"]["tests_run"] = 5
+        manifest["baseline"]["expected"]["tests_run"] = len(manifest["tests"])
         self.write_json(MANIFEST_RELATIVE, manifest)
         payload = self.assert_static_rejection(
             "frozen-test selector identities or order differ"
@@ -312,8 +326,9 @@ class FrozenTestIntegrityMutationTests(unittest.TestCase):
     def test_assertion_deletion_is_rejected(self) -> None:
         self.replace_once(
             ASSURANCE_RUNNER_RELATIVE,
-            '        self.assertEqual(receipt["result"], "fail")\n',
-            "",
+            '            self.assertEqual(receipt["result"], "fail")\n'
+            '            self.assertEqual(receipt["actual_process_exit"], 124)\n',
+            '            self.assertEqual(receipt["actual_process_exit"], 124)\n',
         )
         self.assert_static_rejection("assertion count mismatch for frozen-test method")
 
