@@ -6,7 +6,7 @@
     {
       "id": "CTRL-GOV-FREEZE",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-做项目的用户立场检察官",
-      "implementation_targets": ["scripts/verify_governance.py", "scripts/verify_git_state.py", "scripts/verify_remote_commit.py", "scripts/freeze_governance.py", "scripts/verify_contract_supersession.py", "scripts/run_design_freeze_attack.py", "scripts/replay_design_freeze_attacks.py", "scripts/run_assurance_ci.py", "scripts/refresh_ground_truth_manifest.py", "scripts/verify_assurance_metadata.py", "scripts/verify_research_sufficiency.py", "governance/FROZEN_BUNDLE_V1.json", "governance/ASSURANCE_TRUST_MODEL_V1.json", "governance/RESEARCH_SUFFICIENCY_V1.json"]
+      "implementation_targets": ["scripts/verify_governance.py", "scripts/verify_git_state.py", "scripts/verify_remote_commit.py", "scripts/freeze_governance.py", "scripts/verify_contract_supersession.py", "scripts/run_design_freeze_attack.py", "scripts/replay_design_freeze_attacks.py", "scripts/run_assurance_ci.py", "scripts/run_governance_regression.py", "scripts/refresh_ground_truth_manifest.py", "scripts/verify_assurance_metadata.py", "scripts/verify_research_sufficiency.py", "governance/FROZEN_BUNDLE_V1.json", "governance/ASSURANCE_TRUST_MODEL_V1.json", "governance/RESEARCH_SUFFICIENCY_V1.json"]
     },
     {
       "id": "CTRL-GOV-TRACE",

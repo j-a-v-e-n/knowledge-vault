@@ -54,7 +54,7 @@
     "git_content": {
       "repository": "j-a-v-e-n/knowledge-vault",
       "remote_name": "origin",
-      "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",
+      "fetch_url": "https://github.com/j-a-v-e-n/knowledge-vault.git",
       "branch": "main",
       "project_prefix": "MyBrain/projects/investment-discipline-system/",
       "required_observations": [
@@ -68,7 +68,7 @@
       "repository": "j-a-v-e-n/knowledge-vault",
       "repository_visibility": "public",
       "workflow_path": ".github/workflows/investment-discipline-assurance.yml",
-      "workflow_sha256": "78f2c09834cb071977bcc6f71b4a1084df98c109282c5dd5d8f49285631f4ed5",
+      "workflow_sha256": "22d917f13b41cab8112881a4cf33890e4bf592f0ab736af3d6db663978e296c4",
       "workflow_ref_policy": "exact workflow path on the exact candidate commit",
       "oidc_issuer": "https://token.actions.githubusercontent.com",
       "attested_artifact_name": "investment-discipline-assurance-manifest",

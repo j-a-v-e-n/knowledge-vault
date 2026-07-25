@@ -83,7 +83,7 @@ class AttackRunnerTests(unittest.TestCase):
             "remote",
             "add",
             "origin",
-            "git@github.com:j-a-v-e-n/knowledge-vault.git",
+            "https://github.com/j-a-v-e-n/knowledge-vault.git",
         )
         cls.git("add", ".")
         cls.git("commit", "-m", "exact candidate fixture")
@@ -293,6 +293,46 @@ class AttackRunnerTests(unittest.TestCase):
             self.assertEqual(result["baseline_verifier_exit"], 0)
             self.assertNotEqual(result["target_verifier_exit"], 0)
             self.assertEqual(result["result"], "rejected")
+
+    def test_full_replay_fails_closed_on_null_runner_sections(self) -> None:
+        original_runner = self.runner.read_bytes()
+        malformed_runner = """#!/usr/bin/env python3
+import json
+import sys
+
+print(json.dumps({"baseline": None, "target": None}))
+sys.exit(1)
+"""
+        try:
+            self.runner.write_text(malformed_runner, encoding="utf-8")
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(
+                        self.root
+                        / "scripts"
+                        / "replay_design_freeze_attacks.py"
+                    ),
+                    "--candidate-commit",
+                    self.candidate,
+                ],
+                cwd=self.root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+        finally:
+            self.runner.write_bytes(original_runner)
+        self.assertEqual(completed.returncode, 1, completed.stdout)
+        self.assertNotIn("Traceback", completed.stdout)
+        payload = json.loads(completed.stdout)
+        self.assertEqual(payload["status"], "fail")
+        self.assertEqual(len(payload["results"]), len(ATTACK_IDS))
+        for result in payload["results"]:
+            self.assertIsNone(result["baseline_verifier_exit"])
+            self.assertIsNone(result["target_verifier_exit"])
+            self.assertEqual(result["result"], "escaped_or_runner_error")
 
 
 if __name__ == "__main__":

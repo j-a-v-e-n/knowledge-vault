@@ -576,6 +576,19 @@ def verify_workflow_execution_boundary(path: Path, errors: list[str]) -> None:
         errors.append(
             "trust workflow: checkout must disable persisted Git credentials"
         )
+    trusted_fetch_normalization = (
+        "      - name: Normalize the trusted public fetch URL\n"
+        "        run: >-\n"
+        "          git remote set-url origin\n"
+        "          https://github.com/j-a-v-e-n/knowledge-vault.git\n"
+    )
+    if (
+        text.count(trusted_fetch_normalization) != 1
+        or text.count("git remote set-url") != 1
+    ):
+        errors.append(
+            "trust workflow: trusted public fetch URL normalization differs"
+        )
 
     failure_manifest_locator = (
         "hashFiles('MyBrain/projects/investment-discipline-system/"

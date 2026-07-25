@@ -68,6 +68,7 @@
     "scripts/run_design_freeze_attack.py",
     "scripts/replay_design_freeze_attacks.py",
     "scripts/run_assurance_ci.py",
+    "scripts/run_governance_regression.py",
     "scripts/run_project_method_acceptance.py",
     "scripts/refresh_ground_truth_manifest.py",
     "scripts/verify_research_sufficiency.py",
@@ -1002,7 +1003,7 @@
     },
     "trusted_git_remote": {
       "name": "origin",
-      "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",
+      "fetch_url": "https://github.com/j-a-v-e-n/knowledge-vault.git",
       "branch": "main",
       "project_prefix": "MyBrain/projects/investment-discipline-system/"
     },

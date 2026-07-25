@@ -228,14 +228,14 @@ def main() -> int:
             "CHECK-GOVERNANCE-REGRESSION",
             [
                 sys.executable,
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "governance_tests",
-                "-v",
+                str(
+                    PROJECT_ROOT
+                    / "scripts"
+                    / "run_governance_regression.py"
+                ),
             ],
-            timeout_seconds=1200,
+            parse_json=True,
+            timeout_seconds=1500,
         ),
         execute_check(
             "CHECK-COMPILEALL",

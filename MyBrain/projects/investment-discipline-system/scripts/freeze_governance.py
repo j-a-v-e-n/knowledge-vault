@@ -107,15 +107,10 @@ MACHINE_CHECK_SPECS = {
     "CHECK-GOVERNANCE-REGRESSION": {
         "argv": [
             "PYTHON",
-            "-m",
-            "unittest",
-            "discover",
-            "-s",
-            "governance_tests",
-            "-v",
+            "scripts/run_governance_regression.py",
         ],
         "cwd": "PROJECT_ROOT",
-        "structured": False,
+        "structured": True,
     },
     "CHECK-COMPILEALL": {
         "argv": ["PYTHON", "-m", "compileall", "-q", "."],

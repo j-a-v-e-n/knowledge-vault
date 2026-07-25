@@ -25,7 +25,7 @@ SOURCE_REPOSITORY_ROOT = Path(
 WORKFLOW_PATH = Path(
     ".github/workflows/investment-discipline-assurance.yml"
 )
-REMOTE_URL = "git@github.com:j-a-v-e-n/knowledge-vault.git"
+REMOTE_URL = "https://github.com/j-a-v-e-n/knowledge-vault.git"
 
 
 class GovernanceVerifierMutationTests(unittest.TestCase):

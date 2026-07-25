@@ -91,10 +91,6 @@
       "kind": "file"
     },
     {
-      "path": "scripts/run_assurance_ci.py",
-      "kind": "file"
-    },
-    {
       "path": "scripts/run_project_method_acceptance.py",
       "kind": "file"
     },

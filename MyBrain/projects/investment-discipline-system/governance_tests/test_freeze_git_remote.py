@@ -226,7 +226,8 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         production_policy = (
             "EXPECTED_TRUSTED_GIT_REMOTE = {\n"
             '    "name": "origin",\n'
-            '    "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",\n'
+            '    "fetch_url": '
+            '"https://github.com/j-a-v-e-n/knowledge-vault.git",\n'
             '    "branch": "main",\n'
             '    "project_prefix": '
             '"MyBrain/projects/investment-discipline-system/",\n'
@@ -950,13 +951,12 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
                 "CHECK-GOVERNANCE-REGRESSION",
                 [
                     "PYTHON",
-                    "-m",
-                    "unittest",
-                    "discover",
-                    "-s",
-                    "governance_tests",
-                    "-v",
+                    "scripts/run_governance_regression.py",
                 ],
+                structured_result={
+                    "status": "pass",
+                    "coverage_complete": True,
+                },
             ),
             machine_check(
                 "CHECK-COMPILEALL",

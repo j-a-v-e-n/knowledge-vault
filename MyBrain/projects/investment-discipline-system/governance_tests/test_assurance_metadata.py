@@ -21,7 +21,7 @@ FAILURE_REGISTRY = Path("governance/FAILURE_CLASSES_V1.json")
 DECISION_AUTHORITY = Path("governance/DECISION_AUTHORITY_V1.json")
 RESEARCH_REGISTER = Path("governance/AI_PROJECT_RESEARCH_REGISTER_V1.json")
 PRIVATE_DATA_POLICY = Path("governance/PRIVATE_DATA_POLICY_V1.json")
-REMOTE_URL = "git@github.com:j-a-v-e-n/knowledge-vault.git"
+REMOTE_URL = "https://github.com/j-a-v-e-n/knowledge-vault.git"
 
 
 def source_repository_root() -> Path:
@@ -392,13 +392,13 @@ class AssuranceMetadataMutationTests(unittest.TestCase):
         workflow = self.repository / WORKFLOW_PATH
         workflow_text = workflow.read_text(encoding="utf-8")
         self.assertIn(
-            "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
             workflow_text,
         )
         workflow.write_text(
             workflow_text.replace(
-                "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
-                "actions/checkout@v4",
+                "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "actions/checkout@v7",
                 1,
             ),
             encoding="utf-8",
@@ -409,6 +409,30 @@ class AssuranceMetadataMutationTests(unittest.TestCase):
         self.write_document(TRUST_MODEL, trust)
         self.refresh_manifest_entries(TRUST_MODEL, WORKFLOW_PATH)
         self.assert_rejected("is not pinned to a full commit SHA")
+
+    def test_rejects_changed_trusted_fetch_normalization(self) -> None:
+        workflow = self.repository / WORKFLOW_PATH
+        workflow_text = workflow.read_text(encoding="utf-8")
+        trusted_url = "https://github.com/j-a-v-e-n/knowledge-vault.git"
+        self.assertEqual(workflow_text.count(trusted_url), 1)
+        workflow.write_text(
+            workflow_text.replace(
+                trusted_url,
+                "https://github.com/attacker/knowledge-vault.git",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        trust = self.read_document(TRUST_MODEL)
+        machine = trust["trust_roots"]["github_actions_machine_execution"]
+        machine["workflow_sha256"] = hashlib.sha256(
+            workflow.read_bytes()
+        ).hexdigest()
+        self.write_document(TRUST_MODEL, trust)
+        self.refresh_manifest_entries(TRUST_MODEL, WORKFLOW_PATH)
+        self.assert_rejected(
+            "trusted public fetch URL normalization differs"
+        )
 
     def test_rejects_self_hosted_runner(self) -> None:
         workflow = self.repository / WORKFLOW_PATH

@@ -62,7 +62,7 @@ REPOSITORY_SCOPE_PREFIX = "@repo/"
 INNER_REMOTE_CONTEXT_ENV = "IDS_FROZEN_REMOTE_INNER_CONTEXT_V1"
 EXPECTED_TRUSTED_GIT_REMOTE = {
     "name": "origin",
-    "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",
+    "fetch_url": "https://github.com/j-a-v-e-n/knowledge-vault.git",
     "branch": "main",
     "project_prefix": "MyBrain/projects/investment-discipline-system/",
 }
@@ -98,6 +98,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/run_design_freeze_attack.py",
     "scripts/replay_design_freeze_attacks.py",
     "scripts/run_assurance_ci.py",
+    "scripts/run_governance_regression.py",
     "scripts/refresh_ground_truth_manifest.py",
     "scripts/verify_assurance_metadata.py",
     "scripts/verify_component_registry.py",
@@ -119,6 +120,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "governance_tests/test_final_review_schema.py",
     "governance_tests/test_attack_runner.py",
     "governance_tests/test_assurance_metadata.py",
+    "governance_tests/test_governance_regression_runner.py",
     "governance_tests/test_component_registry.py",
     "governance_tests/test_contract_supersession.py",
     "governance_tests/test_context_recovery.py",

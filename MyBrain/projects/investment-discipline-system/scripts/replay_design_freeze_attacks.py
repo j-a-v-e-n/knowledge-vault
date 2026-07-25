@@ -162,8 +162,10 @@ def main() -> int:
             candidate_tree=candidate_tree,
             actual_process_exit=completed.returncode,
         )
-        baseline = receipt.get("baseline", {}) if isinstance(receipt, dict) else {}
-        target = receipt.get("target", {}) if isinstance(receipt, dict) else {}
+        raw_baseline = receipt.get("baseline") if isinstance(receipt, dict) else None
+        raw_target = receipt.get("target") if isinstance(receipt, dict) else None
+        baseline = raw_baseline if isinstance(raw_baseline, dict) else {}
+        target = raw_target if isinstance(raw_target, dict) else {}
         results.append(
             {
                 "attack_id": attack_id,

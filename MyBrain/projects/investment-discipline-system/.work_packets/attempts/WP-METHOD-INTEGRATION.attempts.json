@@ -2,7 +2,7 @@
   "schema_version": "execution-attempt-ledger/v1",
   "packet_id": "WP-METHOD-INTEGRATION",
   "packet_path": ".work_packets/packets/WP-METHOD-INTEGRATION.packet.json",
-  "packet_contract_sha256": "94b2fbe516cc3cafc75caa59ca91622695f5aa817b62bb4aa6558ce3a9080a3c",
+  "packet_contract_sha256": "2d3ce69caefc07c9e3a9b1e308b890ba6075b68b3159dfd7d1e3c94dc523aae0",
   "reported_state": "active",
   "cost_accounting_claim": "partial",
   "attempts": [
