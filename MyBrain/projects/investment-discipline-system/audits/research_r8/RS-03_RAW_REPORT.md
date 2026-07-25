@@ -1,3 +1,476 @@
+# RESEARCH-REFRESH-R8 / RS-03 raw report
+
+## Final status
+
+`bounded_incomplete`
+
+Design result: the provider-neutral Paper V1 contract is sufficiently supported to **strong-freeze with five explicit high-impact refinements**:
+
+1. separate `market_return_series` from `paper_account_ledger` calculation context;
+2. preserve exact-byte, append-only revision lineage;
+3. freeze the minimum split/cash-dividend gold boundary;
+4. distinguish `as_observed_at_decision` from `latest_restated_at_retrieval`;
+5. distinguish `raw_as_traded`, `pit_adjusted`, and `latest_back_adjusted` with an adjustment cutoff.
+
+Provider capability remains conditional: public Tiingo material does not prove account-specific license, retention, PIT replay, coverage, or revision behavior; public Alpaca Paper material supports only a read-only observer/reconciliation role and explicitly does not simulate dividends.
+
+The preregistered stability rule passed: S2 was the last high-impact delta and the later reserved S3 query produced no new high-impact failure class, decision reversal, or open critical/major contradiction.
+
+The topic still cannot close because **no independent reviewer has issued a per-claim entailment verdict**. This report deliberately does not self-review entailment. Required source bytes, query accounting, contradictions, executable deltas, stability, and residual risks are present; independent review remains false, so the preregistered final state must be `bounded_incomplete`.
+
+## Scope and guardrails
+
+- Research topic: `RS-03`
+- Question: whether Paper V1's provider-neutral data contract, PIT times, license state, revisions, and corporate-action boundary are sufficient to freeze.
+- Writes were limited to:
+  - `audits/research_r8/RS-03_RAW_REPORT.md`
+  - `research/evidence/r8/RS-03/**`
+- No governance, prototype, scripts, shared project documents, or other agents' files were modified.
+- No private credential was accessed, requested, displayed, recorded, or uploaded.
+- No Tiingo or Alpaca private account, token, entitlement, endpoint, order, fill, or reconciliation test was performed.
+- Direct opens and exact-byte downloads used only public locators.
+
+## Preregistration and temporal proof
+
+### Frozen boundary
+
+- Preregistration file: `research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json`
+- Required commit: `7824a63afe923d5e38c0c6f06577a7d1adfb81d5`
+- Git commit timestamp: `2026-07-25T09:13:44-07:00`
+- Required UTC boundary: `2026-07-25T16:13:44Z`
+- Required file SHA-256: `613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8`
+- Observed file SHA-256: `613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8`
+- File size read before search: `19278` bytes
+- File length read before search: `418` lines
+- Initial HEAD: exactly `7824a63afe923d5e38c0c6f06577a7d1adfb81d5`
+- Initial working tree: clean
+- Diff from required commit to preregistration file: none
+
+The full preregistration file was read before any counted query. The first query started at `2026-07-25T16:17:07Z`, after the required UTC boundary.
+
+### Later evidence-commit ancestry
+
+Concurrent `vault backup` advanced the branch during the research. The RS-03 author did not create, amend, revert, or attribute those commits. The required preregistration commit returned exit `0` for `git merge-base --is-ancestor` against every later commit visible at the ancestry check:
+
+| Later commit | Git timestamp | Subject | RS-03 content observed |
+|---|---|---|---|
+| `216dde18eefb6e6e26ce3d3082252cc128c6bcd3` | `2026-07-25T09:18:09-07:00` | `vault backup: 2026-07-25 09:18:09` | none |
+| `1ebc3f3592953cb4fe52821cd551a70921b657fb` | `2026-07-25T09:23:17-07:00` | `vault backup: 2026-07-25 09:23:17` | discovery freeze, S1 and S2 delta records |
+| `9a930cee9915510e01880b96b6f1f2d7be476bd0` | `2026-07-25T09:28:40-07:00` | `vault backup: 2026-07-25 09:28:39` | S3 record and exact source snapshots |
+| `98bdf382cf34c7cc3ca5f6e889983e51c60e1695` | `2026-07-25T09:33:58-07:00` | `vault backup: 2026-07-25 09:33:58` | derivative text, manifest, and failure receipts |
+| `c768ea481507a16a605cd7bdc05a83a7f8b5d8db` | `2026-07-25T09:38:36-07:00` | `vault backup: 2026-07-25 09:38:36` | complete query ledger |
+
+At that check, current HEAD was `c768ea481507a16a605cd7bdc05a83a7f8b5d8db`; the preregistration commit was its ancestor. Retrieval times and search calls below are all later than the preregistration UTC.
+
+## Exact query accounting
+
+Every query was executed in its own search-tool call, exactly once, with unchanged text. No batched, rewritten, expanded, or sixth query was issued.
+
+| Query ID | Exact query | Search-call UTC | Visible results |
+|---|---|---|---:|
+| `R8-RS03-D1` | `CRSP stock return calculations distributions splits dividends methodology PDF` | `2026-07-25T16:17:07Z` → `2026-07-25T16:17:22Z` | 35 |
+| `R8-RS03-D2` | `official corporate action event effective ex date cash dividend stock split data standard` | `2026-07-25T16:17:30Z` → `2026-07-25T16:17:39Z` | 32 |
+| `R8-RS03-S1` | `point in time market data correction revision available timestamp methodology` | `2026-07-25T16:20:49Z` → `2026-07-25T16:20:57Z` | 24 |
+| `R8-RS03-S2` | `counterexample adjusted historical price lookahead corporate action backtest` | `2026-07-25T16:22:00Z` → `2026-07-25T16:22:12Z` | 35 |
+| `R8-RS03-S3` | `market data license personal use cache retention termination API terms` | `2026-07-25T16:23:12Z` → `2026-07-25T16:23:22Z` | 17 |
+
+The complete result ledger contains every visible result in backend presentation order, with unique query ownership, class, upstream cluster, inclusion/exclusion decision, reason, and revision/supersession state:
+
+- Evidence file: `research/evidence/r8/RS-03/receipts/QUERY_LEDGER.md`
+- SHA-256: `7a91adece4f3338b4cf5c39df65b713c929c4b963b21b36dc0a45cf68f63beb6`
+- Per-query row-count verification: D1 `35`, D2 `32`, S1 `24`, S2 `35`, S3 `17`
+- Search-tool truncation marker observed: none
+
+The same complete ledger is copied verbatim into Appendix A of this report.
+
+## Discovery freeze proof
+
+D1 and D2 were completed before any S query. Discovery claims and deltas were frozen at `2026-07-25T16:19:34Z`:
+
+- File: `research/evidence/r8/RS-03/00_DISCOVERY_FREEZE.md`
+- SHA-256 before S1: `95817561dd206b04bc81bb14fa98eef2369739d85cdf628323963930d11180b8`
+- Hash proof time: `2026-07-25T16:20:42Z`
+- S queries executed before freeze: none
+
+Discovery froze three high-impact deltas:
+
+- `RS03-R8-D-DELTA-01`: calculation-context separation;
+- `RS03-R8-D-DELTA-02`: observable append-only revision lineage;
+- `RS03-R8-D-DELTA-03`: minimum automatic split/cash-dividend gold boundary.
+
+Later stability evidence did not rewrite the discovery freeze. S1 and S2 added separately recorded deltas; S3 supplied a separately recorded no-delta adjudication.
+
+## Saved source snapshots and manifest
+
+Manifest:
+
+- Path: `research/evidence/r8/RS-03/manifest.json`
+- SHA-256: `004ed1b4aa8f8ac0858929257aa6f5525cfeac6144b6e4d1f454d3b787cb478e`
+
+### Required snapshot classes
+
+| Required class | Source ID and exact-byte file | Retrieved UTC | Bytes | SHA-256 | Result |
+|---|---|---|---:|---|---|
+| one primary return or corporate-action calculation method | `RS03-SNAP-CRSP-JULY-2026` — `snapshots/CRSP_Market_Indexes_Methodology_Guide_July_2026.pdf` | `2026-07-25T16:25:25Z` | 5167396 | `8e212b1514e34eea6968295b4b13cd9f316654ed6c9ec15cec8c364eda77760c` | exact PDF bytes saved |
+| one official timing or corporate-action definition | `RS03-SNAP-NYSE-V3.2A` — `snapshots/NYSE_CorporateActions_Client_Specification_v3.2a.pdf` | `2026-07-25T16:26:00Z` | 708910 | `61e15ff3250c2f94718896cfd27bd18fa98529d9a0ed225c2d22d08a5759092c` | exact PDF bytes saved |
+| one provider license or revision boundary source | `RS03-SNAP-TIINGO-TOS-2026-07-18` — `snapshots/Tiingo_Terms_of_Use_2026-07-18.html` | `2026-07-25T16:27:13Z` | 663905 | `9a5cfcdeb5588ae89fb55cc9895f5ba21b3eea133c40db1eb74d98ffbf944de3` | exact HTML response bytes saved |
+
+### Additional decisive/supporting snapshots
+
+| Source ID | Boundary | Bytes | SHA-256 |
+|---|---|---:|---|
+| `RS03-SNAP-CBOE-LIVE` | official action ID/status and declared/updated/ex/record/payment/effective fields | 450101 | `2ede407424b5fec02e22672bde8da4a08572f4dff81f9f52f04a66eb452f44d1` |
+| `RS03-SNAP-FACTSET-PIT` | historical snapshot versus later correction/deletion/recalculation | 9158902 | `b2ad639c2463bb9d08729874fabd3011f2dba306a5b3334ac440cc0e3b58ff34` |
+| `RS03-SNAP-DB-SEVEN-SINS` | independent split-adjustment look-ahead counterexample | 3132081 | `fd9de52b947605ec9ea5333aa288957c4bec70766ac039e6d55005de4e294646` |
+| `RS03-SNAP-ALPACA-PAPER-CURRENT` | external Paper limitations and observer boundary | 483969 | `acacd1f871c2e08d7677122a19a105077a0abd64c0ad39cd3b1d9d9633879001` |
+| `RS03-SNAP-MARKETDATA-TERMS` | provider-specific termination/deletion counterexample | 191943 | `44ac9d9378eea61dd0ac50d80ab2afaa2710ee73ca85c6dc5dfcecf1480cb942` |
+
+The CRSP, NYSE, FactSet, and Deutsche Bank PDFs also have deterministic `pdftotext -layout` derivatives with their own hashes and exact ranges in the manifest. The original source-byte hashes above, not derivative hashes, are the content-integrity anchors.
+
+### Explicit partial/blocked receipts
+
+- Tiingo EOD direct response:
+  - exact saved shell bytes: `10302`
+  - SHA-256: `7e6ce120afad8105ffe25015edc638418d1b63eaabfc2d85fe8468ab3f3f3e63`
+  - result: Angular application shell only; documentation body absent
+  - effect: non-counting transport receipt; no search excerpt was substituted for source bytes
+- CME DS-45:
+  - first exact-byte attempt: curl exit `92`, HTTP/2 stream error
+  - unchanged HTTP/1.1 retry: did not complete or create a file; task-owned transfer was terminated
+  - result: supporting blocked source, not used to satisfy a required snapshot class
+- Legacy CRSP Calculations locators:
+  - direct opens returned HTTP `404`
+  - current official July 2026 guide was obtained through the CRSP guide archive instead
+  - indexed search excerpt was not treated as a snapshot
+
+Receipts:
+
+- `research/evidence/r8/RS-03/receipts/TIINGO_EOD_SHELL_ONLY.md`
+- `research/evidence/r8/RS-03/receipts/CME_DS45_DOWNLOAD_FAILURE.md`
+- `research/evidence/r8/RS-03/receipts/CRSP_LEGACY_CALCULATIONS_LOCATOR.md`
+
+## Atomic claims
+
+The claims below are **author-produced review inputs**, not independent entailment verdicts.
+
+Independent-review packet:
+
+- Path: `research/evidence/r8/RS-03/CLAIMS_FOR_INDEPENDENT_REVIEW.md`
+- SHA-256: `4641342e448fc98b46eba88a0b396c84435dfaafd4b1ed987d49deb5d0ae6e63`
+- Reviewer locator: pending
+- Independent verdicts: none
+
+### `RS03-R8-C01` — calculation context
+
+- Claim: CRSP's July 2026 Market Indexes method treats ordinary cash dividends, same-ex-date split/dividend terms, split factors, and total-return dividend reinvestment in a defined index-calculation context.
+- Impact: high
+- Evidence clusters: `U-CRSP-INDEX-METHOD`
+- Snapshot/ranges: `RS03-SNAP-CRSP-JULY-2026`; PDF pages 51–55 and 69–70; extracted lines 2469–2497, 2621–2632, 3334–3352
+- Author assessment: source supports the named CRSP method semantics.
+- Limitation: index-return semantics are not universal paper-ledger settlement rules and do not prove candidate-provider implementation.
+- Decision effect: require `calculation_context`; never turn ex-date return reinvestment into an automatic ledger cash credit.
+
+### `RS03-R8-C02` — non-substitutable times
+
+- Claim: NYSE and Cboe specifications distinguish declared/announcement, ex, record, payment/effective, update, and report-publication fields; none proves project availability, retrieval, or decision time.
+- Impact: high
+- Evidence clusters: `U-NYSE-CA`, `U-CBOE-CA`
+- Snapshots/ranges: `RS03-SNAP-NYSE-V3.2A`, PDF pages 9–12 / extracted lines 354–389 and 437–489; `RS03-SNAP-CBOE-LIVE`, saved HTML lines 1181–1216
+- Author assessment: source supports the field distinctions.
+- Limitation: date-granular update fields are not first-availability timestamps.
+- Decision effect: preserve event, effective, ex, published, available, retrieved, and decision time as separate typed fields; retain record and pay time rather than aliasing them.
+
+### `RS03-R8-C03` — append-only revision lineage
+
+- Claim: official action records can be added, updated, cancelled, or unchanged; CRSP may issue new restatement filenames and later expose the newest restatement as official, so downstream systems cannot rely on upstream retention of every observed version.
+- Impact: high
+- Evidence clusters: `U-CBOE-CA`, `U-NYSE-CA`, `U-CRSP-INDEX-METHOD`
+- Snapshots/ranges: Cboe saved HTML lines 1181–1216; NYSE extracted lines 460–489; CRSP PDF pages 81–82 / extracted lines 3945–3953
+- Author assessment: source supports the named upstream behavior; downstream schema is an inference.
+- Limitation: CRSP Market Index restatement policy is not every provider's policy.
+- Decision effect: each revision is a new exact-byte snapshot with parent/supersession lineage; no decision-used bytes are overwritten.
+
+### `RS03-R8-C04` — split/cash-dividend gold boundary
+
+- Claim: split and ordinary cash-dividend handling still has material boundaries: forward/reverse ratios, same-ex-date post-split dividend terms, updates/cancellations, and ex versus payment/effective time.
+- Impact: high
+- Evidence clusters: `U-CRSP-INDEX-METHOD`, `U-NYSE-CA`, `U-CBOE-CA`
+- Snapshots/ranges: CRSP PDF pages 51–55; NYSE PDF pages 9–12; Cboe saved HTML lines 1181–1216
+- Author assessment: source supports the boundary facts; test selection is an inference.
+- Limitation: taxes, withholding, fractional shares, cash in lieu, due bills, and mixed/special actions are not frozen.
+- Decision effect: automatic V1 is limited to unambiguous split and ordinary cash-dividend fixtures; all other cases are `pending_manual`.
+
+### `RS03-R8-C05` — historical replay view
+
+- Claim: a current/latest database filtered by an old event/input date is not necessarily the historical view because later corrections, deletions, currency changes, methodology changes, or backfills can alter old output.
+- Impact: high
+- Evidence clusters: `U-FACTSET-PIT`, supporting `U-CRSP-INDEX-METHOD`
+- Snapshots/ranges: FactSet PDF pages 3–7 / extracted lines 29–35, 64–103, 173–201; CRSP PDF pages 81–82
+- Author assessment: source supports the named products' difference; provider-neutral discriminator is an inference.
+- Limitation: FactSet concerns estimates and does not prove Tiingo behavior.
+- Decision effect: require `as_observed_at_decision` versus `latest_restated_at_retrieval`.
+
+### `RS03-R8-C06` — adjusted-price future leakage
+
+- Claim: back-adjusting historical prices with splits/dividends occurring after a simulated decision can leak future information into price-level and derived-feature decisions.
+- Impact: high
+- Evidence clusters: `U-DB-SEVEN-SINS`, supporting `U-PIT-BACKTEST-2026`, `U-KIBOT-ADJUSTMENT`
+- Snapshot/ranges: Deutsche Bank PDF pages 11–13 / extracted lines 669–730 and 796–804
+- Author assessment: the saved institutional research supports the mechanism and worked counterexample.
+- Limitation: empirical magnitude is strategy-specific; the retrieved 2026 preprint explicitly labels itself not peer-reviewed and is not the decisive saved snapshot.
+- Decision effect: require price basis, adjustment cutoff, and action lineage; `latest_back_adjusted` fails the decision-time gate.
+
+### `RS03-R8-C07` — license state is a data gate
+
+- Claim: use rights depend on provider, licensor, plan/addendum, user class, purpose, redistribution, term, and termination; personal use/API access does not imply retention or continued use after termination.
+- Impact: high
+- Evidence clusters: `U-TIINGO`, `U-MARKETDATA-TERMS`
+- Snapshots/ranges: Tiingo saved HTML lines 29, 408, 676; MarketData saved HTML lines 1109, 1167
+- Author assessment: source supports the named terms; no legal interpretation beyond visible text is claimed.
+- Limitation: no account-specific or supplemental terms were accessed. Tiingo's visible terms do not expressly grant post-termination cache retention, but absence of a grant is not an express deletion duty.
+- Decision effect: keep the fail-closed `unknown`, `allowed`, `restricted`, `expired`, `revoked` state machine, bound to exact terms bytes and scope.
+
+### `RS03-R8-C08` — external paper is observation, not authority
+
+- Claim: Alpaca's current public Paper documentation limits Paper Only data to IEX and lists simulation omissions including dividends; it cannot be authoritative for local corporate-action accounting.
+- Impact: high
+- Evidence cluster: `U-ALPACA-PAPER`
+- Snapshot/range: `RS03-SNAP-ALPACA-PAPER-CURRENT`; saved HTML body and embedded document metadata
+- Author assessment: source supports the named public limitations.
+- Limitation: no private behavior was tested.
+- Decision effect: external paper remains a read-only observer and reconciliation source; disagreement is logged and never auto-resolved.
+
+## Contract freeze
+
+### Time model
+
+| Field | Meaning | Eligibility rule |
+|---|---|---|
+| `event_time` | provider-native event or declaration time | descriptive only; does not prove visibility |
+| `effective_time` | time/date at which a non-distribution action takes effect | must remain distinct from declaration and retrieval |
+| `ex_time` | first trading time/date without the dividend/distribution entitlement in the selected source semantics | action/accounting input; does not prove publication |
+| `record_time` | source-defined holder-of-record date/time | retained for entitlement evidence; not aliased to ex time without an explicit source rule |
+| `pay_time` | source-defined distribution payment time/date | ledger settlement input; not aliased to return-series reinvestment time |
+| `published_time` | source/report publication time | source-native; must include timezone/precision/provenance |
+| `available_time` | first proven time the selected provider/channel made the exact version available to this use | never inferred from event, effective, ex, record, pay, or generic date |
+| `retrieved_time` | local acquisition time for exact saved bytes | mandatory; a decision snapshot requires `retrieved_time <= decision_time` |
+| `decision_time` | immutable human/AI decision cutoff | all eligible bytes and transformations must be available and retrieved no later than this time |
+
+Sanity rule: an old market/event date does not make a row PIT-safe. If `available_time` is unproved, provider capability stays `unknown`; only a locally saved pre-decision exact-byte snapshot can support `as_observed_at_decision`.
+
+### Snapshot and revision contract
+
+Every decision-eligible source object must bind:
+
+- provider/dataset/schema identity;
+- exact saved response bytes and `raw_payload_sha256`;
+- source locator and retrieval time;
+- all native event/date fields with timezone and precision;
+- `replay_view`;
+- `price_basis` and `adjustment_cutoff_time`;
+- corporate-action snapshot lineage used for any adjustment;
+- provider-native add/update/cancel state;
+- `parent_snapshot_id` and `supersedes_snapshot_id`;
+- license scope/state evidence.
+
+Revision behavior:
+
+- correction, deletion, cancellation, and restatement create new child snapshots;
+- a later version can become current but cannot mutate the decision snapshot or prior ledger effect;
+- retrospective evaluation may use `latest_restated_at_retrieval`, but the output is post-hoc evidence with separate identity;
+- mutation tests must prove future revisions and corporate actions cannot change a prior decision hash.
+
+### Price and replay views
+
+| Discriminator | Allowed use |
+|---|---|
+| `as_observed_at_decision` | only view eligible to reconstruct a past decision |
+| `latest_restated_at_retrieval` | post-hoc correction/evaluation only |
+| `raw_as_traded` | eligible if exact raw bytes were available/retrieved before the decision and corporate actions are handled explicitly |
+| `pit_adjusted` | eligible only with provider proof and adjustment factors available by the decision |
+| `latest_back_adjusted` | ineligible for decision reconstruction; may be used only as a labelled post-hoc view |
+
+Mixed-basis formulas fail closed unless every operand is transformed onto one explicitly tested basis.
+
+### License state machine
+
+| State | Required behavior |
+|---|---|
+| `unknown` | default; no new decision use or provider acceptance |
+| `allowed` | exact terms/plan/purpose/retention/redistribution scope proven for the intended use |
+| `restricted` | only explicitly permitted operations; all other use blocked |
+| `expired` | term ended; no new use; retention/purge behavior follows exact applicable terms |
+| `revoked` | access/right withdrawn or terminated; cease use and execute only the obligations actually established by the applicable terms |
+
+Terms changes, plan changes, licensor changes, account-class changes, or ambiguous supplemental terms send a previously accepted capability back to `unknown` pending revalidation. The state record must bind exact terms bytes, provider/plan/user class, purpose, storage/cache, redistribution, termination action, effective/last-updated date, reviewer, and next recheck trigger.
+
+No conclusion is made that keeping even a hash or audit metadata after a deletion duty is always permitted. If a future agreement requires purge, the implementation must follow the exact applicable obligation and mark any lost reproducibility; it must not invent a retention exception.
+
+## Split and cash-dividend gold boundary
+
+Automatic Paper V1 may cover only an unambiguous, source-typed action with all required fields and no unresolved exception.
+
+Required gold classes:
+
+1. forward split;
+2. reverse split;
+3. ordinary cash dividend in `market_return_series` context;
+4. ordinary cash dividend in `paper_account_ledger` context with distinct entitlement and payment handling;
+5. same-ex-date split plus ordinary cash dividend, where the source states the dividend in post-split terms;
+6. update replay;
+7. cancellation replay;
+8. future-split mutation proving an old decision feature/hash does not change;
+9. raw/PIT-adjusted/latest-back-adjusted differential result.
+
+Required context rules:
+
+- A split changes share quantity and price basis proportionally on the action boundary; it is not a cash gain.
+- A return-series dividend convention may place reinvestment at ex-date.
+- The local authoritative ledger must not equate return-series reinvestment with cash receipt. It needs an explicit receivable/payment transition supported by unambiguous source fields.
+- Gold fixtures must avoid unresolved due-bill or settlement ambiguity; otherwise they fail closed.
+- Same-ex-date split/dividend ordering must use source-stated post-split terms and prove that price, shares, receivable, cash, and total value are not double-adjusted.
+
+Automatically rejected to `pending_manual` unless separately frozen and tested:
+
+- special/conditional dividends;
+- return of capital;
+- stock/cash elections;
+- stock dividends not equivalent to the frozen split rule;
+- fractional shares and cash in lieu;
+- taxes and withholding;
+- rights, spin-offs, mergers, tender offers, symbol/security-master changes, delistings;
+- due bills;
+- mixed, missing, contradictory, revised-but-unresolved, or unknown actions.
+
+## External paper read-only observer
+
+The external paper adapter may:
+
+- read order, fill, position, cash, and account snapshots;
+- append timestamped observation records;
+- compute a differential reconciliation against the local authoritative ledger;
+- classify disagreements and open a human review.
+
+It may not:
+
+- overwrite local orders, fills, positions, cash, corporate actions, or ledger history;
+- auto-resolve a disagreement;
+- prove local dividend accounting, because the current public Alpaca Paper page says dividends are not simulated;
+- prove live execution, market impact, queue position, latency/slippage, fees, or private entitlement.
+
+The observer manifest must bind public document version/retrieval, feed entitlement, paper endpoint class, simulation omissions, exact observation time, and reconciliation result. Private credentials remain a future Javen-only onboarding action and were outside this research.
+
+## Counterevidence, contradictions, and sanity checks
+
+1. **Return convention versus ledger settlement**  
+   CRSP's ex-date reinvestment convention and exchange payment-date fields answer different questions. Collapsing them would create a false contradiction and likely a ledger timing error. The calculation-context discriminator resolves the category difference.
+
+2. **“Updated date” versus PIT availability**  
+   NYSE/Cboe update fields establish that records change, but a date-granular update does not prove first provider availability. The contract therefore cannot infer `available_time`.
+
+3. **Current official record versus historical observation**  
+   CRSP may publish newly named restatement files while later exposing the newest restatement as official. Provider “official current” does not preserve what a decision saw. Local append-only bytes are necessary.
+
+4. **Adjusted continuity versus future leakage**  
+   Adjusted series avoid mechanical split/dividend gaps, but current back-adjustment can leak later actions into old signals. Raw and adjusted are both useful; admissibility depends on replay view, adjustment cutoff, and calculation context.
+
+5. **Tiingo terms revision marker**  
+   The exact Tiingo terms page showed `Version 1` and `Last Updated Date: July 18th, 2026`. A version label alone is therefore insufficient; exact bytes plus date are required.
+
+6. **Tiingo EOD snapshot limitation**  
+   The public direct locator was readable through the extraction tool, but the exact curl response saved only the Angular shell. Search/tool text was not substituted. CRSP/NYSE bytes close the required method/timing classes, while current Tiingo field semantics remain a provider-onboarding revalidation item.
+
+7. **Provider-specific license duties**  
+   MarketData public terms require deletion at subscription end; its addenda and CME's visible update show scope/exception differences. These cannot be generalized into a Tiingo deletion duty. They validate the state-machine failure class, not a universal legal conclusion.
+
+8. **Alpaca “same end to end” versus omissions**  
+   The public page describes Paper as similar except routing, then lists missing market impact, information leakage, latency slippage, queue position, price improvement, fees, and dividends. Both statements are preserved; the result cannot be summarized as live-equivalent.
+
+9. **Source migration**  
+   The D1 legacy CRSP calculations URLs returned 404 after the CRSP Research Data Products migration. The saved July 2026 CRSP guide is a current primary corporate-action/return method, but it is an index method rather than proof of a candidate provider's data implementation.
+
+Sanity result: the design remains provider-neutral, paper-first, human-decision-controlled, no-future-information, and local-ledger-authoritative. No source supports weakening those boundaries.
+
+## Delta chronology and stability
+
+| Stage | Artifact | High-impact result | Stability consequence |
+|---|---|---|---|
+| D1/D2 discovery | `00_DISCOVERY_FREEZE.md` | calculation context; append-only revision lineage; minimum corporate-action gold gate | discovery state frozen before S1 |
+| S1 | `01_S1_DELTA.md` | new failure class: date-filtered latest data can masquerade as PIT; add replay view | stability clock reset |
+| S2 | `02_S2_DELTA.md` | new failure class: future corporate actions can back-adjust old price rows; add price basis/cutoff | stability clock reset |
+| S3 | `03_S3_STABILITY.md` | no new high-impact failure class; license examples fit existing state machine | one later stable reserved query completed |
+
+Recorded hashes:
+
+- `00_DISCOVERY_FREEZE.md`: `95817561dd206b04bc81bb14fa98eef2369739d85cdf628323963930d11180b8`
+- `01_S1_DELTA.md`: `d14d6527f491b2c66946418cdd05dd328b00628bc3138006941fc267749ccc03`
+- `02_S2_DELTA.md`: `adddb35f365c1d40a279b65ab34e79b2e94cddb84ecb505cace8034cf2f4e478`
+- `03_S3_STABILITY.md`: `8fb2f127350e4059d3874b82c661bcc96d2aecc4d6821710e5733169bb45b213`
+
+Stability adjudication:
+
+- last high-impact delta: S2;
+- later reserved query: S3;
+- new high-impact failure class in S3: no;
+- decision reversal in S3: no;
+- open critical/major contradiction after S3: none;
+- preregistered stability predicate: pass.
+
+## Remaining gaps
+
+### Design-review blocker
+
+- Independent reviewer must review `CLAIMS_FOR_INDEPENDENT_REVIEW.md` at SHA-256 `4641342e448fc98b46eba88a0b396c84435dfaafd4b1ed987d49deb5d0ae6e63`.
+- Every claim needs reviewer locator, input hash, verdict, reason, checked ranges, and overclaim/missing-counterevidence field.
+- This author supplied no independent verdict and did not self-review.
+
+### Provider-onboarding conditional gaps
+
+- Tiingo account/plan-specific license, supplemental terms, cache retention, redistribution, exact universe coverage, PIT/vintage capability, correction history, quotas, and fault behavior remain `unknown`.
+- Tiingo EOD exact body bytes need a stable savable locator or provider artifact before field-level provider acceptance.
+- Alpaca current private entitlement, authentication, paper account behavior, ACK/partial fill/disconnect/replay, and real reconciliation remain unobserved.
+- No private account may be tested without a later explicit Javen onboarding action.
+
+### Deferred implementation/release gaps
+
+- Contract/schema implementation and mutation tests are outside this research write scope.
+- Gold fixtures must be implemented and independently checked.
+- License purge/tombstone behavior needs exact future agreement text and, where needed, legal review.
+- External-paper differential observation needs a later credential-safe, Javen-authorized run.
+- Complex corporate actions remain manual.
+
+## Reopen triggers
+
+- Tiingo, Alpaca, CRSP/Morningstar, NYSE, Cboe, or another selected provider changes terms, API, schema, corporate-action method, revision policy, PIT capability, or entitlement.
+- An exact provider agreement differs from the public terms snapshot.
+- A gold fixture fails, or a future correction/action changes a prior decision hash.
+- A paper reconciliation finds an unclassified difference.
+- A due-bill, fractional-share, tax, withholding, special-dividend, merger, spin-off, delisting, or other excluded action must be automated.
+- A provider cannot preserve or legally permit the evidence needed for a decision.
+- An independent reviewer finds overclaim, missing counterevidence, or a new high-impact failure class.
+
+## Closure predicates
+
+| Preregistered predicate | Result | Evidence |
+|---|---|---|
+| preregistration commit, file hash, ancestry, and retrieval time pass | `true` | exact commit/hash; all query/retrieval UTC later; ancestor checks against every observed later commit returned exit `0` |
+| five query IDs each have exactly one execution or failure receipt | `true` | exact-query table and Appendix A |
+| every visible result has unique query ownership and per-result screening | `true` | `QUERY_LEDGER.md`, verified row counts |
+| required snapshot classes have saved bytes/hashes or block closure | `true` | CRSP, NYSE, Tiingo exact bytes and manifest |
+| every decisive claim has independent per-claim entailment review | `false` | review packet exists; reviewer locator/verdicts absent by design |
+| contradictions and counterevidence are preserved with decision effects | `true` | counterevidence/sanity section and per-result ledger |
+| stability passing rule is satisfied | `true` | S2 last delta; S3 later no-delta |
+| architecture/decision deltas map to executable contract, test, gate, defer, or rejection | `true` | contract freeze, gold boundary, license gate, observer boundary |
+| residual risks and reopen triggers are explicit | `true` | remaining-gaps and reopen sections |
+
+Because one predicate is false after the fixed five-query budget, final status is:
+
+`bounded_incomplete`
+
+This status does not reverse the design result. It means the provider-neutral freeze candidate is ready for a separate semantic reviewer, not that the topic has passed review or that any provider is accepted.
+
+## Appendix A — complete visible result sets
+
 # R8 / RS-03 exact-query ledger and complete visible result sets
 
 Accounting rule: each section below corresponds to one and only one search-tool call with the exact preregistered query text. Direct opens, clicks, fixed-locator retrievals, redirects, and unchanged transport retries were not search calls. Backend order is the order visibly returned by the search tool, including its non-numeric reference ordering. Every row inherits the section's `query_id` and retrieval window.

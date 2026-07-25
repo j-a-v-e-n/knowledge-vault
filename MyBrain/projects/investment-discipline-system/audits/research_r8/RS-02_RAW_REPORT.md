@@ -40,10 +40,23 @@ produced the expected committed-file hash. No evidence or query was collected
 before the correction.
 
 Every counted retrieval UTC below is later than
-`2026-07-25T16:13:44Z`. At report-authoring time there is no later evidence
-commit yet; the ancestor check passes against every extant checkout commit and
-must be rerun by the coordinator against the later commit that first contains
-these artifacts.
+`2026-07-25T16:13:44Z`. During report authoring, the vault's automatic backup
+created later commits touching the authorized RS-02 paths:
+
+- `1ebc3f3592953cb4fe52821cd551a70921b657fb`
+  (`2026-07-25T16:23:17Z`);
+- `9a930cee9915510e01880b96b6f1f2d7be476bd0`
+  (`2026-07-25T16:28:39Z`);
+- `98bdf382cf34c7cc3ca5f6e889983e51c60e1695`
+  (`2026-07-25T16:33:58Z`);
+- `c768ea481507a16a605cd7bdc05a83a7f8b5d8db`
+  (`2026-07-25T16:38:36Z`);
+- `3a0a44285b960d172e240a87567ce62dd90a0cb1`
+  (`2026-07-25T16:43:02Z`).
+
+`git merge-base --is-ancestor` returned exit `0` for the preregistration commit
+against each listed evidence commit. Any automatic backup created after this
+report's final audit must repeat the same check.
 
 ## 2. Frozen protocol for RS-02
 
@@ -526,3 +539,229 @@ review predicate.
   structure before replay; and test every interruption edge for zero/duplicate
   state transitions.
 
+## 7. Counterevidence, contradictions, and non-universal boundaries
+
+1. **Memory failure versus trainability and structured mitigation.** Supersede,
+   STALE, MemGuard, and Xiong et al. expose distinct failures, but the same
+   result set contains positive mitigation evidence. Supersede reports a
+   trainable policy effect; MemGuard reports gains from type separation and
+   routing; STALE proposes write-side adjudication. Therefore the evidence does
+   not support “long-term memory can never work.” It supports “memory is not an
+   authority until its update, type, scope, and contamination gates pass.”
+
+2. **Judge bias versus separate-evaluator benefit.** The Anthropic article
+   reports that a separate evaluator can improve iteration, while also saying
+   evaluator leniency remains. D2 also returned RHO, which reports gains from
+   self-validation and self-preference. These are counterexamples to “LLM
+   evaluation is useless,” but not evidence that same-family self-preference is
+   independent. The R7 blind-identity/order-swap/pinned-revision gate is
+   retained.
+
+3. **Lost-in-the-middle is not a universal timeless property.** No R8 exact
+   query returned a new direct positional benchmark. The saved Anthropic source
+   nevertheless supplies important counterevidence: one cited model/setup
+   required resets beyond compaction, while a later model/setup removed resets
+   and used compaction. R8 therefore neither refreshes a universal
+   lost-in-the-middle incidence claim nor removes the position/compaction/
+   restart probes. The R7 direct positional paper and its mitigation
+   counterevidence remain carry-forward context, not newly counted R8 results.
+
+4. **Multi-agent error cascade versus objective-task gains.** S1 returns
+   peer-reviewed positive evidence for task-specific voting/consensus and
+   negative evidence for conformity, minority suppression, correlated error,
+   and adversarial persuasion. These are reconciled by topology, information
+   dependence, task structure, and oracle quality. “Multi-agent” is not one
+   treatment; agent count cannot prove either reliability or unreliability.
+
+5. **Durable primitives versus durable effects.** A checkpoint can preserve
+   local state while an irreversible external effect has already committed.
+   ACRFence's attack result supports this boundary, but its proposed
+   LLM-analyzer mitigation is explicitly not implemented/evaluated in the
+   paper. The project must not replace one unverified judge with another at the
+   side-effect boundary.
+
+6. **Implementation issues versus current product state.** The fixed issue
+   snapshots establish concrete failure paths only. Closed/completed issues may
+   have been fixed; open issues may change. They become regression cases and
+   reopen triggers, not claims that every current release fails or that a
+   mechanism is common.
+
+7. **Practitioner reports versus incidence.** Reddit/blog results are retained
+   for loop, context-exhaustion, stale-memory, and maintenance-burden probes.
+   They do not support any percentage, prevalence, or universal capability
+   claim.
+
+## 8. Frozen architecture / decision delta
+
+The following delta is a research design output. It is not an implementation or
+test result, and this agent did not edit prototype/governance files.
+
+### `AD-R8-RS02-01` — executable memory assertion contract
+
+Add a provider-neutral `MemoryAssertion` with at least:
+
+- atomic `memory_id` and claim text;
+- source locator, source-content SHA-256, observation time, retrieval time,
+  validity/as-of boundary, and outcome label;
+- functional role (`semantic_fact`, `episodic_observation`,
+  `behavioral_rule`, `trajectory`, or explicitly unknown);
+- project, thread/session, and agent/profile scope;
+- content role and a separate `instruction_authority` flag;
+- `supersedes[]`, `superseded_by[]`, `base_revision`, and `current_revision`;
+- state such as `active`, `superseded`, `contested`, `quarantined`,
+  `expired`, or `unknown`.
+
+Decision-time gate:
+
+- reject a record with missing provenance/hash/scope or mismatched scope;
+- reject `superseded`, `contested`, `quarantined`, `expired`, or `unknown`
+  records from authoritative use;
+- treat historical user/assistant text as untrusted reference data, never as a
+  current instruction;
+- require compare-and-swap against `base_revision` for replace/update; on
+  mismatch reject, quarantine, explicitly merge with lineage, or ask Javen;
+- preserve old versions; never silently overwrite the decision-time snapshot.
+
+Fault matrix:
+
+- direct correction and restart after correction;
+- Type I same-attribute implicit invalidation;
+- Type II propagated invalidation;
+- stale-premise query and downstream policy adaptation;
+- cross-domain leakage and functional-type mismatch;
+- false/unverified trajectory followed by a similar task;
+- stale flush versus newer live write;
+- cross-thread/profile retrieval and session switch;
+- compaction/restart where old commands remain present as historical data.
+
+### `AD-R8-RS02-02` — semantic replay and external-effect contract
+
+For every irreversible side effect, persist:
+
+- stable `operation_id`, normalized-intent hash, authority/capability epoch,
+  precondition hash, checkpoint and branch identity;
+- pinned model, prompt, tool schema, and harness revisions;
+- requested effect separately from observed external effect;
+- external receipt or explicit missing-receipt state;
+- reconciliation time/result and one explicit resolution:
+  `replay`, `fork`, `compensate`, or `human_blocked`.
+
+Replay gates:
+
+- validate the event graph before resume: every tool call has its required
+  result or explicit pending transition; malformed history is quarantined;
+- reconcile external state before retry;
+- if intent, authority, scope, or preconditions differ, ordinary retry is
+  forbidden;
+- no checkpoint/idempotency label may be presented as exactly-once proof
+  without crash-boundary tests and external receipts.
+
+Required fault injection:
+
+- crash before request transmission;
+- crash after request acceptance but before receipt persistence;
+- crash after effect commit but before local checkpoint commit;
+- interrupt/resume around each tool-call/result boundary;
+- duplicated scheduler/reviewer invocation;
+- stale or consumed authority after rollback;
+- model, prompt, tool-schema, and harness upgrade replay;
+- missing/corrupt checkpoint record and orphaned tool call;
+- termination and budget exhaustion.
+
+### `AD-R8-RS02-03` — judge metamorphic gate retained
+
+Blind candidate identity, swap A/B order, pin judge and prompt revision, compare
+against a deterministic oracle or Javen-approved human labels, and preserve all
+disagreements. Same-family agents are not counted as independent merely because
+they have different role names.
+
+### `AD-R8-RS02-04` — long-context gate remains model/revision specific
+
+Run the same requirement at beginning/middle/end, before/after compaction, from
+empty-context restart, and with a superseded old request present. Pin the whole
+model/harness revision. A progress note is a recovery input, not correctness
+proof.
+
+### `AD-R8-RS02-05` — multi-agent adoption remains narrow
+
+Allow only an isolated experiment where outputs are generated independently,
+an objective deterministic oracle exists, aggregation is pinned, and
+token/latency/error-correlation costs are recorded. Shared debate and graph
+runtime remain rejected as default reliability mechanisms; claim lineage,
+quarantine, rollback, and deterministic infection probes remain mandatory.
+
+### Adoption/defer/rejection
+
+- `reject`: authoritative long-term memory without the assertion gate.
+- `reject`: “exactly once” based only on checkpoint or request-ID labels.
+- `reject`: reviewer identity or agent count as an isolation guarantee.
+- `defer`: ACRFence adoption; the paper does not implement/evaluate its
+  mitigation.
+- `defer`: graph runtime adoption until the simple-loop comparison and all
+  crash/replay tests pass.
+- `defer`: any production-incidence claim from GitHub/Reddit.
+- `allow_for_test_only`: objective-oracle isolated sampling/voting.
+
+## 9. Residual gaps and reopen triggers
+
+Residual gaps:
+
+- Independent per-claim entailment review is absent by assignment boundary.
+- No local `MemoryAssertion`, semantic replay fence, stale-writer CAS, or
+  structural replay validator was implemented or fault-injected.
+- R8 returned no new direct primary positional lost-in-the-middle benchmark;
+  the R7 evidence boundary is retained rather than claimed refreshed.
+- Judge-control effect sizes for full software-project review remain unknown.
+- Supersede, STALE, MemGuard, and ACRFence are preprints; revisions or peer
+  review may change claims.
+- ACRFence's proposed analyzer is unimplemented in the paper and introduces a
+  new LLM-judge boundary.
+- Objective benchmark gains from voting/consensus do not establish open-project
+  semantic-review reliability.
+- Fixed GitHub issues were not independently reproduced against pinned current
+  releases; closed issues may be superseded.
+- Practitioner evidence supplies no incidence.
+- The open dynamic web was not and cannot be claimed exhausted.
+- The preregistration ancestor check passed for every automatic evidence commit
+  listed in Section 1; a later automatic backup after final audit is a trigger
+  to repeat it.
+
+Reopen triggers:
+
+- model, prompt, compaction, memory, tool schema, Codex, or harness revision;
+- a new peer-reviewed revision of any decisive preprint;
+- a fixed issue regresses or an issue resolution invalidates the frozen failure
+  mechanism;
+- a real crash/replay drill produces a duplicate, missing, or unauthorized
+  external effect;
+- a real memory run selects superseded/contested data, crosses scope, or loses
+  a newer write;
+- a judge order/identity swap changes a high-impact verdict;
+- a multi-agent infection probe reaches the final artifact or objective-voting
+  gains disappear under pinned replication;
+- a new high-impact failure class outside this taxonomy appears.
+
+## 10. Closure predicates
+
+| Preregistered topic predicate | Verdict | Evidence / reason |
+|---|---|---|
+| prereg commit, file hash, ancestor relation, and retrieval time pass | `true` for every audited evidence commit | commit/hash verified; all five retrieval UTCs are later; ancestry passed for all five later automatic evidence commits listed in Section 1 |
+| five query IDs each have exactly one execution or explicit tool-failure receipt | `true` | five exact single-query calls; no changed/sixth query |
+| every visible result has a per-result screen and unique query ownership | `true` | Sections 3.1-3.5 preserve returned order, URL, source class, cluster, reason, and revision |
+| required snapshot classes have saved bytes/hash, or blocked makes topic incomplete | `true` | all three classes have successful exact-byte snapshots and manifest entries |
+| every decisive claim passes independent per-claim entailment review | **`false`** | explicitly outside this agent assignment; no reviewer locator or review verdict exists |
+| contradictions/counterevidence are retained with decision effects | `true` | Section 7 |
+| stability passing rule is satisfied | `true` | last delta S2; later S3 adds no high-impact class or open major/critical contradiction |
+| architecture/decision delta maps to executable contract/test/gate/defer/rejection | `true` as design output | Section 8; not yet implemented |
+| residual risks and reopen triggers are explicit | `true` | Section 9 |
+
+## 11. Final disposition
+
+`bounded_incomplete`.
+
+The fixed query budget is exhausted and no sixth query is permitted. Search
+accounting, complete visible-result screening, required snapshots, frozen
+delta, and stability all pass. Independent entailment review remains false, so
+the topic cannot be labeled design-closed or pre-review eligible. This report
+does not imply implementation, mutation-test, release, provider onboarding, or
+Javen approval.
