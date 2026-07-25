@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -14,7 +15,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FREEZER = PROJECT_ROOT / "scripts" / "freeze_governance.py"
 GIT_VERIFIER = PROJECT_ROOT / "scripts" / "verify_git_state.py"
 RESEARCH_RELATIVE = "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json"
+ASSURANCE_RELATIVE = "governance/ASSURANCE_SUBJECTS_V1.json"
 BUNDLE_RELATIVE = "governance/FROZEN_BUNDLE_V1.json"
+FINAL_EVIDENCE_RELATIVE = "audits/FINAL_REVIEW_EVIDENCE_R3.json"
+FINAL_REVIEW_SUBJECT = "SUBJECT-DESIGN-REVIEW-FINAL-R3"
 
 
 class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
@@ -42,6 +46,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.run_git(self.root, "commit", "-m", "candidate fixture")
         self.run_git(self.root, "remote", "add", "origin", str(self.remote))
         self.run_git(self.root, "push", "--set-upstream", "origin", "main")
+        self.initial_candidate = self.git_text(self.root, "rev-parse", "HEAD")
 
     def tearDown(self) -> None:
         self.temp.cleanup()
@@ -108,9 +113,59 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
 
     def prepare_completed_freeze(
         self, *, incomplete_relative: str | None = None
-    ) -> None:
+    ) -> str:
+        reviewed_commit = self.git_text(self.root, "rev-parse", "HEAD")
+        reviewed_tree = self.git_text(
+            self.root, "rev-parse", f"{reviewed_commit}^{{tree}}"
+        )
         contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
         frozen_files = contract["change_control"]["frozen_files"]
+        review_input = (
+            "Independently review the exact candidate commit and tree against every "
+            "contract frozen file. Pass only with no open critical or major finding "
+            "and no new architecture-changing class."
+        )
+        evidence = {
+            "schema_version": 1,
+            "subject_id": FINAL_REVIEW_SUBJECT,
+            "review_locator": "test-fixture:independent-final-review-r3",
+            "review_input": review_input,
+            "review_input_sha256": hashlib.sha256(
+                review_input.encode("utf-8")
+            ).hexdigest(),
+            "candidate_commit": reviewed_commit,
+            "candidate_tree": reviewed_tree,
+            "verdict": "passed_freeze",
+            "open_critical_count": 0,
+            "open_major_count": 0,
+            "new_architecture_changing_classes": [],
+            "participated_in_candidate_construction": False,
+            "write_access_used": False,
+            "reviewed_files": list(frozen_files),
+            "finding_ids": [],
+        }
+        self.write_json(FINAL_EVIDENCE_RELATIVE, evidence)
+        evidence_hash = hashlib.sha256(
+            (self.root / FINAL_EVIDENCE_RELATIVE).read_bytes()
+        ).hexdigest()
+
+        assurance = self.read_json(ASSURANCE_RELATIVE)
+        assurance["subjects"].append(
+            {
+                "id": FINAL_REVIEW_SUBJECT,
+                "role": "design_reviewer",
+                "locator": evidence["review_locator"],
+                "candidate_commit": reviewed_commit,
+                "candidate_tree": reviewed_tree,
+                "write_access_used": False,
+                "participated_in_candidate_construction": False,
+                "verdict": "passed_freeze",
+                "evidence_path": FINAL_EVIDENCE_RELATIVE,
+                "evidence_sha256": evidence_hash,
+            }
+        )
+        self.write_json(ASSURANCE_RELATIVE, assurance)
+
         for relative in frozen_files:
             if Path(relative).suffix.lower() != ".json":
                 continue
@@ -119,19 +174,38 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
                 document["status"] = "adopted_with_explicit_limits"
                 challenge = document["challenge"]
                 challenge["status"] = "completed"
-                final_round = challenge["rounds"][-1]
-                final_round["result"] = "passed_freeze"
-                final_round["new_architecture_changing_classes"] = []
-                final_round["critical_findings"] = []
-                final_round["major_findings"] = []
-                final_round["open_critical_count"] = 0
-                final_round["open_major_count"] = 0
+                challenge["rounds"].append(
+                    {
+                        "id": "CHALLENGE-FINAL-R3",
+                        "candidate_commit": reviewed_commit,
+                        "candidate_tree": reviewed_tree,
+                        "reviewer_subjects": [FINAL_REVIEW_SUBJECT],
+                        "result": "passed_freeze",
+                        "evidence_path": FINAL_EVIDENCE_RELATIVE,
+                        "evidence_sha256": evidence_hash,
+                        "new_architecture_changing_classes": [],
+                        "critical_findings": [],
+                        "major_findings": [],
+                        "open_critical_count": 0,
+                        "open_major_count": 0,
+                        "disposition": "machine-readable final review closed the candidate",
+                    }
+                )
                 document["stop_rule"]["met"] = True
+                document["primary_artifacts"].append(
+                    {
+                        "id": "ARTIFACT-CHALLENGE-FINAL-R3",
+                        "path": FINAL_EVIDENCE_RELATIVE,
+                        "sha256": evidence_hash,
+                        "role": "independent_final_challenge",
+                    }
+                )
             elif relative == incomplete_relative:
                 document["status"] = "candidate_for_freeze"
             else:
                 document["status"] = "frozen"
             self.write_json(relative, document)
+        return reviewed_commit
 
     def assert_bundle_absent(self) -> None:
         self.assertFalse((self.root / BUNDLE_RELATIVE).exists())
@@ -167,7 +241,11 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         baseline = self.commit_and_push("remove candidate governance input")
 
         result = self.run_project_script(
-            FREEZER, "--baseline-commit", baseline
+            FREEZER,
+            "--baseline-commit",
+            baseline,
+            "--reviewed-candidate-commit",
+            self.initial_candidate,
         )
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
@@ -177,11 +255,15 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
 
     def test_freeze_rejects_incomplete_dynamic_json_status(self) -> None:
         incomplete = "governance/ACCEPTANCE_CASES_V1.json"
-        self.prepare_completed_freeze(incomplete_relative=incomplete)
+        reviewed = self.prepare_completed_freeze(incomplete_relative=incomplete)
         baseline = self.commit_and_push("leave one normative JSON incomplete")
 
         result = self.run_project_script(
-            FREEZER, "--baseline-commit", baseline
+            FREEZER,
+            "--baseline-commit",
+            baseline,
+            "--reviewed-candidate-commit",
+            reviewed,
         )
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
@@ -189,13 +271,17 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.assert_bundle_absent()
 
     def test_freeze_rejects_dirty_exact_baseline(self) -> None:
-        self.prepare_completed_freeze()
+        reviewed = self.prepare_completed_freeze()
         baseline = self.commit_and_push("complete freeze prerequisites")
         with (self.root / "README.md").open("a", encoding="utf-8") as handle:
             handle.write("\ndirty counterexample\n")
 
         result = self.run_project_script(
-            FREEZER, "--baseline-commit", baseline
+            FREEZER,
+            "--baseline-commit",
+            baseline,
+            "--reviewed-candidate-commit",
+            reviewed,
         )
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
@@ -203,8 +289,63 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.assertIn("README.md", result.stdout)
         self.assert_bundle_absent()
 
+    def test_closure_rejects_smuggled_money_semantics_change(self) -> None:
+        reviewed = self.prepare_completed_freeze()
+        relative = "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json"
+        money = self.read_json(relative)
+        money["scope"] += " Closure may also silently reinterpret booked cash."
+        self.write_json(relative, money)
+        baseline = self.commit_and_push("smuggle money semantics into closure")
+
+        result = self.run_project_script(
+            FREEZER,
+            "--baseline-commit",
+            baseline,
+            "--reviewed-candidate-commit",
+            reviewed,
+        )
+
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn(f"closure changed non-status content: {relative}", result.stdout)
+        self.assert_bundle_absent()
+
+    def test_valid_non_circular_closure_creates_bound_bundle(self) -> None:
+        reviewed = self.prepare_completed_freeze()
+        baseline = self.commit_and_push("valid review closure")
+
+        result = self.run_project_script(
+            FREEZER,
+            "--baseline-commit",
+            baseline,
+            "--reviewed-candidate-commit",
+            reviewed,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        bundle = self.read_json(BUNDLE_RELATIVE)
+        self.assertEqual(bundle["reviewed_candidate_commit"], reviewed)
+        self.assertEqual(
+            bundle["reviewed_candidate_tree"],
+            self.git_text(self.root, "rev-parse", f"{reviewed}^{{tree}}"),
+        )
+        self.assertEqual(bundle["baseline_commit"], baseline)
+        self.assertEqual(
+            bundle["baseline_tree"],
+            self.git_text(self.root, "rev-parse", f"{baseline}^{{tree}}"),
+        )
+        self.assertEqual(bundle["final_review_subject_id"], FINAL_REVIEW_SUBJECT)
+        self.assertEqual(
+            bundle["final_review_evidence_path"], FINAL_EVIDENCE_RELATIVE
+        )
+        self.assertEqual(
+            bundle["final_review_evidence_sha256"],
+            hashlib.sha256(
+                (self.root / FINAL_EVIDENCE_RELATIVE).read_bytes()
+            ).hexdigest(),
+        )
+
     def test_direct_remote_mismatch_defeats_stale_local_upstream(self) -> None:
-        self.prepare_completed_freeze()
+        reviewed = self.prepare_completed_freeze()
         baseline = self.commit_and_push("complete freeze prerequisites")
         attacker = self.temp_root / "remote-writer"
         self.run_git(self.temp_root, "clone", str(self.remote), str(attacker))
@@ -234,7 +375,11 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.assertEqual(local_only.returncode, 0, local_only.stdout)
 
         result = self.run_project_script(
-            FREEZER, "--baseline-commit", baseline
+            FREEZER,
+            "--baseline-commit",
+            baseline,
+            "--reviewed-candidate-commit",
+            reviewed,
         )
 
         self.assertNotEqual(result.returncode, 0, result.stdout)

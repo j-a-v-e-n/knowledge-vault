@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -1976,10 +1977,30 @@ def verify_conditionals(
 
 
 def verify_bundle(
-    bundle: dict[str, Any], contract: dict[str, Any], errors: list[str]
+    bundle: dict[str, Any],
+    contract: dict[str, Any],
+    research: dict[str, Any],
+    assurance_subjects: dict[str, Any],
+    errors: list[str],
 ) -> None:
+    if bundle.get("schema_version") != 1 or bundle.get("status") != "frozen":
+        errors.append("frozen bundle schema or status differs")
+    if bundle.get("contract_id") != contract.get("contract_id"):
+        errors.append("frozen bundle contract_id differs")
+    reviewed_commit = bundle.get("reviewed_candidate_commit")
+    reviewed_tree = bundle.get("reviewed_candidate_tree")
     baseline_commit = bundle.get("baseline_commit")
     baseline_tree = bundle.get("baseline_tree")
+    for label, value in (
+        ("reviewed_candidate_commit", reviewed_commit),
+        ("reviewed_candidate_tree", reviewed_tree),
+    ):
+        if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{40}", value):
+            errors.append(f"frozen bundle {label} must be a full SHA-1")
+            if label == "reviewed_candidate_commit":
+                reviewed_commit = ""
+            else:
+                reviewed_tree = ""
     if not isinstance(baseline_commit, str) or not re.fullmatch(
         r"[0-9a-f]{40}", baseline_commit
     ):
@@ -1996,6 +2017,119 @@ def verify_bundle(
             errors.append(
                 f"frozen baseline tree mismatch: expected {baseline_tree}, got {actual_tree}"
             )
+    if reviewed_commit and reviewed_tree:
+        actual_reviewed_tree = run_git(
+            ["rev-parse", f"{reviewed_commit}^{{tree}}"], errors
+        )
+        if actual_reviewed_tree and actual_reviewed_tree != reviewed_tree:
+            errors.append(
+                "frozen reviewed candidate tree mismatch: "
+                f"expected {reviewed_tree}, got {actual_reviewed_tree}"
+            )
+    if reviewed_commit and baseline_commit:
+        ancestry = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", reviewed_commit, baseline_commit],
+            cwd=PROJECT_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        if ancestry.returncode != 0:
+            errors.append(
+                "frozen bundle cannot prove reviewed candidate is an ancestor "
+                "of the baseline"
+            )
+
+    evidence_path = bundle.get("final_review_evidence_path")
+    evidence_hash = bundle.get("final_review_evidence_sha256")
+    review_subject_id = bundle.get("final_review_subject_id")
+    if (
+        not isinstance(evidence_path, str)
+        or Path(evidence_path).is_absolute()
+        or ".." in Path(evidence_path).parts
+        or not isinstance(evidence_hash, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", evidence_hash)
+        or not isinstance(review_subject_id, str)
+        or not review_subject_id
+    ):
+        errors.append("frozen bundle final review binding is invalid")
+    else:
+        evidence_file = PROJECT_ROOT / evidence_path
+        if not evidence_file.is_file() or sha256(evidence_file) != evidence_hash:
+            errors.append("frozen bundle final review evidence hash differs")
+        if baseline_commit:
+            repo_prefix_for_evidence = run_git(
+                ["rev-parse", "--show-prefix"], errors
+            )
+            baseline_evidence = subprocess.run(
+                [
+                    "git",
+                    "show",
+                    f"{baseline_commit}:{repo_prefix_for_evidence}{evidence_path}",
+                ],
+                cwd=PROJECT_ROOT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if (
+                baseline_evidence.returncode != 0
+                or hashlib.sha256(baseline_evidence.stdout).hexdigest()
+                != evidence_hash
+            ):
+                errors.append(
+                    "frozen bundle final review evidence is absent or differs "
+                    "at baseline"
+                )
+        challenge_rounds = research.get("challenge", {}).get("rounds")
+        final_round = (
+            challenge_rounds[-1]
+            if isinstance(challenge_rounds, list)
+            and challenge_rounds
+            and isinstance(challenge_rounds[-1], dict)
+            else {}
+        )
+        expected_round_binding = {
+            "candidate_commit": reviewed_commit,
+            "candidate_tree": reviewed_tree,
+            "reviewer_subjects": [review_subject_id],
+            "result": "passed_freeze",
+            "evidence_path": evidence_path,
+            "evidence_sha256": evidence_hash,
+            "open_critical_count": 0,
+            "open_major_count": 0,
+            "new_architecture_changing_classes": [],
+        }
+        for key, expected in expected_round_binding.items():
+            if final_round.get(key) != expected:
+                errors.append(f"frozen bundle final review round {key} differs")
+        matching_subjects = [
+            subject
+            for subject in assurance_subjects.get("subjects", [])
+            if isinstance(subject, dict) and subject.get("id") == review_subject_id
+        ]
+        if len(matching_subjects) != 1:
+            errors.append("frozen bundle final review subject is missing or duplicated")
+        else:
+            subject = matching_subjects[0]
+            expected_subject_binding = {
+                "role": "design_reviewer",
+                "candidate_commit": reviewed_commit,
+                "candidate_tree": reviewed_tree,
+                "write_access_used": False,
+                "participated_in_candidate_construction": False,
+                "verdict": "passed_freeze",
+                "evidence_path": evidence_path,
+                "evidence_sha256": evidence_hash,
+            }
+            for key, expected in expected_subject_binding.items():
+                if subject.get(key) != expected:
+                    errors.append(
+                        f"frozen bundle final review subject {key} differs"
+                    )
+    for field in ("remote_at_creation", "upstream_ref_at_creation", "creation_rule"):
+        if not isinstance(bundle.get(field), str) or not bundle.get(field):
+            errors.append(f"frozen bundle {field} is missing")
 
     entries = bundle.get("files")
     if not isinstance(entries, list):
@@ -2012,6 +2146,29 @@ def verify_bundle(
         expected_paths: set[str] = set()
     else:
         expected_paths = set(frozen_files)
+    if reviewed_commit and baseline_commit and isinstance(frozen_files, list):
+        freezer_path = PROJECT_ROOT / "scripts" / "freeze_governance.py"
+        try:
+            module_spec = importlib.util.spec_from_file_location(
+                "ids_freeze_governance_verifier", freezer_path
+            )
+            if module_spec is None or module_spec.loader is None:
+                raise RuntimeError("cannot load freeze_governance")
+            freezer_module = importlib.util.module_from_spec(module_spec)
+            module_spec.loader.exec_module(freezer_module)
+            closure_facts = freezer_module.require_review_closure(
+                reviewed_commit, baseline_commit, frozen_files
+            )
+            if (
+                closure_facts.get("reviewed_candidate_tree") != reviewed_tree
+                or closure_facts.get("baseline_tree") != baseline_tree
+                or closure_facts.get("review_subject_id") != review_subject_id
+                or closure_facts.get("review_evidence_path") != evidence_path
+                or closure_facts.get("review_evidence_sha256") != evidence_hash
+            ):
+                errors.append("frozen bundle closure facts differ")
+        except (OSError, RuntimeError, SystemExit) as exc:
+            errors.append(f"frozen bundle review closure verification failed: {exc}")
     repo_prefix = run_git(["rev-parse", "--show-prefix"], errors)
     actual_paths: set[str] = set()
     for index, entry in enumerate(entries):
@@ -2317,7 +2474,13 @@ def verify(allow_candidate: bool) -> list[str]:
     if not allow_candidate:
         bundle = load_json(FROZEN_BUNDLE, errors)
         if bundle:
-            verify_bundle(bundle, contract, errors)
+            verify_bundle(
+                bundle,
+                contract,
+                research,
+                assurance_subjects,
+                errors,
+            )
 
     return errors
 
