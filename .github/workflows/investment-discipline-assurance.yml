@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - "codex/investment-assurance-*"
     paths:
       - "MyBrain/projects/investment-discipline-system/**"
       - ".github/workflows/investment-discipline-assurance.yml"
@@ -50,7 +51,7 @@ jobs:
           --output evidence/ci/assurance-manifest.json
 
       - name: Attest the assurance manifest
-        uses: actions/attest@36051bcae73b7c2a8a6945a48cbf80953c6baa35 # v4
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
         with:
           subject-path: >-
             ${{ env.IDS_PROJECT }}/evidence/ci/assurance-manifest.json

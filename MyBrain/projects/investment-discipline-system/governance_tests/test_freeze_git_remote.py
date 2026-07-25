@@ -84,13 +84,21 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def load_module(path: Path, prefix: str) -> ModuleType:
+def load_module(path: Path, prefix: str, *, project_root: Path) -> ModuleType:
     module_name = f"{prefix}_{uuid.uuid4().hex}"
     spec = importlib.util.spec_from_file_location(module_name, path)
     if spec is None or spec.loader is None:
         raise AssertionError(f"cannot load module: {path}")
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    previous_root = os.environ.get("IDS_PROJECT_ROOT")
+    os.environ["IDS_PROJECT_ROOT"] = str(project_root)
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if previous_root is None:
+            os.environ.pop("IDS_PROJECT_ROOT", None)
+        else:
+            os.environ["IDS_PROJECT_ROOT"] = previous_root
     return module
 
 
@@ -281,10 +289,316 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         return json.loads((self.root / relative).read_text(encoding="utf-8"))
 
     def write_json(self, relative: str, value: dict) -> None:
-        (self.root / relative).write_text(
+        path = self.root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
             json.dumps(value, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
+
+    def make_research_sufficiency_eligible(
+        self,
+        preregistration_commit: str,
+    ) -> None:
+        preregistration_relative = (
+            "research/RESEARCH_REFRESH_PREREGISTRATION_R7_2026-07-25.json"
+        )
+        preregistration = self.read_json(preregistration_relative)
+        preregistration_bytes = subprocess.check_output(
+            [
+                "git",
+                "show",
+                (
+                    f"{preregistration_commit}:{TEST_PROJECT_PREFIX}"
+                    f"{preregistration_relative}"
+                ),
+            ],
+            cwd=self.root,
+        )
+        preregistration_hash = hashlib.sha256(
+            preregistration_bytes
+        ).hexdigest()
+        receipt = self.read_json(RESEARCH_SUFFICIENCY_RELATIVE)
+        required_by_topic = preregistration[
+            "required_source_classes_by_topic"
+        ]
+        query_limit = preregistration["budget"]["per_topic_query_limit"]
+        round_limit = preregistration["budget"]["supplemental_round_limit"]
+
+        for topic in receipt["topics"]:
+            topic_id = topic["id"]
+            source_classes = required_by_topic[topic_id]
+            query_id = f"{topic_id}-QUERY-FIXTURE"
+            source_ids = [
+                f"{topic_id}-SOURCE-{index:02d}"
+                for index in range(1, len(source_classes) + 1)
+            ]
+            topic["preregistration"] = {
+                "timing_state": "verified_before_search",
+                "git_commit": preregistration_commit,
+                "artifact_path": preregistration_relative,
+                "artifact_sha256": preregistration_hash,
+                "timing_proof": {
+                    "executor_platform": "Codex App subagents",
+                    "agent_or_thread_locators": [
+                        f"fixture:{topic_id}:counted-search"
+                    ],
+                    "observable_limitation": (
+                        "The unit fixture validates temporal binding mechanics, "
+                        "not an external research judgment."
+                    ),
+                },
+            }
+            topic["search_protocol"] = {
+                "budget": {
+                    "registration_state": "frozen_before_search",
+                    "consumption_receipt_state": "complete",
+                    "planned_query_limit": query_limit,
+                    "planned_supplemental_round_limit": round_limit,
+                    "consumed_query_count": 1,
+                    "consumed_supplemental_round_count": 1,
+                },
+                "required_source_classes": source_classes,
+                "result_set_state": "frozen_complete",
+                "search_executions": [
+                    {
+                        "id": query_id,
+                        "retrieved_at": "2026-07-25T16:00:00Z",
+                        "channel": "fixture-deterministic",
+                        "exact_query": f"{topic_id} fixture evidence",
+                        "executor_locator": f"fixture:{topic_id}:executor",
+                        "result_count": len(source_ids),
+                        "result_source_ids": source_ids,
+                    }
+                ],
+            }
+            topic["source_outcomes"] = []
+            topic["evidence_clusters"] = []
+            for index, (source_class, source_id) in enumerate(
+                zip(source_classes, source_ids, strict=True),
+                start=1,
+            ):
+                cluster_id = f"{topic_id}-CLUSTER-{index:02d}"
+                topic["source_outcomes"].append(
+                    {
+                        "id": source_id,
+                        "screening_decision": "included",
+                        "screening_reason": (
+                            "Deterministic fixture source exercises the "
+                            "complete result-set contract."
+                        ),
+                        "retrieved_at": "2026-07-25T16:00:00Z",
+                        "channel": "fixture-deterministic",
+                        "exact_query_or_locator": f"{topic_id}:{source_class}",
+                        "locator": f"fixture:{topic_id}:{source_class}",
+                        "observed_result": (
+                            "The fixture records one included source for the "
+                            "required source class."
+                        ),
+                        "source_class": source_class,
+                        "revision_state": "content_hash_verified_current",
+                        "evidence_fingerprint": hashlib.sha256(
+                            f"{topic_id}:{source_class}".encode("utf-8")
+                        ).hexdigest(),
+                        "cluster_ids": [cluster_id],
+                        "query_ids": [query_id],
+                    }
+                )
+                topic["evidence_clusters"].append(
+                    {
+                        "id": cluster_id,
+                        "member_source_ids": [source_id],
+                        "upstream_roots": [
+                            f"fixture-root:{topic_id}:{source_class}"
+                        ],
+                        "revision_check_state": (
+                            "content_hash_verified_current"
+                        ),
+                    }
+                )
+            claim_id = f"{topic_id}-CLAIM-FIXTURE"
+            topic["claims"] = [
+                {
+                    "id": claim_id,
+                    "impact": "high",
+                    "entailment_status": "entailed",
+                    "review_state": "deterministic_receipt",
+                    "evidence_cluster_ids": [
+                        item["id"] for item in topic["evidence_clusters"]
+                    ],
+                    "source_range_or_receipt": (
+                        f"{RESEARCH_SUFFICIENCY_RELATIVE}#/{topic_id}"
+                    ),
+                    "limitations": (
+                        "This synthetic claim exists only to exercise the "
+                        "fail-closed sufficiency derivation."
+                    ),
+                    "decision_effect": (
+                        "Allows the fixture candidate to enter final review."
+                    ),
+                }
+            ]
+            topic["supplemental_rounds"] = [
+                {
+                    "id": f"{topic_id}-ROUND-FIXTURE",
+                    "round_type": "independent_challenge",
+                    "result": "completed_stable",
+                    "architecture_delta_ids": [],
+                    "decision_delta_ids": [],
+                    "new_high_impact_node_ids": [],
+                }
+            ]
+            topic["unresolved_contradictions"] = []
+            topic["deltas"] = {"architecture": [], "decisions": []}
+            topic["reopen_triggers"] = [
+                {
+                    "id": f"{topic_id}-REOPEN-FIXTURE",
+                    "condition": "A bound fixture input changes.",
+                    "action": "Recompute the deterministic fixture receipt.",
+                    "affected_claim_ids": [claim_id],
+                }
+            ]
+
+        for gap in receipt["open_gaps"]:
+            gap["state"] = "resolved"
+        stable_input = "EVIDENCE_GOVERNED_AI_SYSTEM.md"
+        receipt["derivation_rules"]["input_snapshot"] = [
+            {
+                "id": "INPUT-FIXTURE-STABLE",
+                "path": stable_input,
+                "sha256": sha256_file(self.root / stable_input),
+            }
+        ]
+
+        research = self.read_json(RESEARCH_RELATIVE)
+        for artifact in research["primary_artifacts"]:
+            artifact["sha256"] = sha256_file(self.root / artifact["path"])
+        self.write_json(RESEARCH_RELATIVE, research)
+
+        verifier = load_module(
+            self.root / "scripts" / "verify_research_sufficiency.py",
+            "fixture_research_sufficiency",
+            project_root=self.root,
+        )
+        evaluation = verifier.evaluate(receipt)
+        self.assertTrue(evaluation["derived_pre_review_eligible"], evaluation)
+        receipt["derived_pre_review_eligible"] = evaluation[
+            "derived_pre_review_eligible"
+        ]
+        receipt["derived_research_state"] = evaluation[
+            "derived_research_state"
+        ]
+        receipt["derivation_rules"]["current_evaluation"] = {
+            "derived_research_state": evaluation["derived_research_state"],
+            "evaluated_input_sha256_state": evaluation[
+                "evaluated_input_sha256_state"
+            ],
+            "rule_results": evaluation["rule_results"],
+        }
+        self.write_json(RESEARCH_SUFFICIENCY_RELATIVE, receipt)
+        verified = self.run_project_script(
+            PROJECT_ROOT / "scripts" / "verify_research_sufficiency.py",
+            "--json",
+        )
+        self.assertEqual(verified.returncode, 0, verified.stdout)
+
+    def novelty_spec(self) -> dict[str, Any]:
+        policy = self.read_json("governance/PRIVATE_DATA_POLICY_V1.json")
+        current_mode = policy["runtime_storage"]["file_mode"]
+        return {
+            "schema_version": 1,
+            "probe_id": "PROBE-FREEZE-SCHEMA-V2-POSTDATED",
+            "target_path": "governance/PRIVATE_DATA_POLICY_V1.json",
+            "json_pointer": "/runtime_storage/file_mode",
+            "operation": "replace",
+            "expected_before_sha256": digest_value(current_mode),
+            "replacement": "0644",
+            "expected_rejection_substring": (
+                "private runtime storage boundary differs"
+            ),
+            "rationale": (
+                "A permissive private-state mode must remain blocked by the "
+                "candidate's frozen privacy boundary."
+            ),
+        }
+
+    def run_attack(
+        self,
+        *,
+        candidate_commit: str,
+        candidate_tree: str,
+        extra_args: list[str],
+        receipt_relative: str,
+    ) -> dict[str, Any]:
+        completed = self.run_project_script(
+            PROJECT_ROOT / "scripts" / "run_design_freeze_attack.py",
+            "--candidate-commit",
+            candidate_commit,
+            *extra_args,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stdout)
+        receipt = json.loads(completed.stdout)
+        self.assertEqual(receipt["schema_version"], 2)
+        self.assertEqual(receipt["candidate_commit"], candidate_commit)
+        self.assertEqual(receipt["candidate_tree"], candidate_tree)
+        self.assertEqual(receipt["project_prefix"], TEST_PROJECT_PREFIX)
+        self.assertEqual(receipt["result"], "rejected")
+        self.assertEqual(receipt["runner_exit_code"], completed.returncode)
+        self.assertEqual(receipt["baseline"]["exit_code"], 0)
+        self.assertNotEqual(receipt["target"]["exit_code"], 0)
+        receipt_path = self.root / receipt_relative
+        receipt_path.parent.mkdir(parents=True, exist_ok=True)
+        receipt_path.write_text(completed.stdout, encoding="utf-8")
+        return receipt
+
+    def collect_reviewed_files(
+        self,
+        *,
+        candidate_commit: str,
+    ) -> list[str]:
+        verifier = load_module(
+            self.root / "scripts" / "verify_governance.py",
+            "fixture_governance",
+            project_root=self.root,
+        )
+        required = set(verifier.FINAL_REVIEW_REQUIRED_SCOPE)
+        ground_truth = self.read_json(GROUND_TRUTH_RELATIVE)
+        for artifact in ground_truth["artifacts"]:
+            if artifact.get("required") is not True:
+                continue
+            relative = artifact["path"]
+            if artifact.get("scope", "project") == "repository":
+                required.add(f"{verifier.REPOSITORY_SCOPE_PREFIX}{relative}")
+            else:
+                required.add(relative)
+        contract = self.read_json(
+            "governance/ACCEPTANCE_CONTRACT_V1.json"
+        )
+        required.update(contract["change_control"]["frozen_files"])
+        targets = self.read_json(TARGETS_RELATIVE)
+        for target in targets["targets"]:
+            if target.get("required_by") != "design_freeze":
+                continue
+            relative = target["path"]
+            if target["kind"] == "file":
+                required.add(relative)
+                continue
+            listing = self.git_text(
+                self.root,
+                "ls-tree",
+                "-r",
+                "--full-tree",
+                "--name-only",
+                candidate_commit,
+                "--",
+                f":(top,literal){TEST_PROJECT_PREFIX}{relative}",
+            )
+            required.update(
+                item.removeprefix(TEST_PROJECT_PREFIX)
+                for item in listing.splitlines()
+                if item.startswith(TEST_PROJECT_PREFIX)
+            )
+        return sorted(required)
 
     def commit_and_push(self, message: str) -> str:
         self.run_git(self.root, "add", "-A")

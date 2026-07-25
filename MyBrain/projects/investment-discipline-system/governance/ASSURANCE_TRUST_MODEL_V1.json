@@ -68,7 +68,7 @@
       "repository": "j-a-v-e-n/knowledge-vault",
       "repository_visibility": "public",
       "workflow_path": ".github/workflows/investment-discipline-assurance.yml",
-      "workflow_sha256": "39f34cd20de4a2612c3c3c1a333e9e361e57b6bc19b9a5877fb3737024c55d42",
+      "workflow_sha256": "b577990eeb0310acc6e8a148c5b09303d0c9a3129985c82befcf09902fe3c8f7",
       "workflow_ref_policy": "exact workflow path on the exact candidate commit",
       "oidc_issuer": "https://token.actions.githubusercontent.com",
       "attested_artifact_name": "investment-discipline-assurance-manifest",
