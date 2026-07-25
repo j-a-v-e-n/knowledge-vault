@@ -37,6 +37,7 @@ GROUND_TRUTH_MANIFEST = GOVERNANCE / "GROUND_TRUTH_MANIFEST_V1.json"
 RESEARCH_SUFFICIENCY = GOVERNANCE / "RESEARCH_SUFFICIENCY_V1.json"
 FAILURE_CLASSES = GOVERNANCE / "FAILURE_CLASSES_V1.json"
 DECISION_AUTHORITY = GOVERNANCE / "DECISION_AUTHORITY_V1.json"
+PROJECT_METHOD_POLICY = GOVERNANCE / "PROJECT_METHOD_POLICY_V1.json"
 BLUEPRINT = PROJECT_ROOT / "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
 FROZEN_BUNDLE = GOVERNANCE / "FROZEN_BUNDLE_V1.json"
 ATTACK_RUNNER = PROJECT_ROOT / "scripts" / "run_design_freeze_attack.py"
@@ -75,6 +76,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/run_assurance_ci.py",
     "scripts/refresh_ground_truth_manifest.py",
     "scripts/verify_assurance_metadata.py",
+    "scripts/verify_project_method.py",
     "scripts/verify_research_sufficiency.py",
     "scripts/verify_contract_supersession.py",
     "README.md",
@@ -83,6 +85,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "governance_tests/test_final_review_schema.py",
     "governance_tests/test_attack_runner.py",
     "governance_tests/test_assurance_metadata.py",
+    "governance_tests/test_project_method.py",
     "governance_tests/test_research_sufficiency.py",
     "governance_tests/test_research_evidence_governance.py",
     "governance_tests/test_verify_conditionals.py",
@@ -101,6 +104,7 @@ NORMATIVE_JSON_PATHS = (
     "governance/MARKET_SIMULATION_POLICY_V1.json",
     "governance/FIELD_USE_PROTOCOL_V1.json",
     "governance/PRIVATE_DATA_POLICY_V1.json",
+    "governance/PROJECT_METHOD_POLICY_V1.json",
     "governance/IMPLEMENTATION_TARGETS_V1.json",
     "governance/VERIFICATION_SPECS_V1.json",
     "governance/TRACEABILITY_V1.json",
@@ -4010,6 +4014,7 @@ def verify(allow_candidate: bool) -> list[str]:
     research_sufficiency = load_json(RESEARCH_SUFFICIENCY, errors)
     failure_classes = load_json(FAILURE_CLASSES, errors)
     decision_authority = load_json(DECISION_AUTHORITY, errors)
+    project_method_policy = load_json(PROJECT_METHOD_POLICY, errors)
 
     if errors:
         return errors
@@ -4074,6 +4079,38 @@ def verify(allow_candidate: bool) -> list[str]:
                 + "; ".join(str(item) for item in detail)
             )
 
+    project_method_verifier = (
+        PROJECT_ROOT / "scripts" / "verify_project_method.py"
+    )
+    if not project_method_verifier.is_file():
+        errors.append("project method verifier is missing")
+    else:
+        project_method_result = subprocess.run(
+            [sys.executable, str(project_method_verifier), "--json"],
+            cwd=PROJECT_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        try:
+            project_method_payload = json.loads(project_method_result.stdout)
+        except json.JSONDecodeError:
+            project_method_payload = {}
+        if (
+            project_method_result.returncode != 0
+            or project_method_payload.get("status") != "pass"
+        ):
+            detail = project_method_payload.get("errors")
+            if not isinstance(detail, list):
+                detail = [
+                    project_method_result.stdout.strip() or "<no verifier output>"
+                ]
+            errors.append(
+                "project method executable verification failed: "
+                + "; ".join(str(item) for item in detail)
+            )
+
     expected_status = "candidate_under_challenge" if allow_candidate else "frozen"
     allowed_contract_statuses = {expected_status}
     if allow_candidate:
@@ -4105,6 +4142,7 @@ def verify(allow_candidate: bool) -> list[str]:
         ("research sufficiency", research_sufficiency),
         ("failure classes", failure_classes),
         ("decision authority", decision_authority),
+        ("project method policy", project_method_policy),
     ):
         if document.get("status") not in allowed_baseline_statuses:
             errors.append(

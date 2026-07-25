@@ -984,6 +984,7 @@
       "governance/MARKET_SIMULATION_POLICY_V1.json",
       "governance/FIELD_USE_PROTOCOL_V1.json",
       "governance/PRIVATE_DATA_POLICY_V1.json",
+      "governance/PROJECT_METHOD_POLICY_V1.json",
       "governance/IMPLEMENTATION_TARGETS_V1.json",
       "governance/VERIFICATION_SPECS_V1.json",
       "governance/TRACEABILITY_V1.json",

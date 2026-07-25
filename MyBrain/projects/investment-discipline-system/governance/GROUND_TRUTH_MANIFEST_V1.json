@@ -180,13 +180,13 @@
     },
     {
       "path": "governance/ACCEPTANCE_CASES_V1.json",
-      "sha256": "c210c741af2c0d313464e5c859552c5039c0b4ce8f9cffb78e24b915738c55c0",
+      "sha256": "51fbfe8203d62b56c04b6e050d7481fed413f0c6ec81cbcee71efded292080e8",
       "role": "acceptance_case_contract",
       "required": true
     },
     {
       "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-      "sha256": "5464be6760cf33c8bfc9a8730ba871315ce4f82b63219fc2ae301d067ff3ea2f",
+      "sha256": "82a88217c5ab6be1b9b444ca8fca7a118cde64f75dfed7846004a213c1f7660f",
       "role": "top_level_acceptance_contract",
       "required": true
     },
@@ -228,7 +228,7 @@
     },
     {
       "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
-      "sha256": "3913156c56b4cd89f3d5e9f36080ded95925031dfc6e27512e5f0f209cd844e9",
+      "sha256": "eac4989de824013ba775ceba56a55af040e32a0047fdfe203c6b260263a49c1c",
       "role": "design_freeze_and_release_scope_contract",
       "required": true
     },
@@ -251,6 +251,12 @@
       "required": true
     },
     {
+      "path": "governance/PROJECT_METHOD_POLICY_V1.json",
+      "sha256": "552ff39732d210129e207cb4f752768e8195a6640368dad66d8ff61808f750ad",
+      "role": "reusable_ai_project_method_contract",
+      "required": true
+    },
+    {
       "path": "governance/RESEARCH_SUFFICIENCY_V1.json",
       "sha256": "0043c435b856cbc431520d674eb6c74749e1ca9553fcf76c52a0e9d356f7fff6",
       "role": "research_sufficiency_and_stop_rule_receipt",
@@ -258,7 +264,7 @@
     },
     {
       "path": "governance/TRACEABILITY_V1.json",
-      "sha256": "6726281ee66caa4f04ec7cb36ba78699b6e1ddddbc6afac69ac0176e7e641786",
+      "sha256": "bc7c2956f50ebd34ddc7639c63f85781d74a22900e75c94ab3a11757122b3407",
       "role": "requirements_controls_verification_trace_contract",
       "required": true
     },
@@ -276,7 +282,7 @@
     },
     {
       "path": "governance/VERIFICATION_SPECS_V1.json",
-      "sha256": "b81a8ad6b27a180fe0cb81ae3b92fd53ea5fa744ce78cb6c58d5aeef9f2e9f90",
+      "sha256": "adbc13b6227cf5ee163400d4a405059c9594aa2ae3187e2e97109bbc87170c4c",
       "role": "verification_executor_oracle_and_evidence_contract",
       "required": true
     },

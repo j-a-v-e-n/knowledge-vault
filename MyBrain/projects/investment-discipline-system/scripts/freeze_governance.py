@@ -7,6 +7,7 @@ import argparse
 import copy
 import datetime as dt
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -27,6 +28,10 @@ REMOTE_VERIFIER = SCRIPT_DIR / "verify_remote_commit.py"
 CONTRACT_RELATIVE = "governance/ACCEPTANCE_CONTRACT_V1.json"
 RESEARCH_RELATIVE = "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json"
 ASSURANCE_RELATIVE = "governance/ASSURANCE_SUBJECTS_V1.json"
+GROUND_TRUTH_RELATIVE = "governance/GROUND_TRUTH_MANIFEST_V1.json"
+IMPLEMENTATION_TARGETS_RELATIVE = "governance/IMPLEMENTATION_TARGETS_V1.json"
+RESEARCH_SUFFICIENCY_RELATIVE = "governance/RESEARCH_SUFFICIENCY_V1.json"
+ATTACK_RUNNER = SCRIPT_DIR / "run_design_freeze_attack.py"
 FINAL_ARTIFACT_ID = re.compile(r"ARTIFACT-CHALLENGE-FINAL-R[0-9]+")
 TRUSTED_REMOTE_FIELDS = {
     "name",
@@ -34,24 +39,29 @@ TRUSTED_REMOTE_FIELDS = {
     "branch",
     "project_prefix",
 }
-CANONICAL_ATTACK_SELECTORS = {
-    "ATTACK-PIT-ORACLE-INVERSION": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_pit_oracle_inversion_is_rejected"
-    ),
-    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_same_bar_causality_smuggle_is_rejected"
-    ),
-    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_split_accounting_smuggle_is_rejected"
-    ),
-    "ATTACK-CONDITIONAL-SELF-ATTESTATION": (
-        "governance_tests.test_final_review_attacks."
-        "FinalReviewAttackTests.test_conditional_self_attestation_is_rejected"
-    ),
-}
+CANONICAL_ATTACK_IDS = (
+    "ATTACK-PIT-ORACLE-INVERSION",
+    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE",
+    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE",
+    "ATTACK-CONDITIONAL-SELF-ATTESTATION",
+)
+RUNNER_ID = "ids-design-freeze-attack-runner-v1"
+RUNNER_FINGERPRINT_FIELDS = (
+    "runner_id",
+    "runner_sha256",
+    "candidate_commit",
+    "candidate_tree",
+    "project_prefix",
+    "mode",
+    "probe_id",
+    "mutation_spec_sha256",
+    "mutation_observation",
+    "baseline",
+    "target",
+    "expected_rejection_substring",
+    "result",
+    "runner_exit_code",
+)
 
 
 class DuplicateKeyError(ValueError):
@@ -90,6 +100,15 @@ def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def canonical_json_bytes(value: object) -> bytes:
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
+
 def run_python(script: Path, *args: str) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env["IDS_PROJECT_ROOT"] = str(PROJECT_ROOT)
@@ -104,11 +123,131 @@ def run_python(script: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def require_candidate_governance() -> None:
-    result = run_python(CANDIDATE_VERIFIER, "--allow-candidate")
-    if result.returncode != 0:
-        detail = result.stdout.strip() or "candidate verifier produced no output"
-        raise SystemExit(f"candidate governance verification failed:\n{detail}")
+def runner_fingerprint(receipt: dict) -> str:
+    payload = {
+        key: receipt.get(key)
+        for key in RUNNER_FINGERPRINT_FIELDS
+    }
+    return sha256_bytes(canonical_json_bytes(payload))
+
+
+def parse_runner_receipt(
+    completed: subprocess.CompletedProcess[str],
+    *,
+    candidate_commit: str,
+    candidate_tree: str,
+    project_prefix: str,
+    mode: str,
+    probe_id: str,
+    label: str,
+) -> tuple[dict, bytes]:
+    raw = completed.stdout.encode("utf-8")
+    receipt = parse_json_object(raw, label)
+    baseline = receipt.get("baseline")
+    target = receipt.get("target")
+    expected = {
+        "schema_version": 2,
+        "runner_id": RUNNER_ID,
+        "runner_sha256": sha256_bytes(ATTACK_RUNNER.read_bytes()),
+        "candidate_commit": candidate_commit,
+        "candidate_tree": candidate_tree,
+        "project_prefix": project_prefix,
+        "mode": mode,
+        "probe_id": probe_id,
+        "result": "rejected",
+        "runner_exit_code": 0,
+    }
+    for key, value in expected.items():
+        if receipt.get(key) != value:
+            raise SystemExit(f"{label} {key} does not bind the candidate")
+    if completed.returncode != receipt["runner_exit_code"]:
+        raise SystemExit(f"{label} process/declared exit binding differs")
+    for phase, record, expected_zero in (
+        ("baseline", baseline, True),
+        ("target", target, False),
+    ):
+        if not isinstance(record, dict) or set(record) != {
+            "argv",
+            "exit_code",
+            "stdout",
+            "stdout_sha256",
+        }:
+            raise SystemExit(f"{label} {phase} execution record differs")
+        stdout = record.get("stdout")
+        exit_code = record.get("exit_code")
+        if (
+            record.get("argv")
+            != ["PYTHON", "scripts/verify_governance.py", "--allow-candidate"]
+            or type(exit_code) is not int
+            or not isinstance(stdout, str)
+            or record.get("stdout_sha256")
+            != sha256_bytes(stdout.encode("utf-8"))
+            or (expected_zero and exit_code != 0)
+            or (not expected_zero and exit_code == 0)
+        ):
+            raise SystemExit(f"{label} {phase} actual execution binding differs")
+    expected_signal = receipt.get("expected_rejection_substring")
+    if (
+        not isinstance(expected_signal, str)
+        or not expected_signal
+        or expected_signal not in target["stdout"]
+    ):
+        raise SystemExit(f"{label} target rejection signal differs")
+    fingerprint = receipt.get("execution_fingerprint")
+    if (
+        not isinstance(fingerprint, str)
+        or re.fullmatch(r"[0-9a-f]{64}", fingerprint) is None
+        or fingerprint != runner_fingerprint(receipt)
+    ):
+        raise SystemExit(f"{label} execution fingerprint differs")
+    return receipt, raw
+
+
+def execute_runner(
+    *,
+    candidate_commit: str,
+    candidate_tree: str,
+    project_prefix: str,
+    mode: str,
+    probe_id: str,
+    novelty_spec: Path | None = None,
+    label: str,
+) -> tuple[dict, bytes]:
+    arguments = ["--candidate-commit", candidate_commit]
+    if mode == "canonical":
+        arguments.extend(["--attack-id", probe_id])
+    elif mode == "novelty" and novelty_spec is not None:
+        arguments.extend(["--novelty-spec", str(novelty_spec)])
+    else:
+        raise SystemExit(f"{label} has no executable mutation")
+    completed = run_python(ATTACK_RUNNER, *arguments)
+    return parse_runner_receipt(
+        completed,
+        candidate_commit=candidate_commit,
+        candidate_tree=candidate_tree,
+        project_prefix=project_prefix,
+        mode=mode,
+        probe_id=probe_id,
+        label=label,
+    )
+
+
+def require_candidate_governance(reviewed_commit: str) -> None:
+    candidate_tree = require_commit(reviewed_commit, "reviewed candidate commit")
+    project_prefix = git_text("rev-parse", "--show-prefix")
+    try:
+        execute_runner(
+            candidate_commit=reviewed_commit,
+            candidate_tree=candidate_tree,
+            project_prefix=project_prefix,
+            mode="canonical",
+            probe_id=CANONICAL_ATTACK_IDS[0],
+            label="candidate governance probe",
+        )
+    except SystemExit as exc:
+        raise SystemExit(
+            f"candidate governance verification failed:\n{exc}"
+        ) from None
 
 
 def parse_json_object(payload: bytes, label: str) -> dict:
@@ -263,10 +402,274 @@ def require_prefix_append(
     return before, after[-1]
 
 
+def commit_repo_file_bytes(commit: str, repo_relative: str) -> bytes:
+    result = git_bytes("show", f"{commit}:{repo_relative}")
+    if result.returncode != 0:
+        raise SystemExit(f"{repo_relative} is absent from commit {commit}")
+    return result.stdout
+
+
+def require_sha256(value: object, label: str) -> str:
+    if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+        raise SystemExit(f"{label} sha256 is invalid")
+    return value
+
+
+def require_added_artifact(
+    *,
+    reviewed_commit: str,
+    baseline: str,
+    prefix: str,
+    relative_value: object,
+    expected_hash_value: object,
+    label: str,
+) -> dict[str, str]:
+    relative = require_safe_relative(relative_value, label)
+    expected_hash = require_sha256(expected_hash_value, label)
+    if commit_has_file(reviewed_commit, prefix, relative):
+        raise SystemExit(f"{label} existed in the reviewed candidate")
+    entry = commit_tree_entry(baseline, prefix, relative)
+    if (
+        entry["mode"] != "100644"
+        or entry["tree_type"] != "blob"
+        or entry["object_kind"] != "blob"
+    ):
+        raise SystemExit(f"{label} must be a non-executable regular Git blob")
+    payload = commit_file_bytes(baseline, prefix, relative)
+    if sha256_bytes(payload) != expected_hash:
+        raise SystemExit(f"{label} sha256 differs from baseline bytes")
+    return {
+        "path": relative,
+        "sha256": expected_hash,
+        "git_mode": entry["mode"],
+        "git_type": entry["tree_type"],
+        "git_object_kind": entry["object_kind"],
+        "git_blob": entry["object_id"],
+    }
+
+
+def load_production_verifier():
+    spec = importlib.util.spec_from_file_location(
+        "ids_freeze_schema_v2_verifier",
+        CANDIDATE_VERIFIER,
+    )
+    if spec is None or spec.loader is None:
+        raise SystemExit("cannot load production governance verifier")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def require_schema_v2_review(
+    evidence: dict,
+    *,
+    final_round: dict,
+    reviewed_commit: str,
+    reviewed_tree: str,
+    frozen_files: list[str],
+    implementation_targets: dict,
+) -> None:
+    round_id = final_round.get("id")
+    reviewers = final_round.get("reviewer_subjects")
+    if not isinstance(round_id, str) or not round_id:
+        raise SystemExit("final review round id is missing")
+    verifier = load_production_verifier()
+    errors: list[str] = []
+    verifier.verify_final_review_evidence(
+        evidence,
+        round_id=round_id,
+        reviewers=reviewers,
+        candidate_commit=reviewed_commit,
+        candidate_tree=reviewed_tree,
+        frozen_files=frozen_files,
+        implementation_targets=implementation_targets,
+        errors=errors,
+    )
+    if errors:
+        raise SystemExit(
+            "final review schema v2 verification failed:\n- "
+            + "\n- ".join(errors)
+        )
+
+
+def require_candidate_ground_truth(
+    *,
+    reviewed_commit: str,
+    baseline: str,
+    prefix: str,
+    reviewed_document: dict,
+    baseline_document: dict,
+) -> dict[str, str]:
+    if (
+        reviewed_document.get("status") != "candidate_for_freeze"
+        or baseline_document.get("status") != "frozen"
+    ):
+        raise SystemExit("ground-truth lifecycle transition differs")
+    candidate_body = copy.deepcopy(reviewed_document)
+    baseline_body = copy.deepcopy(baseline_document)
+    candidate_body.pop("status", None)
+    baseline_body.pop("status", None)
+    if candidate_body != baseline_body:
+        raise SystemExit(
+            "ground-truth closure may change only its lifecycle status"
+        )
+    artifacts = reviewed_document.get("artifacts")
+    if not isinstance(artifacts, list) or not artifacts:
+        raise SystemExit("candidate ground-truth artifacts must be nonempty")
+    observed: set[tuple[str, str]] = set()
+    for index, artifact in enumerate(artifacts):
+        label = f"candidate ground-truth artifacts[{index}]"
+        if not isinstance(artifact, dict):
+            raise SystemExit(f"{label} must be an object")
+        relative = require_safe_relative(artifact.get("path"), label)
+        scope = artifact.get("scope", "project")
+        identity = (str(scope), relative)
+        if scope not in {"project", "repository"} or identity in observed:
+            raise SystemExit(f"{label} scope/path is invalid or duplicate")
+        observed.add(identity)
+        expected_hash = require_sha256(artifact.get("sha256"), label)
+        payload = (
+            commit_file_bytes(reviewed_commit, prefix, relative)
+            if scope == "project"
+            else commit_repo_file_bytes(reviewed_commit, relative)
+        )
+        if sha256_bytes(payload) != expected_hash:
+            raise SystemExit(
+                f"candidate ground-truth hash differs for {scope}:{relative}"
+            )
+    candidate_bytes = commit_file_bytes(
+        reviewed_commit,
+        prefix,
+        GROUND_TRUTH_RELATIVE,
+    )
+    baseline_bytes = commit_file_bytes(
+        baseline,
+        prefix,
+        GROUND_TRUTH_RELATIVE,
+    )
+    return {
+        "candidate_sha256": sha256_bytes(candidate_bytes),
+        "baseline_sha256": sha256_bytes(baseline_bytes),
+    }
+
+
+def github_repository_from_url(fetch_url: str) -> str | None:
+    match = re.fullmatch(
+        r"(?:git@github\.com:|https://github\.com/)"
+        r"(?P<repository>[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)\.git",
+        fetch_url,
+    )
+    return match.group("repository") if match else None
+
+
+def require_machine_and_attestation(
+    *,
+    machine_manifest: dict,
+    attestation: dict,
+    machine_path: str,
+    machine_hash: str,
+    reviewed_commit: str,
+    reviewed_tree: str,
+    trusted: dict[str, str],
+) -> None:
+    repository = github_repository_from_url(trusted["fetch_url"])
+    if repository is None:
+        repository = machine_manifest.get("repository")
+    machine_expected = {
+        "schema_version": 1,
+        "manifest_id": "ids-github-machine-assurance-v1",
+        "status": "pass",
+        "assurance_level": "github_issued_workflow_provenance",
+        "semantic_approval": False,
+        "repository": repository,
+        "candidate_commit": reviewed_commit,
+        "candidate_tree": reviewed_tree,
+        "project_prefix": trusted["project_prefix"],
+        "workflow_sha": reviewed_commit,
+        "github_sha_matches_candidate": True,
+        "runner_environment": "github-hosted",
+    }
+    for key, expected in machine_expected.items():
+        if machine_manifest.get(key) != expected:
+            raise SystemExit(f"machine-assurance manifest {key} differs")
+    workflow_ref = machine_manifest.get("workflow_ref")
+    expected_workflow_suffix = (
+        "/.github/workflows/investment-discipline-assurance.yml"
+        f"@refs/heads/{trusted['branch']}"
+    )
+    if (
+        not isinstance(workflow_ref, str)
+        or not workflow_ref.endswith(expected_workflow_suffix)
+    ):
+        raise SystemExit("machine-assurance manifest workflow_ref differs")
+    required_check_ids = machine_manifest.get("required_check_ids")
+    checks = machine_manifest.get("checks")
+    if (
+        not isinstance(required_check_ids, list)
+        or not required_check_ids
+        or not all(isinstance(item, str) and item for item in required_check_ids)
+        or len(required_check_ids) != len(set(required_check_ids))
+        or not isinstance(checks, list)
+    ):
+        raise SystemExit("machine-assurance manifest check catalog differs")
+    check_by_id: dict[str, dict] = {}
+    for check in checks:
+        check_id = check.get("check_id") if isinstance(check, dict) else None
+        if (
+            not isinstance(check_id, str)
+            or check_id in check_by_id
+            or check.get("result") != "pass"
+            or (
+                "actual_process_exit" in check
+                and check.get("actual_process_exit") != 0
+            )
+        ):
+            raise SystemExit("machine-assurance manifest check result differs")
+        check_by_id[check_id] = check
+    if set(check_by_id) != set(required_check_ids):
+        raise SystemExit("machine-assurance manifest required checks differ")
+
+    attestation_expected = {
+        "schema_version": 1,
+        "status": "pass",
+        "fixture_only": False,
+        "repository": repository,
+        "workflow_path": (
+            ".github/workflows/investment-discipline-assurance.yml"
+        ),
+        "source_ref": f"refs/heads/{trusted['branch']}",
+        "candidate_commit": reviewed_commit,
+        "candidate_tree": reviewed_tree,
+        "project_prefix": trusted["project_prefix"],
+        "subject": {
+            "path": machine_path,
+            "sha256": machine_hash,
+        },
+    }
+    for key, expected in attestation_expected.items():
+        if attestation.get(key) != expected:
+            raise SystemExit(f"machine-attestation verification {key} differs")
+    if (
+        not isinstance(attestation.get("verification_id"), str)
+        or not attestation["verification_id"]
+        or attestation.get("policy_checks")
+        != {
+            "repository_matches": True,
+            "workflow_matches": True,
+            "source_commit_matches": True,
+            "source_ref_matches": True,
+            "hosted_runner_required": True,
+            "subject_digest_matches": True,
+        }
+    ):
+        raise SystemExit("machine-attestation verification policy binding differs")
+
+
 def require_review_closure(
     reviewed_commit: str,
     baseline: str,
     frozen_files: list[str],
+    trusted: dict[str, str] | None = None,
 ) -> dict[str, str]:
     reviewed_tree = require_commit(reviewed_commit, "reviewed candidate commit")
     baseline_tree = require_commit(baseline, "baseline commit")

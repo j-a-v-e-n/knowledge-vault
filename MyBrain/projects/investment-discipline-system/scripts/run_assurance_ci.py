@@ -141,6 +141,15 @@ def main() -> int:
             parse_json=True,
         ),
         execute_check(
+            "CHECK-PROJECT-METHOD",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_project_method.py"),
+                "--json",
+            ],
+            parse_json=True,
+        ),
+        execute_check(
             "CHECK-CANDIDATE-GOVERNANCE",
             [
                 sys.executable,
@@ -186,6 +195,7 @@ def main() -> int:
     ]
     required_check_ids = [
         "CHECK-ASSURANCE-METADATA",
+        "CHECK-PROJECT-METHOD",
         "CHECK-CANDIDATE-GOVERNANCE",
         "CHECK-CANONICAL-ATTACK-REPLAY",
         "CHECK-GOVERNANCE-REGRESSION",
