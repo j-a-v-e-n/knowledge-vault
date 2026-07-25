@@ -81,5 +81,10 @@
     "PROJECT_CHARTER.md",
     "DECISIONS.md",
     "本项目当前 Codex 对话中 Javen 已确认的目标、授权和协作要求"
-  ]
+  ],
+  "source_evidence": {
+    "path": "governance/USER_SOURCE_EXCERPTS_V1.json",
+    "rule": "每个 UV 必须至少映射一条原文摘录；tracked 文件摘录需与指定行文本一致，所有 excerpt_sha256 必须可重算；对话摘录因平台未提供 message id 或用户数字签名而明确保持这一证据边界。",
+    "future_semantic_weakening": "需要新的 Javen 原文摘录；builder 不能自行写入批准语句。"
+  }
 }

@@ -87,6 +87,10 @@ SQLite 保存权威状态与事件。Markdown、JSON、Obsidian 页面和网页�
 
 AI 可以写候选，不可以写 `human_decision`、`risk_approval`、`fill` 或风险政策生效记录。
 
+`actor=human` 不能由请求体、导入包或普通 CLI 参数声明。高影响动作使用项目之外的本地人工确认能力建立短期、同源会话，由服务器赋予 actor；确认材料不进入 ResearchCase、Prompt、Git 或备份。直接 API、CLI、数据库、导入和回放路径都不能绕过这一能力。
+
+这是一条协作威胁模型下的能力边界，不是“证明键盘前一定是某个人”的绝对身份认证：拥有同一 OS 用户全部权限且主动窃取确认材料的恶意进程仍可能突破。V1 必须如实陈述这个剩余风险，不能把 actor 字段测试写成“已证明真人在场”。
+
 ## 保障主张
 
 | ID | 必须成立的主张 | 主要证据 |
@@ -121,6 +125,12 @@ AI 可以写候选，不可以写 `human_decision`、`risk_approval`、`fill` �
 | H-10 | UI 奖励交易频率或短期盈利 | 禁止排行榜、彩带、top movers、闪烁 P&L 和默认买卖建议 |
 | H-11 | 研究/构造者删改测试后宣布通过 | 验收合同和锁文件先于实现；变更只能 supersede |
 | H-12 | 外部内容扩大工具权限 | 网页/README/数据只作为不可信输入，不能改变授权或完成门 |
+| H-13 | 引用存在但并不支持主张 | 原子 claim 绑定原文范围与哈希；完整性和语义蕴含分开，关键 claim 未独立/人工核对时保持未证明 |
+| H-14 | 调用方伪造 human actor 或回填采集时间 | actor 与 recorded_at 由受控服务赋予，外部 payload 字段不具权威性，所有旁路接受负向测试 |
+| H-15 | 不断新建相近假设重置试验次数 | experiment family 跨版本累计试验、选择和污染状态；旧历史留出不能消除 AI 先验污染 |
+| H-16 | 作者伪造冻结、独立审查或发布证据 | 两阶段 Git 冻结、互斥主体、候选绑定、独立新增测试、未知缺陷探针和顶层逐项发布谓词 |
+| H-17 | 机械正确但政策无意义或长期弃用 | mandate/政策质量攻击、首次真实人工旅程与持续使用条件门；未观察前不宣称长期有效 |
+| H-18 | 市场序列处理公司行动但账户未处理 | 公司行动形成幂等事务账户事件，并贯穿持仓、现金、NAV、风险、重放和三轨评估 |
 
 ## 权威数据模型
 
@@ -135,8 +145,9 @@ AI 可以写候选，不可以写 `human_decision`、`risk_approval`、`fill` �
 ### 研究
 
 - `hypotheses`：不可原位覆盖的假设版本、宇宙、信号、失效条件、评估计划。
-- `sources`：来源身份、URL/文件、取得时间、类型和上游簇。
-- `evidence_items`：事实/推断/假设/未知、支持或挑战关系、as-of 时间。
+- `experiment_families`：跨假设版本累计的试验、选择、AI-origin contamination 和未来样本状态。
+- `source_snapshots`：URL/RSS/文件/人工来源的真实身份、原始内容、published/available/recorded 时间、内容哈希、取得方式和上游簇。
+- `claims`：原子 fact/inference/hypothesis/unknown，绑定原文 byte range/hash、支持/挑战关系、验证者、状态和失效条件。
 - `recommendations`：模型、Prompt、输入包、证据、反证、置信、未知、行动范围和期限。
 - `decisions`：只能由 human actor 创建，绑定所见建议/证据哈希、理由、偏离、情绪、premortem 和复盘日期。
 
@@ -147,7 +158,8 @@ AI 可以写候选，不可以写 `human_decision`、`risk_approval`、`fill` �
 - `risk_evaluations`：逐规则结果、权威状态快照哈希、批准 token、一次性消费状态。
 - `orders`：paper-only 生命周期。
 - `fills`：部分/完整成交、费用和模型说明。
-- `accounts`、`positions`、`cash_entries`：可从事件重放并与物化状态对账。
+- `accounts`、`positions`、`cash_entries`：金额/数量/费用使用固定 Decimal 语义，可从事件重放并与物化状态对账。
+- `account_corporate_actions`：拆股、现金分红、标的身份变化和待人工处理行动，按生效时间幂等进入账户事务。
 - `reviews`：到期、结果、基准、过程偏差和下一研究节点。
 - `performance_snapshots`：AI 建议轨、人工决定轨和基准轨。
 
@@ -159,6 +171,8 @@ AI 可以写候选，不可以写 `human_decision`、`risk_approval`、`fill` �
 - 外部 `anchors.jsonl`：追加、flush、备份；数据库尾部短于可信锚时验收失败。
 
 本地拥有全部文件权限的人理论上可以同时重写数据库、锚和 Git 历史。因此产品只承诺“在设定威胁模型下具备篡改发现能力”，不宣称绝对不可篡改。
+
+同理，本地 Markdown/JSON 也不能密码学证明两个 AI 审查者完全独立。保障系统要求记录 builder/reviewer/user-proxy 的主体、会话、输入哈希、候选 commit/tree、冻结包、原始结果和参与历史，并让独立者新增构造者事先未知的测试或变异；它提供可审计的认识论独立，不宣称抵御同一 OS 用户恶意串谋。
 
 ## 状态机
 
@@ -191,6 +205,7 @@ draft → acknowledged → scheduled → active → superseded
 - 首个政策由 Javen 完整确认后建立。
 - 修订的最早生效时间由当前 active policy 的 amendment cooldown 决定。
 - AI actor、import actor 和 web API 不能创建 human acknowledgment。
+- 人工确认必须来自服务器签发的本地短期能力；payload 中的 `actor=human` 永远不产生权限。
 
 ### Paper 订单
 
@@ -206,7 +221,9 @@ intent_created
 
 ## 风险规则
 
-具体参数不能由设计者替 Javen 猜测。首次使用必须由 Javen 设置；在此之前系统处于 `policy_missing/read_only`。
+具体参数不能由设计者替 Javen 猜测。首次使用必须由 Javen 设置 paper investment mandate、初始 PaperAccount 资金与风险政策；在此之前系统处于 `mandate_or_policy_missing/read_only`。
+
+mandate 至少明确：研究/纸面目标、允许宇宙、最大可接受风险边界、禁止事项、复盘节奏和策略有效性不能如何声称。系统以极宽上限、相互矛盾、零冷却、缺少损失边界等对抗场景检查政策质量，但不替 Javen 选择具体风险偏好。
 
 首期支持的确定性规则：
 
@@ -232,7 +249,7 @@ intent_created
 - exact request 和 coverage。
 - raw payload 和 SHA-256。
 - normalized rows 和 SHA-256。
-- retrieved_at、observed_at、available_at。
+- 由受控采集事务生成的 `recorded_at`，以及供应商/来源声明的 `observed_at`、`published_at`、`available_at`。
 - point-in-time 证明类型。
 - revision lineage 与 parent snapshot。
 - 数据许可状态。
@@ -255,6 +272,22 @@ AND
 
 当前版本下载的数据只能用于当前之后的真实纸面决定或明确标为“事后研究”的分析，不能回填成过去的决策快照。
 
+请求体或导入文件携带的 `retrieved_at/recorded_at` 只能作为不可信源字段保存，不能覆盖系统采集时间。历史手工导入若没有可验证 vintage，只能标记为 `historical_unverified`。
+
+## 来源、主张与新闻
+
+新闻/RSS/网页/文件首期只做只读快照与证据管理，不生成情绪分数或自动交易信号。外部正文始终是不可信数据，其中即使出现“修改规则、调用工具、宣布完成”等文字也只能原样保存。
+
+每条决定关键主张必须：
+
+- 拆成能被单独证伪的 claim。
+- 指向不可覆盖的 SourceSnapshot 和原文 byte range。
+- 保存 excerpt 与原文哈希校验。
+- 区分 `support/challenge`，以及 `fact/inference/hypothesis/unknown`。
+- 分开显示“引用完整性已验证”和“语义确实支持已验证”。
+
+确定性代码只能证明身份、时间、哈希和引用范围，不能可靠证明自然语言语义蕴含。AI judge 也不能成为自身建议的独立证明；关键 claim 没有人或独立审查者确认时，必须显示为未证明并在风险流程中 fail closed。
+
 ## 回测与诚实评估
 
 ### 预注册
@@ -267,6 +300,7 @@ AND
 - 开发、验证、留出和未来纸面区间。
 - benchmark、成本、滑点/价差压力情景。
 - 主指标、失败标准和允许的试验次数。
+- experiment family 身份、跨版本全局试验预算和 AI-origin contamination 状态。
 
 ### 防止未来信息
 
@@ -280,6 +314,8 @@ AND
 保存完整权益序列、现金、持仓、交易、换手、成本、回撤、波动、基准和全部尝试，而不是只保存摘要赢家。
 
 首期不计算自己无法可靠校准的“策略有效概率”。留出通过只能成为继续纸面前推的证据；不能直接升级为真实资金。
+
+模型可能在预训练或先前研究中见过历史结果，因此“AI 没打开本项目 holdout”不等于真正未见。无法证明隔离的历史留出只可作为受污染的辅助证据；决定性的优势判断必须依赖假设与实现冻结后产生的未来纸面样本。
 
 ## 三轨评估
 
@@ -363,6 +399,15 @@ AND
 
 其报告进入 `evidence/reviews/` 且不可由构造者覆盖。没有 open critical/major 只是必要条件，仍需机械测试、恢复和真实用户旅程共同通过。
 
+“独立”不是报告里的一句自我声明。每份审查证据必须绑定 reviewer 主体、参与历史、候选 commit/tree、冻结包、输入与原始运行哈希；reviewer 直接读取仓库和原始结果，并增加构造者事先未知的测试或缺陷变异。顶层发布谓词逐项重算这些关系，不信任某个 `verify_all.py` 的单独退出码。
+
+## 两类完成，不混为一谈
+
+- `core_release_candidate`：所有可自动和独立验证的本地内核、UI、恢复和安全门通过，但 Javen 尚未完成真实首次使用。
+- `personal_core_accepted`：前者基础上，Javen 完成首次 mandate/policy onboarding 和至少一条端到端真实纸面研究—决定—复盘旅程。
+
+长期采用、情绪改善和投资优势必须等待预注册窗口与未来样本，保持条件性未证明；不能为了得到“完成”而伪造时间。
+
 ## 实现顺序
 
 ```text
@@ -382,4 +427,3 @@ AND
 ```
 
 正式数据账户试用和外部 Paper 认证不是本地构造的伪前提。没有 token 时，它们作为条件性门明确保持未证明；这不会被写成绿灯，也不会允许进入真实资金。
-

@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "purpose": "保存 USER_INTENT_V1 的非循环原文依据，使每个用户价值能够回到已确认项目资料或当前任务中的 Javen 原话。",
+  "capture_boundary": {
+    "platform_message_ids_available": false,
+    "statement": "Codex 当前任务没有向项目暴露稳定 message id 或用户数字签名；对话原话按可见文本逐字摘录并明确标注，已落盘项目决定使用 tracked 文件与行号。冻结包只能证明冻结后未变，不能把 AI 抄录升级为密码学用户签名。",
+    "confirmation_model": "PROJECT_CHARTER.md 与 DECISIONS.md 中标为当前有效的决定，加上 Javen 在当前任务中的明确原话；任何未来语义弱化仍需要新的可核对 Javen 原文，不能由 builder 自行编写批准。"
+  },
+  "excerpts": [
+    {
+      "id": "USR-01",
+      "value_ids": ["UV-01", "UV-09"],
+      "source_type": "tracked_project_charter",
+      "source_path": "PROJECT_CHARTER.md",
+      "line_start": 50,
+      "line_end": 50,
+      "excerpt": "完成状态由可核对证据定义，而不是由描述或宣称定义。",
+      "excerpt_sha256": "e7cb7502f6acfad8754e93bcbacf6ffd5e319504ba899a990cf512221632bebc"
+    },
+    {
+      "id": "USR-02",
+      "value_ids": ["UV-02"],
+      "source_type": "tracked_project_charter",
+      "source_path": "PROJECT_CHARTER.md",
+      "line_start": 11,
+      "line_end": 11,
+      "excerpt": "任何策略或想法都必须经过严格、可复现、计入成本且避免未来信息泄漏的检验。",
+      "excerpt_sha256": "ac31e151fe3ab4c7b43867852aa882e9eac82bc200e6e0a3e368fb41b61b32da"
+    },
+    {
+      "id": "USR-03",
+      "value_ids": ["UV-03"],
+      "source_type": "tracked_project_charter",
+      "source_path": "PROJECT_CHARTER.md",
+      "line_start": 43,
+      "line_end": 43,
+      "excerpt": "风险规则在实际操作路径上能够确定性拦截越界行为。",
+      "excerpt_sha256": "1323b790146dce8a86db77ce41be3c27c8b717a1a2d5bd275660605b58dadb6d"
+    },
+    {
+      "id": "USR-04",
+      "value_ids": ["UV-04"],
+      "source_type": "tracked_decision_log",
+      "source_path": "DECISIONS.md",
+      "line_start": 16,
+      "line_end": 16,
+      "excerpt": "AI 不直接拥有交易执行权，也不能自行修改风险规则。",
+      "excerpt_sha256": "2363fc460d34cbf10808e20acd2cd984c9d2857487aacf6e27497addd7e515e2"
+    },
+    {
+      "id": "USR-05",
+      "value_ids": ["UV-05"],
+      "source_type": "tracked_decision_log",
+      "source_path": "DECISIONS.md",
+      "line_start": 23,
+      "line_end": 23,
+      "excerpt": "每个新问题先检查是否存在成熟工具、模板、开源实现、工作流或可借鉴的真实经验。",
+      "excerpt_sha256": "0d8386e7bc4ccba1f326e4a02a7dd090f650831d99601b548be744c88dded378"
+    },
+    {
+      "id": "USR-06",
+      "value_ids": ["UV-06"],
+      "source_type": "codex_user_message_excerpt",
+      "source_locator": "当前 Codex 任务；平台 message id 未暴露",
+      "excerpt": "一个是好的设计、好的搭建，那是一个好的产品。",
+      "excerpt_sha256": "d3a06a1cbcef4b675de92c2df31e896eab71233aa7e255ad315f5cab51c3b528"
+    },
+    {
+      "id": "USR-07",
+      "value_ids": ["UV-07"],
+      "source_type": "tracked_decision_log",
+      "source_path": "DECISIONS.md",
+      "line_start": 51,
+      "line_end": 51,
+      "excerpt": "目标、边界、核心理念和完成标准确认后，AI 在项目范围内持续研究、搭建、验证和记录，直到完成或触发暂停条件。",
+      "excerpt_sha256": "870b97d440846557b3ebce54ad1c3a6b6b0508ef22701079c67ddbe3b93419ab"
+    },
+    {
+      "id": "USR-08",
+      "value_ids": ["UV-08", "UV-10"],
+      "source_type": "tracked_project_charter",
+      "source_path": "PROJECT_CHARTER.md",
+      "line_start": 46,
+      "line_end": 46,
+      "excerpt": "Javen 能在不依赖 AI 临场记忆的情况下，依照项目资料继续工作。",
+      "excerpt_sha256": "1719a88e5b79bf664c04b2971dfe387bfd55bc833483d5b3f911fdadf503e7c0"
+    },
+    {
+      "id": "USR-09",
+      "value_ids": ["UV-09"],
+      "source_type": "tracked_decision_log",
+      "source_path": "DECISIONS.md",
+      "line_start": 85,
+      "line_end": 85,
+      "excerpt": "设计者、实现者或主代理对自身产物的评价只能提出候选结论，不能批准完成。",
+      "excerpt_sha256": "40078a1623a84872b8fa6580c5b1e3dc9d21fe8fa78693bbfe1097380dda223d"
+    },
+    {
+      "id": "USR-10",
+      "value_ids": ["UV-10"],
+      "source_type": "codex_user_message_excerpt",
+      "source_locator": "当前 Codex 任务；平台 message id 未暴露",
+      "excerpt": "能不能不让我来做呢？能不能你有没有什么方法来去，你来把这东西给完成了呢？就是像个嘴替一样。",
+      "excerpt_sha256": "46b1baa3e7f25278c5e46ca4686aa7a790a44d9eff9a76248f322a573e85c6c0"
+    },
+    {
+      "id": "USR-11",
+      "value_ids": ["UV-11"],
+      "source_type": "tracked_project_charter",
+      "source_path": "PROJECT_CHARTER.md",
+      "line_start": 17,
+      "line_end": 17,
+      "excerpt": "当前只服务 Javen 本人。这是有意选择的第一阶段边界，不代表未来不能扩展为通用产品或多人系统。",
+      "excerpt_sha256": "9486b0ee454219d3d2fe2814d289de9d95eecd47b48e1563e12d97991d8fa5ee"
+    },
+    {
+      "id": "USR-12",
+      "value_ids": ["UV-12"],
+      "source_type": "tracked_decision_log",
+      "source_path": "DECISIONS.md",
+      "line_start": 78,
+      "line_end": 78,
+      "excerpt": "项目代码、设计、决定、配置和可公开的验收摘要使用 Git 保存历史，并推送到现有 GitHub 远端形成异地副本；这不是远期可选功能。",
+      "excerpt_sha256": "71776c3b9f91197aa8f921cffa8714b7cf39c2f4e25dd71f0c711a02afe51201"
+    },
+    {
+      "id": "USR-13",
+      "intent_targets": ["privacy_boundary"],
+      "source_type": "tracked_decision_log",
+      "source_path": "DECISIONS.md",
+      "line_start": 71,
+      "line_end": 72,
+      "excerpt": "隐私边界：不读取邮箱、私密账号、课程资料、个人通信或项目无关文件；姓名和邮箱只在任务确有必要时使用。当前没有任何个人信息需求。\n敏感信息：API 密钥、登录令牌、券商凭据、真实账户和资金信息不得写入项目文件、日志或版本历史。",
+      "excerpt_sha256": "723ff1b6221ead5ab8db2d8668d86edcfa50cc6a1e8e1a06051b079776f7b67d"
+    }
+  ]
+}

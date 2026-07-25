@@ -105,6 +105,39 @@
       "topic": "当前投研项目的实际反例",
       "impact": "high",
       "status": "supported"
+    },
+    {
+      "id": "RC-13",
+      "topic": "冻结边界、证据候选绑定、独立审查 provenance 与发布谓词投机",
+      "impact": "high",
+      "status": "supported",
+      "note": "首轮独立挑战证明标签追溯、路径存在和脚本退出码都可形成假闭环"
+    },
+    {
+      "id": "RC-14",
+      "topic": "human actor、可信时间与本地能力边界",
+      "impact": "high",
+      "status": "contested",
+      "note": "可建立协作威胁模型下的能力分离和受控时间；同一 OS 用户恶意进程与真实人类身份不能由本地应用绝对证明"
+    },
+    {
+      "id": "RC-15",
+      "topic": "语义蕴含、引用完整性与 AI judge 非独立性",
+      "impact": "high",
+      "status": "contested",
+      "note": "确定性代码可证明来源身份、原文范围和哈希，不能可靠证明自然语言蕴含；关键 claim 需人工或独立审查并保留未证明状态"
+    },
+    {
+      "id": "RC-16",
+      "topic": "跨假设选择、模型历史知识污染与未来样本",
+      "impact": "high",
+      "status": "supported"
+    },
+    {
+      "id": "RC-17",
+      "topic": "机械正确、真实采用与长期价值之间的 validation 缺口",
+      "impact": "high",
+      "status": "supported"
     }
   ],
   "search_log": [
@@ -180,6 +213,30 @@
       "control_can_be_gamed",
       "product_can_pass_but_fail_user_goal",
       "remaining_unknown_changes_architecture"
+    ],
+    "rounds": [
+      {
+        "id": "CHALLENGE-01",
+        "reviewer_subjects": ["SUBJECT-DESIGN-REVIEW-EPICURUS", "SUBJECT-DESIGN-REVIEW-BANACH"],
+        "result": "blocked_freeze",
+        "new_architecture_changing_classes": ["RC-13", "RC-14", "RC-15", "RC-16", "RC-17"],
+        "critical_findings": [
+          "研究关闭不是冻结硬前置且研究登记未进入哈希边界",
+          "verification 只有标签，没有执行器、输入、oracle、反例、结果 schema 和当前候选证据闭环",
+          "独立审查与用户检察官可由 builder 伪造",
+          "未跟踪治理文件和未推送状态可绕过 git diff gate",
+          "superseding contract 和 conditional gate 可语义降级",
+          "human actor、采集时间和 claim-source 支持关系只有应用层声称",
+          "规范性蓝图未进入冻结边界"
+        ],
+        "major_findings": [
+          "原始用户意图没有可核对摘录与 hash",
+          "AI 历史知识污染和跨假设多重选择未进入合同",
+          "真实 mandate、长期采用和放弃原因未进入 validation",
+          "PaperAccount 未覆盖公司行动作用于账户生命周期"
+        ],
+        "disposition": "全部转为候选合同、蓝图、verification specs、主体记录和用户原文证据的设计修改；等待第二轮独立挑战"
+      }
     ]
   },
   "stop_rule": {

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "assurance_model": "认识论独立与职责分离，不宣称同一设备上的密码学或组织独立。",
+  "threat_boundary": {
+    "covered": [
+      "同一构造上下文的迎合、自我袒护、遗漏和测试投机",
+      "旧审查证据误用于新候选",
+      "只写独立声明但不读取原始仓库或新增反例",
+      "builder 自己生成单一通过文件后批准完成"
+    ],
+    "not_covered": [
+      "拥有同一 OS 用户全部权限的恶意主体串谋并重写 Git、远端、原始工具记录和私人确认材料",
+      "Codex 平台未提供的用户数字签名或硬件身份",
+      "模型供应商内部不可见的训练数据和系统行为"
+    ]
+  },
+  "subjects": [
+    {
+      "id": "SUBJECT-BUILDER-MAIN",
+      "role": "builder",
+      "locator": "current Codex task in knowledge-vault workspace",
+      "can_submit_candidate": true,
+      "can_approve_release": false
+    },
+    {
+      "id": "SUBJECT-DESIGN-REVIEW-EPICURUS",
+      "role": "design_reviewer",
+      "locator": "subagent:019f9833-d6e2-7542-8913-c3da6fb68cee",
+      "write_access_used": false,
+      "participated_in_candidate_construction": false,
+      "verdict": "blocked_freeze"
+    },
+    {
+      "id": "SUBJECT-DESIGN-REVIEW-BANACH",
+      "role": "design_reviewer",
+      "locator": "subagent:019f9845-27c1-7dd0-b955-2c88515f55a5",
+      "write_access_used": false,
+      "participated_in_candidate_construction": false,
+      "verdict": "blocked_freeze"
+    },
+    {
+      "id": "SUBJECT-JAVEN",
+      "role": "human_owner",
+      "locator": "local user; no secret, email or private account stored here",
+      "reserved_authority": ["initial_mandate", "risk_policy", "paper_decision", "residual_risk", "future_scope_change"]
+    }
+  ],
+  "future_role_constraints": {
+    "acceptance_reviewer": {
+      "must_be_assigned_after_candidate_tree_is_fixed": true,
+      "must_not_equal": ["SUBJECT-BUILDER-MAIN"],
+      "must_read": ["frozen bundle", "raw repository", "raw test results"],
+      "must_add": ["independent tests or attacks", "candidate-bound findings", "open severity counts"],
+      "must_record": ["subject id", "agent/session locator", "prompt/input hash", "candidate commit/tree", "frozen bundle hash", "raw result hashes", "participation history"]
+    },
+    "user_proxy": {
+      "must_be_assigned_after_candidate_tree_is_fixed": true,
+      "must_not_equal": ["SUBJECT-BUILDER-MAIN", "acceptance_reviewer"],
+      "must_start_from": ["USER_SOURCE_EXCERPTS_V1.json", "USER_INTENT_V1.json", "ACCEPTANCE_CONTRACT_V1.json"],
+      "must_not_start_from": ["builder completion summary"]
+    },
+    "independence_probe": {
+      "required": true,
+      "rule": "由非 builder 主体在候选固定后新增构造者事先未知的缺陷变异或攻击；探针必须造成相关 verification 失败，并保存原始输入、预期与结果。"
+    }
+  },
+  "evidence_rule": "独立 evidence 文件必须 append-new、绑定当前候选且由发布谓词验证；builder 写路径权限这一事实必须保留在限制中，不能用文件名 independent 代替独立性。"
+}

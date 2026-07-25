@@ -23,7 +23,8 @@
   "authority": {
     "builder": "只能提交候选产物和候选完成状态",
     "contract_change": "冻结后只能新增 superseding contract；不得原位降低门槛",
-    "acceptance": "机械检查、独立黑盒/故障检查、恢复演练、用户立场检察官和只读保障审查共同决定",
+    "acceptance": "顶层发布谓词直接汇总逐项行为证据、独立黑盒/故障检查、恢复演练、用户立场检察官和只读保障审查；任何单一脚本退出码或作者生成的 verdict 都不能单独决定",
+    "assurance_boundary": "本地文件不能密码学证明作者与审查者独立；V1 以互斥主体记录、候选绑定、原始运行结果、独立新增测试和未知缺陷探针形成可审计的认识论独立，不把它宣称为对同一 OS 用户恶意串谋的安全边界",
     "human_reserved": [
       "真实投资决定",
       "风险参数和残余风险接受",
@@ -58,9 +59,13 @@
     "tests/",
     "acceptance/",
     "scripts/verify_all.py",
+    "scripts/verify_release.py",
     "scripts/restore_drill.py",
     "scripts/user_proxy_gate.py",
     "governance/TRACEABILITY_V1.json",
+    "governance/VERIFICATION_SPECS_V1.json",
+    "governance/ASSURANCE_SUBJECTS_V1.json",
+    "governance/USER_SOURCE_EXCERPTS_V1.json",
     "evidence/acceptance/",
     "evidence/reviews/",
     "README.md",
@@ -69,27 +74,27 @@
   "requirements": [
     {
       "id": "REQ-GOV-001",
-      "statement": "用户意图、范围、非目标、隐私边界和完成权必须机器可读并受哈希锁约束。",
+      "statement": "用户意图、原文证据、范围、非目标、隐私边界、完成权、研究登记、规范性蓝图、验收规格和追溯表必须机器可读或内容寻址并进入冻结哈希边界；研究挑战未关闭或 stop rule 未满足时不得冻结。",
       "source_values": ["UV-01", "UV-04", "UV-09", "UV-10", "UV-11"],
-      "hazards": ["GOV-01", "GOV-02", "GOV-03", "GOV-04"],
+      "hazards": ["GOV-01", "GOV-02", "GOV-03", "GOV-04", "H-16"],
       "severity": "critical",
-      "verification": ["V-GOV-FREEZE", "V-GOV-TRACE"]
+      "verification": ["V-GOV-FREEZE", "V-GOV-TRACE", "V-GIT-STATE"]
     },
     {
       "id": "REQ-GOV-002",
-      "statement": "每项高影响要求必须双向追溯到用户价值、失效、设计控制、实现、测试和当前证据；孤儿节点阻止通过。",
+      "statement": "每项高影响要求必须双向追溯到用户原文、价值、失效、设计控制、实现、可执行 verification、oracle、反例夹具、当前候选证据和 finding；设计冻结允许证据为 not_run_preimplementation，产品发布只接受绑定当前候选且 verdict=pass 的必需证据，任何孤儿节点阻止相应阶段通过。",
       "source_values": ["UV-01", "UV-06", "UV-08"],
-      "hazards": ["GOV-02", "GOV-05", "IMP-01", "OPS-05"],
+      "hazards": ["GOV-02", "GOV-05", "IMP-01", "OPS-05", "H-16"],
       "severity": "critical",
-      "verification": ["V-GOV-TRACE", "V-USER-PROXY"]
+      "verification": ["V-GOV-TRACE", "V-EVIDENCE-BINDING", "V-USER-PROXY"]
     },
     {
       "id": "REQ-GOV-003",
-      "statement": "作者、构造者和同源自评不得单独批准完成；open critical/major 审查发现阻止发布。",
+      "statement": "作者、构造者和同源自评不得单独批准完成；builder/reviewer/user-proxy 具有稳定互斥主体 ID，独立证据绑定候选 commit/tree、冻结包、审查输入、生成方式和原始结果；未知缺陷探针与独立新增测试证明审查不是空声明；open critical/major 阻止发布。",
       "source_values": ["UV-01", "UV-09", "UV-10"],
-      "hazards": ["GOV-03", "ORG-02", "VER-02"],
+      "hazards": ["GOV-03", "ORG-02", "VER-02", "H-16"],
       "severity": "critical",
-      "verification": ["V-GOV-AUTHORITY", "V-INDEPENDENT-REVIEW", "V-USER-PROXY"]
+      "verification": ["V-GOV-AUTHORITY", "V-INDEPENDENT-REVIEW", "V-INDEPENDENCE-PROBE", "V-USER-PROXY"]
     },
     {
       "id": "REQ-CORE-001",
@@ -133,11 +138,11 @@
     },
     {
       "id": "REQ-DATA-001",
-      "statement": "每个数据快照保存实际供应商/feed、精确请求、原始响应、规范化记录、获取/观察/可见时间、覆盖范围、哈希、许可状态和修订谱系。",
+      "statement": "每个数据快照保存实际供应商/feed、精确请求、原始响应、规范化记录、受控采集事务生成且调用方不能回填的记录时间、供应商观察/可见时间、覆盖范围、哈希、许可状态和修订谱系。",
       "source_values": ["UV-01", "UV-02"],
-      "hazards": ["RES-04", "IMP-02", "IMP-03"],
+      "hazards": ["RES-04", "IMP-02", "IMP-03", "H-14"],
       "severity": "critical",
-      "verification": ["V-DATA-CONTRACT", "V-DATA-FAULTS"]
+      "verification": ["V-DATA-CONTRACT", "V-DATA-FAULTS", "V-TRUSTED-TIME"]
     },
     {
       "id": "REQ-DATA-002",
@@ -164,6 +169,22 @@
       "verification": ["V-CORPORATE-ACTIONS", "V-DATA-FAULTS"]
     },
     {
+      "id": "REQ-EVIDENCE-001",
+      "statement": "URL、RSS、文件和人工来源以 SourceSnapshot 保存真实来源类型、规范 URL/路径、原始内容、published/available/recorded 时间、内容哈希、取得方式和上游来源簇；外部内容始终是不可信数据，不能携带授权、工具指令或完成裁决。",
+      "source_values": ["UV-01", "UV-05", "UV-08"],
+      "hazards": ["RES-03", "RES-04", "SEC-01", "H-12"],
+      "severity": "critical",
+      "verification": ["V-SOURCE-SNAPSHOT", "V-PROMPT-INJECTION", "V-TRUSTED-TIME"]
+    },
+    {
+      "id": "REQ-EVIDENCE-002",
+      "statement": "研究内容拆成原子 claim，并明确 fact/inference/hypothesis/unknown、support/challenge、原文 byte range/hash、验证者和失效状态；引用存在与语义蕴含分开，决定关键 claim 未经人工或独立验证时必须显式未证明且不能作为唯一通过依据。",
+      "source_values": ["UV-01", "UV-02", "UV-09"],
+      "hazards": ["RES-02", "RES-05", "VER-03", "H-13"],
+      "severity": "critical",
+      "verification": ["V-CLAIM-EVIDENCE", "V-CLAIMS", "V-INDEPENDENT-REVIEW"]
+    },
+    {
       "id": "REQ-AI-001",
       "statement": "AI 输出只能以结构化 RecommendationCandidate 导入，包含模型/Prompt 标识、证据、反证、未知、置信、失效条件、期限和 no-trade 选项。",
       "source_values": ["UV-01", "UV-04", "UV-09"],
@@ -173,11 +194,11 @@
     },
     {
       "id": "REQ-AI-002",
-      "statement": "AI/import actor 不能创建人工决定、风险政策确认、风险批准或 fill；建议原文在人工修改后仍保留。",
+      "statement": "AI/import actor 不能创建人工决定、风险政策确认、风险批准或 fill；actor 不从请求体读取，高影响人工动作要求未导出给 AI 的本地确认能力和服务器签发的短期会话；建议原文在人工修改后仍保留。",
       "source_values": ["UV-03", "UV-04"],
-      "hazards": ["H-02", "SEC-02", "HUM-02"],
+      "hazards": ["H-02", "SEC-02", "HUM-02", "H-14"],
       "severity": "critical",
-      "verification": ["V-ACTOR-AUTH", "V-BLACKBOX", "V-SECURITY"]
+      "verification": ["V-ACTOR-AUTH", "V-HUMAN-CAPABILITY", "V-BLACKBOX", "V-SECURITY"]
     },
     {
       "id": "REQ-HUMAN-001",
@@ -189,11 +210,11 @@
     },
     {
       "id": "REQ-RISK-001",
-      "statement": "风险政策是不可原位修改的版本；首个政策需人工确认，修订按当前政策规定的冷却期未来生效，运行中无 override。",
+      "statement": "风险政策和上层 paper investment mandate 是不可原位修改的版本；初始资金、目标、允许宇宙、风险承受边界和首个政策均由人工确认，在此之前只读；修订按当前政策规定的冷却期未来生效，运行中无 override。",
       "source_values": ["UV-03", "UV-04"],
-      "hazards": ["H-09", "SEC-02"],
+      "hazards": ["H-09", "SEC-02", "H-17"],
       "severity": "critical",
-      "verification": ["V-RISK-POLICY", "V-ACTOR-AUTH", "V-FAULTS"]
+      "verification": ["V-RISK-POLICY", "V-POLICY-QUALITY", "V-HUMAN-CAPABILITY", "V-ACTOR-AUTH", "V-FAULTS"]
     },
     {
       "id": "REQ-RISK-002",
@@ -228,6 +249,14 @@
       "verification": ["V-ORDER-STATE", "V-REPLAY", "V-CONCURRENCY", "V-FAULTS"]
     },
     {
+      "id": "REQ-PAPER-003",
+      "statement": "金额、数量、价格、费用和比率使用明确 Decimal 精度与舍入规则；拆股、现金分红、标的身份变化和无法自动处理的公司行动按生效时间形成不可变、幂等、事务化账户事件，并在持仓、成本、现金、NAV、风险、重放和三轨评估中一致。",
+      "source_values": ["UV-01", "UV-02", "UV-03"],
+      "hazards": ["H-08", "H-18", "IMP-05"],
+      "severity": "critical",
+      "verification": ["V-MONEY", "V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY", "V-RISK-STATE"]
+    },
+    {
       "id": "REQ-RESEARCH-001",
       "statement": "投资假设在测试前冻结 thesis、机制、宇宙、信号、失效条件、参数范围、数据区间、成本、基准、主指标和试验预算；修改生成新版本。",
       "source_values": ["UV-01", "UV-02", "UV-05"],
@@ -242,6 +271,14 @@
       "hazards": ["H-06", "VER-06"],
       "severity": "critical",
       "verification": ["V-HOLDOUT", "V-RUN-MANIFEST"]
+    },
+    {
+      "id": "REQ-RESEARCH-003",
+      "statement": "相近假设及其版本属于不可重置的 experiment family，跨版本累计选择次数、全部尝试和 AI-origin contamination 状态；无法证明独立于模型历史知识的旧历史留出不得成为优势的决定性证据，最终优势判断必须等待冻结后的未来纸面样本。",
+      "source_values": ["UV-01", "UV-02", "UV-09"],
+      "hazards": ["RES-02", "VER-06", "H-15"],
+      "severity": "critical",
+      "verification": ["V-EXPERIMENT-FAMILY", "V-HOLDOUT", "V-CONDITIONAL-CLAIMS"]
     },
     {
       "id": "REQ-BACKTEST-001",
@@ -381,11 +418,14 @@
     }
   ],
   "verification_catalog": [
-    {"id": "V-GOV-FREEZE", "kind": "deterministic", "description": "冻结包哈希与合同版本一致，受保护文件未被原位修改"},
-    {"id": "V-GOV-TRACE", "kind": "deterministic_plus_review", "description": "双向追踪完整、无 orphan、每个 critical requirement 至少有独立行为证据"},
-    {"id": "V-GOV-AUTHORITY", "kind": "deterministic", "description": "候选作者与验收 verdict 权限分离"},
-    {"id": "V-INDEPENDENT-REVIEW", "kind": "independent_read_only", "description": "未参与构造者提交审查和额外反例"},
+    {"id": "V-GOV-FREEZE", "kind": "deterministic", "description": "两阶段冻结包绑定研究登记、用户原文/意图、合同、verification specs、追溯、主体和规范性蓝图；研究关闭且受保护文件匹配基线 commit"},
+    {"id": "V-GOV-TRACE", "kind": "deterministic_plus_review", "description": "双向追踪完整、无 orphan，verification spec 具有执行器、输入、oracle、反例、结果 schema、证据路径和 requirement 反向链接"},
+    {"id": "V-GOV-AUTHORITY", "kind": "deterministic", "description": "候选作者、独立 reviewer、user-proxy 与 human-reserved actor 主体互斥，证据 provenance 可核对"},
+    {"id": "V-INDEPENDENT-REVIEW", "kind": "independent_read_only", "description": "未参与候选构造者直接读取冻结输入、原始仓库和运行结果，提交绑定当前候选的额外反例与裁决"},
+    {"id": "V-INDEPENDENCE-PROBE", "kind": "adversarial_independent", "description": "独立 reviewer 对构造者事先未知的缺陷/变异执行探针并证明能拒绝假绿"},
     {"id": "V-USER-PROXY", "kind": "independent_read_only_plus_deterministic", "description": "用户立场检察官逐项重放意图并可否决"},
+    {"id": "V-EVIDENCE-BINDING", "kind": "deterministic", "description": "每项证据绑定 frozen bundle、candidate commit/tree、run manifest、verification、主体、输入与原始结果 hash"},
+    {"id": "V-GIT-STATE", "kind": "deterministic_plus_remote", "description": "冻结/发布文件全部 tracked，项目作用域 clean，基线和候选 commit 可从 origin 获取且 blob/tree 与证据一致"},
     {"id": "V-NO-LIVE", "kind": "static_and_behavioral", "description": "源码、配置、网络探针和用户旅程中不存在 live trading"},
     {"id": "V-SECURITY", "kind": "fault_and_blackbox", "description": "loopback、Host/Origin、mutation、权限和无 telemetry"},
     {"id": "V-BLACKBOX", "kind": "blackbox", "description": "只通过 CLI/HTTP 完成真实用户旅程"},
@@ -397,23 +437,32 @@
     {"id": "V-DATA-CONTRACT", "kind": "contract", "description": "快照原始/规范化/时间/来源/许可/修订字段完整"},
     {"id": "V-DATA-FAULTS", "kind": "fault_injection", "description": "传输、完整性、语义、feed、修订和公司行动故障"},
     {"id": "V-PIT", "kind": "adversarial", "description": "事后取得和未来可见数据被拒绝"},
+    {"id": "V-TRUSTED-TIME", "kind": "adversarial", "description": "采集记录时间由受控事务产生；请求体、导入包、直接 API 和回放不能回填或伪造"},
     {"id": "V-PREFIX-CAUSALITY", "kind": "metamorphic", "description": "追加未来数据不改变过去信号"},
     {"id": "V-CORPORATE-ACTIONS", "kind": "golden_fixture", "description": "raw + actions 本地重算及差异定位"},
+    {"id": "V-SOURCE-SNAPSHOT", "kind": "contract_and_integrity", "description": "URL/RSS/文件/人工来源的原文、真实身份、时间、hash、取得方式和来源簇可重算"},
+    {"id": "V-PROMPT-INJECTION", "kind": "adversarial", "description": "来源正文中的授权、工具、规则或完成指令只能作为不可信内容保存，不能改变系统行为"},
+    {"id": "V-CLAIM-EVIDENCE", "kind": "integrity_plus_independent_semantic_review", "description": "原子 claim 的 excerpt/range/hash/支持挑战关系完整；矛盾或不蕴含引用被拒绝或标为未证明"},
     {"id": "V-PROVIDER", "kind": "contract_and_optional_probe", "description": "Tiingo 离线契约与无凭据公开结构探针"},
     {"id": "V-AI-SCHEMA", "kind": "schema_and_fault", "description": "建议证据、反证、未知和 no-trade 完整"},
-    {"id": "V-ACTOR-AUTH", "kind": "adversarial", "description": "AI/import actor 不能伪造 human/gate/fill"},
+    {"id": "V-ACTOR-AUTH", "kind": "adversarial", "description": "请求 actor 字段无效；AI/import、直接 API/CLI/DB、导入和回放不能伪造 human/gate/fill"},
+    {"id": "V-HUMAN-CAPABILITY", "kind": "blackbox_and_adversarial", "description": "高影响动作需要项目导出与普通自动化不可取得的本地人工确认能力；实际人工旅程与伪造攻击均留证"},
     {"id": "V-DECISION", "kind": "integration", "description": "决定绑定所见输入和行为字段"},
     {"id": "V-RISK-POLICY", "kind": "state_machine", "description": "政策不可变、冷却和无 override"},
+    {"id": "V-POLICY-QUALITY", "kind": "human_reserved_plus_adversarial", "description": "未设 mandate 时只读；极宽、矛盾、零冷却和缺失边界场景被拒绝，真实参数仍保留给 Javen"},
     {"id": "V-RISK-BINDING", "kind": "adversarial", "description": "批准与完整意图绑定，任何字段错配拒绝"},
     {"id": "V-RISK-STATE", "kind": "integration", "description": "风险只用权威账户和频率状态"},
     {"id": "V-ATOMICITY", "kind": "fault_injection", "description": "账本/磁盘/提交失败不产生未审计状态变化"},
     {"id": "V-ORDER-STATE", "kind": "state_machine", "description": "完整 paper 与 external-boundary 生命周期"},
     {"id": "V-REPLAY", "kind": "integration", "description": "事件重放与物化账户逐项一致"},
+    {"id": "V-MONEY", "kind": "golden_property", "description": "Decimal 精度、舍入、费用和守恒在边界/重复运算中一致"},
+    {"id": "V-ACCOUNT-CORPORATE-ACTIONS", "kind": "golden_fault_and_replay", "description": "拆股、现金分红、身份变化及未知行动对账户、NAV、风险、重放和三轨一致"},
     {"id": "V-CONCURRENCY", "kind": "concurrency", "description": "重复和并发请求只产生一次合法状态变化"},
     {"id": "V-FAULTS", "kind": "fault_injection", "description": "关键模块的拒绝、unknown、崩溃和恢复"},
     {"id": "V-HYPOTHESIS", "kind": "state_machine", "description": "预注册冻结和版本转换门"},
     {"id": "V-BACKTEST", "kind": "golden_and_integration", "description": "成本、基准、完整路径和产物"},
     {"id": "V-HOLDOUT", "kind": "adversarial", "description": "留出消费后不能继续冒充独立"},
+    {"id": "V-EXPERIMENT-FAMILY", "kind": "adversarial", "description": "相近假设、版本和 AI 来源不能重置全局试验计数、污染状态或只保留赢家"},
     {"id": "V-BACKTEST-FAULTS", "kind": "fault_and_metamorphic", "description": "未来信息、日期缺口和策略错误"},
     {"id": "V-ARTIFACTS", "kind": "deterministic", "description": "运行产物内容寻址、不可覆盖且清单完整"},
     {"id": "V-THREE-TRACK", "kind": "integration", "description": "AI、人、基准同口径分轨"},
@@ -431,7 +480,7 @@
     {"id": "V-DOCS", "kind": "executable_documentation", "description": "文档命令在干净环境可运行"},
     {"id": "V-TEST-PEDIGREE", "kind": "review", "description": "区分开发测试、独立测试、fixture 和真实候选"},
     {"id": "V-CLAIMS", "kind": "deterministic_plus_review", "description": "最终主张不超过证据"},
-    {"id": "V-CONDITIONAL-CLAIMS", "kind": "deterministic", "description": "缺 token/账户的条件性门保持未证明"}
+    {"id": "V-CONDITIONAL-CLAIMS", "kind": "deterministic", "description": "前置条件、允许状态转换、必跑门、证据和总 verdict 一致；未证明条件不能被写成无条件通过"}
   ],
   "gates": [
     {
@@ -470,8 +519,13 @@
       "expected_exit": 0
     },
     {
-      "id": "GATE-08-DIFF",
-      "command": "git diff --check",
+      "id": "GATE-08-RELEASE-PREDICATE",
+      "command": "python3 scripts/verify_release.py --evidence evidence/acceptance/latest.json",
+      "expected_exit": 0
+    },
+    {
+      "id": "GATE-09-GIT-STATE",
+      "command": "python3 scripts/verify_git_state.py --require-origin",
       "expected_exit": 0
     }
   ],
@@ -504,23 +558,63 @@
   "conditional_gates": [
     {
       "id": "COND-TIINGO-LIVE-PROBE",
-      "requires": "用户自有 TIINGO_API_TOKEN",
-      "current_expected_status_without_input": "not_run_missing_user_credential",
+      "applies_to_requirements": ["REQ-PROVIDER-001"],
+      "severity": "major",
+      "prerequisite_probe": "只检测 TIINGO_API_TOKEN 是否存在，不记录值",
+      "allowed_states": ["not_run_missing_user_credential", "mandatory_pending", "passed", "failed"],
+      "when_prerequisite_absent": "not_run_missing_user_credential",
+      "when_prerequisite_present": "mandatory_pending_then_passed_or_failed",
+      "mandatory_gate_when_ready": "GATE-TIINGO-LIVE-PROBE",
+      "evidence_path": "evidence/conditional/tiingo_live_probe.json",
+      "release_mapping": "缺凭据时 core_pass_with_unproven_conditions；凭据存在而未跑或失败时 blocked",
       "must_not_be_claimed": "Tiingo 真实账户、质量、覆盖和许可验收通过"
     },
     {
       "id": "COND-EXTERNAL-PAPER",
-      "requires": "未来明确授权、Paper-only 账户和独立凭据",
-      "current_expected_status_without_input": "out_of_scope",
+      "applies_to_requirements": ["REQ-PROVIDER-002"],
+      "severity": "critical",
+      "prerequisite_probe": "检查冻结 scope 是否仍明确禁止任何网络下单适配器",
+      "allowed_states": ["out_of_scope"],
+      "when_prerequisite_absent": "out_of_scope",
+      "when_prerequisite_present": "out_of_scope",
+      "mandatory_gate_when_ready": null,
+      "evidence_path": "evidence/conditional/external_paper.json",
+      "release_mapping": "始终不属于 V1 core verdict；任何实现或凭据使 V-NO-LIVE 失败并阻止发布",
       "must_not_be_claimed": "Alpaca/IBKR/其他外部 Paper 认证、成交和对账通过"
     },
     {
       "id": "COND-LONGITUDINAL-EDGE",
-      "requires": "未来未见纸面样本和预先定义的评估周期",
-      "current_expected_status_without_input": "not_yet_observable",
+      "applies_to_requirements": ["REQ-RESEARCH-003", "REQ-REVIEW-001", "REQ-QUAL-002"],
+      "severity": "critical",
+      "prerequisite_probe": "检查冻结后未来纸面样本数、预注册周期是否结束及 experiment-family 污染状态",
+      "allowed_states": ["not_yet_observable", "mandatory_pending", "passed", "failed", "inconclusive"],
+      "when_prerequisite_absent": "not_yet_observable",
+      "when_prerequisite_present": "mandatory_pending_then_passed_failed_or_inconclusive",
+      "mandatory_gate_when_ready": "GATE-LONGITUDINAL-EVALUATION",
+      "evidence_path": "evidence/conditional/longitudinal_edge.json",
+      "release_mapping": "不影响本地工作台 core release；始终阻止盈利、跑赢市场和实盘可用主张，直到独立门通过",
       "must_not_be_claimed": "系统或策略能赚钱、跑赢市场或可投入真实资金"
+    },
+    {
+      "id": "COND-JAVEN-FIELD-USE",
+      "applies_to_requirements": ["REQ-RISK-001", "REQ-UX-001", "REQ-UX-002", "REQ-REVIEW-002"],
+      "severity": "major",
+      "prerequisite_probe": "检查 Javen 是否完成首次人工 onboarding、至少一次真实纸面研究决定复盘，以及预注册的持续使用窗口是否结束",
+      "allowed_states": ["not_yet_observable", "mandatory_pending", "passed", "failed", "inconclusive"],
+      "when_prerequisite_absent": "not_yet_observable",
+      "when_prerequisite_present": "mandatory_pending_then_passed_failed_or_inconclusive",
+      "mandatory_gate_when_ready": "GATE-JAVEN-FIELD-USE",
+      "evidence_path": "evidence/conditional/javen_field_use.json",
+      "release_mapping": "自动化完成时只能称 core_release_candidate；首次人工旅程后可称 personal_core_accepted；持续采用和行为改善在窗口结束前保持未证明",
+      "must_not_be_claimed": "已经证明长期好用、降低情绪失控或 Javen 会持续采用"
     }
   ],
+  "release_verdicts": {
+    "blocked": "任一必需 critical/major verification 非 pass、候选/冻结绑定不一致、open critical/major finding、条件前置已满足但 mandatory gate 未通过，或独立主体规则失败",
+    "core_release_candidate": "冻结合同下全部可自动和独立验证的 core 项通过，但真实 Javen onboarding/长期使用尚未发生",
+    "personal_core_accepted": "core_release_candidate 且 Javen 完成真实人工 onboarding 与至少一条端到端纸面旅程；不包含长期采用或投资优势",
+    "core_pass_with_unproven_conditions": "仅用于报告条件门边界，不是无条件完成或投资有效 verdict"
+  },
   "failure_policy": {
     "critical": "立即阻止候选通过；修复后重跑全部受影响门和独立审查",
     "major": "阻止候选通过；可以显式 supersede 要求但不能由构造者单方降级",
@@ -529,8 +623,18 @@
   },
   "change_control": {
     "before_freeze": "独立挑战发现可修改本文件，并保留 Git 历史",
-    "freeze_action": "状态改为 frozen，并把本文件、USER_INTENT_V1.json、TRACEABILITY_V1.json 的 SHA-256 写入 FROZEN_BUNDLE_V1.json",
-    "after_freeze": "只允许创建 V2 或更高版本并声明 supersedes、改变原因、受影响要求和需重跑证据"
+    "freeze_action": "先把全部规范文件提交并推送为 baseline commit，再生成只引用该 baseline commit/tree/blob/hash 的 FROZEN_BUNDLE_V1.json 并第二次提交推送；研究 challenge=completed、stop_rule.met=true、全部规范文件 tracked 且项目作用域 clean 是硬前置",
+    "frozen_files": [
+      "governance/USER_SOURCE_EXCERPTS_V1.json",
+      "governance/USER_INTENT_V1.json",
+      "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+      "governance/ACCEPTANCE_CONTRACT_V1.json",
+      "governance/VERIFICATION_SPECS_V1.json",
+      "governance/TRACEABILITY_V1.json",
+      "governance/ASSURANCE_SUBJECTS_V1.json",
+      "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
+    ],
+    "after_freeze": "只允许创建 V2 或更高版本；构造者不得删除 critical/major requirement、降低 severity、扩大 non-goal 或把必需项转为 conditional。自动差分发现任何弱化即阻止发布；只有可核对的新 Javen 原文确认可授权语义弱化，且旧合同继续裁决新合同不得静默降级"
   },
   "loop_budget": {
     "same_root_cause_retry_limit": 3,

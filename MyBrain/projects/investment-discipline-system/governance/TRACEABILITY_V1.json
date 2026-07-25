@@ -6,12 +6,12 @@
     {
       "id": "CTRL-GOV-FREEZE",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-做项目的用户立场检察官",
-      "implementation_targets": ["scripts/verify_governance.py", "governance/FROZEN_BUNDLE_V1.json"]
+      "implementation_targets": ["scripts/verify_governance.py", "scripts/verify_git_state.py", "governance/FROZEN_BUNDLE_V1.json"]
     },
     {
       "id": "CTRL-GOV-TRACE",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#保障主张",
-      "implementation_targets": ["governance/TRACEABILITY_V1.json", "scripts/user_proxy_gate.py"]
+      "implementation_targets": ["governance/TRACEABILITY_V1.json", "governance/VERIFICATION_SPECS_V1.json", "governance/ASSURANCE_SUBJECTS_V1.json", "scripts/verify_release.py", "scripts/user_proxy_gate.py"]
     },
     {
       "id": "CTRL-LOCAL-BOUNDARY",
@@ -54,6 +54,11 @@
       "implementation_targets": ["src/investment_discipline/market_data.py"]
     },
     {
+      "id": "CTRL-EVIDENCE",
+      "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#来源主张与新闻",
+      "implementation_targets": ["src/investment_discipline/evidence.py", "src/investment_discipline/sources.py", "src/investment_discipline/schema.sql"]
+    },
+    {
       "id": "CTRL-AI-CANDIDATE",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-是离线研究协作者",
       "implementation_targets": ["src/investment_discipline/recommendations.py", "src/investment_discipline/schemas.py"]
@@ -62,6 +67,11 @@
       "id": "CTRL-HUMAN-DECISION",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#建议与人工决定",
       "implementation_targets": ["src/investment_discipline/decisions.py", "web/app.js"]
+    },
+    {
+      "id": "CTRL-HUMAN-CAPABILITY",
+      "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-是离线研究协作者",
+      "implementation_targets": ["src/investment_discipline/auth.py", "src/investment_discipline/server.py", "web/app.js"]
     },
     {
       "id": "CTRL-POLICY",
@@ -79,9 +89,19 @@
       "implementation_targets": ["src/investment_discipline/paper.py", "src/investment_discipline/reconcile.py"]
     },
     {
+      "id": "CTRL-MONEY-ACTIONS",
+      "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#纪律与账户",
+      "implementation_targets": ["src/investment_discipline/money.py", "src/investment_discipline/paper.py", "src/investment_discipline/market_data.py"]
+    },
+    {
       "id": "CTRL-HYPOTHESIS",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#预注册",
       "implementation_targets": ["src/investment_discipline/research.py"]
+    },
+    {
+      "id": "CTRL-EXPERIMENT-FAMILY",
+      "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#回测与诚实评估",
+      "implementation_targets": ["src/investment_discipline/research.py", "src/investment_discipline/backtest.py"]
     },
     {
       "id": "CTRL-BACKTEST",
@@ -157,16 +177,20 @@
     {"requirement_id": "REQ-DATA-002", "control_ids": ["CTRL-PIT", "CTRL-SNAPSHOT"]},
     {"requirement_id": "REQ-DATA-003", "control_ids": ["CTRL-SNAPSHOT", "CTRL-TIINGO"]},
     {"requirement_id": "REQ-DATA-004", "control_ids": ["CTRL-CORPORATE-ACTIONS"]},
+    {"requirement_id": "REQ-EVIDENCE-001", "control_ids": ["CTRL-EVIDENCE", "CTRL-SNAPSHOT", "CTRL-SECURITY"]},
+    {"requirement_id": "REQ-EVIDENCE-002", "control_ids": ["CTRL-EVIDENCE", "CTRL-GOV-TRACE"]},
     {"requirement_id": "REQ-AI-001", "control_ids": ["CTRL-AI-CANDIDATE"]},
-    {"requirement_id": "REQ-AI-002", "control_ids": ["CTRL-AI-CANDIDATE", "CTRL-HUMAN-DECISION", "CTRL-APPROVAL"]},
-    {"requirement_id": "REQ-HUMAN-001", "control_ids": ["CTRL-HUMAN-DECISION", "CTRL-BEHAVIOR"]},
-    {"requirement_id": "REQ-RISK-001", "control_ids": ["CTRL-POLICY"]},
+    {"requirement_id": "REQ-AI-002", "control_ids": ["CTRL-AI-CANDIDATE", "CTRL-HUMAN-DECISION", "CTRL-HUMAN-CAPABILITY", "CTRL-APPROVAL"]},
+    {"requirement_id": "REQ-HUMAN-001", "control_ids": ["CTRL-HUMAN-DECISION", "CTRL-HUMAN-CAPABILITY", "CTRL-BEHAVIOR"]},
+    {"requirement_id": "REQ-RISK-001", "control_ids": ["CTRL-POLICY", "CTRL-HUMAN-CAPABILITY", "CTRL-BEHAVIOR"]},
     {"requirement_id": "REQ-RISK-002", "control_ids": ["CTRL-APPROVAL"]},
     {"requirement_id": "REQ-RISK-003", "control_ids": ["CTRL-APPROVAL", "CTRL-ACCOUNT"]},
     {"requirement_id": "REQ-PAPER-001", "control_ids": ["CTRL-DB", "CTRL-LEDGER", "CTRL-ACCOUNT"]},
     {"requirement_id": "REQ-PAPER-002", "control_ids": ["CTRL-ACCOUNT", "CTRL-EXT-PAPER"]},
+    {"requirement_id": "REQ-PAPER-003", "control_ids": ["CTRL-ACCOUNT", "CTRL-MONEY-ACTIONS", "CTRL-CORPORATE-ACTIONS"]},
     {"requirement_id": "REQ-RESEARCH-001", "control_ids": ["CTRL-HYPOTHESIS"]},
     {"requirement_id": "REQ-RESEARCH-002", "control_ids": ["CTRL-HYPOTHESIS", "CTRL-RUN"]},
+    {"requirement_id": "REQ-RESEARCH-003", "control_ids": ["CTRL-HYPOTHESIS", "CTRL-EXPERIMENT-FAMILY", "CTRL-RUN"]},
     {"requirement_id": "REQ-BACKTEST-001", "control_ids": ["CTRL-PIT", "CTRL-BACKTEST"]},
     {"requirement_id": "REQ-BACKTEST-002", "control_ids": ["CTRL-BACKTEST", "CTRL-RUN"]},
     {"requirement_id": "REQ-REVIEW-001", "control_ids": ["CTRL-REVIEW"]},
