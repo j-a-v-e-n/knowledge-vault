@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-07-23 03:0X by daemon dawn-shift [审批 0 条待执行（⏳ 列无 [x] 勾选，4 条 [ ] 未勾选待 Javen）；ai-watch ✅ 写了 4 条（机器人 position paper "光靠 VLA+world model 撑不起" ⚡、VLM benchmark 分与 VLA 下游无相关性 🔍、HuMI 无机器人示范采数据 🔍、xAI 开源 Grok Build agent loop 🔍；落地 数据 grounding 瓶颈接 ECE148 💡 + Grok Build agent loop 参照 daemon 💡，2 search+2 fetch 核实）；email-triage ❌ Gmail MCP 不可用（连续第 7 次，同 6/22、7/1、7/11、7/12、7/21、7/22 → task-011e 待 Javen 主对话验证）；看板扫描：待启动 + 进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/npm/web/.claude 或 @javen 决策），无新可推进任务。⚠️ 看板多数 task deadline 已过数月（5/8~5/15），建议 Javen 做一次归账清理]
-上一次：2026-07-22 03:02 by daemon dawn-shift [ai-watch ✅ 5 条（Grok 4.5/Kimi K3/Gemini 3.6 Flash 密集刷新、Sonnet 5、Muse Spark 1.1、生成媒体降价、ACE-Brain-0.5 接 ECE148）；email-triage ❌ Gmail MCP 不可用（连续第 6 次）；看板无新可推进任务]
+**最后更新**：2026-07-25 03:01 by daemon dawn-shift [审批 0 条待执行（⏳ 列无 [x] 勾选，4 条 [ ] 未勾选待 Javen）；ai-watch ✅ 写了 3 条 + 1 存疑（SWE-1.7 coding agent 42.3% FrontierCode@1000tok/s ⚡、Robostral Navigate 8B 开源具身导航 🔍、LingBot-VLA 2.0 6万小时全身操作 🔍、"Opus 5" 传言消息源冲突⚠️未证实；落地 Robostral Navigate 直连 ECE148 自驾导航 💡，2 search+2 fetch 核实）；email-triage ❌ Gmail MCP 不可用（连续第 8 次，同 6/22、7/1、7/11、7/12、7/21、7/22、7/23 → task-011e 待 Javen 主对话验证）；看板扫描：待启动 + 进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/npm/web/.claude 或 @javen 决策 或 需主对话交互），无新可推进任务。⚠️ 看板多数 task deadline 已过数月（5/8~5/15），建议 Javen 做一次归账清理]
+上一次：2026-07-23 03:0X by daemon dawn-shift [ai-watch ✅ 4 条（机器人 position paper "光靠 VLA+world model 撑不起" ⚡、VLM benchmark 分与 VLA 下游无相关性 🔍、HuMI 🔍、Grok Build 🔍）；email-triage ❌ Gmail MCP 不可用（连续第 7 次）；看板无新可推进任务]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
