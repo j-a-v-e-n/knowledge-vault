@@ -406,6 +406,13 @@ def verify_harness_and_supply_chain(
         "python_standard_library_only_until_a_dependency_manifest_is_accepted"
     ):
         errors.append("core runtime dependency boundary differs")
+    for field, expected in (
+        ("boundary_manifest", "governance/DEPENDENCY_BOUNDARY_V1.json"),
+        ("boundary_verifier", "scripts/verify_dependency_boundary.py"),
+        ("boundary_tests", "governance_tests/test_dependency_boundary.py"),
+    ):
+        if supply.get(field) != expected:
+            errors.append(f"supply-chain {field} binding differs")
     exact_set(
         supply.get("dependency_manifest_required_fields"),
         {

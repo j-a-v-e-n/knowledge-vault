@@ -40,6 +40,7 @@ DECISION_AUTHORITY = GOVERNANCE / "DECISION_AUTHORITY_V1.json"
 PROJECT_METHOD_POLICY = GOVERNANCE / "PROJECT_METHOD_POLICY_V1.json"
 COMPONENT_REGISTRY = GOVERNANCE / "COMPONENT_REGISTRY_V1.json"
 CONTEXT_RECOVERY_SPEC = GOVERNANCE / "CONTEXT_RECOVERY_SPEC_V1.json"
+DEPENDENCY_BOUNDARY = GOVERNANCE / "DEPENDENCY_BOUNDARY_V1.json"
 WORK_PACKET_POLICY = GOVERNANCE / "WORK_PACKET_POLICY_V1.json"
 FROZEN_TEST_MANIFEST = GOVERNANCE / "FROZEN_TEST_MANIFEST_V1.json"
 MIGRATION_DRILL_SPEC = GOVERNANCE / "MIGRATION_DRILL_SPEC_V1.json"
@@ -90,6 +91,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/verify_assurance_metadata.py",
     "scripts/verify_component_registry.py",
     "scripts/verify_context_recovery.py",
+    "scripts/verify_dependency_boundary.py",
     "scripts/verify_frozen_tests.py",
     "scripts/verify_execution_loop.py",
     "scripts/verify_migration_drill.py",
@@ -109,6 +111,7 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "governance_tests/test_component_registry.py",
     "governance_tests/test_contract_supersession.py",
     "governance_tests/test_context_recovery.py",
+    "governance_tests/test_dependency_boundary.py",
     "governance_tests/test_frozen_tests.py",
     "governance_tests/test_execution_loop.py",
     "governance_tests/test_migration_drill.py",
@@ -138,6 +141,7 @@ NORMATIVE_JSON_PATHS = (
     "governance/PROJECT_METHOD_POLICY_V1.json",
     "governance/COMPONENT_REGISTRY_V1.json",
     "governance/CONTEXT_RECOVERY_SPEC_V1.json",
+    "governance/DEPENDENCY_BOUNDARY_V1.json",
     "governance/FROZEN_TEST_MANIFEST_V1.json",
     "governance/EXECUTION_LOOP_POLICY_V1.json",
     "governance/MIGRATION_DRILL_SPEC_V1.json",
@@ -4040,6 +4044,7 @@ def verify(allow_candidate: bool) -> list[str]:
     project_method_policy = load_json(PROJECT_METHOD_POLICY, errors)
     component_registry = load_json(COMPONENT_REGISTRY, errors)
     context_recovery_spec = load_json(CONTEXT_RECOVERY_SPEC, errors)
+    dependency_boundary = load_json(DEPENDENCY_BOUNDARY, errors)
     work_packet_policy = load_json(WORK_PACKET_POLICY, errors)
     frozen_test_manifest = load_json(FROZEN_TEST_MANIFEST, errors)
     migration_drill_spec = load_json(MIGRATION_DRILL_SPEC, errors)
@@ -4172,6 +4177,14 @@ def verify(allow_candidate: bool) -> list[str]:
             [
                 sys.executable,
                 str(PROJECT_ROOT / "scripts" / "verify_component_registry.py"),
+                "--json",
+            ],
+        ),
+        (
+            "dependency boundary",
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "verify_dependency_boundary.py"),
                 "--json",
             ],
         ),
@@ -4535,6 +4548,7 @@ def verify(allow_candidate: bool) -> list[str]:
     del (
         component_registry,
         context_recovery_spec,
+        dependency_boundary,
         work_packet_policy,
         frozen_test_manifest,
         migration_drill_spec,

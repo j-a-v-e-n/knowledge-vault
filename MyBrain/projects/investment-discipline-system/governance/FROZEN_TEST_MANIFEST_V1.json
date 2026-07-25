@@ -46,7 +46,7 @@
   "sources": [
     {
       "file": "governance_tests/test_project_method.py",
-      "sha256": "4db8e6175b50df0392369067a085dba6f8551751fe7fd86f589d933963849f6a"
+      "sha256": "07f24ee2beb48867bc75eec60718d4b7974e0d87f25feeaad9b1fbc02ed1eb3f"
     },
     {
       "file": "governance_tests/test_context_recovery.py",
@@ -65,7 +65,7 @@
     {
       "file": "governance_tests/test_project_method.py",
       "class_name": "ProjectMethodPolicyTests",
-      "normalized_ast_sha256": "9eed7afeb8d621ef07c215d5d0efa66d0a1eb4f44997f1af84fcd1cf020becc7"
+      "normalized_ast_sha256": "ee88d679c14467ed2e7074a29dae66fde26406fc208c1eaf86d90effc2adcdca"
     },
     {
       "file": "governance_tests/test_context_recovery.py",

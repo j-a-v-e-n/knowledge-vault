@@ -519,6 +519,17 @@ class ProjectMethodPolicyTests(unittest.TestCase):
             "supply-chain floating_versions_allowed differs",
         )
 
+    def test_dependency_boundary_binding_is_rejected_when_redirected(self) -> None:
+        def mutate(policy: dict[str, Any]) -> None:
+            policy["supply_chain"]["boundary_verifier"] = (
+                "scripts/unreviewed_dependency_check.py"
+            )
+
+        self.assert_rejected(
+            mutate,
+            "supply-chain boundary_verifier binding differs",
+        )
+
     def test_frozen_test_baseline_bypass_is_rejected(self) -> None:
         def mutate(policy: dict[str, Any]) -> None:
             policy["frozen_test_integrity"][

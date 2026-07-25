@@ -195,17 +195,20 @@ FAILURE_CASES: list[dict[str, Any]] = [
         "failure_id": "IMP-04",
         "case_id": "CASE-METHOD-FLOATING-DEPENDENCY",
         "commands": [
+            ["PYTHON", "scripts/verify_dependency_boundary.py", "--json"],
             [
                 "PYTHON",
                 "-m",
                 "unittest",
                 "governance_tests.test_project_method.ProjectMethodPolicyTests.test_floating_dependency_is_rejected",
+                "governance_tests.test_project_method.ProjectMethodPolicyTests.test_dependency_boundary_binding_is_rejected_when_redirected",
                 "governance_tests.test_assurance_metadata.AssuranceMetadataMutationTests.test_rejects_unpinned_action_reference",
+                "governance_tests.test_dependency_boundary",
                 "-v",
             ]
         ],
         "limitations": [
-            "Pinned direct actions do not by themselves prove every transitive dependency, install behavior, license, or future update."
+            "The static boundary binds declared imports, supported installer/config syntax, registered direct artifacts, and external Action revisions; it does not prove transitive installer resolution, upstream binary behavior, vulnerabilities, or every runtime-generated process argument."
         ],
     },
     {
@@ -229,16 +232,18 @@ FAILURE_CASES: list[dict[str, Any]] = [
         "failure_id": "SEC-06",
         "case_id": "CASE-METHOD-TELEMETRY-UNKNOWN",
         "commands": [
+            ["PYTHON", "scripts/verify_dependency_boundary.py", "--json"],
             [
                 "PYTHON",
                 "-m",
                 "unittest",
                 "governance_tests.test_project_method.ProjectMethodPolicyTests.test_unknown_telemetry_warning_is_rejected",
+                "governance_tests.test_dependency_boundary.DependencyBoundaryTests.test_unknown_telemetry_is_rejected",
                 "-v",
             ]
         ],
         "limitations": [
-            "A fail-closed telemetry policy does not prove the absence of indirect dependency telemetry or unobserved network behavior."
+            "The repository configuration fails closed on unknown declared telemetry, but static source inspection does not prove absence of indirect dependency telemetry, operating-system behavior, or unobserved network activity."
         ],
     },
     {

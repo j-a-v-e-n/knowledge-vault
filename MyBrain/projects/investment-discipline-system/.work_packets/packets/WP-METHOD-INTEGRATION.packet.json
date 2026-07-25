@@ -47,6 +47,10 @@
       "kind": "file"
     },
     {
+      "path": "governance/PROJECT_METHOD_POLICY_V1.json",
+      "kind": "file"
+    },
+    {
       "path": "governance/TRACEABILITY_V1.json",
       "kind": "file"
     },
@@ -138,7 +142,6 @@
     "EVIDENCE_GOVERNED_AI_SYSTEM.md",
     "PROJECT_CHARTER.md",
     "governance/CONTEXT_RECOVERY_SPEC_V1.json",
-    "governance/PROJECT_METHOD_POLICY_V1.json",
     "governance/WORK_PACKET_POLICY_V1.json",
     "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json"
   ],

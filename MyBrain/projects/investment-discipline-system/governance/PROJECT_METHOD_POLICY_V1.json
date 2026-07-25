@@ -128,6 +128,9 @@
   },
   "supply_chain": {
     "core_runtime_policy": "python_standard_library_only_until_a_dependency_manifest_is_accepted",
+    "boundary_manifest": "governance/DEPENDENCY_BOUNDARY_V1.json",
+    "boundary_verifier": "scripts/verify_dependency_boundary.py",
+    "boundary_tests": "governance_tests/test_dependency_boundary.py",
     "dependency_manifest_required_fields": [
       "name",
       "version_or_commit",

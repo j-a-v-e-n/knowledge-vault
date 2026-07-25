@@ -186,7 +186,7 @@
     },
     {
       "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
-      "sha256": "82a88217c5ab6be1b9b444ca8fca7a118cde64f75dfed7846004a213c1f7660f",
+      "sha256": "2e0003426a18df7aef813fd65a104bc2d18060fbbc9509ac43232ca7e0906b39",
       "role": "top_level_acceptance_contract",
       "required": true
     },
@@ -210,7 +210,7 @@
     },
     {
       "path": "governance/COMPONENT_REGISTRY_V1.json",
-      "sha256": "26604334dbe2aa90326fa51c78f32ad957cb8dafd55471ea04de1b2b1e1d9cb1",
+      "sha256": "8d7253705af86367437e15a190e6def6e815de3994c5ac982bffc06a34ff1286",
       "role": "component_boundary_dependency_and_removal_contract",
       "required": true
     },
@@ -227,6 +227,18 @@
       "required": true
     },
     {
+      "path": "governance/DEPENDENCY_BOUNDARY_V1.json",
+      "sha256": "c3c21e5640f8ed858879e70aa9ec241821e39d75a5a6a7a8b9ff6658a2b37de7",
+      "role": "runtime_dependency_supply_chain_and_telemetry_boundary",
+      "required": true
+    },
+    {
+      "path": "governance/EXECUTION_LOOP_POLICY_V1.json",
+      "sha256": "bab2e798cf44534bd2168c6ce9d11f2f8e4e5935b321a73575dd72fc9d52c75f",
+      "role": "bounded_execution_progress_and_stop_rule_contract",
+      "required": true
+    },
+    {
       "path": "governance/FAILURE_CLASSES_V1.json",
       "sha256": "9308b1d1af159ae57f65d1d6c06a97102b21a28bea6396d04ab3368908764851",
       "role": "failure_class_coverage_and_gap_contract",
@@ -239,8 +251,14 @@
       "required": true
     },
     {
+      "path": "governance/FROZEN_TEST_MANIFEST_V1.json",
+      "sha256": "97a9dfc53e658fc532f57ac2120e35a316823954a0c73fea1d6eea113c2e159f",
+      "role": "frozen_test_source_ast_and_clean_baseline_contract",
+      "required": true
+    },
+    {
       "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
-      "sha256": "eac4989de824013ba775ceba56a55af040e32a0047fdfe203c6b260263a49c1c",
+      "sha256": "7322bc89a003ec32d54bb11f30c75e9c03ad847313c36ed60341debda0dd4d61",
       "role": "design_freeze_and_release_scope_contract",
       "required": true
     },
@@ -251,9 +269,21 @@
       "required": true
     },
     {
+      "path": "governance/MIGRATION_DRILL_SPEC_V1.json",
+      "sha256": "118115fe49f91070a9d7efc634c67186552736b2f3e08ac7f0f236f81841d83a",
+      "role": "representative_migration_backup_rollback_and_replay_contract",
+      "required": true
+    },
+    {
       "path": "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json",
       "sha256": "6e82b742e0860179c1c0621834c99a94f61b2b37ab4ca8ee56330689de33624b",
       "role": "money_and_corporate_action_semantics_contract",
+      "required": true
+    },
+    {
+      "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
+      "sha256": "d7087f3ea64a9548278c2b8b9184891d3c190132a81263a35fa81d3112edba97",
+      "role": "paper_only_static_entrypoint_and_side_effect_boundary",
       "required": true
     },
     {
@@ -264,7 +294,7 @@
     },
     {
       "path": "governance/PROJECT_METHOD_POLICY_V1.json",
-      "sha256": "552ff39732d210129e207cb4f752768e8195a6640368dad66d8ff61808f750ad",
+      "sha256": "af217a24acdcc2a8434abd9c2168e9a8d025b930cbc20bf3e5c4889a9b713a87",
       "role": "reusable_ai_project_method_contract",
       "required": true
     },
@@ -276,7 +306,7 @@
     },
     {
       "path": "governance/TRACEABILITY_V1.json",
-      "sha256": "bc7c2956f50ebd34ddc7639c63f85781d74a22900e75c94ab3a11757122b3407",
+      "sha256": "6a3d4bdbc5d12182d927ac758c120041c5ed7a0b5bd54d3477bed5fcaf926f3c",
       "role": "requirements_controls_verification_trace_contract",
       "required": true
     },
@@ -338,6 +368,12 @@
       "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json",
       "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8",
       "role": "preregistered_gap_closure_protocol",
+      "required": true
+    },
+    {
+      "path": "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json",
+      "sha256": "948c4d06a0c3835c7e508a7700beba59e73f4875b04ffd74d9c465216debb5ef",
+      "role": "blocked_before_generation_same_task_method_comparison_protocol",
       "required": true
     },
     {
