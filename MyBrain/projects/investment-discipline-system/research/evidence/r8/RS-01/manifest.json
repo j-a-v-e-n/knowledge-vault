@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "topic_id": "RS-01",
+  "generated_at_utc": "2026-07-25T16:32:49Z",
+  "snapshot_root": "research/evidence/r8/RS-01/",
+  "snapshot_policy": {
+    "exact_saved_bytes_required": true,
+    "hash_only_is_insufficient": true,
+    "mutable_source_requires_retrieval_time": true,
+    "search_snippet_is_not_a_snapshot": true
+  },
+  "required_snapshot_class_verdicts": [
+    {
+      "required_class": "one versioned primary reporting or search method source",
+      "verdict": true,
+      "satisfied_by": [
+        "RS01-SRC-01"
+      ]
+    },
+    {
+      "required_class": "one empirical stopping or missed-study source",
+      "verdict": true,
+      "satisfied_by": [
+        "RS01-SRC-02",
+        "RS01-SRC-03"
+      ]
+    },
+    {
+      "required_class": "one practitioner counterexample thread or explicit no-result receipt",
+      "verdict": true,
+      "satisfied_by": [
+        "RS01-SRC-06"
+      ],
+      "note": "The mutable HTML thread endpoint returned HTTP 429, so the exact official Hacker News API JSON for the counted result item was saved instead; the HTML failure is retained in RS01_RETRIEVAL_FAILURE_RECEIPTS.md."
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "RS01-SRC-01",
+      "topic_id": "RS-01",
+      "query_ids": [
+        "R8-RS01-S1"
+      ],
+      "required_snapshot_class": "one versioned primary reporting or search method source",
+      "source_class": "official_primary_search_method",
+      "upstream_cluster_id": "S1-C04",
+      "canonical_url_or_repo_commit": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-04 ; Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 4, last updated March 2025",
+      "fixed_revision": "Cochrane Handbook version 6.5.1; chapter citation says last updated March 2025",
+      "retrieved_at_utc": "2026-07-25T16:27:03Z",
+      "retrieval_time_basis": "successful file completion mtime; curl reported HTTP 200 and the same effective URL",
+      "media_type": "text/html; charset=UTF-8",
+      "local_path": "research/evidence/r8/RS-01/RS01-SRC-01_cochrane_handbook_v6.5.1_ch04_2025.html",
+      "byte_count": 382125,
+      "sha256": "728bbac9ad5dae544d1a0549e0fe3f3812e00ad0f4e8c69a0dda2916f0efd26b",
+      "source_range_used": [
+        "chapter citation immediately before HTML fragment #section-4-1",
+        "HTML fragment #section-4-2-2 (Minimizing bias)",
+        "HTML fragment #section-4-4-11 (When to stop searching)",
+        "HTML fragment #section-4-5 (Documenting and reporting the search process)"
+      ],
+      "license_or_quotation_boundary": "No open-content license was inferred from the saved page. Keep as an internal research snapshot; use only brief attributed quotations with a canonical link, and do not redistribute the full snapshot.",
+      "snapshot_status": "saved_exact_response_bytes"
+    },
+    {
+      "source_id": "RS01-SRC-02",
+      "topic_id": "RS-01",
+      "query_ids": [
+        "R8-RS01-D1",
+        "R8-RS01-S1"
+      ],
+      "required_snapshot_class": "one empirical stopping or missed-study source",
+      "source_class": "versioned_primary_preprint_empirical_stopping",
+      "upstream_cluster_id": "D1-C04",
+      "canonical_url_or_repo_commit": "https://arxiv.org/pdf/2606.07071v1",
+      "fixed_revision": "arXiv:2606.07071v1; submitted 2026-06-05T09:09:37Z",
+      "retrieved_at_utc": "2026-07-25T16:27:25Z",
+      "media_type": "application/pdf",
+      "local_path": "research/evidence/r8/RS-01/RS01-SRC-02_decision_theoretic_stopping_arxiv_2606.07071v1.pdf",
+      "byte_count": 901478,
+      "sha256": "f9123e33da838b45f9aef4787720fb7f58ac3f0535ed39cf77fcb96767c73406",
+      "source_range_used": [
+        "PDF pages 1-2: Abstract, Introduction, and decision-theoretic foundations",
+        "PDF pages 8-10: systematic-review results, Discussion, and Conclusion"
+      ],
+      "license_or_quotation_boundary": "arXiv non-exclusive distribution license. Keep the PDF as an internal evidence snapshot; use brief attributed quotations and the fixed-version link. No downstream redistribution right is inferred.",
+      "snapshot_status": "saved_exact_response_bytes"
+    },
+    {
+      "source_id": "RS01-SRC-03",
+      "topic_id": "RS-01",
+      "query_ids": [
+        "R8-RS01-S1"
+      ],
+      "required_snapshot_class": "one empirical stopping or missed-study source",
+      "source_class": "peer_reviewed_empirical_missed_study_fulltext",
+      "upstream_cluster_id": "S1-C03",
+      "canonical_url_or_repo_commit": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9644550/fullTextXML ; PMCID PMC9644550 ; DOI 10.1186/s13643-022-02109-w",
+      "fixed_revision": "Europe PMC released version-of-record full text; XML metadata says released, not manuscript, not preprint, not retracted",
+      "retrieved_at_utc": "2026-07-25T16:29:40Z",
+      "media_type": "application/xml",
+      "local_path": "research/evidence/r8/RS-01/RS01-SRC-03_PMC9644550_fulltext.xml",
+      "byte_count": 73645,
+      "sha256": "6aa2f048c23bc62663c14cf11bf13143d07e60e442055cf3282590fbd6850aa0",
+      "source_range_used": [
+        "XML article-meta: article ids, publication state, permissions, and license",
+        "XML abstract id Abs1, paragraphs Par1-Par4",
+        "XML body section Sec1, paragraphs Par24-Par28"
+      ],
+      "license_or_quotation_boundary": "CC BY 4.0 as stated in the saved XML. Attribution, source link, license link, and change indication are required; third-party material may have separate rights.",
+      "snapshot_status": "saved_exact_response_bytes",
+      "preferred_package_note": "The NCBI OA API returned a CC BY package locator, but the returned HTTPS path produced HTTP 404 and the FTP path produced FTP 550. Exact full-text XML from Europe PMC was saved instead; see RS01_RETRIEVAL_FAILURE_RECEIPTS.md."
+    },
+    {
+      "source_id": "RS01-SRC-04",
+      "topic_id": "RS-01",
+      "query_ids": [
+        "R8-RS01-D2"
+      ],
+      "required_snapshot_class": "additional_decisive_deep_research_evaluation_source",
+      "source_class": "versioned_primary_preprint_evaluation",
+      "upstream_cluster_id": "D2-C08",
+      "canonical_url_or_repo_commit": "https://arxiv.org/pdf/2601.09688v1",
+      "fixed_revision": "arXiv:2601.09688v1; submitted 2026-01-14T18:38:31Z",
+      "retrieved_at_utc": "2026-07-25T16:27:38Z",
+      "media_type": "application/pdf",
+      "local_path": "research/evidence/r8/RS-01/RS01-SRC-04_deepresearch_eval_arxiv_2601.09688v1.pdf",
+      "byte_count": 2019220,
+      "sha256": "3b6a3b8032dcaea9187e5aea88854268c3cf3782ab83e968ea93e0e8b2129446",
+      "source_range_used": [
+        "PDF pages 1-2: Abstract and Introduction limitation on citation-linked-only verification",
+        "PDF pages 5-6: task-specific quality evaluation and Active Fact-Checking for cited and uncited statements"
+      ],
+      "license_or_quotation_boundary": "arXiv non-exclusive distribution license. Keep the PDF as an internal evidence snapshot; use brief attributed quotations and the fixed-version link. No downstream redistribution right is inferred.",
+      "snapshot_status": "saved_exact_response_bytes"
+    },
+    {
+      "source_id": "RS01-SRC-05",
+      "topic_id": "RS-01",
+      "query_ids": [
+        "R8-RS01-D2"
+      ],
+      "required_snapshot_class": "additional_decisive_literature_search_evaluation_source",
+      "source_class": "versioned_primary_preprint_evaluation",
+      "upstream_cluster_id": "D2-C02",
+      "canonical_url_or_repo_commit": "https://arxiv.org/pdf/2605.29234v1",
+      "fixed_revision": "arXiv:2605.29234v1; submitted 2026-05-28T01:50:52Z",
+      "retrieved_at_utc": "2026-07-25T16:27:49Z",
+      "media_type": "application/pdf",
+      "local_path": "research/evidence/r8/RS-01/RS01-SRC-05_rethinking_literature_search_arxiv_2605.29234v1.pdf",
+      "byte_count": 488268,
+      "sha256": "90f65ea8fae259321341042124f2446f7deaa697953cb79eb3818a2fdb91c390",
+      "source_range_used": [
+        "PDF page 1: Abstract and Introduction",
+        "PDF pages 3-4: matched-list evaluation, human-reference ground-truth analysis, and Discussion",
+        "PDF page 5: Limitations and Potential Risks"
+      ],
+      "license_or_quotation_boundary": "CC BY 4.0 as linked by the arXiv record. Attribution, license link, and change indication are required; no warranties are provided.",
+      "snapshot_status": "saved_exact_response_bytes"
+    },
+    {
+      "source_id": "RS01-SRC-06",
+      "topic_id": "RS-01",
+      "query_ids": [
+        "R8-RS01-S3"
+      ],
+      "required_snapshot_class": "one practitioner counterexample thread or explicit no-result receipt",
+      "source_class": "practitioner_community_counterexample_item",
+      "upstream_cluster_id": "S3-C05",
+      "canonical_url_or_repo_commit": "https://hacker-news.firebaseio.com/v0/item/47289837.json ; counted-result HTML locator https://news.ycombinator.com/item?id=47289837",
+      "fixed_revision": "mutable Hacker News item id 47289837; source time integer 1772906060, equivalent to 2026-03-07T17:54:20Z",
+      "retrieved_at_utc": "2026-07-25T16:28:25Z",
+      "media_type": "application/json; charset=utf-8",
+      "local_path": "research/evidence/r8/RS-01/RS01-SRC-06_hacker_news_item_47289837.json",
+      "byte_count": 1545,
+      "sha256": "4d4f907c245a1dd924f890beaef04c8f4efe726f3724247af2db105a95ff5841",
+      "source_range_used": [
+        "JSON fields $.id, $.parent, $.time, $.type, and $.text"
+      ],
+      "license_or_quotation_boundary": "No open license was inferred for user-contributed text. Keep as an internal research snapshot; quote only a brief attributed excerpt with the HN item link. It supports a failure hypothesis and verification-burden probe only, never incidence.",
+      "snapshot_status": "saved_exact_official_api_bytes",
+      "mutable_source_note": "The item can be edited or deleted upstream; retrieval UTC and hash bind only the saved bytes."
+    },
+    {
+      "source_id": "RS01-SRC-06-CONTEXT",
+      "topic_id": "RS-01",
+      "query_ids": [
+        "R8-RS01-S3"
+      ],
+      "required_snapshot_class": "context_for_RS01-SRC-06",
+      "source_class": "practitioner_community_parent_story_metadata",
+      "upstream_cluster_id": "S3-C05",
+      "canonical_url_or_repo_commit": "https://hacker-news.firebaseio.com/v0/item/47289406.json",
+      "fixed_revision": "mutable Hacker News story id 47289406; source time integer 1772903310, equivalent to 2026-03-07T17:08:30Z",
+      "retrieved_at_utc": "2026-07-25T16:28:44Z",
+      "media_type": "application/json; charset=utf-8",
+      "local_path": "research/evidence/r8/RS-01/RS01-SRC-06_hacker_news_parent_47289406.json",
+      "byte_count": 491,
+      "sha256": "f2882f6570e93190e76e3d878e5729c714f15b1690aee139b9d0eb0240b0c6a4",
+      "source_range_used": [
+        "JSON fields $.id, $.title, $.url, $.time, and $.kids"
+      ],
+      "license_or_quotation_boundary": "No open license inferred. Internal context snapshot only; title/link attribution permitted, and full user-content redistribution is not authorized.",
+      "snapshot_status": "saved_exact_official_api_bytes"
+    }
+  ],
+  "failure_receipts": [
+    {
+      "receipt_id": "RS01-FAIL-01",
+      "local_path": "research/evidence/r8/RS-01/RS01_RETRIEVAL_FAILURE_RECEIPTS.md",
+      "target": "https://news.ycombinator.com/item?id=47289837",
+      "outcome": "HTTP 429; no response body saved by curl --fail",
+      "required_class_effect": "none, because exact official API JSON bytes for the same counted item were saved as RS01-SRC-06"
+    },
+    {
+      "receipt_id": "RS01-FAIL-02",
+      "local_path": "research/evidence/r8/RS-01/RS01_RETRIEVAL_FAILURE_RECEIPTS.md",
+      "target": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/6f/42/PMC9644550.tar.gz",
+      "outcome": "HTTPS form returned HTTP 404; FTP form returned FTP 550",
+      "required_class_effect": "none, because exact full-text XML bytes for the same version-of-record article were saved from Europe PMC as RS01-SRC-03"
+    }
+  ]
+}

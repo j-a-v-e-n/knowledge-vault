@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "topic_id": "RS-04",
+  "generated_at_utc": "2026-07-25T16:34:28Z",
+  "required_snapshot_class_status": {
+    "one pinned current candidate repository": {
+      "status": "satisfied",
+      "source_ids": [
+        "R8-RS04-SNAP-FINRLX"
+      ]
+    },
+    "one maintainer test or architecture source": {
+      "status": "satisfied",
+      "source_ids": [
+        "R8-RS04-SNAP-ML4T"
+      ]
+    },
+    "one independent issue, security report, or user counterexample": {
+      "status": "satisfied",
+      "source_ids": [
+        "R8-RS04-SNAP-AITRADER-76",
+        "R8-RS04-SNAP-NAUTILUS-4564",
+        "R8-RS04-SNAP-NAUTILUS-4470"
+      ]
+    }
+  },
+  "sources": [
+    {
+      "source_id": "R8-RS04-SNAP-FINRLX",
+      "topic_id": "RS-04",
+      "snapshot_class": "one pinned current candidate repository",
+      "canonical_url_or_repo_commit": "https://github.com/AI4Finance-Foundation/FinRL-Trading/tree/e65d6f0483ead7d2ef4a5fc940cdf960392a25c1",
+      "repository_commit": "e65d6f0483ead7d2ef4a5fc940cdf960392a25c1",
+      "repository_tree": "25c9d3151c0e4b415b7676a2fdb0f1c3b4bcc6db",
+      "retrieved_at_utc": "2026-07-25T16:23:04Z",
+      "media_type": "application/x-tar",
+      "local_path": "snapshots/FINRLX_e65d6f0483ead7d2ef4a5fc940cdf960392a25c1_decisive_source.tar",
+      "byte_count": 245760,
+      "sha256": "1d950a3563d189bb75b423f3000c5e0df0faa1a876d7525049b2750dc42391fd",
+      "source_range_used": [
+        "README.md:38-44,117,208,263",
+        "src/trading/trade_executor.py:45,131-146,280-316,318-351,398-426",
+        "src/backtest/backtest_engine.py:124-242,290-340",
+        "src/strategies/adaptive_rotation/walk_forward.py:182-367,451-475",
+        "LICENSE:entire file",
+        "requirements.txt:entire file"
+      ],
+      "license_or_quotation_boundary": "Repository declares Apache-2.0 and the exact LICENSE is included. The report paraphrases behavior and uses only short excerpts; no source code is copied into project implementation.",
+      "archive_creation": "git archive from the fixed commit; selected decisive text blobs only, not a claim that the entire repository was archived",
+      "selected_blob_ids": {
+        "LICENSE": "b5c453fe4002c1909510001bcc4fcea30be70a85",
+        "README.md": "c624724b88486a063396d4121e4de2505cd21446",
+        "deploy.sh": "b6711869927b7289d7c49692299dae7ac0342b8d",
+        "requirements.txt": "043f4afbe1215af577200c3606567c20ae178554",
+        "setup.py": "d50bf3d0ef5161de39a48daf1eb02d5fd6685d44",
+        "src/backtest/backtest_engine.py": "abee868ce4d3dd1e0ecb3384f8a0b88f58483d59",
+        "src/data/data_fetcher.py": "63bb0b800283191cdbeaa8074aa4b65da3e6505d",
+        "src/strategies/adaptive_rotation/walk_forward.py": "5ee48d0592fe6e13b0abb87c4295685b1778cc82",
+        "src/strategies/base_strategy.py": "5daa0edf4dee65195822697e3e5062465db66b6e",
+        "src/trading/alpaca_manager.py": "51979b0c70d88221e122d364f5a4e3d1116bf228",
+        "src/trading/trade_executor.py": "e71d1a50630230d293bfd42a8b8572a82b58619e"
+      },
+      "exact_byte_verification": "git hash-object over archive payload matched the fixed commit blob IDs for README.md, src/trading/trade_executor.py, and src/backtest/backtest_engine.py"
+    },
+    {
+      "source_id": "R8-RS04-SNAP-ML4T",
+      "topic_id": "RS-04",
+      "snapshot_class": "one maintainer test or architecture source",
+      "canonical_url_or_repo_commit": "https://github.com/ml4t/backtest/tree/459abd81f2f30dc70cf38a40da7591af3da2d02a",
+      "repository_commit": "459abd81f2f30dc70cf38a40da7591af3da2d02a",
+      "repository_tree": "a339b34bcf5739681413267ffdc67836bdafb473",
+      "retrieved_at_utc": "2026-07-25T16:23:04Z",
+      "media_type": "application/x-tar",
+      "local_path": "snapshots/ML4T_BACKTEST_459abd81f2f30dc70cf38a40da7591af3da2d02a_tests_architecture.tar",
+      "byte_count": 798720,
+      "sha256": "71639a2719b276ee13306f05482e51144d8724ab04870269017405a913e4e274",
+      "source_range_used": [
+        "README.md:21,262-347",
+        "LIMITATIONS.md:1-210",
+        "validation/METHODOLOGY.md:1-90,229 onward as applicable",
+        "tests/test_oracle_differential.py:1-134",
+        "tests/oracle/engine.py:1-220",
+        "tests/contracts/test_cross_engine_contracts.py:entire file",
+        "src/ml4t/backtest/engine.py:selected event-loop and callback boundary",
+        "src/ml4t/backtest/config.py:selected execution/profile definitions",
+        "src/ml4t/backtest/datafeed.py:selected point-in-time feed boundary"
+      ],
+      "license_or_quotation_boundary": "Repository declares MIT and the exact LICENSE is included. Test and architecture files are preserved for audit; the report paraphrases and does not transplant implementation code.",
+      "archive_creation": "git archive from the fixed commit; selected decisive test, limitation, architecture, and dependency-lock blobs",
+      "selected_blob_ids": {
+        "LICENSE": "092521ff178aeedc4759e14b9a90741a22e771bd",
+        "LIMITATIONS.md": "7fa7dad2d7643dbcbfda87654851d983321e95b4",
+        "README.md": "61624f7b831c797e8ed395d2f9c151f0869e39b8",
+        "pyproject.toml": "5e66eb46bb31cd6fca03caadf2537250a10fd59e",
+        "src/ml4t/backtest/config.py": "d168c4f47d0778915cf29bfa19dce5826c8fa5f1",
+        "src/ml4t/backtest/datafeed.py": "75ff7de8864a54b2e2f2d74a460ef064a138bb48",
+        "src/ml4t/backtest/engine.py": "439e681777e0a7159c372f0644096ed6ed5b9c16",
+        "tests/contracts/test_cross_engine_contracts.py": "a88c05c42279725632d547ea98961b8ddbda5436",
+        "tests/oracle/engine.py": "f6aba539d57b7ed0bac841723d19810436b1bee4",
+        "tests/test_oracle_differential.py": "364b9ec9a35dfb25731ad74607b345817421a1c5",
+        "uv.lock": "1bda67cf7118d3ea94492364ff9f4a9527dc124a",
+        "validation/METHODOLOGY.md": "72edd287ac7360d751e5cc5155b1b8d33e88aa44",
+        "validation/README.md": "f7268b6feb6f52df838f6ac066eaff561f5efd68"
+      },
+      "exact_byte_verification": "git hash-object over archive payload matched the fixed commit blob IDs for LIMITATIONS.md, validation/METHODOLOGY.md, tests/test_oracle_differential.py, and tests/oracle/engine.py"
+    },
+    {
+      "source_id": "R8-RS04-SNAP-AITRADER-76",
+      "topic_id": "RS-04",
+      "snapshot_class": "one independent issue, security report, or user counterexample",
+      "canonical_url_or_repo_commit": "https://github.com/HKUDS/AI-Trader/issues/76",
+      "api_url": "https://api.github.com/repos/HKUDS/AI-Trader/issues/76",
+      "retrieved_at_utc": "2026-07-25T16:32:57Z",
+      "media_type": "application/json; charset=utf-8",
+      "local_path": "snapshots/AITRADER_issue_76_response.json",
+      "byte_count": 7235,
+      "sha256": "3ec5e5e1609e113029cbf5860d5c3f26f46999f793f5a3d2d3646ced9ff14eaf",
+      "source_range_used": [
+        "JSON fields: number, state, title, created_at, updated_at, closed_at, author_association, comments, body"
+      ],
+      "license_or_quotation_boundary": "Public user-generated issue preserved as an exact API response. It is used only as a reproducible failure counterexample, not as incidence evidence; the report paraphrases and uses no long quotation.",
+      "transport_receipt": {
+        "local_path": "snapshots/AITRADER_issue_76_response_headers.txt",
+        "byte_count": 1292,
+        "sha256": "b08715d860070a0bb347469b9fb0b31d2121cb090767ad5e39bebe8da9317ad1",
+        "etag": "W/\"54aacc081a6e85796965671db1d4e24622aa8e96e6d730623ad84c9edc13f18b\"",
+        "last_modified": "Thu, 25 Jun 2026 07:46:33 GMT",
+        "github_api_version": "2022-11-28"
+      },
+      "snapshot_limit": "Issue metadata and body are saved; the separate comments endpoint was not snapshotted, so issue closure is not treated as proof of a fix."
+    },
+    {
+      "source_id": "R8-RS04-SNAP-NAUTILUS-4564",
+      "topic_id": "RS-04",
+      "snapshot_class": "one independent issue, security report, or user counterexample",
+      "canonical_url_or_repo_commit": "https://github.com/nautechsystems/nautilus_trader/issues/4564",
+      "api_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4564",
+      "retrieved_at_utc": "2026-07-25T16:33:17Z",
+      "media_type": "application/json; charset=utf-8",
+      "local_path": "snapshots/NAUTILUS_issue_4564_response.json",
+      "byte_count": 8175,
+      "sha256": "075db22c33e20b6762d13954ac0045650cc53d6f2741927ce042a0318c2633cb",
+      "source_range_used": [
+        "JSON fields: number, state, title, created_at, updated_at, author_association, comments, body"
+      ],
+      "license_or_quotation_boundary": "Public user-generated issue preserved as an exact API response. It is a fixed counterexample/reopen trigger only; no universal reliability claim is inferred.",
+      "transport_receipt": {
+        "local_path": "snapshots/NAUTILUS_issue_4564_response_headers.txt",
+        "byte_count": 1270,
+        "sha256": "d6d7e7bd2e5dd5369083d1474390b54f22a82a5102868cecc7455eeb9148a17b",
+        "etag": "W/\"c8dd57052b60a715f6e555387af7f5649d018f6fad54cbbeb98e3539d292c5e4\"",
+        "last_modified": "Fri, 24 Jul 2026 18:55:23 GMT",
+        "github_api_version": "2022-11-28"
+      },
+      "snapshot_limit": "Open issue body with no saved comments; report does not claim maintainer confirmation or unresolved current exploitability beyond the saved open state."
+    },
+    {
+      "source_id": "R8-RS04-SNAP-NAUTILUS-4470",
+      "topic_id": "RS-04",
+      "snapshot_class": "one independent issue, security report, or user counterexample",
+      "canonical_url_or_repo_commit": "https://github.com/nautechsystems/nautilus_trader/issues/4470",
+      "api_url": "https://api.github.com/repos/nautechsystems/nautilus_trader/issues/4470",
+      "retrieved_at_utc": "2026-07-25T16:33:17Z",
+      "media_type": "application/json; charset=utf-8",
+      "local_path": "snapshots/NAUTILUS_issue_4470_response.json",
+      "byte_count": 7346,
+      "sha256": "34fa610ba8a0f6244fbacdecfe869d6ba29c1257019786530fab1b540c494e10",
+      "source_range_used": [
+        "JSON fields: number, state, title, created_at, updated_at, author_association, comments, body"
+      ],
+      "license_or_quotation_boundary": "Public user-generated issue preserved as an exact API response. It is used as a scope/authority counterexample only, not as a general incidence estimate.",
+      "transport_receipt": {
+        "local_path": "snapshots/NAUTILUS_issue_4470_response_headers.txt",
+        "byte_count": 1270,
+        "sha256": "72e5f7cb6d258623570db812e597ff41a7e96744a856a1192091855b9d66ec6a",
+        "etag": "W/\"0515a1e7cf2dfec72a1f55b2240105ce31d6d104a349caea4c839fddd80f3e0b\"",
+        "last_modified": "Fri, 17 Jul 2026 06:38:00 GMT",
+        "github_api_version": "2022-11-28"
+      },
+      "snapshot_limit": "Issue body is saved but its separate comments are not; report preserves the open issue as a counterexample and does not adjudicate the proposed fix."
+    }
+  ]
+}

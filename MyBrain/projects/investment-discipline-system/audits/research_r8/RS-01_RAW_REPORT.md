@@ -1,6 +1,6 @@
 # R8 RS-01 原始研究报告
 
-> 状态：`retrieval_complete_snapshot_pending`
+> 状态：`bounded_incomplete`
 >
 > 主题：怎样把开放动态网络研究约束成可复演、可停止且不夸大覆盖的决定充分性流程？
 >
@@ -263,4 +263,181 @@
 
 ## 10. 快照、原子 claims、predicate 与最终状态
 
-尚未完成。决定性来源精确字节、manifest、反证、剩余 gaps、逐 predicate 裁决和最终状态将在 S1-S3 后补齐。任何无法保存 exact bytes 的来源都将保存失败 receipt，并使对应 snapshot predicate 为 false。
+### 10.1 快照清单
+
+规范 manifest：`research/evidence/r8/RS-01/manifest.json`。下表哈希均针对实际保存字节，不是 URL 或搜索摘要的哈希。
+
+| source id | required class / role | fixed revision or mutable identity | UTC | media type | bytes | SHA-256 | 使用范围 | 许可/引用边界 |
+|---|---|---|---|---|---:|---|---|---|
+| `RS01-SRC-01` | versioned primary reporting/search method | Cochrane Handbook `version 6.5.1`；Chapter 4 last updated `March 2025` | `2026-07-25T16:27:03Z` | `text/html; charset=UTF-8` | `382125` | `728bbac9ad5dae544d1a0549e0fe3f3812e00ad0f4e8c69a0dda2916f0efd26b` | chapter citation；HTML fragments `#section-4-2-2`、`#section-4-4-11`、`#section-4-5` | 未推断开放许可；仅内部证据快照与简短署名引用，不重分发全文 |
+| `RS01-SRC-02` | empirical stopping source | `arXiv:2606.07071v1` | `2026-07-25T16:27:25Z` | `application/pdf` | `901478` | `f9123e33da838b45f9aef4787720fb7f58ac3f0535ed39cf77fcb96767c73406` | PDF pp. 1-2, 8-10 | arXiv non-exclusive distribution；仅内部快照和简短署名引用 |
+| `RS01-SRC-03` | empirical missed-study source | Europe PMC released version-of-record；`PMC9644550`；DOI `10.1186/s13643-022-02109-w` | `2026-07-25T16:29:40Z` | `application/xml` | `73645` | `6aa2f048c23bc62663c14cf11bf13143d07e60e442055cf3282590fbd6850aa0` | XML article-meta；`Abs1/Par1-Par4`；`Sec1/Par24-Par28` | XML 声明 `CC BY 4.0`；需署名、来源/许可链接与变更说明 |
+| `RS01-SRC-04` | decisive deep-research evaluation source | `arXiv:2601.09688v1` | `2026-07-25T16:27:38Z` | `application/pdf` | `2019220` | `3b6a3b8032dcaea9187e5aea88854268c3cf3782ab83e968ea93e0e8b2129446` | PDF pp. 1-2, 5-6 | arXiv non-exclusive distribution；仅内部快照和简短署名引用 |
+| `RS01-SRC-05` | decisive literature-search evaluation source | `arXiv:2605.29234v1` | `2026-07-25T16:27:49Z` | `application/pdf` | `488268` | `90f65ea8fae259321341042124f2446f7deaa697953cb79eb3818a2fdb91c390` | PDF pp. 1, 3-5 | arXiv record links `CC BY 4.0`；需署名、许可链接与变更说明 |
+| `RS01-SRC-06` | practitioner counterexample | mutable HN item `47289837`；source time `1772906060` / `2026-03-07T17:54:20Z` | `2026-07-25T16:28:25Z` | `application/json; charset=utf-8` | `1545` | `4d4f907c245a1dd924f890beaef04c8f4efe726f3724247af2db105a95ff5841` | JSON `$.id`、`$.parent`、`$.time`、`$.type`、`$.text` | 未推断开放许可；仅内部快照和简短署名引用；只支持 failure hypothesis/verification burden |
+| `RS01-SRC-06-CONTEXT` | practitioner parent context | mutable HN story `47289406`；source time `1772903310` / `2026-03-07T17:08:30Z` | `2026-07-25T16:28:44Z` | `application/json; charset=utf-8` | `491` | `f2882f6570e93190e76e3d878e5729c714f15b1690aee139b9d0eb0240b0c6a4` | JSON `$.id`、`$.title`、`$.url`、`$.time`、`$.kids` | 未推断开放许可；仅作 parent context |
+
+控制文件：
+
+| file | bytes | SHA-256 | 用途 |
+|---|---:|---|---|
+| `research/evidence/r8/RS-01/manifest.json` | `12025` | `2ef7bd6357f037b4fdf1b37b75684b479e624775f3427d34052cc633d19f19e6` | machine-readable snapshot metadata 与 required-class verdict |
+| `research/evidence/r8/RS-01/RS01_RETRIEVAL_FAILURE_RECEIPTS.md` | `1574` | `277fa48ee37f2ed31e1c8b42be7af2b4a6480834aae3c3381e0a425374278a31` | HN HTML `429` 与 NCBI OA package `404`/`550` 的失败记录及替代精确字节路径 |
+
+Required snapshot class 裁决：
+
+- `one versioned primary reporting or search method source = true`，由 `RS01-SRC-01` 满足。
+- `one empirical stopping or missed-study source = true`，由 `RS01-SRC-02` 与 `RS01-SRC-03` 满足。
+- `one practitioner counterexample thread or explicit no-result receipt = true`，由 counted HN item 的官方 API 精确 JSON `RS01-SRC-06` 满足；HTML 线程端点失败不被掩盖，receipt 已保存。
+- 两次 preferred representation 失败都没有用 URL/hash-only 代替内容：HN 改用同 item 的官方 API 精确字节；NCBI package 改用同 PMCID/DOI 的 Europe PMC version-of-record full-text XML 精确字节。
+
+### 10.2 最终原子 claims
+
+以下 `author_entailment` 只是作者侧判断，不是独立复核 verdict。
+
+#### `RS01-CL-01`
+
+- `claim_id`: `RS01-CL-01`
+- `topic_id`: `RS-01`
+- `claim_text`: 对开放检索，新增检索词不再产生相关记录、达到某个 recall 或出现经验性 saturation 都不能自动证明领域穷尽；停止理由应被记录，并应结合 review 类型、检索表现、漏失风险与资源约束。
+- `impact`: `high`
+- `evidence_cluster_ids`: `S1-C04`
+- `source_snapshot_ids`: `RS01-SRC-01`
+- `source_ranges`: Cochrane Handbook `version 6.5.1` Chapter 4，HTML fragments `#section-4-2-2`、`#section-4-4-11`、`#section-4-5`
+- `author_entailment`: `entailed_for_limited_claim`。保存章节明确说客观判断搜索完成通常困难、已有停止方法很少被正式评价、数据库检索可能漏研究、应记录停止理由，且复杂/定性/living review 的停止重点不同。
+- `limitations`: 该章节主要面向系统综述，尤其干预综述；不能单独证明本项目所有开放网络研究任务应采用同一停止算法。
+- `decision_effect`: 保留 `open_dynamic_web` 分类；拒绝 field-exhausted 声称；要求 stop receipt、残余风险和重开触发器。
+
+#### `RS01-CL-02`
+
+- `claim_id`: `RS01-CL-02`
+- `topic_id`: `RS-01`
+- `claim_text`: 在该论文评价的专利与系统综述任务、成本和 payoff 设定内，以 downstream decision utility 与信息价值建模的停止策略通常比只优化 recall 的策略得到更高 net utility；这支持把决策后果和检索成本纳入停止门，但不支持其普适最优。
+- `impact`: `high`
+- `evidence_cluster_ids`: `D1-C04`
+- `source_snapshot_ids`: `RS01-SRC-02`
+- `source_ranges`: PDF pp. 1-2, 8-10
+- `author_entailment`: `entailed_for_evaluated_conditions_only`。摘要、系统综述结果、讨论和结论都把结论限定在 evaluated cost/payoff settings。
+- `limitations`: 单一作者组、固定数据集和参数化 utility；论文也报告某些条件下 fixed budget 或 recall-centric baseline 在特定指标上更好，且 proposed policies 不在所有指标/条件下支配 baseline。
+- `decision_effect`: 冻结 `RS01-DD-01`：稳定性无 delta 仍是必要条件，但 stop gate 还必须绑定 decision cell、错误成本、继续搜索成本和残余风险。
+
+#### `RS01-CL-03`
+
+- `claim_id`: `RS01-CL-03`
+- `topic_id`: `RS-01`
+- `claim_text`: 相关资料可以在检索后筛选阶段被错误排除，因此对已筛选集合的停止信号不能覆盖 screening false-exclusion 风险；恢复方法本身的证据仍有限。
+- `impact`: `high`
+- `evidence_cluster_ids`: `S1-C03`
+- `source_snapshot_ids`: `RS01-SRC-03`
+- `source_ranges`: XML `Abs1/Par1-Par4` 与 `Sec1/Par24-Par28`
+- `author_entailment`: `entailed`。保存全文直接研究 falsely excluded studies，并在结论中限制恢复方法的确定性。
+- `limitations`: 该综述只找到有限方法研究；报告中的 missed-study 数字来自特定 screening 设计，不能外推为本项目、所有 reviewer 或所有 AI workflow 的发生率。
+- `decision_effect`: 冻结 `RS01-DD-04`：retrieval、ranking/viewability、screening 与 synthesis/claim coverage 四个漏失通道分开记录和测试，不能互相抵消。
+
+#### `RS01-CL-04`
+
+- `claim_id`: `RS01-CL-04`
+- `topic_id`: `RS-01`
+- `claim_text`: 只核验 citation-linked statements 会留下 uncited factual claims 未检查的盲点；研究报告审计应先形成 material-claim inventory，再分别检查 citation presence、source snapshot、entailment、source quality 与 counterevidence。
+- `impact`: `high`
+- `evidence_cluster_ids`: `D2-C08`
+- `source_snapshot_ids`: `RS01-SRC-04`
+- `source_ranges`: PDF pp. 1-2, 5-6
+- `author_entailment`: `entailed_for_blind-spot_claim`。论文明确指出 citation-linked-only verification 留下 uncited factual claims，并将 cited/uncited statement checking 作为其设计目标。
+- `limitations`: 这是预印本；其 active fact-checking 是自动化 agentic evaluator，本轮没有独立重跑其 benchmark，也不据此声称其框架已经可靠解决该盲点。
+- `decision_effect`: 冻结 `RS01-DD-02`；增加 uncited material fact negative test，且不把 citation existence 当 factual correctness。
+
+#### `RS01-CL-05`
+
+- `claim_id`: `RS01-CL-05`
+- `topic_id`: `RS-01`
+- `claim_text`: 人工 reference list 是一个已知不完美的 coverage target，不能自动作为开放文献检索的完整 ground truth；recall、topical relevance、diversity 与 network-distance 等诊断回答不同问题，不能用单一轴替代。
+- `impact`: `medium`
+- `evidence_cluster_ids`: `D2-C02`
+- `source_snapshot_ids`: `RS01-SRC-05`
+- `source_ranges`: PDF pp. 1, 3-5
+- `author_entailment`: `entailed_with_material_limitations`。论文明确区分 coverage against human citations 与 neutral-reader relevance，并要求把诊断共同报告而非单独当阈值。
+- `limitations`: 预印本只覆盖 computer-science/arXiv 范围；使用单一 LLM judge、未建模 citation context、bibliography extraction 仍有噪声，并明确说单一 LLM judge 不能作为拒稿 gate。
+- `decision_effect`: 冻结 `RS01-DD-03`：拒绝把 human list、URL/citation 数量或单一 benchmark 总分当 closure oracle。
+
+#### `RS01-CL-06`
+
+- `claim_id`: `RS01-CL-06`
+- `topic_id`: `RS-01`
+- `claim_text`: 一个 practitioner counterexample 报告显示，即使另一个研究工具确认历史事实和 citation source 存在，用户仍面临“验证工具是否重复相同错误”的验证债务；该材料只足以构造循环验证与人工负担 probe。
+- `impact`: `medium`
+- `evidence_cluster_ids`: `S3-C05`
+- `source_snapshot_ids`: `RS01-SRC-06`, `RS01-SRC-06-CONTEXT`
+- `source_ranges`: item JSON `$.text`, `$.time`, `$.parent`；parent JSON `$.title`, `$.url`
+- `author_entailment`: `entailed_as_reported_experience_only`
+- `limitations`: 单一匿名社区报告、无独立复现、任务是历史写作实验；不能支持任何错误率、产品能力排序或普遍机制。
+- `decision_effect`: 只加入 negative test/reopen trigger：不得用同类模型的二次认可冒充独立 source-range entailment 复核。
+
+### 10.3 反证、矛盾与决定影响
+
+| counterevidence id | 保留内容 | 影响 |
+|---|---|---|
+| `RS01-CE-01` | Cochrane 章节没有给出普适 objective stopping rule，并指出相关方法正式评价很少。 | 禁止把 `RS01-SRC-02` 的单一论文算法升级成通用 closure oracle。 |
+| `RS01-CE-02` | `RS01-SRC-02` 中 proposed policies 并非在所有条件和指标下支配 baselines；某些设定中 fixed budget 表现更好，而 recall/decision agreement 更高可能伴随更大成本。 | stop contract 必须显式写 utility、cost、error profile 和适用条件；不采用固定万能阈值。 |
+| `RS01-CE-03` | `RS01-SRC-03` 明确说恢复 false exclusions 的证据有限，不能对最可靠方法下 firm conclusion。 | channel-separated probe 是 gate；不把某一种 recovery method 写成保证。 |
+| `RS01-CE-04` | `RS01-SRC-04` 是自动 evaluator 预印本；“可检查 cited+uncited”是设计/实验，不等于已经可靠完成独立语义复核。 | 独立 reviewer predicate 保持强制，不能由同一研究 agent 或另一个 LLM score 自动替代。 |
+| `RS01-CE-05` | `RS01-SRC-05` 的 judge/domain/citation-context 限制使其不能证明 AI list 优于 human list，也不能充当自动拒绝 gate。 | 只采纳“单一 ground truth 不足”和多轴诊断，不采纳产品/主体优劣结论。 |
+| `RS01-CE-06` | S3 practitioner 结果包含“真实局部事实/真实来源仍可拼成错误叙事”的报告。 | synthesized relation、因果链和总叙事必须作为 material claim 审核；不能只核每个 citation 是否存在。 |
+| `RS01-CE-07` | 搜索后端未提供其全索引规模、排名算法或未显示结果，因此“完整可见结果集”不等于“完整网络结果集”。 | 最强结论仍是 bounded decision sufficiency；保留 backend/ranking/viewability residual risk。 |
+
+当前没有 open critical/major contradiction 会反转 `RS01-DD-01` 至 `RS01-DD-04`；但独立 claim entailment 尚未发生，所以这些决定不能进入 design closure。
+
+### 10.4 冻结 deltas 的可执行规范化
+
+本节只把 D1/D2 和 S1 已冻结的 `RS01-DD-01` 至 `RS01-DD-04` 归一化为 contract/test/gate；不新增 S3 后 architecture delta。
+
+| artifact / gate | 必填内容 | rejection / negative test |
+|---|---|---|
+| `OpenWebResearchReceipt` | prereg commit/hash/UTC、exact query text、单次调用 UTC、backend 可见集合、result order、逐结果纳排、source class、upstream cluster、revision | query 改写、批量调用、漏记可见结果、backend truncation 未标记时拒绝 |
+| `SnapshotManifest` | source id、canonical URL/fixed revision、UTC、media type、byte count、SHA-256、source range、license boundary | URL-only、hash-only、mutable source 无 UTC、exact bytes 失败无 receipt 时拒绝 |
+| `MaterialClaimInventory` | 所有 material claim，包括无 citation 的事实、跨来源关系、因果链与总叙事；每项绑定 snapshot/range/counterevidence | uncited factual claim；真实 source 但错误作者/DOI/页码/quote；局部事实为真但 synthesized conclusion 为假时拒绝 |
+| `ChannelResidualRiskReceipt` | 分列 query/database retrieval、ranking/viewability/truncation、screening false exclusion、synthesis/claim coverage | 已知相关资料未被 query 命中；结果在可见截断外；结果被误排；来源纳入但 material claim 遗漏，任一发生且未处置时拒绝 |
+| `DecisionStopReceipt` | decision cell、错误后果、继续检索成本、当前残余风险、可接受条件、reopen trigger | 只因“没有新结果”、URL/引用数量、human list recall 或单一总分停止时拒绝 |
+| `StabilityReceipt` | discovery freeze hash/UTC、S1-S3 顺序、每轮 high-impact delta/contradiction、最后 delta 与后续 no-delta 查询 | 最后 query 产生 high-impact delta，或最后 delta 后无 reserved no-delta query 时 `bounded_incomplete`，禁止第六查询 |
+| `IndependentEntailmentReview` | 与 claim 作者分离的 reviewer locator、review input SHA-256、逐 claim verdict/reason/ranges/overclaim/counterevidence | 作者自审、仅 agent 角色改名、没有逐 claim verdict，或 verdict 非 `entailed`/`contested_non_decision_changing` 时拒绝 design closure |
+
+### 10.5 剩余 gaps
+
+1. `independent_entailment_review`: 未执行。作者没有也不会充当独立 reviewer；`RS01-CL-01` 至 `RS01-CL-06` 必须由与作者分离的 reviewer 绑定本报告外部 SHA-256 和上述 source snapshot SHA-256 后逐 claim 裁决。
+2. `later_evidence_commit_ancestry`: 当前 raw artifacts 未由本代理提交；检索前 `HEAD` 等于 preregistration commit，当前祖先检查通过。若这些证据之后进入任一 evidence commit，提交者必须对该 commit 重新运行 `git merge-base --is-ancestor 7824a63... <evidence_commit>` 并保存结果。
+3. `search_backend_provenance`: 后端没有披露未显示结果、排名算法或全索引规模；因此只能证明完整记录“调用返回的可见集合”。
+4. `cross-domain_external_validity`: 决策停止与 deep-research benchmark 来源的任务/领域有限，不能推出跨领域普适性能。
+5. `practitioner_replication`: HN item 只产生 probe；本轮固定预算不允许新增第六 query 或另做产品 incidence 研究。
+6. `round_level_ordinary_comparison`: 预注册要求的 ordinary baseline comparison 需要独立 reviewer；不在本 RS-01 作者权限内，本报告不对其完成状态作肯定声明。
+7. `implementation_evidence`: 本主题只给出 contract/test/gate 研究 delta；没有修改 governance、prototype、scripts，也没有运行实现/变异测试。
+
+### 10.6 残余风险与重开触发器
+
+- Cochrane/PRISMA-S/其他正式搜索与报告规范发布新版本，改变 stopping、reporting 或 reproducibility 要求。
+- 出现对 decision-theoretic stopping、false-exclusion recovery、deep-research citation/coverage benchmark 的直接复现失败或新的 high-impact failure class。
+- 搜索后端改变索引、ranking、可见结果上限、site filter 或结果去重语义。
+- 关键 AI/deep-research 模型、检索栈、citation UI 或可观察 verification 能力变化。
+- 实际 negative tests 发现四个 residual-risk 通道之外的新漏失路径，或 frozen tests 无法阻止已知误报。
+- 独立 reviewer 对任一 high-impact claim 给出 `not_entailed`、指出遗漏重大反证，或判定 decision delta 超出 source range。
+- 实际使用的人工核验/记录成本不可接受，使治理收益低于负担；这需要 ordinary comparison 的独立成本判断。
+- 任一快照许可、可访问性、revision 或 hash 与本 manifest 不一致。
+
+### 10.7 Topic closure predicates
+
+| predicate | verdict | 证据/原因 |
+|---|---|---|
+| 预注册 commit、文件 hash、祖先关系和检索时间通过 | `true_at_raw_artifact_stage` | prereg commit/hash 与 commit 内字节一致；检索 UTC 均晚于 commit UTC；检索前/当前 `HEAD` 等于 prereg commit，ancestor exit `0`。未来 evidence commit 仍须重跑。 |
+| 五个 query_id 均有且仅有一次执行或明确工具失败 receipt | `true` | D1、D2、S1、S2、S3 各一次独立 exact-query 搜索；无改写、无批量、无第六 query。 |
+| 全部可见结果有逐结果筛选记录且归属唯一 query_id | `true` | Sections 4、5、7、8、9 保留每次调用的完整可见集合、原顺序、纳排、理由、class、cluster、revision。 |
+| required snapshot classes 均有保存字节与哈希，或明确 blocked | `true` | 三类均由 exact saved bytes 满足；preferred representation 失败另有 receipt，未用 URL/hash-only 冒充。 |
+| 每个决定性 claim 通过独立逐 claim 蕴含复核 | `false` | 只有作者侧 entailment；按用户要求明确留给另一 reviewer。 |
+| 矛盾与反证已保留且有决定影响 | `true` | Section 10.3。 |
+| 稳定性 passing rule 满足 | `true` | 最后 high-impact delta 在 S1；后续 S2、S3 均无 high-impact delta、decision reversal 或 open critical/major contradiction。 |
+| architecture/decision delta 已落到可执行 contract、test、gate、defer 或 rejection | `true` | Sections 6.2、7.1、10.4。 |
+| 残余风险和重开触发器已明确 | `true` | Sections 10.5、10.6。 |
+
+### 10.8 最终状态
+
+`bounded_incomplete`
+
+直接阻塞原因：`independent claim entailment review = false`。固定查询预算已正确用完，稳定性规则通过，required snapshots 通过，但预注册明确规定 `author_only_closure = false`。因此本报告不能宣称 design closure、领域穷尽、普通搜索比较完成或最终 release；下一步必须由与本作者分离的 reviewer 对 `RS01-CL-01` 至 `RS01-CL-06` 逐项复核。

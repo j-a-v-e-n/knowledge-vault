@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "policy_id": "ids-ai-project-method-v1",
+  "scope": "The reusable minimum project-work kernel proven first inside the personal Paper V1 project.",
+  "authority": {
+    "builder_may_submit_candidate": true,
+    "builder_may_lower_frozen_completion_criteria": false,
+    "reviewer_may_modify_candidate": false,
+    "human_reserved_changes": [
+      "goal",
+      "scope",
+      "privacy boundary",
+      "live-money boundary",
+      "completion-risk acceptance"
+    ]
+  },
+  "required_state_packet": {
+    "files": [
+      "PROJECT_CHARTER.md",
+      "STATUS.md",
+      "TASK_BOARD.md",
+      "DECISIONS.md",
+      "AI_COLLABORATION_METHOD.md"
+    ],
+    "start_dump_fields": [
+      "available",
+      "current_stage",
+      "currently_usable",
+      "target_for_this_run",
+      "known_blockers",
+      "authorities_and_prohibitions"
+    ],
+    "position_probes": [
+      "start",
+      "middle",
+      "end",
+      "post_compaction",
+      "empty_context_restart",
+      "stale_request_regression"
+    ],
+    "missing_required_item_outcome": "blocked_state_recovery"
+  },
+  "work_packet_contract": {
+    "required_fields": [
+      "packet_id",
+      "goal_id",
+      "bounded_write_paths",
+      "read_dependencies",
+      "acceptance_checks",
+      "checkpoint_path",
+      "retry_budget",
+      "owner",
+      "reviewer",
+      "external_side_effects"
+    ],
+    "forbidden_write_scopes": [
+      "/",
+      "~",
+      "repository_root_recursive",
+      "unresolved_glob",
+      "undeclared_path"
+    ],
+    "parallel_write_rule": "active packets must have disjoint bounded_write_paths; collision blocks both packets until ownership is resolved",
+    "partial_state_rule": "a packet cannot be complete without its checkpoint and acceptance receipts"
+  },
+  "execution_state_machine": {
+    "states": [
+      "pending",
+      "active",
+      "verification_failed",
+      "blocked",
+      "candidate_complete",
+      "accepted",
+      "superseded"
+    ],
+    "max_consecutive_same_blocker_turns": 3,
+    "same_blocker_limit_outcome": "blocked",
+    "budget_exhaustion_outcome": "bounded_incomplete",
+    "accepted_requires": [
+      "all acceptance checks pass",
+      "all required evidence paths exist and match",
+      "reviewer did not modify candidate",
+      "no open critical or major finding",
+      "human-reserved decisions remain human"
+    ],
+    "forbidden_transitions": [
+      "verification_failed->accepted",
+      "blocked->accepted",
+      "superseded->accepted"
+    ]
+  },
+  "completion_change_control": {
+    "monotonic_rule": "a superseding contract may preserve or strengthen a frozen criterion; deletion, weakening, conditional bypass, or post-hoc threshold change is rejected",
+    "human_exception": "an explicit human decision may accept a named residual risk only through a new decision record; it cannot rewrite historical results or claim the omitted criterion passed",
+    "conditional_gate_rule": "a conditional gate may defer a named external prerequisite but cannot weaken the underlying requirement, failure outcome, or evidence binding",
+    "terminology_rule": "a new label such as Loop Engineering or Graph Engineering does not authorize a rewrite without a demonstrated architecture-changing delta"
+  },
+  "review_boundary": {
+    "reviewer_candidate_write_paths": [],
+    "reviewer_append_only_output_prefixes": [
+      "audits/",
+      "evidence/reviews/"
+    ],
+    "candidate_change_after_review": "invalidates_review_binding",
+    "same_model_or_role_name_counts_as_independent": false,
+    "high_impact_review_requires": [
+      "candidate-bound read-only review",
+      "different evidence path",
+      "deterministic oracle or explicit human decision"
+    ]
+  },
+  "harness_admission": {
+    "default": "not_adopted",
+    "required_same_task_fields": [
+      "baseline_artifact",
+      "target_artifact",
+      "objective_oracle",
+      "quality_delta",
+      "time_cost",
+      "maintenance_cost",
+      "failure_delta",
+      "reversibility",
+      "exit_plan"
+    ],
+    "missing_ablation_outcome": "not_adopted",
+    "framework_name_or_popularity_is_evidence": false
+  },
+  "supply_chain": {
+    "core_runtime_policy": "python_standard_library_only_until_a_dependency_manifest_is_accepted",
+    "dependency_manifest_required_fields": [
+      "name",
+      "version_or_commit",
+      "sha256_or_lock_hash",
+      "canonical_source",
+      "license",
+      "necessity",
+      "permissions_or_telemetry",
+      "removal_plan"
+    ],
+    "floating_versions_allowed": false,
+    "external_actions_require_full_commit_sha": true,
+    "install_before_review_allowed": false,
+    "telemetry_unknown_outcome": "blocked"
+  },
+  "frozen_test_integrity": {
+    "required_suite_roots": [
+      "governance_tests/",
+      "tests/",
+      "acceptance/"
+    ],
+    "deletion_skip_or_xfail_outcome": "blocked",
+    "baseline_must_pass_before_mutation": true,
+    "mutation_must_trigger_target_rejection": true,
+    "test_or_oracle_change_requires_new_candidate_review": true
+  },
+  "incident_learning": {
+    "required_fields": [
+      "incident_id",
+      "observed_failure",
+      "proximate_cause",
+      "root_control_failure",
+      "preventive_control",
+      "regression_test",
+      "owner",
+      "reopen_trigger"
+    ],
+    "records": [
+      {
+        "incident_id": "INC-R5-NON-ISOLATED-ORACLE",
+        "observed_failure": "canonical mutation fixtures failed before the intended mutation because governance_tests was omitted",
+        "proximate_cause": "the fixture copied an incomplete candidate scope",
+        "root_control_failure": "the attack runner did not require an unmutated baseline pass in the same Git candidate context",
+        "preventive_control": "preserve Git objects, project prefix, origin and full candidate scope; require baseline pass before every mutation",
+        "regression_test": "governance_tests/test_attack_runner.py",
+        "owner": "CTRL-GOV-FREEZE",
+        "reopen_trigger": "any attack fixture, candidate-scope or baseline-order change"
+      }
+    ]
+  },
+  "nontechnical_explanation": {
+    "required_fields": [
+      "what_happened",
+      "why_it_matters",
+      "what_is_blocked",
+      "what_the_user_can_do",
+      "what_remains_unknown"
+    ],
+    "must_distinguish": [
+      "proved",
+      "not_proved",
+      "rejected",
+      "conditional",
+      "human_decision"
+    ],
+    "fixture_only_cannot_prove_comprehension": true,
+    "real_user_comprehension_is": "human_onboarding_and_longitudinal_conditional"
+  },
+  "scope_and_budget": {
+    "current_allowed": [
+      "single user",
+      "local first",
+      "paper only",
+      "AI research and advice",
+      "human final investment decision"
+    ],
+    "current_forbidden": [
+      "live broker execution",
+      "real funds",
+      "multi-user service",
+      "commercial release",
+      "unrelated private-data access"
+    ],
+    "every_packet_requires_finite_retry_budget": true,
+    "budget_exhaustion_cannot_be_relabelled_success": true,
+    "scope_expansion_requires_human_decision": true
+  },
+  "maintainability_and_migration": {
+    "new_component_required_fields": [
+      "owner",
+      "contract",
+      "tests",
+      "observability",
+      "failure_mode",
+      "dependency_cost",
+      "removal_path"
+    ],
+    "rename_only_rewrite_allowed": false,
+    "migration_required_fields": [
+      "source_version",
+      "target_version",
+      "dry_run",
+      "backup",
+      "rollback",
+      "post_migration_invariants",
+      "compatibility_or_explicit_break"
+    ],
+    "missing_exit_plan_outcome": "not_adopted"
+  },
+  "failure_coverage": [
+    {
+      "failure_id": "GOV-04",
+      "invariant_id": "PM-01-MONOTONIC-COMPLETION",
+      "case_id": "CASE-METHOD-CRITERION-WEAKENING"
+    },
+    {
+      "failure_id": "GOV-07",
+      "invariant_id": "PM-01-MONOTONIC-COMPLETION",
+      "case_id": "CASE-METHOD-CONDITIONAL-BYPASS"
+    },
+    {
+      "failure_id": "CTX-02",
+      "invariant_id": "PM-02-CONTEXT-RECOVERY",
+      "case_id": "CASE-METHOD-MIDDLE-SENTINEL"
+    },
+    {
+      "failure_id": "ORG-01",
+      "invariant_id": "PM-03-BOUNDED-WORK",
+      "case_id": "CASE-METHOD-BROAD-WRITE-SCOPE"
+    },
+    {
+      "failure_id": "ORG-03",
+      "invariant_id": "PM-04-DISJOINT-WRITES",
+      "case_id": "CASE-METHOD-PARALLEL-COLLISION"
+    },
+    {
+      "failure_id": "ORG-04",
+      "invariant_id": "PM-05-NO-PROGRESS-STOP",
+      "case_id": "CASE-METHOD-REPEATED-BLOCKER"
+    },
+    {
+      "failure_id": "ORG-05",
+      "invariant_id": "PM-06-HARNESS-ABLATION",
+      "case_id": "CASE-METHOD-HARNESS-NO-BASELINE"
+    },
+    {
+      "failure_id": "ORG-06",
+      "invariant_id": "PM-07-REVIEWER-READONLY",
+      "case_id": "CASE-METHOD-REVIEWER-WRITES-CANDIDATE"
+    },
+    {
+      "failure_id": "IMP-04",
+      "invariant_id": "PM-08-SUPPLY-CHAIN",
+      "case_id": "CASE-METHOD-FLOATING-DEPENDENCY"
+    },
+    {
+      "failure_id": "VER-07",
+      "invariant_id": "PM-09-FROZEN-TESTS",
+      "case_id": "CASE-METHOD-FROZEN-TEST-DELETED"
+    },
+    {
+      "failure_id": "SEC-06",
+      "invariant_id": "PM-08-SUPPLY-CHAIN",
+      "case_id": "CASE-METHOD-TELEMETRY-UNKNOWN"
+    },
+    {
+      "failure_id": "OPS-08",
+      "invariant_id": "PM-10-INCIDENT-PREVENTION",
+      "case_id": "CASE-METHOD-INCIDENT-NO-REGRESSION"
+    },
+    {
+      "failure_id": "HUM-05",
+      "invariant_id": "PM-11-NONTECH-EXPLANATION",
+      "case_id": "CASE-METHOD-EXPLANATION-OMITS-UNKNOWN"
+    },
+    {
+      "failure_id": "ECO-01",
+      "invariant_id": "PM-12-SCOPE-AND-BUDGET",
+      "case_id": "CASE-METHOD-BUDGET-RELABELLED-SUCCESS"
+    },
+    {
+      "failure_id": "ECO-02",
+      "invariant_id": "PM-12-SCOPE-AND-BUDGET",
+      "case_id": "CASE-METHOD-LIVE-SCOPE-SMUGGLE"
+    },
+    {
+      "failure_id": "ECO-03",
+      "invariant_id": "PM-13-MAINTAINABILITY",
+      "case_id": "CASE-METHOD-COMPONENT-NO-REMOVAL"
+    },
+    {
+      "failure_id": "ECO-04",
+      "invariant_id": "PM-14-MIGRATION-EXIT",
+      "case_id": "CASE-METHOD-RENAME-REWRITE"
+    }
+  ]
+}
