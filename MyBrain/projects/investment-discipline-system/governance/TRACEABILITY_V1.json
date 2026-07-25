@@ -6,7 +6,7 @@
     {
       "id": "CTRL-GOV-FREEZE",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-做项目的用户立场检察官",
-      "implementation_targets": ["scripts/verify_governance.py", "scripts/verify_git_state.py", "governance/FROZEN_BUNDLE_V1.json"]
+      "implementation_targets": ["scripts/verify_governance.py", "scripts/verify_git_state.py", "scripts/freeze_governance.py", "scripts/verify_contract_supersession.py", "governance/FROZEN_BUNDLE_V1.json"]
     },
     {
       "id": "CTRL-GOV-TRACE",
@@ -161,7 +161,7 @@
     {
       "id": "CTRL-QUALITY",
       "design_ref": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md#ai-做项目的用户立场检察官",
-      "implementation_targets": ["tests/", "acceptance/", "scripts/verify_all.py", "scripts/user_proxy_gate.py"]
+      "implementation_targets": ["governance_tests/", "tests/", "acceptance/", "scripts/verify_all.py", "scripts/user_proxy_gate.py"]
     }
   ],
   "links": [

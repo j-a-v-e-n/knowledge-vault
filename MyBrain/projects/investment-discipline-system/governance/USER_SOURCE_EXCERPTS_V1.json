@@ -15,8 +15,8 @@
       "source_path": "PROJECT_CHARTER.md",
       "line_start": 50,
       "line_end": 50,
-      "excerpt": "完成状态由可核对证据定义，而不是由描述或宣称定义。",
-      "excerpt_sha256": "e7cb7502f6acfad8754e93bcbacf6ffd5e319504ba899a990cf512221632bebc"
+      "excerpt": "- 完成状态由可核对证据定义，而不是由描述或宣称定义。",
+      "excerpt_sha256": "5ee5bc7a8a73076ebac92c0085581945c5845c4876a0b10d4516c297e76c3814"
     },
     {
       "id": "USR-02",
@@ -25,8 +25,8 @@
       "source_path": "PROJECT_CHARTER.md",
       "line_start": 11,
       "line_end": 11,
-      "excerpt": "任何策略或想法都必须经过严格、可复现、计入成本且避免未来信息泄漏的检验。",
-      "excerpt_sha256": "ac31e151fe3ab4c7b43867852aa882e9eac82bc200e6e0a3e368fb41b61b32da"
+      "excerpt": "- 任何策略或想法都必须经过严格、可复现、计入成本且避免未来信息泄漏的检验。",
+      "excerpt_sha256": "d7de610ae1622ebf7d6c89aab4c62ed059620b71aa2c3613d594eb921eb5b94c"
     },
     {
       "id": "USR-03",
@@ -35,8 +35,8 @@
       "source_path": "PROJECT_CHARTER.md",
       "line_start": 43,
       "line_end": 43,
-      "excerpt": "风险规则在实际操作路径上能够确定性拦截越界行为。",
-      "excerpt_sha256": "1323b790146dce8a86db77ce41be3c27c8b717a1a2d5bd275660605b58dadb6d"
+      "excerpt": "- 风险规则在实际操作路径上能够确定性拦截越界行为。",
+      "excerpt_sha256": "987a8afcc7e885821867824addb7646e2cd4ed6995b178ed53fd2cc76004b452"
     },
     {
       "id": "USR-04",
@@ -45,8 +45,8 @@
       "source_path": "DECISIONS.md",
       "line_start": 16,
       "line_end": 16,
-      "excerpt": "AI 不直接拥有交易执行权，也不能自行修改风险规则。",
-      "excerpt_sha256": "2363fc460d34cbf10808e20acd2cd984c9d2857487aacf6e27497addd7e515e2"
+      "excerpt": "- 决定：AI 不直接拥有交易执行权，也不能自行修改风险规则。",
+      "excerpt_sha256": "46c75331e64f26099ca797df181750b7fc670aa744c0f4c678ee1a340d5f5026"
     },
     {
       "id": "USR-05",
@@ -55,8 +55,8 @@
       "source_path": "DECISIONS.md",
       "line_start": 23,
       "line_end": 23,
-      "excerpt": "每个新问题先检查是否存在成熟工具、模板、开源实现、工作流或可借鉴的真实经验。",
-      "excerpt_sha256": "0d8386e7bc4ccba1f326e4a02a7dd090f650831d99601b548be744c88dded378"
+      "excerpt": "- 决定：每个新问题先检查是否存在成熟工具、模板、开源实现、工作流或可借鉴的真实经验。",
+      "excerpt_sha256": "05b8e3b085f08edcc152e9f23900d7d9e0718cf9a2f28be510c432cb17797efb"
     },
     {
       "id": "USR-06",
@@ -73,8 +73,8 @@
       "source_path": "DECISIONS.md",
       "line_start": 51,
       "line_end": 51,
-      "excerpt": "目标、边界、核心理念和完成标准确认后，AI 在项目范围内持续研究、搭建、验证和记录，直到完成或触发暂停条件。",
-      "excerpt_sha256": "870b97d440846557b3ebce54ad1c3a6b6b0508ef22701079c67ddbe3b93419ab"
+      "excerpt": "- 决定：目标、边界、核心理念和完成标准确认后，AI 在项目范围内持续研究、搭建、验证和记录，直到完成或触发暂停条件。",
+      "excerpt_sha256": "41606b1f3dc2ac1f0a73163fda26ef5c54cfe2ccabdf666f4ca4c4e7affec67f"
     },
     {
       "id": "USR-08",
@@ -83,8 +83,8 @@
       "source_path": "PROJECT_CHARTER.md",
       "line_start": 46,
       "line_end": 46,
-      "excerpt": "Javen 能在不依赖 AI 临场记忆的情况下，依照项目资料继续工作。",
-      "excerpt_sha256": "1719a88e5b79bf664c04b2971dfe387bfd55bc833483d5b3f911fdadf503e7c0"
+      "excerpt": "- Javen 能在不依赖 AI 临场记忆的情况下，依照项目资料继续工作。",
+      "excerpt_sha256": "583cd6b52702cf6055fd486e4659bf16b6f431dc6c621e7f0b0423f5cb16c3d8"
     },
     {
       "id": "USR-09",
@@ -93,8 +93,8 @@
       "source_path": "DECISIONS.md",
       "line_start": 85,
       "line_end": 85,
-      "excerpt": "设计者、实现者或主代理对自身产物的评价只能提出候选结论，不能批准完成。",
-      "excerpt_sha256": "40078a1623a84872b8fa6580c5b1e3dc9d21fe8fa78693bbfe1097380dda223d"
+      "excerpt": "- 决定：设计者、实现者或主代理对自身产物的评价只能提出候选结论，不能批准完成。",
+      "excerpt_sha256": "972fca9aa3dd175405f0b1276c526e2417215f3a47560b1fbca86757d60c11d2"
     },
     {
       "id": "USR-10",
@@ -121,8 +121,8 @@
       "source_path": "DECISIONS.md",
       "line_start": 78,
       "line_end": 78,
-      "excerpt": "项目代码、设计、决定、配置和可公开的验收摘要使用 Git 保存历史，并推送到现有 GitHub 远端形成异地副本；这不是远期可选功能。",
-      "excerpt_sha256": "71776c3b9f91197aa8f921cffa8714b7cf39c2f4e25dd71f0c711a02afe51201"
+      "excerpt": "- 决定：项目代码、设计、决定、配置和可公开的验收摘要使用 Git 保存历史，并推送到现有 GitHub 远端形成异地副本；这不是远期可选功能。",
+      "excerpt_sha256": "16fd50313a051e1eec54cf7ebdfd9502894b9124dcb605d6a5425fb9ac076283"
     },
     {
       "id": "USR-13",
@@ -131,8 +131,8 @@
       "source_path": "DECISIONS.md",
       "line_start": 71,
       "line_end": 72,
-      "excerpt": "隐私边界：不读取邮箱、私密账号、课程资料、个人通信或项目无关文件；姓名和邮箱只在任务确有必要时使用。当前没有任何个人信息需求。\n敏感信息：API 密钥、登录令牌、券商凭据、真实账户和资金信息不得写入项目文件、日志或版本历史。",
-      "excerpt_sha256": "723ff1b6221ead5ab8db2d8668d86edcfa50cc6a1e8e1a06051b079776f7b67d"
+      "excerpt": "- 隐私边界：不读取邮箱、私密账号、课程资料、个人通信或项目无关文件；姓名和邮箱只在任务确有必要时使用。当前没有任何个人信息需求。\n- 敏感信息：API 密钥、登录令牌、券商凭据、真实账户和资金信息不得写入项目文件、日志或版本历史。",
+      "excerpt_sha256": "91594d9558da78c2639fe11370ead4acfca8ae1b1ad52c0f90821df6fbee18aa"
     }
   ]
 }

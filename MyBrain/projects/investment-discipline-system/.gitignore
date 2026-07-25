@@ -1,4 +1,6 @@
 prototype/__pycache__/
 prototype/tests/__pycache__/
+**/__pycache__/
+**/*.pyc
 prototype/data/raw/
 prototype/data/runs/
