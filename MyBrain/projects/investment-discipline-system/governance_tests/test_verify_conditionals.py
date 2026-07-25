@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import sqlite3
 import subprocess
 import tempfile
 import unittest
@@ -27,7 +28,12 @@ class ConditionalGateTests(unittest.TestCase):
         self.temp.cleanup()
 
     def run_gate(
-        self, gate_id: str, *, token: str | None = None
+        self,
+        gate_id: str,
+        *,
+        token: str | None = None,
+        runtime_db: Path | None = None,
+        target_verdict: str = "core_release_candidate",
     ) -> subprocess.CompletedProcess[str]:
         env = os.environ.copy()
         env["IDS_PROJECT_ROOT"] = str(self.root)
@@ -35,8 +41,19 @@ class ConditionalGateTests(unittest.TestCase):
             env.pop("TIINGO_API_TOKEN", None)
         else:
             env["TIINGO_API_TOKEN"] = token
+        command = [
+            "python3",
+            str(VERIFIER),
+            "--gate",
+            gate_id,
+            "--target-verdict",
+            target_verdict,
+            "--json",
+        ]
+        if runtime_db is not None:
+            command.extend(["--runtime-db", str(runtime_db)])
         return subprocess.run(
-            ["python3", str(VERIFIER), "--gate", gate_id, "--json"],
+            command,
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -74,6 +91,70 @@ class ConditionalGateTests(unittest.TestCase):
         result = self.run_gate("COND-NOT-REAL")
         self.assertEqual(result.returncode, 2, result.stdout)
         self.assertIn("unknown conditional gate", result.stdout)
+
+    def test_evidence_cannot_self_report_field_use_readiness(self) -> None:
+        evidence = self.root / "evidence" / "conditional"
+        evidence.mkdir(parents=True)
+        (evidence / "javen_field_use.json").write_text(
+            json.dumps(
+                {
+                    "condition_id": "COND-JAVEN-FIELD-USE",
+                    "prerequisite_ready": True,
+                    "state": "passed",
+                }
+            ),
+            encoding="utf-8",
+        )
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            target_verdict="human_onboarding_verified",
+        )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        payload = json.loads(result.stdout)
+        observation = payload["results"][0]
+        self.assertFalse(observation["prerequisite_ready"])
+        self.assertIn(
+            "gate_evidence_present_without_authoritative_prerequisite",
+            observation["errors"],
+        )
+        self.assertIn("target_verdict_requirements_not_met", observation["errors"])
+
+    def test_authoritative_ready_state_requires_gate_evidence(self) -> None:
+        runtime_db = self.root / "runtime.sqlite3"
+        connection = sqlite3.connect(runtime_db)
+        try:
+            connection.execute(
+                "CREATE TABLE condition_observations ("
+                "condition_id TEXT, stage TEXT, ready INTEGER, "
+                "source_event_seq INTEGER, source_state_hash TEXT, observed_at TEXT)"
+            )
+            connection.execute(
+                "INSERT INTO condition_observations VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    "COND-JAVEN-FIELD-USE",
+                    "human_onboarding_ready",
+                    1,
+                    1,
+                    "a" * 64,
+                    "2026-07-25T00:00:00Z",
+                ),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+            target_verdict="human_onboarding_verified",
+        )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        payload = json.loads(result.stdout)
+        observation = payload["results"][0]
+        self.assertTrue(observation["prerequisite_ready"])
+        self.assertEqual(observation["effective_state"], "mandatory_pending")
+        self.assertIn(
+            "prerequisite_ready_but_evidence_missing", observation["errors"]
+        )
 
 
 if __name__ == "__main__":

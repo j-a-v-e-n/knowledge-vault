@@ -12,21 +12,71 @@
     "float_input_allowed": false,
     "canonical_input": "base-10 string parsed directly as Decimal"
   },
+  "expression_language": {
+    "version": 1,
+    "numeric_type": "Decimal_from_canonical_base10_string",
+    "operators": {
+      "add": {"minimum_arity": 2},
+      "subtract": {"minimum_arity": 2},
+      "multiply": {"arity": 2},
+      "sum": {"minimum_arity": 1},
+      "negate": {"arity": 1},
+      "quantize": {"arity": 1, "requires_quantum": true}
+    },
+    "quantum_symbols": ["price", "quantity", "money", "fee", "ratio"],
+    "evaluation_rule": "evaluate the declared AST with Decimal only, then compare typed outputs and invariant operands exactly; the human formula string is non-normative."
+  },
   "booking_rules": [
     {
       "id": "MONEY-BOOK-BUY",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-MONEY", "V-ATOMICITY"],
+      "acceptance_case_ids": ["CASE-MONEY-AUDIT-ROLLBACK", "CASE-MONEY-ROUNDING"],
+      "inputs": ["price", "filled_quantity", "fee", "cash_before", "position_before"],
+      "calculation_steps": [
+        {"id": "BUY-NOTIONAL", "output": "notional", "op": "quantize", "quantum": "money", "args": [{"op": "multiply", "args": ["price", "filled_quantity"]}]},
+        {"id": "BUY-CASH-AFTER", "output": "cash_after", "op": "quantize", "quantum": "money", "args": [{"op": "subtract", "args": ["cash_before", "notional", "fee"]}]},
+        {"id": "BUY-POSITION-AFTER", "output": "position_after", "op": "quantize", "quantum": "quantity", "args": [{"op": "add", "args": ["position_before", "filled_quantity"]}]}
+      ],
       "formula": "notional=Q(price*quantity,money); cash_after=Q(cash_before-notional-fee,money); position_after=Q(position_before+quantity,quantity)",
-      "invariants": ["cash_delta + notional + fee == 0", "quantity_delta == filled_quantity"]
+      "invariants": [
+        {"id": "INV-BUY-CASH-CONSERVATION", "evaluator_id": "EVAL-DECIMAL-EQUALITY", "left": {"op": "add", "args": ["cash_delta", "notional", "fee"]}, "right": "0.00"},
+        {"id": "INV-BUY-QUANTITY-CONSERVATION", "evaluator_id": "EVAL-DECIMAL-EQUALITY", "left": "quantity_delta", "right": "filled_quantity"}
+      ]
     },
     {
       "id": "MONEY-BOOK-SELL",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-MONEY", "V-ATOMICITY"],
+      "acceptance_case_ids": ["CASE-MONEY-AUDIT-ROLLBACK", "CASE-MONEY-ROUNDING"],
+      "inputs": ["price", "filled_quantity", "fee", "cash_before", "position_before"],
+      "calculation_steps": [
+        {"id": "SELL-NOTIONAL", "output": "notional", "op": "quantize", "quantum": "money", "args": [{"op": "multiply", "args": ["price", "filled_quantity"]}]},
+        {"id": "SELL-CASH-AFTER", "output": "cash_after", "op": "quantize", "quantum": "money", "args": [{"op": "add", "args": ["cash_before", "notional", {"op": "negate", "args": ["fee"]}]}]},
+        {"id": "SELL-POSITION-AFTER", "output": "position_after", "op": "quantize", "quantum": "quantity", "args": [{"op": "subtract", "args": ["position_before", "filled_quantity"]}]}
+      ],
       "formula": "notional=Q(price*quantity,money); cash_after=Q(cash_before+notional-fee,money); position_after=Q(position_before-quantity,quantity)",
-      "invariants": ["cash_delta - notional + fee == 0", "quantity_delta == -filled_quantity", "position_after >= 0"]
+      "invariants": [
+        {"id": "INV-SELL-CASH-CONSERVATION", "evaluator_id": "EVAL-DECIMAL-EQUALITY", "left": {"op": "add", "args": ["cash_delta", {"op": "negate", "args": ["notional"]}, "fee"]}, "right": "0.00"},
+        {"id": "INV-SELL-QUANTITY-CONSERVATION", "evaluator_id": "EVAL-DECIMAL-EQUALITY", "left": "quantity_delta", "right": {"op": "negate", "args": ["filled_quantity"]}},
+        {"id": "INV-NO-SHORT-POSITION", "evaluator_id": "EVAL-DECIMAL-GTE", "left": "position_after", "right": "0.00000000"}
+      ]
     },
     {
       "id": "MONEY-NAV",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-MONEY", "V-RISK-STATE", "V-THREE-TRACK"],
+      "acceptance_case_ids": ["CASE-CORP-ACTION-UNKNOWN", "CASE-DELISTING-NOT-ZERO-FILLED"],
+      "inputs": ["cash", "positions", "as_of_marks"],
+      "calculation_steps": [
+        {"id": "NAV-POSITION-VALUE", "output": "position_values", "op": "map_quantized_multiply", "quantum": "money", "args": ["as_of_marks", "positions"]},
+        {"id": "NAV-TOTAL", "output": "nav", "op": "quantize", "quantum": "money", "args": [{"op": "add", "args": ["cash", {"op": "sum", "args": ["position_values"]}]}]}
+      ],
       "formula": "nav=Q(cash + sum(Q(mark_price*position_quantity,money)),money)",
-      "invariants": ["each position has one as-of mark or NAV status is incomplete", "stale or unresolved action never becomes zero silently"]
+      "invariants": [
+        {"id": "INV-NAV-MARK-COVERAGE", "evaluator_id": "EVAL-SET-EQUALITY-OR-INCOMPLETE", "left": "position_security_ids", "right": "as_of_mark_security_ids"},
+        {"id": "INV-NAV-NO-SILENT-ZERO", "evaluator_id": "EVAL-STATE-PREDICATE", "predicate": "stale_or_unresolved_action_implies_nav_incomplete"}
+      ]
     }
   ],
   "corporate_action_matrix": [
@@ -88,8 +138,14 @@
     "CASE-MONEY-AUDIT-ROLLBACK",
     "CASE-MONEY-ROUNDING",
     "CASE-SPLIT-IDEMPOTENT",
+    "CASE-REVERSE-SPLIT-IDEMPOTENT",
     "CASE-DIVIDEND-IDEMPOTENT",
+    "CASE-TICKER-CHANGE-STABLE-IDENTITY",
+    "CASE-CASH-MERGER-PENDING",
+    "CASE-STOCK-MERGER-PENDING",
     "CASE-CORP-ACTION-UNKNOWN",
+    "CASE-CASH-IN-LIEU-PENDING",
+    "CASE-DELISTING-NOT-ZERO-FILLED",
     "CASE-CORP-ACTION-CORRECTION"
   ]
 }

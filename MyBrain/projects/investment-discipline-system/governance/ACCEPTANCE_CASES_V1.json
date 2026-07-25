@@ -260,6 +260,60 @@
       "expected": {"original_event_deleted": false, "compensating_event_created": true, "revision_linked": true}
     },
     {
+      "id": "CASE-REVERSE-SPLIT-IDEMPOTENT",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
+      "preconditions": {"quantity_before": "10.00000000", "ratio": "0.10000000", "same_action_deliveries": 2, "fractional_remainder": "0.00000000"},
+      "operation": {"action": "apply reverse split deliveries"},
+      "expected": {"quantity_after": "1.00000000", "total_cost_unchanged": true, "account_events_created": 1}
+    },
+    {
+      "id": "CASE-TICKER-CHANGE-STABLE-IDENTITY",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-REPLAY"],
+      "preconditions": {"stable_security_id": "SEC-1", "old_symbol": "OLD", "new_symbol": "NEW", "effective_at": "2025-01-02"},
+      "operation": {"action": "apply ticker or name change twice"},
+      "expected": {"stable_security_id": "SEC-1", "old_alias_closed": true, "new_alias_opened": true, "account_events_created": 1}
+    },
+    {
+      "id": "CASE-CASH-MERGER-PENDING",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "preconditions": {"action_type": "cash_merger", "confirmed_terms": false},
+      "operation": {"action": "ingest cash merger and request valuation plus approval"},
+      "expected": {"action_state": "pending_manual", "guessed_cash": null, "affected_security_approval": false, "nav_status": "incomplete"}
+    },
+    {
+      "id": "CASE-STOCK-MERGER-PENDING",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "preconditions": {"action_type": "stock_merger", "confirmed_terms": false},
+      "operation": {"action": "ingest stock merger and request quantity transformation"},
+      "expected": {"action_state": "pending_manual", "automatic_quantity_change": false, "affected_security_approval": false}
+    },
+    {
+      "id": "CASE-CASH-IN-LIEU-PENDING",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "preconditions": {"action_type": "cash_in_lieu", "confirmed_cash_amount": null},
+      "operation": {"action": "ingest unresolved cash-in-lieu event"},
+      "expected": {"action_state": "pending_manual", "cash_delta": "0.00", "guessed_cash": null, "reconciliation_open": true}
+    },
+    {
+      "id": "CASE-DELISTING-NOT-ZERO-FILLED",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-PAPER-003"],
+      "verification_ids": ["V-ACCOUNT-CORPORATE-ACTIONS", "V-RISK-STATE"],
+      "preconditions": {"action_type": "delisting_or_bankruptcy", "terminal_value_evidence": null},
+      "operation": {"action": "mark account and compute NAV plus risk approval"},
+      "expected": {"mark_status": "unresolved", "silent_zero_value": false, "nav_status": "incomplete", "affected_security_approval": false}
+    },
+    {
       "id": "CASE-FAMILY-RENAME",
       "phase": "product_release",
       "requirement_ids": ["REQ-RESEARCH-003"],

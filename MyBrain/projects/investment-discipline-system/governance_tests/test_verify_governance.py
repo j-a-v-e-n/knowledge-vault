@@ -106,6 +106,12 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
         self.assert_rejected("reverse requirement binding differs")
 
+    def test_wrong_reverse_acceptance_case_binding_is_rejected(self) -> None:
+        specs = self.read_json("governance/VERIFICATION_SPECS_V1.json")
+        specs["specs"][0]["acceptance_case_ids"] = []
+        self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
+        self.assert_rejected("has no exact acceptance_case_ids")
+
     def test_free_text_always_pass_oracle_is_rejected(self) -> None:
         specs = self.read_json("governance/VERIFICATION_SPECS_V1.json")
         oracle_id = specs["oracles"][0]["id"]
