@@ -179,12 +179,21 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "}"
         )
         self.assertIn(production_policy, verifier_source)
+        machine_repository_policy = (
+            '            "repository": "j-a-v-e-n/knowledge-vault",'
+        )
+        self.assertIn(machine_repository_policy, verifier_source)
+        verifier_source = verifier_source.replace(
+            production_policy,
+            fixture_policy,
+            1,
+        ).replace(
+            machine_repository_policy,
+            f'            "repository": {FIXTURE_REPOSITORY!r},',
+            1,
+        )
         verifier.write_text(
-            verifier_source.replace(
-                production_policy,
-                fixture_policy,
-                1,
-            ),
+            verifier_source,
             encoding="utf-8",
         )
         assurance_verifier = (
@@ -218,7 +227,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "user.email",
             "governance@example.invalid",
         )
-        self.run_git(self.root, "add", ".")
+        self.run_git(self.repo_root, "add", "-A")
         self.run_git(self.root, "commit", "-m", "fixture preregistration anchor")
         preregistration_commit = self.git_text(
             self.root,
@@ -230,7 +239,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             PROJECT_ROOT / "scripts" / "refresh_ground_truth_manifest.py"
         )
         self.assertEqual(refresh.returncode, 0, refresh.stdout)
-        self.run_git(self.root, "add", ".")
+        self.run_git(self.repo_root, "add", "-A")
         self.run_git(self.root, "commit", "-m", "candidate fixture")
         self.run_git(self.root, "remote", "add", "origin", str(self.remote))
         self.run_git(self.root, "push", "--set-upstream", "origin", "main")
@@ -653,125 +662,204 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
         contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
         frozen_files = contract["change_control"]["frozen_files"]
-        review_input = (
-            "Independently review the exact candidate commit and tree against every "
-            "contract frozen file. Pass only with no open critical or major finding "
-            "and no new architecture-changing class."
-        )
-        attack_specs = [
-            {
-                "attack_id": "ATTACK-PIT-ORACLE-INVERSION",
-                "mutation": (
-                    "Invert the point-in-time late-retrieval oracle to accept "
-                    "future information."
-                ),
-                "expected": "The freeze-critical PIT oracle mutation is rejected.",
-                "observed": (
-                    "The verifier rejected CASE-PIT-LATE-RETRIEVAL semantic drift."
-                ),
-                "replay_selector": CANONICAL_ATTACK_SELECTORS[
-                    "ATTACK-PIT-ORACLE-INVERSION"
-                ],
-            },
-            {
-                "attack_id": "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE",
-                "mutation": (
-                    "Allow same-bar fills by default and thereby smuggle future "
-                    "bar information into execution."
-                ),
-                "expected": "The same-bar causality mutation is rejected.",
-                "observed": (
-                    "The verifier rejected market calendar and causality drift."
-                ),
-                "replay_selector": CANONICAL_ATTACK_SELECTORS[
-                    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE"
-                ],
-            },
-            {
-                "attack_id": "ATTACK-SPLIT-ACCOUNTING-SMUGGLE",
-                "mutation": (
-                    "Leave position quantity unchanged when applying a stock split."
-                ),
-                "expected": "The split-accounting mutation is rejected.",
-                "observed": (
-                    "The verifier rejected ACTION-SPLIT accounting drift."
-                ),
-                "replay_selector": CANONICAL_ATTACK_SELECTORS[
-                    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE"
-                ],
-            },
-            {
-                "attack_id": "ATTACK-CONDITIONAL-SELF-ATTESTATION",
-                "mutation": (
-                    "Let the candidate self-attest a conditional gate without "
-                    "independent release evidence."
-                ),
-                "expected": "The conditional self-attestation is rejected.",
-                "observed": (
-                    "The verifier rejected candidate-authored conditional evidence."
-                ),
-                "replay_selector": CANONICAL_ATTACK_SELECTORS[
-                    "ATTACK-CONDITIONAL-SELF-ATTESTATION"
-                ],
-            },
-        ]
-        independent_attacks = []
-        commands_run = []
-        for index, attack in enumerate(attack_specs, start=1):
-            mutation_hash = hashlib.sha256(
-                attack["mutation"].encode("utf-8")
-            ).hexdigest()
-            raw_relative = f"audits/FINAL_REVIEW_ATTACK_R3_{index}.json"
-            replay_command = (
-                f"python3 -m unittest {attack['replay_selector']}"
+        self.write_json(NOVELTY_SPEC_RELATIVE, self.novelty_spec())
+        canonical_attacks: list[dict[str, str]] = []
+        canonical_receipts: list[dict[str, Any]] = []
+        for index, attack_id in enumerate(ATTACK_IDS, start=1):
+            receipt_relative = (
+                "audits/final_review_attacks/"
+                f"canonical-{index:02d}-{attack_id.lower()}.json"
             )
-            raw_command = (
-                f"IDS_ATTACK_FIXTURE={attack['attack_id']} "
-                "python3 scripts/verify_governance.py --allow-candidate"
+            receipt = self.run_attack(
+                candidate_commit=reviewed_commit,
+                candidate_tree=reviewed_tree,
+                extra_args=["--attack-id", attack_id],
+                receipt_relative=receipt_relative,
             )
-            stdout = attack["observed"]
-            raw_result = {
-                "schema_version": 1,
-                "attack_id": attack["attack_id"],
-                "candidate_commit": reviewed_commit,
-                "candidate_tree": reviewed_tree,
-                "result": "rejected",
-                "exit_code": 1,
-                "mutation_sha256": mutation_hash,
-                "replay_selector": attack["replay_selector"],
-                "expected": attack["expected"],
-                "observed": attack["observed"],
-                "command": raw_command,
-                "stdout": stdout,
-                "stdout_sha256": hashlib.sha256(
-                    stdout.encode("utf-8")
-                ).hexdigest(),
-            }
-            self.write_json(raw_relative, raw_result)
-            raw_hash = hashlib.sha256(
-                (self.root / raw_relative).read_bytes()
-            ).hexdigest()
-            independent_attacks.append(
+            canonical_receipts.append(receipt)
+            canonical_attacks.append(
                 {
-                    **attack,
-                    "result": "rejected",
-                    "mutation_sha256": mutation_hash,
-                    "raw_result_path": raw_relative,
-                    "raw_result_sha256": raw_hash,
+                    "attack_id": attack_id,
+                    "runner_receipt_path": receipt_relative,
+                    "runner_receipt_sha256": sha256_file(
+                        self.root / receipt_relative
+                    ),
                 }
             )
-            commands_run.extend([replay_command, raw_command])
+        novelty_receipt = self.run_attack(
+            candidate_commit=reviewed_commit,
+            candidate_tree=reviewed_tree,
+            extra_args=[
+                "--novelty-spec",
+                str(self.root / NOVELTY_SPEC_RELATIVE),
+            ],
+            receipt_relative=NOVELTY_RECEIPT_RELATIVE,
+        )
+        candidate_governance = self.run_project_script(
+            GOVERNANCE_VERIFIER,
+            "--allow-candidate",
+        )
+        self.assertEqual(
+            candidate_governance.returncode,
+            0,
+            candidate_governance.stdout,
+        )
+        reviewed_files = self.collect_reviewed_files(
+            candidate_commit=reviewed_commit
+        )
 
-        evidence = {
+        for relative in frozen_files:
+            if Path(relative).suffix.lower() != ".json":
+                continue
+            document = self.read_json(relative)
+            if relative == RESEARCH_RELATIVE:
+                document["status"] = "adopted_with_explicit_limits"
+            elif relative == incomplete_relative:
+                document["status"] = "candidate_for_freeze"
+            else:
+                document["status"] = "frozen"
+            self.write_json(relative, document)
+
+        review_output = (
+            "# Final schema-v2 fixture review\n\n"
+            f"Candidate commit: {reviewed_commit}\n\n"
+            f"Candidate tree: {reviewed_tree}\n\n"
+            "The frozen production runner rejected every canonical mutation "
+            "and the candidate-postdated novelty probe.\n"
+        )
+        review_output_path = self.root / REVIEW_OUTPUT_RELATIVE
+        review_output_path.parent.mkdir(parents=True, exist_ok=True)
+        review_output_path.write_text(review_output, encoding="utf-8")
+
+        machine_manifest = {
             "schema_version": 1,
+            "manifest_id": "ids-github-machine-assurance-v1",
+            "status": "pass",
+            "assurance_level": "github_issued_workflow_provenance",
+            "semantic_approval": False,
+            "repository": FIXTURE_REPOSITORY,
+            "workflow_ref": (
+                f"{FIXTURE_REPOSITORY}/{WORKFLOW_RELATIVE}"
+                "@refs/heads/main"
+            ),
+            "workflow_sha": reviewed_commit,
+            "github_sha_matches_candidate": True,
+            "runner_environment": "github-hosted",
+            "candidate_commit": reviewed_commit,
+            "candidate_tree": reviewed_tree,
+            "project_prefix": TEST_PROJECT_PREFIX,
+            "required_check_ids": [
+                "CHECK-CANDIDATE-GOVERNANCE",
+                "CHECK-CANONICAL-ATTACKS",
+            ],
+            "checks": [
+                {
+                    "check_id": "CHECK-CANDIDATE-GOVERNANCE",
+                    "result": "pass",
+                    "actual_process_exit": (
+                        candidate_governance.returncode
+                    ),
+                    "stdout_sha256": hashlib.sha256(
+                        candidate_governance.stdout.encode("utf-8")
+                    ).hexdigest(),
+                },
+                {
+                    "check_id": "CHECK-CANONICAL-ATTACKS",
+                    "result": "pass",
+                    "actual_process_exit": 0,
+                    "execution_fingerprints": [
+                        receipt["execution_fingerprint"]
+                        for receipt in canonical_receipts
+                    ],
+                },
+            ],
+            "limitations": [
+                "The local unit fixture models an externally verified manifest."
+            ],
+        }
+        self.write_json(MACHINE_MANIFEST_RELATIVE, machine_manifest)
+        machine_hash = sha256_file(self.root / MACHINE_MANIFEST_RELATIVE)
+        self.write_json(
+            ATTESTATION_RELATIVE,
+            {
+                "schema_version": 1,
+                "verification_id": (
+                    "ids-github-attestation-verification-v1"
+                ),
+                "status": "pass",
+                "fixture_only": False,
+                "repository": FIXTURE_REPOSITORY,
+                "workflow_path": WORKFLOW_RELATIVE,
+                "source_ref": "refs/heads/main",
+                "candidate_commit": reviewed_commit,
+                "candidate_tree": reviewed_tree,
+                "project_prefix": TEST_PROJECT_PREFIX,
+                "subject": {
+                    "path": MACHINE_MANIFEST_RELATIVE,
+                    "sha256": machine_hash,
+                },
+                "policy_checks": {
+                    "repository_matches": True,
+                    "workflow_matches": True,
+                    "source_commit_matches": True,
+                    "source_ref_matches": True,
+                    "hosted_runner_required": True,
+                    "subject_digest_matches": True,
+                },
+                "limitations": [
+                    "The test exercises binding validation without claiming "
+                    "that a local fixture is a GitHub-issued signature."
+                ],
+            },
+        )
+        review_input = (
+            "Review the exact candidate commit and tree against the complete "
+            "candidate ground-truth manifest. Replay every canonical attack "
+            "and execute one candidate-postdated novelty probe. Pass only "
+            "with no open finding or new architecture-changing class."
+        )
+        commands_run = [
+            (
+                "PYTHON scripts/run_design_freeze_attack.py "
+                f"--candidate-commit {reviewed_commit} "
+                f"--attack-id {attack_id}"
+            )
+            for attack_id in ATTACK_IDS
+        ]
+        commands_run.append(
+            (
+                "PYTHON scripts/run_design_freeze_attack.py "
+                f"--candidate-commit {reviewed_commit} "
+                f"--novelty-spec {NOVELTY_SPEC_RELATIVE}"
+            )
+        )
+        evidence = {
+            "schema_version": 2,
             "subject_id": FINAL_REVIEW_SUBJECT,
-            "review_locator": "test-fixture:independent-final-review-r3",
+            "review_locator": (
+                "fixture:platform-observable-separate-thread"
+            ),
+            "assurance_level": (
+                "platform_observable_separate_thread_review"
+            ),
             "review_input": review_input,
             "review_input_sha256": hashlib.sha256(
                 review_input.encode("utf-8")
             ).hexdigest(),
+            "review_output_path": REVIEW_OUTPUT_RELATIVE,
+            "review_output_sha256": sha256_file(review_output_path),
             "candidate_commit": reviewed_commit,
             "candidate_tree": reviewed_tree,
+            "ground_truth_manifest_path": GROUND_TRUTH_RELATIVE,
+            "ground_truth_manifest_sha256": sha256_file(
+                self.root / GROUND_TRUTH_RELATIVE
+            ),
+            "machine_assurance_manifest_path": MACHINE_MANIFEST_RELATIVE,
+            "machine_assurance_manifest_sha256": machine_hash,
+            "machine_attestation_verification_path": ATTESTATION_RELATIVE,
+            "machine_attestation_verification_sha256": sha256_file(
+                self.root / ATTESTATION_RELATIVE
+            ),
             "verdict": "passed_freeze",
             "open_critical_count": 0,
             "open_major_count": 0,
@@ -779,46 +867,60 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "new_architecture_changing_classes": [],
             "participated_in_candidate_construction": False,
             "write_access_used": False,
-            "reviewed_files": list(
-                dict.fromkeys(
-                    [
-                        *frozen_files,
-                        "scripts/verify_governance.py",
-                        "scripts/verify_conditionals.py",
-                        "scripts/replay_design_freeze_attacks.py",
-                        "scripts/freeze_governance.py",
-                        "scripts/verify_git_state.py",
-                        "scripts/verify_remote_commit.py",
-                        "scripts/verify_contract_supersession.py",
-                        "README.md",
-                        "STATUS.md",
-                        "governance_tests/test_final_review_attacks.py",
-                        "governance_tests/test_final_review_schema.py",
-                        "governance_tests/test_research_evidence_governance.py",
-                        "governance_tests/test_verify_conditionals.py",
-                        "governance_tests/test_freeze_git_remote.py",
-                        "governance_tests/test_verify_governance.py",
-                        "governance_tests/test_verify_money_semantics.py",
-                    ]
-                )
-            ),
-            "finding_ids": [],
-            "findings": [],
+            "reviewed_files": reviewed_files,
             "commands_run": commands_run,
-            "independent_attacks": independent_attacks,
+            "canonical_attacks": canonical_attacks,
+            "novelty_probes": [
+                {
+                    "probe_id": novelty_receipt["probe_id"],
+                    "spec_path": NOVELTY_SPEC_RELATIVE,
+                    "spec_sha256": sha256_file(
+                        self.root / NOVELTY_SPEC_RELATIVE
+                    ),
+                    "runner_receipt_path": NOVELTY_RECEIPT_RELATIVE,
+                    "runner_receipt_sha256": sha256_file(
+                        self.root / NOVELTY_RECEIPT_RELATIVE
+                    ),
+                }
+            ],
+            "findings": [],
+            "finding_ids": [],
             "what_would_falsify_pass": [
-                "Any replay selector accepts its corresponding mutation.",
-                "Any reviewed frozen file differs semantically from the candidate.",
+                "A production-runner replay produces a different fingerprint."
             ],
             "limitations": [
-                "The fixture proves governance rejection behavior, not production "
-                "investment correctness."
+                "The fixture proves governance binding behavior, not "
+                "production investment correctness."
             ],
         }
         self.write_json(FINAL_EVIDENCE_RELATIVE, evidence)
-        evidence_hash = hashlib.sha256(
-            (self.root / FINAL_EVIDENCE_RELATIVE).read_bytes()
-        ).hexdigest()
+        evidence_hash = sha256_file(self.root / FINAL_EVIDENCE_RELATIVE)
+
+        research = self.read_json(RESEARCH_RELATIVE)
+        research["challenge"]["status"] = "completed"
+        research["challenge"]["rounds"].append(
+            {
+                "id": "CHALLENGE-FINAL-SCHEMA-V2",
+                "candidate_commit": reviewed_commit,
+                "candidate_tree": reviewed_tree,
+                "reviewer_subjects": [FINAL_REVIEW_SUBJECT],
+                "result": "passed_freeze",
+                "evidence_path": FINAL_EVIDENCE_RELATIVE,
+                "evidence_sha256": evidence_hash,
+                "new_architecture_changing_classes": [],
+                "critical_findings": [],
+                "major_findings": [],
+                "open_critical_count": 0,
+                "open_major_count": 0,
+                "open_minor_count": 0,
+                "finding_ids": [],
+                "disposition": (
+                    "Schema-v2 closure evidence directly closes the "
+                    "post-candidate challenge."
+                ),
+            }
+        )
+        self.write_json(RESEARCH_RELATIVE, research)
 
         assurance = self.read_json(ASSURANCE_RELATIVE)
         assurance["subjects"].append(
@@ -836,48 +938,6 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             }
         )
         self.write_json(ASSURANCE_RELATIVE, assurance)
-
-        for relative in frozen_files:
-            if Path(relative).suffix.lower() != ".json":
-                continue
-            document = self.read_json(relative)
-            if relative == RESEARCH_RELATIVE:
-                document["status"] = "adopted_with_explicit_limits"
-                challenge = document["challenge"]
-                challenge["status"] = "completed"
-                challenge["rounds"].append(
-                    {
-                        "id": "CHALLENGE-FINAL-R3",
-                        "candidate_commit": reviewed_commit,
-                        "candidate_tree": reviewed_tree,
-                        "reviewer_subjects": [FINAL_REVIEW_SUBJECT],
-                        "result": "passed_freeze",
-                        "evidence_path": FINAL_EVIDENCE_RELATIVE,
-                        "evidence_sha256": evidence_hash,
-                        "new_architecture_changing_classes": [],
-                        "critical_findings": [],
-                        "major_findings": [],
-                        "open_critical_count": 0,
-                        "open_major_count": 0,
-                        "open_minor_count": 0,
-                        "finding_ids": [],
-                        "disposition": "machine-readable final review closed the candidate",
-                    }
-                )
-                document["stop_rule"]["met"] = True
-                document["primary_artifacts"].append(
-                    {
-                        "id": "ARTIFACT-CHALLENGE-FINAL-R3",
-                        "path": FINAL_EVIDENCE_RELATIVE,
-                        "sha256": evidence_hash,
-                        "role": "independent_final_challenge",
-                    }
-                )
-            elif relative == incomplete_relative:
-                document["status"] = "candidate_for_freeze"
-            else:
-                document["status"] = "frozen"
-            self.write_json(relative, document)
         return reviewed_commit
 
     def assert_bundle_absent(self) -> None:
