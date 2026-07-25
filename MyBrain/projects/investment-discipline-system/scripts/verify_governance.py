@@ -3999,6 +3999,7 @@ def verify(allow_candidate: bool) -> list[str]:
     failure_classes = load_json(FAILURE_CLASSES, errors)
     decision_authority = load_json(DECISION_AUTHORITY, errors)
     project_method_policy = load_json(PROJECT_METHOD_POLICY, errors)
+    frozen_bundle = load_json(FROZEN_BUNDLE, errors) if not allow_candidate else {}
 
     if errors:
         return errors
@@ -4039,8 +4040,23 @@ def verify(allow_candidate: bool) -> list[str]:
     if not assurance_metadata_verifier.is_file():
         errors.append("assurance metadata verifier is missing")
     else:
+        assurance_command = [
+            sys.executable,
+            str(assurance_metadata_verifier),
+            "--json",
+        ]
+        reviewed_candidate_commit = frozen_bundle.get(
+            "reviewed_candidate_commit"
+        )
+        if isinstance(reviewed_candidate_commit, str):
+            assurance_command.extend(
+                [
+                    "--artifact-source-commit",
+                    reviewed_candidate_commit,
+                ]
+            )
         assurance_result = subprocess.run(
-            [sys.executable, str(assurance_metadata_verifier), "--json"],
+            assurance_command,
             cwd=PROJECT_ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -4377,10 +4393,9 @@ def verify(allow_candidate: bool) -> list[str]:
     )
 
     if not allow_candidate:
-        bundle = load_json(FROZEN_BUNDLE, errors)
-        if bundle:
+        if frozen_bundle:
             verify_bundle(
-                bundle,
+                frozen_bundle,
                 contract,
                 research,
                 assurance_subjects,

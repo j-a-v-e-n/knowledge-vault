@@ -16,6 +16,7 @@ from typing import Any
 
 
 HASH_PATTERN = re.compile(r"[0-9a-f]{64}")
+COMMIT_PATTERN = re.compile(r"[0-9a-f]{40}")
 PROJECT_DOCUMENT_STATUSES = {"candidate_for_freeze", "frozen"}
 WORKFLOW_PATH = ".github/workflows/investment-discipline-assurance.yml"
 EXPECTED_WORKFLOW_PERMISSIONS = {
@@ -198,6 +199,10 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
 def nonempty_string(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
@@ -359,6 +364,111 @@ def discover_roots() -> Roots:
         repository=repository,
         project_prefix=project_prefix,
     )
+
+
+def validate_artifact_source_commit(
+    value: str | None,
+    *,
+    roots: Roots,
+    errors: list[str],
+) -> str | None:
+    if value is None:
+        return None
+    if COMMIT_PATTERN.fullmatch(value) is None:
+        errors.append(
+            "artifact source commit: expected a full lowercase 40-character commit"
+        )
+        return None
+    try:
+        resolved = run_git(
+            ["rev-parse", "--verify", f"{value}^{{commit}}"],
+            cwd=roots.repository,
+            label="artifact source commit",
+        )
+    except VerificationSetupError as exc:
+        errors.append(str(exc))
+        return None
+    if resolved != [value]:
+        errors.append("artifact source commit: resolution differs from requested commit")
+        return None
+    return value
+
+
+def git_blob_at_commit(
+    roots: Roots,
+    *,
+    commit: str,
+    scope: str,
+    relative: str,
+    label: str,
+    errors: list[str],
+) -> bytes | None:
+    repository_relative = (
+        relative if scope == "repository" else f"{roots.project_prefix}{relative}"
+    )
+    try:
+        tree = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(roots.repository),
+                "ls-tree",
+                "--full-name",
+                "-z",
+                commit,
+                "--",
+                f":(top,literal){repository_relative}",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except OSError as exc:
+        errors.append(f"{label}: cannot inspect artifact source commit: {exc}")
+        return None
+    records = [record for record in tree.stdout.split(b"\0") if record]
+    if tree.returncode != 0 or len(records) != 1 or b"\t" not in records[0]:
+        detail = tree.stderr.decode("utf-8", "replace").strip()
+        errors.append(
+            f"{label}: artifact is absent or ambiguous at source commit"
+            + (f": {detail}" if detail else "")
+        )
+        return None
+    metadata, observed_path = records[0].split(b"\t", 1)
+    fields = metadata.decode("ascii", "replace").split()
+    if (
+        len(fields) != 3
+        or fields[0] != "100644"
+        or fields[1] != "blob"
+        or observed_path.decode("utf-8", "replace") != repository_relative
+    ):
+        errors.append(f"{label}: source commit entry must be one regular Git blob")
+        return None
+    try:
+        blob = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(roots.repository),
+                "cat-file",
+                "blob",
+                fields[2],
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except OSError as exc:
+        errors.append(f"{label}: cannot read artifact source blob: {exc}")
+        return None
+    if blob.returncode != 0:
+        detail = blob.stderr.decode("utf-8", "replace").strip()
+        errors.append(
+            f"{label}: cannot read artifact source blob"
+            + (f": {detail}" if detail else "")
+        )
+        return None
+    return blob.stdout
 
 
 def verify_document_header(
@@ -842,6 +952,8 @@ def verify_ground_truth(
     contract: dict[str, Any],
     roots: Roots,
     errors: list[str],
+    *,
+    artifact_source_commit: str | None,
 ) -> None:
     verify_document_header(manifest, label="ground-truth manifest", errors=errors)
     artifacts = manifest.get("artifacts")
@@ -906,16 +1018,29 @@ def verify_ground_truth(
                 errors.append(
                     f"{label}: repository-scope path is outside the acceptance contract"
                 )
-        path = resolve_regular_file(
-            roots.repository if scope == "repository" else roots.project,
-            relative,
-            label=label,
-            errors=errors,
-        )
+        observed_hash: str | None
+        if artifact_source_commit is None:
+            path = resolve_regular_file(
+                roots.repository if scope == "repository" else roots.project,
+                relative,
+                label=label,
+                errors=errors,
+            )
+            observed_hash = sha256_file(path) if path is not None else None
+        else:
+            payload = git_blob_at_commit(
+                roots,
+                commit=artifact_source_commit,
+                scope=scope,
+                relative=relative,
+                label=label,
+                errors=errors,
+            )
+            observed_hash = sha256_bytes(payload) if payload is not None else None
         if (
-            path is not None
+            observed_hash is not None
             and expected_hash is not None
-            and sha256_file(path) != expected_hash
+            and observed_hash != expected_hash
         ):
             errors.append(f"ground-truth manifest: stale artifact hash for {relative}")
     if sort_keys != sorted(sort_keys):
@@ -1387,12 +1512,19 @@ def verify_decision_authority(
                 )
 
 
-def verify_all() -> list[str]:
+def verify_all(*, artifact_source_commit: str | None = None) -> list[str]:
     errors: list[str] = []
     try:
         roots = discover_roots()
     except VerificationSetupError as exc:
         return [f"verifier setup: {exc}"]
+    artifact_source_commit = validate_artifact_source_commit(
+        artifact_source_commit,
+        roots=roots,
+        errors=errors,
+    )
+    if errors:
+        return errors
 
     document_paths = {
         "trust": "governance/ASSURANCE_TRUST_MODEL_V1.json",
@@ -1431,6 +1563,7 @@ def verify_all() -> list[str]:
         documents["contract"],
         roots,
         errors,
+        artifact_source_commit=artifact_source_commit,
     )
     verify_failure_registry(
         documents["failures"],
@@ -1478,9 +1611,17 @@ def main() -> int:
         action="store_true",
         help="Emit one machine-readable JSON result.",
     )
+    parser.add_argument(
+        "--artifact-source-commit",
+        help=(
+            "Validate ground-truth artifact hashes against this exact reviewed "
+            "candidate commit. The enclosing frozen-governance verifier remains "
+            "responsible for proving the commit is the bundle-bound candidate."
+        ),
+    )
     args = parser.parse_args()
     try:
-        errors = verify_all()
+        errors = verify_all(artifact_source_commit=args.artifact_source_commit)
     except Exception as exc:  # pragma: no cover - last-resort fail-closed boundary
         errors = [f"internal verifier failure: {type(exc).__name__}: {exc}"]
     return output_result(errors, as_json=args.json)
