@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Any
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(
+    os.environ.get("IDS_PROJECT_ROOT", Path(__file__).resolve().parents[1])
+).resolve()
 CONTRACT = PROJECT_ROOT / "governance" / "ACCEPTANCE_CONTRACT_V1.json"
 
 
@@ -32,14 +34,6 @@ def observed_prerequisite(gate_id: str, evidence: dict[str, Any] | None) -> bool
     return bool(evidence and evidence.get("prerequisite_ready") is True)
 
 
-def expected_without_prerequisite(gate_id: str) -> str:
-    if gate_id == "COND-TIINGO-LIVE-PROBE":
-        return "not_run_missing_user_credential"
-    if gate_id == "COND-EXTERNAL-PAPER":
-        return "out_of_scope"
-    return "not_yet_observable"
-
-
 def evaluate(gate: dict[str, Any]) -> dict[str, Any]:
     gate_id = gate["id"]
     evidence_path = PROJECT_ROOT / gate["evidence_path"]
@@ -55,7 +49,7 @@ def evaluate(gate: dict[str, Any]) -> dict[str, Any]:
         errors.append("state_not_allowed")
 
     if not ready:
-        expected = expected_without_prerequisite(gate_id)
+        expected = gate["when_prerequisite_absent"]
         if state is not None and state != expected:
             errors.append("state_conflicts_with_absent_prerequisite")
         effective_state = state or expected
@@ -96,15 +90,34 @@ def main() -> int:
         return 2
     results = [evaluate(gate) for gate in selected]
     failed = [result for result in results if result["status"] == "fail"]
+    unresolved_states = {
+        "not_run_missing_user_credential",
+        "not_yet_observable",
+        "out_of_scope",
+        "inconclusive",
+    }
+    aggregate_verdict = (
+        "blocked"
+        if failed
+        else (
+            "core_pass_with_unproven_conditions"
+            if any(result["effective_state"] in unresolved_states for result in results)
+            else "all_selected_conditions_passed"
+        )
+    )
     payload = {
         "schema_version": 1,
         "status": "fail" if failed else "pass",
+        "aggregate_verdict": aggregate_verdict,
         "results": results,
     }
     if args.json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
-        print(f"conditional verification: {payload['status'].upper()}")
+        print(
+            f"conditional verification: {payload['status'].upper()} "
+            f"(aggregate={aggregate_verdict})"
+        )
         for result in results:
             print(
                 f"- {result['condition_id']}: {result['effective_state']} "

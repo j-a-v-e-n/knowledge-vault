@@ -20,7 +20,7 @@
       "id": "CASE-GOV-ORACLE-ALWAYS-PASS",
       "phase": "design_freeze",
       "requirement_ids": ["REQ-GOV-002"],
-      "verification_ids": ["V-GOV-TRACE", "V-GOV-CASES"],
+      "verification_ids": ["V-GOV-TRACE", "V-GOV-CASES", "V-TEST-PEDIGREE"],
       "preconditions": {"mutation": "replace any structured oracle assertions with a free-text always-pass rule"},
       "operation": {"command": "python3 scripts/verify_governance.py --allow-candidate"},
       "expected": {"exit": 1, "contains": "oracle definition is not structurally enforceable"}
@@ -47,7 +47,7 @@
       "id": "CASE-GOV-STALE-EVIDENCE",
       "phase": "product_release",
       "requirement_ids": ["REQ-GOV-002", "REQ-GOV-003"],
-      "verification_ids": ["V-EVIDENCE-BINDING", "V-INDEPENDENT-REVIEW"],
+      "verification_ids": ["V-EVIDENCE-BINDING", "V-GOV-AUTHORITY", "V-INDEPENDENT-REVIEW", "V-INDEPENDENCE-PROBE"],
       "preconditions": {"evidence.candidate_tree": "different from fixed candidate tree"},
       "operation": {"command": "python3 scripts/verify_release.py --evidence evidence/acceptance/latest.json"},
       "expected": {"exit": 1, "finding": "candidate_binding_mismatch"}
@@ -65,7 +65,7 @@
       "id": "CASE-PIT-LATE-RETRIEVAL",
       "phase": "product_release",
       "requirement_ids": ["REQ-DATA-001", "REQ-DATA-002"],
-      "verification_ids": ["V-PIT", "V-TRUSTED-TIME"],
+      "verification_ids": ["V-DATA-CONTRACT", "V-PIT", "V-TRUSTED-TIME"],
       "preconditions": {"decision_at": "2024-01-02T21:00:00Z", "system_recorded_at": "2026-01-02T21:00:00Z", "verifiable_vintage": false},
       "operation": {"action": "admit snapshot to historical decision/backtest"},
       "expected": {"accepted": false, "reason": "snapshot_recorded_after_decision_without_vintage"}
@@ -127,8 +127,8 @@
     {
       "id": "CASE-EVIDENCE-CONTRADICTION",
       "phase": "product_release",
-      "requirement_ids": ["REQ-EVIDENCE-002", "REQ-AI-001"],
-      "verification_ids": ["V-CLAIM-EVIDENCE", "V-AI-SCHEMA"],
+      "requirement_ids": ["REQ-EVIDENCE-002", "REQ-AI-001", "REQ-QUAL-002"],
+      "verification_ids": ["V-CLAIM-EVIDENCE", "V-AI-SCHEMA", "V-CLAIMS"],
       "preconditions": {"decisive_claim": true, "support_status": "verified", "challenge_status": "unresolved_material_contradiction"},
       "operation": {"action": "mark recommendation ready for decision"},
       "expected": {"ready": false, "reason": "decisive_claim_not_resolved"}
@@ -155,7 +155,7 @@
       "id": "CASE-HUMAN-REAL-JOURNEY",
       "phase": "human_onboarding",
       "requirement_ids": ["REQ-HUMAN-001", "REQ-RISK-001", "REQ-UX-004"],
-      "verification_ids": ["V-HUMAN-CAPABILITY", "V-FIELD-USE-PROTOCOL", "V-BLACKBOX"],
+      "verification_ids": ["V-HUMAN-CAPABILITY", "V-FIELD-USE-PROTOCOL", "V-BLACKBOX", "V-BROWSER"],
       "preconditions": {"executor": "EX-HUMAN", "market_snapshot_pedigree": "real_current_non_fixture", "initial_policy_cooling_complete": true},
       "operation": {"action": "complete research-to-decision journey through local UI"},
       "expected": {"human_onboarding_verified": true, "longitudinal_personal_validation": false}
@@ -330,6 +330,132 @@
       "preconditions": {"runtime_has_provider_token": true, "runtime_has_session_secret": true},
       "operation": {"action": "write logs, evidence and public export"},
       "expected": {"provider_token_occurrences": 0, "session_secret_occurrences": 0}
+    },
+    {
+      "id": "CASE-NO-LIVE-EXECUTION-SURFACE",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-CORE-001", "REQ-PROVIDER-002"],
+      "verification_ids": ["V-NO-LIVE", "V-SECURITY", "V-ORDER-STATE", "V-FAULTS"],
+      "preconditions": {"mutation": "add a live broker endpoint, credential field or network order submission path"},
+      "operation": {"command": "python3 scripts/verify_static.py"},
+      "expected": {"exit": 1, "finding": "live_execution_surface"}
+    },
+    {
+      "id": "CASE-DB-SHADOW-STATE",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-CORE-002", "REQ-UX-003"],
+      "verification_ids": ["V-DB-INVARIANTS", "V-EXPORT-CONSISTENCY", "V-GRAPHS"],
+      "preconditions": {"database_decision_status": "deferred", "web_or_graph_shadow_status": "accepted"},
+      "operation": {"action": "restart service and render decision plus graph from declared entrypoint"},
+      "expected": {"visible_status": "deferred", "shadow_state_accepted": false, "source": "SQLite"}
+    },
+    {
+      "id": "CASE-RUN-MANIFEST-MISSING",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-CORE-003", "REQ-RESEARCH-002", "REQ-BACKTEST-002"],
+      "verification_ids": ["V-RUN-MANIFEST", "V-ARTIFACTS", "V-FAULTS"],
+      "preconditions": {"terminal_run": true, "manifest.data_snapshot_hash": null},
+      "operation": {"action": "mark run completed and include it in release evidence"},
+      "expected": {"completed": false, "release_eligible": false, "reason": "run_manifest_incomplete"}
+    },
+    {
+      "id": "CASE-DATA-SILENT-FALLBACK",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-DATA-003", "REQ-PROVIDER-001"],
+      "verification_ids": ["V-DATA-FAULTS", "V-PROVIDER"],
+      "preconditions": {"approved_feed": "tiingo_raw_eod", "observed_feed": "unapproved_fallback"},
+      "operation": {"action": "admit snapshot to a run without an explicit feed-change record"},
+      "expected": {"accepted": false, "reason": "unapproved_data_source_change", "observed_feed_recorded": true}
+    },
+    {
+      "id": "CASE-CORP-ACTION-ADJUSTED-MISMATCH",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-DATA-004"],
+      "verification_ids": ["V-CORPORATE-ACTIONS", "V-DATA-FAULTS"],
+      "preconditions": {"local_raw_plus_actions_value": "102.00", "provider_adjusted_value": "100.00"},
+      "operation": {"action": "reconcile adjusted series"},
+      "expected": {"provider_adjusted_used_as_authority": false, "mismatch_recorded": true, "run_status": "incomplete"}
+    },
+    {
+      "id": "CASE-DOC-COLD-START",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-DOC-001", "REQ-OPS-002"],
+      "verification_ids": ["V-DOCS", "V-COLD-START"],
+      "preconditions": {"reviewer_has_chat_history": false, "checkout": "fresh_remote_clone", "private_backup": "fixture_only"},
+      "operation": {"action": "follow only README, STATUS, contract and operations guide"},
+      "expected": {"declared_commands_resolve": true, "core_acceptance_started": true, "ignored_private_dependency_required": false}
+    },
+    {
+      "id": "CASE-LEDGER-TAIL-TRUNCATION",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-LEDGER-002", "REQ-OPS-001"],
+      "verification_ids": ["V-LEDGER-TAMPER", "V-BACKUP", "V-RESTORE"],
+      "preconditions": {"anchor_tail_seq": 12, "database_tail_seq_after_truncation": 11},
+      "operation": {"action": "open account, verify backup and attempt restore"},
+      "expected": {"tamper_detected": true, "system_state": "read_only_recovery_required", "anchor_mismatch": true}
+    },
+    {
+      "id": "CASE-MIGRATION-FAIL-READONLY",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-OPS-003"],
+      "verification_ids": ["V-MIGRATION", "V-HEALTH", "V-FAULTS"],
+      "preconditions": {"injected_failure": "migration_step_after_schema_change"},
+      "operation": {"action": "start service on previous supported schema"},
+      "expected": {"migration_committed": false, "system_state": "read_only_recovery_required", "old_schema_bytes_preserved": true}
+    },
+    {
+      "id": "CASE-EXTERNAL-PAPER-NETWORK-FORBIDDEN",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-CORE-001", "REQ-PROVIDER-002"],
+      "verification_ids": ["V-NO-LIVE", "V-ORDER-STATE", "V-FAULTS"],
+      "preconditions": {"adapter_attempts_network_order": true},
+      "operation": {"action": "load external paper execution adapter"},
+      "expected": {"adapter_loaded": false, "network_attempts": 0, "reason": "v1_external_execution_out_of_scope"}
+    },
+    {
+      "id": "CASE-HYPOTHESIS-UNFROZEN",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-RESEARCH-001"],
+      "verification_ids": ["V-HYPOTHESIS", "V-BACKTEST"],
+      "preconditions": {"hypothesis_status": "draft", "benchmark": null, "primary_metric": null},
+      "operation": {"action": "start historical evaluation"},
+      "expected": {"run_created": false, "reason": "hypothesis_not_preregistered"}
+    },
+    {
+      "id": "CASE-HOLDOUT-REUSE",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-RESEARCH-002"],
+      "verification_ids": ["V-HOLDOUT", "V-RUN-MANIFEST"],
+      "preconditions": {"hypothesis_version": "H1", "holdout_status": "consumed", "parameters_changed_after_reveal": true},
+      "operation": {"action": "request another independent holdout verdict for H1"},
+      "expected": {"access_granted": false, "independent_holdout_claim": false, "all_attempts_retained": true}
+    },
+    {
+      "id": "CASE-RISK-MISSING-AUTHORITATIVE-STATE",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-RISK-003"],
+      "verification_ids": ["V-RISK-STATE", "V-CONCURRENCY", "V-FAULTS"],
+      "preconditions": {"database_cash_state": "missing", "caller_supplied_cash": "1000000.00"},
+      "operation": {"action": "evaluate and consume risk approval"},
+      "expected": {"approved": false, "caller_state_used": false, "reason": "authoritative_state_unavailable"}
+    },
+    {
+      "id": "CASE-LOOPBACK-BAD-ORIGIN",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-SEC-001"],
+      "verification_ids": ["V-SECURITY"],
+      "preconditions": {"host": "127.0.0.1", "origin": "https://attacker.invalid", "mutation_token_valid": false},
+      "operation": {"action": "submit a mutating local HTTP request"},
+      "expected": {"http_status": 403, "state_changed": false, "cors_allow_origin_present": false}
+    },
+    {
+      "id": "CASE-USER-PROXY-INTENT-REPLAY",
+      "phase": "product_release",
+      "requirement_ids": ["REQ-GOV-002", "REQ-GOV-003", "REQ-UX-001", "REQ-QUAL-001", "REQ-QUAL-002"],
+      "verification_ids": ["V-USER-PROXY"],
+      "preconditions": {"input": "frozen user excerpts plus raw candidate evidence", "builder_completion_summary_available": false},
+      "operation": {"action": "independent user-proxy reconstructs intended outcome and compares every completion claim"},
+      "expected": {"unmapped_user_value_count": 0, "claim_beyond_evidence_count": 0, "veto_available": true}
     },
     {
       "id": "CASE-CONDITIONAL-MISSING-EXECUTOR",

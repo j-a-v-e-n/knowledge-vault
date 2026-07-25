@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -12,7 +13,9 @@ import tempfile
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(
+    os.environ.get("IDS_PROJECT_ROOT", Path(__file__).resolve().parents[1])
+).resolve()
 
 
 def git(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:

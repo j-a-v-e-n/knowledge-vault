@@ -19,10 +19,14 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         shutil.copytree(PROJECT_ROOT / "governance", self.root / "governance")
         shutil.copytree(PROJECT_ROOT / "research", self.root / "research")
+        shutil.copytree(PROJECT_ROOT / "scripts", self.root / "scripts")
+        shutil.copytree(PROJECT_ROOT / "governance_tests", self.root / "governance_tests")
         for relative in (
             "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
             "PROJECT_CHARTER.md",
             "DECISIONS.md",
+            "README.md",
+            "STATUS.md",
         ):
             shutil.copy2(PROJECT_ROOT / relative, self.root / relative)
 
@@ -102,6 +106,80 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
         self.assert_rejected("reverse requirement binding differs")
 
+    def test_free_text_always_pass_oracle_is_rejected(self) -> None:
+        specs = self.read_json("governance/VERIFICATION_SPECS_V1.json")
+        oracle_id = specs["oracles"][0]["id"]
+        specs["oracles"][0] = {"id": oracle_id, "rule": "always pass"}
+        self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
+        self.assert_rejected("oracle definition is not structurally enforceable")
+
+    def test_empty_acceptance_case_set_is_rejected(self) -> None:
+        specs = self.read_json("governance/VERIFICATION_SPECS_V1.json")
+        specs["negative_fixture_sets"][0]["case_ids"] = []
+        self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
+        self.assert_rejected("has no acceptance cases")
+
+    def test_unbound_free_text_case_names_are_rejected(self) -> None:
+        specs = self.read_json("governance/VERIFICATION_SPECS_V1.json")
+        fixture_set = specs["negative_fixture_sets"][0]
+        fixture_set["cases"] = ["sounds_bad"]
+        self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
+        self.assert_rejected("uses unbound free-text cases")
+
+    def test_unknown_acceptance_case_requirement_is_rejected(self) -> None:
+        cases = self.read_json("governance/ACCEPTANCE_CASES_V1.json")
+        cases["cases"][0]["requirement_ids"].append("REQ-NOT-REAL")
+        self.write_json("governance/ACCEPTANCE_CASES_V1.json", cases)
+        self.assert_rejected("references unknown requirement_ids")
+
+    def test_missing_design_freeze_target_is_rejected(self) -> None:
+        (self.root / "scripts" / "verify_conditionals.py").unlink()
+        self.assert_rejected("required design_freeze implementation target missing")
+
+    def test_undeclared_trace_target_is_rejected(self) -> None:
+        targets = self.read_json("governance/IMPLEMENTATION_TARGETS_V1.json")
+        targets["targets"] = [
+            target
+            for target in targets["targets"]
+            if target["path"] != "scripts/verify_conditionals.py"
+        ]
+        self.write_json("governance/IMPLEMENTATION_TARGETS_V1.json", targets)
+        self.assert_rejected("implementation target coverage differs")
+
+    def test_missing_required_reference_case_is_rejected(self) -> None:
+        money = self.read_json("governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json")
+        money["required_reference_cases"].append("CASE-NOT-REAL")
+        self.write_json(
+            "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json", money
+        )
+        self.assert_rejected("references unknown acceptance cases")
+
+    def test_money_semantics_mutation_is_rejected(self) -> None:
+        money = self.read_json("governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json")
+        money["decimal_context"]["float_input_allowed"] = True
+        self.write_json(
+            "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json", money
+        )
+        self.assert_rejected("money decimal_context differs")
+
+    def test_market_family_rename_reset_is_rejected(self) -> None:
+        market = self.read_json("governance/MARKET_SIMULATION_POLICY_V1.json")
+        market["experiment_lineage"]["rename_does_not_reset"] = False
+        self.write_json("governance/MARKET_SIMULATION_POLICY_V1.json", market)
+        self.assert_rejected("market experiment lineage or claim boundary differs")
+
+    def test_ai_can_set_urgency_mutation_is_rejected(self) -> None:
+        field = self.read_json("governance/FIELD_USE_PROTOCOL_V1.json")
+        field["urgency_state_machine"]["rule"] = "AI/import can set it"
+        self.write_json("governance/FIELD_USE_PROTOCOL_V1.json", field)
+        self.assert_rejected("field-use anti-rubber-stamp boundary differs")
+
+    def test_private_backup_overwrite_mutation_is_rejected(self) -> None:
+        private = self.read_json("governance/PRIVATE_DATA_POLICY_V1.json")
+        private["backup_storage"]["immutability"] = "overwrite the latest backup"
+        self.write_json("governance/PRIVATE_DATA_POLICY_V1.json", private)
+        self.assert_rejected("private backup lifecycle boundary differs")
+
     def test_reviewer_who_constructed_candidate_is_rejected(self) -> None:
         subjects = self.read_json("governance/ASSURANCE_SUBJECTS_V1.json")
         reviewer = next(
@@ -118,6 +196,16 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         )
         self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
         self.assert_rejected("references unknown requirements")
+
+    def test_missing_conditional_gate_executor_is_rejected(self) -> None:
+        contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
+        contract["conditional_gate_catalog"] = [
+            item
+            for item in contract["conditional_gate_catalog"]
+            if item["id"] != "GATE-TIINGO-LIVE-PROBE"
+        ]
+        self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        self.assert_rejected("conditional gate executor is missing")
 
     def test_normative_file_removed_from_freeze_boundary_is_rejected(self) -> None:
         contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
