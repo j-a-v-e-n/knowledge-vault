@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "round_id": "COMPONENT-AUTHORITY-BOUNDARY-R9B",
+  "status": "preregistered_before_claim_or_gate_revision",
+  "created_at_utc": "2026-07-25T17:16:11Z",
+  "base_commit_before_preregistration": "2fc2b710d0494afbf92a69855b35cf0e564b8540",
+  "purpose": "只处理 R8 RS-04 独立审查已经明确指出的 claim inventory 与可执行 authority-boundary 缺口；不把 R8 事后改写为通过，不扩大为新一轮开放领域搜索，也不以实现数量替代逐 claim 蕴含复核。",
+  "predecessor_inputs": [
+    {
+      "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json",
+      "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8"
+    },
+    {
+      "path": "audits/research_r8/RS-04_RAW_REPORT.md",
+      "sha256": "f44ee87f2036dc5baae16792e65f6f617858cf5cfd11cd15050a9f2c228f822c"
+    },
+    {
+      "path": "audits/research_r8/RS-04_ENTAILMENT_REVIEW.md",
+      "sha256": "f941a10279946058aa218d154710a5f3c07358231563132962de30af71f847c6"
+    }
+  ],
+  "frozen_problem_statement": {
+    "current_status": "R8 RS-04 remains bounded_incomplete",
+    "blocking_findings": [
+      "LedgerProjection 没有 atomic claim、exact source ranges、counterevidence、limitations、decision effect 或 executable mapping",
+      "ExternalResearchAdapter 没有把 fixed-snapshot-only input、candidate-only output、no network、no live connector、no LLM authority、no execution 与 no ledger write 全部变成确定性 gate",
+      "ExternalComponentManifest 没有显式区分 declared、statically reachable、runtime observed 与 blocked 的 network、broker、credential、LLM、mutable state/store 和 write side effects",
+      "外部 mutable ledger 或 projection 反向覆盖 authoritative event chain 的拒绝路径没有可执行证明"
+    ],
+    "non_goals": [
+      "不证明任何外部整包可以进入 authoritative core",
+      "不证明 sandbox、dependency safety、license sufficiency 或 provider acceptance",
+      "不把 differential agreement 解释为 correctness",
+      "不授权 live broker、真实资金、自动实盘或 AI 最终决策",
+      "不声称开放网络领域已穷尽"
+    ]
+  },
+  "research_boundary": {
+    "type": "finite_frozen_remediation_corpus",
+    "counted_web_searches": 0,
+    "reason_no_new_web_search": "缺口来自已冻结 R8 证据的 claim-to-contract 不完整，而不是未发现新的候选或事实。任何实现前的设计依据只允许来自 predecessor_inputs、其已保存 exact bytes 与当前项目不变量；若出现需要新外部事实的决定，必须停止本轮并另行预注册搜索。",
+    "allowed_additional_inputs": [
+      "predecessor_inputs 中引用且已保存哈希的 R8 RS-04 source snapshots",
+      "当前项目已冻结的 authority、ledger、data lineage 与 human-decision invariants",
+      "本轮产生的 deterministic tests、mutation receipts 与独立 review"
+    ]
+  },
+  "required_author_claims": [
+    {
+      "claim_id": "R9B-RS04-C01",
+      "subject": "LedgerProjection",
+      "required_content": [
+        "projection 只能由 authoritative append-only ledger 单向生成",
+        "projection 必须可由同一冻结 ledger 重建并得到确定性等价结果",
+        "projection、外部数据库、缓存或报表不得反向覆盖或修订 authoritative ledger",
+        "每个 projection row 必须保留 source event identifiers 与 source ledger digest",
+        "任何 reverse ingestion、unbound row 或 digest mismatch 必须 fail closed 并留痕"
+      ]
+    },
+    {
+      "claim_id": "R9B-RS04-C02",
+      "subject": "ExternalResearchAdapter authority",
+      "required_content": [
+        "输入只允许 hash-verified fixed snapshots 和显式 manifest",
+        "输出只允许 candidate research artifact，不能成为 decision、risk、execution 或 ledger authority",
+        "network、live connector、broker、credential、LLM invocation、subprocess side effect、execution 与 ledger write 默认不可达",
+        "任何新增 capability 必须由 manifest 显式声明并在 admission 前被拒绝或单独批准"
+      ]
+    },
+    {
+      "claim_id": "R9B-RS04-C03",
+      "subject": "ExternalComponentManifest capability accounting",
+      "required_content": [
+        "逐 capability 记录 declared、statically_reachable、runtime_observed 与 blocked 状态",
+        "显式枚举 direct 与 transitive network、broker、credential、LLM、mutable state/store、filesystem write、subprocess 与 execution surface",
+        "未声明但可达、声明与观察不一致、dependency revision 漂移或状态 unknown 均拒绝 admission",
+        "manifest 只证明已检查边界，不证明组件正确、安全或值得维护"
+      ]
+    }
+  ],
+  "required_executable_mappings": [
+    {
+      "mapping_id": "R9B-GATE-LEDGER-PROJECTION",
+      "must_reject": [
+        "projection reverse write",
+        "external mutable store overwrite",
+        "unbound source event",
+        "source ledger digest mismatch",
+        "non-deterministic rebuild"
+      ]
+    },
+    {
+      "mapping_id": "R9B-GATE-ADAPTER-AUTHORITY",
+      "must_reject": [
+        "network or live connector reachability",
+        "LLM invocation with authority-bearing output",
+        "broker or credential reachability",
+        "execution attempt",
+        "authoritative ledger write",
+        "unhashed or mutable input"
+      ]
+    },
+    {
+      "mapping_id": "R9B-GATE-COMPONENT-MANIFEST",
+      "must_reject": [
+        "undeclared direct capability",
+        "undeclared transitive capability",
+        "declared versus observed mismatch",
+        "unknown capability state",
+        "dependency or revision drift"
+      ]
+    }
+  ],
+  "adversarial_stability_protocol": {
+    "ordering": [
+      "作者冻结三条 atomic claims 和 executable mappings",
+      "实现最小 contract、gate 与正负测试",
+      "独立 challenger 运行固定 mutation set",
+      "作者只能修复 challenger 发现的问题，不能降低通过条件",
+      "修复后由另一独立 reviewer 重做逐 claim entailment 与 mutation review"
+    ],
+    "fixed_mutations": [
+      "向 adapter dependency graph 注入 network client",
+      "向 adapter dependency graph 注入 LLM client",
+      "向 adapter 注入 broker credential surface",
+      "让 candidate output 尝试调用 risk、execution 或 ledger authority",
+      "让 projection row 缺失 source event identifier",
+      "让 projection 使用错误 source ledger digest",
+      "让 projection 或 external store 尝试 reverse overwrite",
+      "让 rebuild 在相同 ledger bytes 下产生不同结果",
+      "让 manifest 漏报 transitive mutable store",
+      "让 declared、static 与 observed capability 状态相互矛盾"
+    ],
+    "passing_rule": "最后一个 high-impact contract 或 architecture delta 之后，完整 fixed mutation set 至少重跑一次且不产生新的 high-impact failure class、open critical contradiction 或 authority bypass。",
+    "failure_rule": "若最后一次 mutation/review 产生新的 high-impact failure class，或任何 required claim、gate、negative receipt、source range、independent verdict 缺失，则本轮保持 bounded_incomplete；不得增加未预注册的例外使其通过。"
+  },
+  "claim_protocol": {
+    "required_fields": [
+      "claim_id",
+      "claim_text",
+      "impact",
+      "evidence_snapshot_ids",
+      "exact_source_ranges",
+      "counterevidence",
+      "limitations",
+      "decision_effect",
+      "contract_ids",
+      "test_ids",
+      "gate_ids"
+    ],
+    "author_may_self_review": false,
+    "independent_reviewer_must_not_write_claims_under_review": true,
+    "allowed_final_verdicts": [
+      "entailed",
+      "contested_non_decision_changing"
+    ],
+    "forbidden_final_verdicts": [
+      "not_entailed",
+      "decision_changing_contestation",
+      "not_reviewed"
+    ]
+  },
+  "closure_predicates": [
+    "本文件精确字节先进入已推送 Git commit，且该 commit 是所有后续 R9B artifacts 的祖先",
+    "三条 required_author_claims 均存在且字段完整",
+    "每条 claim 的 source ranges 指向已保存并可重算 hash 的 exact bytes",
+    "三个 required_executable_mappings 均进入 acceptance contract、traceability、verification spec 与 runnable tests",
+    "所有 fixed_mutations 均产生可核对 receipt，预期拒绝被实际观察",
+    "同一 ledger bytes 的 projection rebuild 确定性等价被正向测试观察",
+    "最后一个 high-impact delta 后的完整 stability rerun 通过",
+    "与作者分离的 reviewer 对每条 claim 和每个 gate 给出允许 verdict",
+    "R8 原 review 保持不变并继续显示其历史 bounded_incomplete；R9B 只作为后续 closure evidence",
+    "最终 integration commit 通过 ancestor、hash、metadata 与 full regression 检查"
+  ],
+  "round_outcomes": {
+    "design_boundary_closure_eligible": "全部 closure_predicates 为 true",
+    "bounded_incomplete": "任一 closure predicate 为 false 或 unknown",
+    "release_implied": false,
+    "remaining_after_pass": [
+      "真实产品实现与端到端验收",
+      "外部组件逐 revision admission",
+      "正式 provider 条件验收",
+      "GitHub machine-assurance actual receipt",
+      "post-candidate independent semantic review",
+      "Javen 最终决定"
+    ]
+  },
+  "forbidden_shortcuts": [
+    "修改或删除 R8 review 来制造通过",
+    "把角色名、多 agent 数量或相同模型复核称为安全独立",
+    "把 schema 存在称为 gate 已执行",
+    "把正向测试通过称为负向 authority bypass 已排除",
+    "把 external projection、数据库、broker 或 LLM 输出提升为 authoritative ledger",
+    "访问、保存或上传 Javen 的私人凭据和敏感信息",
+    "接入真实资金、live broker 或自动实盘"
+  ]
+}
