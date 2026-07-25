@@ -1,0 +1,98 @@
+{
+  "schema_version": "work-packet-policy/v1",
+  "policy_id": "ORG-01-ORG-03-WORK-PACKET-V1",
+  "linked_failure_ids": [
+    "ORG-01",
+    "ORG-03"
+  ],
+  "packet_discovery": {
+    "filename_suffix": ".packet.json",
+    "recursive": false,
+    "reject_unexpected_entries": true
+  },
+  "packet_schema": {
+    "instance_schema_version": "work-packet-instance/v1",
+    "required_fields": [
+      "schema_version",
+      "packet_id",
+      "goal_id",
+      "state",
+      "owner",
+      "reviewer",
+      "bounded_write_paths",
+      "read_dependencies",
+      "acceptance_checks",
+      "checkpoint_path",
+      "acceptance_receipt_path",
+      "retry_budget",
+      "external_side_effects",
+      "semantic_invariants"
+    ],
+    "state_values": [
+      "pending",
+      "active",
+      "blocked",
+      "candidate_complete",
+      "complete"
+    ]
+  },
+  "path_rules": {
+    "format": "normalized_posix_relative",
+    "forbidden_glob_characters": [
+      "*",
+      "?",
+      "[",
+      "]",
+      "{",
+      "}"
+    ],
+    "minimum_tree_depth": 2,
+    "maximum_write_claims_per_packet": 32,
+    "maximum_read_dependencies_per_packet": 128,
+    "read_dependencies_must_exist": true,
+    "nested_write_symlinks_allowed": false
+  },
+  "ownership": {
+    "ownership_states": [
+      "active",
+      "blocked",
+      "candidate_complete"
+    ],
+    "conflict_relation": "canonical_equal_or_ancestor",
+    "read_dependencies_confer_write_ownership": false,
+    "completed_packets_retain_write_ownership": false
+  },
+  "completion": {
+    "checkpoint_required_states": [
+      "candidate_complete",
+      "complete"
+    ],
+    "acceptance_required_states": [
+      "complete"
+    ],
+    "receipt_directory": ".work_packets/receipts",
+    "checkpoint_schema_version": "work-packet-checkpoint/v1",
+    "acceptance_schema_version": "work-packet-acceptance/v1",
+    "checkpoint_filename_suffix": ".checkpoint.json",
+    "acceptance_filename_suffix": ".acceptance.json"
+  },
+  "semantic_integration": {
+    "probe_states": [
+      "active",
+      "blocked",
+      "candidate_complete",
+      "complete"
+    ],
+    "supported_probes": [
+      "json_integer_sum_lte"
+    ],
+    "minimum_inputs_per_probe": 2
+  },
+  "platform_and_process_limitations": [
+    "Path ownership is cooperative validation, not an operating-system access-control boundary; another process can still write after verification.",
+    "Acceptance receipts bind declared checks to packet content and expose recorded process exit codes, but this verifier does not execute, authenticate, or sandbox those commands.",
+    "Canonical-path, symlink, and content-snapshot checks are point-in-time local-filesystem observations and cannot eliminate time-of-check/time-of-use, mount, case-folding, or all hard-link alias races.",
+    "There is no distributed lock or process isolation; the supplied packet directory must be an authoritative, consistent snapshot of all concurrent packets.",
+    "Semantic integration is checked only for declared supported invariants and inputs; omitted or incorrectly modeled invariants remain outside this mechanism."
+  ]
+}

@@ -123,6 +123,70 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         fixture_workflow = self.repo_root / WORKFLOW_RELATIVE
         fixture_workflow.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source_workflow, fixture_workflow)
+        source_prefix = (
+            PROJECT_ROOT.relative_to(source_repository).as_posix() + "/"
+        )
+        preserve_worktree_paths = {
+            f"{source_prefix}scripts/freeze_governance.py",
+            f"{source_prefix}scripts/verify_governance.py",
+            (
+                f"{source_prefix}"
+                "governance_tests/test_freeze_git_remote.py"
+            ),
+        }
+        fixture_scope = [source_prefix, WORKFLOW_RELATIVE]
+        dirty_tracked = subprocess.check_output(
+            [
+                "git",
+                "diff",
+                "HEAD",
+                "--name-only",
+                "-z",
+                "--",
+                *fixture_scope,
+            ],
+            cwd=source_repository,
+        ).decode("utf-8").split("\0")
+        for repo_relative in filter(None, dirty_tracked):
+            if repo_relative in preserve_worktree_paths:
+                continue
+            committed = subprocess.run(
+                ["git", "show", f"HEAD:{repo_relative}"],
+                cwd=source_repository,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            destination = (
+                self.root / repo_relative.removeprefix(source_prefix)
+                if repo_relative.startswith(source_prefix)
+                else self.repo_root / repo_relative
+            )
+            if committed.returncode == 0:
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(committed.stdout)
+            elif destination.is_file():
+                destination.unlink()
+        untracked = subprocess.check_output(
+            [
+                "git",
+                "ls-files",
+                "--others",
+                "--exclude-standard",
+                "-z",
+                "--",
+                *fixture_scope,
+            ],
+            cwd=source_repository,
+        ).decode("utf-8").split("\0")
+        for repo_relative in filter(None, untracked):
+            destination = (
+                self.root / repo_relative.removeprefix(source_prefix)
+                if repo_relative.startswith(source_prefix)
+                else self.repo_root / repo_relative
+            )
+            if destination.is_file() or destination.is_symlink():
+                destination.unlink()
         self.run_git(
             self.temp_root,
             "init",

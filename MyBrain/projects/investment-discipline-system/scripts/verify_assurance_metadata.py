@@ -1075,8 +1075,9 @@ def verify_failure_registry(
     aliases: set[str] = set()
     parsed_items: list[dict[str, Any]] = []
     domain_counts: dict[str, dict[str, Any]] = {}
-    expected_open_gaps: list[dict[str, Any]] = []
+    expected_open_gap_ids: list[str] = []
     covered_count = 0
+    partially_covered_count = 0
     gap_count = 0
     alias_count = 0
 
@@ -1112,20 +1113,31 @@ def verify_failure_registry(
                     )
                 aliases.add(alias)
         status = item.get("status")
-        if status not in {"covered", "gap"}:
-            errors.append(f"{label}: status must be covered or gap")
+        if status not in {"covered", "partially_covered", "gap"}:
+            errors.append(
+                f"{label}: status must be covered, partially_covered, or gap"
+            )
         domain = item.get("domain")
         if not nonempty_string(domain):
             errors.append(f"{label}: domain must be a nonempty string")
             domain = "<invalid>"
         counts = domain_counts.setdefault(
             domain,
-            {"domain": domain, "total": 0, "covered": 0, "gaps": 0},
+            {
+                "domain": domain,
+                "total": 0,
+                "covered": 0,
+                "partially_covered": 0,
+                "gaps": 0,
+            },
         )
         counts["total"] += 1
         if status == "covered":
             covered_count += 1
             counts["covered"] += 1
+        elif status == "partially_covered":
+            partially_covered_count += 1
+            counts["partially_covered"] += 1
         elif status == "gap":
             gap_count += 1
             counts["gaps"] += 1
@@ -1164,36 +1176,28 @@ def verify_failure_registry(
                 )
             if open_gaps != []:
                 errors.append(f"{label}: covered status must have no open gaps")
-        elif status == "gap":
-            if not missing_dimensions:
-                errors.append(f"{label}: gap status has no missing dimensions")
-            if open_gaps is None or len(open_gaps) != 1:
+        elif status in {"partially_covered", "gap"}:
+            if open_gaps is None or not open_gaps:
                 errors.append(
-                    f"{label}: gap status requires exactly one explicit gap reason"
+                    f"{label}: non-covered status requires explicit gap reasons"
                 )
             else:
-                expected_open_gaps.append(
-                    {
-                        "id": failure_id,
-                        "domain": domain,
-                        "missing": missing_dimensions,
-                        "reason": open_gaps[0],
-                    }
-                )
+                expected_open_gap_ids.append(failure_id)
 
     if aliases & primary_ids:
         errors.append("failure registry: aliases collide with primary failure IDs")
     expected_summary = {
         "total_failure_classes": len(failure_classes),
         "covered_failure_classes": covered_count,
+        "partially_covered_failure_classes": partially_covered_count,
         "gap_failure_classes": gap_count,
         "alias_count": alias_count,
         "domains": list(domain_counts.values()),
-        "open_gap_ids": [item["id"] for item in expected_open_gaps],
+        "open_gap_ids": expected_open_gap_ids,
     }
     if registry.get("coverage_summary") != expected_summary:
         errors.append("failure registry: coverage_summary does not recompute exactly")
-    if registry.get("open_gaps") != expected_open_gaps:
+    if registry.get("open_gaps") != expected_open_gap_ids:
         errors.append("failure registry: top-level open_gaps do not recompute exactly")
 
 

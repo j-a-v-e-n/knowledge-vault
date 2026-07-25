@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from collections.abc import Iterable
 from pathlib import Path
@@ -18,6 +20,18 @@ PROJECT_ROOT = Path(
 ).resolve()
 POLICY_PATH = PROJECT_ROOT / "governance" / "PROJECT_METHOD_POLICY_V1.json"
 FAILURE_REGISTRY = PROJECT_ROOT / "governance" / "FAILURE_CLASSES_V1.json"
+DEFAULT_CLOSURE_EVIDENCE = (
+    PROJECT_ROOT / "evidence" / "verification" / "V-PROJECT-METHOD.json"
+)
+ALLOWED_FAILURE_STATUSES = {"covered", "partially_covered", "gap"}
+CONDITIONALLY_DEFERRED_FAILURES = {
+    "ORG-06",
+    "IMP-04",
+    "SEC-06",
+    "HUM-05",
+    "ECO-03",
+    "ECO-04",
+}
 
 EXPECTED_TOP_LEVEL = {
     "schema_version",
@@ -604,15 +618,76 @@ def verify_failure_coverage(policy: dict[str, Any], errors: list[str]) -> None:
         for item in registry_classes
         if isinstance(item, dict) and nonempty(item.get("id"))
     }
+    noncovered_ids: list[str] = []
+    status_counts = {
+        "covered": 0,
+        "partially_covered": 0,
+        "gap": 0,
+    }
+    domain_counts: dict[str, dict[str, Any]] = {}
+    alias_count = 0
+    for index, item in enumerate(registry_classes):
+        if not isinstance(item, dict):
+            errors.append(f"failure registry failure_classes[{index}] is not an object")
+            continue
+        failure_id = item.get("id")
+        domain = item.get("domain")
+        status = item.get("status")
+        open_gaps = item.get("open_gaps")
+        aliases = item.get("aliases")
+        if not nonempty(failure_id) or not nonempty(domain):
+            errors.append(
+                f"failure registry failure_classes[{index}] lacks id or domain"
+            )
+            continue
+        if status not in ALLOWED_FAILURE_STATUSES:
+            errors.append(f"failure registry {failure_id} status is invalid")
+            continue
+        if (
+            not isinstance(open_gaps, list)
+            or not all(nonempty(value) for value in open_gaps)
+            or len(open_gaps) != len(set(open_gaps))
+        ):
+            errors.append(f"failure registry {failure_id} open_gaps is invalid")
+            continue
+        if status == "covered" and open_gaps:
+            errors.append(
+                f"failure registry {failure_id} cannot be covered with open gaps"
+            )
+        if status != "covered" and not open_gaps:
+            errors.append(
+                f"failure registry {failure_id} must name its remaining gaps"
+            )
+        if status != "covered":
+            noncovered_ids.append(failure_id)
+        status_counts[status] += 1
+        if not isinstance(aliases, list) or not all(
+            nonempty(value) for value in aliases
+        ):
+            errors.append(f"failure registry {failure_id} aliases is invalid")
+        else:
+            alias_count += len(aliases)
+        domain_record = domain_counts.setdefault(
+            domain,
+            {
+                "domain": domain,
+                "total": 0,
+                "covered": 0,
+                "partially_covered": 0,
+                "gaps": 0,
+            },
+        )
+        domain_record["total"] += 1
+        if status == "gap":
+            domain_record["gaps"] += 1
+        else:
+            domain_record[status] += 1
+
     for failure_id, (_, case_id) in EXPECTED_FAILURE_CASES.items():
         item = class_by_id.get(failure_id)
         if not isinstance(item, dict):
             errors.append(f"project-method failure class is missing: {failure_id}")
             continue
-        if item.get("status") != "covered" or item.get("open_gaps") != []:
-            errors.append(
-                f"project-method failure class is not closed: {failure_id}"
-            )
         required_bindings = (
             ("requirement_ids", "REQ-METHOD-001"),
             ("control_ids", "CTRL-PROJECT-METHOD"),
@@ -626,15 +701,27 @@ def verify_failure_coverage(policy: dict[str, Any], errors: list[str]) -> None:
                     f"project-method failure class {failure_id} lacks "
                     f"{field} binding {expected_id}"
                 )
-    if registry.get("open_gaps") != []:
-        errors.append("failure registry must have no remaining open gaps")
+
+    if registry.get("open_gaps") != noncovered_ids:
+        errors.append(
+            "failure registry open_gaps must be derived from non-covered entries"
+        )
     summary = registry.get("coverage_summary")
-    if (
-        not isinstance(summary, dict)
-        or summary.get("gap_failure_classes") != 0
-        or summary.get("open_gap_ids") != []
-    ):
-        errors.append("failure registry zero-gap summary differs")
+    expected_summary = {
+        "total_failure_classes": len(registry_classes),
+        "covered_failure_classes": status_counts["covered"],
+        "partially_covered_failure_classes": status_counts[
+            "partially_covered"
+        ],
+        "gap_failure_classes": status_counts["gap"],
+        "alias_count": alias_count,
+        "domains": list(domain_counts.values()),
+        "open_gap_ids": noncovered_ids,
+    }
+    if summary != expected_summary:
+        errors.append(
+            "failure registry coverage summary must be derived from entries"
+        )
 
     coverage = policy.get("failure_coverage")
     if not isinstance(coverage, list):
@@ -700,29 +787,245 @@ def verify() -> list[str]:
     return errors
 
 
-def output(errors: Iterable[str], as_json: bool) -> int:
-    values = list(errors)
-    payload = {
-        "status": "pass" if not values else "fail",
-        "error_count": len(values),
-        "errors": values,
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def git_text(*args: str) -> str:
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=PROJECT_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"git {' '.join(args)} failed: "
+            f"{completed.stdout.strip() or '<no output>'}"
+        )
+    return completed.stdout.strip()
+
+
+def verify_closure_evidence(path: Path) -> list[str]:
+    errors: list[str] = []
+    receipt = load_json(path, errors, "project method closure evidence")
+    if not receipt:
+        return errors
+    expected_top_level = {
+        "schema_version",
+        "verification_id",
+        "executor_id",
+        "status",
+        "candidate_commit",
+        "candidate_tree",
+        "project_prefix",
+        "policy_sha256",
+        "failure_registry_sha256",
+        "failure_results",
+        "limitations",
     }
+    if set(receipt) != expected_top_level:
+        errors.append("project method closure evidence top-level schema differs")
+        return errors
+    if receipt.get("schema_version") != 1:
+        errors.append("project method closure evidence schema_version differs")
+    if receipt.get("verification_id") != "V-PROJECT-METHOD":
+        errors.append("project method closure evidence verification_id differs")
+    if receipt.get("executor_id") != "ids-project-method-acceptance-v1":
+        errors.append("project method closure evidence executor_id differs")
+    if receipt.get("status") != "pass":
+        errors.append("project method closure evidence status is not pass")
+    try:
+        candidate_commit = git_text("rev-parse", "HEAD")
+        candidate_tree = git_text("rev-parse", "HEAD^{tree}")
+        project_prefix = git_text("rev-parse", "--show-prefix")
+    except RuntimeError as exc:
+        errors.append(str(exc))
+        return errors
+    if receipt.get("candidate_commit") != candidate_commit:
+        errors.append("project method closure evidence candidate commit differs")
+    if receipt.get("candidate_tree") != candidate_tree:
+        errors.append("project method closure evidence candidate tree differs")
+    if receipt.get("project_prefix") != project_prefix:
+        errors.append("project method closure evidence project prefix differs")
+    for field, source in (
+        ("policy_sha256", POLICY_PATH),
+        ("failure_registry_sha256", FAILURE_REGISTRY),
+    ):
+        value = receipt.get(field)
+        if (
+            not isinstance(value, str)
+            or re.fullmatch(r"[0-9a-f]{64}", value) is None
+            or value != sha256_file(source)
+        ):
+            errors.append(f"project method closure evidence {field} differs")
+
+    results = receipt.get("failure_results")
+    if not isinstance(results, list):
+        errors.append("project method closure evidence failure_results must be a list")
+        return errors
+    by_id: dict[str, dict[str, Any]] = {}
+    expected_result_fields = {
+        "failure_id",
+        "case_id",
+        "outcome",
+        "selector_observation",
+        "oracle_observations",
+        "raw_result",
+        "raw_result_sha256",
+        "residual_limitations",
+        "conditional_gate_id",
+    }
+    for index, result in enumerate(results):
+        if not isinstance(result, dict) or set(result) != expected_result_fields:
+            errors.append(
+                f"project method closure evidence failure_results[{index}] differs"
+            )
+            continue
+        failure_id = result.get("failure_id")
+        if failure_id in by_id:
+            errors.append(
+                f"project method closure evidence duplicates {failure_id}"
+            )
+            continue
+        by_id[failure_id] = result
+        expected_case = EXPECTED_FAILURE_CASES.get(failure_id, (None, None))[1]
+        if result.get("case_id") != expected_case:
+            errors.append(
+                f"project method closure evidence {failure_id} case_id differs"
+            )
+        outcome = result.get("outcome")
+        if outcome not in {"mechanism_verified", "conditionally_deferred"}:
+            errors.append(
+                f"project method closure evidence {failure_id} outcome blocks closure"
+            )
+        conditional_gate = result.get("conditional_gate_id")
+        if outcome == "conditionally_deferred":
+            if (
+                failure_id not in CONDITIONALLY_DEFERRED_FAILURES
+                or not nonempty(conditional_gate)
+            ):
+                errors.append(
+                    "project method closure evidence has an unauthorized "
+                    f"conditional deferral for {failure_id}"
+                )
+        elif conditional_gate is not None:
+            errors.append(
+                f"project method closure evidence {failure_id} has a stray "
+                "conditional gate"
+            )
+        if not nonempty(result.get("selector_observation")):
+            errors.append(
+                f"project method closure evidence {failure_id} lacks selector "
+                "observation"
+            )
+        observations = result.get("oracle_observations")
+        if (
+            not isinstance(observations, list)
+            or not observations
+            or not all(nonempty(value) for value in observations)
+        ):
+            errors.append(
+                f"project method closure evidence {failure_id} lacks oracle "
+                "observations"
+            )
+        limitations = result.get("residual_limitations")
+        if (
+            not isinstance(limitations, list)
+            or not limitations
+            or not all(nonempty(value) for value in limitations)
+        ):
+            errors.append(
+                f"project method closure evidence {failure_id} lacks residual "
+                "limitations"
+            )
+        raw_result = result.get("raw_result")
+        raw_hash = result.get("raw_result_sha256")
+        if (
+            not isinstance(raw_hash, str)
+            or re.fullmatch(r"[0-9a-f]{64}", raw_hash) is None
+            or raw_hash
+            != hashlib.sha256(
+                json.dumps(
+                    raw_result,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest()
+        ):
+            errors.append(
+                f"project method closure evidence {failure_id} raw-result hash "
+                "differs"
+            )
+    if set(by_id) != set(EXPECTED_FAILURE_CASES):
+        errors.append(
+            "project method closure evidence failure result set differs"
+        )
+    limitations = receipt.get("limitations")
+    if (
+        not isinstance(limitations, list)
+        or not limitations
+        or not all(nonempty(value) for value in limitations)
+    ):
+        errors.append("project method closure evidence limitations are missing")
+    return errors
+
+
+def output(
+    errors: Iterable[str],
+    as_json: bool,
+    *,
+    closure_errors: Iterable[str] = (),
+    require_closure: bool = False,
+) -> int:
+    values = list(errors)
+    closure_values = list(closure_errors)
+    failed = bool(values or (require_closure and closure_values))
+    payload = {
+        "status": "fail" if failed else "pass",
+        "error_count": len(values) + (len(closure_values) if require_closure else 0),
+        "errors": values + (closure_values if require_closure else []),
+    }
+    if require_closure:
+        payload["closure_status"] = (
+            "eligible" if not closure_values else "blocked"
+        )
+        payload["closure_error_count"] = len(closure_values)
     if as_json:
         print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
-    elif values:
+    elif failed:
         print("project method verification: FAIL")
-        for error in values:
+        for error in payload["errors"]:
             print(f"- {error}")
     else:
         print("project method verification: PASS")
-    return 0 if not values else 1
+    return 1 if failed else 0
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--require-closure", action="store_true")
+    parser.add_argument(
+        "--evidence",
+        type=Path,
+        default=DEFAULT_CLOSURE_EVIDENCE,
+    )
     args = parser.parse_args()
-    return output(verify(), args.json)
+    closure_errors = (
+        verify_closure_evidence(args.evidence)
+        if args.require_closure
+        else []
+    )
+    return output(
+        verify(),
+        args.json,
+        closure_errors=closure_errors,
+        require_closure=args.require_closure,
+    )
 
 
 if __name__ == "__main__":

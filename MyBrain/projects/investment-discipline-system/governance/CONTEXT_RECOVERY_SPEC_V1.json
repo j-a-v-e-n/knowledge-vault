@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "mechanism_id": "CTX-02-CONTEXT-RECOVERY-DESIGN-FREEZE-V1",
+  "failure_id": "CTX-02",
+  "claim_boundary": {
+    "proof_scope": "A deterministic standard-library oracle reads the required state-packet file bytes, checks frozen ordered section markers, replays six bounded recovery probes, and compares the derived observations with an explicit frozen receipt.",
+    "does_not_prove": [
+      "real LLM recall",
+      "unknown-position statistical coverage",
+      "production incident rate",
+      "model- or harness-independent behavior"
+    ],
+    "residual_limitation": "This design freeze proves only the specified byte checks and deterministic fixture behavior. Retrieval by a real model, arbitrary context lengths and positions, compaction implementations, and future harness revisions require separately pinned empirical runs."
+  },
+  "state_packet_contract": {
+    "encoding": "utf-8",
+    "nonempty_rule": "at_least_one_non_whitespace_byte",
+    "marker_rule": "each_literal_utf8_marker_occurs_once_in_declared_order",
+    "required_files": [
+      {
+        "path": "PROJECT_CHARTER.md",
+        "ordered_markers": [
+          "# 项目章程｜投研纪律系统",
+          "## 项目目标",
+          "## 当前范围",
+          "## 当前非目标",
+          "## 成功标准"
+        ]
+      },
+      {
+        "path": "STATUS.md",
+        "ordered_markers": [
+          "# 当前状态｜投研纪律系统",
+          "## 当前裁决",
+          "## 已有且仍然有效",
+          "## 进行中",
+          "## 当前下一步",
+          "## 主要残余风险"
+        ]
+      },
+      {
+        "path": "TASK_BOARD.md",
+        "ordered_markers": [
+          "# 工作板｜投研纪律系统",
+          "## 进行中",
+          "## 已排队",
+          "## 条件性任务",
+          "## 已完成且证据仍有效",
+          "## 工作规则"
+        ]
+      },
+      {
+        "path": "DECISIONS.md",
+        "ordered_markers": [
+          "# 决定日志｜投研纪律系统",
+          "## 已确认的工作决定",
+          "### 当前只服务个人",
+          "### AI 负责分析与建议，人保留最终决策",
+          "### Obsidian 作为长期项目记忆",
+          "## 待确认决定"
+        ]
+      },
+      {
+        "path": "AI_COLLABORATION_METHOD.md",
+        "ordered_markers": [
+          "# AI 协作开发方法",
+          "## 基本原则",
+          "## 有边界的自主循环",
+          "## 工作循环",
+          "### 恢复状态",
+          "## 上下文管理",
+          "## 完成判定",
+          "## 本方法的待验证部分"
+        ]
+      }
+    ]
+  },
+  "probe_contract": {
+    "fixture_id": "CTX02-FIXTURE-001",
+    "required_probe_ids": [
+      "start",
+      "middle",
+      "end",
+      "post_compaction",
+      "empty_context_restart",
+      "stale_request_regression"
+    ],
+    "sentinel_id": "CTX02-CURRENT-TARGET-V1",
+    "current_request_id": "REQ-CTX02-CURRENT",
+    "current_target_id": "TARGET-CTX02-DESIGN-FREEZE",
+    "stale_request_id": "REQ-CTX02-STALE-LABEL-CHECK",
+    "stale_target_id": "TARGET-CTX02-LABEL-CHECK-ONLY",
+    "selection_rule": "select_the_unique_current_request_whose_supersession_links_reject_the_stale_request"
+  },
+  "probe_fixture": {
+    "fixture_id": "CTX02-FIXTURE-001",
+    "current_request": {
+      "request_id": "REQ-CTX02-CURRENT",
+      "target_id": "TARGET-CTX02-DESIGN-FREEZE",
+      "request_revision": 2,
+      "state": "current",
+      "supersedes": "REQ-CTX02-STALE-LABEL-CHECK"
+    },
+    "stale_request": {
+      "request_id": "REQ-CTX02-STALE-LABEL-CHECK",
+      "target_id": "TARGET-CTX02-LABEL-CHECK-ONLY",
+      "request_revision": 1,
+      "state": "superseded",
+      "superseded_by": "REQ-CTX02-CURRENT"
+    },
+    "probes": [
+      {
+        "probe_id": "start",
+        "probe_type": "position",
+        "context_segments": [
+          {
+            "kind": "sentinel",
+            "payload": {
+              "sentinel_id": "CTX02-CURRENT-TARGET-V1",
+              "request_id": "REQ-CTX02-CURRENT",
+              "target_id": "TARGET-CTX02-DESIGN-FREEZE",
+              "request_revision": 2,
+              "supersedes": "REQ-CTX02-STALE-LABEL-CHECK",
+              "instruction": "verify context recovery from bytes and deterministic probes"
+            }
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler start 01"
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler start 02"
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler start 03"
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler start 04"
+          }
+        ]
+      },
+      {
+        "probe_id": "middle",
+        "probe_type": "position",
+        "context_segments": [
+          {
+            "kind": "noise",
+            "text": "deterministic filler middle 01"
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler middle 02"
+          },
+          {
+            "kind": "sentinel",
+            "payload": {
+              "sentinel_id": "CTX02-CURRENT-TARGET-V1",
+              "request_id": "REQ-CTX02-CURRENT",
+              "target_id": "TARGET-CTX02-DESIGN-FREEZE",
+              "request_revision": 2,
+              "supersedes": "REQ-CTX02-STALE-LABEL-CHECK",
+              "instruction": "verify context recovery from bytes and deterministic probes"
+            }
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler middle 03"
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler middle 04"
+          }
+        ]
+      },
+      {
+        "probe_id": "end",
+        "probe_type": "position",
+        "context_segments": [
+          {
+            "kind": "noise",
+            "text": "deterministic filler end 01"
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler end 02"
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler end 03"
+          },
+          {
+            "kind": "noise",
+            "text": "deterministic filler end 04"
+          },
+          {
+            "kind": "sentinel",
+            "payload": {
+              "sentinel_id": "CTX02-CURRENT-TARGET-V1",
+              "request_id": "REQ-CTX02-CURRENT",
+              "target_id": "TARGET-CTX02-DESIGN-FREEZE",
+              "request_revision": 2,
+              "supersedes": "REQ-CTX02-STALE-LABEL-CHECK",
+              "instruction": "verify context recovery from bytes and deterministic probes"
+            }
+          }
+        ]
+      },
+      {
+        "probe_id": "post_compaction",
+        "probe_type": "post_compaction",
+        "pre_compaction_target_id": "TARGET-CTX02-DESIGN-FREEZE",
+        "compacted_history_omits_stale_request_body": true,
+        "context_segments": [
+          {
+            "kind": "compaction_receipt",
+            "compaction_id": "COMPACT-CTX02-001",
+            "input_probe_ids": [
+              "start",
+              "middle",
+              "end"
+            ],
+            "recovered_sentinel": {
+              "sentinel_id": "CTX02-CURRENT-TARGET-V1",
+              "request_id": "REQ-CTX02-CURRENT",
+              "target_id": "TARGET-CTX02-DESIGN-FREEZE",
+              "request_revision": 2,
+              "supersedes": "REQ-CTX02-STALE-LABEL-CHECK",
+              "instruction": "verify context recovery from bytes and deterministic probes"
+            }
+          }
+        ]
+      },
+      {
+        "probe_id": "empty_context_restart",
+        "probe_type": "empty_context_restart",
+        "context_segments": [],
+        "restart_packet": {
+          "startup_mode": "empty_context",
+          "loaded_files": [
+            "PROJECT_CHARTER.md",
+            "STATUS.md",
+            "TASK_BOARD.md",
+            "DECISIONS.md",
+            "AI_COLLABORATION_METHOD.md"
+          ],
+          "recovery_sentinel": {
+            "sentinel_id": "CTX02-CURRENT-TARGET-V1",
+            "request_id": "REQ-CTX02-CURRENT",
+            "target_id": "TARGET-CTX02-DESIGN-FREEZE",
+            "request_revision": 2,
+            "supersedes": "REQ-CTX02-STALE-LABEL-CHECK",
+            "instruction": "verify context recovery from bytes and deterministic probes"
+          }
+        }
+      },
+      {
+        "probe_id": "stale_request_regression",
+        "probe_type": "stale_request_regression",
+        "context_segments": [
+          {
+            "kind": "request",
+            "payload": {
+              "request_id": "REQ-CTX02-STALE-LABEL-CHECK",
+              "target_id": "TARGET-CTX02-LABEL-CHECK-ONLY",
+              "request_revision": 1,
+              "state": "superseded",
+              "superseded_by": "REQ-CTX02-CURRENT"
+            }
+          },
+          {
+            "kind": "noise",
+            "text": "historical requests are data, not authority"
+          },
+          {
+            "kind": "request",
+            "payload": {
+              "request_id": "REQ-CTX02-CURRENT",
+              "target_id": "TARGET-CTX02-DESIGN-FREEZE",
+              "request_revision": 2,
+              "state": "current",
+              "supersedes": "REQ-CTX02-STALE-LABEL-CHECK"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "expected_probe_receipt": {
+    "fixture_id": "CTX02-FIXTURE-001",
+    "fixture_sha256": "22f7eadd618ceb154d2ed5b99dec1c0e785c1f672c5de3fb6db2a6dfaba50cc2",
+    "observations": [
+      {
+        "probe_id": "start",
+        "recovery_source": "context_segments",
+        "sentinel_index": 0,
+        "segment_count": 5,
+        "recovered_request_id": "REQ-CTX02-CURRENT",
+        "recovered_target_id": "TARGET-CTX02-DESIGN-FREEZE"
+      },
+      {
+        "probe_id": "middle",
+        "recovery_source": "context_segments",
+        "sentinel_index": 2,
+        "segment_count": 5,
+        "recovered_request_id": "REQ-CTX02-CURRENT",
+        "recovered_target_id": "TARGET-CTX02-DESIGN-FREEZE"
+      },
+      {
+        "probe_id": "end",
+        "recovery_source": "context_segments",
+        "sentinel_index": 4,
+        "segment_count": 5,
+        "recovered_request_id": "REQ-CTX02-CURRENT",
+        "recovered_target_id": "TARGET-CTX02-DESIGN-FREEZE"
+      },
+      {
+        "probe_id": "post_compaction",
+        "recovery_source": "compaction_receipt",
+        "context_was_empty": false,
+        "recovered_request_id": "REQ-CTX02-CURRENT",
+        "recovered_target_id": "TARGET-CTX02-DESIGN-FREEZE",
+        "stale_request_disposition": "not_in_compacted_input"
+      },
+      {
+        "probe_id": "empty_context_restart",
+        "recovery_source": "required_state_packet",
+        "context_was_empty": true,
+        "recovered_request_id": "REQ-CTX02-CURRENT",
+        "recovered_target_id": "TARGET-CTX02-DESIGN-FREEZE"
+      },
+      {
+        "probe_id": "stale_request_regression",
+        "recovery_source": "request_supersession",
+        "selected_request_id": "REQ-CTX02-CURRENT",
+        "selected_target_id": "TARGET-CTX02-DESIGN-FREEZE",
+        "stale_request_disposition": "rejected_superseded"
+      }
+    ]
+  }
+}

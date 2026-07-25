@@ -5,72 +5,101 @@
   "source_taxonomy_hash": "sha256:06b1fa2978ab18149e77b3e346279515418d9b3d6ffc5c6ee333a2abcd04606b",
   "coverage_summary": {
     "total_failure_classes": 74,
-    "covered_failure_classes": 74,
-    "gap_failure_classes": 0,
+    "covered_failure_classes": 57,
+    "partially_covered_failure_classes": 13,
+    "gap_failure_classes": 4,
     "alias_count": 5,
     "domains": [
       {
         "domain": "A-goals-requirements-and-completion-authority",
         "total": 7,
-        "covered": 7,
+        "covered": 5,
+        "partially_covered": 2,
         "gaps": 0
       },
       {
         "domain": "B-research-and-evidence",
         "total": 8,
         "covered": 8,
+        "partially_covered": 0,
         "gaps": 0
       },
       {
         "domain": "C-context-memory-and-state",
         "total": 5,
-        "covered": 5,
-        "gaps": 0
+        "covered": 4,
+        "partially_covered": 0,
+        "gaps": 1
       },
       {
         "domain": "D-organization-agents-and-loops",
         "total": 7,
-        "covered": 7,
-        "gaps": 0
+        "covered": 2,
+        "partially_covered": 4,
+        "gaps": 1
       },
       {
         "domain": "E-implementation-and-configuration",
         "total": 7,
-        "covered": 7,
+        "covered": 6,
+        "partially_covered": 1,
         "gaps": 0
       },
       {
         "domain": "F-verification-testing-and-false-green",
         "total": 10,
-        "covered": 10,
+        "covered": 9,
+        "partially_covered": 1,
         "gaps": 0
       },
       {
         "domain": "G-permissions-security-and-privacy",
         "total": 8,
-        "covered": 8,
+        "covered": 7,
+        "partially_covered": 1,
         "gaps": 0
       },
       {
         "domain": "H-operations-recovery-and-evolution",
         "total": 11,
-        "covered": 11,
-        "gaps": 0
+        "covered": 10,
+        "partially_covered": 0,
+        "gaps": 1
       },
       {
         "domain": "I-human-factors-product-value-and-sustainable-use",
         "total": 7,
-        "covered": 7,
+        "covered": 6,
+        "partially_covered": 1,
         "gaps": 0
       },
       {
         "domain": "J-cost-complexity-and-maintenance",
         "total": 4,
-        "covered": 4,
-        "gaps": 0
+        "covered": 0,
+        "partially_covered": 3,
+        "gaps": 1
       }
     ],
-    "open_gap_ids": []
+    "open_gap_ids": [
+      "GOV-04",
+      "GOV-07",
+      "CTX-02",
+      "ORG-01",
+      "ORG-03",
+      "ORG-04",
+      "ORG-05",
+      "ORG-06",
+      "IMP-04",
+      "VER-07",
+      "SEC-06",
+      "OPS-08",
+      "HUM-05",
+      "ECO-01",
+      "ECO-02",
+      "ECO-03",
+      "ECO-04"
+    ]
   },
   "failure_classes": [
     {
@@ -208,7 +237,7 @@
       "aliases": [],
       "domain": "A-goals-requirements-and-completion-authority",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-GOV-001",
         "REQ-METHOD-001"
@@ -225,7 +254,9 @@
       ],
       "residual_risk": "人可以明确接受残余风险，但必须可见",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "真实旧到新完成契约的语义单调性仍需执行 supersession verifier"
+      ]
     },
     {
       "id": "GOV-05",
@@ -294,7 +325,7 @@
       "aliases": [],
       "domain": "A-goals-requirements-and-completion-authority",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-GOV-001",
         "REQ-GOV-002",
@@ -315,7 +346,9 @@
       ],
       "residual_risk": "自动 diff 不能完全理解自然语言语义",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "同义改写、拆分 requirement 与 selector 或 oracle 弱化仍需行为审查"
+      ]
     },
     {
       "id": "RES-01",
@@ -654,7 +687,7 @@
       "aliases": [],
       "domain": "C-context-memory-and-state",
       "impact": "high",
-      "status": "covered",
+      "status": "gap",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -669,7 +702,9 @@
       ],
       "residual_risk": "检索器可能漏掉关键文件",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "真实 start、middle、end、compaction、restart 与 stale-request 恢复探针尚未通过"
+      ]
     },
     {
       "id": "CTX-03",
@@ -779,7 +814,7 @@
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -794,7 +829,9 @@
       ],
       "residual_risk": "切得过细会增加协调成本",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "work-packet instance、实际写入边界与 checkpoint receipt 仍需执行验证"
+      ]
     },
     {
       "id": "ORG-02",
@@ -829,7 +866,7 @@
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "covered",
+      "status": "gap",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -844,14 +881,16 @@
       ],
       "residual_risk": "无文本冲突仍可能有行为冲突",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "active packet 路径所有权、并发碰撞与无文本冲突的语义集成反例尚未通过"
+      ]
     },
     {
       "id": "ORG-04",
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -866,14 +905,16 @@
       ],
       "residual_risk": "复杂问题可能合理地需要更多轮",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "blocker 身份、连续计数持久化与真实停止行为仍需执行验证"
+      ]
     },
     {
       "id": "ORG-05",
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -888,14 +929,16 @@
       ],
       "residual_risk": "简单系统也可能不足",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "同任务 objective oracle、成本与失败差值尚待预注册 R9 实验完成"
+      ]
     },
     {
       "id": "ORG-06",
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-GOV-003",
         "REQ-METHOD-001"
@@ -914,7 +957,9 @@
       ],
       "residual_risk": "修复后仍需重新审查",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "只读边界只能由候选前后 hash 与 write-scope receipt 事后检测，不能证明安全隔离"
+      ]
     },
     {
       "id": "ORG-07",
@@ -1048,7 +1093,7 @@
       "aliases": [],
       "domain": "E-implementation-and-configuration",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -1063,7 +1108,9 @@
       ],
       "residual_risk": "零依赖也不等于零漏洞",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "实际 import、install、transitive dependency、license 与更新后重验尚未闭环"
+      ]
     },
     {
       "id": "IMP-05",
@@ -1435,7 +1482,7 @@
       "aliases": [],
       "domain": "F-verification-testing-and-false-green",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-GOV-001",
         "REQ-METHOD-001"
@@ -1452,7 +1499,9 @@
       ],
       "residual_risk": "合法变更仍需要 supersede",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "冻结测试的真实删除、skip、xfail 与 assertion 弱化 mutation 尚未全部被目标 oracle 拒绝"
+      ]
     },
     {
       "id": "VER-08",
@@ -1733,7 +1782,7 @@
       "aliases": [],
       "domain": "G-permissions-security-and-privacy",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-SEC-002",
         "REQ-METHOD-001"
@@ -1751,7 +1800,9 @@
       ],
       "residual_risk": "标准库和系统也会有漏洞",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "间接依赖、安装行为、遥测与来源完整性仍需实际探针"
+      ]
     },
     {
       "id": "SEC-07",
@@ -2119,7 +2170,7 @@
       "aliases": [],
       "domain": "H-operations-recovery-and-evolution",
       "impact": "high",
-      "status": "covered",
+      "status": "gap",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -2134,7 +2185,9 @@
       ],
       "residual_risk": "“根因”可能被过度简化",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "incident regression 的新嵌套仓库修复尚待候选绑定重跑与独立复审"
+      ]
     },
     {
       "id": "OPS-09",
@@ -2402,7 +2455,7 @@
       "aliases": [],
       "domain": "I-human-factors-product-value-and-sustainable-use",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-AI-001",
         "REQ-EVIDENCE-002",
@@ -2426,7 +2479,9 @@
       ],
       "residual_risk": "简化可能丢失细节",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "真实非专业用户理解只能由 human onboarding 与纵向使用证据条件关闭"
+      ]
     },
     {
       "id": "HUM-06",
@@ -2524,7 +2579,7 @@
       "aliases": [],
       "domain": "J-cost-complexity-and-maintenance",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -2539,14 +2594,16 @@
       ],
       "residual_risk": "高质量工作确实可能昂贵",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "每个真实 work packet 的 token、time、retry 与 no-progress 预算尚未统一计量"
+      ]
     },
     {
       "id": "ECO-02",
       "aliases": [],
       "domain": "J-cost-complexity-and-maintenance",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-GOV-001",
         "REQ-METHOD-001"
@@ -2563,14 +2620,16 @@
       ],
       "residual_risk": "范围选择仍需判断",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "运行时 packet 与实现入口的 scope enforcement 尚需执行验证"
+      ]
     },
     {
       "id": "ECO-03",
       "aliases": [],
       "domain": "J-cost-complexity-and-maintenance",
       "impact": "high",
-      "status": "covered",
+      "status": "gap",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -2585,14 +2644,16 @@
       ],
       "residual_risk": "过早抽象也会制造债务",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "组件清单、边界、依赖、迁移、移除 dry run 与纵向维护证据尚未建立"
+      ]
     },
     {
       "id": "ECO-04",
       "aliases": [],
       "domain": "J-cost-complexity-and-maintenance",
       "impact": "high",
-      "status": "covered",
+      "status": "partially_covered",
       "requirement_ids": [
         "REQ-METHOD-001"
       ],
@@ -2607,8 +2668,28 @@
       ],
       "residual_risk": "真正有价值的新工具也可能被延后",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": []
+      "open_gaps": [
+        "真实 migration、rollback 与 exit plan 尚未执行演练"
+      ]
     }
   ],
-  "open_gaps": []
+  "open_gaps": [
+    "GOV-04",
+    "GOV-07",
+    "CTX-02",
+    "ORG-01",
+    "ORG-03",
+    "ORG-04",
+    "ORG-05",
+    "ORG-06",
+    "IMP-04",
+    "VER-07",
+    "SEC-06",
+    "OPS-08",
+    "HUM-05",
+    "ECO-01",
+    "ECO-02",
+    "ECO-03",
+    "ECO-04"
+  ]
 }

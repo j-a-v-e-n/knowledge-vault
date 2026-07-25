@@ -195,6 +195,7 @@ def main() -> int:
                 sys.executable,
                 str(PROJECT_ROOT / "scripts" / "verify_project_method.py"),
                 "--json",
+                "--require-closure",
             ],
             parse_json=True,
         ),
