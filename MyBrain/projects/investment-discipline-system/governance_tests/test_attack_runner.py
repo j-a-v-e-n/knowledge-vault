@@ -36,7 +36,21 @@ class AttackRunnerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.temp = tempfile.TemporaryDirectory()
-        cls.root = Path(cls.temp.name) / "project"
+        source_repository = Path(
+            subprocess.run(
+                ["git", "rev-parse", "--show-toplevel"],
+                cwd=PROJECT_ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            ).stdout.strip()
+        )
+        cls.project_prefix = (
+            PROJECT_ROOT.relative_to(source_repository).as_posix() + "/"
+        )
+        cls.repository = Path(cls.temp.name) / "repository"
+        cls.root = cls.repository / cls.project_prefix
         shutil.copytree(
             PROJECT_ROOT,
             cls.root,
@@ -48,18 +62,8 @@ class AttackRunnerTests(unittest.TestCase):
                 "FROZEN_BUNDLE_V1.json",
             ),
         )
-        source_repository = Path(
-            subprocess.run(
-                ["git", "rev-parse", "--show-toplevel"],
-                cwd=PROJECT_ROOT,
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=True,
-            ).stdout.strip()
-        )
         workflow = (
-            cls.root
+            cls.repository
             / ".github"
             / "workflows"
             / "investment-discipline-assurance.yml"
@@ -75,6 +79,12 @@ class AttackRunnerTests(unittest.TestCase):
         cls.git("init", "--initial-branch=main")
         cls.git("config", "user.name", "Attack Runner Test")
         cls.git("config", "user.email", "attack-runner@example.invalid")
+        cls.git(
+            "remote",
+            "add",
+            "origin",
+            "git@github.com:j-a-v-e-n/knowledge-vault.git",
+        )
         cls.git("add", ".")
         cls.git("commit", "-m", "exact candidate fixture")
         cls.candidate = cls.git_text("rev-parse", "HEAD")
@@ -98,7 +108,7 @@ class AttackRunnerTests(unittest.TestCase):
     def git(cls, *args: str) -> subprocess.CompletedProcess[str]:
         result = subprocess.run(
             ["git", *args],
-            cwd=cls.root,
+            cwd=cls.repository,
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -140,11 +150,23 @@ class AttackRunnerTests(unittest.TestCase):
 
     def test_actual_process_baseline_and_target_exits_are_separate(self) -> None:
         completed, receipt = self.run_attack("ATTACK-PIT-ORACLE-INVERSION")
+        self.assertEqual(receipt["project_prefix"], self.project_prefix)
+        self.assertTrue(receipt["project_prefix"])
+        self.assertEqual(receipt["candidate_commit"], self.candidate)
+        self.assertEqual(receipt["candidate_tree"], self.tree)
+        self.assertEqual(receipt["baseline"]["exit_code"], 0)
+        self.assertIn(
+            "governance verification: PASS (candidate)",
+            receipt["baseline"]["stdout"],
+        )
+        self.assertNotEqual(receipt["target"]["exit_code"], 0)
+        self.assertIn(
+            receipt["expected_rejection_substring"],
+            receipt["target"]["stdout"],
+        )
+        self.assertEqual(receipt["result"], "rejected")
         self.assertEqual(completed.returncode, 0, completed.stdout)
         self.assertEqual(receipt["runner_exit_code"], completed.returncode)
-        self.assertEqual(receipt["baseline"]["exit_code"], 0)
-        self.assertNotEqual(receipt["target"]["exit_code"], 0)
-        self.assertEqual(receipt["result"], "rejected")
         self.assertNotIn("command", receipt)
         self.assertEqual(
             receipt["baseline"]["argv"],
@@ -208,7 +230,15 @@ class AttackRunnerTests(unittest.TestCase):
         )
         self.assertNotEqual(
             subprocess.run(
-                ["git", "cat-file", "-e", f"{self.candidate}:review-probe.json"],
+                [
+                    "git",
+                    "cat-file",
+                    "-e",
+                    (
+                        f"{self.candidate}:{self.project_prefix}"
+                        "review-probe.json"
+                    ),
+                ],
                 cwd=self.root,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

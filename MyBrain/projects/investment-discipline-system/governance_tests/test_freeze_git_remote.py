@@ -1104,7 +1104,10 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("candidate governance verification failed", result.stdout)
-        self.assertIn(f"missing JSON: {missing}", result.stdout)
+        self.assertIn(
+            "candidate governance probe result does not bind the candidate",
+            result.stdout,
+        )
         self.assert_bundle_absent()
 
     def test_freeze_rejects_incomplete_dynamic_json_status(self) -> None:
