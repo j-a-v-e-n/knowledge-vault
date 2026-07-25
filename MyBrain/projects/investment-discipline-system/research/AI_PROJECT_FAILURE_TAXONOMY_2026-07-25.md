@@ -73,6 +73,7 @@ Javen 的原始意图与边界
 | RES-05 | 引用存在但不蕴含主张 | 引用只支持段落一部分；数字或限制被扩大 | 原子主张；逐条 entailment 检查；引用靠近主张；不确定写成未知 | 语义判断仍可能需要人 |
 | RES-06 | 调研变成永无终点 | “再搜一点”没有决策对象、预算或边际停止条件 | 研究必须服务明确决定；冻结范围和停止预算；预算耗尽标 `bounded-incomplete` | 新证据可能在停止后出现 |
 | RES-07 | 模型记得历史结果或跨假设反复挑赢家 | 只记录单个假设的留出访问；重建相近假设重置次数；忽略预训练污染 | experiment family 跨版本累计选择；记录 AI-origin contamination；旧历史留出只作受污染辅助证据；最终依赖冻结后的未来样本 | 无法穷举模型训练数据 |
+| RES-08 / RC-18 | 每条引用都正确，但证据语料整体误导 | 同源转载被重复计票；没有检索范围与纳入/排除记录；更正、撤回、supersession 或 material contradiction 未传播 | retrieval manifest；上游来源簇去重；事件发生/published/available/recorded 时间分离；source revision graph；依赖 claim 与建议级联失效；决定性 claim 单一 fail-closed 闸门 | 搜索仍不能证明所有反证已被发现，来源关系也可能不可见 |
 
 ### C. 上下文、记忆与状态
 
@@ -114,7 +115,7 @@ OpenAI 与 Anthropic 的公开工程经验都强调：关键不是代理数量�
 | IMP-04 | 依赖与供应链风险 | 自动加入庞大依赖；版本漂移、恶意包、遥测或许可冲突 | 最小依赖；锁文件；来源和许可证清单；依赖审计；禁止运行不可信安装脚本 | 零依赖也不等于零漏洞 |
 | IMP-05 | 部分失败破坏原子性 | 先改变状态后写日志；网络 ACK 丢失；崩溃在中间 | 数据库事务、outbox/幂等状态机、明确 unknown/reconciling、故障注入 | 跨系统事务只能通过对账收敛 |
 | IMP-06 | 并发与重试重复副作用 | 调用方自报历史；重复订单或并行任务无权威锁 | 权威持久状态、唯一约束、幂等键、事务锁和重放测试 | 外部供应商幂等语义可能不同 |
-| IMP-07 | 领域中“看似小”的精度/生命周期漏项跨层破坏正确性 | 价格序列处理公司行动但账户不处理；浮点舍入在现金、NAV、风险间不一致 | 明确 Decimal 语义；领域事件贯穿账户、风险、重放、恢复和评估；golden fixture 与守恒性质 | 未知公司行动仍需人工待处理 |
+| IMP-07 | 领域中“看似小”的精度/生命周期漏项跨层破坏正确性 | 价格序列处理公司行动但账户不处理；浮点或各模块自行舍入使现金、NAV、风险、重放分叉 | 只接收 base-10 Decimal 字符串；冻结量化、rounding、买卖/NAV 守恒和单事务边界；拆股/分红幂等，复杂行动 `pending_manual`，更正只追加补偿事件；golden fixture 与守恒性质 | 券商、税务和未知公司行动语义仍不在 V1 自动化范围 |
 
 ### F. 验证、测试与假绿灯
 
@@ -129,6 +130,7 @@ OpenAI 与 Anthropic 的公开工程经验都强调：关键不是代理数量�
 | VER-07 | 测试本身被删除、放宽或跳过 | 通过压力诱发评价投机 | 冻结验收合同和测试哈希；CI 检查 skip/修改；独立 reviewer 查 diff | 合法变更仍需要 supersede |
 | VER-08 | 一个聚合脚本退出 0 被当成全部证据 | requirement、test、oracle、raw result 和候选没有机器关系 | 每个 verification 绑定执行器、输入、oracle、反例、result schema、证据路径和 requirement；顶层谓词逐项重算 | 构造者仍可同时编写脚本与测试 |
 | VER-09 | 旧证据、别的 commit 或自造 JSON 被复用 | evidence 只有路径和 pass 标签 | 每项证据绑定 frozen bundle、candidate commit/tree、run manifest、主体、时间、输入和原始结果 hash；stale evidence fail closed | 若全部 provenance 都由同一恶意主体控制仍可伪造 |
+| VER-10 / RC-19 | PIT 正确却在错误模拟市场中得出错误比较 | ticker 被当稳定身份；数据行交集充当日历；收盘信号同 bar 成交；benchmark 忽略分红、现金流或 coverage 差异 | as-of universe 与稳定 security ID；显式 exchange sessions；默认下一 eligible session 成交；缺日拒绝；raw price + actions；同币种/日历/现金流的 total-return benchmark；独立参考序列 | 历史/Paper 比较仍不能证明 live investability 或策略优势 |
 
 SpecBench 把规范、可见孤立测试和隐藏组合测试分开，发现前沿代理可饱和可见测试，却在长任务中持续出现 reward hacking；代码规模每增加一个数量级，差距显著扩大。[SpecBench](https://arxiv.org/abs/2605.21384)  
 BackendForge 在同一任务上加强 specification-grounded oracle 后，最佳模型的成功率从基础 oracle 的 `55.4%` 降到最终 oracle 的 `28.6%`，直接说明“测试设计质量”会改变完成判断。[BackendForge](https://arxiv.org/abs/2607.11042)
@@ -144,6 +146,7 @@ BackendForge 在同一任务上加强 specification-grounded oracle 后，最佳
 | SEC-05 | 本地网页被跨站请求或暴露到网络 | 绑定 `0.0.0.0`、无 Origin/Host 校验、任意 CORS | 只绑定 loopback；mutation header/CSRF token；拒绝非本机 Host/Origin | 本机恶意进程仍可攻击 |
 | SEC-06 | 依赖更新引入恶意行为或遥测 | 自动升级、来源不明、间接依赖不可见 | 零/少依赖优先；固定版本和 hash；SBOM/许可证/来源；更新后重验 | 标准库和系统也会有漏洞 |
 | SEC-07 | 请求写 `actor=human` 或回填时间就取得权威 | 应用层信任 payload；AI/CLI/API/导入共享入口 | actor 由未导出的人类确认能力与服务端会话赋予；记录时间由受控事务生成；直接 API/CLI/DB/回放做负向测试 | 同一 OS 用户恶意进程仍可能窃取能力或改时钟 |
+| SEC-08 / RC-22 | 私人备份完整可恢复，却在生命周期中泄密 | 运行库进入 Git/云同步根；权限过宽；目的卷加密状态未知；token/确认材料进入日志或导出；旧备份被覆盖或由 AI 自动删除 | 私人运行根与 Git/同步根隔离；`0700/0600`、拒绝 symlink；记录 OS 加密状态；分类与 allowlist 脱敏；新目录不可覆盖；删除必须单独人工触发；V1 不自造加密 | 不抵御管理员、恶意软件，也不能恢复应用从未持有的 OS/FileVault 密钥 |
 
 NIST SSDF 强调把安全要求、风险、设计决定和发布组件 provenance 纳入开发全过程，而不是在最后补一次扫描。[NIST SSDF](https://csrc.nist.gov/projects/ssdf)
 
@@ -163,7 +166,8 @@ AgentDojo 提供了可复现的工具代理注入攻防环境；软件包幻觉�
 | OPS-07 | Living system 停止更新 | 数据、API、法规或 AI 方法变化无人复核 | 时效触发器、差异扫描、周期任务和 stale 状态 | 机器离线时自动任务不运行 |
 | OPS-08 | 事故后只修补表面 bug | 没有时间线、影响、根因和防复发控制 | 结构化 postmortem；将教训提升为测试/规则/设计变更 | “根因”可能被过度简化 |
 | OPS-09 | 移交或退役时系统失控 | 关键操作只存在聊天；凭据未撤销；数据格式无人能读 | 冷启动移交演练、开放导出、保留/删除规则、凭据撤销和最终基线 | 外部服务消失或历史上下文本来就未记录 |
-| OPS-10 | 文件已写好或本地 Git clean 被误称异地可恢复 | 未跟踪文件、未推送 commit、ignored 运行资产或 bundle 自指循环 | 两阶段 baseline/bundle；tracked/clean/upstream exact 检查；从 origin 明确 commit 冷克隆；私人备份独立恢复 | 远端服务与账号仍可能失效 |
+| OPS-10 | 文件已写好、本地 Git clean 或 remote-tracking ref 被误称异地可恢复 | 未跟踪文件、未推送 commit、ignored 运行资产、bundle 自指循环；本地 `@{upstream}` 可陈旧或伪造 | 两阶段 baseline/bundle；tracked/clean 检查；`git ls-remote` 直接匹配真实 origin ref 与明确 SHA；发布时从远端 fresh clone 确切 commit，重算 tree/blob 并运行核心验收；私人备份独立恢复 | 远端服务、账号和网络仍可能失效 |
+| OPS-11 / RC-21 | 重启成功被误当成长期停用后仍可安全继续 | 旧批准未过期；数据、政策、许可、模型、Prompt 或 schema 已变化；界面仍显示可下单 | hiatus/resume 状态机；越过政策间隔或语义指纹变化进入 `resume_review_required`；旧批准失效、新订单只读；差异摘要、逐项重验和人工恢复 | 不能预知所有语义变化；停用阈值本身需要按实际使用校准 |
 
 NASA 的系统工程材料把需求双向追踪、配置控制、验证方法、验证对象 pedigree、系统集成和最终验收分开；这正是避免“原型测试通过=最终产品完成”的成熟做法。[NASA V&V handbook](https://www.nasa.gov/reference/system-engineering-handbook-appendix/)  
 STPA 从不可接受损失、危险控制动作和发生场景推导约束，适合检查“组件都正常但控制关系仍导致损失”的 AI 项目风险。[MIT STPA handbook](https://psas.scripts.mit.edu/home/books-and-handbooks/)
@@ -178,6 +182,7 @@ STPA 从不可接受损失、危险控制动作和发生场景推导约束，适
 | HUM-04 | 界面漂亮但核心链不可用 | UI demo 与后端状态分离；只测截图 | 真实数据库 E2E；空状态、错误、恢复、窄屏和键盘路径；UI 不能伪造状态 | 主观体验仍需用户使用 |
 | HUM-05 | AI 让非专业用户无法判断风险 | 术语、隐藏假设、只给结论 | 平实语言、证据层级、不可证明项、后果说明；每个决定可展开 | 简化可能丢失细节 |
 | HUM-06 | 产品机械正确但真实使用太累或政策无意义 | 没有 mandate、只跑一次演示、把自动化验收当长期 validation | 初始目标/风险边界由人确认；政策质量对抗；首次真实旅程与持续使用窗口分门；记录放弃原因 | 长期价值必须等待真实时间，不能在构造期证明 |
+| HUM-07 / RC-20 | 机械填表或自我误报绕过纪律，human presence 被扩大成冷静决定 | 情绪只需非空；AI/import 代填反思；请求体声称 human；紧迫时仍即时批准；一次演示被当行为改善 | authenticated human-only 字段；首个政策冷静期；`urgent/panic` 服务器时间等待并使旧批准失效；随机反事实提示与 elapsed/hash；真实 onboarding 与预注册纵向 field-use 分门 | 摩擦只能证明步骤完成，不能证明真诚、冷静或长期改善 |
 
 ### J. 成本、复杂度与维护
 
@@ -266,6 +271,22 @@ STPA 从不可接受损失、危险控制动作和发生场景推导约束，适
 - 蓝图、用户原文、跨假设选择、真实 mandate、长期采用和账户公司行动曾在冻结边界之外。
 
 这些发现已被转化为 RC-13 至 RC-17、H-13 至 H-18、两阶段冻结、verification specs、互斥主体记录、可信能力/时间、experiment family 与真实使用条件门。因为首轮仍产生架构级新类别，停止规则当时明确为 `false`；修订后必须再接受独立挑战，不能由作者根据“已经补了很多”自行关闭研究。
+
+## 第二轮设计冻结挑战新增的反例
+
+第二轮只读审查对固定候选实施了 oracle、负例、PIT、target 和 gate 变异，并直接探测旧 prototype。裁决仍是 `blocked-freeze`：结构看起来完整，仍可在语义上容纳 always-pass oracle、空负例、不存在的 selector/target、未来数据和孤儿条件门；旧测试全绿也没有阻止这些反例。
+
+本轮新增类别已经进入失效地图，但当前只代表候选控制，不能写成已经解决：
+
+- `RC-18 → RES-08`：证据语料完整性不是单条引用完整性的总和；需要 retrieval manifest、来源簇、revision graph 与更正/撤回级联。
+- `RC-19 → VER-10`：PIT 只是必要条件；稳定证券身份、as-of 宇宙、显式日历、信号—成交因果、公司行动现金流和 total-return benchmark 共同决定模拟是否有效。
+- `RC-20 → HUM-07`：human actor 或填完表格不证明冷静决定；紧迫度等待、human-only 反思、真实 onboarding 和纵向 field-use 必须分层。
+- `RC-21 → OPS-11`：restart/restore 不能替代长期停用恢复；批准、数据、政策、许可、模型、Prompt 和 schema 都可能语义过期。
+- `RC-22 → SEC-08`：备份完整性不等于私人数据保密；运行位置、权限、OS 加密状态、导出脱敏、不可覆盖和删除授权都属于生命周期。
+
+同一轮还强化了两个既有类别：`IMP-07` 现在要求精确 Decimal、守恒、事务原子性和完整公司行动解决矩阵；`OPS-10` 现在要求直接 `git ls-remote` 观察真实远端，并在发布阶段从远端 fresh clone 确切 SHA 重算和验收。本轮还暴露了 experiment family 改名逃逸、一次演示替代真实采用、条件门没有执行器等既有类别的关闭证据不足。
+
+因此 `challenge.status` 必须继续保持 `in_progress`，`stop_rule.met` 必须继续为 `false`。只有修订后的机器可读规范、case、selector/target 生命周期和执行器通过下一轮独立攻击，才有资格重新讨论停止条件；本段不构成 `frozen`、`adopted` 或研究完成声明。
 
 ## 证据类型与限制
 

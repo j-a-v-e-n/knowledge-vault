@@ -90,7 +90,7 @@
       "source_values": ["UV-01", "UV-04", "UV-09", "UV-10", "UV-11"],
       "hazards": ["GOV-01", "GOV-02", "GOV-03", "GOV-04", "H-16"],
       "severity": "critical",
-      "verification": ["V-GOV-FREEZE", "V-GOV-TRACE", "V-GIT-STATE"]
+      "verification": ["V-GOV-FREEZE", "V-GOV-TRACE", "V-GIT-STATE", "V-REMOTE-OBSERVATION"]
     },
     {
       "id": "REQ-GOV-002",
@@ -378,7 +378,7 @@
       "source_values": ["UV-08", "UV-12"],
       "hazards": ["OPS-04", "CTX-04"],
       "severity": "critical",
-      "verification": ["V-GIT-RESTORE", "V-RESTORE", "V-COLD-START"]
+      "verification": ["V-GIT-RESTORE", "V-REMOTE-OBSERVATION", "V-RESTORE", "V-COLD-START"]
     },
     {
       "id": "REQ-OPS-003",

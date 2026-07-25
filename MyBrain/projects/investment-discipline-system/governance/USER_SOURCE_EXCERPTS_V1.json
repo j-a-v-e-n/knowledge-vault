@@ -63,8 +63,8 @@
       "value_ids": ["UV-06"],
       "source_type": "codex_user_message_excerpt",
       "source_locator": "当前 Codex 任务；平台 message id 未暴露",
-      "excerpt": "一个是好的设计、好的搭建，那是一个好的产品。",
-      "excerpt_sha256": "d3a06a1cbcef4b675de92c2df31e896eab71233aa7e255ad315f5cab51c3b528"
+      "excerpt": "我觉得就是说，其实按理论上来讲，如果如果一个一个项目它设计得足够的优秀的话，它理论上是一定能成的。然后它不成的问题，其实我觉得就是因为它没有搭建好。",
+      "excerpt_sha256": "46b29340e5b2b9391381028d190e59e3d6aafaec3a2d6d0196c71653d40acc13"
     },
     {
       "id": "USR-07",

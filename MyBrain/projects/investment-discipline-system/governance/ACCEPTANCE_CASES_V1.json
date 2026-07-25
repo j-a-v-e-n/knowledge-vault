@@ -20,7 +20,7 @@
       "id": "CASE-GOV-ORACLE-ALWAYS-PASS",
       "phase": "design_freeze",
       "requirement_ids": ["REQ-GOV-002"],
-      "verification_ids": ["V-GOV-TRACE"],
+      "verification_ids": ["V-GOV-TRACE", "V-GOV-CASES"],
       "preconditions": {"mutation": "replace any structured oracle assertions with a free-text always-pass rule"},
       "operation": {"command": "python3 scripts/verify_governance.py --allow-candidate"},
       "expected": {"exit": 1, "contains": "oracle definition is not structurally enforceable"}
@@ -29,7 +29,7 @@
       "id": "CASE-GOV-EMPTY-NEGATIVE-CASES",
       "phase": "design_freeze",
       "requirement_ids": ["REQ-GOV-002", "REQ-QUAL-001"],
-      "verification_ids": ["V-GOV-TRACE"],
+      "verification_ids": ["V-GOV-TRACE", "V-GOV-CASES"],
       "preconditions": {"mutation": "remove every case id from a referenced negative fixture set"},
       "operation": {"command": "python3 scripts/verify_governance.py --allow-candidate"},
       "expected": {"exit": 1, "contains": "has no acceptance cases"}
@@ -38,7 +38,7 @@
       "id": "CASE-GOV-MISSING-TARGET",
       "phase": "product_release",
       "requirement_ids": ["REQ-GOV-002"],
-      "verification_ids": ["V-GOV-TRACE", "V-EVIDENCE-BINDING"],
+      "verification_ids": ["V-GOV-TRACE", "V-GOV-CASES", "V-EVIDENCE-BINDING"],
       "preconditions": {"mutation": "one product_release implementation target or test selector does not exist"},
       "operation": {"command": "python3 scripts/verify_release.py --evidence evidence/acceptance/latest.json"},
       "expected": {"exit": 1, "finding": "missing_release_target_or_selector"}
@@ -56,7 +56,7 @@
       "id": "CASE-REMOTE-REF-MISMATCH",
       "phase": "design_freeze",
       "requirement_ids": ["REQ-GOV-001", "REQ-OPS-002"],
-      "verification_ids": ["V-GIT-STATE", "V-GIT-RESTORE"],
+      "verification_ids": ["V-GIT-STATE", "V-REMOTE-OBSERVATION", "V-GIT-RESTORE"],
       "preconditions": {"remote_branch_sha": "different from requested baseline"},
       "operation": {"command": "python3 scripts/verify_remote_commit.py --commit <baseline>"},
       "expected": {"exit": 1, "finding": "remote_commit_mismatch"}
@@ -82,8 +82,8 @@
     {
       "id": "CASE-CALENDAR-MISSING-SESSION",
       "phase": "product_release",
-      "requirement_ids": ["REQ-BACKTEST-001"],
-      "verification_ids": ["V-BACKTEST-FAULTS"],
+      "requirement_ids": ["REQ-BACKTEST-001", "REQ-BACKTEST-002"],
+      "verification_ids": ["V-BACKTEST-FAULTS", "V-MARKET-SIMULATION"],
       "preconditions": {"exchange_calendar_sessions": 3, "strategy_rows": 2, "benchmark_rows": 3},
       "operation": {"action": "run backtest using row intersection"},
       "expected": {"run_status": "rejected", "coverage_missing_sessions": 1}
@@ -92,7 +92,7 @@
       "id": "CASE-BENCHMARK-TOTAL-RETURN",
       "phase": "product_release",
       "requirement_ids": ["REQ-BACKTEST-002", "REQ-REVIEW-001"],
-      "verification_ids": ["V-BACKTEST", "V-THREE-TRACK"],
+      "verification_ids": ["V-BACKTEST", "V-MARKET-SIMULATION", "V-BENCHMARK", "V-THREE-TRACK"],
       "preconditions": {"benchmark_start_price": "100.00", "benchmark_end_price": "100.00", "cash_dividend": "2.00", "shares": "1.00000000"},
       "operation": {"action": "compute benchmark ending value"},
       "expected": {"ending_value": "102.00", "price_only_value_is_invalid": "100.00"}
@@ -100,8 +100,8 @@
     {
       "id": "CASE-DECISION-NEXT-BAR",
       "phase": "product_release",
-      "requirement_ids": ["REQ-BACKTEST-001"],
-      "verification_ids": ["V-PREFIX-CAUSALITY", "V-BACKTEST"],
+      "requirement_ids": ["REQ-BACKTEST-001", "REQ-BACKTEST-002"],
+      "verification_ids": ["V-PREFIX-CAUSALITY", "V-BACKTEST", "V-MARKET-SIMULATION"],
       "preconditions": {"signal_basis": "session_T_close", "fill_attempt": "session_T_close"},
       "operation": {"action": "validate fill timing"},
       "expected": {"accepted": false, "earliest_default_fill": "next eligible session open"}
@@ -109,8 +109,8 @@
     {
       "id": "CASE-EVIDENCE-DUPLICATE-CLUSTER",
       "phase": "product_release",
-      "requirement_ids": ["REQ-EVIDENCE-001", "REQ-EVIDENCE-002"],
-      "verification_ids": ["V-SOURCE-SNAPSHOT", "V-CLAIM-EVIDENCE"],
+      "requirement_ids": ["REQ-EVIDENCE-001", "REQ-EVIDENCE-002", "REQ-EVIDENCE-003"],
+      "verification_ids": ["V-SOURCE-SNAPSHOT", "V-CLAIM-EVIDENCE", "V-RESEARCH-MANIFEST"],
       "preconditions": {"snapshots": 3, "shared_upstream_cluster": "issuer-release-1"},
       "operation": {"action": "count independent support chains"},
       "expected": {"independent_support_chain_count": 1, "duplicate_cluster_visible": true}
@@ -118,8 +118,8 @@
     {
       "id": "CASE-EVIDENCE-RETRACTION",
       "phase": "product_release",
-      "requirement_ids": ["REQ-EVIDENCE-001", "REQ-EVIDENCE-002"],
-      "verification_ids": ["V-SOURCE-SNAPSHOT", "V-CLAIM-EVIDENCE", "V-REVIEW"],
+      "requirement_ids": ["REQ-EVIDENCE-001", "REQ-EVIDENCE-002", "REQ-EVIDENCE-003"],
+      "verification_ids": ["V-SOURCE-SNAPSHOT", "V-CLAIM-EVIDENCE", "V-EVIDENCE-CORRECTIONS", "V-RESEARCH-MANIFEST", "V-REVIEW"],
       "preconditions": {"source_revision": "retracted", "linked_claim_status": "verified"},
       "operation": {"action": "ingest retraction revision"},
       "expected": {"linked_claim_status": "invalidated_pending_review", "dependent_recommendation_ready": false}
@@ -154,8 +154,8 @@
     {
       "id": "CASE-HUMAN-REAL-JOURNEY",
       "phase": "human_onboarding",
-      "requirement_ids": ["REQ-HUMAN-001", "REQ-RISK-001"],
-      "verification_ids": ["V-HUMAN-CAPABILITY", "V-BLACKBOX"],
+      "requirement_ids": ["REQ-HUMAN-001", "REQ-RISK-001", "REQ-UX-004"],
+      "verification_ids": ["V-HUMAN-CAPABILITY", "V-FIELD-USE-PROTOCOL", "V-BLACKBOX"],
       "preconditions": {"executor": "EX-HUMAN", "market_snapshot_pedigree": "real_current_non_fixture", "initial_policy_cooling_complete": true},
       "operation": {"action": "complete research-to-decision journey through local UI"},
       "expected": {"human_onboarding_verified": true, "longitudinal_personal_validation": false}
@@ -164,7 +164,7 @@
       "id": "CASE-PANIC-BLOCK",
       "phase": "product_release",
       "requirement_ids": ["REQ-HUMAN-001", "REQ-RISK-001"],
-      "verification_ids": ["V-DECISION", "V-RISK-POLICY", "V-POLICY-QUALITY"],
+      "verification_ids": ["V-DECISION", "V-BEHAVIOR-GATE", "V-RISK-POLICY", "V-POLICY-QUALITY"],
       "preconditions": {"urgency_state": "panic", "server_time": "T0"},
       "operation": {"action": "request new order approval at T0"},
       "expected": {"approved": false, "earliest_retry": "T0+24h", "runtime_override_available": false}
@@ -173,7 +173,7 @@
       "id": "CASE-URGENT-COOLDOWN",
       "phase": "product_release",
       "requirement_ids": ["REQ-HUMAN-001", "REQ-RISK-001"],
-      "verification_ids": ["V-DECISION", "V-RISK-POLICY"],
+      "verification_ids": ["V-DECISION", "V-BEHAVIOR-GATE", "V-RISK-POLICY"],
       "preconditions": {"urgency_state": "urgent", "server_time": "T0"},
       "operation": {"action": "request new order approval at T0+3h59m"},
       "expected": {"approved": false, "earliest_retry": "T0+4h"}
@@ -182,7 +182,7 @@
       "id": "CASE-AI-RUBBER-STAMP",
       "phase": "product_release",
       "requirement_ids": ["REQ-AI-002", "REQ-HUMAN-001"],
-      "verification_ids": ["V-ACTOR-AUTH", "V-DECISION"],
+      "verification_ids": ["V-ACTOR-AUTH", "V-DECISION", "V-BEHAVIOR-GATE"],
       "preconditions": {"reflection_fields_origin": "import_or_ai", "authenticated_human_answer": false},
       "operation": {"action": "submit decision"},
       "expected": {"accepted": false, "reason": "human_reflection_missing"}
@@ -263,7 +263,7 @@
       "id": "CASE-FAMILY-RENAME",
       "phase": "product_release",
       "requirement_ids": ["REQ-RESEARCH-003"],
-      "verification_ids": ["V-EXPERIMENT-FAMILY"],
+      "verification_ids": ["V-EXPERIMENT-FAMILY", "V-MARKET-SIMULATION"],
       "preconditions": {"root_fingerprint_equal": true, "submitted_family_name_different": true},
       "operation": {"action": "register experiment"},
       "expected": {"new_root_created": false, "trial_count_incremented_on_existing_root": true}
@@ -272,7 +272,7 @@
       "id": "CASE-CONTAMINATION-UNKNOWN",
       "phase": "product_release",
       "requirement_ids": ["REQ-RESEARCH-003"],
-      "verification_ids": ["V-EXPERIMENT-FAMILY", "V-HOLDOUT"],
+      "verification_ids": ["V-EXPERIMENT-FAMILY", "V-HOLDOUT", "V-MARKET-SIMULATION"],
       "preconditions": {"ai_origin": true, "training_exposure_proof": "absent"},
       "operation": {"action": "set contamination status"},
       "expected": {"status": "unknown_contaminated", "historical_holdout_decisive": false}
@@ -281,7 +281,7 @@
       "id": "CASE-HIATUS-EXPIRES-AUTHORITY",
       "phase": "product_release",
       "requirement_ids": ["REQ-OPS-004"],
-      "verification_ids": ["V-RESTART", "V-HEALTH"],
+      "verification_ids": ["V-RESTART", "V-HEALTH", "V-HIATUS"],
       "preconditions": {"last_health_at": "T0", "resume_at": "T0+31d", "unreviewed_changes_or_stale_inputs": true},
       "operation": {"action": "resume system"},
       "expected": {"system_state": "resume_review_required", "old_approvals_valid": false, "new_orders_allowed": false}
@@ -289,8 +289,8 @@
     {
       "id": "CASE-BACKUP-SYNC-ROOT-REJECTED",
       "phase": "product_release",
-      "requirement_ids": ["REQ-OPS-001", "REQ-SEC-002"],
-      "verification_ids": ["V-BACKUP", "V-SECRETS"],
+      "requirement_ids": ["REQ-OPS-001", "REQ-SEC-002", "REQ-SEC-003"],
+      "verification_ids": ["V-BACKUP", "V-PRIVATE-DATA", "V-SECRETS"],
       "preconditions": {"backup_destination": "inside project or known cloud-sync root"},
       "operation": {"action": "create private backup"},
       "expected": {"created": false, "reason": "unsafe_private_backup_destination"}
@@ -298,8 +298,8 @@
     {
       "id": "CASE-BACKUP-PERMISSIONS",
       "phase": "product_release",
-      "requirement_ids": ["REQ-OPS-001", "REQ-SEC-002"],
-      "verification_ids": ["V-BACKUP", "V-SECURITY"],
+      "requirement_ids": ["REQ-OPS-001", "REQ-SEC-002", "REQ-SEC-003"],
+      "verification_ids": ["V-BACKUP", "V-PRIVATE-DATA", "V-SECURITY"],
       "preconditions": {"new_private_backup": true},
       "operation": {"action": "inspect filesystem modes"},
       "expected": {"directory_mode": "0700", "file_mode": "0600"}
@@ -307,8 +307,8 @@
     {
       "id": "CASE-BACKUP-UNENCRYPTED-STATUS",
       "phase": "human_onboarding",
-      "requirement_ids": ["REQ-OPS-001", "REQ-SEC-002"],
-      "verification_ids": ["V-BACKUP", "V-CONDITIONAL-CLAIMS"],
+      "requirement_ids": ["REQ-OPS-001", "REQ-SEC-002", "REQ-SEC-003", "REQ-UX-004"],
+      "verification_ids": ["V-BACKUP", "V-PRIVATE-DATA", "V-FIELD-USE-PROTOCOL", "V-CONDITIONAL-CLAIMS"],
       "preconditions": {"os_encryption_status": "unknown_or_unprotected"},
       "operation": {"action": "claim human_onboarding_verified"},
       "expected": {"verdict_allowed": false, "required_action": "human residual-risk decision outside project or protected destination"}
@@ -316,8 +316,8 @@
     {
       "id": "CASE-BACKUP-NO-OVERWRITE",
       "phase": "product_release",
-      "requirement_ids": ["REQ-OPS-001"],
-      "verification_ids": ["V-BACKUP"],
+      "requirement_ids": ["REQ-OPS-001", "REQ-SEC-003"],
+      "verification_ids": ["V-BACKUP", "V-PRIVATE-DATA"],
       "preconditions": {"destination_exists": true},
       "operation": {"action": "create backup at same path"},
       "expected": {"created": false, "existing_bytes_changed": false}
@@ -325,8 +325,8 @@
     {
       "id": "CASE-SECRET-EXPORT-REDACTION",
       "phase": "product_release",
-      "requirement_ids": ["REQ-SEC-002"],
-      "verification_ids": ["V-SECRETS"],
+      "requirement_ids": ["REQ-SEC-002", "REQ-SEC-003"],
+      "verification_ids": ["V-PRIVATE-DATA", "V-SECRETS"],
       "preconditions": {"runtime_has_provider_token": true, "runtime_has_session_secret": true},
       "operation": {"action": "write logs, evidence and public export"},
       "expected": {"provider_token_occurrences": 0, "session_secret_occurrences": 0}
@@ -335,7 +335,7 @@
       "id": "CASE-CONDITIONAL-MISSING-EXECUTOR",
       "phase": "design_freeze",
       "requirement_ids": ["REQ-GOV-002", "REQ-QUAL-002"],
-      "verification_ids": ["V-GOV-TRACE", "V-CONDITIONAL-CLAIMS"],
+      "verification_ids": ["V-GOV-TRACE", "V-GOV-CASES", "V-CONDITIONAL-CLAIMS"],
       "preconditions": {"conditional_executor_or_gate_path_exists": false},
       "operation": {"command": "python3 scripts/verify_governance.py --allow-candidate"},
       "expected": {"exit": 1, "contains": "conditional gate executor is missing"}
@@ -352,8 +352,8 @@
     {
       "id": "CASE-FIELD-USE-FIXTURE-REJECTED",
       "phase": "human_onboarding",
-      "requirement_ids": ["REQ-UX-001", "REQ-UX-002"],
-      "verification_ids": ["V-BLACKBOX", "V-CONDITIONAL-CLAIMS"],
+      "requirement_ids": ["REQ-UX-001", "REQ-UX-002", "REQ-UX-004"],
+      "verification_ids": ["V-BLACKBOX", "V-FIELD-USE-PROTOCOL", "V-CONDITIONAL-CLAIMS"],
       "preconditions": {"journey_pedigree": "fixture_only"},
       "operation": {"action": "claim human_onboarding_verified"},
       "expected": {"verdict_allowed": false, "reason": "real_non_fixture_journey_missing"}
@@ -361,8 +361,8 @@
     {
       "id": "CASE-FIELD-USE-FAIL-REOPENS",
       "phase": "longitudinal",
-      "requirement_ids": ["REQ-UX-001", "REQ-UX-002", "REQ-REVIEW-002"],
-      "verification_ids": ["V-UX", "V-REVIEW", "V-CONDITIONAL-CLAIMS"],
+      "requirement_ids": ["REQ-UX-001", "REQ-UX-002", "REQ-UX-004", "REQ-REVIEW-002"],
+      "verification_ids": ["V-UX", "V-FIELD-USE-PROTOCOL", "V-REVIEW", "V-CONDITIONAL-CLAIMS"],
       "preconditions": {"preregistered_field_use_criterion": "failed"},
       "operation": {"action": "close field-use window"},
       "expected": {"verdict": "design_reopened", "criterion_rewrite_allowed": false}
