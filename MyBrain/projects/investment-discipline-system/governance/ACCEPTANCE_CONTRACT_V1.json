@@ -579,7 +579,7 @@
     {"id": "V-TEST-PEDIGREE", "kind": "review", "description": "区分开发测试、独立测试、fixture 和真实候选"},
     {"id": "V-CLAIMS", "kind": "deterministic_plus_review", "description": "最终主张不超过证据"},
     {"id": "V-CONDITIONAL-CLAIMS", "kind": "deterministic", "description": "前置条件、允许状态转换、必跑门、证据和总 verdict 一致；未证明条件不能被写成无条件通过"},
-    {"id": "V-PROJECT-METHOD", "kind": "deterministic_plus_mutation", "description": "项目方法策略、状态恢复、完成权、工作包、审查边界、供应链、测试完整性、事故学习、范围预算和迁移退出规则由独立 verifier 与 17 个定向反例逐项拒绝弱化"}
+    {"id": "V-PROJECT-METHOD", "kind": "deterministic_plus_mutation", "description": "候选绑定 verifier 执行 17 个声明检查与定向反例；绿灯只证明这些检查在该干净候选上通过或保留了准确授权的外部条件，不证明失效类别已完整覆盖、项目方法充分、设计冻结完成或产品完成；独立语义审查另行要求"}
   ],
   "gates": [
     {

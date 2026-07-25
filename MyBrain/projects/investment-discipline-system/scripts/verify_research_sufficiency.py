@@ -866,7 +866,12 @@ def main() -> int:
         print(
             json.dumps(
                 {
-                    "status": "fail" if errors else "pass",
+                    "verification_status": (
+                        "invalid" if errors else "valid"
+                    ),
+                    "research_claim_status": evaluation[
+                        "derived_research_state"
+                    ],
                     "errors": errors,
                     **evaluation,
                 },
@@ -875,12 +880,12 @@ def main() -> int:
             )
         )
     elif errors:
-        print("research sufficiency verification: FAIL")
+        print("research sufficiency receipt: INVALID")
         for error in errors:
             print(f"- {error}")
     else:
         print(
-            "research sufficiency verification: PASS "
+            "research sufficiency receipt: VALID; claim status: "
             f"({evaluation['derived_research_state']})"
         )
     return 1 if errors else 0

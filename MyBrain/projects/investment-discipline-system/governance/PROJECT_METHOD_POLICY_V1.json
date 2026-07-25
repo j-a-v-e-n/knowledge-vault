@@ -264,6 +264,25 @@
     ],
     "missing_exit_plan_outcome": "not_adopted"
   },
+  "closure_evidence_semantics": {
+    "receipt_schema_version": 2,
+    "executor_id": "ids-project-method-acceptance-v2",
+    "machine_outcomes": [
+      "checks_passed",
+      "conditionally_deferred",
+      "blocked"
+    ],
+    "machine_outcome_rule": "checks_passed means every command in the declared candidate-bound plan exited zero without timeout; conditionally_deferred additionally requires the exact authorized external conditional; blocked means any command, precondition, or conditional authorization check failed",
+    "registry_role": "candidate failure-registry status is metadata only and cannot upgrade, downgrade, or otherwise determine a machine outcome",
+    "semantic_coverage_authority": "candidate-bound read-only review or an explicit human residual-risk decision; never this machine receipt alone",
+    "passing_receipt_claim": "all declared candidate-bound checks passed or an exact authorized conditional was applied for this exact clean candidate; it does not prove complete failure-class coverage, project-method sufficiency, design freeze, or product completion",
+    "forbidden_claims": [
+      "failure class fully covered",
+      "project method complete",
+      "design freeze complete",
+      "product complete"
+    ]
+  },
   "failure_coverage": [
     {
       "failure_id": "GOV-04",

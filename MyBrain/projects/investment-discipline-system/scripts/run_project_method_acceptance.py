@@ -521,6 +521,25 @@ def write_atomic(path: Path, value: dict[str, Any]) -> None:
             os.unlink(temporary)
 
 
+def derive_outcome(
+    commands_passed: bool,
+    conditional_gate: str | None,
+) -> tuple[str, str | None]:
+    """Derive only the machine-observable outcome.
+
+    Failure-registry status is deliberately absent: it is candidate metadata,
+    not authority for machine execution or semantic coverage.
+    """
+
+    if not commands_passed:
+        return "blocked", None
+    if conditional_gate is None:
+        return "checks_passed", None
+    if isinstance(conditional_gate, str) and conditional_gate:
+        return "conditionally_deferred", conditional_gate
+    return "blocked", None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path)
@@ -611,19 +630,10 @@ def main() -> int:
         registry_entry = registry_by_id.get(plan["failure_id"], {})
         registry_status = registry_entry.get("status")
         conditional_gate = plan.get("conditional_gate_id")
-        if commands_passed and registry_status == "covered":
-            outcome = "mechanism_verified"
-            applied_gate = None
-        elif (
-            commands_passed
-            and registry_status == "partially_covered"
-            and isinstance(conditional_gate, str)
-        ):
-            outcome = "conditionally_deferred"
-            applied_gate = conditional_gate
-        else:
-            outcome = "blocked"
-            applied_gate = None
+        outcome, applied_gate = derive_outcome(
+            commands_passed,
+            conditional_gate,
+        )
         raw_result = {
             "registry_status": registry_status,
             "commands_passed": commands_passed,
@@ -646,8 +656,10 @@ def main() -> int:
                         else "At least one required process failed, was absent, or timed out."
                     ),
                     (
-                        "Closure outcome was derived from both process observations "
-                        "and the candidate failure-registry status."
+                        "The machine outcome was derived only from process "
+                        "observations and an exact declared conditional; candidate "
+                        "failure-registry status is metadata and cannot determine "
+                        "the outcome."
                     ),
                 ],
                 "raw_result": raw_result,
@@ -657,15 +669,19 @@ def main() -> int:
             }
         )
 
-    all_outcomes_eligible = all(
-        result["outcome"] in {"mechanism_verified", "conditionally_deferred"}
+    all_declared_checks_passed = all(
+        result["outcome"] in {"checks_passed", "conditionally_deferred"}
         for result in failure_results
     )
-    status = "pass" if not preconditions and all_outcomes_eligible else "fail"
+    status = (
+        "pass"
+        if not preconditions and all_declared_checks_passed
+        else "fail"
+    )
     evidence = {
-        "schema_version": 1,
+        "schema_version": 2,
         "verification_id": "V-PROJECT-METHOD",
-        "executor_id": "ids-project-method-acceptance-v1",
+        "executor_id": "ids-project-method-acceptance-v2",
         "status": status,
         "candidate_commit": candidate_commit,
         "candidate_tree": candidate_tree,
@@ -674,7 +690,9 @@ def main() -> int:
         "failure_registry_sha256": sha256_bytes(FAILURE_REGISTRY.read_bytes()),
         "failure_results": failure_results,
         "limitations": [
-            "A passing receipt proves only the listed deterministic mechanisms against the exact clean candidate and declared conditionals.",
+            "A passing receipt proves only that every command in the declared candidate-bound plan exited zero without timeout, or that its exact authorized external conditional was applied, against the exact clean candidate.",
+            "Candidate failure-registry labels are metadata only; this receipt does not establish complete failure-class coverage, project-method sufficiency, design freeze, or product completion.",
+            "Semantic coverage requires candidate-bound read-only review or an explicit human residual-risk decision outside this machine receipt.",
             "Separate-context review remains platform-observable rather than organizationally or cryptographically independent.",
             "Open-world unknowns, real-user comprehension, and longitudinal maintenance remain governed by their explicit conditional gates.",
             *preconditions,
@@ -696,8 +714,8 @@ def main() -> int:
             )
         ),
         "evidence_sha256": sha256_bytes(output.read_bytes()),
-        "eligible_count": sum(
-            result["outcome"] in {"mechanism_verified", "conditionally_deferred"}
+        "passed_check_count": sum(
+            result["outcome"] in {"checks_passed", "conditionally_deferred"}
             for result in failure_results
         ),
         "blocked_failure_ids": [

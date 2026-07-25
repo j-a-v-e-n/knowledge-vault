@@ -121,63 +121,9 @@ class ProjectMethodPolicyTests(unittest.TestCase):
 
     def make_eligible_closure_evidence(self) -> Path:
         registry = self.load_registry()
-        conditional_ids = {"HUM-05", "ECO-03"}
-        status_counts = {
-            "covered": 0,
-            "partially_covered": 0,
-            "gap": 0,
+        registry_by_id = {
+            item["id"]: item for item in registry["failure_classes"]
         }
-        domain_counts: dict[str, dict[str, Any]] = {}
-        alias_count = 0
-        noncovered_ids: list[str] = []
-        method_ids = {
-            item["failure_id"]
-            for item in self.load_policy()["failure_coverage"]
-        }
-        for item in registry["failure_classes"]:
-            if item["id"] in method_ids:
-                if item["id"] in conditional_ids:
-                    item["status"] = "partially_covered"
-                    item["open_gaps"] = ["fixture conditional remains open"]
-                else:
-                    item["status"] = "covered"
-                    item["open_gaps"] = []
-            status = item["status"]
-            status_counts[status] += 1
-            alias_count += len(item["aliases"])
-            if status != "covered":
-                noncovered_ids.append(item["id"])
-            domain = item["domain"]
-            domain_record = domain_counts.setdefault(
-                domain,
-                {
-                    "domain": domain,
-                    "total": 0,
-                    "covered": 0,
-                    "partially_covered": 0,
-                    "gaps": 0,
-                },
-            )
-            domain_record["total"] += 1
-            if status == "gap":
-                domain_record["gaps"] += 1
-            else:
-                domain_record[status] += 1
-        registry["open_gaps"] = noncovered_ids
-        registry["coverage_summary"] = {
-            "total_failure_classes": len(registry["failure_classes"]),
-            "covered_failure_classes": status_counts["covered"],
-            "partially_covered_failure_classes": status_counts[
-                "partially_covered"
-            ],
-            "gap_failure_classes": status_counts["gap"],
-            "alias_count": alias_count,
-            "domains": list(domain_counts.values()),
-            "open_gap_ids": noncovered_ids,
-        }
-        self.write_registry(registry)
-        self.git("add", "governance/FAILURE_CLASSES_V1.json")
-        self.git("commit", "-m", "eligible registry fixture")
 
         gates = {
             "HUM-05": "COND-JAVEN-FIELD-USE",
@@ -188,11 +134,19 @@ class ProjectMethodPolicyTests(unittest.TestCase):
             failure_id = binding["failure_id"]
             raw_result = {
                 "commands_passed": True,
-                "registry_status": (
-                    "partially_covered"
-                    if failure_id in gates
-                    else "covered"
-                ),
+                "registry_status": registry_by_id[failure_id]["status"],
+                "executions": [
+                    {
+                        "argv": ["PYTHON", "fixture-check"],
+                        "started_at": "2026-01-01T00:00:00+00:00",
+                        "completed_at": "2026-01-01T00:00:01+00:00",
+                        "timeout_seconds": 1,
+                        "timed_out": False,
+                        "exit_code": 0,
+                        "stdout_sha256": hashlib.sha256(b"").hexdigest(),
+                        "stdout_tail": "",
+                    }
+                ],
             }
             failure_results.append(
                 {
@@ -201,7 +155,7 @@ class ProjectMethodPolicyTests(unittest.TestCase):
                     "outcome": (
                         "conditionally_deferred"
                         if failure_id in gates
-                        else "mechanism_verified"
+                        else "checks_passed"
                     ),
                     "selector_observation": "fixture selector executed",
                     "oracle_observations": ["fixture oracle passed"],
@@ -212,9 +166,9 @@ class ProjectMethodPolicyTests(unittest.TestCase):
                 }
             )
         evidence = {
-            "schema_version": 1,
+            "schema_version": 2,
             "verification_id": "V-PROJECT-METHOD",
-            "executor_id": "ids-project-method-acceptance-v1",
+            "executor_id": "ids-project-method-acceptance-v2",
             "status": "pass",
             "candidate_commit": self.git("rev-parse", "HEAD"),
             "candidate_tree": self.git("rev-parse", "HEAD^{tree}"),
@@ -294,19 +248,41 @@ class ProjectMethodPolicyTests(unittest.TestCase):
             str(evidence),
         )
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
-        self.assertEqual("eligible", json.loads(result.stdout)["closure_status"])
+        self.assertEqual(
+            "checks_passed",
+            json.loads(result.stdout)["closure_status"],
+        )
 
-    def test_partial_registry_entry_cannot_be_forged_as_verified(self) -> None:
+    def test_registry_status_cannot_upgrade_machine_outcome(self) -> None:
+        evidence = self.make_eligible_closure_evidence()
+        payload = json.loads(evidence.read_text(encoding="utf-8"))
+        target = next(
+            item
+            for item in payload["failure_results"]
+            if item["failure_id"] == "GOV-04"
+        )
+        self.assertNotEqual("covered", target["raw_result"]["registry_status"])
+        self.assertEqual("checks_passed", target["outcome"])
+        result = self.run_verifier(
+            "--require-closure",
+            "--evidence",
+            str(evidence),
+        )
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_raw_execution_failure_cannot_be_labelled_passed(self) -> None:
         evidence = self.make_eligible_closure_evidence()
 
         def mutate(payload: dict[str, Any]) -> None:
             target = next(
                 item
                 for item in payload["failure_results"]
-                if item["failure_id"] == "HUM-05"
+                if item["failure_id"] == "GOV-04"
             )
-            target["outcome"] = "mechanism_verified"
-            target["conditional_gate_id"] = None
+            target["raw_result"]["executions"][0]["exit_code"] = 1
+            target["raw_result_sha256"] = self.canonical_hash(
+                target["raw_result"]
+            )
 
         self.mutate_evidence(evidence, mutate)
         result = self.run_verifier(
@@ -317,8 +293,7 @@ class ProjectMethodPolicyTests(unittest.TestCase):
         self.assertEqual(1, result.returncode, result.stdout + result.stderr)
         self.assertTrue(
             any(
-                "cannot mark a non-covered registry entry verified: HUM-05"
-                in error
+                "commands_passed disagrees with executions for GOV-04" in error
                 for error in json.loads(result.stdout)["errors"]
             ),
             result.stdout,

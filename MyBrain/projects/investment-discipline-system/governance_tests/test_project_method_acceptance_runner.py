@@ -12,6 +12,27 @@ from scripts.freeze_governance import MACHINE_CHECK_SPECS
 
 
 class ProjectMethodAcceptanceRunnerTests(unittest.TestCase):
+    def test_machine_outcome_ignores_registry_metadata(self) -> None:
+        self.assertEqual(
+            ("checks_passed", None),
+            run_project_method_acceptance.derive_outcome(True, None),
+        )
+
+    def test_failed_command_blocks_machine_outcome(self) -> None:
+        self.assertEqual(
+            ("blocked", None),
+            run_project_method_acceptance.derive_outcome(False, None),
+        )
+
+    def test_authorized_external_conditional_remains_explicit(self) -> None:
+        self.assertEqual(
+            ("conditionally_deferred", "COND-FIXTURE"),
+            run_project_method_acceptance.derive_outcome(
+                True,
+                "COND-FIXTURE",
+            ),
+        )
+
     def test_machine_check_requires_ephemeral_receipt(self) -> None:
         self.assertEqual(
             MACHINE_CHECK_SPECS["CHECK-PROJECT-METHOD"]["argv"],

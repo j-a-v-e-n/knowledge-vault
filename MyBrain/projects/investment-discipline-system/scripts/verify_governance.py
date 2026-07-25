@@ -4096,7 +4096,9 @@ def verify(allow_candidate: bool) -> list[str]:
             research_payload = {}
         if (
             research_result.returncode != 0
-            or research_payload.get("status") != "pass"
+            or research_payload.get("verification_status") != "valid"
+            or research_payload.get("research_claim_status")
+            != research_payload.get("derived_research_state")
         ):
             detail = research_payload.get("errors")
             if not isinstance(detail, list):

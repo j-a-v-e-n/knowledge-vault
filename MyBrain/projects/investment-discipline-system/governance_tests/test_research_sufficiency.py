@@ -99,7 +99,12 @@ class ResearchSufficiencyTests(unittest.TestCase):
         completed = self.run_verifier()
         self.assertEqual(completed.returncode, 0, completed.stdout)
         payload = json.loads(completed.stdout)
-        self.assertEqual(payload["status"], "pass")
+        self.assertNotIn("status", payload)
+        self.assertEqual(payload["verification_status"], "valid")
+        self.assertEqual(
+            payload["research_claim_status"],
+            "bounded_incomplete",
+        )
         self.assertFalse(payload["derived_pre_review_eligible"])
         self.assertEqual(payload["derived_research_state"], "bounded_incomplete")
 

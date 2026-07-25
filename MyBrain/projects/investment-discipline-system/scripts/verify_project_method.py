@@ -47,6 +47,7 @@ EXPECTED_TOP_LEVEL = {
     "nontechnical_explanation",
     "scope_and_budget",
     "maintainability_and_migration",
+    "closure_evidence_semantics",
     "failure_coverage",
 }
 EXPECTED_STATE_FILES = [
@@ -642,6 +643,48 @@ def verify_scope_and_maintenance(
         errors.append("components without an exit plan must not be adopted")
 
 
+def verify_closure_semantics(
+    policy: dict[str, Any], errors: list[str]
+) -> None:
+    expected = {
+        "receipt_schema_version": 2,
+        "executor_id": "ids-project-method-acceptance-v2",
+        "machine_outcomes": [
+            "checks_passed",
+            "conditionally_deferred",
+            "blocked",
+        ],
+        "machine_outcome_rule": (
+            "checks_passed means every command in the declared candidate-bound "
+            "plan exited zero without timeout; conditionally_deferred additionally "
+            "requires the exact authorized external conditional; blocked means "
+            "any command, precondition, or conditional authorization check failed"
+        ),
+        "registry_role": (
+            "candidate failure-registry status is metadata only and cannot "
+            "upgrade, downgrade, or otherwise determine a machine outcome"
+        ),
+        "semantic_coverage_authority": (
+            "candidate-bound read-only review or an explicit human residual-risk "
+            "decision; never this machine receipt alone"
+        ),
+        "passing_receipt_claim": (
+            "all declared candidate-bound checks passed or an exact authorized "
+            "conditional was applied for this exact clean candidate; it does not "
+            "prove complete failure-class coverage, project-method sufficiency, "
+            "design freeze, or product completion"
+        ),
+        "forbidden_claims": [
+            "failure class fully covered",
+            "project method complete",
+            "design freeze complete",
+            "product complete",
+        ],
+    }
+    if policy.get("closure_evidence_semantics") != expected:
+        errors.append("project method closure-evidence semantics differ")
+
+
 def verify_failure_coverage(policy: dict[str, Any], errors: list[str]) -> None:
     registry = load_json(FAILURE_REGISTRY, errors, "failure registry")
     registry_classes = registry.get("failure_classes")
@@ -818,6 +861,7 @@ def verify() -> list[str]:
     verify_harness_and_supply_chain(policy, errors)
     verify_tests_incidents_and_explanations(policy, errors)
     verify_scope_and_maintenance(policy, errors)
+    verify_closure_semantics(policy, errors)
     verify_failure_coverage(policy, errors)
     return errors
 
@@ -891,11 +935,11 @@ def verify_closure_evidence(path: Path) -> list[str]:
     if set(receipt) != expected_top_level:
         errors.append("project method closure evidence top-level schema differs")
         return errors
-    if receipt.get("schema_version") != 1:
+    if receipt.get("schema_version") != 2:
         errors.append("project method closure evidence schema_version differs")
     if receipt.get("verification_id") != "V-PROJECT-METHOD":
         errors.append("project method closure evidence verification_id differs")
-    if receipt.get("executor_id") != "ids-project-method-acceptance-v1":
+    if receipt.get("executor_id") != "ids-project-method-acceptance-v2":
         errors.append("project method closure evidence executor_id differs")
     if receipt.get("status") != "pass":
         errors.append("project method closure evidence status is not pass")
@@ -976,7 +1020,7 @@ def verify_closure_evidence(path: Path) -> list[str]:
                 f"project method closure evidence {failure_id} case_id differs"
             )
         outcome = result.get("outcome")
-        if outcome not in {"mechanism_verified", "conditionally_deferred"}:
+        if outcome not in {"checks_passed", "conditionally_deferred"}:
             errors.append(
                 f"project method closure evidence {failure_id} outcome blocks closure"
             )
@@ -991,17 +1035,16 @@ def verify_closure_evidence(path: Path) -> list[str]:
             if (
                 CONDITIONALLY_DEFERRED_FAILURES.get(failure_id)
                 != conditional_gate
-                or registry_status != "partially_covered"
             ):
                 errors.append(
                     "project method closure evidence has an unauthorized "
                     f"conditional deferral for {failure_id}"
                 )
-        elif outcome == "mechanism_verified":
-            if registry_status != "covered":
+        elif outcome == "checks_passed":
+            if failure_id in CONDITIONALLY_DEFERRED_FAILURES:
                 errors.append(
-                    "project method closure evidence cannot mark a non-covered "
-                    f"registry entry verified: {failure_id}"
+                    "project method closure evidence cannot erase the authorized "
+                    f"external conditional for {failure_id}"
                 )
             if conditional_gate is not None:
                 errors.append(
@@ -1040,6 +1083,90 @@ def verify_closure_evidence(path: Path) -> list[str]:
             )
         raw_result = result.get("raw_result")
         raw_hash = result.get("raw_result_sha256")
+        if not isinstance(raw_result, dict):
+            errors.append(
+                f"project method closure evidence {failure_id} raw result differs"
+            )
+        else:
+            expected_raw_fields = {
+                "registry_status",
+                "commands_passed",
+                "executions",
+            }
+            if set(raw_result) != expected_raw_fields:
+                errors.append(
+                    f"project method closure evidence {failure_id} raw-result "
+                    "schema differs"
+                )
+            raw_registry_status = raw_result.get("registry_status")
+            if raw_registry_status != registry_status:
+                errors.append(
+                    "project method closure evidence failure-registry metadata "
+                    f"differs for {failure_id}"
+                )
+            commands_passed = raw_result.get("commands_passed")
+            executions = raw_result.get("executions")
+            derived_commands_passed = False
+            expected_execution_fields = {
+                "argv",
+                "started_at",
+                "completed_at",
+                "timeout_seconds",
+                "timed_out",
+                "exit_code",
+                "stdout_sha256",
+                "stdout_tail",
+            }
+            if not isinstance(executions, list) or not executions:
+                errors.append(
+                    f"project method closure evidence {failure_id} executions "
+                    "are missing"
+                )
+            else:
+                execution_shape_valid = True
+                for execution_index, execution in enumerate(executions):
+                    if (
+                        not isinstance(execution, dict)
+                        or set(execution) != expected_execution_fields
+                        or not isinstance(execution.get("argv"), list)
+                        or not execution.get("argv")
+                        or not all(
+                            nonempty(argument)
+                            for argument in execution.get("argv", [])
+                        )
+                        or not nonempty(execution.get("started_at"))
+                        or not nonempty(execution.get("completed_at"))
+                        or type(execution.get("timeout_seconds")) is not int
+                        or execution.get("timeout_seconds", 0) <= 0
+                        or type(execution.get("timed_out")) is not bool
+                        or type(execution.get("exit_code")) is not int
+                        or not isinstance(execution.get("stdout_tail"), str)
+                        or re.fullmatch(
+                            r"[0-9a-f]{64}",
+                            str(execution.get("stdout_sha256")),
+                        )
+                        is None
+                    ):
+                        execution_shape_valid = False
+                        errors.append(
+                            "project method closure evidence "
+                            f"{failure_id} execution[{execution_index}] differs"
+                        )
+                derived_commands_passed = execution_shape_valid and all(
+                    execution["exit_code"] == 0
+                    and execution["timed_out"] is False
+                    for execution in executions
+                )
+            if commands_passed is not derived_commands_passed:
+                errors.append(
+                    "project method closure evidence commands_passed disagrees "
+                    f"with executions for {failure_id}"
+                )
+            if commands_passed is not True:
+                errors.append(
+                    f"project method closure evidence {failure_id} commands did "
+                    "not all pass"
+                )
         if (
             not isinstance(raw_hash, str)
             or re.fullmatch(r"[0-9a-f]{64}", raw_hash) is None
@@ -1089,7 +1216,7 @@ def output(
     }
     if require_closure:
         payload["closure_status"] = (
-            "eligible" if not closure_values else "blocked"
+            "checks_passed" if not closure_values else "blocked"
         )
         payload["closure_error_count"] = len(closure_values)
         payload["closure_evidence_path"] = (
