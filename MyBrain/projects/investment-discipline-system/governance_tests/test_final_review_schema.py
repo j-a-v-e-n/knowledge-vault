@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 import os
@@ -43,9 +42,16 @@ REQUIRED_REVIEW_SCOPE = {
     "scripts/verify_git_state.py",
     "scripts/verify_remote_commit.py",
     "scripts/replay_design_freeze_attacks.py",
+    "scripts/verify_contract_supersession.py",
+    "README.md",
+    "STATUS.md",
     "governance_tests/test_final_review_attacks.py",
+    "governance_tests/test_final_review_schema.py",
+    "governance_tests/test_research_evidence_governance.py",
     "governance_tests/test_verify_conditionals.py",
     "governance_tests/test_freeze_git_remote.py",
+    "governance_tests/test_verify_governance.py",
+    "governance_tests/test_verify_money_semantics.py",
 }
 
 
@@ -343,6 +349,24 @@ class FinalReviewSchemaTests(unittest.TestCase):
     def test_omitted_verifier_scope_is_rejected(self) -> None:
         def mutate(evidence: dict) -> None:
             evidence["reviewed_files"].remove("scripts/verify_conditionals.py")
+
+        self.mutate_evidence(mutate)
+        self.assert_rejected("passing review omitted required files")
+
+    def test_omitted_final_review_schema_test_is_rejected(self) -> None:
+        def mutate(evidence: dict) -> None:
+            evidence["reviewed_files"].remove(
+                "governance_tests/test_final_review_schema.py"
+            )
+
+        self.mutate_evidence(mutate)
+        self.assert_rejected("passing review omitted required files")
+
+    def test_omitted_design_freeze_target_is_rejected(self) -> None:
+        def mutate(evidence: dict) -> None:
+            evidence["reviewed_files"].remove(
+                "scripts/verify_contract_supersession.py"
+            )
 
         self.mutate_evidence(mutate)
         self.assert_rejected("passing review omitted required files")

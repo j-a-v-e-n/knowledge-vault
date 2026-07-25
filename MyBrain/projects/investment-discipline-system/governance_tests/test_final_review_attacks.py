@@ -97,12 +97,18 @@ class FinalReviewAttackTests(unittest.TestCase):
         self.assert_rejected("ACTION-SPLIT corporate action semantics differ")
 
     def test_conditional_self_attestation_is_rejected(self) -> None:
-        selector = (
-            "governance_tests.test_verify_conditionals.ConditionalGateTests."
-            "test_round3_original_self_attestation_counterexample_is_rejected"
-        )
+        selectors = [
+            (
+                "governance_tests.test_verify_conditionals.ConditionalGateTests."
+                "test_round3_original_self_attestation_counterexample_is_rejected"
+            ),
+            (
+                "governance_tests.test_verify_conditionals.ConditionalGateTests."
+                "test_same_gate_run_id_reuse_after_overwrite_is_rejected"
+            ),
+        ]
         result = subprocess.run(
-            [sys.executable, "-m", "unittest", selector, "-v"],
+            [sys.executable, "-m", "unittest", *selectors, "-v"],
             cwd=PROJECT_ROOT,
             text=True,
             stdout=subprocess.PIPE,

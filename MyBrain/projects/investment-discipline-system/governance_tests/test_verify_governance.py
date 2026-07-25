@@ -356,6 +356,34 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
         self.assert_rejected("normative frozen file boundary differs")
 
+    def test_trusted_git_remote_policy_cannot_be_removed(self) -> None:
+        contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
+        del contract["change_control"]["trusted_git_remote"]
+        self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        self.assert_rejected("trusted Git remote policy differs")
+
+    def test_trusted_git_remote_url_cannot_be_repointed(self) -> None:
+        contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
+        contract["change_control"]["trusted_git_remote"][
+            "fetch_url"
+        ] = "git@example.invalid:attacker/repository.git"
+        self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        self.assert_rejected("trusted Git remote policy differs")
+
+    def test_trusted_git_remote_branch_cannot_be_changed(self) -> None:
+        contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
+        contract["change_control"]["trusted_git_remote"]["branch"] = "other"
+        self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        self.assert_rejected("trusted Git remote policy differs")
+
+    def test_trusted_git_remote_prefix_cannot_be_changed(self) -> None:
+        contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
+        contract["change_control"]["trusted_git_remote"][
+            "project_prefix"
+        ] = "other/project/"
+        self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        self.assert_rejected("trusted Git remote policy differs")
+
     def test_frozen_mode_rejects_open_research(self) -> None:
         result = self.run_verifier(frozen=True)
         self.assertNotEqual(result.returncode, 0, result.stdout)

@@ -34,6 +34,13 @@ PRIVATE_DATA_POLICY = GOVERNANCE / "PRIVATE_DATA_POLICY_V1.json"
 IMPLEMENTATION_TARGETS = GOVERNANCE / "IMPLEMENTATION_TARGETS_V1.json"
 BLUEPRINT = PROJECT_ROOT / "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
 FROZEN_BUNDLE = GOVERNANCE / "FROZEN_BUNDLE_V1.json"
+INNER_REMOTE_CONTEXT_ENV = "IDS_FROZEN_REMOTE_INNER_CONTEXT_V1"
+EXPECTED_TRUSTED_GIT_REMOTE = {
+    "name": "origin",
+    "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",
+    "branch": "main",
+    "project_prefix": "MyBrain/projects/investment-discipline-system/",
+}
 
 PHASES = {"design_freeze", "product_release", "human_onboarding", "longitudinal"}
 FINAL_REVIEW_ATTACK_SELECTORS = {
@@ -61,9 +68,16 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/verify_git_state.py",
     "scripts/verify_remote_commit.py",
     "scripts/replay_design_freeze_attacks.py",
+    "scripts/verify_contract_supersession.py",
+    "README.md",
+    "STATUS.md",
     "governance_tests/test_final_review_attacks.py",
+    "governance_tests/test_final_review_schema.py",
+    "governance_tests/test_research_evidence_governance.py",
     "governance_tests/test_verify_conditionals.py",
     "governance_tests/test_freeze_git_remote.py",
+    "governance_tests/test_verify_governance.py",
+    "governance_tests/test_verify_money_semantics.py",
 }
 NORMATIVE_JSON_PATHS = (
     "governance/USER_SOURCE_EXCERPTS_V1.json",
@@ -1804,7 +1818,8 @@ def verify_assurance_subjects(
             "result",
         ],
         "passing_rule": (
-            "候选 commit/tree、审查主体、输入、完整 scope、finding 计数和四个固定攻击必须一致；"
+            "候选 commit/tree、审查主体、输入、由冻结实施目标自动展开的完整 scope、"
+            "finding 计数和四个固定攻击必须一致；"
             "每个攻击都要由非零目标退出状态、原始 stdout/hash 与独立可复演 selector 证明已被拒绝；"
             "任一遗漏、escaped、跨候选复用或 open finding 都保持 blocked_freeze。"
         ),
@@ -1823,6 +1838,7 @@ def verify_final_review_evidence(
     candidate_commit: Any,
     candidate_tree: Any,
     frozen_files: Any,
+    implementation_targets: Any,
     errors: list[str],
 ) -> None:
     required_fields = {
@@ -1895,6 +1911,56 @@ def verify_final_review_evidence(
             required_scope.update(
                 item for item in frozen_files if isinstance(item, str)
             )
+        targets = (
+            implementation_targets.get("targets")
+            if isinstance(implementation_targets, dict)
+            else None
+        )
+        if isinstance(targets, list):
+            project_prefix = run_git(["rev-parse", "--show-prefix"], errors)
+            candidate_is_resolvable = isinstance(
+                candidate_commit, str
+            ) and bool(re.fullmatch(r"[0-9a-f]{40}", candidate_commit))
+            for target in targets:
+                if (
+                    not isinstance(target, dict)
+                    or target.get("required_by") != "design_freeze"
+                ):
+                    continue
+                relative = target.get("path")
+                kind = target.get("kind")
+                if not isinstance(relative, str) or not relative:
+                    continue
+                if kind == "file":
+                    required_scope.add(relative)
+                    continue
+                if kind != "directory" or not candidate_is_resolvable:
+                    continue
+                listing = run_git(
+                    [
+                        "ls-tree",
+                        "-r",
+                        "--full-tree",
+                        "--name-only",
+                        candidate_commit,
+                        "--",
+                        f":(top,literal){project_prefix}{relative}",
+                    ],
+                    errors,
+                )
+                prefix_length = len(project_prefix)
+                directory_files = {
+                    item[prefix_length:]
+                    for item in listing.splitlines()
+                    if item.startswith(project_prefix)
+                    and item[prefix_length:].startswith(relative)
+                }
+                if not directory_files:
+                    errors.append(
+                        f"{round_id} passing review design-freeze directory "
+                        f"is empty in candidate: {relative}"
+                    )
+                required_scope.update(directory_files)
         omitted = required_scope - set(reviewed_files)
         if omitted:
             errors.append(
@@ -1918,7 +1984,13 @@ def verify_final_review_evidence(
             if not can_resolve_reviewed_files:
                 continue
             tree_entry = run_git(
-                ["ls-tree", candidate_commit, "--", f"{project_prefix}{relative}"],
+                [
+                    "ls-tree",
+                    "--full-tree",
+                    candidate_commit,
+                    "--",
+                    f":(top,literal){project_prefix}{relative}",
+                ],
                 errors,
             )
             fields = tree_entry.split()
@@ -2132,6 +2204,7 @@ def verify_final_review_evidence(
 def verify_research_register(
     research: dict[str, Any],
     contract: dict[str, Any],
+    implementation_targets: dict[str, Any],
     allow_candidate: bool,
     errors: list[str],
 ) -> None:
@@ -2193,6 +2266,7 @@ def verify_research_register(
         "ARTIFACT-CHALLENGE-R2B",
         "ARTIFACT-CHALLENGE-R3",
         "ARTIFACT-CHALLENGE-R3B",
+        "ARTIFACT-CHALLENGE-R4",
         "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
     }
     missing_core_artifacts = core_artifact_ids - artifact_ids
@@ -2359,6 +2433,7 @@ def verify_research_register(
                     candidate_commit=candidate_commit,
                     candidate_tree=candidate_tree,
                     frozen_files=frozen_files,
+                    implementation_targets=implementation_targets,
                     errors=errors,
                 )
                 if (
@@ -2442,6 +2517,7 @@ def verify_conditionals(
             "executor_ids",
             "acceptance_case_ids",
             "observation",
+            "run_receipt",
             "raw_result_path",
             "raw_result_sha256",
             "completed_at",
@@ -2468,6 +2544,29 @@ def verify_conditionals(
             "additional_fields_allowed": False,
             "runtime_event_seq_minimum": 1,
             "environment_presence_event_seq": 0,
+        },
+        "run_receipt_schema": {
+            "required": [
+                "authority",
+                "run_event_seq",
+                "run_event_hash",
+                "run_anchor_hash",
+                "run_id",
+                "condition_id",
+                "gate_id",
+                "gate_stage",
+                "state",
+                "source_event_seq",
+                "source_event_hash",
+                "source_state_hash",
+                "source_anchor_hash",
+                "raw_result_path",
+                "raw_result_sha256",
+                "completed_at",
+            ],
+            "additional_fields_allowed": False,
+            "authority": "runtime_sqlite_gate_run_receipt",
+            "runtime_event_seq_minimum": 1,
         },
         "raw_result_schema": {
             "schema_version": 1,
@@ -2540,6 +2639,7 @@ def verify_conditionals(
             "event_table": "events",
             "event_domain": "main_application",
             "observation_table": "condition_observations",
+            "gate_run_table": "conditional_gate_runs",
             "event_columns": [
                 "sequence",
                 "event_type",
@@ -2582,6 +2682,44 @@ def verify_conditionals(
                 "producer_id": "TEXT",
             },
             "observation_primary_key": ["source_event_seq"],
+            "gate_run_columns": [
+                "run_event_seq",
+                "run_id",
+                "condition_id",
+                "gate_id",
+                "gate_stage",
+                "state",
+                "source_event_seq",
+                "source_event_hash",
+                "source_state_hash",
+                "source_anchor_hash",
+                "raw_result_path",
+                "raw_result_sha256",
+                "completed_at",
+                "producer_id",
+                "run_event_hash",
+                "run_anchor_hash",
+            ],
+            "gate_run_column_types": {
+                "run_event_seq": "INTEGER",
+                "run_id": "TEXT",
+                "condition_id": "TEXT",
+                "gate_id": "TEXT",
+                "gate_stage": "TEXT",
+                "state": "TEXT",
+                "source_event_seq": "INTEGER",
+                "source_event_hash": "TEXT",
+                "source_state_hash": "TEXT",
+                "source_anchor_hash": "TEXT",
+                "raw_result_path": "TEXT",
+                "raw_result_sha256": "TEXT",
+                "completed_at": "TEXT",
+                "producer_id": "TEXT",
+                "run_event_hash": "TEXT",
+                "run_anchor_hash": "TEXT",
+            },
+            "gate_run_primary_key": ["run_event_seq"],
+            "gate_run_unique": ["run_id"],
             "append_only_triggers": [
                 {
                     "name": "events_no_update",
@@ -2603,20 +2741,56 @@ def verify_conditionals(
                     "table": "condition_observations",
                     "operation": "delete",
                 },
+                {
+                    "name": "conditional_gate_runs_no_update",
+                    "table": "conditional_gate_runs",
+                    "operation": "update",
+                },
+                {
+                    "name": "conditional_gate_runs_no_delete",
+                    "table": "conditional_gate_runs",
+                    "operation": "delete",
+                },
             ],
-            "event_type": "condition_observation",
+            "event_types": [
+                "condition_observation",
+                "conditional_gate_run",
+            ],
             "genesis_prev_hash": "0" * 64,
-            "payload_required": [
-                "condition_id",
-                "stage",
-                "ready",
-                "observed_at",
-                "producer_id",
-                "candidate_commit",
-                "candidate_tree",
-                "frozen_bundle_path",
-                "frozen_bundle_sha256",
-            ],
+            "payload_required_by_type": {
+                "condition_observation": [
+                    "condition_id",
+                    "stage",
+                    "ready",
+                    "observed_at",
+                    "producer_id",
+                    "candidate_commit",
+                    "candidate_tree",
+                    "frozen_bundle_path",
+                    "frozen_bundle_sha256",
+                ],
+                "conditional_gate_run": [
+                    "run_id",
+                    "condition_id",
+                    "gate_id",
+                    "gate_stage",
+                    "state",
+                    "source_event_seq",
+                    "source_event_hash",
+                    "source_state_hash",
+                    "source_anchor_hash",
+                    "raw_result_path",
+                    "raw_result_sha256",
+                    "completed_at",
+                    "producer_id",
+                    "executor_ids",
+                    "acceptance_case_ids",
+                    "candidate_commit",
+                    "candidate_tree",
+                    "frozen_bundle_path",
+                    "frozen_bundle_sha256",
+                ],
+            },
             "event_hash_algorithm": "sha256_canonical_json_v1",
             "event_hash_fields": [
                 "sequence",
@@ -2660,9 +2834,12 @@ def verify_conditionals(
             "readiness requires the fixed private runtime authority, a "
             "contract-authorized producer, the recomputed append-only main event "
             "chain and its external anchor; fixture authority cannot satisfy human "
-            "or longitudinal release. Passing evidence requires one fresh unique "
-            "run, the latest observation binding, exact case-set equality and "
-            "recomputable per-case input/raw hashes."
+            "or longitudinal release. Every gate run must append one unique run_id "
+            "receipt to that anchored main event chain, binding the latest "
+            "prerequisite observation and raw-result hash; overwriting current "
+            "evidence cannot erase or replace the receipt. Passing evidence requires "
+            "that fresh receipt, exact case-set equality and recomputable per-case "
+            "input/raw hashes."
         ),
     }
     if evidence_schema != expected_conditional_evidence_schema:
@@ -3196,7 +3373,14 @@ def verify_bundle(
                         f"expected {expected_hash}, got {baseline_hash}"
                     )
             tree_line = run_git(
-                ["ls-tree", baseline_commit, "--", repo_relative], errors
+                [
+                    "ls-tree",
+                    "--full-tree",
+                    baseline_commit,
+                    "--",
+                    f":(top,literal){repo_relative}",
+                ],
+                errors,
             )
             fields = tree_line.split()
             actual_mode = fields[0] if len(fields) >= 3 else ""
@@ -3238,6 +3422,14 @@ def verify_bundle(
                 errors=errors,
             )
         remote_verifier = PROJECT_ROOT / "scripts" / "verify_remote_commit.py"
+        trusted_remote = contract.get("change_control", {}).get(
+            "trusted_git_remote", {}
+        )
+        trusted_remote_name = (
+            trusted_remote.get("name")
+            if isinstance(trusted_remote, dict)
+            else None
+        )
         result = subprocess.run(
             [
                 sys.executable,
@@ -3246,7 +3438,9 @@ def verify_bundle(
                 "--commit",
                 head,
                 "--remote",
-                "origin",
+                trusted_remote_name
+                if isinstance(trusted_remote_name, str)
+                else "",
                 "--json",
             ],
             cwd=PROJECT_ROOT,
@@ -3265,10 +3459,73 @@ def verify_bundle(
             and isinstance(remote_payload.get("facts"), dict)
             else {}
         )
+        inner_clone_context = os.environ.get(INNER_REMOTE_CONTEXT_ENV) is not None
+        expected_scope = "inner_clone" if inner_clone_context else "full_outer"
+        scope_matches = (
+            remote_payload.get("verification_scope") == expected_scope
+            and remote_facts.get("verification_scope") == expected_scope
+        )
+        if inner_clone_context:
+            remote_completion_matches = (
+                remote_facts.get("mode") == "frozen_bundle_inner_clone"
+                and remote_facts.get("full_remote_verification") is False
+            )
+        else:
+            clone_governance = remote_facts.get("clone_governance")
+            remote_observation = remote_facts.get("remote_observation")
+            post_clone_observation = remote_facts.get(
+                "post_clone_remote_observation"
+            )
+            expected_remote_observation = {
+                "remote": EXPECTED_TRUSTED_GIT_REMOTE["name"],
+                "fetch_url": EXPECTED_TRUSTED_GIT_REMOTE["fetch_url"],
+                "ref": (
+                    "refs/heads/"
+                    f"{EXPECTED_TRUSTED_GIT_REMOTE['branch']}"
+                ),
+                "commit": head,
+            }
+            remote_completion_matches = (
+                remote_facts.get("mode") == "frozen_bundle_commit"
+                and remote_facts.get("full_remote_verification") is True
+                and remote_facts.get("fresh_clone") is True
+                and remote_facts.get("cloned_commit") == head
+                and remote_facts.get("cloned_tree") == current_tree
+                and remote_facts.get("current_branch")
+                == EXPECTED_TRUSTED_GIT_REMOTE["branch"]
+                and remote_facts.get("upstream")
+                == (
+                    f"{EXPECTED_TRUSTED_GIT_REMOTE['name']}/"
+                    f"{EXPECTED_TRUSTED_GIT_REMOTE['branch']}"
+                )
+                and remote_facts.get("configured_fetch_urls")
+                == [EXPECTED_TRUSTED_GIT_REMOTE["fetch_url"]]
+                and isinstance(remote_observation, dict)
+                and all(
+                    remote_observation.get(key) == value
+                    for key, value in expected_remote_observation.items()
+                )
+                and isinstance(post_clone_observation, dict)
+                and all(
+                    post_clone_observation.get(key) == value
+                    for key, value in expected_remote_observation.items()
+                )
+                and isinstance(clone_governance, dict)
+                and clone_governance.get("exit_code") == 0
+                and clone_governance.get("verification_scope") == "inner_clone"
+                and isinstance(clone_governance.get("inner_receipt"), dict)
+            )
         if (
             result.returncode != 0
             or remote_payload.get("status") != "pass"
+            or not scope_matches
+            or not remote_completion_matches
             or remote_facts.get("head") != head
+            or remote_facts.get("head_tree") != current_tree
+            or remote_facts.get("trusted_git_remote")
+            != EXPECTED_TRUSTED_GIT_REMOTE
+            or remote_facts.get("project_prefix")
+            != EXPECTED_TRUSTED_GIT_REMOTE["project_prefix"]
             or remote_facts.get("bundle_sha256") != sha256(FROZEN_BUNDLE)
             or remote_facts.get("bundle_git_mode") != "100644"
             or remote_facts.get("bundle_git_type") != "blob"
@@ -3368,7 +3625,9 @@ def verify(allow_candidate: bool) -> list[str]:
         errors,
     )
     verify_assurance_subjects(assurance_subjects, research, errors)
-    verify_research_register(research, contract, allow_candidate, errors)
+    verify_research_register(
+        research, contract, implementation_targets, allow_candidate, errors
+    )
     verify_conditionals(contract, requirement_ids, case_ids, errors)
     verify_gate_catalogs(contract, executor_ids, errors)
     for label, document in (
@@ -3401,6 +3660,34 @@ def verify(allow_candidate: bool) -> list[str]:
             f"expected={sorted(expected_frozen_files)}, "
             f"actual={sorted(frozen_files) if isinstance(frozen_files, list) else frozen_files}"
         )
+    trusted_remote = (
+        change_control.get("trusted_git_remote")
+        if isinstance(change_control, dict)
+        else None
+    )
+    expected_remote_fields = {
+        "name",
+        "fetch_url",
+        "branch",
+        "project_prefix",
+    }
+    if (
+        not isinstance(trusted_remote, dict)
+        or set(trusted_remote) != expected_remote_fields
+        or trusted_remote != EXPECTED_TRUSTED_GIT_REMOTE
+        or not isinstance(trusted_remote.get("fetch_url"), str)
+        or not trusted_remote.get("fetch_url")
+        or trusted_remote.get("fetch_url", "").startswith("-")
+        or not isinstance(trusted_remote.get("branch"), str)
+        or re.fullmatch(
+            r"[A-Za-z0-9._/-]+", trusted_remote.get("branch", "")
+        )
+        is None
+        or not isinstance(trusted_remote.get("project_prefix"), str)
+        or not trusted_remote.get("project_prefix", "").endswith("/")
+        or ".." in Path(trusted_remote.get("project_prefix", "")).parts
+    ):
+        errors.append("trusted Git remote policy differs")
     if not BLUEPRINT.is_file():
         errors.append("normative PRODUCT_ASSURANCE_BLUEPRINT_V2.md is missing")
 
@@ -3543,9 +3830,15 @@ def main() -> int:
         for error in errors:
             print(f"- {error}")
         return 1
+    if args.allow_candidate:
+        verification_scope = "candidate"
+    elif os.environ.get(INNER_REMOTE_CONTEXT_ENV) is not None:
+        verification_scope = "frozen-inner-clone"
+    else:
+        verification_scope = "frozen-full-outer"
     print(
         "governance verification: PASS "
-        f"({'candidate' if args.allow_candidate else 'frozen'})"
+        f"({verification_scope})"
     )
     return 0
 

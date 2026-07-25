@@ -658,7 +658,7 @@
   ],
   "conditional_evidence_schema": {
     "schema_version": 2,
-    "required": ["schema_version", "condition_id", "gate_id", "gate_stage", "state", "candidate_commit", "candidate_tree", "frozen_bundle_path", "frozen_bundle_sha256", "run_id", "producer_id", "executor_ids", "acceptance_case_ids", "observation", "raw_result_path", "raw_result_sha256", "completed_at"],
+    "required": ["schema_version", "condition_id", "gate_id", "gate_stage", "state", "candidate_commit", "candidate_tree", "frozen_bundle_path", "frozen_bundle_sha256", "run_id", "producer_id", "executor_ids", "acceptance_case_ids", "observation", "run_receipt", "raw_result_path", "raw_result_sha256", "completed_at"],
     "additional_fields_allowed": false,
     "state_enum": ["passed", "failed", "inconclusive"],
     "identity_authority": {
@@ -673,6 +673,12 @@
       "additional_fields_allowed": false,
       "runtime_event_seq_minimum": 1,
       "environment_presence_event_seq": 0
+    },
+    "run_receipt_schema": {
+      "required": ["authority", "run_event_seq", "run_event_hash", "run_anchor_hash", "run_id", "condition_id", "gate_id", "gate_stage", "state", "source_event_seq", "source_event_hash", "source_state_hash", "source_anchor_hash", "raw_result_path", "raw_result_sha256", "completed_at"],
+      "additional_fields_allowed": false,
+      "authority": "runtime_sqlite_gate_run_receipt",
+      "runtime_event_seq_minimum": 1
     },
     "raw_result_schema": {
       "schema_version": 1,
@@ -715,6 +721,7 @@
       "event_table": "events",
       "event_domain": "main_application",
       "observation_table": "condition_observations",
+      "gate_run_table": "conditional_gate_runs",
       "event_columns": ["sequence", "event_type", "producer_id", "occurred_at", "payload_json", "prev_hash", "event_hash"],
       "event_column_types": {
         "sequence": "INTEGER",
@@ -739,15 +746,41 @@
         "producer_id": "TEXT"
       },
       "observation_primary_key": ["source_event_seq"],
+      "gate_run_columns": ["run_event_seq", "run_id", "condition_id", "gate_id", "gate_stage", "state", "source_event_seq", "source_event_hash", "source_state_hash", "source_anchor_hash", "raw_result_path", "raw_result_sha256", "completed_at", "producer_id", "run_event_hash", "run_anchor_hash"],
+      "gate_run_column_types": {
+        "run_event_seq": "INTEGER",
+        "run_id": "TEXT",
+        "condition_id": "TEXT",
+        "gate_id": "TEXT",
+        "gate_stage": "TEXT",
+        "state": "TEXT",
+        "source_event_seq": "INTEGER",
+        "source_event_hash": "TEXT",
+        "source_state_hash": "TEXT",
+        "source_anchor_hash": "TEXT",
+        "raw_result_path": "TEXT",
+        "raw_result_sha256": "TEXT",
+        "completed_at": "TEXT",
+        "producer_id": "TEXT",
+        "run_event_hash": "TEXT",
+        "run_anchor_hash": "TEXT"
+      },
+      "gate_run_primary_key": ["run_event_seq"],
+      "gate_run_unique": ["run_id"],
       "append_only_triggers": [
         {"name": "events_no_update", "table": "events", "operation": "update"},
         {"name": "events_no_delete", "table": "events", "operation": "delete"},
         {"name": "condition_observations_no_update", "table": "condition_observations", "operation": "update"},
-        {"name": "condition_observations_no_delete", "table": "condition_observations", "operation": "delete"}
+        {"name": "condition_observations_no_delete", "table": "condition_observations", "operation": "delete"},
+        {"name": "conditional_gate_runs_no_update", "table": "conditional_gate_runs", "operation": "update"},
+        {"name": "conditional_gate_runs_no_delete", "table": "conditional_gate_runs", "operation": "delete"}
       ],
-      "event_type": "condition_observation",
+      "event_types": ["condition_observation", "conditional_gate_run"],
       "genesis_prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-      "payload_required": ["condition_id", "stage", "ready", "observed_at", "producer_id", "candidate_commit", "candidate_tree", "frozen_bundle_path", "frozen_bundle_sha256"],
+      "payload_required_by_type": {
+        "condition_observation": ["condition_id", "stage", "ready", "observed_at", "producer_id", "candidate_commit", "candidate_tree", "frozen_bundle_path", "frozen_bundle_sha256"],
+        "conditional_gate_run": ["run_id", "condition_id", "gate_id", "gate_stage", "state", "source_event_seq", "source_event_hash", "source_state_hash", "source_anchor_hash", "raw_result_path", "raw_result_sha256", "completed_at", "producer_id", "executor_ids", "acceptance_case_ids", "candidate_commit", "candidate_tree", "frozen_bundle_path", "frozen_bundle_sha256"]
+      },
       "event_hash_algorithm": "sha256_canonical_json_v1",
       "event_hash_fields": ["sequence", "event_type", "producer_id", "occurred_at", "payload", "prev_hash"],
       "source_state_hash_algorithm": "sha256_canonical_json_v1",
@@ -767,7 +800,7 @@
         "tail_must_equal_main_event_chain": true
       }
     },
-    "binding_rule": "Git HEAD and the fixed frozen-bundle file are authoritative; CLI, raw results, evidence and --runtime-db are expected values only. Runtime readiness requires the fixed private runtime authority, a contract-authorized producer, the recomputed append-only main event chain and its external anchor; fixture authority cannot satisfy human or longitudinal release. Passing evidence requires one fresh unique run, the latest observation binding, exact case-set equality and recomputable per-case input/raw hashes."
+    "binding_rule": "Git HEAD and the fixed frozen-bundle file are authoritative; CLI, raw results, evidence and --runtime-db are expected values only. Runtime readiness requires the fixed private runtime authority, a contract-authorized producer, the recomputed append-only main event chain and its external anchor; fixture authority cannot satisfy human or longitudinal release. Every gate run must append one unique run_id receipt to that anchored main event chain, binding the latest prerequisite observation and raw-result hash; overwriting current evidence cannot erase or replace the receipt. Passing evidence requires that fresh receipt, exact case-set equality and recomputable per-case input/raw hashes."
   },
   "conditional_gates": [
     {
@@ -915,6 +948,12 @@
   "change_control": {
     "before_freeze": "独立挑战发现可修改本文件，并保留 Git 历史",
     "freeze_action": "三次提交、非原子且 fail-closed：先把全部候选规范提交并直接推送到可信 origin branch，形成 candidate C；独立审查后，closure B 只允许修改挑战状态、审查证据与原始结果，并在提交推送后由冻结程序重放固定攻击；随后生成引用 C/B commit、tree、mode/type/blob、直接远端观察和证据哈希的 FROZEN_BUNDLE_V1.json，作为 bundle commit D 单独提交推送并执行 tracked=HEAD、可信 origin、fresh-clone 后验证。研究 challenge=completed、stop_rule.met=true、全部规范文件 tracked 且项目作用域 clean 是硬前置；任何远端观察均不得宣称消除 TOCTOU",
+    "trusted_git_remote": {
+      "name": "origin",
+      "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",
+      "branch": "main",
+      "project_prefix": "MyBrain/projects/investment-discipline-system/"
+    },
     "frozen_files": [
       "governance/USER_SOURCE_EXCERPTS_V1.json",
       "governance/USER_INTENT_V1.json",

@@ -96,6 +96,27 @@
       "evidence_sha256": "5de7b26415d43c96a85bcbf83b894935f9486879ec8df4d2f6756cb1a184f583"
     },
     {
+      "id": "SUBJECT-DESIGN-REVIEW-SINGER-R4",
+      "role": "design_reviewer",
+      "locator": "subagent:019f9951-a680-78b0-a542-503de4762262",
+      "candidate_commit": "698383b77dcb763e504a3706779f8cdb5779e632",
+      "candidate_tree": "cef2949295b4e54cab960cd65821aec3a99f3ebc",
+      "write_access_used": false,
+      "participated_in_candidate_construction": false,
+      "verdict": "blocked_freeze",
+      "evidence_path": "audits/DESIGN_FREEZE_MECHANISM_REVIEW_ROUND4_2026-07-25.md",
+      "evidence_sha256": "4d4d38d4e641ae6ebee1ab809f3edd53345cca0cfd3289458962d5f34c5c59c3"
+    },
+    {
+      "id": "SUBJECT-DESIGN-REVIEW-CURIE-R4-INCOMPLETE",
+      "role": "failed_review_attempt",
+      "locator": "subagent:019f994f-1da0-70f3-8926-10225fb1f566",
+      "candidate_commit": "698383b77dcb763e504a3706779f8cdb5779e632",
+      "candidate_tree": "cef2949295b4e54cab960cd65821aec3a99f3ebc",
+      "result": "timed_out_and_interrupted_without_review_evidence",
+      "counts_as_independent_review": false
+    },
+    {
       "id": "SUBJECT-JAVEN",
       "role": "human_owner",
       "locator": "local user; no secret, email or private account stored here",
@@ -172,7 +193,7 @@
       "observed",
       "result"
     ],
-    "passing_rule": "候选 commit/tree、审查主体、输入、完整 scope、finding 计数和四个固定攻击必须一致；每个攻击都要由非零目标退出状态、原始 stdout/hash 与独立可复演 selector 证明已被拒绝；任一遗漏、escaped、跨候选复用或 open finding 都保持 blocked_freeze。"
+    "passing_rule": "候选 commit/tree、审查主体、输入、由冻结实施目标自动展开的完整 scope、finding 计数和四个固定攻击必须一致；每个攻击都要由非零目标退出状态、原始 stdout/hash 与独立可复演 selector 证明已被拒绝；任一遗漏、escaped、跨候选复用或 open finding 都保持 blocked_freeze。"
   },
   "future_role_constraints": {
     "acceptance_reviewer": {

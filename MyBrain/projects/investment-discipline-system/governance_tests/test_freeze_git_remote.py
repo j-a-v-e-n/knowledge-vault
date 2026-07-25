@@ -15,11 +15,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FREEZER = PROJECT_ROOT / "scripts" / "freeze_governance.py"
 GIT_VERIFIER = PROJECT_ROOT / "scripts" / "verify_git_state.py"
 REMOTE_VERIFIER = PROJECT_ROOT / "scripts" / "verify_remote_commit.py"
+GOVERNANCE_VERIFIER = PROJECT_ROOT / "scripts" / "verify_governance.py"
 RESEARCH_RELATIVE = "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json"
 ASSURANCE_RELATIVE = "governance/ASSURANCE_SUBJECTS_V1.json"
 BUNDLE_RELATIVE = "governance/FROZEN_BUNDLE_V1.json"
 FINAL_EVIDENCE_RELATIVE = "audits/FINAL_REVIEW_EVIDENCE_R3.json"
 FINAL_REVIEW_SUBJECT = "SUBJECT-DESIGN-REVIEW-FINAL-R3"
+TEST_PROJECT_PREFIX = "workspace/project/"
+INNER_CONTEXT_ENV = "IDS_FROZEN_REMOTE_INNER_CONTEXT_V1"
 CANONICAL_ATTACK_SELECTORS = {
     "ATTACK-PIT-ORACLE-INVERSION": (
         "governance_tests.test_final_review_attacks."
@@ -44,8 +47,8 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.temp_root = Path(self.temp.name)
-        self.repo_root = self.temp_root / "project"
-        self.root = self.repo_root
+        self.repo_root = self.temp_root / "repository"
+        self.root = self.repo_root / TEST_PROJECT_PREFIX
         self.remote = self.temp_root / "remote.git"
         shutil.copytree(
             PROJECT_ROOT,
@@ -58,6 +61,42 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "--bare",
             "--initial-branch=main",
             str(self.remote),
+        )
+        contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
+        contract["change_control"]["trusted_git_remote"] = {
+            "name": "origin",
+            "fetch_url": str(self.remote),
+            "branch": "main",
+            "project_prefix": TEST_PROJECT_PREFIX,
+        }
+        self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        verifier = self.root / "scripts" / "verify_governance.py"
+        verifier_source = verifier.read_text(encoding="utf-8")
+        production_policy = (
+            "EXPECTED_TRUSTED_GIT_REMOTE = {\n"
+            '    "name": "origin",\n'
+            '    "fetch_url": "git@github.com:j-a-v-e-n/knowledge-vault.git",\n'
+            '    "branch": "main",\n'
+            '    "project_prefix": '
+            '"MyBrain/projects/investment-discipline-system/",\n'
+            "}"
+        )
+        fixture_policy = (
+            "EXPECTED_TRUSTED_GIT_REMOTE = {\n"
+            '    "name": "origin",\n'
+            f'    "fetch_url": {str(self.remote)!r},\n'
+            '    "branch": "main",\n'
+            f'    "project_prefix": {TEST_PROJECT_PREFIX!r},\n'
+            "}"
+        )
+        self.assertIn(production_policy, verifier_source)
+        verifier.write_text(
+            verifier_source.replace(
+                production_policy,
+                fixture_policy,
+                1,
+            ),
+            encoding="utf-8",
         )
         self.run_git(self.repo_root, "init", "--initial-branch=main")
         self.run_git(self.repo_root, "config", "user.name", "Governance Test")
@@ -112,10 +151,11 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
     ) -> subprocess.CompletedProcess[str]:
         env = os.environ.copy()
         env["IDS_PROJECT_ROOT"] = str(self.root)
+        fixture_script = self.root / script.relative_to(PROJECT_ROOT)
         return self.run_command(
             self.root,
             sys.executable,
-            str(script),
+            str(fixture_script),
             *args,
             env=env,
             check=False,
@@ -135,6 +175,44 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.run_git(self.root, "commit", "-m", message)
         self.run_git(self.root, "push", "origin", "main")
         return self.git_text(self.root, "rev-parse", "HEAD")
+
+    def commit_without_push(self, message: str) -> str:
+        self.run_git(self.root, "add", "-A")
+        self.run_git(self.root, "commit", "-m", message)
+        return self.git_text(self.root, "rev-parse", "HEAD")
+
+    def create_frozen_bundle_file(self) -> tuple[str, str]:
+        reviewed = self.prepare_completed_freeze()
+        baseline = self.commit_and_push("valid review closure")
+        freeze = self.run_project_script(
+            FREEZER,
+            "--baseline-commit",
+            baseline,
+            "--reviewed-candidate-commit",
+            reviewed,
+        )
+        self.assertEqual(freeze.returncode, 0, freeze.stdout)
+        return reviewed, baseline
+
+    def install_inner_clone_failure(self) -> None:
+        verifier = self.root / "scripts" / "verify_governance.py"
+        source = verifier.read_text(encoding="utf-8")
+        marker = '\nif __name__ == "__main__":\n'
+        self.assertIn(marker, source)
+        source = source.replace(
+            marker,
+            (
+                "\nif os.environ.get("
+                f"{INNER_CONTEXT_ENV!r}"
+                "):\n"
+                "    print('fixture: fresh-clone governance verifier failed')\n"
+                "    raise SystemExit(41)\n"
+                f"{marker}"
+            ),
+            1,
+        )
+        verifier.write_text(source, encoding="utf-8")
+        self.commit_and_push("candidate with failing inner clone verifier")
 
     def prepare_completed_freeze(
         self, *, incomplete_relative: str | None = None
@@ -281,9 +359,16 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
                         "scripts/freeze_governance.py",
                         "scripts/verify_git_state.py",
                         "scripts/verify_remote_commit.py",
+                        "scripts/verify_contract_supersession.py",
+                        "README.md",
+                        "STATUS.md",
                         "governance_tests/test_final_review_attacks.py",
+                        "governance_tests/test_final_review_schema.py",
+                        "governance_tests/test_research_evidence_governance.py",
                         "governance_tests/test_verify_conditionals.py",
                         "governance_tests/test_freeze_git_remote.py",
+                        "governance_tests/test_verify_governance.py",
+                        "governance_tests/test_verify_money_semantics.py",
                     ]
                 )
             ),
@@ -478,7 +563,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "--full-name",
             baseline,
             "--",
-            f":(top,literal){relative}",
+            f":(top,literal){TEST_PROJECT_PREFIX}{relative}",
         )
         self.assertTrue(tree_entry.startswith("100755 "), tree_entry)
 
@@ -584,6 +669,15 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             self.assertEqual(attack_result["exit_code"], 0)
             self.assertEqual(len(attack_result["output_sha256"]), 64)
         self.assertEqual(len(replay["stdout_sha256"]), 64)
+        self.assertEqual(
+            bundle["trusted_git_remote"],
+            {
+                "name": "origin",
+                "fetch_url": str(self.remote),
+                "branch": "main",
+                "project_prefix": TEST_PROJECT_PREFIX,
+            },
+        )
         observations = bundle["baseline_remote_observations"]
         self.assertEqual(
             [item["phase"] for item in observations],
@@ -594,8 +688,13 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
         for observation in observations:
             self.assertEqual(observation["remote"], "origin")
+            self.assertEqual(observation["fetch_url"], str(self.remote))
             self.assertEqual(observation["ref"], "refs/heads/main")
             self.assertEqual(observation["commit"], baseline)
+            self.assertEqual(
+                observation["observation_kind"],
+                "non_atomic_ls_remote",
+            )
             self.assertTrue(observation["observed_at"])
         self.assertNotIn("remote_at_creation", bundle)
         self.assertNotIn("upstream_ref_at_creation", bundle)
@@ -617,11 +716,25 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
         post_payload = json.loads(post_verification.stdout)
         self.assertEqual(post_payload["status"], "pass")
+        self.assertEqual(post_payload["verification_scope"], "full_outer")
         post_facts = post_payload["facts"]
+        self.assertEqual(post_facts["verification_scope"], "full_outer")
+        self.assertTrue(post_facts["full_remote_verification"])
+        self.assertTrue(post_facts["fresh_clone"])
+        self.assertEqual(
+            post_facts["clone_governance"]["verification_scope"],
+            "inner_clone",
+        )
+        self.assertEqual(
+            post_facts["clone_governance"]["inner_receipt"][
+                "verification_scope"
+            ],
+            "inner_clone",
+        )
         self.assertEqual(post_facts["head"], frozen_commit)
         self.assertEqual(
             post_facts["project_prefix"],
-            "",
+            TEST_PROJECT_PREFIX,
         )
         self.assertEqual(post_facts["bundle_path"], BUNDLE_RELATIVE)
         self.assertEqual(
@@ -634,9 +747,11 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             post_facts["remote_observation"],
             {
                 "remote": "origin",
+                "fetch_url": str(self.remote),
                 "ref": "refs/heads/main",
                 "commit": frozen_commit,
                 "observed_at": post_facts["remote_observation"]["observed_at"],
+                "observation_kind": "non_atomic_ls_remote",
             },
         )
 
@@ -670,73 +785,218 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.assertIn("frozen_bundle_not_tracked", payload["errors"])
         self.assertIn("frozen_bundle_absent_from_HEAD", payload["errors"])
 
-    def test_post_bundle_verifier_supports_nested_project_prefix(self) -> None:
-        nested_repo = self.temp_root / "nested-repository"
-        nested_project = nested_repo / "workspace" / "project"
-        nested_bundle = nested_project / BUNDLE_RELATIVE
-        nested_bundle.parent.mkdir(parents=True)
-        nested_bundle.write_text('{"status": "fixture"}\n', encoding="utf-8")
-        nested_remote = self.temp_root / "nested-remote.git"
-        self.run_git(
-            self.temp_root,
-            "init",
-            "--bare",
-            "--initial-branch=main",
-            str(nested_remote),
-        )
-        self.run_git(nested_repo, "init", "--initial-branch=main")
-        self.run_git(nested_repo, "config", "user.name", "Governance Test")
-        self.run_git(
-            nested_repo,
-            "config",
-            "user.email",
-            "governance@example.invalid",
-        )
-        self.run_git(nested_project, "add", ".")
-        self.run_git(nested_project, "commit", "-m", "nested bundle fixture")
-        self.run_git(
-            nested_project,
-            "remote",
-            "add",
-            "origin",
-            str(nested_remote),
-        )
-        self.run_git(
-            nested_project,
-            "push",
-            "--set-upstream",
-            "origin",
-            "main",
-        )
-        head = self.git_text(nested_project, "rev-parse", "HEAD")
-        env = os.environ.copy()
-        env["IDS_PROJECT_ROOT"] = str(nested_project)
+    def test_post_bundle_verifier_rejects_D_that_only_exists_locally(
+        self,
+    ) -> None:
+        self.create_frozen_bundle_file()
+        frozen_commit = self.commit_without_push("local-only bundle commit D")
 
-        result = self.run_command(
-            nested_project,
-            sys.executable,
-            str(REMOTE_VERIFIER),
+        result = self.run_project_script(
+            REMOTE_VERIFIER,
+            "--verify-frozen-bundle",
+            "--commit",
+            frozen_commit,
+            "--json",
+        )
+
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "fail")
+        self.assertEqual(
+            payload["verification_scope"],
+            "full_outer_required",
+        )
+        self.assertIn("remote_commit_mismatch", "\n".join(payload["errors"]))
+        self.assertNotIn("fresh_clone", payload["facts"])
+
+    def test_post_bundle_verifier_supports_nested_project_prefix(self) -> None:
+        self.create_frozen_bundle_file()
+        frozen_commit = self.commit_and_push("commit nested frozen bundle")
+
+        result = self.run_project_script(
+            REMOTE_VERIFIER,
             "--verify-frozen-bundle",
             "--remote",
             "origin",
             "--branch",
             "main",
             "--json",
-            env=env,
-            check=False,
         )
 
         self.assertEqual(result.returncode, 0, result.stdout)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["status"], "pass")
+        self.assertEqual(payload["verification_scope"], "full_outer")
         self.assertEqual(
             payload["facts"]["project_prefix"],
-            "workspace/project/",
+            TEST_PROJECT_PREFIX,
         )
         self.assertEqual(
             payload["facts"]["remote_observation"]["commit"],
-            head,
+            frozen_commit,
         )
+        self.assertEqual(payload["facts"]["cloned_commit"], frozen_commit)
+
+    def test_fresh_clone_governance_nonzero_rejects_bundle_D(self) -> None:
+        self.install_inner_clone_failure()
+        self.create_frozen_bundle_file()
+        frozen_commit = self.commit_and_push("bundle D with reviewed fail probe")
+
+        result = self.run_project_script(
+            REMOTE_VERIFIER,
+            "--verify-frozen-bundle",
+            "--commit",
+            frozen_commit,
+            "--json",
+        )
+
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "fail")
+        self.assertTrue(payload["facts"]["fresh_clone"])
+        self.assertEqual(
+            payload["facts"]["clone_governance"]["exit_code"],
+            41,
+        )
+        self.assertIn(
+            "fresh_clone_governance_failed",
+            "\n".join(payload["errors"]),
+        )
+        self.assertIn(
+            "fixture: fresh-clone governance verifier failed",
+            "\n".join(payload["errors"]),
+        )
+
+    def test_bundle_parameter_combinations_cannot_skip_fresh_clone(
+        self,
+    ) -> None:
+        self.install_inner_clone_failure()
+        self.create_frozen_bundle_file()
+        frozen_commit = self.commit_and_push(
+            "bundle D for clone-combination counterexample"
+        )
+        variants = [
+            [],
+            ["--commit", frozen_commit],
+            [
+                "--commit",
+                frozen_commit,
+                "--fresh-clone",
+                "--remote",
+                "origin",
+                "--branch",
+                "main",
+            ],
+        ]
+
+        for extra in variants:
+            with self.subTest(arguments=extra):
+                result = self.run_project_script(
+                    REMOTE_VERIFIER,
+                    "--verify-frozen-bundle",
+                    *extra,
+                    "--json",
+                )
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                payload = json.loads(result.stdout)
+                self.assertTrue(payload["facts"]["fresh_clone"])
+                self.assertEqual(
+                    payload["facts"]["clone_governance"]["exit_code"],
+                    41,
+                )
+                self.assertIn(
+                    "fresh_clone_governance_failed",
+                    "\n".join(payload["errors"]),
+                )
+
+    def test_inner_clone_result_cannot_claim_full_outer_verification(
+        self,
+    ) -> None:
+        self.create_frozen_bundle_file()
+        frozen_commit = self.commit_and_push(
+            "bundle D for inner-scope counterexample"
+        )
+        context = {
+            "schema_version": 1,
+            "mode": "fresh_clone_governance_v1",
+            "nonce": "1" * 64,
+            "commit": frozen_commit,
+            "remote_name": "origin",
+            "fetch_url": str(self.remote),
+            "branch": "main",
+            "project_prefix": TEST_PROJECT_PREFIX,
+            "repo_root": str(self.repo_root),
+            "project_root": str(self.root),
+            "receipt_path": str(self.temp_root / "forged-inner-receipt.json"),
+        }
+        env = os.environ.copy()
+        env["IDS_PROJECT_ROOT"] = str(self.root)
+        env[INNER_CONTEXT_ENV] = json.dumps(context, sort_keys=True)
+
+        result = self.run_command(
+            self.root,
+            sys.executable,
+            str(self.root / "scripts" / "verify_remote_commit.py"),
+            "--verify-frozen-bundle",
+            "--commit",
+            frozen_commit,
+            "--remote",
+            "origin",
+            "--json",
+            env=env,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["verification_scope"], "inner_clone")
+        self.assertEqual(
+            payload["facts"]["verification_scope"],
+            "inner_clone",
+        )
+        self.assertFalse(payload["facts"]["full_remote_verification"])
+        self.assertIn(
+            "fresh_clone_HEAD_must_be_detached",
+            "\n".join(payload["errors"]),
+        )
+
+    def test_governance_normal_mode_rejects_forged_inner_scope(self) -> None:
+        self.create_frozen_bundle_file()
+        frozen_commit = self.commit_and_push(
+            "bundle D for governance scope counterexample"
+        )
+        fake_remote = self.root / "scripts" / "verify_remote_commit.py"
+        fake_remote.write_text(
+            "#!/usr/bin/env python3\n"
+            "import hashlib, json, subprocess\n"
+            "from pathlib import Path\n"
+            "head = subprocess.check_output("
+            "['git', 'rev-parse', 'HEAD'], text=True).strip()\n"
+            "bundle = Path('governance/FROZEN_BUNDLE_V1.json')\n"
+            "facts = {\n"
+            "  'mode': 'frozen_bundle_inner_clone',\n"
+            "  'verification_scope': 'inner_clone',\n"
+            "  'full_remote_verification': False,\n"
+            "  'head': head,\n"
+            "  'bundle_sha256': hashlib.sha256(bundle.read_bytes()).hexdigest(),\n"
+            "  'bundle_git_mode': '100644',\n"
+            "  'bundle_git_type': 'blob',\n"
+            "}\n"
+            "print(json.dumps({"
+            "'schema_version': 1, 'status': 'pass', "
+            "'verification_scope': 'inner_clone', "
+            "'facts': facts, 'errors': []}))\n",
+            encoding="utf-8",
+        )
+
+        result = self.run_project_script(GOVERNANCE_VERIFIER)
+
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn(
+            "frozen bundle is not the tracked HEAD blob on trusted origin",
+            result.stdout,
+        )
+        self.assertIn(frozen_commit, result.stdout)
 
     def test_freeze_rejects_complete_forged_attack_replay_payload(self) -> None:
         replay_runner = self.root / "scripts" / "replay_design_freeze_attacks.py"
@@ -833,6 +1093,181 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         self.assertIn("canonical attack tests were replaced", probe.stdout)
         self.assert_bundle_absent()
 
+    def test_origin_name_cannot_hide_changed_fetch_url(self) -> None:
+        alternate = self.temp_root / "alternate.git"
+        self.run_git(
+            self.temp_root,
+            "init",
+            "--bare",
+            "--initial-branch=main",
+            str(alternate),
+        )
+        self.run_git(
+            self.root,
+            "remote",
+            "add",
+            "alternate",
+            str(alternate),
+        )
+        self.run_git(self.root, "push", "alternate", "main")
+        self.run_git(
+            self.root,
+            "remote",
+            "set-url",
+            "origin",
+            str(alternate),
+        )
+        head = self.git_text(self.root, "rev-parse", "HEAD")
+
+        git_result = self.run_project_script(
+            GIT_VERIFIER,
+            "--require-origin",
+            "--expected-commit",
+            head,
+            "--json",
+        )
+        self.assertNotEqual(git_result.returncode, 0, git_result.stdout)
+        git_payload = json.loads(git_result.stdout)
+        self.assertIn(
+            (
+                "trusted remote fetch URL does not match contract: "
+                f"expected {[str(self.remote)]!r}, got {[str(alternate)]!r}"
+            ),
+            git_payload["errors"],
+        )
+
+        remote_result = self.run_project_script(
+            REMOTE_VERIFIER,
+            "--commit",
+            head,
+            "--remote",
+            "origin",
+            "--json",
+        )
+        self.assertNotEqual(
+            remote_result.returncode,
+            0,
+            remote_result.stdout,
+        )
+        remote_payload = json.loads(remote_result.stdout)
+        self.assertIn(
+            "trusted_remote_fetch_url_mismatch",
+            "\n".join(remote_payload["errors"]),
+        )
+        self.assertNotIn("remote_observation", remote_payload["facts"])
+
+    def test_contract_branch_must_match_branch_and_upstream(self) -> None:
+        self.run_git(self.root, "switch", "-c", "other")
+        self.run_git(
+            self.root,
+            "push",
+            "--set-upstream",
+            "origin",
+            "other",
+        )
+        head = self.git_text(self.root, "rev-parse", "HEAD")
+
+        git_result = self.run_project_script(
+            GIT_VERIFIER,
+            "--require-origin",
+            "--expected-commit",
+            head,
+            "--json",
+        )
+        self.assertNotEqual(git_result.returncode, 0, git_result.stdout)
+        git_errors = json.loads(git_result.stdout)["errors"]
+        self.assertIn(
+            (
+                "current branch does not match contract: "
+                "expected 'main', got 'other'"
+            ),
+            git_errors,
+        )
+        self.assertIn(
+            (
+                "current upstream does not match contract: "
+                "expected 'origin/main', got 'origin/other'"
+            ),
+            git_errors,
+        )
+
+        remote_result = self.run_project_script(
+            REMOTE_VERIFIER,
+            "--commit",
+            head,
+            "--branch",
+            "other",
+            "--json",
+        )
+        self.assertNotEqual(
+            remote_result.returncode,
+            0,
+            remote_result.stdout,
+        )
+        remote_errors = json.loads(remote_result.stdout)["errors"]
+        self.assertIn(
+            "--branch must match contract trusted branch 'main': got 'other'",
+            remote_errors,
+        )
+        self.assertIn(
+            "current_branch_mismatch: expected 'main', got 'other'",
+            remote_errors,
+        )
+        self.assertIn(
+            (
+                "current_upstream_mismatch: expected 'origin/main', "
+                "got 'origin/other'"
+            ),
+            remote_errors,
+        )
+
+    def test_contract_project_prefix_must_match_actual_prefix(self) -> None:
+        contract = self.read_json("governance/ACCEPTANCE_CONTRACT_V1.json")
+        contract["change_control"]["trusted_git_remote"][
+            "project_prefix"
+        ] = "wrong/project/"
+        self.write_json("governance/ACCEPTANCE_CONTRACT_V1.json", contract)
+        head = self.commit_and_push("contract with wrong project prefix")
+
+        git_result = self.run_project_script(
+            GIT_VERIFIER,
+            "--require-origin",
+            "--expected-commit",
+            head,
+            "--json",
+        )
+        self.assertNotEqual(git_result.returncode, 0, git_result.stdout)
+        self.assertIn(
+            (
+                "project prefix does not match contract: "
+                f"expected 'wrong/project/', got {TEST_PROJECT_PREFIX!r}"
+            ),
+            json.loads(git_result.stdout)["errors"],
+        )
+
+        remote_result = self.run_project_script(
+            REMOTE_VERIFIER,
+            "--commit",
+            head,
+            "--json",
+        )
+        self.assertNotEqual(
+            remote_result.returncode,
+            0,
+            remote_result.stdout,
+        )
+        self.assertIn(
+            (
+                "project_prefix_mismatch: expected 'wrong/project/', "
+                f"got {TEST_PROJECT_PREFIX!r}"
+            ),
+            json.loads(remote_result.stdout)["errors"],
+        )
+        self.assertNotIn(
+            "remote_observation",
+            json.loads(remote_result.stdout)["facts"],
+        )
+
     def test_git_verifier_rejects_other_upstream_even_when_origin_matches(self) -> None:
         other = self.temp_root / "other.git"
         self.run_git(
@@ -860,7 +1295,10 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         payload = json.loads(result.stdout)
         self.assertEqual(payload["status"], "fail")
         self.assertIn(
-            "upstream is not trusted origin/main: got other/main",
+            (
+                "current upstream does not match contract: "
+                "expected 'origin/main', got 'other/main'"
+            ),
             payload["errors"],
         )
         self.assertEqual(
@@ -882,7 +1320,7 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             untrusted_remote.stdout,
         )
         self.assertIn(
-            "--remote must be trusted remote 'origin'",
+            "--remote must match contract trusted remote 'origin': got 'other'",
             untrusted_remote.stdout,
         )
 
@@ -917,7 +1355,10 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
             "main",
         )
         self.assertNotEqual(local_only.returncode, 0, local_only.stdout)
-        self.assertIn("direct origin commit mismatch", local_only.stdout)
+        self.assertIn(
+            "direct trusted remote commit mismatch",
+            local_only.stdout,
+        )
 
         result = self.run_project_script(
             FREEZER,

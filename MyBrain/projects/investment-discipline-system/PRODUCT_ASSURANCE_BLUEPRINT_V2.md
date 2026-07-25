@@ -202,6 +202,7 @@ AI 可以写候选，不可以写 `human_decision`、`risk_approval`、`fill` �
 
 - `events`：主应用唯一事件链，使用严格递增 sequence、event_type、producer、occurred_at、payload、prev_hash 和 event_hash；条件观察不再拥有可被替换的平行事件链。
 - `condition_observations`：条件前置只能由冻结合同授权的 producer 经主事件链追加投影；观察以外键和 source event/state/anchor hash 绑定主链。验证者从 genesis 开始重算完整 event hash、prev hash、最新状态投影和 source-state hash，并把观察绑定当前 HEAD、冻结包、run 和 producer。直接插入一行“ready”或由 CLI/证据自报候选身份不能形成权威前置。
+- `conditional_gate_runs`：每次条件验收在 raw result 产生后，必须向同一主事件链追加一个不可修改的 run receipt；唯一 `run_id` 同时绑定候选、最新前置观察、gate/stage/state、producer/executor、精确 case 集合和 raw path/hash。当前 evidence 只是该收据的可替换视图；覆盖 evidence/raw、复用同门历史 run ID 或提交未锚定收据都必须失败。
 - 条件验证只接受固定私人运行权威；`--runtime-db`、raw result 和 evidence 都只是待核对的期望值。生产根必须位于项目与已知云同步根之外，归当前用户所有，目录/文件权限不宽于 `0700`/`0600`，且路径组件不得是 symlink。fixture 只可测试，不能满足 human 或 longitudinal release。
 - UPDATE/DELETE trigger：对事件、条件观察、已生效政策、冻结假设、决定和 fill 直接拒绝；条件验证同时比较精确 trigger 定义，并在隔离副本上实际尝试 UPDATE/DELETE，避免 `WHEN 0` 或不可达 `RAISE` 伪装成 append-only。
 - `anchor_outbox`：数据库提交后待写入外部尾锚的 sequence/hash。
@@ -211,7 +212,7 @@ AI 可以写候选，不可以写 `human_decision`、`risk_approval`、`fill` �
 
 同理，本地 Markdown/JSON 也不能密码学证明两个 AI 审查者完全独立。保障系统要求记录 builder/reviewer/user-proxy 的主体、会话、输入哈希、候选 commit/tree、冻结包、原始结果和参与历史，并让独立者新增构造者事先未知的测试或变异；它提供可审计的认识论独立，不宣称抵御同一 OS 用户恶意串谋。
 
-最终设计审查不能只提交“通过”摘要。通过证据必须逐条列出命令、发现和独立攻击，绑定 mutation、可复演 selector、原始结果路径及 SHA-256，并让机器从 `findings` 复算 open critical/major/minor，而不是信任作者填写的计数。至少固定复演 PIT oracle 反转、same-bar 因果偷换、拆股会计偷换和条件门自我证明四类攻击；任一遗漏、结果为 escaped、跨候选复用或原始结果不一致都保持 `blocked-freeze`。
+最终设计审查不能只提交“通过”摘要。通过证据必须逐条列出命令、发现和独立攻击，绑定 mutation、可复演 selector、原始结果路径及 SHA-256，并让机器从 `findings` 复算 open critical/major/minor，而不是信任作者填写的计数。审查范围必须覆盖全部冻结规范、治理执行器以及验证最终审查 schema 自身的反例测试；验证器还必须从冻结的实施目标自动展开全部 `design_freeze` 文件和目录内容，不能靠手写名单记住新文件，也不能把校验自己的测试排除在“完整审查”之外。至少固定复演 PIT oracle 反转、same-bar 因果偷换、拆股会计偷换和条件门自我证明/重放四类攻击；任一遗漏、结果为 escaped、跨候选复用或原始结果不一致都保持 `blocked-freeze`。
 
 ## 金额与公司行动语义
 
@@ -466,7 +467,7 @@ AI-origin 的污染状态缺乏证明时默认为 `unknown_contaminated`。参�
 
 - token、私人账户、原始许可数据、运行数据库和可能含私人内容的完整 AI Prompt。
 
-本地 `@{upstream}` 或 remote-tracking ref 只证明本地认知，不能证明远端真实存在候选。设计冻结采用三次提交：候选 C 提交并推送后接受独立审查；关闭提交 B 只允许写入审查状态、证据和原始结果，并重放固定攻击；冻结包提交 D 才写入引用 C/B 身份与证据哈希的 bundle。全过程只信任明确的 `origin/<branch>`，必须直接对实际 origin 执行 `git ls-remote` 并匹配明确 branch/ref；C→B 的 allowlist 同时比较 Git path、status、mode、type 与 blob，禁止用 chmod、symlink、rename 或对象类型变化夹带内容。各次远端结果都只是带时间戳的非原子观察，不能宣称消除了 TOCTOU；D 推送后还必须证明工作文件等于 HEAD 中的普通 blob、该 HEAD 位于可信 origin，并从远端 fresh clone 该确切 SHA，重算 commit/tree/blob 后运行核心验收。远端不可达、ref 不匹配、工作文件未提交或克隆对象不同都 fail closed，不能沿用旧的“已推送”标签。
+本地 `@{upstream}` 或 remote-tracking ref 只证明本地认知，不能证明远端真实存在候选。设计冻结采用三次提交：候选 C 提交并推送后接受独立审查；关闭提交 B 只允许写入审查状态、证据和原始结果，并重放固定攻击；冻结包提交 D 才写入引用 C/B 身份与证据哈希的 bundle。全过程只信任冻结合同中的明确 remote 名称、fetch URL、branch 与项目 prefix；不能把任何恰好叫 `origin` 的地址当作可信。必须直接对该 remote 执行 `git ls-remote` 并匹配明确 branch/ref；C→B 的 allowlist 同时比较 Git path、status、mode、type 与 blob，禁止用 chmod、symlink、rename 或对象类型变化夹带内容。各次远端结果都只是带时间戳的非原子观察，不能宣称消除了 TOCTOU；D 推送后还必须证明工作文件等于 HEAD 中的普通 blob、该 HEAD 位于冻结 remote，并从远端 fresh clone 该确切 SHA，重算 commit/tree/blob，在克隆副本内运行冻结治理验证与核心验收，而不只检查对象存在。远端不可达、URL/branch/prefix/ref 不匹配、工作文件未提交、克隆对象不同或 clone 内验证失败都 fail closed，不能沿用旧的“已推送”标签。
 
 ### 私人运行备份
 

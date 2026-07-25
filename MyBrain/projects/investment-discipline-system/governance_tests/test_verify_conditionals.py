@@ -194,6 +194,7 @@ class ConditionalGateTests(unittest.TestCase):
         connection: sqlite3.Connection,
         *,
         trigger_escape: str | None = None,
+        unique_run_id: bool = True,
     ) -> None:
         connection.execute("PRAGMA foreign_keys = ON")
         connection.execute(
@@ -219,6 +220,27 @@ class ConditionalGateTests(unittest.TestCase):
             "producer_id TEXT NOT NULL, "
             "FOREIGN KEY (source_event_seq) REFERENCES events(sequence))"
         )
+        run_id_constraint = " UNIQUE" if unique_run_id else ""
+        connection.execute(
+            "CREATE TABLE conditional_gate_runs ("
+            "run_event_seq INTEGER PRIMARY KEY, "
+            f"run_id TEXT NOT NULL{run_id_constraint}, "
+            "condition_id TEXT NOT NULL, "
+            "gate_id TEXT NOT NULL, "
+            "gate_stage TEXT NOT NULL, "
+            "state TEXT NOT NULL, "
+            "source_event_seq INTEGER NOT NULL, "
+            "source_event_hash TEXT NOT NULL, "
+            "source_state_hash TEXT NOT NULL, "
+            "source_anchor_hash TEXT NOT NULL, "
+            "raw_result_path TEXT NOT NULL, "
+            "raw_result_sha256 TEXT NOT NULL, "
+            "completed_at TEXT NOT NULL, "
+            "producer_id TEXT NOT NULL, "
+            "run_event_hash TEXT NOT NULL, "
+            "run_anchor_hash TEXT NOT NULL, "
+            "FOREIGN KEY (run_event_seq) REFERENCES events(sequence))"
+        )
         for name, table, operation in (
             ("events_no_update", "events", "UPDATE"),
             ("events_no_delete", "events", "DELETE"),
@@ -230,6 +252,16 @@ class ConditionalGateTests(unittest.TestCase):
             (
                 "condition_observations_no_delete",
                 "condition_observations",
+                "DELETE",
+            ),
+            (
+                "conditional_gate_runs_no_update",
+                "conditional_gate_runs",
+                "UPDATE",
+            ),
+            (
+                "conditional_gate_runs_no_delete",
+                "conditional_gate_runs",
                 "DELETE",
             ),
         ):
@@ -246,6 +278,14 @@ class ConditionalGateTests(unittest.TestCase):
                     f"CREATE TRIGGER {name} BEFORE {operation} ON {table} "
                     "BEGIN SELECT CASE WHEN 0 THEN "
                     "RAISE(ABORT, 'append_only') ELSE 1 END; END"
+                )
+            elif (
+                name == "conditional_gate_runs_no_update"
+                and trigger_escape == "gate_run_when_zero"
+            ):
+                trigger_sql = (
+                    f"CREATE TRIGGER {name} BEFORE {operation} ON {table} "
+                    "WHEN 0 BEGIN SELECT RAISE(ABORT, 'append_only'); END"
                 )
             else:
                 trigger_sql = (
@@ -275,6 +315,34 @@ class ConditionalGateTests(unittest.TestCase):
             "frozen_bundle_sha256": self.bundle_sha256,
         }
 
+    def presence_observation(
+        self,
+        gate_id: str = "COND-TIINGO-LIVE-PROBE",
+        *,
+        present: bool = True,
+    ) -> dict[str, Any]:
+        material = {
+            "authority": "process_environment_presence",
+            "condition_id": gate_id,
+            "present": present,
+            "candidate_commit": self.candidate_commit,
+            "candidate_tree": self.candidate_tree,
+            "frozen_bundle_path": BUNDLE_RELATIVE,
+            "frozen_bundle_sha256": self.bundle_sha256,
+        }
+        fingerprint = sha256_bytes(
+            canonical_json(material).encode("utf-8")
+        )
+        return {
+            "authority": "process_environment_presence",
+            "condition_id": gate_id,
+            "source_event_seq": 0,
+            "source_event_hash": fingerprint,
+            "source_state_hash": fingerprint,
+            "source_anchor_hash": fingerprint,
+            "observed_at": None,
+        }
+
     def create_runtime_chain(
         self,
         gate_id: str = "COND-JAVEN-FIELD-USE",
@@ -287,6 +355,7 @@ class ConditionalGateTests(unittest.TestCase):
         runtime_db: Path | None = None,
         anchor_path: Path | None = None,
         trigger_escape: str | None = None,
+        unique_run_id: bool = True,
     ) -> tuple[Path, dict[str, Any]]:
         runtime_db = runtime_db or self.authoritative_runtime_db
         anchor_path = anchor_path or self.authoritative_anchor
@@ -295,7 +364,9 @@ class ConditionalGateTests(unittest.TestCase):
         connection = sqlite3.connect(runtime_db)
         try:
             self.create_runtime_schema(
-                connection, trigger_escape=trigger_escape
+                connection,
+                trigger_escape=trigger_escape,
+                unique_run_id=unique_run_id,
             )
             producer = (
                 producer_id
@@ -409,7 +480,7 @@ class ConditionalGateTests(unittest.TestCase):
             ).fetchone()
             next_sequence = sequence + 1
             producer = self.gate(gate_id)["prerequisite_probe"]["producer_id"]
-            observed = self.timestamp(self.base_time - dt.timedelta(seconds=40))
+            observed = self.timestamp(self.base_time - dt.timedelta(seconds=5))
             payload = self.event_payload(
                 gate_id,
                 stage,
@@ -498,6 +569,125 @@ class ConditionalGateTests(unittest.TestCase):
             "observed_at": observed,
         }
 
+    def append_gate_run_receipt(
+        self,
+        payload: dict[str, Any],
+        *,
+        append_anchor: bool = True,
+    ) -> dict[str, Any]:
+        connection = sqlite3.connect(self.authoritative_runtime_db)
+        try:
+            tail = connection.execute(
+                "SELECT sequence, event_hash FROM events "
+                "ORDER BY sequence DESC LIMIT 1"
+            ).fetchone()
+            if tail is None:
+                run_event_seq = 1
+                prev_hash = ZERO_HASH
+            else:
+                sequence, prev_hash = tail
+                run_event_seq = sequence + 1
+            occurred_at = payload["completed_at"]
+            envelope = {
+                "sequence": run_event_seq,
+                "event_type": "conditional_gate_run",
+                "producer_id": payload["producer_id"],
+                "occurred_at": occurred_at,
+                "payload": payload,
+                "prev_hash": prev_hash,
+            }
+            run_event_hash = sha256_bytes(
+                canonical_json(envelope).encode("utf-8")
+            )
+            anchor_lines = (
+                self.authoritative_anchor.read_text(
+                    encoding="utf-8"
+                ).splitlines()
+                if self.authoritative_anchor.is_file()
+                else []
+            )
+            previous_anchor = (
+                json.loads(anchor_lines[-1])["anchor_hash"]
+                if anchor_lines
+                else ZERO_HASH
+            )
+            anchored_at = self.timestamp(
+                dt.datetime.fromisoformat(
+                    occurred_at.replace("Z", "+00:00")
+                )
+                + dt.timedelta(seconds=1)
+            )
+            anchor_material = {
+                "schema_version": 1,
+                "sequence": run_event_seq,
+                "event_hash": run_event_hash,
+                "anchored_at": anchored_at,
+                "previous_anchor_hash": previous_anchor,
+            }
+            run_anchor_hash = sha256_bytes(
+                canonical_json(anchor_material).encode("utf-8")
+            )
+            anchor_record = dict(anchor_material)
+            anchor_record["anchor_hash"] = run_anchor_hash
+            connection.execute(
+                "INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (
+                    run_event_seq,
+                    "conditional_gate_run",
+                    payload["producer_id"],
+                    occurred_at,
+                    canonical_json(payload),
+                    prev_hash,
+                    run_event_hash,
+                ),
+            )
+            connection.execute(
+                "INSERT INTO conditional_gate_runs VALUES "
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    run_event_seq,
+                    payload["run_id"],
+                    payload["condition_id"],
+                    payload["gate_id"],
+                    payload["gate_stage"],
+                    payload["state"],
+                    payload["source_event_seq"],
+                    payload["source_event_hash"],
+                    payload["source_state_hash"],
+                    payload["source_anchor_hash"],
+                    payload["raw_result_path"],
+                    payload["raw_result_sha256"],
+                    payload["completed_at"],
+                    payload["producer_id"],
+                    run_event_hash,
+                    run_anchor_hash,
+                ),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        if append_anchor:
+            with self.authoritative_anchor.open("a", encoding="utf-8") as handle:
+                handle.write(canonical_json(anchor_record) + "\n")
+        return {
+            "authority": "runtime_sqlite_gate_run_receipt",
+            "run_event_seq": run_event_seq,
+            "run_event_hash": run_event_hash,
+            "run_anchor_hash": run_anchor_hash,
+            "run_id": payload["run_id"],
+            "condition_id": payload["condition_id"],
+            "gate_id": payload["gate_id"],
+            "gate_stage": payload["gate_stage"],
+            "state": payload["state"],
+            "source_event_seq": payload["source_event_seq"],
+            "source_event_hash": payload["source_event_hash"],
+            "source_state_hash": payload["source_state_hash"],
+            "source_anchor_hash": payload["source_anchor_hash"],
+            "raw_result_path": payload["raw_result_path"],
+            "raw_result_sha256": payload["raw_result_sha256"],
+            "completed_at": payload["completed_at"],
+        }
+
     def create_one_row_forgery(self) -> tuple[Path, dict[str, Any]]:
         runtime_db = self.root / "attacker.sqlite3"
         observed = self.timestamp(self.base_time - dt.timedelta(seconds=60))
@@ -560,6 +750,10 @@ class ConditionalGateTests(unittest.TestCase):
         raw_started: dt.datetime | None = None,
         raw_completed: dt.datetime | None = None,
         evidence_completed: dt.datetime | None = None,
+        append_receipt: bool = True,
+        append_receipt_anchor: bool = True,
+        run_receipt: dict[str, Any] | None = None,
+        run_payload_extra: dict[str, Any] | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any], Path, Path]:
         gate = self.gate(gate_id)
         catalog = self.catalog(gate_id)
@@ -635,6 +829,57 @@ class ConditionalGateTests(unittest.TestCase):
             f"{catalog['raw_result_path_prefix']}{run_identifier}.json"
         )
         raw_path = self.write_json(raw_relative, raw)
+        raw_result_sha256 = hashlib.sha256(raw_path.read_bytes()).hexdigest()
+        completed_at = self.timestamp(evidence_done)
+        run_payload = {
+            "run_id": run_identifier,
+            "condition_id": gate_id,
+            "gate_id": gate["mandatory_gate_when_ready"],
+            "gate_stage": gate_stage,
+            "state": state,
+            "source_event_seq": observation["source_event_seq"],
+            "source_event_hash": observation["source_event_hash"],
+            "source_state_hash": observation["source_state_hash"],
+            "source_anchor_hash": observation["source_anchor_hash"],
+            "raw_result_path": raw_relative,
+            "raw_result_sha256": raw_result_sha256,
+            "completed_at": completed_at,
+            "producer_id": catalog["evidence_producer_id"],
+            "executor_ids": list(catalog["executor_ids"]),
+            "acceptance_case_ids": cases,
+            "candidate_commit": self.candidate_commit,
+            "candidate_tree": self.candidate_tree,
+            "frozen_bundle_path": BUNDLE_RELATIVE,
+            "frozen_bundle_sha256": self.bundle_sha256,
+        }
+        if run_payload_extra:
+            run_payload.update(run_payload_extra)
+        if append_receipt:
+            receipt = self.append_gate_run_receipt(
+                run_payload,
+                append_anchor=append_receipt_anchor,
+            )
+        elif run_receipt is not None:
+            receipt = dict(run_receipt)
+        else:
+            receipt = {
+                "authority": "runtime_sqlite_gate_run_receipt",
+                "run_event_seq": 1,
+                "run_event_hash": ZERO_HASH,
+                "run_anchor_hash": ZERO_HASH,
+                "run_id": run_identifier,
+                "condition_id": gate_id,
+                "gate_id": gate["mandatory_gate_when_ready"],
+                "gate_stage": gate_stage,
+                "state": state,
+                "source_event_seq": observation["source_event_seq"],
+                "source_event_hash": observation["source_event_hash"],
+                "source_state_hash": observation["source_state_hash"],
+                "source_anchor_hash": observation["source_anchor_hash"],
+                "raw_result_path": raw_relative,
+                "raw_result_sha256": raw_result_sha256,
+                "completed_at": completed_at,
+            }
         evidence = {
             "schema_version": 2,
             "condition_id": gate_id,
@@ -650,11 +895,10 @@ class ConditionalGateTests(unittest.TestCase):
             "executor_ids": list(catalog["executor_ids"]),
             "acceptance_case_ids": cases,
             "observation": dict(observation),
+            "run_receipt": receipt,
             "raw_result_path": raw_relative,
-            "raw_result_sha256": hashlib.sha256(
-                raw_path.read_bytes()
-            ).hexdigest(),
-            "completed_at": self.timestamp(evidence_done),
+            "raw_result_sha256": raw_result_sha256,
+            "completed_at": completed_at,
         }
         evidence_path = self.write_json(gate["evidence_path"], evidence)
         return raw, evidence, raw_path, evidence_path
@@ -677,6 +921,32 @@ class ConditionalGateTests(unittest.TestCase):
             json.dumps(evidence, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
+
+    @staticmethod
+    def forged_receipt_view(
+        evidence: dict[str, Any],
+        anchored_receipt: dict[str, Any],
+    ) -> dict[str, Any]:
+        forged = dict(anchored_receipt)
+        for field in (
+            "run_id",
+            "condition_id",
+            "gate_id",
+            "gate_stage",
+            "state",
+            "raw_result_path",
+            "raw_result_sha256",
+            "completed_at",
+        ):
+            forged[field] = evidence[field]
+        for field in (
+            "source_event_seq",
+            "source_event_hash",
+            "source_state_hash",
+            "source_anchor_hash",
+        ):
+            forged[field] = evidence["observation"][field]
+        return forged
 
     def test_missing_tiingo_token_is_unproved_not_failed(self) -> None:
         result = self.run_gate("COND-TIINGO-LIVE-PROBE")
@@ -783,6 +1053,27 @@ class ConditionalGateTests(unittest.TestCase):
             self.bundle_sha256,
         )
 
+    def test_environment_gate_receipt_can_be_first_main_event(self) -> None:
+        connection = sqlite3.connect(self.authoritative_runtime_db)
+        try:
+            self.create_runtime_schema(connection)
+            connection.commit()
+        finally:
+            connection.close()
+        self.build_evidence(
+            self.presence_observation(),
+            gate_id="COND-TIINGO-LIVE-PROBE",
+            gate_stage="live_probe",
+        )
+        result = self.run_gate(
+            "COND-TIINGO-LIVE-PROBE",
+            token="fixture-token",
+            runtime_db=self.authoritative_runtime_db,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["results"][0]["effective_state"], "passed")
+
     def test_fixture_runtime_cannot_satisfy_human_release(self) -> None:
         runtime_db, observation = self.create_runtime_chain()
         self.build_evidence(observation)
@@ -845,7 +1136,7 @@ class ConditionalGateTests(unittest.TestCase):
             runtime_db=alternate_db,
             anchor_path=alternate_anchor,
         )
-        self.build_evidence(observation)
+        self.build_evidence(observation, append_receipt=False)
         result = self.run_gate(
             "COND-JAVEN-FIELD-USE",
             runtime_db=runtime_db,
@@ -864,7 +1155,8 @@ class ConditionalGateTests(unittest.TestCase):
     ) -> None:
         runtime_db, forged_observation = self.create_one_row_forgery()
         raw, evidence, raw_path, evidence_path = self.build_evidence(
-            forged_observation
+            forged_observation,
+            append_receipt=False,
         )
         raw["frozen_bundle_sha256"] = ZERO_HASH
         raw["actual_cases_run"] = 0
@@ -939,6 +1231,7 @@ class ConditionalGateTests(unittest.TestCase):
         self.assertIn("gate_acceptance_case_binding_mismatch", errors)
         self.assertIn("raw_result_acceptance_case_binding_mismatch", errors)
         self.assertIn("raw_result_case_set_mismatch", errors)
+        self.assertIn("gate_run_receipt_evidence_mismatch", errors)
 
     def test_nonpassing_per_case_status_is_rejected(self) -> None:
         runtime_db, observation = self.create_runtime_chain()
@@ -979,6 +1272,261 @@ class ConditionalGateTests(unittest.TestCase):
         errors = json.loads(result.stdout)["results"][0]["errors"]
         self.assertIn("gate_evidence_stale", errors)
         self.assertIn("raw_result_stale", errors)
+
+    def test_missing_gate_run_receipt_is_rejected(self) -> None:
+        runtime_db, observation = self.create_runtime_chain()
+        _, evidence, _, evidence_path = self.build_evidence(observation)
+        evidence.pop("run_receipt")
+        evidence_path.write_text(
+            json.dumps(evidence, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertIn("gate_evidence_missing_fields:run_receipt", errors)
+        self.assertIn("gate_run_receipt_invalid", errors)
+
+    def test_tampered_gate_run_receipt_is_rejected(self) -> None:
+        runtime_db, observation = self.create_runtime_chain()
+        _, evidence, _, evidence_path = self.build_evidence(observation)
+        evidence["run_receipt"]["run_event_hash"] = "f" * 64
+        evidence_path.write_text(
+            json.dumps(evidence, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertIn("gate_run_receipt_mismatch", errors)
+
+    def test_unanchored_gate_run_receipt_is_rejected(self) -> None:
+        runtime_db, observation = self.create_runtime_chain()
+        self.build_evidence(
+            observation,
+            append_receipt_anchor=False,
+        )
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertIn("authoritative_runtime_anchor_tail_mismatch", errors)
+        self.assertIn("gate_run_receipt_unanchored", errors)
+        self.assertIn("runtime_gate_run_projection_invalid:2", errors)
+
+    def test_same_gate_run_id_reuse_after_overwrite_is_rejected(self) -> None:
+        runtime_db, first_observation = self.create_runtime_chain()
+        _, first_evidence, _, _ = self.build_evidence(first_observation)
+        first_result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertEqual(first_result.returncode, 0, first_result.stdout)
+
+        reused_run_id = first_evidence["run_id"]
+        anchored_receipt = dict(first_evidence["run_receipt"])
+        latest_observation = self.append_runtime_observation(runtime_db)
+        _, overwritten_evidence, _, overwritten_evidence_path = (
+            self.build_evidence(
+                latest_observation,
+                run_id=reused_run_id,
+                append_receipt=False,
+                run_receipt=anchored_receipt,
+                raw_started=self.base_time - dt.timedelta(seconds=4),
+                raw_completed=self.base_time - dt.timedelta(seconds=3),
+                evidence_completed=self.base_time - dt.timedelta(seconds=2),
+            )
+        )
+        overwritten_evidence["run_receipt"] = self.forged_receipt_view(
+            overwritten_evidence,
+            anchored_receipt,
+        )
+        overwritten_evidence_path.write_text(
+            json.dumps(
+                overwritten_evidence,
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        replay_result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(replay_result.returncode, 0, replay_result.stdout)
+        errors = json.loads(replay_result.stdout)["results"][0]["errors"]
+        self.assertIn("gate_run_receipt_mismatch", errors)
+        self.assertIn("gate_run_receipt_evidence_mismatch", errors)
+        self.assertIn(
+            "gate_run_receipt_replayed_against_latest_observation",
+            errors,
+        )
+
+    def test_cross_gate_run_id_reuse_is_rejected_by_anchored_receipt(
+        self,
+    ) -> None:
+        runtime_db, observation = self.create_runtime_chain()
+        _, original_evidence, _, _ = self.build_evidence(observation)
+        reused_run_id = original_evidence["run_id"]
+        anchored_receipt = dict(original_evidence["run_receipt"])
+        _, copied_evidence, _, copied_evidence_path = self.build_evidence(
+            self.presence_observation(),
+            gate_id="COND-TIINGO-LIVE-PROBE",
+            gate_stage="live_probe",
+            run_id=reused_run_id,
+            append_receipt=False,
+            run_receipt=anchored_receipt,
+        )
+        copied_evidence["run_receipt"] = self.forged_receipt_view(
+            copied_evidence,
+            anchored_receipt,
+        )
+        copied_evidence_path.write_text(
+            json.dumps(copied_evidence, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        result = self.run_gate(
+            "COND-TIINGO-LIVE-PROBE",
+            token="fixture-token",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertIn("gate_run_id_replayed", errors)
+        self.assertIn("gate_run_receipt_mismatch", errors)
+        self.assertIn("gate_run_receipt_evidence_mismatch", errors)
+
+    def test_gate_run_unique_run_id_schema_weakening_is_rejected(self) -> None:
+        runtime_db, observation = self.create_runtime_chain(
+            unique_run_id=False
+        )
+        self.build_evidence(observation)
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertIn(
+            "runtime_gate_run_unique_constraint_invalid",
+            errors,
+        )
+
+    def test_duplicate_run_id_in_anchored_history_is_rejected(self) -> None:
+        runtime_db, observation = self.create_runtime_chain(
+            unique_run_id=False
+        )
+        _, first_evidence, _, _ = self.build_evidence(observation)
+        latest_observation = self.append_runtime_observation(runtime_db)
+        self.build_evidence(
+            latest_observation,
+            run_id=first_evidence["run_id"],
+            raw_started=self.base_time - dt.timedelta(seconds=4),
+            raw_completed=self.base_time - dt.timedelta(seconds=3),
+            evidence_completed=self.base_time - dt.timedelta(seconds=2),
+        )
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertTrue(
+            any(
+                error.startswith("runtime_gate_run_id_duplicate:")
+                for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(
+            any(
+                error.startswith(
+                    "runtime_gate_run_projection_duplicate_run_id:"
+                )
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_gate_run_append_only_trigger_escape_is_rejected(self) -> None:
+        runtime_db, observation = self.create_runtime_chain(
+            trigger_escape="gate_run_when_zero"
+        )
+        self.build_evidence(observation)
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertIn(
+            (
+                "runtime_append_only_trigger_invalid:"
+                "conditional_gate_runs_no_update"
+            ),
+            errors,
+        )
+        self.assertIn(
+            "runtime_append_only_gate_run_update_not_blocked",
+            errors,
+        )
+
+    def test_gate_run_projection_tampering_is_rejected(self) -> None:
+        runtime_db, observation = self.create_runtime_chain()
+        self.build_evidence(observation)
+        connection = sqlite3.connect(runtime_db)
+        try:
+            connection.execute(
+                "DROP TRIGGER conditional_gate_runs_no_update"
+            )
+            connection.execute(
+                "UPDATE conditional_gate_runs "
+                "SET run_event_hash = ?",
+                ("f" * 64,),
+            )
+            connection.execute(
+                "CREATE TRIGGER conditional_gate_runs_no_update "
+                "BEFORE UPDATE ON conditional_gate_runs "
+                "BEGIN SELECT RAISE(ABORT, 'append_only'); END"
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertIn("runtime_gate_run_projection_invalid:2", errors)
+
+    def test_gate_run_payload_extra_field_is_rejected(self) -> None:
+        runtime_db, observation = self.create_runtime_chain()
+        self.build_evidence(
+            observation,
+            run_payload_extra={"caller_assertion": "trusted"},
+        )
+        result = self.run_gate(
+            "COND-JAVEN-FIELD-USE",
+            runtime_db=runtime_db,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        errors = json.loads(result.stdout)["results"][0]["errors"]
+        self.assertIn(
+            "runtime_gate_run_payload_fields_invalid:2",
+            errors,
+        )
+        self.assertIn("gate_run_receipt_evidence_mismatch", errors)
 
     def test_evidence_replay_after_new_observation_is_rejected(self) -> None:
         runtime_db, observation = self.create_runtime_chain()
@@ -1028,6 +1576,7 @@ class ConditionalGateTests(unittest.TestCase):
         self.assertIn("expected_candidate_commit_mismatch", errors)
         self.assertIn("gate_evidence_candidate_commit_mismatch", errors)
         self.assertIn("raw_result_candidate_commit_mismatch", errors)
+        self.assertIn("gate_run_receipt_evidence_mismatch", errors)
 
     def test_broken_runtime_event_hash_is_rejected(self) -> None:
         runtime_db, observation = self.create_runtime_chain(

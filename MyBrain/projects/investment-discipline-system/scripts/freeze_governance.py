@@ -28,6 +28,12 @@ CONTRACT_RELATIVE = "governance/ACCEPTANCE_CONTRACT_V1.json"
 RESEARCH_RELATIVE = "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json"
 ASSURANCE_RELATIVE = "governance/ASSURANCE_SUBJECTS_V1.json"
 FINAL_ARTIFACT_ID = re.compile(r"ARTIFACT-CHALLENGE-FINAL-R[0-9]+")
+TRUSTED_REMOTE_FIELDS = {
+    "name",
+    "fetch_url",
+    "branch",
+    "project_prefix",
+}
 CANONICAL_ATTACK_SELECTORS = {
     "ATTACK-PIT-ORACLE-INVERSION": (
         "governance_tests.test_final_review_attacks."
@@ -750,6 +756,62 @@ def frozen_file_paths(contract: dict) -> list[str]:
     return safe_files
 
 
+def trusted_git_remote(contract: dict) -> dict[str, str]:
+    change_control = contract.get("change_control")
+    trusted = (
+        change_control.get("trusted_git_remote")
+        if isinstance(change_control, dict)
+        else None
+    )
+    if not isinstance(trusted, dict) or set(trusted) != TRUSTED_REMOTE_FIELDS:
+        raise SystemExit(
+            "contract change_control.trusted_git_remote must contain exactly "
+            "name, fetch_url, branch, project_prefix"
+        )
+    values: dict[str, str] = {}
+    for field in sorted(TRUSTED_REMOTE_FIELDS):
+        value = trusted.get(field)
+        if not isinstance(value, str):
+            raise SystemExit(f"trusted_git_remote.{field} must be a string")
+        values[field] = value
+    name = values["name"]
+    if (
+        not name
+        or name.startswith("-")
+        or name.endswith("/")
+        or ".." in name
+        or "@{" in name
+        or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._/-]*", name) is None
+    ):
+        raise SystemExit(f"trusted_git_remote.name is invalid: {name!r}")
+    fetch_url = values["fetch_url"]
+    if (
+        not fetch_url
+        or fetch_url.startswith("-")
+        or "\n" in fetch_url
+        or "\r" in fetch_url
+    ):
+        raise SystemExit(
+            "trusted_git_remote.fetch_url must be one safe nonempty line"
+        )
+    branch = values["branch"]
+    branch_check = git_bytes("check-ref-format", "--branch", branch)
+    if not branch or branch_check.returncode != 0:
+        raise SystemExit(f"trusted_git_remote.branch is invalid: {branch!r}")
+    prefix = values["project_prefix"]
+    if (
+        prefix.startswith("/")
+        or "\\" in prefix
+        or (prefix and not prefix.endswith("/"))
+        or ".." in Path(prefix).parts
+        or "." in Path(prefix).parts
+    ):
+        raise SystemExit(
+            f"trusted_git_remote.project_prefix is invalid: {prefix!r}"
+        )
+    return values
+
+
 def require_frozen_statuses(frozen_files: list[str]) -> dict:
     documents: dict[str, dict] = {}
     for relative in frozen_files:
@@ -795,11 +857,18 @@ def require_clean_exact_baseline(baseline: str) -> None:
 
 
 def require_direct_remote(
-    baseline: str, remote: str, branch: str | None
+    baseline: str,
+    trusted: dict[str, str],
 ) -> dict[str, str]:
-    command = ["--commit", baseline, "--remote", remote, "--json"]
-    if branch:
-        command.extend(["--branch", branch])
+    command = [
+        "--commit",
+        baseline,
+        "--remote",
+        trusted["name"],
+        "--branch",
+        trusted["branch"],
+        "--json",
+    ]
     result = run_python(REMOTE_VERIFIER, *command)
     detail = result.stdout.strip()
     try:
@@ -816,17 +885,26 @@ def require_direct_remote(
     facts = payload.get("facts")
     observation = facts.get("remote_observation") if isinstance(facts, dict) else None
     if (
-        not isinstance(observation, dict)
-        or observation.get("remote") != remote
+        payload.get("verification_scope") != "direct_remote_observation"
+        or not isinstance(facts, dict)
+        or facts.get("verification_scope") != "direct_remote_observation"
+        or facts.get("full_remote_verification") is not False
+        or facts.get("trusted_git_remote") != trusted
+        or facts.get("project_prefix") != trusted["project_prefix"]
+        or facts.get("current_branch") != trusted["branch"]
+        or facts.get("upstream")
+        != f"{trusted['name']}/{trusted['branch']}"
+        or facts.get("configured_fetch_urls") != [trusted["fetch_url"]]
+        or not isinstance(observation, dict)
+        or observation.get("remote") != trusted["name"]
+        or observation.get("fetch_url") != trusted["fetch_url"]
         or observation.get("commit") != baseline
-        or not isinstance(observation.get("ref"), str)
-        or not observation["ref"].startswith("refs/heads/")
+        or observation.get("ref") != f"refs/heads/{trusted['branch']}"
+        or observation.get("observation_kind") != "non_atomic_ls_remote"
         or not isinstance(observation.get("observed_at"), str)
         or not observation["observed_at"]
     ):
         raise SystemExit("direct remote verifier did not bind the requested baseline")
-    if branch is not None and observation["ref"] != f"refs/heads/{branch}":
-        raise SystemExit("direct remote verifier observed an unexpected branch")
     return observation
 
 
@@ -916,7 +994,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--baseline-commit", required=True)
     parser.add_argument("--reviewed-candidate-commit", required=True)
-    parser.add_argument("--remote", default="origin")
+    parser.add_argument("--remote")
     parser.add_argument("--branch")
     args = parser.parse_args()
     baseline = args.baseline_commit
@@ -937,14 +1015,26 @@ def main() -> int:
     )
     frozen_files = frozen_file_paths(candidate_contract)
     contract = require_frozen_statuses(frozen_files)
+    trusted = trusted_git_remote(contract)
+    if args.remote is not None and args.remote != trusted["name"]:
+        raise SystemExit(
+            "--remote must match contract trusted remote "
+            f"{trusted['name']!r}: got {args.remote!r}"
+        )
+    if args.branch is not None and args.branch != trusted["branch"]:
+        raise SystemExit(
+            "--branch must match contract trusted branch "
+            f"{trusted['branch']!r}: got {args.branch!r}"
+        )
 
     require_clean_exact_baseline(baseline)
-    observation_before = require_direct_remote(
-        baseline,
-        args.remote,
-        args.branch,
-    )
-    observed_branch = observation_before["ref"].removeprefix("refs/heads/")
+    prefix = git_text("rev-parse", "--show-prefix")
+    if prefix != trusted["project_prefix"]:
+        raise SystemExit(
+            "project prefix does not match contract: "
+            f"expected {trusted['project_prefix']!r}, got {prefix!r}"
+        )
+    observation_before = require_direct_remote(baseline, trusted)
     closure_facts = require_review_closure(
         reviewed_commit,
         baseline,
@@ -956,7 +1046,6 @@ def main() -> int:
     )
     require_clean_exact_baseline(baseline)
 
-    prefix = git_text("rev-parse", "--show-prefix")
     entries: list[dict[str, str]] = []
     for relative in frozen_files:
         repo_relative = f"{prefix}{relative}"
@@ -978,11 +1067,7 @@ def main() -> int:
             }
         )
     require_clean_exact_baseline(baseline)
-    observation_after = require_direct_remote(
-        baseline,
-        args.remote,
-        observed_branch,
-    )
+    observation_after = require_direct_remote(baseline, trusted)
     require_clean_exact_baseline(baseline)
 
     bundle = {
@@ -997,6 +1082,7 @@ def main() -> int:
         "final_review_evidence_path": closure_facts["review_evidence_path"],
         "final_review_evidence_sha256": closure_facts["review_evidence_sha256"],
         "design_freeze_attack_replay": attack_replay,
+        "trusted_git_remote": trusted,
         "baseline_remote_observations": [
             {
                 "phase": "before_baseline_verification",
@@ -1011,9 +1097,10 @@ def main() -> int:
         "creation_rule": (
             "non-circular two-stage: an independent review binds candidate C; "
             "baseline B may add only structurally verified review-closure metadata, "
-            "must be clean and directly observed on trusted origin before and after "
-            "baseline verification; observations are non-atomic and this bundle "
-            "must then be committed, pushed, and independently verified"
+            "must be clean and directly observed on the contract-declared trusted "
+            "remote before and after baseline verification; observations are "
+            "non-atomic and this bundle must then be committed, pushed, and "
+            "independently verified"
         ),
         "files": entries,
     }

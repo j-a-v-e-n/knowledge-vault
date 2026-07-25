@@ -283,9 +283,15 @@
       "role": "independent_challenge"
     },
     {
+      "id": "ARTIFACT-CHALLENGE-R4",
+      "path": "audits/DESIGN_FREEZE_MECHANISM_REVIEW_ROUND4_2026-07-25.md",
+      "sha256": "4d4d38d4e641ae6ebee1ab809f3edd53345cca0cfd3289458962d5f34c5c59c3",
+      "role": "independent_challenge"
+    },
+    {
       "id": "ARTIFACT-PRODUCT-ASSURANCE-BLUEPRINT",
       "path": "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
-      "sha256": "932a03bc3b4b393f55b6fd0446b6cc6743456c37cf3824e6f1a35a0459531f49",
+      "sha256": "6a173a81dda9c1c749e140c93d70fdb12a3477bdf5f80710ef387afbdb40d3d3",
       "role": "normative_blueprint"
     }
   ],
@@ -408,6 +414,24 @@
           "远端观察与 bundle 创建之间的 TOCTOU 语义被夸大"
         ],
         "disposition": "保持未冻结；固定 trusted remote/branch、tree mode、bundle-commit 远端证明和准确的 observed-at 语义后重新挑战"
+      },
+      {
+        "id": "CHALLENGE-04",
+        "candidate_commit": "698383b77dcb763e504a3706779f8cdb5779e632",
+        "candidate_tree": "cef2949295b4e54cab960cd65821aec3a99f3ebc",
+        "reviewer_subjects": ["SUBJECT-DESIGN-REVIEW-SINGER-R4"],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/DESIGN_FREEZE_MECHANISM_REVIEW_ROUND4_2026-07-25.md",
+        "evidence_sha256": "4d4d38d4e641ae6ebee1ab809f3edd53345cca0cfd3289458962d5f34c5c59c3",
+        "new_architecture_changing_classes": [],
+        "critical_findings": [],
+        "major_findings": [
+          "同一条件门可以覆盖当前 evidence/raw 并复用历史 run_id",
+          "最终审查 required scope 遗漏验证自身 schema 的测试",
+          "bundle commit D 没有强制 fresh-clone 后运行冻结 verifier"
+        ],
+        "minor_findings": [],
+        "disposition": "保持 challenge in_progress 与 stop_rule.met=false；增加主事件链 gate-run receipt、完整治理测试审查范围、冻结 remote URL/branch/prefix 和 D 的 clone 内验证后重新挑战"
       }
     ]
   },

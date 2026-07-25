@@ -42,8 +42,9 @@
 
 - `PRODUCT_ASSURANCE_BLUEPRINT_V2.md`、用户意图、验收合同、精确 case、Money/市场/field-use/私人数据规范均已形成候选，尚未冻结。
 - 第二轮独立挑战新增的证据更正、市场模拟、人因误报、长期停用和私人恢复类别已经进入候选设计。
-- 随后的结构闭合审查没有新增失效类别，但发现 spec/case 对称、条件门权威来源、可执行 token 和冻结/远端证明仍可绕过；这些发现正在转成 mutation tests 和确定性校验。
-- 当前候选治理检查和已有治理反例测试通过；这只表示已声明结构自洽，不等于独立审查通过。
+- R4 对候选 `698383b77dcb763e504a3706779f8cdb5779e632` 的机制审查没有新增架构类别，但以三个 open major 阻止冻结：同门 `run_id` 可覆盖重放、最终审查漏掉自身 schema 测试、bundle D 没有强制 clone 内冻结验证。
+- R4 修复候选已加入主事件链 gate-run receipt、从冻结实施目标自动展开的审查范围、精确 GitHub URL/branch/prefix、D 的 fresh clone + inner receipt + full-outer 验证，并修复嵌套项目 Git pathspec。
+- 当前候选治理验证、四类固定攻击和全量治理回归通过；最近一次全量回归实际输出为 `Ran 113 tests`、`OK`。这些绿灯只证明已知反例闭合，不等于独立审查通过。
 - 研究登记仍保持 `challenge.status=in_progress`、`stop_rule.met=false`，机器可读验收合同仍未冻结。
 
 ## 尚未完成
@@ -60,7 +61,7 @@
 
 ## 当前下一步
 
-完成删除关键条款、伪造远端状态和绕过冻结流程的反例测试；固定并直接核对 GitHub 上的精确候选 commit/tree；再让未参与构造的审查者攻击该固定候选。只有新审查不再发现 open critical/major 或新增架构类别，才关闭研究并执行两阶段冻结；随后按依赖顺序重建，而不是继续给旧原型打补丁。
+把 R4 修复形成精确候选 commit/tree，推送并从 GitHub fresh clone 重放候选治理检查；再让未参与构造的审查者攻击该固定候选。只有新审查不再发现 open critical/major 或新增架构类别，才关闭研究并执行 C→B→D 冻结；D 推送后必须再次从合同固定远端 fresh clone，并在 clone 内通过冻结治理验证。随后按依赖顺序重建，而不是继续给旧原型打补丁。
 
 ## 主要残余风险
 

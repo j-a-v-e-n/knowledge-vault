@@ -46,6 +46,7 @@ EVIDENCE_REQUIRED_V2 = (
     "executor_ids",
     "acceptance_case_ids",
     "observation",
+    "run_receipt",
     "raw_result_path",
     "raw_result_sha256",
     "completed_at",
@@ -58,6 +59,24 @@ OBSERVATION_REQUIRED_V2 = (
     "source_state_hash",
     "source_anchor_hash",
     "observed_at",
+)
+RUN_RECEIPT_REQUIRED_V1 = (
+    "authority",
+    "run_event_seq",
+    "run_event_hash",
+    "run_anchor_hash",
+    "run_id",
+    "condition_id",
+    "gate_id",
+    "gate_stage",
+    "state",
+    "source_event_seq",
+    "source_event_hash",
+    "source_state_hash",
+    "source_anchor_hash",
+    "raw_result_path",
+    "raw_result_sha256",
+    "completed_at",
 )
 RAW_RESULT_REQUIRED_V1 = (
     "schema_version",
@@ -111,6 +130,16 @@ APPEND_ONLY_TRIGGER_SPECS = (
         "table": "condition_observations",
         "operation": "delete",
     },
+    {
+        "name": "conditional_gate_runs_no_update",
+        "table": "conditional_gate_runs",
+        "operation": "update",
+    },
+    {
+        "name": "conditional_gate_runs_no_delete",
+        "table": "conditional_gate_runs",
+        "operation": "delete",
+    },
 )
 ANCHOR_REQUIRED_V1 = (
     "schema_version",
@@ -162,6 +191,7 @@ RUNTIME_EVENT_CHAIN_SCHEMA_V1 = {
     "event_table": "events",
     "event_domain": "main_application",
     "observation_table": "condition_observations",
+    "gate_run_table": "conditional_gate_runs",
     "event_columns": [
         "sequence",
         "event_type",
@@ -204,20 +234,81 @@ RUNTIME_EVENT_CHAIN_SCHEMA_V1 = {
         "producer_id": "TEXT",
     },
     "observation_primary_key": ["source_event_seq"],
-    "append_only_triggers": list(APPEND_ONLY_TRIGGER_SPECS),
-    "event_type": "condition_observation",
-    "genesis_prev_hash": "0" * 64,
-    "payload_required": [
+    "gate_run_columns": [
+        "run_event_seq",
+        "run_id",
         "condition_id",
-        "stage",
-        "ready",
-        "observed_at",
+        "gate_id",
+        "gate_stage",
+        "state",
+        "source_event_seq",
+        "source_event_hash",
+        "source_state_hash",
+        "source_anchor_hash",
+        "raw_result_path",
+        "raw_result_sha256",
+        "completed_at",
         "producer_id",
-        "candidate_commit",
-        "candidate_tree",
-        "frozen_bundle_path",
-        "frozen_bundle_sha256",
+        "run_event_hash",
+        "run_anchor_hash",
     ],
+    "gate_run_column_types": {
+        "run_event_seq": "INTEGER",
+        "run_id": "TEXT",
+        "condition_id": "TEXT",
+        "gate_id": "TEXT",
+        "gate_stage": "TEXT",
+        "state": "TEXT",
+        "source_event_seq": "INTEGER",
+        "source_event_hash": "TEXT",
+        "source_state_hash": "TEXT",
+        "source_anchor_hash": "TEXT",
+        "raw_result_path": "TEXT",
+        "raw_result_sha256": "TEXT",
+        "completed_at": "TEXT",
+        "producer_id": "TEXT",
+        "run_event_hash": "TEXT",
+        "run_anchor_hash": "TEXT",
+    },
+    "gate_run_primary_key": ["run_event_seq"],
+    "gate_run_unique": ["run_id"],
+    "append_only_triggers": list(APPEND_ONLY_TRIGGER_SPECS),
+    "event_types": ["condition_observation", "conditional_gate_run"],
+    "genesis_prev_hash": "0" * 64,
+    "payload_required_by_type": {
+        "condition_observation": [
+            "condition_id",
+            "stage",
+            "ready",
+            "observed_at",
+            "producer_id",
+            "candidate_commit",
+            "candidate_tree",
+            "frozen_bundle_path",
+            "frozen_bundle_sha256",
+        ],
+        "conditional_gate_run": [
+            "run_id",
+            "condition_id",
+            "gate_id",
+            "gate_stage",
+            "state",
+            "source_event_seq",
+            "source_event_hash",
+            "source_state_hash",
+            "source_anchor_hash",
+            "raw_result_path",
+            "raw_result_sha256",
+            "completed_at",
+            "producer_id",
+            "executor_ids",
+            "acceptance_case_ids",
+            "candidate_commit",
+            "candidate_tree",
+            "frozen_bundle_path",
+            "frozen_bundle_sha256",
+        ],
+    },
     "event_hash_algorithm": "sha256_canonical_json_v1",
     "event_hash_fields": [
         "sequence",
@@ -247,8 +338,11 @@ CONDITIONAL_BINDING_RULE_V2 = (
     "readiness requires the fixed private runtime authority, a contract-authorized "
     "producer, the recomputed append-only main event chain and its external "
     "anchor; fixture authority cannot satisfy human or longitudinal release. "
-    "Passing evidence requires one fresh unique run, the latest observation "
-    "binding, exact case-set equality and recomputable per-case input/raw hashes."
+    "Every gate run must append one unique run_id receipt to that anchored main "
+    "event chain, binding the latest prerequisite observation and raw-result hash; "
+    "overwriting current evidence cannot erase or replace the receipt. Passing "
+    "evidence requires that fresh receipt, exact case-set equality and recomputable "
+    "per-case input/raw hashes."
 )
 CONDITIONAL_EVIDENCE_SCHEMA_V2 = {
     "schema_version": 2,
@@ -267,6 +361,12 @@ CONDITIONAL_EVIDENCE_SCHEMA_V2 = {
         "additional_fields_allowed": False,
         "runtime_event_seq_minimum": 1,
         "environment_presence_event_seq": 0,
+    },
+    "run_receipt_schema": {
+        "required": list(RUN_RECEIPT_REQUIRED_V1),
+        "additional_fields_allowed": False,
+        "authority": "runtime_sqlite_gate_run_receipt",
+        "runtime_event_seq_minimum": 1,
     },
     "raw_result_schema": {
         "schema_version": 1,
@@ -388,6 +488,14 @@ class RuntimeAuthority:
             "status": "fail" if self.errors else "pass",
             "errors": list(self.errors),
         }
+
+
+@dataclass(frozen=True)
+class RuntimeLedger:
+    available: bool
+    observations_by_condition: dict[str, dict[str, Any]]
+    gate_runs_by_id: dict[str, dict[str, Any]]
+    errors: tuple[str, ...]
 
 
 def canonical_json(value: Any) -> str:
@@ -1031,6 +1139,47 @@ def validate_sqlite_table_schema(
     return True
 
 
+def validate_sqlite_unique_constraint(
+    connection: sqlite3.Connection,
+    *,
+    table: Any,
+    columns: Any,
+    label: str,
+    errors: list[str],
+) -> None:
+    if (
+        not isinstance(table, str)
+        or not SQL_IDENTIFIER_RE.fullmatch(table)
+        or not isinstance(columns, list)
+        or not columns
+        or not all(
+            isinstance(column, str) and SQL_IDENTIFIER_RE.fullmatch(column)
+            for column in columns
+        )
+    ):
+        errors.append(f"{label}_unique_contract_invalid")
+        return
+    expected = tuple(columns)
+    matches = 0
+    for row in connection.execute(f'PRAGMA index_list("{table}")').fetchall():
+        if len(row) < 5:
+            continue
+        _, index_name, unique, _, partial = row[:5]
+        if not unique or partial or not isinstance(index_name, str):
+            continue
+        quoted_index_name = index_name.replace('"', '""')
+        index_columns = tuple(
+            info[2]
+            for info in connection.execute(
+                f'PRAGMA index_info("{quoted_index_name}")'
+            ).fetchall()
+        )
+        if index_columns == expected:
+            matches += 1
+    if matches != 1:
+        errors.append(f"{label}_unique_constraint_invalid")
+
+
 def normalize_trigger_sql(value: str) -> str:
     normalized = re.sub(r"\s+", " ", value.strip().lower())
     normalized = re.sub(r"\s*([(),;])\s*", r"\1", normalized)
@@ -1092,6 +1241,7 @@ def validate_append_only_behavior(
     *,
     event_table: str,
     observation_table: str,
+    gate_run_table: str,
     errors: list[str],
 ) -> None:
     probe = sqlite3.connect(":memory:")
@@ -1104,14 +1254,80 @@ def validate_append_only_behavior(
         observation_row = probe.execute(
             f'SELECT MIN(source_event_seq) FROM "{observation_table}"'
         ).fetchone()
+        gate_run_row = probe.execute(
+            f'SELECT MIN(run_event_seq) FROM "{gate_run_table}"'
+        ).fetchone()
         if event_row is None or event_row[0] is None:
             errors.append("runtime_append_only_event_probe_has_no_row")
             return
-        if observation_row is None or observation_row[0] is None:
-            errors.append("runtime_append_only_observation_probe_has_no_row")
-            return
         event_seq = int(event_row[0])
-        observation_seq = int(observation_row[0])
+        if observation_row is None or observation_row[0] is None:
+            try:
+                probe.execute(
+                    f'INSERT INTO "{observation_table}" '
+                    "(source_event_seq, condition_id, stage, ready, "
+                    "source_event_hash, source_state_hash, source_anchor_hash, "
+                    "observed_at, producer_id) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        event_seq,
+                        "COND-JAVEN-FIELD-USE",
+                        "human_onboarding_ready",
+                        1,
+                        "0" * 64,
+                        "0" * 64,
+                        "0" * 64,
+                        "2000-01-01T00:00:00Z",
+                        RUNTIME_EVENT_PRODUCER_ID,
+                    ),
+                )
+                observation_seq = event_seq
+            except sqlite3.DatabaseError as exc:
+                errors.append(
+                    f"runtime_append_only_observation_probe_setup_failed:{exc}"
+                )
+                observation_seq = None
+        else:
+            observation_seq = int(observation_row[0])
+        if gate_run_row is None or gate_run_row[0] is None:
+            try:
+                probe.execute(
+                    f'INSERT INTO "{gate_run_table}" '
+                    "(run_event_seq, run_id, condition_id, gate_id, gate_stage, "
+                    "state, source_event_seq, source_event_hash, source_state_hash, "
+                    "source_anchor_hash, raw_result_path, raw_result_sha256, "
+                    "completed_at, producer_id, run_event_hash, run_anchor_hash) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        event_seq,
+                        "00000000-0000-4000-8000-000000000000",
+                        "COND-JAVEN-FIELD-USE",
+                        "GATE-JAVEN-FIELD-USE",
+                        "human_onboarding",
+                        "passed",
+                        event_seq,
+                        "0" * 64,
+                        "0" * 64,
+                        "0" * 64,
+                        (
+                            "evidence/conditional/raw/"
+                            "00000000-0000-4000-8000-000000000000.json"
+                        ),
+                        "0" * 64,
+                        "2000-01-01T00:00:00Z",
+                        "EX-CONDITIONAL",
+                        "0" * 64,
+                        "0" * 64,
+                    ),
+                )
+                gate_run_seq = event_seq
+            except sqlite3.DatabaseError as exc:
+                errors.append(
+                    f"runtime_append_only_gate_run_probe_setup_failed:{exc}"
+                )
+                gate_run_seq = None
+        else:
+            gate_run_seq = int(gate_run_row[0])
         probe_append_only_statement(
             probe,
             statement=(
@@ -1129,24 +1345,44 @@ def validate_append_only_behavior(
             label="runtime_append_only_event_delete",
             errors=errors,
         )
-        probe_append_only_statement(
-            probe,
-            statement=(
-                f'UPDATE "{observation_table}" SET stage = stage '
-                f"WHERE source_event_seq = {observation_seq}"
-            ),
-            label="runtime_append_only_observation_update",
-            errors=errors,
-        )
-        probe_append_only_statement(
-            probe,
-            statement=(
-                f'DELETE FROM "{observation_table}" '
-                f"WHERE source_event_seq = {observation_seq}"
-            ),
-            label="runtime_append_only_observation_delete",
-            errors=errors,
-        )
+        if observation_seq is not None:
+            probe_append_only_statement(
+                probe,
+                statement=(
+                    f'UPDATE "{observation_table}" SET stage = stage '
+                    f"WHERE source_event_seq = {observation_seq}"
+                ),
+                label="runtime_append_only_observation_update",
+                errors=errors,
+            )
+            probe_append_only_statement(
+                probe,
+                statement=(
+                    f'DELETE FROM "{observation_table}" '
+                    f"WHERE source_event_seq = {observation_seq}"
+                ),
+                label="runtime_append_only_observation_delete",
+                errors=errors,
+            )
+        if gate_run_seq is not None:
+            probe_append_only_statement(
+                probe,
+                statement=(
+                    f'UPDATE "{gate_run_table}" SET state = state '
+                    f"WHERE run_event_seq = {gate_run_seq}"
+                ),
+                label="runtime_append_only_gate_run_update",
+                errors=errors,
+            )
+            probe_append_only_statement(
+                probe,
+                statement=(
+                    f'DELETE FROM "{gate_run_table}" '
+                    f"WHERE run_event_seq = {gate_run_seq}"
+                ),
+                label="runtime_append_only_gate_run_delete",
+                errors=errors,
+            )
     finally:
         probe.close()
 
@@ -1251,7 +1487,16 @@ def validate_anchor_chain(
             "anchored_at": record.get("anchored_at"),
             "previous_anchor_hash": record.get("previous_anchor_hash"),
         }
-        computed_hash = sha256_bytes(canonical_json(material).encode("utf-8"))
+        try:
+            computed_hash = sha256_bytes(
+                canonical_json(material).encode("utf-8")
+            )
+        except (TypeError, ValueError):
+            errors.append(
+                f"authoritative_runtime_anchor_hash_material_invalid:"
+                f"{expected_sequence}"
+            )
+            computed_hash = ""
         anchor_hash = record.get("anchor_hash")
         if (
             not isinstance(anchor_hash, str)
@@ -1280,20 +1525,17 @@ def validate_anchor_chain(
     return anchor_hashes
 
 
-def runtime_observation(
-    gate: dict[str, Any],
-    contract: dict[str, Any],
-    runtime_authority: RuntimeAuthority,
-    bindings: AuthoritativeBindings,
-) -> tuple[bool, str | None, dict[str, Any], list[str]]:
+def load_runtime_ledger(runtime_authority: RuntimeAuthority) -> RuntimeLedger:
     authority = "runtime_sqlite_event_chain"
     runtime_db = runtime_authority.runtime_db_path
     errors: list[str] = list(runtime_authority.errors)
     if runtime_db is None or not runtime_db.is_file():
-        return False, None, {"source": "runtime_database_absent"}, errors
+        return RuntimeLedger(False, {}, {}, tuple(errors))
+
     schema = RUNTIME_EVENT_CHAIN_SCHEMA_V1
-    event_table = schema.get("event_table")
-    observation_table = schema.get("observation_table")
+    event_table = schema["event_table"]
+    observation_table = schema["observation_table"]
+    gate_run_table = schema["gate_run_table"]
     try:
         connection = sqlite3.connect(f"file:{runtime_db}?mode=ro", uri=True)
         try:
@@ -1319,19 +1561,52 @@ def runtime_observation(
                 label="runtime_observation",
                 errors=errors,
             )
+            gate_run_schema_ok = validate_sqlite_table_schema(
+                connection,
+                table=gate_run_table,
+                columns=schema.get("gate_run_columns"),
+                column_types=schema.get("gate_run_column_types"),
+                primary_key=schema.get("gate_run_primary_key"),
+                label="runtime_gate_run",
+                errors=errors,
+            )
+            if gate_run_schema_ok:
+                validate_sqlite_unique_constraint(
+                    connection,
+                    table=gate_run_table,
+                    columns=schema.get("gate_run_unique"),
+                    label="runtime_gate_run",
+                    errors=errors,
+                )
             validate_append_only_triggers(connection, errors)
-            if not event_schema_ok or not observation_schema_ok:
-                return False, None, {"source": authority}, errors
-            foreign_keys = connection.execute(
+            if not (
+                event_schema_ok
+                and observation_schema_ok
+                and gate_run_schema_ok
+            ):
+                return RuntimeLedger(True, {}, {}, tuple(errors))
+
+            observation_foreign_keys = connection.execute(
                 f'PRAGMA foreign_key_list("{observation_table}")'
             ).fetchall()
             if not any(
                 row[2] == event_table
                 and row[3] == "source_event_seq"
                 and row[4] == "sequence"
-                for row in foreign_keys
+                for row in observation_foreign_keys
             ):
                 errors.append("runtime_observation_event_foreign_key_missing")
+            gate_run_foreign_keys = connection.execute(
+                f'PRAGMA foreign_key_list("{gate_run_table}")'
+            ).fetchall()
+            if not any(
+                row[2] == event_table
+                and row[3] == "run_event_seq"
+                and row[4] == "sequence"
+                for row in gate_run_foreign_keys
+            ):
+                errors.append("runtime_gate_run_event_foreign_key_missing")
+
             event_rows = connection.execute(
                 f'SELECT sequence, event_type, producer_id, occurred_at, '
                 f'payload_json, prev_hash, event_hash FROM "{event_table}" '
@@ -1343,40 +1618,57 @@ def runtime_observation(
                 f'observed_at, producer_id '
                 f'FROM "{observation_table}" ORDER BY source_event_seq'
             ).fetchall()
+            gate_run_rows = connection.execute(
+                f'SELECT run_event_seq, run_id, condition_id, gate_id, '
+                f'gate_stage, state, source_event_seq, source_event_hash, '
+                f'source_state_hash, source_anchor_hash, raw_result_path, '
+                f'raw_result_sha256, completed_at, producer_id, run_event_hash, '
+                f'run_anchor_hash FROM "{gate_run_table}" ORDER BY run_event_seq'
+            ).fetchall()
             validate_append_only_behavior(
                 connection,
                 event_table=event_table,
                 observation_table=observation_table,
+                gate_run_table=gate_run_table,
                 errors=errors,
             )
         finally:
             connection.close()
     except sqlite3.Error as exc:
-        return False, None, {"source": authority}, [
-            f"authoritative_runtime_probe_failed:{exc}"
-        ]
+        errors.append(f"authoritative_runtime_probe_failed:{exc}")
+        return RuntimeLedger(True, {}, {}, tuple(errors))
 
     genesis = schema.get("genesis_prev_hash")
-    required_payload_fields = schema.get("payload_required")
-    event_type_required = schema.get("event_type")
+    payload_required_by_type = schema.get("payload_required_by_type")
+    event_types = schema.get("event_types")
     if not isinstance(genesis, str) or not SHA256_RE.fullmatch(genesis):
         errors.append("runtime_genesis_hash_contract_invalid")
         genesis = ""
     if (
-        not isinstance(required_payload_fields, list)
-        or not all(isinstance(field, str) for field in required_payload_fields)
+        not isinstance(payload_required_by_type, dict)
+        or not isinstance(event_types, list)
+        or set(payload_required_by_type) != set(event_types)
+        or not all(
+            isinstance(fields, list)
+            and fields
+            and all(isinstance(field, str) and field for field in fields)
+            for fields in payload_required_by_type.values()
+        )
     ):
         errors.append("runtime_payload_contract_invalid")
-        required_payload_fields = []
+        payload_required_by_type = {}
 
     runtime_condition_ids = {
         "COND-LONGITUDINAL-EDGE",
         "COND-JAVEN-FIELD-USE",
     }
     state: dict[str, dict[str, Any]] = {}
+    latest_observation_sequence: dict[str, int] = {}
     events: dict[int, dict[str, Any]] = {}
     expected_prev = genesis
     condition_event_count = 0
+    gate_run_event_count = 0
+    seen_gate_run_ids: set[str] = set()
     for index, row in enumerate(event_rows, start=1):
         (
             sequence,
@@ -1406,7 +1698,7 @@ def runtime_observation(
                 errors.append(f"runtime_event_payload_not_canonical:{sequence}")
         except (TypeError, ValueError):
             errors.append(f"runtime_event_payload_not_canonical:{sequence}")
-        parse_utc_timestamp(
+        occurred_time = parse_utc_timestamp(
             occurred_at,
             label=f"runtime_event_occurred_at:{sequence}",
             errors=errors,
@@ -1421,7 +1713,13 @@ def runtime_observation(
             "payload": payload,
             "prev_hash": prev_hash,
         }
-        computed_event_hash = sha256_bytes(canonical_json(envelope).encode("utf-8"))
+        try:
+            computed_event_hash = sha256_bytes(
+                canonical_json(envelope).encode("utf-8")
+            )
+        except (TypeError, ValueError):
+            errors.append(f"runtime_event_hash_material_invalid:{sequence}")
+            computed_event_hash = ""
         if (
             not isinstance(event_hash, str)
             or not SHA256_RE.fullmatch(event_hash)
@@ -1429,14 +1727,21 @@ def runtime_observation(
         ):
             errors.append(f"runtime_event_hash_invalid:{sequence}")
         expected_prev = event_hash if isinstance(event_hash, str) else ""
+
         source_state_hash: str | None = None
-        is_condition_event = event_type == event_type_required
+        is_condition_event = event_type == "condition_observation"
+        is_gate_run_event = event_type == "conditional_gate_run"
+        latest_source_sequence: int | None = None
         if is_condition_event:
             condition_event_count += 1
-            if set(payload) != set(required_payload_fields):
+            required_fields = payload_required_by_type.get(event_type, [])
+            if set(payload) != set(required_fields):
                 errors.append(f"runtime_event_payload_fields_invalid:{sequence}")
             condition_id = payload.get("condition_id")
-            if condition_id not in runtime_condition_ids:
+            if (
+                not isinstance(condition_id, str)
+                or condition_id not in runtime_condition_ids
+            ):
                 errors.append(f"runtime_event_condition_unknown:{sequence}")
             if (
                 producer_id != RUNTIME_EVENT_PRODUCER_ID
@@ -1466,31 +1771,199 @@ def runtime_observation(
                 )
             if isinstance(condition_id, str):
                 state[condition_id] = payload
+                latest_observation_sequence[condition_id] = sequence
             state_material = {
                 "through_sequence": sequence,
                 "through_event_hash": event_hash,
                 "condition_states": [state[key] for key in sorted(state)],
             }
-            source_state_hash = sha256_bytes(
-                canonical_json(state_material).encode("utf-8")
+            try:
+                source_state_hash = sha256_bytes(
+                    canonical_json(state_material).encode("utf-8")
+                )
+            except (TypeError, ValueError):
+                errors.append(
+                    f"runtime_event_state_hash_material_invalid:{sequence}"
+                )
+                source_state_hash = None
+        elif is_gate_run_event:
+            gate_run_event_count += 1
+            required_fields = payload_required_by_type.get(event_type, [])
+            if set(payload) != set(required_fields):
+                errors.append(
+                    f"runtime_gate_run_payload_fields_invalid:{sequence}"
+                )
+            condition_id = payload.get("condition_id")
+            gate_id = payload.get("gate_id")
+            expected_gate_id = (
+                MANDATORY_GATE_BY_CONDITION_V2.get(condition_id)
+                if isinstance(condition_id, str)
+                else None
             )
+            catalog_policy = (
+                GATE_CATALOG_POLICY_V2.get(gate_id, {})
+                if isinstance(gate_id, str)
+                else {}
+            )
+            if expected_gate_id is None or gate_id != expected_gate_id:
+                errors.append(f"runtime_gate_run_gate_binding_invalid:{sequence}")
+            expected_producer = catalog_policy.get("evidence_producer_id")
+            if (
+                not isinstance(expected_producer, str)
+                or producer_id != expected_producer
+                or payload.get("producer_id") != expected_producer
+            ):
+                errors.append(
+                    f"runtime_gate_run_producer_not_authorized:{sequence}"
+                )
+            exact_string_set(
+                payload.get("executor_ids"),
+                set(catalog_policy.get("executor_ids", [])),
+                label=f"runtime_gate_run_executor_binding:{sequence}",
+                errors=errors,
+            )
+            gate_stage = payload.get("gate_stage")
+            required_cases = set(
+                REQUIRED_CASES_V2.get((condition_id, gate_stage), set())
+                if isinstance(condition_id, str)
+                and isinstance(gate_stage, str)
+                else set()
+            )
+            if not required_cases:
+                errors.append(
+                    f"runtime_gate_run_required_case_set_empty:{sequence}"
+                )
+            exact_string_set(
+                payload.get("acceptance_case_ids"),
+                required_cases,
+                label=f"runtime_gate_run_case_binding:{sequence}",
+                errors=errors,
+            )
+            if (
+                not isinstance(payload.get("state"), str)
+                or payload.get("state")
+                not in {"passed", "failed", "inconclusive"}
+            ):
+                errors.append(f"runtime_gate_run_state_invalid:{sequence}")
+
+            run_id = payload.get("run_id")
+            try:
+                parsed_run_id = (
+                    uuid.UUID(run_id) if isinstance(run_id, str) else None
+                )
+            except ValueError:
+                parsed_run_id = None
+            if (
+                parsed_run_id is None
+                or parsed_run_id.version != 4
+                or str(parsed_run_id) != run_id
+            ):
+                errors.append(f"runtime_gate_run_id_invalid:{sequence}")
+            elif run_id in seen_gate_run_ids:
+                errors.append(f"runtime_gate_run_id_duplicate:{run_id}")
+            else:
+                seen_gate_run_ids.add(run_id)
+
+            for field, pattern in (
+                ("candidate_commit", SHA1_RE),
+                ("candidate_tree", SHA1_RE),
+                ("frozen_bundle_sha256", SHA256_RE),
+                ("source_event_hash", SHA256_RE),
+                ("source_state_hash", SHA256_RE),
+                ("source_anchor_hash", SHA256_RE),
+                ("raw_result_sha256", SHA256_RE),
+            ):
+                value = payload.get(field)
+                if not isinstance(value, str) or not pattern.fullmatch(value):
+                    errors.append(
+                        f"runtime_gate_run_{field}_invalid:{sequence}"
+                    )
+            if payload.get("frozen_bundle_path") != FROZEN_BUNDLE_RELATIVE:
+                errors.append(
+                    f"runtime_gate_run_frozen_bundle_path_invalid:{sequence}"
+                )
+            expected_raw_path = (
+                f"{catalog_policy.get('raw_result_path_prefix')}{run_id}.json"
+                if isinstance(run_id, str)
+                and isinstance(
+                    catalog_policy.get("raw_result_path_prefix"), str
+                )
+                else None
+            )
+            if payload.get("raw_result_path") != expected_raw_path:
+                errors.append(
+                    f"runtime_gate_run_raw_path_invalid:{sequence}"
+                )
+            completed_time = parse_utc_timestamp(
+                payload.get("completed_at"),
+                label=f"runtime_gate_run_completed_at:{sequence}",
+                errors=errors,
+            )
+            if payload.get("completed_at") != occurred_at:
+                errors.append(
+                    f"runtime_gate_run_completed_at_mismatch:{sequence}"
+                )
+            if (
+                completed_time is not None
+                and occurred_time is not None
+                and completed_time != occurred_time
+            ):
+                errors.append(
+                    f"runtime_gate_run_time_binding_invalid:{sequence}"
+                )
+
+            source_event_seq = payload.get("source_event_seq")
+            if condition_id == "COND-TIINGO-LIVE-PROBE":
+                if (
+                    source_event_seq != 0
+                    or payload.get("source_event_hash")
+                    != payload.get("source_state_hash")
+                    or payload.get("source_event_hash")
+                    != payload.get("source_anchor_hash")
+                ):
+                    errors.append(
+                        f"runtime_gate_run_environment_source_invalid:{sequence}"
+                    )
+            else:
+                latest_source_sequence = (
+                    latest_observation_sequence.get(condition_id)
+                    if isinstance(condition_id, str)
+                    else None
+                )
+                if (
+                    type(source_event_seq) is not int
+                    or source_event_seq < 1
+                    or source_event_seq >= sequence
+                    or latest_source_sequence is None
+                    or source_event_seq != latest_source_sequence
+                ):
+                    errors.append(
+                        f"runtime_gate_run_not_latest_observation:{sequence}"
+                    )
         elif not isinstance(producer_id, str) or not producer_id:
             errors.append(f"runtime_main_event_producer_invalid:{sequence}")
+
         events[sequence] = {
             "payload": payload,
             "event_hash": event_hash,
             "source_state_hash": source_state_hash,
             "producer_id": producer_id,
             "occurred_at": occurred_at,
+            "occurred_time": occurred_time,
             "is_condition_event": is_condition_event,
+            "is_gate_run_event": is_gate_run_event,
+            "latest_source_sequence": latest_source_sequence,
         }
 
     if condition_event_count != len(observation_rows):
         errors.append("runtime_event_observation_cardinality_mismatch")
+    if gate_run_event_count != len(gate_run_rows):
+        errors.append("runtime_event_gate_run_cardinality_mismatch")
     anchor_hashes = validate_anchor_chain(
         runtime_authority.anchor_path, events, errors
     )
-    latest: dict[str, Any] | None = None
+
+    observations_by_condition: dict[str, dict[str, Any]] = {}
     seen_observation_sequences: set[int] = set()
     for row in observation_rows:
         (
@@ -1556,34 +2029,217 @@ def runtime_observation(
             "producer_id": producer_id,
             "stage": stage,
             "ready": ready,
+            "_event_payload": payload,
         }
-        if condition_id == gate.get("id"):
-            latest = observation
+        if isinstance(condition_id, str):
+            observations_by_condition[condition_id] = observation
+        else:
+            errors.append(
+                f"runtime_observation_condition_id_invalid:{source_event_seq}"
+            )
 
+    gate_runs_by_id: dict[str, dict[str, Any]] = {}
+    for sequence, event in events.items():
+        if not event.get("is_gate_run_event"):
+            continue
+        payload = event["payload"]
+        source_event_seq = payload.get("source_event_seq")
+        if (
+            type(source_event_seq) is int
+            and source_event_seq > 0
+        ):
+            source_event = events.get(source_event_seq)
+            expected_source = (
+                source_event.get("event_hash") if source_event else None,
+                source_event.get("source_state_hash") if source_event else None,
+                anchor_hashes.get(source_event_seq),
+            )
+            actual_source = (
+                payload.get("source_event_hash"),
+                payload.get("source_state_hash"),
+                payload.get("source_anchor_hash"),
+            )
+            if (
+                source_event is None
+                or not source_event.get("is_condition_event")
+                or source_event["payload"].get("condition_id")
+                != payload.get("condition_id")
+                or actual_source != expected_source
+            ):
+                errors.append(
+                    f"runtime_gate_run_source_binding_invalid:{sequence}"
+                )
+            elif any(
+                source_event["payload"].get(field) != payload.get(field)
+                for field in (
+                    "candidate_commit",
+                    "candidate_tree",
+                    "frozen_bundle_path",
+                    "frozen_bundle_sha256",
+                )
+            ):
+                errors.append(
+                    f"runtime_gate_run_source_candidate_mismatch:{sequence}"
+                )
+            if (
+                source_event is not None
+                and source_event.get("occurred_time") is not None
+                and event.get("occurred_time") is not None
+                and event["occurred_time"] < source_event["occurred_time"]
+            ):
+                errors.append(
+                    f"runtime_gate_run_predates_observation:{sequence}"
+                )
+        run_id = payload.get("run_id")
+        receipt = {
+            "authority": "runtime_sqlite_gate_run_receipt",
+            "run_event_seq": sequence,
+            "run_event_hash": event.get("event_hash"),
+            "run_anchor_hash": anchor_hashes.get(sequence),
+            "run_id": run_id,
+            "condition_id": payload.get("condition_id"),
+            "gate_id": payload.get("gate_id"),
+            "gate_stage": payload.get("gate_stage"),
+            "state": payload.get("state"),
+            "source_event_seq": payload.get("source_event_seq"),
+            "source_event_hash": payload.get("source_event_hash"),
+            "source_state_hash": payload.get("source_state_hash"),
+            "source_anchor_hash": payload.get("source_anchor_hash"),
+            "raw_result_path": payload.get("raw_result_path"),
+            "raw_result_sha256": payload.get("raw_result_sha256"),
+            "completed_at": payload.get("completed_at"),
+        }
+        if isinstance(run_id, str) and run_id not in gate_runs_by_id:
+            gate_runs_by_id[run_id] = {
+                "receipt": receipt,
+                "payload": payload,
+            }
+
+    seen_gate_run_sequences: set[int] = set()
+    seen_projected_run_ids: set[str] = set()
+    for row in gate_run_rows:
+        (
+            run_event_seq,
+            run_id,
+            condition_id,
+            gate_id,
+            gate_stage,
+            state_value,
+            source_event_seq,
+            source_event_hash,
+            source_state_hash,
+            source_anchor_hash,
+            raw_result_path,
+            raw_result_sha256,
+            completed_at,
+            producer_id,
+            run_event_hash,
+            run_anchor_hash,
+        ) = row
+        if (
+            type(run_event_seq) is not int
+            or run_event_seq in seen_gate_run_sequences
+        ):
+            errors.append("runtime_gate_run_event_reference_invalid")
+            continue
+        seen_gate_run_sequences.add(run_event_seq)
+        if not isinstance(run_id, str) or run_id in seen_projected_run_ids:
+            errors.append(f"runtime_gate_run_projection_duplicate_run_id:{run_id}")
+        else:
+            seen_projected_run_ids.add(run_id)
+        event = events.get(run_event_seq)
+        if event is None or not event.get("is_gate_run_event"):
+            errors.append(
+                f"runtime_gate_run_event_reference_missing:{run_event_seq}"
+            )
+            continue
+        payload = event["payload"]
+        expected_projection = (
+            payload.get("run_id"),
+            payload.get("condition_id"),
+            payload.get("gate_id"),
+            payload.get("gate_stage"),
+            payload.get("state"),
+            payload.get("source_event_seq"),
+            payload.get("source_event_hash"),
+            payload.get("source_state_hash"),
+            payload.get("source_anchor_hash"),
+            payload.get("raw_result_path"),
+            payload.get("raw_result_sha256"),
+            payload.get("completed_at"),
+            payload.get("producer_id"),
+            event.get("event_hash"),
+            anchor_hashes.get(run_event_seq),
+        )
+        actual_projection = (
+            run_id,
+            condition_id,
+            gate_id,
+            gate_stage,
+            state_value,
+            source_event_seq,
+            source_event_hash,
+            source_state_hash,
+            source_anchor_hash,
+            raw_result_path,
+            raw_result_sha256,
+            completed_at,
+            producer_id,
+            run_event_hash,
+            run_anchor_hash,
+        )
+        if actual_projection != expected_projection:
+            errors.append(
+                f"runtime_gate_run_projection_invalid:{run_event_seq}"
+            )
+
+    return RuntimeLedger(
+        True,
+        observations_by_condition,
+        gate_runs_by_id,
+        tuple(errors),
+    )
+
+
+def runtime_observation(
+    gate: dict[str, Any],
+    ledger: RuntimeLedger,
+    bindings: AuthoritativeBindings,
+) -> tuple[bool, str | None, dict[str, Any], list[str]]:
+    authority = "runtime_sqlite_event_chain"
+    errors = list(ledger.errors)
+    if not ledger.available:
+        return False, None, {"source": "runtime_database_absent"}, errors
+    latest = ledger.observations_by_condition.get(gate.get("id"))
     if latest is None:
         return False, None, {"source": authority}, errors
+    event_payload = latest.get("_event_payload", {})
     for field, expected in (
         ("candidate_commit", bindings.candidate_commit),
         ("candidate_tree", bindings.candidate_tree),
         ("frozen_bundle_path", bindings.frozen_bundle_path),
         ("frozen_bundle_sha256", bindings.frozen_bundle_sha256),
     ):
-        event_value = events[latest["source_event_seq"]]["payload"].get(field)
-        if expected is None or event_value != expected:
+        if expected is None or event_payload.get(field) != expected:
             errors.append(f"runtime_observation_{field}_mismatch")
     ready_when = gate.get("prerequisite_probe", {}).get("ready_when", {})
-    stage = latest["stage"]
+    stage = latest.get("stage")
     stage_matches = (
         stage == ready_when.get("stage")
         if "stage" in ready_when
-        else stage in set(ready_when.get("stage_in", []))
+        else isinstance(stage, str)
+        and stage in set(ready_when.get("stage_in", []))
     )
     ready = (
         not errors
-        and latest["ready"] is ready_when.get("ready")
+        and latest.get("ready") is ready_when.get("ready")
         and stage_matches
     )
-    public = dict(latest)
+    public = {
+        key: value
+        for key, value in latest.items()
+        if not key.startswith("_")
+    }
     public["source"] = authority
     return ready, stage, public, errors
 
@@ -1618,7 +2274,7 @@ def deterministic_presence_observation(
 def observe_prerequisite(
     gate: dict[str, Any],
     contract: dict[str, Any],
-    runtime_authority: RuntimeAuthority,
+    runtime_ledger: RuntimeLedger,
     bindings: AuthoritativeBindings,
 ) -> tuple[bool, str | None, dict[str, Any], list[str]]:
     authority = gate.get("prerequisite_probe", {}).get("authority")
@@ -1643,9 +2299,7 @@ def observe_prerequisite(
             "forbidden_scope_present": satisfied,
         }, []
     if authority == "runtime_sqlite_event_chain":
-        return runtime_observation(
-            gate, contract, runtime_authority, bindings
-        )
+        return runtime_observation(gate, runtime_ledger, bindings)
     return False, None, {"source": authority}, [
         "unknown_prerequisite_authority"
     ]
@@ -1788,6 +2442,7 @@ def validate_gate_evidence(
     stage: str | None,
     observation: dict[str, Any],
     bindings: AuthoritativeBindings,
+    runtime_ledger: RuntimeLedger,
     now: dt.datetime,
 ) -> list[str]:
     errors: list[str] = []
@@ -1813,7 +2468,11 @@ def validate_gate_evidence(
         errors.append("gate_id_mismatch")
     if evidence.get("gate_stage") != expected_stage:
         errors.append("gate_stage_mismatch")
-    if evidence.get("state") not in set(evidence_schema.get("state_enum", [])):
+    evidence_state = evidence.get("state")
+    if (
+        not isinstance(evidence_state, str)
+        or evidence_state not in set(evidence_schema.get("state_enum", []))
+    ):
         errors.append("state_not_allowed")
     validate_binding_fields(
         evidence, bindings, label="gate_evidence", errors=errors
@@ -1885,6 +2544,128 @@ def validate_gate_evidence(
         )
         if expected_observation is None or evidence_observation != expected_observation:
             errors.append("gate_observation_binding_mismatch")
+
+    receipt_schema = evidence_schema.get("run_receipt_schema", {})
+    evidence_receipt = evidence.get("run_receipt")
+    if not isinstance(evidence_receipt, dict):
+        errors.append("gate_run_receipt_invalid")
+    else:
+        exact_fields(
+            evidence_receipt,
+            receipt_schema.get("required"),
+            label="gate_run_receipt",
+            errors=errors,
+        )
+        if evidence_receipt.get("authority") != receipt_schema.get("authority"):
+            errors.append("gate_run_receipt_authority_invalid")
+        run_event_seq = evidence_receipt.get("run_event_seq")
+        if (
+            type(run_event_seq) is not int
+            or run_event_seq
+            < receipt_schema.get("runtime_event_seq_minimum", 1)
+        ):
+            errors.append("gate_run_receipt_event_seq_invalid")
+        for field in (
+            "run_event_hash",
+            "run_anchor_hash",
+            "source_event_hash",
+            "source_state_hash",
+            "source_anchor_hash",
+            "raw_result_sha256",
+        ):
+            value = evidence_receipt.get(field)
+            if not isinstance(value, str) or not SHA256_RE.fullmatch(value):
+                errors.append(f"gate_run_receipt_{field}_invalid")
+
+        expected_receipt_bindings = {
+            "run_id": evidence.get("run_id"),
+            "condition_id": evidence.get("condition_id"),
+            "gate_id": evidence.get("gate_id"),
+            "gate_stage": evidence.get("gate_stage"),
+            "state": evidence.get("state"),
+            "raw_result_path": evidence.get("raw_result_path"),
+            "raw_result_sha256": evidence.get("raw_result_sha256"),
+            "completed_at": evidence.get("completed_at"),
+        }
+        if isinstance(evidence_observation, dict):
+            for field in (
+                "source_event_seq",
+                "source_event_hash",
+                "source_state_hash",
+                "source_anchor_hash",
+            ):
+                expected_receipt_bindings[field] = evidence_observation.get(
+                    field
+                )
+        for field, expected_value in expected_receipt_bindings.items():
+            if evidence_receipt.get(field) != expected_value:
+                errors.append(f"gate_run_receipt_{field}_mismatch")
+
+    anchored_gate_run = (
+        runtime_ledger.gate_runs_by_id.get(run_id)
+        if isinstance(run_id, str)
+        else None
+    )
+    if anchored_gate_run is None:
+        errors.append("gate_run_receipt_missing_or_unanchored")
+    else:
+        anchored_receipt = anchored_gate_run.get("receipt")
+        anchored_payload = anchored_gate_run.get("payload")
+        if (
+            not isinstance(anchored_receipt, dict)
+            or not isinstance(anchored_receipt.get("run_anchor_hash"), str)
+            or not SHA256_RE.fullmatch(
+                anchored_receipt.get("run_anchor_hash", "")
+            )
+        ):
+            errors.append("gate_run_receipt_unanchored")
+        if (
+            not isinstance(evidence_receipt, dict)
+            or evidence_receipt != anchored_receipt
+        ):
+            errors.append("gate_run_receipt_mismatch")
+
+        expected_run_payload: dict[str, Any] = {}
+        source_fields = {
+            "source_event_seq",
+            "source_event_hash",
+            "source_state_hash",
+            "source_anchor_hash",
+        }
+        for field in RUNTIME_EVENT_CHAIN_SCHEMA_V1[
+            "payload_required_by_type"
+        ]["conditional_gate_run"]:
+            if field in source_fields:
+                expected_run_payload[field] = (
+                    evidence_observation.get(field)
+                    if isinstance(evidence_observation, dict)
+                    else None
+                )
+            else:
+                expected_run_payload[field] = evidence.get(field)
+        if (
+            not isinstance(anchored_payload, dict)
+            or anchored_payload != expected_run_payload
+        ):
+            errors.append("gate_run_receipt_evidence_mismatch")
+            if isinstance(anchored_payload, dict):
+                for field, expected_value in expected_run_payload.items():
+                    if anchored_payload.get(field) != expected_value:
+                        errors.append(
+                            f"gate_run_receipt_payload_mismatch:{field}"
+                        )
+
+        latest_source = expected_observation_binding(observation)
+        if isinstance(anchored_receipt, dict) and isinstance(
+            latest_source, dict
+        ):
+            if any(
+                anchored_receipt.get(field) != latest_source.get(field)
+                for field in source_fields
+            ):
+                errors.append(
+                    "gate_run_receipt_replayed_against_latest_observation"
+                )
 
     evidence_completed = parse_utc_timestamp(
         evidence.get("completed_at"),
@@ -1984,6 +2765,10 @@ def validate_gate_evidence(
         if (
             len(case_results) != len(required_cases)
             or len(case_ids) != len(case_results)
+            or not all(
+                isinstance(case_id, str) and case_id
+                for case_id in case_ids
+            )
             or len(case_ids) != len(set(case_ids))
             or set(case_ids) != required_cases
         ):
@@ -2080,6 +2865,7 @@ def evaluate(
     contract: dict[str, Any],
     gate_catalog: dict[str, dict[str, Any]],
     runtime_authority: RuntimeAuthority,
+    runtime_ledger: RuntimeLedger,
     target_verdict: str,
     bindings: AuthoritativeBindings,
     common_errors: list[str],
@@ -2101,10 +2887,17 @@ def evaluate(
         )
     ready, stage, prerequisite_observation, prerequisite_errors = (
         observe_prerequisite(
-            gate, contract, runtime_authority, bindings
+            gate, contract, runtime_ledger, bindings
         )
     )
     errors = evidence_path_errors + evidence_load_errors + prerequisite_errors
+    if (
+        (ready or evidence_present)
+        and gate.get("mandatory_gate_when_ready") is not None
+        and gate.get("prerequisite_probe", {}).get("authority")
+        != "runtime_sqlite_event_chain"
+    ):
+        errors.extend(runtime_ledger.errors)
     if ready or evidence_present:
         errors = list(common_errors) + errors
     allowed_states = set(gate["allowed_states"])
@@ -2116,6 +2909,25 @@ def evaluate(
             errors.append(
                 "gate_evidence_present_without_authoritative_prerequisite"
             )
+            if (
+                evidence is not None
+                and gate.get("mandatory_gate_when_ready") is not None
+                and stage is not None
+            ):
+                errors.extend(
+                    validate_gate_evidence(
+                        gate,
+                        all_conditional_gates,
+                        gate_catalog,
+                        contract["conditional_evidence_schema"],
+                        evidence,
+                        stage,
+                        prerequisite_observation,
+                        bindings,
+                        runtime_ledger,
+                        now,
+                    )
+                )
     else:
         mandatory_gate = gate["mandatory_gate_when_ready"]
         if mandatory_gate is None:
@@ -2133,15 +2945,20 @@ def evaluate(
                 stage,
                 prerequisite_observation,
                 bindings,
+                runtime_ledger,
                 now,
             )
             errors.extend(validation_errors)
             state = evidence.get("state")
-            effective_state = {
-                "passed": transitions.get("gate_pass"),
-                "failed": transitions.get("gate_fail"),
-                "inconclusive": transitions.get("gate_inconclusive"),
-            }.get(state, transitions["ready_without_valid_gate_evidence"])
+            effective_state = (
+                {
+                    "passed": transitions.get("gate_pass"),
+                    "failed": transitions.get("gate_fail"),
+                    "inconclusive": transitions.get("gate_inconclusive"),
+                }.get(state, transitions["ready_without_valid_gate_evidence"])
+                if isinstance(state, str)
+                else transitions["ready_without_valid_gate_evidence"]
+            )
             if validation_errors:
                 effective_state = transitions["ready_without_valid_gate_evidence"]
 
@@ -2248,6 +3065,7 @@ def main() -> int:
         contract
     )
     runtime_authority = resolve_runtime_authority(args.runtime_db)
+    runtime_ledger = load_runtime_ledger(runtime_authority)
     gate_catalog = {
         gate["id"]: gate
         for gate in contract.get("conditional_gate_catalog", [])
@@ -2261,6 +3079,7 @@ def main() -> int:
             contract,
             gate_catalog,
             runtime_authority,
+            runtime_ledger,
             args.target_verdict,
             bindings,
             common_errors,
