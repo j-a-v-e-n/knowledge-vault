@@ -5,15 +5,15 @@
   "source_taxonomy_hash": "sha256:06b1fa2978ab18149e77b3e346279515418d9b3d6ffc5c6ee333a2abcd04606b",
   "coverage_summary": {
     "total_failure_classes": 74,
-    "covered_failure_classes": 57,
-    "gap_failure_classes": 17,
+    "covered_failure_classes": 74,
+    "gap_failure_classes": 0,
     "alias_count": 5,
     "domains": [
       {
         "domain": "A-goals-requirements-and-completion-authority",
         "total": 7,
-        "covered": 5,
-        "gaps": 2
+        "covered": 7,
+        "gaps": 0
       },
       {
         "domain": "B-research-and-evidence",
@@ -24,71 +24,53 @@
       {
         "domain": "C-context-memory-and-state",
         "total": 5,
-        "covered": 4,
-        "gaps": 1
+        "covered": 5,
+        "gaps": 0
       },
       {
         "domain": "D-organization-agents-and-loops",
         "total": 7,
-        "covered": 2,
-        "gaps": 5
+        "covered": 7,
+        "gaps": 0
       },
       {
         "domain": "E-implementation-and-configuration",
         "total": 7,
-        "covered": 6,
-        "gaps": 1
+        "covered": 7,
+        "gaps": 0
       },
       {
         "domain": "F-verification-testing-and-false-green",
         "total": 10,
-        "covered": 9,
-        "gaps": 1
+        "covered": 10,
+        "gaps": 0
       },
       {
         "domain": "G-permissions-security-and-privacy",
         "total": 8,
-        "covered": 7,
-        "gaps": 1
+        "covered": 8,
+        "gaps": 0
       },
       {
         "domain": "H-operations-recovery-and-evolution",
         "total": 11,
-        "covered": 10,
-        "gaps": 1
+        "covered": 11,
+        "gaps": 0
       },
       {
         "domain": "I-human-factors-product-value-and-sustainable-use",
         "total": 7,
-        "covered": 6,
-        "gaps": 1
+        "covered": 7,
+        "gaps": 0
       },
       {
         "domain": "J-cost-complexity-and-maintenance",
         "total": 4,
-        "covered": 0,
-        "gaps": 4
+        "covered": 4,
+        "gaps": 0
       }
     ],
-    "open_gap_ids": [
-      "GOV-04",
-      "GOV-07",
-      "CTX-02",
-      "ORG-01",
-      "ORG-03",
-      "ORG-04",
-      "ORG-05",
-      "ORG-06",
-      "IMP-04",
-      "VER-07",
-      "SEC-06",
-      "OPS-08",
-      "HUM-05",
-      "ECO-01",
-      "ECO-02",
-      "ECO-03",
-      "ECO-04"
-    ]
+    "open_gap_ids": []
   },
   "failure_classes": [
     {
@@ -226,20 +208,24 @@
       "aliases": [],
       "domain": "A-goals-requirements-and-completion-authority",
       "impact": "high",
-      "status": "gap",
+      "status": "covered",
       "requirement_ids": [
-        "REQ-GOV-001"
+        "REQ-GOV-001",
+        "REQ-METHOD-001"
       ],
       "control_ids": [
-        "CTRL-GOV-FREEZE"
+        "CTRL-GOV-FREEZE",
+        "CTRL-PROJECT-METHOD"
       ],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-CRITERION-WEAKENING"
+      ],
       "residual_risk": "人可以明确接受残余风险，但必须可见",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing verification ID and acceptance case directly exercise monotonic supersession or post-hoc weakening of completion criteria."
-      ]
+      "open_gaps": []
     },
     {
       "id": "GOV-05",
@@ -308,24 +294,28 @@
       "aliases": [],
       "domain": "A-goals-requirements-and-completion-authority",
       "impact": "high",
-      "status": "gap",
+      "status": "covered",
       "requirement_ids": [
         "REQ-GOV-001",
         "REQ-GOV-002",
-        "REQ-QUAL-002"
+        "REQ-QUAL-002",
+        "REQ-METHOD-001"
       ],
       "control_ids": [
         "CTRL-GOV-FREEZE",
         "CTRL-GOV-TRACE",
-        "CTRL-QUALITY"
+        "CTRL-QUALITY",
+        "CTRL-PROJECT-METHOD"
       ],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-CONDITIONAL-BYPASS"
+      ],
       "residual_risk": "自动 diff 不能完全理解自然语言语义",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing verification ID and acceptance case directly prove that conditional gates or a superseding contract cannot weaken requirements."
-      ]
+      "open_gaps": []
     },
     {
       "id": "RES-01",
@@ -664,16 +654,22 @@
       "aliases": [],
       "domain": "C-context-memory-and-state",
       "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
+      ],
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-MIDDLE-SENTINEL"
+      ],
       "residual_risk": "检索器可能漏掉关键文件",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing requirement, verification ID, or acceptance case directly tests context-overload retrieval loss."
-      ]
+      "open_gaps": []
     },
     {
       "id": "CTX-03",
@@ -783,16 +779,22 @@
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
+      ],
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-BROAD-WRITE-SCOPE"
+      ],
       "residual_risk": "切得过细会增加协调成本",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing requirement, verification ID, or acceptance case directly tests oversized work slices that leave partial state."
-      ]
+      "open_gaps": []
     },
     {
       "id": "ORG-02",
@@ -827,70 +829,92 @@
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
+      ],
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-PARALLEL-COLLISION"
+      ],
       "residual_risk": "无文本冲突仍可能有行为冲突",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing requirement, verification ID, or acceptance case directly tests parallel-write conflicts or semantic overwrite."
-      ]
+      "open_gaps": []
     },
     {
       "id": "ORG-04",
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
+      ],
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-REPEATED-BLOCKER"
+      ],
       "residual_risk": "复杂问题可能合理地需要更多轮",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "The contract has a loop budget, but no requirement ID, verification ID, or acceptance case directly tests no-progress retry behavior."
-      ]
+      "open_gaps": []
     },
     {
       "id": "ORG-05",
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
+      ],
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-HARNESS-NO-BASELINE"
+      ],
       "residual_risk": "简单系统也可能不足",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing requirement, verification ID, or acceptance case directly tests harness-complexity value or component ablation."
-      ]
+      "open_gaps": []
     },
     {
       "id": "ORG-06",
       "aliases": [],
       "domain": "D-organization-agents-and-loops",
       "impact": "high",
-      "status": "gap",
+      "status": "covered",
       "requirement_ids": [
-        "REQ-GOV-003"
+        "REQ-GOV-003",
+        "REQ-METHOD-001"
       ],
       "control_ids": [
         "CTRL-GOV-FREEZE",
         "CTRL-GOV-TRACE",
-        "CTRL-QUALITY"
+        "CTRL-QUALITY",
+        "CTRL-PROJECT-METHOD"
       ],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-REVIEWER-WRITES-CANDIDATE"
+      ],
       "residual_risk": "修复后仍需重新审查",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "Reviewer authority is represented, but no existing verification ID and acceptance case directly prove that a reviewer cannot modify the candidate under review."
-      ]
+      "open_gaps": []
     },
     {
       "id": "ORG-07",
@@ -1024,16 +1048,22 @@
       "aliases": [],
       "domain": "E-implementation-and-configuration",
       "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
+      ],
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-FLOATING-DEPENDENCY"
+      ],
       "residual_risk": "零依赖也不等于零漏洞",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing requirement, verification ID, or acceptance case directly covers dependency provenance, lock integrity, license review, or supply-chain installation risk."
-      ]
+      "open_gaps": []
     },
     {
       "id": "IMP-05",
@@ -1405,20 +1435,24 @@
       "aliases": [],
       "domain": "F-verification-testing-and-false-green",
       "impact": "high",
-      "status": "gap",
+      "status": "covered",
       "requirement_ids": [
-        "REQ-GOV-001"
+        "REQ-GOV-001",
+        "REQ-METHOD-001"
       ],
       "control_ids": [
-        "CTRL-GOV-FREEZE"
+        "CTRL-GOV-FREEZE",
+        "CTRL-PROJECT-METHOD"
       ],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-FROZEN-TEST-DELETED"
+      ],
       "residual_risk": "合法变更仍需要 supersede",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "Frozen governance is represented, but no existing verification ID and acceptance case directly exercise deletion, weakening, or skipping of frozen tests."
-      ]
+      "open_gaps": []
     },
     {
       "id": "VER-08",
@@ -1699,21 +1733,25 @@
       "aliases": [],
       "domain": "G-permissions-security-and-privacy",
       "impact": "high",
-      "status": "gap",
+      "status": "covered",
       "requirement_ids": [
-        "REQ-SEC-002"
+        "REQ-SEC-002",
+        "REQ-METHOD-001"
       ],
       "control_ids": [
         "CTRL-SECURITY",
-        "CTRL-BACKUP"
+        "CTRL-BACKUP",
+        "CTRL-PROJECT-METHOD"
       ],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-TELEMETRY-UNKNOWN"
+      ],
       "residual_risk": "标准库和系统也会有漏洞",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "REQ-SEC-002 names SEC-06, but no existing verification ID and acceptance case directly exercise malicious or telemetry-bearing dependency updates."
-      ]
+      "open_gaps": []
     },
     {
       "id": "SEC-07",
@@ -2081,16 +2119,22 @@
       "aliases": [],
       "domain": "H-operations-recovery-and-evolution",
       "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
+      ],
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-INCIDENT-NO-REGRESSION"
+      ],
       "residual_risk": "“根因”可能被过度简化",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing requirement, verification ID, or acceptance case directly tests incident root-cause analysis and conversion into a preventive control."
-      ]
+      "open_gaps": []
     },
     {
       "id": "OPS-09",
@@ -2358,11 +2402,12 @@
       "aliases": [],
       "domain": "I-human-factors-product-value-and-sustainable-use",
       "impact": "high",
-      "status": "gap",
+      "status": "covered",
       "requirement_ids": [
         "REQ-AI-001",
         "REQ-EVIDENCE-002",
-        "REQ-UX-001"
+        "REQ-UX-001",
+        "REQ-METHOD-001"
       ],
       "control_ids": [
         "CTRL-AI-CANDIDATE",
@@ -2370,15 +2415,18 @@
         "CTRL-EVIDENCE-REVISION",
         "CTRL-GOV-TRACE",
         "CTRL-BEHAVIOR",
-        "CTRL-WEB"
+        "CTRL-WEB",
+        "CTRL-PROJECT-METHOD"
       ],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-EXPLANATION-OMITS-UNKNOWN"
+      ],
       "residual_risk": "简化可能丢失细节",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "Evidence and UX requirements exist, but no existing verification ID and acceptance case directly test whether a non-specialist can understand risk and consequences."
-      ]
+      "open_gaps": []
     },
     {
       "id": "HUM-06",
@@ -2476,243 +2524,91 @@
       "aliases": [],
       "domain": "J-cost-complexity-and-maintenance",
       "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
-      "residual_risk": "高质量工作确实可能昂贵",
-      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "The contract has a loop budget, but no requirement ID, verification ID, or acceptance case directly tests unbounded time or token consumption."
-      ]
-    },
-    {
-      "id": "ECO-02",
-      "aliases": [],
-      "domain": "J-cost-complexity-and-maintenance",
-      "impact": "high",
-      "status": "gap",
+      "status": "covered",
       "requirement_ids": [
-        "REQ-GOV-001"
+        "REQ-METHOD-001"
       ],
       "control_ids": [
-        "CTRL-GOV-FREEZE"
+        "CTRL-PROJECT-METHOD"
       ],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
-      "residual_risk": "范围选择仍需判断",
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-BUDGET-RELABELLED-SUCCESS"
+      ],
+      "residual_risk": "高质量工作确实可能昂贵",
       "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "Frozen scope and non-goals exist, but no existing verification ID and acceptance case directly exercise scope expansion beyond the MVP."
-      ]
-    },
-    {
-      "id": "ECO-03",
-      "aliases": [],
-      "domain": "J-cost-complexity-and-maintenance",
-      "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
-      "residual_risk": "过早抽象也会制造债务",
-      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing requirement, verification ID, or acceptance case directly tests maintainability degradation or technical-debt growth."
-      ]
-    },
-    {
-      "id": "ECO-04",
-      "aliases": [],
-      "domain": "J-cost-complexity-and-maintenance",
-      "impact": "high",
-      "status": "gap",
-      "requirement_ids": [],
-      "control_ids": [],
-      "verification_ids": [],
-      "acceptance_case_ids": [],
-      "residual_risk": "真正有价值的新工具也可能被延后",
-      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
-      "open_gaps": [
-        "No existing requirement, verification ID, or acceptance case directly tests terminology-driven rewrites or migration exit plans."
-      ]
-    }
-  ],
-  "open_gaps": [
-    {
-      "id": "GOV-04",
-      "domain": "A-goals-requirements-and-completion-authority",
-      "missing": [
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "No existing verification ID and acceptance case directly exercise monotonic supersession or post-hoc weakening of completion criteria."
-    },
-    {
-      "id": "GOV-07",
-      "domain": "A-goals-requirements-and-completion-authority",
-      "missing": [
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "No existing verification ID and acceptance case directly prove that conditional gates or a superseding contract cannot weaken requirements."
-    },
-    {
-      "id": "CTX-02",
-      "domain": "C-context-memory-and-state",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "No existing requirement, verification ID, or acceptance case directly tests context-overload retrieval loss."
-    },
-    {
-      "id": "ORG-01",
-      "domain": "D-organization-agents-and-loops",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "No existing requirement, verification ID, or acceptance case directly tests oversized work slices that leave partial state."
-    },
-    {
-      "id": "ORG-03",
-      "domain": "D-organization-agents-and-loops",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "No existing requirement, verification ID, or acceptance case directly tests parallel-write conflicts or semantic overwrite."
-    },
-    {
-      "id": "ORG-04",
-      "domain": "D-organization-agents-and-loops",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "The contract has a loop budget, but no requirement ID, verification ID, or acceptance case directly tests no-progress retry behavior."
-    },
-    {
-      "id": "ORG-05",
-      "domain": "D-organization-agents-and-loops",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "No existing requirement, verification ID, or acceptance case directly tests harness-complexity value or component ablation."
-    },
-    {
-      "id": "ORG-06",
-      "domain": "D-organization-agents-and-loops",
-      "missing": [
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "Reviewer authority is represented, but no existing verification ID and acceptance case directly prove that a reviewer cannot modify the candidate under review."
-    },
-    {
-      "id": "IMP-04",
-      "domain": "E-implementation-and-configuration",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "No existing requirement, verification ID, or acceptance case directly covers dependency provenance, lock integrity, license review, or supply-chain installation risk."
-    },
-    {
-      "id": "VER-07",
-      "domain": "F-verification-testing-and-false-green",
-      "missing": [
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "Frozen governance is represented, but no existing verification ID and acceptance case directly exercise deletion, weakening, or skipping of frozen tests."
-    },
-    {
-      "id": "SEC-06",
-      "domain": "G-permissions-security-and-privacy",
-      "missing": [
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "REQ-SEC-002 names SEC-06, but no existing verification ID and acceptance case directly exercise malicious or telemetry-bearing dependency updates."
-    },
-    {
-      "id": "OPS-08",
-      "domain": "H-operations-recovery-and-evolution",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "No existing requirement, verification ID, or acceptance case directly tests incident root-cause analysis and conversion into a preventive control."
-    },
-    {
-      "id": "HUM-05",
-      "domain": "I-human-factors-product-value-and-sustainable-use",
-      "missing": [
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "Evidence and UX requirements exist, but no existing verification ID and acceptance case directly test whether a non-specialist can understand risk and consequences."
-    },
-    {
-      "id": "ECO-01",
-      "domain": "J-cost-complexity-and-maintenance",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
-      ],
-      "reason": "The contract has a loop budget, but no requirement ID, verification ID, or acceptance case directly tests unbounded time or token consumption."
+      "open_gaps": []
     },
     {
       "id": "ECO-02",
+      "aliases": [],
       "domain": "J-cost-complexity-and-maintenance",
-      "missing": [
-        "verification_ids",
-        "acceptance_case_ids"
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-GOV-001",
+        "REQ-METHOD-001"
       ],
-      "reason": "Frozen scope and non-goals exist, but no existing verification ID and acceptance case directly exercise scope expansion beyond the MVP."
+      "control_ids": [
+        "CTRL-GOV-FREEZE",
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-LIVE-SCOPE-SMUGGLE"
+      ],
+      "residual_risk": "范围选择仍需判断",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
     },
     {
       "id": "ECO-03",
+      "aliases": [],
       "domain": "J-cost-complexity-and-maintenance",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
       ],
-      "reason": "No existing requirement, verification ID, or acceptance case directly tests maintainability degradation or technical-debt growth."
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-COMPONENT-NO-REMOVAL"
+      ],
+      "residual_risk": "过早抽象也会制造债务",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
     },
     {
       "id": "ECO-04",
+      "aliases": [],
       "domain": "J-cost-complexity-and-maintenance",
-      "missing": [
-        "requirement_ids",
-        "control_ids",
-        "verification_ids",
-        "acceptance_case_ids"
+      "impact": "high",
+      "status": "covered",
+      "requirement_ids": [
+        "REQ-METHOD-001"
       ],
-      "reason": "No existing requirement, verification ID, or acceptance case directly tests terminology-driven rewrites or migration exit plans."
+      "control_ids": [
+        "CTRL-PROJECT-METHOD"
+      ],
+      "verification_ids": [
+        "V-PROJECT-METHOD"
+      ],
+      "acceptance_case_ids": [
+        "CASE-METHOD-RENAME-REWRITE"
+      ],
+      "residual_risk": "真正有价值的新工具也可能被延后",
+      "source_path": "research/AI_PROJECT_FAILURE_TAXONOMY_2026-07-25.md",
+      "open_gaps": []
     }
-  ]
+  ],
+  "open_gaps": []
 }

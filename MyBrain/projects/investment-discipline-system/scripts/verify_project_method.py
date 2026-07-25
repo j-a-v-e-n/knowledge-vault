@@ -595,19 +595,46 @@ def verify_scope_and_maintenance(
 
 def verify_failure_coverage(policy: dict[str, Any], errors: list[str]) -> None:
     registry = load_json(FAILURE_REGISTRY, errors, "failure registry")
-    registry_gaps = registry.get("open_gaps")
-    if not isinstance(registry_gaps, list):
-        errors.append("failure registry open_gaps must be a list")
+    registry_classes = registry.get("failure_classes")
+    if not isinstance(registry_classes, list):
+        errors.append("failure registry failure_classes must be a list")
         return
-    gap_ids = {
-        item.get("id")
-        for item in registry_gaps
+    class_by_id = {
+        item.get("id"): item
+        for item in registry_classes
         if isinstance(item, dict) and nonempty(item.get("id"))
     }
-    if gap_ids != set(EXPECTED_FAILURE_CASES):
-        errors.append(
-            "project-method expected gap set differs from the failure registry"
+    for failure_id, (_, case_id) in EXPECTED_FAILURE_CASES.items():
+        item = class_by_id.get(failure_id)
+        if not isinstance(item, dict):
+            errors.append(f"project-method failure class is missing: {failure_id}")
+            continue
+        if item.get("status") != "covered" or item.get("open_gaps") != []:
+            errors.append(
+                f"project-method failure class is not closed: {failure_id}"
+            )
+        required_bindings = (
+            ("requirement_ids", "REQ-METHOD-001"),
+            ("control_ids", "CTRL-PROJECT-METHOD"),
+            ("verification_ids", "V-PROJECT-METHOD"),
+            ("acceptance_case_ids", case_id),
         )
+        for field, expected_id in required_bindings:
+            values = item.get(field)
+            if not isinstance(values, list) or expected_id not in values:
+                errors.append(
+                    f"project-method failure class {failure_id} lacks "
+                    f"{field} binding {expected_id}"
+                )
+    if registry.get("open_gaps") != []:
+        errors.append("failure registry must have no remaining open gaps")
+    summary = registry.get("coverage_summary")
+    if (
+        not isinstance(summary, dict)
+        or summary.get("gap_failure_classes") != 0
+        or summary.get("open_gap_ids") != []
+    ):
+        errors.append("failure registry zero-gap summary differs")
 
     coverage = policy.get("failure_coverage")
     if not isinstance(coverage, list):

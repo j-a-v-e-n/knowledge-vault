@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -8,7 +9,10 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
+from types import ModuleType
+from typing import Any
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -18,11 +22,31 @@ REMOTE_VERIFIER = PROJECT_ROOT / "scripts" / "verify_remote_commit.py"
 GOVERNANCE_VERIFIER = PROJECT_ROOT / "scripts" / "verify_governance.py"
 RESEARCH_RELATIVE = "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json"
 ASSURANCE_RELATIVE = "governance/ASSURANCE_SUBJECTS_V1.json"
+GROUND_TRUTH_RELATIVE = "governance/GROUND_TRUTH_MANIFEST_V1.json"
+RESEARCH_SUFFICIENCY_RELATIVE = "governance/RESEARCH_SUFFICIENCY_V1.json"
+TARGETS_RELATIVE = "governance/IMPLEMENTATION_TARGETS_V1.json"
 BUNDLE_RELATIVE = "governance/FROZEN_BUNDLE_V1.json"
-FINAL_EVIDENCE_RELATIVE = "audits/FINAL_REVIEW_EVIDENCE_R3.json"
-FINAL_REVIEW_SUBJECT = "SUBJECT-DESIGN-REVIEW-FINAL-R3"
+FINAL_EVIDENCE_RELATIVE = "audits/FINAL_REVIEW_EVIDENCE_SCHEMA_V2.json"
+REVIEW_OUTPUT_RELATIVE = "audits/final_review_fixture/review-output.md"
+MACHINE_MANIFEST_RELATIVE = "evidence/ci/assurance-manifest.json"
+ATTESTATION_RELATIVE = "evidence/ci/attestation-verification.json"
+NOVELTY_SPEC_RELATIVE = (
+    "audits/final_review_probes/PROBE-FREEZE-SCHEMA-V2-POSTDATED.json"
+)
+NOVELTY_RECEIPT_RELATIVE = (
+    "audits/final_review_attacks/novelty-freeze-schema-v2.json"
+)
+FINAL_REVIEW_SUBJECT = "SUBJECT-DESIGN-REVIEW-FINAL-SCHEMA-V2"
 TEST_PROJECT_PREFIX = "workspace/project/"
 INNER_CONTEXT_ENV = "IDS_FROZEN_REMOTE_INNER_CONTEXT_V1"
+WORKFLOW_RELATIVE = ".github/workflows/investment-discipline-assurance.yml"
+FIXTURE_REPOSITORY = "fixture-owner/fixture-repository"
+ATTACK_IDS = (
+    "ATTACK-PIT-ORACLE-INVERSION",
+    "ATTACK-SAME-BAR-CAUSALITY-SMUGGLE",
+    "ATTACK-SPLIT-ACCOUNTING-SMUGGLE",
+    "ATTACK-CONDITIONAL-SELF-ATTESTATION",
+)
 CANONICAL_ATTACK_SELECTORS = {
     "ATTACK-PIT-ORACLE-INVERSION": (
         "governance_tests.test_final_review_attacks."
@@ -41,6 +65,33 @@ CANONICAL_ATTACK_SELECTORS = {
         "FinalReviewAttackTests.test_conditional_self_attestation_is_rejected"
     ),
 }
+
+
+def canonical_json(value: Any) -> bytes:
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
+
+def digest_value(value: Any) -> str:
+    return hashlib.sha256(canonical_json(value)).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load_module(path: Path, prefix: str) -> ModuleType:
+    module_name = f"{prefix}_{uuid.uuid4().hex}"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        raise AssertionError(f"cannot load module: {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
