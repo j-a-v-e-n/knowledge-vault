@@ -232,6 +232,9 @@
     "research/AI_ENGINEERING_METHOD_REFRESH_2026-07-24.md",
     "audits/EXISTING_SYSTEM_AUDIT_2026-07-25.md",
     "research/VIBE_TRADING_REUSE_REVIEW_2026-07-25.md",
+    "research/FORMAL_DATA_AND_PAPER_BOUNDARY_2026-07-25.md",
+    "audits/DESIGN_FREEZE_CHALLENGE_ROUND2_2026-07-25.md",
+    "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md",
     "PRODUCT_ASSURANCE_BLUEPRINT_V2.md"
   ],
   "challenge": {
@@ -291,6 +294,27 @@
           "私人备份缺少 at-rest 保密、目的地和保留边界"
         ],
         "disposition": "保持 challenge in_progress 与 stop_rule.met=false；补充领域规范、可执行 case、状态机和条件执行器后进行下一轮独立挑战"
+      },
+      {
+        "id": "CHALLENGE-02B",
+        "candidate_commit": "85601b785c5fac46d4b6533845abaca92d4af01d",
+        "candidate_tree": "ae71186bd70282949c2e953fe969d8c6009a8101",
+        "reviewer_subjects": ["SUBJECT-DESIGN-REVIEW-BANACH-R2B"],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/DESIGN_FREEZE_STRUCTURAL_REVIEW_2026-07-25.md",
+        "new_architecture_changing_classes": [],
+        "critical_findings": [
+          "候选阶段规则、结果 schema 和冻结边界与治理校验器不一致",
+          "requirement、verification spec 与 acceptance case 缺少精确双向对称",
+          "条件门可用自报 prerequisite 或删除 evidence 绕过",
+          "新增规范及 implementation target 可被删空、改名或移出冻结边界"
+        ],
+        "major_findings": [
+          "assertion、operation 与公式 token 缺少执行目录和结构化表达式",
+          "政策列表条款缺少稳定 ID 与反向绑定",
+          "六类公司行动缺少逐项精确 acceptance case"
+        ],
+        "disposition": "没有新增 RC 类别，但现有控制尚未闭合；保持 challenge in_progress，全部转为结构校验、精确 case、权威 prerequisite、mutation test 和冻结流程修订，等待新 commit/tree 独立挑战"
       }
     ]
   },

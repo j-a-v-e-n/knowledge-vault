@@ -712,22 +712,61 @@ def verify_bound_items(
 
 
 def verify_expression(
-    node: Any, allowed_operators: set[str], label: str, errors: list[str]
+    node: Any,
+    operator_specs: dict[str, Any],
+    quantum_symbols: set[str],
+    allowed_symbols: set[str],
+    label: str,
+    errors: list[str],
 ) -> None:
     if isinstance(node, str):
+        if re.fullmatch(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?", node):
+            return
+        if node not in allowed_symbols:
+            errors.append(f"{label} references unknown expression symbol: {node!r}")
         return
     if not isinstance(node, dict):
         errors.append(f"{label} expression node must be string or object")
         return
+    extra_keys = set(node) - {"op", "args", "quantum"}
+    if extra_keys:
+        errors.append(f"{label} expression has unsupported keys: {sorted(extra_keys)}")
     operator = node.get("op")
     arguments = node.get("args")
-    if operator not in allowed_operators:
+    operator_spec = operator_specs.get(operator)
+    if not isinstance(operator_spec, dict):
         errors.append(f"{label} uses unknown expression operator: {operator!r}")
     if not isinstance(arguments, list) or not arguments:
         errors.append(f"{label} expression has no args")
         return
+    if isinstance(operator_spec, dict):
+        exact_arity = operator_spec.get("arity")
+        minimum_arity = operator_spec.get("minimum_arity")
+        if isinstance(exact_arity, int) and len(arguments) != exact_arity:
+            errors.append(
+                f"{label} operator {operator} requires arity {exact_arity}, "
+                f"got {len(arguments)}"
+            )
+        if isinstance(minimum_arity, int) and len(arguments) < minimum_arity:
+            errors.append(
+                f"{label} operator {operator} requires minimum arity "
+                f"{minimum_arity}, got {len(arguments)}"
+            )
+        requires_quantum = operator_spec.get("requires_quantum") is True
+        quantum = node.get("quantum")
+        if requires_quantum and quantum not in quantum_symbols:
+            errors.append(f"{label} operator {operator} lacks a valid quantum")
+        if not requires_quantum and "quantum" in node:
+            errors.append(f"{label} operator {operator} must not declare quantum")
     for index, argument in enumerate(arguments):
-        verify_expression(argument, allowed_operators, f"{label}.args[{index}]", errors)
+        verify_expression(
+            argument,
+            operator_specs,
+            quantum_symbols,
+            allowed_symbols,
+            f"{label}.args[{index}]",
+            errors,
+        )
 
 
 def verify_normative_policy_anchors(
@@ -757,8 +796,22 @@ def verify_normative_policy_anchors(
         if decimal != expected_decimal:
             errors.append("money decimal_context differs from the frozen V1 semantics")
     expression_language = money.get("expression_language")
-    allowed_operators = (
-        set(expression_language.get("operators", {}))
+    expected_operator_specs = {
+        "add": {"minimum_arity": 2},
+        "subtract": {"minimum_arity": 2},
+        "multiply": {"arity": 2},
+        "sum": {"minimum_arity": 1},
+        "negate": {"arity": 1},
+        "quantize": {"arity": 1, "requires_quantum": True},
+        "map_quantized_multiply": {"arity": 2, "requires_quantum": True},
+    }
+    operator_specs = (
+        expression_language.get("operators", {})
+        if isinstance(expression_language, dict)
+        else {}
+    )
+    quantum_symbols = (
+        set(expression_language.get("quantum_symbols", []))
         if isinstance(expression_language, dict)
         else set()
     )
@@ -766,24 +819,93 @@ def verify_normative_policy_anchors(
         not isinstance(expression_language, dict)
         or expression_language.get("numeric_type")
         != "Decimal_from_canonical_base10_string"
-        or not {
-            "add",
-            "subtract",
-            "multiply",
-            "sum",
-            "negate",
-            "quantize",
-            "map_quantized_multiply",
-        }.issubset(allowed_operators)
+        or operator_specs != expected_operator_specs
+        or quantum_symbols != {"price", "quantity", "money", "fee", "ratio"}
     ):
         errors.append("money expression language differs")
     evaluator_ids = unique_ids(
         money.get("invariant_evaluators"), "money invariant evaluators", errors
     )
+    expected_evaluators = {
+        "EVAL-DECIMAL-EQUALITY": "typed_decimal_exact_equality",
+        "EVAL-DECIMAL-GTE": "typed_decimal_greater_than_or_equal",
+        "EVAL-SET-EQUALITY-OR-INCOMPLETE": "set_equality_else_explicit_incomplete_state",
+        "EVAL-STATE-PREDICATE": "named_state_predicate",
+    }
+    actual_evaluators = {
+        item.get("id"): item.get("kind")
+        for item in money.get("invariant_evaluators", [])
+        if isinstance(item, dict)
+    }
+    if actual_evaluators != expected_evaluators:
+        errors.append("money invariant evaluator catalog differs")
+    predicates = money.get("predicate_catalog")
+    predicate_ids = unique_ids(predicates, "money predicate catalog", errors)
+    predicate_by_id: dict[str, dict[str, Any]] = {}
+    if predicate_ids != {"PRED-NAV-NO-SILENT-ZERO"}:
+        errors.append("money predicate catalog ids differ")
+    if isinstance(predicates, list):
+        for predicate in predicates:
+            if not isinstance(predicate, dict):
+                continue
+            predicate_id = predicate.get("id", "<unknown>")
+            predicate_by_id[predicate_id] = predicate
+            if predicate.get("evaluator_id") != "EVAL-STATE-PREDICATE":
+                errors.append(f"{predicate_id} predicate evaluator differs")
+            if (
+                not isinstance(predicate.get("selector"), str)
+                or not re.fullmatch(
+                    r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+",
+                    predicate.get("selector", ""),
+                )
+            ):
+                errors.append(f"{predicate_id} predicate selector is not parseable")
+            required_inputs = predicate.get("required_inputs")
+            if (
+                not isinstance(required_inputs, list)
+                or not required_inputs
+                or not all(isinstance(item, str) for item in required_inputs)
+                or len(required_inputs) != len(set(required_inputs))
+            ):
+                errors.append(f"{predicate_id} predicate required_inputs differ")
+            if predicate.get("expected") is not True:
+                errors.append(f"{predicate_id} predicate expected value differs")
     booking_rules = money.get("booking_rules")
     booking_ids = unique_ids(booking_rules, "money booking rules", errors)
     if booking_ids != {"MONEY-BOOK-BUY", "MONEY-BOOK-SELL", "MONEY-NAV"}:
         errors.append("money booking rule ids differ")
+    expected_step_ids = {
+        "MONEY-BOOK-BUY": {
+            "BUY-NOTIONAL",
+            "BUY-CASH-AFTER",
+            "BUY-POSITION-AFTER",
+            "BUY-CASH-DELTA",
+            "BUY-QUANTITY-DELTA",
+        },
+        "MONEY-BOOK-SELL": {
+            "SELL-NOTIONAL",
+            "SELL-CASH-AFTER",
+            "SELL-POSITION-AFTER",
+            "SELL-CASH-DELTA",
+            "SELL-QUANTITY-DELTA",
+        },
+        "MONEY-NAV": {"NAV-POSITION-VALUE", "NAV-TOTAL"},
+    }
+    expected_invariant_ids = {
+        "MONEY-BOOK-BUY": {
+            "INV-BUY-CASH-CONSERVATION",
+            "INV-BUY-QUANTITY-CONSERVATION",
+        },
+        "MONEY-BOOK-SELL": {
+            "INV-SELL-CASH-CONSERVATION",
+            "INV-SELL-QUANTITY-CONSERVATION",
+            "INV-NO-SHORT-POSITION",
+        },
+        "MONEY-NAV": {
+            "INV-NAV-MARK-COVERAGE",
+            "INV-NAV-NO-SILENT-ZERO",
+        },
+    }
     if isinstance(booking_rules, list):
         for booking in booking_rules:
             if not isinstance(booking, dict):
@@ -801,10 +923,25 @@ def verify_normative_policy_anchors(
                     or set(references) - known
                 ):
                     errors.append(f"{booking_id} has invalid {key}")
+            inputs = booking.get("inputs")
+            if (
+                not isinstance(inputs, list)
+                or not inputs
+                or not all(
+                    isinstance(item, str)
+                    and re.fullmatch(r"[a-z][a-z0-9_]*", item)
+                    for item in inputs
+                )
+                or len(inputs) != len(set(inputs))
+            ):
+                errors.append(f"{booking_id} has invalid inputs")
+                input_symbols: set[str] = set()
+            else:
+                input_symbols = set(inputs)
             steps = booking.get("calculation_steps")
             step_ids = unique_ids(steps, f"{booking_id} calculation steps", errors)
-            if not step_ids:
-                errors.append(f"{booking_id} has no calculation steps")
+            if step_ids != expected_step_ids.get(booking_id, set()):
+                errors.append(f"{booking_id} calculation step ids differ")
             if isinstance(steps, list):
                 outputs: set[str] = set()
                 for step in steps:
@@ -813,31 +950,62 @@ def verify_normative_policy_anchors(
                     output = step.get("output")
                     if not isinstance(output, str) or output in outputs:
                         errors.append(f"{booking_id} has invalid or duplicate output")
-                    else:
-                        outputs.add(output)
                     verify_expression(
-                        {"op": step.get("op"), "args": step.get("args")},
-                        allowed_operators,
+                        {
+                            key: step[key]
+                            for key in ("op", "args", "quantum")
+                            if key in step
+                        },
+                        operator_specs if isinstance(operator_specs, dict) else {},
+                        quantum_symbols,
+                        input_symbols | outputs,
                         f"{booking_id}.{step.get('id')}",
                         errors,
                     )
+                    if isinstance(output, str) and output not in outputs:
+                        outputs.add(output)
             invariants = booking.get("invariants")
             invariant_ids = unique_ids(invariants, f"{booking_id} invariants", errors)
-            if not invariant_ids:
-                errors.append(f"{booking_id} has no structured invariants")
+            if invariant_ids != expected_invariant_ids.get(booking_id, set()):
+                errors.append(f"{booking_id} invariant ids differ")
             if isinstance(invariants, list):
                 for invariant in invariants:
                     if not isinstance(invariant, dict):
                         continue
-                    if invariant.get("evaluator_id") not in evaluator_ids:
+                    evaluator_id = invariant.get("evaluator_id")
+                    if evaluator_id not in evaluator_ids:
                         errors.append(
                             f"{invariant.get('id', '<unknown>')} uses unknown evaluator"
                         )
-                    for expression_key in ("left", "right"):
-                        if expression_key in invariant:
+                    if evaluator_id == "EVAL-STATE-PREDICATE":
+                        predicate_id = invariant.get("predicate_id")
+                        predicate = predicate_by_id.get(predicate_id)
+                        if predicate is None or "predicate" in invariant:
+                            errors.append(
+                                f"{invariant.get('id', '<unknown>')} predicate binding differs"
+                            )
+                        elif not set(predicate.get("required_inputs", [])).issubset(
+                            input_symbols
+                        ):
+                            errors.append(
+                                f"{invariant.get('id', '<unknown>')} predicate inputs "
+                                "are absent from booking inputs"
+                            )
+                    else:
+                        if not {"left", "right"}.issubset(invariant):
+                            errors.append(
+                                f"{invariant.get('id', '<unknown>')} lacks invariant operands"
+                            )
+                        for expression_key in ("left", "right"):
+                            if expression_key not in invariant:
+                                continue
                             verify_expression(
                                 invariant[expression_key],
-                                allowed_operators,
+                                operator_specs
+                                if isinstance(operator_specs, dict)
+                                else {},
+                                quantum_symbols,
+                                input_symbols | outputs,
                                 f"{invariant.get('id')}.{expression_key}",
                                 errors,
                             )
@@ -1278,6 +1446,144 @@ def verify_assurance_subjects(
                 errors.append(f"assurance role constraint missing: {role}")
 
 
+def verify_research_register(
+    research: dict[str, Any], allow_candidate: bool, errors: list[str]
+) -> None:
+    expected_source_classes = {
+        "official_vendor_engineering",
+        "standards_and_public_handbooks",
+        "peer_reviewed_or_preprint_research",
+        "benchmarks_and_reproducible_experiments",
+        "open_source_code_and_issue_trackers",
+        "ordinary_user_experience",
+        "critical_and_negative_cases",
+        "current_project_adversarial_experiments",
+    }
+    if set(research.get("required_source_classes", [])) != expected_source_classes:
+        errors.append("research source class boundary differs")
+
+    coverage = research.get("coverage")
+    coverage_ids = unique_ids(coverage, "research coverage", errors)
+    expected_coverage_ids = {f"RC-{index:02d}" for index in range(1, 23)}
+    if coverage_ids != expected_coverage_ids:
+        errors.append(
+            "research coverage ids differ: "
+            f"missing={sorted(expected_coverage_ids - coverage_ids)}, "
+            f"extra={sorted(coverage_ids - expected_coverage_ids)}"
+        )
+    if isinstance(coverage, list):
+        for item in coverage:
+            if not isinstance(item, dict):
+                continue
+            item_id = item.get("id", "<unknown>")
+            if item.get("impact") != "high":
+                errors.append(f"{item_id} research impact differs")
+            if item.get("status") not in {"supported", "contested"}:
+                errors.append(f"{item_id} research status differs")
+
+    search_log = research.get("search_log")
+    if not isinstance(search_log, list) or not search_log:
+        errors.append("research search_log must be nonempty")
+    else:
+        for index, item in enumerate(search_log):
+            if (
+                not isinstance(item, dict)
+                or not isinstance(item.get("date"), str)
+                or not isinstance(item.get("channel"), str)
+                or not isinstance(item.get("query"), str)
+                or not item.get("query")
+            ):
+                errors.append(f"research search_log[{index}] is incomplete")
+
+    artifacts = research.get("primary_artifacts")
+    if (
+        not isinstance(artifacts, list)
+        or not artifacts
+        or not all(isinstance(item, str) for item in artifacts)
+        or len(artifacts) != len(set(artifacts))
+    ):
+        errors.append("research primary_artifacts must be a nonempty unique string list")
+    else:
+        for relative in artifacts:
+            if Path(relative).is_absolute() or ".." in Path(relative).parts:
+                errors.append(f"research primary artifact has unsafe path: {relative}")
+            elif not (PROJECT_ROOT / relative).is_file():
+                errors.append(f"research primary artifact is missing: {relative}")
+
+    challenge = research.get("challenge")
+    if not isinstance(challenge, dict):
+        errors.append("research challenge must be an object")
+        return
+    challenge_status = challenge.get("status")
+    if challenge_status not in {"in_progress", "completed"}:
+        errors.append("research challenge status differs")
+    rounds = challenge.get("rounds")
+    round_ids = unique_ids(rounds, "research challenge rounds", errors)
+    del round_ids
+    if not isinstance(rounds, list) or not rounds:
+        errors.append("research challenge rounds must be nonempty")
+        return
+    for challenge_round in rounds:
+        if not isinstance(challenge_round, dict):
+            continue
+        round_id = challenge_round.get("id", "<unknown>")
+        reviewers = challenge_round.get("reviewer_subjects")
+        if (
+            not isinstance(reviewers, list)
+            or not reviewers
+            or not all(isinstance(item, str) for item in reviewers)
+        ):
+            errors.append(f"{round_id} has no reviewer subjects")
+        result = challenge_round.get("result")
+        if result not in {"blocked_freeze", "passed_freeze"}:
+            errors.append(f"{round_id} challenge result differs")
+        for key in ("candidate_commit", "candidate_tree"):
+            value = challenge_round.get(key)
+            if value is not None and (
+                not isinstance(value, str)
+                or not re.fullmatch(r"[0-9a-f]{40}", value)
+            ):
+                errors.append(f"{round_id} {key} is not a full Git object id")
+        evidence_path = challenge_round.get("evidence_path")
+        if evidence_path is not None:
+            if (
+                not isinstance(evidence_path, str)
+                or Path(evidence_path).is_absolute()
+                or ".." in Path(evidence_path).parts
+                or not (PROJECT_ROOT / evidence_path).is_file()
+            ):
+                errors.append(f"{round_id} challenge evidence path is invalid")
+        new_classes = challenge_round.get("new_architecture_changing_classes")
+        if not isinstance(new_classes, list) or not all(
+            isinstance(item, str) for item in new_classes
+        ):
+            errors.append(f"{round_id} new architecture class list differs")
+        if result == "passed_freeze":
+            if new_classes:
+                errors.append(f"{round_id} passed while adding architecture classes")
+            if challenge_round.get("open_critical_count") != 0:
+                errors.append(f"{round_id} passed with open critical findings")
+            if challenge_round.get("open_major_count") != 0:
+                errors.append(f"{round_id} passed with open major findings")
+
+    stop_rule = research.get("stop_rule")
+    stop_met = isinstance(stop_rule, dict) and stop_rule.get("met") is True
+    last_result = rounds[-1].get("result") if isinstance(rounds[-1], dict) else None
+    if challenge_status == "completed":
+        if not stop_met or last_result != "passed_freeze":
+            errors.append(
+                "completed research challenge lacks a passing final round and stop rule"
+            )
+    elif stop_met:
+        errors.append("research stop rule met while challenge remains in progress")
+    if not allow_candidate and (
+        challenge_status != "completed"
+        or not stop_met
+        or last_result != "passed_freeze"
+    ):
+        errors.append("frozen research has no valid completed challenge")
+
+
 def verify_conditionals(
     contract: dict[str, Any],
     requirement_ids: set[str],
@@ -1630,6 +1936,7 @@ def verify(allow_candidate: bool) -> list[str]:
         errors,
     )
     verify_assurance_subjects(assurance_subjects, research, errors)
+    verify_research_register(research, allow_candidate, errors)
     verify_conditionals(contract, requirement_ids, case_ids, errors)
     verify_gate_catalogs(contract, executor_ids, errors)
     for label, document in (

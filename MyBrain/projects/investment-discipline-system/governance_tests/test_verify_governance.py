@@ -19,6 +19,7 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         shutil.copytree(PROJECT_ROOT / "governance", self.root / "governance")
         shutil.copytree(PROJECT_ROOT / "research", self.root / "research")
+        shutil.copytree(PROJECT_ROOT / "audits", self.root / "audits")
         shutil.copytree(PROJECT_ROOT / "scripts", self.root / "scripts")
         shutil.copytree(PROJECT_ROOT / "governance_tests", self.root / "governance_tests")
         for relative in (
@@ -119,6 +120,32 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
         self.assert_rejected("oracle definition is not structurally enforceable")
 
+    def test_missing_assertion_catalog_item_is_rejected(self) -> None:
+        specs = self.read_json("governance/VERIFICATION_SPECS_V1.json")
+        specs["assertion_catalog"] = [
+            assertion
+            for assertion in specs["assertion_catalog"]
+            if assertion["id"] != "aggregate_verdict_matches"
+        ]
+        self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
+        self.assert_rejected(
+            "O-CONDITIONAL-STATE references undefined assertions: "
+            "['aggregate_verdict_matches']"
+        )
+
+    def test_unknown_assertion_evaluator_is_rejected(self) -> None:
+        specs = self.read_json("governance/VERIFICATION_SPECS_V1.json")
+        assertion = next(
+            item
+            for item in specs["assertion_catalog"]
+            if item["id"] == "aggregate_verdict_matches"
+        )
+        assertion["evaluator_id"] = "EVAL-NOT-REAL"
+        self.write_json("governance/VERIFICATION_SPECS_V1.json", specs)
+        self.assert_rejected(
+            "aggregate_verdict_matches references unknown assertion evaluator"
+        )
+
     def test_empty_acceptance_case_set_is_rejected(self) -> None:
         specs = self.read_json("governance/VERIFICATION_SPECS_V1.json")
         specs["negative_fixture_sets"][0]["case_ids"] = []
@@ -137,6 +164,29 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         cases["cases"][0]["requirement_ids"].append("REQ-NOT-REAL")
         self.write_json("governance/ACCEPTANCE_CASES_V1.json", cases)
         self.assert_rejected("references unknown requirement_ids")
+
+    def test_missing_operation_catalog_item_is_rejected(self) -> None:
+        cases = self.read_json("governance/ACCEPTANCE_CASES_V1.json")
+        cases["operation_catalog"] = [
+            operation
+            for operation in cases["operation_catalog"]
+            if operation["id"] != "OP-GOV-OPEN-RESEARCH"
+        ]
+        self.write_json("governance/ACCEPTANCE_CASES_V1.json", cases)
+        self.assert_rejected(
+            "CASE-GOV-OPEN-RESEARCH references unknown operation_id"
+        )
+
+    def test_invalid_operation_selector_is_rejected(self) -> None:
+        cases = self.read_json("governance/ACCEPTANCE_CASES_V1.json")
+        operation = next(
+            item
+            for item in cases["operation_catalog"]
+            if item["id"] == "OP-GOV-OPEN-RESEARCH"
+        )
+        operation["selector"] = "governance"
+        self.write_json("governance/ACCEPTANCE_CASES_V1.json", cases)
+        self.assert_rejected("OP-GOV-OPEN-RESEARCH has no parseable selector")
 
     def test_missing_design_freeze_target_is_rejected(self) -> None:
         (self.root / "scripts" / "verify_conditionals.py").unlink()
@@ -168,11 +218,70 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         )
         self.assert_rejected("money decimal_context differs")
 
+    def test_missing_money_calculation_step_is_rejected(self) -> None:
+        money = self.read_json("governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json")
+        booking = next(
+            item for item in money["booking_rules"] if item["id"] == "MONEY-BOOK-BUY"
+        )
+        booking["calculation_steps"] = [
+            step
+            for step in booking["calculation_steps"]
+            if step["id"] != "BUY-NOTIONAL"
+        ]
+        self.write_json(
+            "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json", money
+        )
+        self.assert_rejected("MONEY-BOOK-BUY calculation step ids differ")
+
+    def test_unknown_money_expression_operator_is_rejected(self) -> None:
+        money = self.read_json("governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json")
+        booking = next(
+            item for item in money["booking_rules"] if item["id"] == "MONEY-BOOK-BUY"
+        )
+        step = next(
+            item
+            for item in booking["calculation_steps"]
+            if item["id"] == "BUY-NOTIONAL"
+        )
+        step["op"] = "divide"
+        self.write_json(
+            "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json", money
+        )
+        self.assert_rejected(
+            "MONEY-BOOK-BUY.BUY-NOTIONAL uses unknown expression operator: 'divide'"
+        )
+
+    def test_missing_corporate_action_case_binding_is_rejected(self) -> None:
+        money = self.read_json("governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json")
+        action = next(
+            item
+            for item in money["corporate_action_matrix"]
+            if item["id"] == "ACTION-SPINOFF"
+        )
+        action["acceptance_case_ids"].remove("CASE-CORP-ACTION-UNKNOWN")
+        self.write_json(
+            "governance/MONEY_AND_CORPORATE_ACTIONS_SPEC_V1.json", money
+        )
+        self.assert_rejected("ACTION-SPINOFF has no acceptance_case_ids")
+
     def test_market_family_rename_reset_is_rejected(self) -> None:
         market = self.read_json("governance/MARKET_SIMULATION_POLICY_V1.json")
         market["experiment_lineage"]["rename_does_not_reset"] = False
         self.write_json("governance/MARKET_SIMULATION_POLICY_V1.json", market)
         self.assert_rejected("market experiment lineage or claim boundary differs")
+
+    def test_missing_market_clause_id_is_rejected(self) -> None:
+        market = self.read_json("governance/MARKET_SIMULATION_POLICY_V1.json")
+        market["benchmark_policy"]["required_fields"] = [
+            clause
+            for clause in market["benchmark_policy"]["required_fields"]
+            if clause["id"] != "BENCHMARK-CASH"
+        ]
+        self.write_json("governance/MARKET_SIMULATION_POLICY_V1.json", market)
+        self.assert_rejected(
+            "market benchmark fields clause ids differ: "
+            "missing=['BENCHMARK-CASH']"
+        )
 
     def test_ai_can_set_urgency_mutation_is_rejected(self) -> None:
         field = self.read_json("governance/FIELD_USE_PROTOCOL_V1.json")
@@ -180,11 +289,37 @@ class GovernanceVerifierMutationTests(unittest.TestCase):
         self.write_json("governance/FIELD_USE_PROTOCOL_V1.json", field)
         self.assert_rejected("field-use anti-rubber-stamp boundary differs")
 
+    def test_missing_field_clause_id_is_rejected(self) -> None:
+        field = self.read_json("governance/FIELD_USE_PROTOCOL_V1.json")
+        field["longitudinal_protocol"]["minimum_structure"] = [
+            clause
+            for clause in field["longitudinal_protocol"]["minimum_structure"]
+            if clause["id"] != "FIELD-NATURAL-LONG-GAP"
+        ]
+        self.write_json("governance/FIELD_USE_PROTOCOL_V1.json", field)
+        self.assert_rejected(
+            "field-use minimum structure clause ids differ: "
+            "missing=['FIELD-NATURAL-LONG-GAP']"
+        )
+
     def test_private_backup_overwrite_mutation_is_rejected(self) -> None:
         private = self.read_json("governance/PRIVATE_DATA_POLICY_V1.json")
         private["backup_storage"]["immutability"] = "overwrite the latest backup"
         self.write_json("governance/PRIVATE_DATA_POLICY_V1.json", private)
         self.assert_rejected("private backup lifecycle boundary differs")
+
+    def test_missing_private_backup_manifest_clause_id_is_rejected(self) -> None:
+        private = self.read_json("governance/PRIVATE_DATA_POLICY_V1.json")
+        private["backup_storage"]["manifest"] = [
+            clause
+            for clause in private["backup_storage"]["manifest"]
+            if clause["id"] != "BACKUP-MANIFEST-CREATED-AT"
+        ]
+        self.write_json("governance/PRIVATE_DATA_POLICY_V1.json", private)
+        self.assert_rejected(
+            "private backup manifest clauses clause ids differ: "
+            "missing=['BACKUP-MANIFEST-CREATED-AT']"
+        )
 
     def test_reviewer_who_constructed_candidate_is_rejected(self) -> None:
         subjects = self.read_json("governance/ASSURANCE_SUBJECTS_V1.json")

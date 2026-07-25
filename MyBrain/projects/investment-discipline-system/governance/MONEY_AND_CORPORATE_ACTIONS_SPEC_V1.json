@@ -33,6 +33,15 @@
     {"id": "EVAL-SET-EQUALITY-OR-INCOMPLETE", "kind": "set_equality_else_explicit_incomplete_state"},
     {"id": "EVAL-STATE-PREDICATE", "kind": "named_state_predicate"}
   ],
+  "predicate_catalog": [
+    {
+      "id": "PRED-NAV-NO-SILENT-ZERO",
+      "evaluator_id": "EVAL-STATE-PREDICATE",
+      "selector": "money.nav_no_silent_zero",
+      "required_inputs": ["positions", "as_of_marks", "corporate_action_states"],
+      "expected": true
+    }
+  ],
   "booking_rules": [
     {
       "id": "MONEY-BOOK-BUY",
@@ -78,7 +87,7 @@
       "requirement_ids": ["REQ-PAPER-003"],
       "verification_ids": ["V-MONEY", "V-RISK-STATE", "V-THREE-TRACK"],
       "acceptance_case_ids": ["CASE-CORP-ACTION-UNKNOWN", "CASE-DELISTING-NOT-ZERO-FILLED"],
-      "inputs": ["cash", "positions", "as_of_marks"],
+      "inputs": ["cash", "positions", "as_of_marks", "position_security_ids", "as_of_mark_security_ids", "corporate_action_states"],
       "calculation_steps": [
         {"id": "NAV-POSITION-VALUE", "output": "position_values", "op": "map_quantized_multiply", "quantum": "money", "args": ["as_of_marks", "positions"]},
         {"id": "NAV-TOTAL", "output": "nav", "op": "quantize", "quantum": "money", "args": [{"op": "add", "args": ["cash", {"op": "sum", "args": ["position_values"]}]}]}
@@ -86,7 +95,7 @@
       "formula": "nav=Q(cash + sum(Q(mark_price*position_quantity,money)),money)",
       "invariants": [
         {"id": "INV-NAV-MARK-COVERAGE", "evaluator_id": "EVAL-SET-EQUALITY-OR-INCOMPLETE", "left": "position_security_ids", "right": "as_of_mark_security_ids"},
-        {"id": "INV-NAV-NO-SILENT-ZERO", "evaluator_id": "EVAL-STATE-PREDICATE", "predicate": "stale_or_unresolved_action_implies_nav_incomplete"}
+        {"id": "INV-NAV-NO-SILENT-ZERO", "evaluator_id": "EVAL-STATE-PREDICATE", "predicate_id": "PRED-NAV-NO-SILENT-ZERO"}
       ]
     }
   ],
