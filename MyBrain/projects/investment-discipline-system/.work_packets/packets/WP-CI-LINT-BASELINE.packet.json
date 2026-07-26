@@ -9,10 +9,6 @@
     {
       "path": "governance/RUFF_CI_CONFIG_V1.toml",
       "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-CI-LINT-BASELINE.attempts.v2.json",
-      "kind": "file"
     }
   ],
   "read_dependencies": [

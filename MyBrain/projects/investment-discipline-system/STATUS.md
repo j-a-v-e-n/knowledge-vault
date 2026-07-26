@@ -1,5 +1,7 @@
 # 当前状态｜投研纪律系统
 
+此入口由 `scripts/derive_project_state.py refresh` 整文件生成；任何额外内容都会使 freshness 检查失败。
+
 <!-- PROJECT_STATE_VIEW:START -->
 ```json
 {
@@ -121,12 +123,12 @@
         "path": ".work_packets/packets/WP-METHOD-RUNTIME-FOUNDATION.packet.json"
       },
       {
-        "canonical_sha256": "76d720d2aa47c787da987842432af9433f0ec51b7f0d3224f9a991670e07d130",
+        "canonical_sha256": "dc8a17f8104cff03a147c3eee12acff6f8b7f5a4eea930647be69eddf3d0a88d",
         "json_pointers": [],
         "path": "@runtime/execution-freshness"
       },
       {
-        "canonical_sha256": "e170484cb9a95558e5f0a468ffed3e562b94437ac438857851ec562ae4e584af",
+        "canonical_sha256": "a7d62337b74701019eb2cf3db68b3150b5bb44bcbecbc94d7ea5e9be822daf53",
         "json_pointers": [],
         "path": "@runtime/work-packets"
       },
@@ -175,7 +177,7 @@
         "path": "governance/PROJECT_STATE_VIEW_POLICY_V1.json"
       }
     ],
-    "state_basis_sha256": "bc1c9b752139cb0000255e424875e971818c979279f48df7eee0149ab9730f3c"
+    "state_basis_sha256": "0cd70ec89fcc933c6a2d52a1f70f17e605052c5421d1e8aff0bf3786895b8d1d"
   },
   "latest_blocking_review": {
     "evidence_path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
@@ -209,76 +211,3 @@
 }
 ```
 <!-- PROJECT_STATE_VIEW:END -->
-
-更新时间：`2026-07-25`
-
-## 当前裁决
-
-项目已有一套可运行、可复查的纸面管线原型，但**个人纸面 MVP 已完成**这一旧声明已经撤回。独立审计证明原有测试 oracle 太弱：闸门批准与执行请求可以错配、事后取得的数据可以通过“无未来信息”检查、账本尾删仍可通过、账户变化与账本写入不是原子事务，且 Git 独立恢复缺少被忽略的原始数据。
-
-当前阶段不是继续扩展旧原型，而是：
-
-```text
-完成 AI 做项目的失效地图与独立挑战
-  → 冻结用户意图、要求、失效、验收合同
-  → 重建可信内核与本地工作台
-  → 运行黑盒、故障、恢复和独立验收
-```
-
-真实券商、真实资金和 live trading 仍在范围外。
-
-## 已有且仍然有效
-
-- 项目目标、个人服务边界、隐私边界和持续执行授权已经明确。
-- Obsidian 项目空间、Git 历史和 GitHub 远端已经存在。
-- AI 协作方法已经从 Prompt/Loop/Graph 术语上移到目标、证据、失效、权限、工作和验收控制。
-- 已完成官方资料、论文/基准、开源代码、issue、普通用户经验和传统系统工程的多路径研究。
-- 已完成既有原型独立代码审计和 Vibe-Trading 复用审查。
-- 已完成正式日线数据与外部 Paper 的角色拆分研究；Tiingo 是固定小宇宙的首个试用候选，正式账户试用尚未发生。
-- 旧 Python 原型和旧 runner 仍可作为行为历史、负面样本和迁移参考；它们不是新产品底座或完成证据。
-
-## 已撤回的旧强声明
-
-- 确定性风险闸门不可绕过。
-- 真实来源无未来信息审计通过。
-- 连续运行已经具有长期持久状态。
-- JSONL 哈希链能够证明完整历史。
-- 真实来源统一研究链已经构成个人可用产品。
-- 个人纸面 MVP 已完成。
-
-撤回依据见 `audits/EXISTING_SYSTEM_AUDIT_2026-07-25.md`。
-
-## 进行中
-
-- `PRODUCT_ASSURANCE_BLUEPRINT_V2.md`、用户意图、验收合同、精确 case、Money/市场/field-use/私人数据规范均已形成候选，尚未冻结。
-- 第二轮独立挑战新增的证据更正、市场模拟、人因误报、长期停用和私人恢复类别已经进入候选设计。
-- R4 对候选 `698383b77dcb763e504a3706779f8cdb5779e632` 的机制审查没有新增架构类别，但以三个 open major 阻止冻结：同门 `run_id` 可覆盖重放、最终审查漏掉自身 schema 测试、bundle D 没有强制 clone 内冻结验证。
-- R4 修复候选 `854dbb0c900ad46aef2f86523d3ac4303705013a` 已加入主事件链 gate-run receipt、从冻结实施目标自动展开的审查范围、精确 GitHub URL/branch/prefix、D 的 fresh clone + inner receipt + full-outer 验证，并修复嵌套项目 Git pathspec。
-- R5 在保存最终审查原始结果时发现 canonical attack 的未变异夹具因漏复制 `governance_tests/` 已经失败；原有变异测试存在非隔离 oracle 和假阳性可能，因此候选 `854dbb0...` 已被 supersede，不能冻结。
-- 后续工作树已让每次变异前的未变异夹具先通过候选治理验证，保留来源 Git objects/project prefix/origin，并确认四种变异分别只触发其目标拒绝原因；全量治理回归实际输出为 `Ran 113 tests`、`OK`。这些本地绿灯仍不等于新候选、fresh clone 和独立审查已经通过。
-- 研究登记仍保持 `challenge.status=in_progress`、`stop_rule.met=false`，机器可读验收合同仍未冻结。
-
-## 尚未完成
-
-- 关闭 AI 项目方法独立审查的 critical/major。
-- 冻结要求—失效—控制—实现—测试—证据追踪关系。
-- 把旧审计反例变成不可删除的验收测试。
-- 搭建 SQLite 事务内核、完整意图绑定、可恢复 PaperAccount、时间快照、预注册回测和三轨复盘。
-- 搭建本地网页工作台，并通过真实数据库用户旅程和浏览器检查。
-- 完成 Tiingo 离线契约测试和无凭据公开 demo 结构探针；真实 Tiingo 试用需要个人 token，不能伪造通过。
-- 完成 Git 独立克隆、私人运行备份、恢复、事件重放和 UI smoke。
-- 完成独立隐藏/黑盒验收和用户立场检察官审查。
-- 积累未来纸面样本；在此之前不讨论真实资金。
-
-## 当前下一步
-
-把 R5 oracle 修复及其事故记录形成新的精确候选 commit/tree，执行全量回归，推送并从 GitHub fresh clone 重放候选治理检查；再让未参与构造的审查者检查该固定候选。只有新审查不再发现 open critical/major 或新增架构类别，才关闭研究并执行 C→B→D 冻结；D 推送后必须再次从合同固定远端 fresh clone，并在 clone 内通过冻结治理验证。随后按依赖顺序重建，而不是继续给旧原型打补丁。
-
-## 主要残余风险
-
-- 开放领域无法证明不存在未知未知；研究只能达到当前决定所需的可审计充分性。
-- 同源代理即使上下文隔离，仍可能共享训练数据、工具和盲点。
-- 任何有限测试都可能拥有错误 oracle，因此必须组合需求追踪、黑盒行为、故障注入、恢复和独立挑战。
-- 本地系统只能在明确威胁模型下做到篡改可发现，不能承诺绝对不可篡改。
-- 正式供应商的许可、数据质量和真实账户行为只有在取得账户后才能完成条件性验收。
-- 产品搭建完成不等于投资策略有优势；优势需要长期、前瞻、基准对照的纸面证据。

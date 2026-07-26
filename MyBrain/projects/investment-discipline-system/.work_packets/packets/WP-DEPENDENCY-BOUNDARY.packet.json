@@ -25,10 +25,6 @@
     {
       "path": "scripts/verify_dependency_boundary.py",
       "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-DEPENDENCY-BOUNDARY.attempts.v2.json",
-      "kind": "file"
     }
   ],
   "read_dependencies": [

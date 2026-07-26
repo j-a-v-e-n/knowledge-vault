@@ -21,7 +21,7 @@ SCRIPT_PROJECT_ROOT = Path(
 ).resolve()
 DEFAULT_POLICY_RELATIVE = Path("governance/NO_LIVE_SCOPE_POLICY_V1.json")
 EXPECTED_POLICY_CANONICAL_SHA256 = (
-    "220d2c5358709b99459742c7f5e1cb9b0f0ca79b11b3b5fac5ec6ed226040045"
+    "346987efd5346daf9214ec17c632f9e5958d8e9fc14764df470e5992f63cbbd2"
 )
 
 POLICY_TOP_LEVEL_FIELDS = {
@@ -96,9 +96,11 @@ PAPER_DEFINITION_FIELDS = {
 }
 WORK_PACKET_POLICY_FIELDS = {
     "filename_suffix",
-    "instance_schema_version",
-    "required_fields",
-    "state_specific_optional_fields",
+    "live_schema_version",
+    "historical_schema_versions",
+    "required_fields_by_schema",
+    "state_specific_optional_fields_by_schema",
+    "historical_schema_required_state",
     "all_state_values",
     "allowed_active_external_side_effects",
     "forbidden_active_side_effect_fragments",
@@ -409,8 +411,8 @@ def validate_policy_schema(
     exact_keys(packet_policy, WORK_PACKET_POLICY_FIELDS, "policy.work_packet_policy", errors)
     if isinstance(packet_policy, dict):
         for field in (
-            "required_fields",
             "all_state_values",
+            "historical_schema_versions",
             "allowed_active_external_side_effects",
             "forbidden_active_side_effect_fragments",
         ):
@@ -425,7 +427,8 @@ def validate_policy_schema(
                 )
         for field in (
             "filename_suffix",
-            "instance_schema_version",
+            "live_schema_version",
+            "historical_schema_required_state",
         ):
             if not isinstance(packet_policy.get(field), str) or not packet_policy[field]:
                 add_error(
@@ -433,17 +436,44 @@ def validate_policy_schema(
                     "NLS-POLICY-SCHEMA",
                     f"policy.work_packet_policy.{field} must be a nonempty string",
                 )
-        optional_fields = packet_policy.get(
-            "state_specific_optional_fields"
+        live_schema = packet_policy.get("live_schema_version")
+        historical_schemas = packet_policy.get("historical_schema_versions")
+        supported_schemas = (
+            [live_schema, *historical_schemas]
+            if isinstance(live_schema, str)
+            and isinstance(historical_schemas, list)
+            else []
         )
+        required_by_schema = packet_policy.get("required_fields_by_schema")
         if (
-            not isinstance(optional_fields, dict)
-            or optional_fields != {"superseded": ["superseded_by"]}
+            not isinstance(required_by_schema, dict)
+            or set(required_by_schema) != set(supported_schemas)
+            or any(
+                not is_string_list(required_by_schema.get(schema), nonempty=True)
+                for schema in supported_schemas
+            )
         ):
             add_error(
                 errors,
                 "NLS-POLICY-SCHEMA",
-                "work-packet state-specific optional fields differ",
+                "work-packet required fields by schema differ",
+            )
+        optional_fields = packet_policy.get(
+            "state_specific_optional_fields_by_schema"
+        )
+        if (
+            not isinstance(optional_fields, dict)
+            or set(optional_fields) != set(supported_schemas)
+            or any(
+                optional_fields.get(schema)
+                != {"superseded": ["superseded_by"]}
+                for schema in supported_schemas
+            )
+        ):
+            add_error(
+                errors,
+                "NLS-POLICY-SCHEMA",
+                "work-packet state-specific optional fields by schema differ",
             )
         for field in (
             "reject_unlisted_active_external_side_effects",
@@ -1458,11 +1488,26 @@ def validate_work_packets(
         )
         if packet is None:
             continue
-        expected_fields = set(packet_policy["required_fields"])
+        schema_version = packet.get("schema_version")
+        supported_schemas = {
+            packet_policy["live_schema_version"],
+            *packet_policy["historical_schema_versions"],
+        }
+        if schema_version not in supported_schemas:
+            add_error(
+                errors,
+                "NLS-PACKET-SCHEMA",
+                "work packet has an unsupported schema_version",
+                path=relative,
+            )
+            continue
+        expected_fields = set(
+            packet_policy["required_fields_by_schema"][schema_version]
+        )
         state = packet.get("state")
         optional_by_state = packet_policy[
-            "state_specific_optional_fields"
-        ]
+            "state_specific_optional_fields_by_schema"
+        ][schema_version]
         optional_fields = set(optional_by_state.get(state, []))
         allowed_fields = expected_fields | optional_fields
         if set(packet) != allowed_fields:
@@ -1482,11 +1527,14 @@ def validate_work_packets(
                 path=relative,
             )
             packet_id = entry.name
-        if packet["schema_version"] != packet_policy["instance_schema_version"]:
+        if (
+            schema_version in set(packet_policy["historical_schema_versions"])
+            and state != packet_policy["historical_schema_required_state"]
+        ):
             add_error(
                 errors,
                 "NLS-PACKET-SCHEMA",
-                "work packet has an unsupported schema_version",
+                "historical work-packet schema is allowed only as superseded history",
                 path=relative,
             )
         if state not in packet_policy["all_state_values"]:
@@ -1544,6 +1592,7 @@ def validate_work_packets(
         observations.append(
             {
                 "packet_id": packet_id,
+                "schema_version": schema_version,
                 "state": state,
                 "active_for_no_live_check": active,
                 "external_side_effects": effects,

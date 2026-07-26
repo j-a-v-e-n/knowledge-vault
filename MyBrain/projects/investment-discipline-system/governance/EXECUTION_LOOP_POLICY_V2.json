@@ -22,7 +22,7 @@
       "complete"
     ],
     "historical_state": "superseded",
-    "ledger_claim_rule": "exact_named_file_must_be_in_bounded_write_paths"
+    "ledger_claim_rule": "derived_runtime_sidecar_must_not_be_in_bounded_write_paths"
   },
   "ledger_schema": {
     "directory": ".work_packets/attempts",
@@ -35,7 +35,25 @@
       "packet_contract_sha256",
       "reported_state",
       "cost_accounting_claim",
+      "initial_state",
+      "terminal_completion",
       "attempts"
+    ],
+    "initial_state_required_fields": [
+      "failure_ids",
+      "evidence"
+    ],
+    "terminal_completion_required_fields": [
+      "authority_kind",
+      "packet_contract_sha256",
+      "latest_record_sha256",
+      "controlled_claims_sha256",
+      "checkpoint_path",
+      "checkpoint_canonical_sha256",
+      "acceptance_path",
+      "acceptance_canonical_sha256",
+      "execution_receipt_path",
+      "execution_receipt_canonical_sha256"
     ],
     "attempt_schema_version": "execution-attempt/v2",
     "attempt_required_fields": [
@@ -50,6 +68,7 @@
       "failure_delta",
       "evidence_delta",
       "controlled_snapshot",
+      "process_observation",
       "cost_observation",
       "declared_progress",
       "previous_attempt_sha256",
@@ -90,6 +109,21 @@
       "claims",
       "claims_sha256"
     ],
+    "process_observation_required_fields": [
+      "mode",
+      "argv",
+      "exit_code",
+      "stdout_sha256",
+      "stderr_sha256",
+      "stdout_bytes",
+      "stderr_bytes",
+      "capture_authority"
+    ],
+    "process_observation_modes": [
+      "baseline",
+      "passive",
+      "run"
+    ],
     "claim_snapshot_required_fields": [
       "path",
       "kind",
@@ -115,7 +149,7 @@
   "current_snapshot": {
     "algorithm": "canonical_sha256_of_sorted_claim_snapshots_v1",
     "source": "packet.bounded_write_paths",
-    "excluded_claim_rule": "exact_discovered_v2_ledgers_and_exact_generated_project_state_views",
+    "excluded_claim_rule": "runtime_ledgers_and_generated_views_must_not_be_bounded_write_claims",
     "excluded_generated_view_paths": [
       "STATUS.md",
       "TASK_BOARD.md",
@@ -136,6 +170,10 @@
     "progress_requires": "verified_evidence_addition_or_failure_resolution",
     "resolved_failure_requires_added_supporting_evidence": true,
     "progress_evidence_must_be_controlled_write_claim": true,
+    "first_attempt_before_state_source": "ledger.initial_state",
+    "cross_attempt_failure_state_continuity": true,
+    "cross_attempt_evidence_state_continuity": true,
+    "introduced_resolved_and_support_ids_must_be_closed": true,
     "allowed_evidence_kinds": [
       "policy",
       "implementation",
@@ -145,11 +183,16 @@
   },
   "baseline_observation": {
     "only_first_attempt": true,
-    "allowed_reported_state": "pending",
+    "allowed_reported_states": [
+      "pending",
+      "active"
+    ],
     "retry_index": null,
     "declared_progress": false,
     "failure_and_evidence_deltas_must_be_empty": true,
-    "blocker_status_after": "waiting"
+    "blocker_status_after": "waiting",
+    "pending_ledger_exact_attempt_count": 1,
+    "pending_ledger_only_attempt_kind": "baseline_observation"
   },
   "stopping_rules": {
     "same_blocker_consecutive_no_progress_threshold": 3,
@@ -157,16 +200,64 @@
     "consecutive_no_progress_threshold": 3,
     "consecutive_no_progress_threshold_outcome": "blocked",
     "retry_budget_source": "packet.retry_budget",
+    "retry_budget_meaning": "maximum_execution_attempt_count",
     "execution_attempt_retry_indices_contiguous_from_zero": true,
-    "retry_index_above_budget_outcome": "invalid",
-    "budget_exhausted_without_verified_acceptance_outcome": "blocked"
+    "retry_index_at_or_above_budget_outcome": "invalid",
+    "budget_exhausted_without_verified_acceptance_outcome": "blocked",
+    "every_historical_prefix_is_evaluated": true,
+    "first_forced_stop_is_absorbing": true,
+    "blocked_continuation_requires": "successor_packet"
   },
   "completion_semantics": {
     "local_receipts_are": "self_reported_candidate_evidence_not_authenticated_execution",
     "candidate_complete_and_complete_require_latest_execution_status": "resolved",
-    "controlled_change_after_complete_requires": "reopen_or_supersede_and_reaccept",
+    "terminal_completion_required_states": [
+      "candidate_complete",
+      "complete"
+    ],
+    "terminal_completion_authority_kind": "self_reported_local_candidate",
+    "terminal_record_must_bind_latest_attempt_snapshot_contract_and_receipts": true,
+    "execution_receipt_schema_version": "execution-finalization-receipt/v2",
+    "execution_receipt_required_fields": [
+      "schema_version",
+      "packet_id",
+      "packet_contract_sha256",
+      "checks"
+    ],
+    "execution_check_required_fields": [
+      "check_id",
+      "argv",
+      "expected_exit_code",
+      "actual_exit_code",
+      "started_at",
+      "ended_at",
+      "wall_time_ms",
+      "stdout_sha256",
+      "stderr_sha256",
+      "stdout_bytes",
+      "stderr_bytes"
+    ],
+    "execution_receipt_checks_must_exactly_match_packet_acceptance_checks": true,
+    "execution_check_timestamps_and_output_digests_required": true,
+    "terminal_completion_is_append_absorbing": true,
+    "controlled_change_after_complete_requires": "successor_packet_supersession_in_v2",
     "authenticated_completion_authority": "candidate_bound_remote_execution_plus_independent_read_only_review",
     "design_freeze_or_product_completion_may_not_be_inferred": true
+  },
+  "recorder_runtime": {
+    "script_path": "scripts/record_execution_attempt_v2.py",
+    "transaction_directory": ".work_packets/runtime-transactions",
+    "lock_directory_scope": "system_temp_by_project_packet_and_global_transaction",
+    "per_packet_lock": true,
+    "global_transaction_lock": true,
+    "expected_tail_compare_and_swap": true,
+    "existing_attempt_records_are_immutable": true,
+    "before_after_snapshots_are_tool_observed": true,
+    "run_mode_captures_process_exit_and_output_digest": true,
+    "passive_mode_is_self_reported": true,
+    "ledger_write": "atomic_replace_after_fsync",
+    "interrupted_multi_file_transition": "fail_closed_journal_then_deterministic_roll_forward",
+    "post_write_verifier_required": true
   },
   "cost_accounting": {
     "wall_time_source": "started_at_and_ended_at",
@@ -220,6 +311,8 @@
     "Filesystem checks are point-in-time and cannot eliminate time-of-check/time-of-use, mount replacement, hard-link alias, or every case-folding race.",
     "Tree hashing rejects observed symlinks and special entries but does not provide operating-system sandboxing or distributed locking.",
     "A pending baseline proves only the current bytes were observed; it does not prove the work was authorized, unstarted, or produced after the prerequisite state.",
+    "The formal recorder prevents cooperative concurrent writers from overwriting one another, but a process with arbitrary filesystem access can still bypass it and rewrite local history; immutable Git candidates and independent review remain required.",
+    "A V2 blocked or completed packet cannot resume in place; continued work requires a named successor packet so the prior terminal chain remains visible.",
     "Legacy V1 artifacts are hash-retained history only and cannot be used to assert current V2 freshness.",
     "Current execution freshness does not prove research sufficiency, design freeze, product completion, or investment effectiveness."
   ]

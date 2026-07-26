@@ -1,5 +1,7 @@
 # 工作板｜投研纪律系统
 
+此入口由 `scripts/derive_project_state.py refresh` 整文件生成；任何额外内容都会使 freshness 检查失败。
+
 <!-- PROJECT_STATE_VIEW:START -->
 ```json
 {
@@ -121,12 +123,12 @@
         "path": ".work_packets/packets/WP-METHOD-RUNTIME-FOUNDATION.packet.json"
       },
       {
-        "canonical_sha256": "76d720d2aa47c787da987842432af9433f0ec51b7f0d3224f9a991670e07d130",
+        "canonical_sha256": "dc8a17f8104cff03a147c3eee12acff6f8b7f5a4eea930647be69eddf3d0a88d",
         "json_pointers": [],
         "path": "@runtime/execution-freshness"
       },
       {
-        "canonical_sha256": "e170484cb9a95558e5f0a468ffed3e562b94437ac438857851ec562ae4e584af",
+        "canonical_sha256": "a7d62337b74701019eb2cf3db68b3150b5bb44bcbecbc94d7ea5e9be822daf53",
         "json_pointers": [],
         "path": "@runtime/work-packets"
       },
@@ -175,7 +177,7 @@
         "path": "governance/PROJECT_STATE_VIEW_POLICY_V1.json"
       }
     ],
-    "state_basis_sha256": "bc1c9b752139cb0000255e424875e971818c979279f48df7eee0149ab9730f3c"
+    "state_basis_sha256": "0cd70ec89fcc933c6a2d52a1f70f17e605052c5421d1e8aff0bf3786895b8d1d"
   },
   "latest_blocking_review": {
     "evidence_path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
@@ -209,66 +211,3 @@
 }
 ```
 <!-- PROJECT_STATE_VIEW:END -->
-
-更新时间：`2026-07-25`
-
-## 进行中
-
-- [ ] 完成 R5 非隔离 oracle 修复的全量回归，形成新的精确候选 commit/tree，并执行 GitHub fresh clone 与新一轮只读独立挑战。
-
-## 已排队
-
-- [ ] 独立挑战无 open critical/major 且不再新增架构类别后，关闭研究 stop rule。
-- [ ] 两阶段冻结用户意图、双向需求追踪、失效图、领域规范和机器可读验收合同。
-- [ ] 把既有审计中的闸门错配、事后数据、尾删、乱序和事务失败反例写成验收测试。
-- [ ] 搭建 SQLite 事实源、事件链、run manifest、外部锚和 migration。
-- [ ] 搭建不可绕过的完整意图风险批准与不可变政策版本。
-- [ ] 搭建可恢复 PaperAccount、订单生命周期、幂等和对账。
-- [ ] 搭建数据快照、point-in-time 边界、修订谱系和 Tiingo 契约。
-- [ ] 搭建假设、证据、AI 候选建议、人工决定和预注册回测。
-- [ ] 搭建三轨复盘、行为摩擦和到期/逾期状态。
-- [ ] 搭建本地网页工作台和同源关系视图。
-- [ ] 完成浏览器 QA、无 live/secret 检查和供应商故障注入。
-- [ ] 完成 Git 克隆、私人备份、独立恢复和冷启动交接演练。
-- [ ] 完成隐藏/黑盒验收、用户立场检察官和最终只读红队。
-
-## 条件性任务
-
-- [ ] 取得个人 Tiingo token 后完成真实固定宇宙试用；当前不读取或生成凭据。
-- [ ] 只有历史动态选股需求成立后，才试用 Sharadar/Norgate。
-- [ ] 只有需要观察外部 Paper 协议时，才测试 Alpaca Paper；不接 live。
-
-## 已完成且证据仍有效
-
-- [x] 明确个人、本地、纸面、人工最终决定和隐私边界。
-- [x] 建立 Obsidian 项目空间、Git 历史和 GitHub 远端。
-- [x] 调研 Harness、Loop、Graph、深度研究、长上下文、代理评价和传统系统工程。
-- [x] 完成既有原型独立审计并撤回不成立的 MVP 声明。
-- [x] 完成 Vibe-Trading 源码/故障注入审查并拒绝整体复用。
-- [x] 完成正式日线数据、Security Master、本地 Paper 和外部 Paper 的角色拆分研究。
-- [x] 建立候选用户意图包、AI 项目研究登记册、失效地图和产品保障蓝图。
-- [x] 完成第二轮独立挑战并将新增高影响类别写入候选设计。
-- [x] 完成结构闭合审查；确认没有新增失效类别，但候选仍因可绕过控制而保持未冻结。
-- [x] 完成 R4 机制审查并保留 blocked 证据；修复同门 run 重放、审查范围漏项和 bundle D 未做 clone 内验证。
-- [x] 把 GitHub URL、branch、project prefix、inner/full-outer scope 和嵌套项目 pathspec 纳入确定性反例与校验。
-- [x] R4 修复工作树通过候选治理验证、四类固定攻击和 `Ran 113 tests` 的全量治理回归。
-- [x] 在最终证据采集前主动发现 R4 修复候选的 canonical attack 夹具基线已失败，撤销该候选并记录 `GOV-MECH-MAJ-004`。
-- [x] 修复固定攻击夹具，使其保留来源 Git 候选上下文、每次变异前必须先通过未变异基线，并局部确认四种目标变异均被对应控制拒绝。
-- [x] R5 修复工作树通过候选治理验证、四类固定攻击和 `Ran 113 tests` 的全量治理回归。
-
-## 历史原型里程碑
-
-以下项目只表示“当时的演示路径曾运行”，不再表示产品要求已满足：
-
-- 旧 FRED CSV runner、移动平均回测、JSONL 哈希链和进程内 PaperAccount。
-- 旧单元测试与统一 runner。
-- 旧数据/执行 Protocol 和本地故障夹具。
-
-其证据保留用于回归和事故学习，状态统一为 `superseded-prototype-evidence`。
-
-## 工作规则
-
-- 当前任务必须链接到冻结要求与失效。
-- 作者只能提交候选完成；验收合同和独立裁决不能由作者覆盖。
-- 失败、拒绝、未知、恢复和未证明项是一等结果。
-- 新工具或框架必须对应已观察的失效，并通过对称试验证明价值。

@@ -1,1 +1,97 @@
-{"attempts":[{"attempt_kind":"baseline_observation","blocker":{"failure_ids":[],"fingerprint_sha256":"602b2e9f0c65a8bbe25dbcfa4037f96cb86286228226e547abfe6a38bf8a754d","root_cause":"Waiting For Prerequisite","root_cause_id":"WAITING-FOR-PREREQUISITE","status_after":"waiting"},"controlled_snapshot":{"algorithm":"canonical_sha256_of_sorted_claim_snapshots_v1","claims":[{"content_sha256":"0582fef3d3f8e90aa1a9ca6c73eb64f05a731cd8f974839c08a343b9ff75dbdb","kind":"file","path":"governance_tests/test_final_review_schema.py","state":"file"},{"content_sha256":"bc2bd9e060162f69db16d504cafcac3a10709fca07e1f979ff9f70b66c3d7dd6","kind":"file","path":"governance_tests/test_freeze_git_remote.py","state":"file"},{"content_sha256":"a5d2eed61e1286be7f3b336571bce2b89620929abf0fe7b4d0cef15e343b09af","kind":"file","path":"governance_tests/test_verify_governance.py","state":"file"},{"content_sha256":"6ea94fa179e34f325fcfe27c0654841dea3437de018e096669be85a0ad86312c","kind":"file","path":"scripts/freeze_governance.py","state":"file"}],"claims_sha256":"1cf412723c0caf0bbdf1b491a5e802caef24b70edc49f95ef4ad18526d2c935e","excluded_paths":[".work_packets/attempts/WP-FREEZE-CLOSURE-PROTOCOL.attempts.v2.json"]},"cost_observation":{"token_usage":{"availability":"unknown","input_tokens":null,"measurement_source":null,"output_tokens":null,"total_tokens":null},"wall_time_source":"timestamps"},"declared_progress":false,"ended_at":"2026-07-26T00:55:12.000Z","evidence_delta":{"added":[],"after":[],"before":[],"removed":[]},"failure_delta":{"after":[],"before":[],"introduced":[],"resolved":[]},"previous_attempt_sha256":null,"record_sha256":"0e004952ed2bc665ae0fa2936a49e6fe41676441d29f4af05c80e0e1bb1dbb06","retry_index":null,"schema_version":"execution-attempt/v2","sequence":1,"started_at":"2026-07-26T00:55:12.000Z","wall_time_ms":0}],"cost_accounting_claim":"partial","packet_contract_sha256":"0b6e3a380ba527775c8bd252d85f1a41c59cefcb8f49e6b49decbb985d78e01a","packet_id":"WP-FREEZE-CLOSURE-PROTOCOL","packet_path":".work_packets/packets/WP-FREEZE-CLOSURE-PROTOCOL.packet.json","reported_state":"pending","schema_version":"execution-attempt-ledger/v2"}
+{
+  "attempts": [
+    {
+      "attempt_kind": "baseline_observation",
+      "blocker": {
+        "failure_ids": [],
+        "fingerprint_sha256": "2ba3960770d353e8d2e7655819260442221741c573f22743e12aa3565918862a",
+        "root_cause": "Packet is waiting for its declared prerequisite",
+        "root_cause_id": "WAITING-FOR-PREREQUISITE",
+        "status_after": "waiting"
+      },
+      "controlled_snapshot": {
+        "algorithm": "canonical_sha256_of_sorted_claim_snapshots_v1",
+        "claims": [
+          {
+            "content_sha256": "0582fef3d3f8e90aa1a9ca6c73eb64f05a731cd8f974839c08a343b9ff75dbdb",
+            "kind": "file",
+            "path": "governance_tests/test_final_review_schema.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "bc2bd9e060162f69db16d504cafcac3a10709fca07e1f979ff9f70b66c3d7dd6",
+            "kind": "file",
+            "path": "governance_tests/test_freeze_git_remote.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "a5d2eed61e1286be7f3b336571bce2b89620929abf0fe7b4d0cef15e343b09af",
+            "kind": "file",
+            "path": "governance_tests/test_verify_governance.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "6ea94fa179e34f325fcfe27c0654841dea3437de018e096669be85a0ad86312c",
+            "kind": "file",
+            "path": "scripts/freeze_governance.py",
+            "state": "file"
+          }
+        ],
+        "claims_sha256": "1cf412723c0caf0bbdf1b491a5e802caef24b70edc49f95ef4ad18526d2c935e",
+        "excluded_paths": []
+      },
+      "cost_observation": {
+        "token_usage": {
+          "availability": "unknown",
+          "input_tokens": null,
+          "measurement_source": null,
+          "output_tokens": null,
+          "total_tokens": null
+        },
+        "wall_time_source": "timestamps"
+      },
+      "declared_progress": false,
+      "ended_at": "2026-07-26T02:00:47.000Z",
+      "evidence_delta": {
+        "added": [],
+        "after": [],
+        "before": [],
+        "removed": []
+      },
+      "failure_delta": {
+        "after": [],
+        "before": [],
+        "introduced": [],
+        "resolved": []
+      },
+      "previous_attempt_sha256": null,
+      "process_observation": {
+        "argv": null,
+        "capture_authority": "tool_observed_baseline",
+        "exit_code": null,
+        "mode": "baseline",
+        "stderr_bytes": null,
+        "stderr_sha256": null,
+        "stdout_bytes": null,
+        "stdout_sha256": null
+      },
+      "record_sha256": "fe6942fca121c800debc357e60d70ef080d42435ff20a28a157a2fd4ced1acd9",
+      "retry_index": null,
+      "schema_version": "execution-attempt/v2",
+      "sequence": 1,
+      "started_at": "2026-07-26T02:00:47.000Z",
+      "wall_time_ms": 0
+    }
+  ],
+  "cost_accounting_claim": "partial",
+  "initial_state": {
+    "evidence": [],
+    "failure_ids": []
+  },
+  "packet_contract_sha256": "e3afbc3de9eeec35360f2b7ef5e6588026c565315f355e4d0903a8046c22b29d",
+  "packet_id": "WP-FREEZE-CLOSURE-PROTOCOL",
+  "packet_path": ".work_packets/packets/WP-FREEZE-CLOSURE-PROTOCOL.packet.json",
+  "reported_state": "pending",
+  "schema_version": "execution-attempt-ledger/v2",
+  "terminal_completion": null
+}

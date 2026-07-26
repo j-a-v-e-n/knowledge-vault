@@ -233,28 +233,61 @@
   },
   "work_packet_policy": {
     "filename_suffix": ".packet.json",
-    "instance_schema_version": "work-packet-instance/v1",
-    "required_fields": [
-      "schema_version",
-      "packet_id",
-      "goal_id",
-      "state",
-      "owner",
-      "reviewer",
-      "bounded_write_paths",
-      "read_dependencies",
-      "acceptance_checks",
-      "checkpoint_path",
-      "acceptance_receipt_path",
-      "retry_budget",
-      "external_side_effects",
-      "semantic_invariants"
+    "live_schema_version": "work-packet-instance/v2",
+    "historical_schema_versions": [
+      "work-packet-instance/v1"
     ],
-    "state_specific_optional_fields": {
-      "superseded": [
-        "superseded_by"
+    "required_fields_by_schema": {
+      "work-packet-instance/v1": [
+        "schema_version",
+        "packet_id",
+        "goal_id",
+        "state",
+        "owner",
+        "reviewer",
+        "bounded_write_paths",
+        "read_dependencies",
+        "acceptance_checks",
+        "checkpoint_path",
+        "acceptance_receipt_path",
+        "retry_budget",
+        "external_side_effects",
+        "semantic_invariants"
+      ],
+      "work-packet-instance/v2": [
+        "schema_version",
+        "packet_id",
+        "goal_id",
+        "state",
+        "owner",
+        "reviewer",
+        "bounded_write_paths",
+        "read_dependencies",
+        "acceptance_checks",
+        "checkpoint_path",
+        "acceptance_receipt_path",
+        "retry_budget",
+        "external_side_effects",
+        "semantic_invariants",
+        "depends_on",
+        "activates",
+        "integration_invariants",
+        "routing"
       ]
     },
+    "state_specific_optional_fields_by_schema": {
+      "work-packet-instance/v1": {
+        "superseded": [
+          "superseded_by"
+        ]
+      },
+      "work-packet-instance/v2": {
+        "superseded": [
+          "superseded_by"
+        ]
+      }
+    },
+    "historical_schema_required_state": "superseded",
     "all_state_values": [
       "pending",
       "active",
@@ -281,7 +314,7 @@
     "reject_unexpected_directory_entries": true
   },
   "claim_boundary": {
-    "proves": "For the exact declared local tree, this verifier checks that frozen runtime entries and implementation roots exist, Python source parses and stays within a closed import and file-type surface, high-risk broker/order/network execution imports and calls are absent under the specified AST rules, configured URLs are limited to an explicit read-only endpoint, execution-capable classes stay within the local paper allow surface, and active work packets declare no unapproved external side effect.",
+    "proves": "For the exact declared local tree, this verifier checks that frozen runtime entries and implementation roots exist, Python source parses and stays within a closed import and file-type surface, high-risk broker/order/network execution imports and calls are absent under the specified AST rules, configured URLs are limited to an explicit read-only endpoint, execution-capable classes stay within the local paper allow surface, current V2 work packets declare no unapproved external side effect, and V1 packets are accepted only as superseded historical records.",
     "does_not_prove": [
       "absence of behavior hidden in the Python interpreter, native runtime, dependencies, generated code, or files outside the declared implementation roots",
       "absence of a live capability introduced after this point-in-time scan",

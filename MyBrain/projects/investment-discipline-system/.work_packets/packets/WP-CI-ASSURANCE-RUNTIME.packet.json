@@ -33,10 +33,6 @@
     {
       "path": "scripts/run_unittest_receipt.py",
       "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-CI-ASSURANCE-RUNTIME.attempts.v2.json",
-      "kind": "file"
     }
   ],
   "read_dependencies": [

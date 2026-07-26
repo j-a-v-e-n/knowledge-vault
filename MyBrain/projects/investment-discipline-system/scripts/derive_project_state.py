@@ -736,15 +736,41 @@ def validate_policy(policy: dict[str, Any]) -> None:
 
     rendering = require_exact_fields(
         policy["rendering"],
-        {"start_marker", "end_marker", "language"},
+        {"start_marker", "end_marker", "language", "view_templates"},
         "policy.rendering",
     )
-    if rendering != {
+    expected_rendering = {
         "start_marker": "<!-- PROJECT_STATE_VIEW:START -->",
         "end_marker": "<!-- PROJECT_STATE_VIEW:END -->",
         "language": "json",
-    }:
+    }
+    if {key: rendering[key] for key in expected_rendering} != expected_rendering:
         raise ProjectStateError("policy: rendering contract differs")
+    view_templates = require_exact_fields(
+        rendering["view_templates"],
+        set(sources["views"]),
+        "policy.rendering.view_templates",
+    )
+    expected_titles = {
+        "STATUS.md": "# 当前状态｜投研纪律系统",
+        "TASK_BOARD.md": "# 工作板｜投研纪律系统",
+        "LOOP_RUN_LOG.md": "# 循环运行记录｜投研纪律系统",
+    }
+    expected_description = (
+        "此入口由 `scripts/derive_project_state.py refresh` 整文件生成；"
+        "任何额外内容都会使 freshness 检查失败。"
+    )
+    for view in sources["views"]:
+        template = require_exact_fields(
+            view_templates[view],
+            {"title", "description"},
+            f"policy.rendering.view_templates.{view}",
+        )
+        if template != {
+            "title": expected_titles[view],
+            "description": expected_description,
+        }:
+            raise ProjectStateError(f"policy: view template differs for {view}")
     basis = require_exact_fields(
         policy["basis"],
         {"policy_json_pointers", "state_basis_rule", "excluded_inputs"},
@@ -800,7 +826,7 @@ def validate_policy(policy: dict[str, Any]) -> None:
         ),
         (
             "Refresh preflights all three views and atomically replaces each "
-            "individual file, but a local filesystem cannot provide one atomic "
+            "view's entire file, but a local filesystem cannot provide one atomic "
             "transaction spanning all three files."
         ),
         (
@@ -1604,6 +1630,44 @@ def render_generated_block(projection: dict[str, Any], policy: dict[str, Any]) -
     ).encode("utf-8")
 
 
+def render_canonical_view(
+    projection: dict[str, Any],
+    policy: dict[str, Any],
+    view_relative: str,
+) -> bytes:
+    """Render the complete canonical bytes for one project-state entrypoint.
+
+    Args:
+        projection: Validated pure-fact project-state projection.
+        policy: Validated project-state view policy.
+        view_relative: Project-relative view path declared by the policy.
+
+    Returns:
+        Exact UTF-8 bytes for the complete view file.
+    """
+
+    templates = policy["rendering"]["view_templates"]
+    if view_relative not in templates:
+        raise ProjectStateError(
+            f"view {view_relative}: canonical template is missing"
+        )
+    template = require_exact_fields(
+        templates[view_relative],
+        {"title", "description"},
+        f"view {view_relative} template",
+    )
+    title = require_trimmed_string(
+        template["title"],
+        f"view {view_relative} title",
+    )
+    description = require_trimmed_string(
+        template["description"],
+        f"view {view_relative} description",
+    )
+    prefix = f"{title}\n\n{description}\n\n".encode("utf-8")
+    return prefix + render_generated_block(projection, policy) + b"\n"
+
+
 def locate_generated_block(data: bytes, policy: dict[str, Any], label: str) -> tuple[int, int]:
     start_marker = policy["rendering"]["start_marker"].encode("ascii")
     end_marker = policy["rendering"]["end_marker"].encode("ascii")
@@ -1639,7 +1703,7 @@ def load_policy_for_views(
 def prepare_view_replacements(
     project_root: Path,
     policy: dict[str, Any],
-    expected_block: bytes,
+    projection: dict[str, Any],
 ) -> tuple[list[str], list[tuple[Path, bytes]]]:
     stale: list[str] = []
     replacements: list[tuple[Path, bytes]] = []
@@ -1656,10 +1720,11 @@ def prepare_view_replacements(
             data = view_path.read_bytes()
         except OSError as exc:
             raise ProjectStateError(f"view {relative}: cannot read: {exc}") from exc
-        start, end = locate_generated_block(data, policy, f"view {relative}")
-        if data[start:end] != expected_block:
+        locate_generated_block(data, policy, f"view {relative}")
+        expected_view = render_canonical_view(projection, policy, relative)
+        if data != expected_view:
             stale.append(relative)
-            replacements.append((view_path, data[:start] + expected_block + data[end:]))
+            replacements.append((view_path, expected_view))
     return stale, replacements
 
 
@@ -1675,8 +1740,7 @@ def check_project_state(
         runtime_authority_observer=runtime_authority_observer,
     )
     root, policy = load_policy_for_views(project_root, policy_path)
-    expected = render_generated_block(projection, policy)
-    stale, _ = prepare_view_replacements(root, policy, expected)
+    stale, _ = prepare_view_replacements(root, policy, projection)
     if stale:
         raise ProjectStateError(f"project state views are stale: {stale}")
     return projection
@@ -1720,8 +1784,7 @@ def refresh_project_state(
         runtime_authority_observer=runtime_authority_observer,
     )
     root, policy = load_policy_for_views(project_root, policy_path)
-    expected = render_generated_block(projection, policy)
-    _, replacements = prepare_view_replacements(root, policy, expected)
+    _, replacements = prepare_view_replacements(root, policy, projection)
     for path, content in replacements:
         atomic_replace_bytes(path, content)
     return projection

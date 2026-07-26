@@ -66,6 +66,23 @@ def unknown_cost() -> dict[str, Any]:
     }
 
 
+def no_process_observation(mode: str) -> dict[str, Any]:
+    return {
+        "mode": mode,
+        "argv": None,
+        "exit_code": None,
+        "stdout_sha256": None,
+        "stderr_sha256": None,
+        "stdout_bytes": None,
+        "stderr_bytes": None,
+        "capture_authority": (
+            "tool_observed_baseline"
+            if mode == "baseline"
+            else "self_reported_no_process"
+        ),
+    }
+
+
 def rehash_attempts(ledger: dict[str, Any]) -> None:
     previous: dict[str, Any] | None = None
     for attempt in ledger["attempts"]:
@@ -119,6 +136,9 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             "governance/EXECUTION_LOOP_POLICY_V1.json",
             "scripts/verify_execution_loop.py",
             ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.json",
+            "STATUS.md",
+            "TASK_BOARD.md",
+            "LOOP_RUN_LOG.md",
         }
         for packet_source in packet_sources:
             packet = json.loads(packet_source.read_text(encoding="utf-8"))
@@ -191,6 +211,9 @@ class ExecutionLoopV2Tests(unittest.TestCase):
                     "claims": claims,
                     "claims_sha256": execution.canonical_sha256(claims),
                 },
+                "process_observation": no_process_observation(
+                    "baseline" if pending else "passive"
+                ),
                 "cost_observation": unknown_cost(),
                 "declared_progress": False,
                 "previous_attempt_sha256": None,
@@ -207,6 +230,11 @@ class ExecutionLoopV2Tests(unittest.TestCase):
                 ),
                 "reported_state": packet["state"],
                 "cost_accounting_claim": "partial",
+                "initial_state": {
+                    "failure_ids": [],
+                    "evidence": [],
+                },
+                "terminal_completion": None,
                 "attempts": [attempt],
             }
             rehash_attempts(ledger)
@@ -244,6 +272,122 @@ class ExecutionLoopV2Tests(unittest.TestCase):
         if rehash:
             rehash_attempts(ledger)
         write_json(path, ledger)
+
+    def append_execution_attempt(
+        self,
+        packet_id: str,
+        *,
+        status_after: str = "open",
+        root_cause_id: str = "ACTIVE-WORK-OBSERVATION",
+        failure_before: list[str] | None = None,
+        failure_after: list[str] | None = None,
+        added_evidence: list[dict[str, Any]] | None = None,
+    ) -> None:
+        packet = json.loads(
+            self.packet_path(packet_id).read_text(encoding="utf-8")
+        )
+        live_ids = {
+            json.loads(path.read_text(encoding="utf-8"))["packet_id"]
+            for path in (self.root / PACKET_DIRECTORY).glob("*.packet.json")
+            if json.loads(path.read_text(encoding="utf-8")).get(
+                "schema_version"
+            )
+            == "work-packet-instance/v2"
+        }
+        excluded, claims = execution.current_claim_snapshots(
+            self.root.resolve(),
+            packet,
+            live_ids,
+            [],
+        )
+
+        def mutate(ledger: dict[str, Any]) -> None:
+            previous = ledger["attempts"][-1]
+            previous_failures = previous["failure_delta"]["after"]
+            previous_evidence = previous["evidence_delta"]["after"]
+            before_failures = sorted(
+                previous_failures if failure_before is None else failure_before
+            )
+            after_failures = sorted(
+                before_failures if failure_after is None else failure_after
+            )
+            before_evidence = sorted(
+                previous_evidence,
+                key=execution.evidence_identity,
+            )
+            additions = sorted(
+                added_evidence or [],
+                key=execution.evidence_identity,
+            )
+            after_evidence = sorted(
+                [*before_evidence, *additions],
+                key=execution.evidence_identity,
+            )
+            sequence = len(ledger["attempts"]) + 1
+            timestamp = f"2026-07-26T00:00:{sequence:02d}.000Z"
+            attempt = {
+                "schema_version": "execution-attempt/v2",
+                "attempt_kind": "execution_attempt",
+                "sequence": sequence,
+                "retry_index": sum(
+                    item["attempt_kind"] == "execution_attempt"
+                    for item in ledger["attempts"]
+                ),
+                "started_at": timestamp,
+                "ended_at": timestamp,
+                "wall_time_ms": 0,
+                "blocker": blocker(root_cause_id, status_after),
+                "failure_delta": {
+                    "before": before_failures,
+                    "after": after_failures,
+                    "resolved": sorted(
+                        set(before_failures) - set(after_failures)
+                    ),
+                    "introduced": sorted(
+                        set(after_failures) - set(before_failures)
+                    ),
+                },
+                "evidence_delta": {
+                    "before": before_evidence,
+                    "after": after_evidence,
+                    "added": additions,
+                    "removed": [],
+                },
+                "controlled_snapshot": {
+                    "algorithm": execution.EXPECTED_CURRENT_SNAPSHOT[
+                        "algorithm"
+                    ],
+                    "excluded_paths": excluded,
+                    "claims": claims,
+                    "claims_sha256": execution.canonical_sha256(claims),
+                },
+                "process_observation": no_process_observation("passive"),
+                "cost_observation": unknown_cost(),
+                "declared_progress": bool(
+                    additions
+                    or set(before_failures) - set(after_failures)
+                ),
+                "previous_attempt_sha256": None,
+                "record_sha256": "",
+            }
+            ledger["attempts"].append(attempt)
+
+        self.mutate_ledger(packet_id, mutate, rehash=True)
+
+    def evidence_reference(
+        self,
+        relative: str,
+        *,
+        supports: list[str] | None = None,
+    ) -> dict[str, Any]:
+        return {
+            "path": relative,
+            "sha256": hashlib.sha256(
+                (self.root / relative).read_bytes()
+            ).hexdigest(),
+            "kind": "other",
+            "supports_failure_ids": sorted(supports or []),
+        }
 
     def test_generated_fixture_is_current(self) -> None:
         receipt = self.assert_valid()
@@ -439,6 +583,85 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             "three consecutive no-progress attempts require blocked"
         )
 
+    def test_pending_baseline_cannot_be_followed_by_execution_attempt(self) -> None:
+        self.append_execution_attempt("WP-CI-LINT-BASELINE")
+        self.assert_invalid(
+            "pending ledger must contain exactly one baseline observation"
+        )
+
+    def test_failure_state_must_be_continuous_across_attempts(self) -> None:
+        evidence = self.evidence_reference(
+            "governance/EXECUTION_LOOP_POLICY_V2.json",
+            supports=["FAKE-01"],
+        )
+        self.append_execution_attempt(
+            "WP-METHOD-RUNTIME-FOUNDATION",
+            failure_before=["FAKE-01"],
+            failure_after=[],
+            added_evidence=[evidence],
+        )
+        self.assert_invalid(
+            "failure state is not continuous with prior attempt"
+        )
+
+    def test_evidence_state_must_be_continuous_across_attempts(self) -> None:
+        evidence = self.evidence_reference(
+            "governance/EXECUTION_LOOP_POLICY_V2.json"
+        )
+        self.append_execution_attempt(
+            "WP-METHOD-RUNTIME-FOUNDATION",
+            added_evidence=[evidence],
+        )
+        self.append_execution_attempt("WP-METHOD-RUNTIME-FOUNDATION")
+
+        def mutate(ledger: dict[str, Any]) -> None:
+            latest = ledger["attempts"][-1]
+            latest["evidence_delta"]["before"] = []
+            latest["evidence_delta"]["added"] = latest["evidence_delta"]["after"]
+
+        self.mutate_ledger(
+            "WP-METHOD-RUNTIME-FOUNDATION",
+            mutate,
+            rehash=True,
+        )
+        self.assert_invalid(
+            "evidence state is not continuous with prior attempt"
+        )
+
+    def test_forced_stop_prefix_cannot_be_erased_by_fourth_progress(self) -> None:
+        packet_id = "WP-METHOD-RUNTIME-FOUNDATION"
+        self.append_execution_attempt(
+            packet_id,
+            root_cause_id="ROTATED-BLOCKER-TWO",
+        )
+        self.append_execution_attempt(
+            packet_id,
+            root_cause_id="ROTATED-BLOCKER-THREE",
+        )
+        evidence = self.evidence_reference(
+            "governance/EXECUTION_LOOP_POLICY_V2.json"
+        )
+        self.append_execution_attempt(
+            packet_id,
+            status_after="resolved",
+            root_cause_id="FOURTH-ATTEMPT-PROGRESS",
+            added_evidence=[evidence],
+        )
+        self.assert_invalid("forced stop is absorbing")
+
+    def test_retry_budget_cannot_end_resolved_without_acceptance(self) -> None:
+        packet_id = "WP-METHOD-RUNTIME-FOUNDATION"
+        self.append_execution_attempt(packet_id)
+        evidence = self.evidence_reference(
+            "governance/EXECUTION_LOOP_POLICY_V2.json"
+        )
+        self.append_execution_attempt(
+            packet_id,
+            status_after="resolved",
+            added_evidence=[evidence],
+        )
+        self.assert_invalid("exhausted retry budget must remain blocked")
+
     def test_blocker_fingerprint_is_recomputed(self) -> None:
         def mutate(ledger: dict[str, Any]) -> None:
             ledger["attempts"][0]["blocker"]["root_cause"] = "renamed"
@@ -497,7 +720,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
         )
         self.assert_invalid("progress evidence is outside controlled writes")
 
-    def test_unrecognized_attempt_ledger_claim_is_rejected(self) -> None:
+    def test_attempt_ledger_claim_is_rejected_as_runtime_sidecar(self) -> None:
         path = self.packet_path("WP-METHOD-INTEGRATION")
         packet = json.loads(path.read_text(encoding="utf-8"))
         packet["bounded_write_paths"].append(
@@ -507,7 +730,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             }
         )
         write_json(path, packet)
-        self.assert_invalid("unrecognized attempt-ledger write claim")
+        self.assert_invalid("derived runtime sidecars")
 
     def test_state_derivation_fails_closed_when_v2_ledger_is_missing(self) -> None:
         self.assert_valid()

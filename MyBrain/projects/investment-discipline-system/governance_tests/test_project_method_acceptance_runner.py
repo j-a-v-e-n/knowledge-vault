@@ -1,17 +1,59 @@
 from __future__ import annotations
 
 import json
+import inspect
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
 
-from scripts import run_project_method_acceptance
+from scripts import run_project_method_acceptance, verify_governance
 from scripts.freeze_governance import MACHINE_CHECK_SPECS
 
 
 class ProjectMethodAcceptanceRunnerTests(unittest.TestCase):
+    def test_governance_aggregator_uses_only_v2_current_runtime_authorities(
+        self,
+    ) -> None:
+        self.assertEqual(
+            "WORK_PACKET_POLICY_V2.json",
+            verify_governance.WORK_PACKET_POLICY.name,
+        )
+        self.assertEqual(
+            "EXECUTION_LOOP_POLICY_V2.json",
+            verify_governance.EXECUTION_LOOP_POLICY.name,
+        )
+        source = inspect.getsource(verify_governance.verify)
+        self.assertIn("verify_execution_loop_v2.py", source)
+        self.assertNotIn('"verify_execution_loop.py"', source)
+
+    def test_current_method_cases_do_not_invoke_v1_runtime_authorities(
+        self,
+    ) -> None:
+        commands = [
+            command
+            for case in run_project_method_acceptance.FAILURE_CASES
+            for command in case["commands"]
+        ]
+        self.assertNotIn(
+            ["PYTHON", "scripts/verify_execution_loop.py", "--json"],
+            commands,
+        )
+        current_work_commands = [
+            command
+            for command in commands
+            if "scripts/verify_work_packets.py" in command
+        ]
+        self.assertTrue(current_work_commands)
+        for command in current_work_commands:
+            self.assertIn("--policy", command)
+            self.assertIn("governance/WORK_PACKET_POLICY_V2.json", command)
+        self.assertIn(
+            ["PYTHON", "scripts/verify_execution_loop_v2.py", "--json"],
+            commands,
+        )
+
     def test_machine_outcome_ignores_registry_metadata(self) -> None:
         self.assertEqual(
             ("checks_passed", None),

@@ -21,10 +21,6 @@
     {
       "path": "scripts/freeze_governance.py",
       "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-FREEZE-CLOSURE-PROTOCOL.attempts.v2.json",
-      "kind": "file"
     }
   ],
   "read_dependencies": [

@@ -1,1 +1,483 @@
-{"attempts":[{"attempt_kind":"execution_attempt","blocker":{"failure_ids":[],"fingerprint_sha256":"8459b9cfb3b48d0c03823223ba494ee3d3e44cf7f6605779bd21c3a6b416fc8c","root_cause":"Runtime Authority Integration Pending","root_cause_id":"RUNTIME-AUTHORITY-INTEGRATION-PENDING","status_after":"open"},"controlled_snapshot":{"algorithm":"canonical_sha256_of_sorted_claim_snapshots_v1","claims":[{"content_sha256":"ae312745ad099a848f063339867ad4f1a4841244dec5afedef59d28e9efdf8d6","kind":"tree","path":"audits/execution_loop_v2","state":"tree"},{"content_sha256":"8d342cc2fedf3fddc9ffe130eb50cea48c29a6f108a76dd6cda5a25eb94f9526","kind":"file","path":"governance/EXECUTION_LOOP_POLICY_V2.json","state":"file"},{"content_sha256":"48593eb3b4c6f88dd39b3d43eed71c37bacc91e2c1c63b20e72e98af48fb7693","kind":"file","path":"governance/PROJECT_STATE_VIEW_POLICY_V1.json","state":"file"},{"content_sha256":"d1f27d8a6991727b4b96d31f04b2e8fb0fd29beafd8669475907b63436a69ed9","kind":"file","path":"governance_tests/test_execution_loop_v2.py","state":"file"},{"content_sha256":"9c8dc89ddd3e632f6f370e4366063be88d9b343c87cf875cfaadbb516ca06f8f","kind":"file","path":"governance_tests/test_project_state_freshness.py","state":"file"},{"content_sha256":"dc4d24f7d47d4591f3d68d3beef3ee6d32fae222e8a7f03d91b578e787103cb0","kind":"file","path":"scripts/derive_project_state.py","state":"file"},{"content_sha256":"8c256507ee2633e0e35a93291f2d504bbe2781cff99019befd0cb2ad53516ebe","kind":"file","path":"scripts/verify_execution_loop_v2.py","state":"file"}],"claims_sha256":"5ae56864fca35156a7e0a66a1d099e3efa0dd73b15002284d36b9b89e511656e","excluded_paths":[".work_packets/attempts/WP-CI-ASSURANCE-RUNTIME.attempts.v2.json",".work_packets/attempts/WP-CI-LINT-BASELINE.attempts.v2.json",".work_packets/attempts/WP-DEPENDENCY-BOUNDARY.attempts.v2.json",".work_packets/attempts/WP-FREEZE-CLOSURE-PROTOCOL.attempts.v2.json",".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.v2.json",".work_packets/attempts/WP-METHOD-RUNTIME-FOUNDATION.attempts.v2.json","LOOP_RUN_LOG.md","STATUS.md","TASK_BOARD.md"]},"cost_observation":{"token_usage":{"availability":"unknown","input_tokens":null,"measurement_source":null,"output_tokens":null,"total_tokens":null},"wall_time_source":"timestamps"},"declared_progress":true,"ended_at":"2026-07-26T00:55:12.000Z","evidence_delta":{"added":[{"kind":"policy","path":"governance/EXECUTION_LOOP_POLICY_V2.json","sha256":"8d342cc2fedf3fddc9ffe130eb50cea48c29a6f108a76dd6cda5a25eb94f9526","supports_failure_ids":["ECO-01","ORG-04"]},{"kind":"policy","path":"governance/PROJECT_STATE_VIEW_POLICY_V1.json","sha256":"48593eb3b4c6f88dd39b3d43eed71c37bacc91e2c1c63b20e72e98af48fb7693","supports_failure_ids":["ORG-04"]},{"kind":"implementation","path":"scripts/verify_execution_loop_v2.py","sha256":"8c256507ee2633e0e35a93291f2d504bbe2781cff99019befd0cb2ad53516ebe","supports_failure_ids":["ECO-01","ORG-04"]},{"kind":"implementation","path":"scripts/derive_project_state.py","sha256":"dc4d24f7d47d4591f3d68d3beef3ee6d32fae222e8a7f03d91b578e787103cb0","supports_failure_ids":["ORG-04"]},{"kind":"test","path":"governance_tests/test_execution_loop_v2.py","sha256":"d1f27d8a6991727b4b96d31f04b2e8fb0fd29beafd8669475907b63436a69ed9","supports_failure_ids":["ECO-01","ORG-04"]},{"kind":"test","path":"governance_tests/test_project_state_freshness.py","sha256":"9c8dc89ddd3e632f6f370e4366063be88d9b343c87cf875cfaadbb516ca06f8f","supports_failure_ids":["ORG-04"]},{"kind":"other","path":"audits/execution_loop_v2/EXECUTION_LOOP_V2_ADVERSARIAL_REVIEW_A_2026-07-25.md","sha256":"24bfc2fb4971e162796d04d480f8a6ba91026caa5fa64d4e0f70fd12ca1ef662","supports_failure_ids":["ECO-01","ORG-04"]}],"after":[{"kind":"policy","path":"governance/EXECUTION_LOOP_POLICY_V2.json","sha256":"8d342cc2fedf3fddc9ffe130eb50cea48c29a6f108a76dd6cda5a25eb94f9526","supports_failure_ids":["ECO-01","ORG-04"]},{"kind":"policy","path":"governance/PROJECT_STATE_VIEW_POLICY_V1.json","sha256":"48593eb3b4c6f88dd39b3d43eed71c37bacc91e2c1c63b20e72e98af48fb7693","supports_failure_ids":["ORG-04"]},{"kind":"implementation","path":"scripts/verify_execution_loop_v2.py","sha256":"8c256507ee2633e0e35a93291f2d504bbe2781cff99019befd0cb2ad53516ebe","supports_failure_ids":["ECO-01","ORG-04"]},{"kind":"implementation","path":"scripts/derive_project_state.py","sha256":"dc4d24f7d47d4591f3d68d3beef3ee6d32fae222e8a7f03d91b578e787103cb0","supports_failure_ids":["ORG-04"]},{"kind":"test","path":"governance_tests/test_execution_loop_v2.py","sha256":"d1f27d8a6991727b4b96d31f04b2e8fb0fd29beafd8669475907b63436a69ed9","supports_failure_ids":["ECO-01","ORG-04"]},{"kind":"test","path":"governance_tests/test_project_state_freshness.py","sha256":"9c8dc89ddd3e632f6f370e4366063be88d9b343c87cf875cfaadbb516ca06f8f","supports_failure_ids":["ORG-04"]},{"kind":"other","path":"audits/execution_loop_v2/EXECUTION_LOOP_V2_ADVERSARIAL_REVIEW_A_2026-07-25.md","sha256":"24bfc2fb4971e162796d04d480f8a6ba91026caa5fa64d4e0f70fd12ca1ef662","supports_failure_ids":["ECO-01","ORG-04"]}],"before":[],"removed":[]},"failure_delta":{"after":["ECO-01","ORG-04"],"before":["ECO-01","ORG-04"],"introduced":[],"resolved":[]},"previous_attempt_sha256":null,"record_sha256":"078d22acc13ecb28bd125c079b9407401b6c2655b3c6a948635da926fceecbd7","retry_index":0,"schema_version":"execution-attempt/v2","sequence":1,"started_at":"2026-07-26T00:55:12.000Z","wall_time_ms":0}],"cost_accounting_claim":"partial","packet_contract_sha256":"0a3434690004996b4934e4fed862ff76419aa7b2027416faf40edf4fd1ff8e9f","packet_id":"WP-METHOD-RUNTIME-FOUNDATION","packet_path":".work_packets/packets/WP-METHOD-RUNTIME-FOUNDATION.packet.json","reported_state":"active","schema_version":"execution-attempt-ledger/v2"}
+{
+  "attempts": [
+    {
+      "attempt_kind": "execution_attempt",
+      "blocker": {
+        "failure_ids": [
+          "ECO-01",
+          "ORG-04"
+        ],
+        "fingerprint_sha256": "ae360145dd2541277d3895d7a9e5fdc346e1d962d4723bcac22594af10de233c",
+        "root_cause": "Strengthened V2 recorder and current-authority migration await independent re-review",
+        "root_cause_id": "V2-RUNTIME-AUTHORITY-MIGRATION",
+        "status_after": "open"
+      },
+      "controlled_snapshot": {
+        "algorithm": "canonical_sha256_of_sorted_claim_snapshots_v1",
+        "claims": [
+          {
+            "content_sha256": "a136c35b61f45eed938dcf24261290b8d7d3f2257c33946212fc7d2443e61473",
+            "kind": "tree",
+            "path": "audits/execution_loop_v2",
+            "state": "tree"
+          },
+          {
+            "content_sha256": "78c0213d42550e80c1802b587cc61a62da490d3538014a040dcc4bf3a82239e6",
+            "kind": "file",
+            "path": "governance/EXECUTION_LOOP_POLICY_V2.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "3537ad1678fd775f6d56ddcd53d1719a050ae19d7ab27aba2048fdcb6efd5bf1",
+            "kind": "file",
+            "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "683a13742a6ab7abc0e7ee2c57f2226d48353b2b891220ac10f821a25093394a",
+            "kind": "file",
+            "path": "governance/PROJECT_STATE_VIEW_POLICY_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "03a9085f59d803b2de4d241bb8ab9a2345a92660dff92558697fa335498c132a",
+            "kind": "file",
+            "path": "governance_tests/test_execution_loop_v2.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "be4ea1a4bff9b8126fa8f7012b5c329655b0e42fafa0e3d22fdbcf12321c40f9",
+            "kind": "file",
+            "path": "governance_tests/test_execution_recorder_v2.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "52dcd06c1f947e230d1498e6d5e488ff06bba048da332ca80ecdacf8398c3a01",
+            "kind": "file",
+            "path": "governance_tests/test_no_live_scope.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "1e52d6102fc6594e496abb0394428ff667fc9480755a62e8bf48ebb5d6779bc5",
+            "kind": "file",
+            "path": "governance_tests/test_project_method_acceptance_runner.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "280699689a38dbc6d16e5238110e297df98adc619c45d8f97aee545d79b2c050",
+            "kind": "file",
+            "path": "governance_tests/test_project_state_freshness.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "278e56c4616ffefd640ca00ef35da3dcb54cbce957f8d0e6ade1e9f9500fb0f6",
+            "kind": "file",
+            "path": "scripts/derive_project_state.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "6964acfc50f1b63b2a1e91484bfa10518f830bdf07ac3fd97782fe300941ffaf",
+            "kind": "file",
+            "path": "scripts/record_execution_attempt_v2.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "531a659205a553259e06a253506983cf4829a4d47f06537599157c608825c1b0",
+            "kind": "file",
+            "path": "scripts/run_project_method_acceptance.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "ec2e778249e7bed7131b351b1a00fdcc81bc83e3d6d35974884e955c6bf85df8",
+            "kind": "file",
+            "path": "scripts/verify_execution_loop_v2.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "7488baca8f30675f2c8a4b119b6aa3b76cc38d2b0ff8cdf7930f95083d2749b9",
+            "kind": "file",
+            "path": "scripts/verify_governance.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "7648bc3b3d1d783132466f4c76382eb94ee5216d0d3bddc7b746d30a867e2a09",
+            "kind": "file",
+            "path": "scripts/verify_no_live_scope.py",
+            "state": "file"
+          }
+        ],
+        "claims_sha256": "16debc6d658ae79b0536f971a725fcc39922c63e334adc9f1051f06e2ac37cfc",
+        "excluded_paths": []
+      },
+      "cost_observation": {
+        "token_usage": {
+          "availability": "unknown",
+          "input_tokens": null,
+          "measurement_source": null,
+          "output_tokens": null,
+          "total_tokens": null
+        },
+        "wall_time_source": "timestamps"
+      },
+      "declared_progress": true,
+      "ended_at": "2026-07-26T02:00:47.000Z",
+      "evidence_delta": {
+        "added": [
+          {
+            "kind": "other",
+            "path": "audits/execution_loop_v2/EXECUTION_LEDGER_SCHEMA_MIGRATION_2026-07-26.json",
+            "sha256": "7a01642a241c7d528a2a9aac9f8bf02906036af85d330bbf6a07b81043be3e66",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "other",
+            "path": "audits/execution_loop_v2/EXECUTION_LOOP_V2_ADVERSARIAL_REVIEW_A_2026-07-25.md",
+            "sha256": "24bfc2fb4971e162796d04d480f8a6ba91026caa5fa64d4e0f70fd12ca1ef662",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "other",
+            "path": "audits/execution_loop_v2/EXECUTION_LOOP_V2_ADVERSARIAL_REVIEW_B_2026-07-25.md",
+            "sha256": "f842d42ee5574b2b744f2166634f5d8e8e0ee8450531064ec96cc95ea5407235",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "policy",
+            "path": "governance/EXECUTION_LOOP_POLICY_V2.json",
+            "sha256": "78c0213d42550e80c1802b587cc61a62da490d3538014a040dcc4bf3a82239e6",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "policy",
+            "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
+            "sha256": "3537ad1678fd775f6d56ddcd53d1719a050ae19d7ab27aba2048fdcb6efd5bf1",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "policy",
+            "path": "governance/PROJECT_STATE_VIEW_POLICY_V1.json",
+            "sha256": "683a13742a6ab7abc0e7ee2c57f2226d48353b2b891220ac10f821a25093394a",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_execution_loop_v2.py",
+            "sha256": "03a9085f59d803b2de4d241bb8ab9a2345a92660dff92558697fa335498c132a",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_execution_recorder_v2.py",
+            "sha256": "be4ea1a4bff9b8126fa8f7012b5c329655b0e42fafa0e3d22fdbcf12321c40f9",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_no_live_scope.py",
+            "sha256": "52dcd06c1f947e230d1498e6d5e488ff06bba048da332ca80ecdacf8398c3a01",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_project_method_acceptance_runner.py",
+            "sha256": "1e52d6102fc6594e496abb0394428ff667fc9480755a62e8bf48ebb5d6779bc5",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_project_state_freshness.py",
+            "sha256": "280699689a38dbc6d16e5238110e297df98adc619c45d8f97aee545d79b2c050",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/derive_project_state.py",
+            "sha256": "278e56c4616ffefd640ca00ef35da3dcb54cbce957f8d0e6ade1e9f9500fb0f6",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/record_execution_attempt_v2.py",
+            "sha256": "6964acfc50f1b63b2a1e91484bfa10518f830bdf07ac3fd97782fe300941ffaf",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/run_project_method_acceptance.py",
+            "sha256": "531a659205a553259e06a253506983cf4829a4d47f06537599157c608825c1b0",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/verify_execution_loop_v2.py",
+            "sha256": "ec2e778249e7bed7131b351b1a00fdcc81bc83e3d6d35974884e955c6bf85df8",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/verify_governance.py",
+            "sha256": "7488baca8f30675f2c8a4b119b6aa3b76cc38d2b0ff8cdf7930f95083d2749b9",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/verify_no_live_scope.py",
+            "sha256": "7648bc3b3d1d783132466f4c76382eb94ee5216d0d3bddc7b746d30a867e2a09",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          }
+        ],
+        "after": [
+          {
+            "kind": "other",
+            "path": "audits/execution_loop_v2/EXECUTION_LEDGER_SCHEMA_MIGRATION_2026-07-26.json",
+            "sha256": "7a01642a241c7d528a2a9aac9f8bf02906036af85d330bbf6a07b81043be3e66",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "other",
+            "path": "audits/execution_loop_v2/EXECUTION_LOOP_V2_ADVERSARIAL_REVIEW_A_2026-07-25.md",
+            "sha256": "24bfc2fb4971e162796d04d480f8a6ba91026caa5fa64d4e0f70fd12ca1ef662",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "other",
+            "path": "audits/execution_loop_v2/EXECUTION_LOOP_V2_ADVERSARIAL_REVIEW_B_2026-07-25.md",
+            "sha256": "f842d42ee5574b2b744f2166634f5d8e8e0ee8450531064ec96cc95ea5407235",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "policy",
+            "path": "governance/EXECUTION_LOOP_POLICY_V2.json",
+            "sha256": "78c0213d42550e80c1802b587cc61a62da490d3538014a040dcc4bf3a82239e6",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "policy",
+            "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
+            "sha256": "3537ad1678fd775f6d56ddcd53d1719a050ae19d7ab27aba2048fdcb6efd5bf1",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "policy",
+            "path": "governance/PROJECT_STATE_VIEW_POLICY_V1.json",
+            "sha256": "683a13742a6ab7abc0e7ee2c57f2226d48353b2b891220ac10f821a25093394a",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_execution_loop_v2.py",
+            "sha256": "03a9085f59d803b2de4d241bb8ab9a2345a92660dff92558697fa335498c132a",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_execution_recorder_v2.py",
+            "sha256": "be4ea1a4bff9b8126fa8f7012b5c329655b0e42fafa0e3d22fdbcf12321c40f9",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_no_live_scope.py",
+            "sha256": "52dcd06c1f947e230d1498e6d5e488ff06bba048da332ca80ecdacf8398c3a01",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_project_method_acceptance_runner.py",
+            "sha256": "1e52d6102fc6594e496abb0394428ff667fc9480755a62e8bf48ebb5d6779bc5",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "test",
+            "path": "governance_tests/test_project_state_freshness.py",
+            "sha256": "280699689a38dbc6d16e5238110e297df98adc619c45d8f97aee545d79b2c050",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/derive_project_state.py",
+            "sha256": "278e56c4616ffefd640ca00ef35da3dcb54cbce957f8d0e6ade1e9f9500fb0f6",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/record_execution_attempt_v2.py",
+            "sha256": "6964acfc50f1b63b2a1e91484bfa10518f830bdf07ac3fd97782fe300941ffaf",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/run_project_method_acceptance.py",
+            "sha256": "531a659205a553259e06a253506983cf4829a4d47f06537599157c608825c1b0",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/verify_execution_loop_v2.py",
+            "sha256": "ec2e778249e7bed7131b351b1a00fdcc81bc83e3d6d35974884e955c6bf85df8",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/verify_governance.py",
+            "sha256": "7488baca8f30675f2c8a4b119b6aa3b76cc38d2b0ff8cdf7930f95083d2749b9",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          },
+          {
+            "kind": "implementation",
+            "path": "scripts/verify_no_live_scope.py",
+            "sha256": "7648bc3b3d1d783132466f4c76382eb94ee5216d0d3bddc7b746d30a867e2a09",
+            "supports_failure_ids": [
+              "ECO-01",
+              "ORG-04"
+            ]
+          }
+        ],
+        "before": [],
+        "removed": []
+      },
+      "failure_delta": {
+        "after": [
+          "ECO-01",
+          "ORG-04"
+        ],
+        "before": [
+          "ECO-01",
+          "ORG-04"
+        ],
+        "introduced": [],
+        "resolved": []
+      },
+      "previous_attempt_sha256": null,
+      "process_observation": {
+        "argv": null,
+        "capture_authority": "self_reported_no_process",
+        "exit_code": null,
+        "mode": "passive",
+        "stderr_bytes": null,
+        "stderr_sha256": null,
+        "stdout_bytes": null,
+        "stdout_sha256": null
+      },
+      "record_sha256": "ba113e1db307ccc2f8f42d14a7e0ada29a33724fcc5200f374a610fcd8b62389",
+      "retry_index": 0,
+      "schema_version": "execution-attempt/v2",
+      "sequence": 1,
+      "started_at": "2026-07-26T02:00:47.000Z",
+      "wall_time_ms": 0
+    }
+  ],
+  "cost_accounting_claim": "partial",
+  "initial_state": {
+    "evidence": [],
+    "failure_ids": [
+      "ECO-01",
+      "ORG-04"
+    ]
+  },
+  "packet_contract_sha256": "1f508ac7059c75a95c6f2fd67484f32cfd65c22f6cabdcff05a2264815a34919",
+  "packet_id": "WP-METHOD-RUNTIME-FOUNDATION",
+  "packet_path": ".work_packets/packets/WP-METHOD-RUNTIME-FOUNDATION.packet.json",
+  "reported_state": "active",
+  "schema_version": "execution-attempt-ledger/v2",
+  "terminal_completion": null
+}

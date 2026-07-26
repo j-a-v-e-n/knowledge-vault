@@ -41,11 +41,11 @@ PROJECT_METHOD_POLICY = GOVERNANCE / "PROJECT_METHOD_POLICY_V1.json"
 COMPONENT_REGISTRY = GOVERNANCE / "COMPONENT_REGISTRY_V1.json"
 CONTEXT_RECOVERY_SPEC = GOVERNANCE / "CONTEXT_RECOVERY_SPEC_V1.json"
 DEPENDENCY_BOUNDARY = GOVERNANCE / "DEPENDENCY_BOUNDARY_V1.json"
-WORK_PACKET_POLICY = GOVERNANCE / "WORK_PACKET_POLICY_V1.json"
+WORK_PACKET_POLICY = GOVERNANCE / "WORK_PACKET_POLICY_V2.json"
 FROZEN_TEST_MANIFEST = GOVERNANCE / "FROZEN_TEST_MANIFEST_V1.json"
 MIGRATION_DRILL_SPEC = GOVERNANCE / "MIGRATION_DRILL_SPEC_V1.json"
 NO_LIVE_SCOPE_POLICY = GOVERNANCE / "NO_LIVE_SCOPE_POLICY_V1.json"
-EXECUTION_LOOP_POLICY = GOVERNANCE / "EXECUTION_LOOP_POLICY_V1.json"
+EXECUTION_LOOP_POLICY = GOVERNANCE / "EXECUTION_LOOP_POLICY_V2.json"
 R9_METHOD_PREREGISTRATION = (
     PROJECT_ROOT
     / "research"
@@ -107,6 +107,8 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "scripts/verify_dependency_boundary.py",
     "scripts/verify_frozen_tests.py",
     "scripts/verify_execution_loop.py",
+    "scripts/verify_execution_loop_v2.py",
+    "scripts/record_execution_attempt_v2.py",
     "scripts/verify_migration_drill.py",
     "scripts/verify_no_live_scope.py",
     "scripts/verify_project_method.py",
@@ -128,6 +130,8 @@ FINAL_REVIEW_REQUIRED_SCOPE = {
     "governance_tests/test_dependency_boundary.py",
     "governance_tests/test_frozen_tests.py",
     "governance_tests/test_execution_loop.py",
+    "governance_tests/test_execution_loop_v2.py",
+    "governance_tests/test_execution_recorder_v2.py",
     "governance_tests/test_migration_drill.py",
     "governance_tests/test_no_live_scope.py",
     "governance_tests/test_project_method.py",
@@ -160,6 +164,7 @@ NORMATIVE_JSON_PATHS = (
     "governance/DEPENDENCY_BOUNDARY_V1.json",
     "governance/FROZEN_TEST_MANIFEST_V1.json",
     "governance/EXECUTION_LOOP_POLICY_V1.json",
+    "governance/EXECUTION_LOOP_POLICY_V2.json",
     "governance/MIGRATION_DRILL_SPEC_V1.json",
     "governance/NO_LIVE_SCOPE_POLICY_V1.json",
     "governance/IMPLEMENTATION_TARGETS_V1.json",
@@ -172,6 +177,7 @@ NORMATIVE_JSON_PATHS = (
     "governance/FAILURE_CLASSES_V1.json",
     "governance/DECISION_AUTHORITY_V1.json",
     "governance/WORK_PACKET_POLICY_V1.json",
+    "governance/WORK_PACKET_POLICY_V2.json",
     "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json",
 )
 NORMATIVE_AUXILIARY_PATHS = (
@@ -4315,6 +4321,10 @@ def verify(allow_candidate: bool) -> list[str]:
             [
                 sys.executable,
                 str(PROJECT_ROOT / "scripts" / "verify_work_packets.py"),
+                "--project-root",
+                str(PROJECT_ROOT),
+                "--policy",
+                str(WORK_PACKET_POLICY),
                 "--packet-dir",
                 str(PROJECT_ROOT / ".work_packets" / "packets"),
                 "--json",
@@ -4332,7 +4342,11 @@ def verify(allow_candidate: bool) -> list[str]:
             "execution loop",
             [
                 sys.executable,
-                str(PROJECT_ROOT / "scripts" / "verify_execution_loop.py"),
+                str(PROJECT_ROOT / "scripts" / "verify_execution_loop_v2.py"),
+                "--project-root",
+                str(PROJECT_ROOT),
+                "--policy",
+                str(EXECUTION_LOOP_POLICY),
                 "--json",
             ],
         ),

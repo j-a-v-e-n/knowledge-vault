@@ -1,1 +1,79 @@
-{"attempts":[{"attempt_kind":"baseline_observation","blocker":{"failure_ids":[],"fingerprint_sha256":"602b2e9f0c65a8bbe25dbcfa4037f96cb86286228226e547abfe6a38bf8a754d","root_cause":"Waiting For Prerequisite","root_cause_id":"WAITING-FOR-PREREQUISITE","status_after":"waiting"},"controlled_snapshot":{"algorithm":"canonical_sha256_of_sorted_claim_snapshots_v1","claims":[{"content_sha256":"53e264a0e5340555a5316f10df1132735a55f091a9ecea85427d4d209b9fd0cc","kind":"file","path":"governance/RUFF_CI_CONFIG_V1.toml","state":"file"}],"claims_sha256":"50e347c2e4d0afae3d5f9e9e63d99684af3374f0469e2993b3f2cc83597afcea","excluded_paths":[".work_packets/attempts/WP-CI-LINT-BASELINE.attempts.v2.json"]},"cost_observation":{"token_usage":{"availability":"unknown","input_tokens":null,"measurement_source":null,"output_tokens":null,"total_tokens":null},"wall_time_source":"timestamps"},"declared_progress":false,"ended_at":"2026-07-26T00:55:12.000Z","evidence_delta":{"added":[],"after":[],"before":[],"removed":[]},"failure_delta":{"after":[],"before":[],"introduced":[],"resolved":[]},"previous_attempt_sha256":null,"record_sha256":"eafab60095a11cbba21ff54ba53fa54de1d744305762781d2701ba7b5880f674","retry_index":null,"schema_version":"execution-attempt/v2","sequence":1,"started_at":"2026-07-26T00:55:12.000Z","wall_time_ms":0}],"cost_accounting_claim":"partial","packet_contract_sha256":"3bec1a2dba35fd318c518026723f2d45b7b1352888cb2b35cb78a091bc38b441","packet_id":"WP-CI-LINT-BASELINE","packet_path":".work_packets/packets/WP-CI-LINT-BASELINE.packet.json","reported_state":"pending","schema_version":"execution-attempt-ledger/v2"}
+{
+  "attempts": [
+    {
+      "attempt_kind": "baseline_observation",
+      "blocker": {
+        "failure_ids": [],
+        "fingerprint_sha256": "2ba3960770d353e8d2e7655819260442221741c573f22743e12aa3565918862a",
+        "root_cause": "Packet is waiting for its declared prerequisite",
+        "root_cause_id": "WAITING-FOR-PREREQUISITE",
+        "status_after": "waiting"
+      },
+      "controlled_snapshot": {
+        "algorithm": "canonical_sha256_of_sorted_claim_snapshots_v1",
+        "claims": [
+          {
+            "content_sha256": "53e264a0e5340555a5316f10df1132735a55f091a9ecea85427d4d209b9fd0cc",
+            "kind": "file",
+            "path": "governance/RUFF_CI_CONFIG_V1.toml",
+            "state": "file"
+          }
+        ],
+        "claims_sha256": "50e347c2e4d0afae3d5f9e9e63d99684af3374f0469e2993b3f2cc83597afcea",
+        "excluded_paths": []
+      },
+      "cost_observation": {
+        "token_usage": {
+          "availability": "unknown",
+          "input_tokens": null,
+          "measurement_source": null,
+          "output_tokens": null,
+          "total_tokens": null
+        },
+        "wall_time_source": "timestamps"
+      },
+      "declared_progress": false,
+      "ended_at": "2026-07-26T02:00:47.000Z",
+      "evidence_delta": {
+        "added": [],
+        "after": [],
+        "before": [],
+        "removed": []
+      },
+      "failure_delta": {
+        "after": [],
+        "before": [],
+        "introduced": [],
+        "resolved": []
+      },
+      "previous_attempt_sha256": null,
+      "process_observation": {
+        "argv": null,
+        "capture_authority": "tool_observed_baseline",
+        "exit_code": null,
+        "mode": "baseline",
+        "stderr_bytes": null,
+        "stderr_sha256": null,
+        "stdout_bytes": null,
+        "stdout_sha256": null
+      },
+      "record_sha256": "3e25e46e44a86b256b1a6e1ba1357d2ab1fd8dcf247b3570a740583606f547bf",
+      "retry_index": null,
+      "schema_version": "execution-attempt/v2",
+      "sequence": 1,
+      "started_at": "2026-07-26T02:00:47.000Z",
+      "wall_time_ms": 0
+    }
+  ],
+  "cost_accounting_claim": "partial",
+  "initial_state": {
+    "evidence": [],
+    "failure_ids": []
+  },
+  "packet_contract_sha256": "21072a9fc882e30bc256d3507ae26355fe0b2ee852c22682876e6d697f7ae566",
+  "packet_id": "WP-CI-LINT-BASELINE",
+  "packet_path": ".work_packets/packets/WP-CI-LINT-BASELINE.packet.json",
+  "reported_state": "pending",
+  "schema_version": "execution-attempt-ledger/v2",
+  "terminal_completion": null
+}

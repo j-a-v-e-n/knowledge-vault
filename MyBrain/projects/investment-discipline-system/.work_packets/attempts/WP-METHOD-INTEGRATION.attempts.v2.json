@@ -1,1 +1,211 @@
-{"attempts":[{"attempt_kind":"baseline_observation","blocker":{"failure_ids":[],"fingerprint_sha256":"602b2e9f0c65a8bbe25dbcfa4037f96cb86286228226e547abfe6a38bf8a754d","root_cause":"Waiting For Prerequisite","root_cause_id":"WAITING-FOR-PREREQUISITE","status_after":"waiting"},"controlled_snapshot":{"algorithm":"canonical_sha256_of_sorted_claim_snapshots_v1","claims":[{"content_sha256":"9a245d75ed44a763175f34fba61593a6a1b50346b261d925c50016064bc79633","kind":"file","path":"audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md","state":"file"},{"content_sha256":"bf7f28d583621c1bb9e33bce6b097f7cdd7417384e342245d8b8524e2b1ab9ce","kind":"tree","path":"audits/research_r10","state":"tree"},{"content_sha256":"1e8603b78b2479fc200c20f673bb09fc15b35a6f39c806a988d16098dd1a0c1d","kind":"file","path":"governance/ACCEPTANCE_CONTRACT_V1.json","state":"file"},{"content_sha256":"8215eee39fc7a30cedc69a51bce1a3d928c82320bbe66ed0462115af0eab8d01","kind":"file","path":"governance/AI_PROJECT_RESEARCH_REGISTER_V1.json","state":"file"},{"content_sha256":"e15e55ed4f8aa6d397f3e912bc9cb355533825c3b84e89c84695ee015ebd76e7","kind":"file","path":"governance/ASSURANCE_SUBJECTS_V1.json","state":"file"},{"content_sha256":"0b37ca979a0fe2c85fe656fe910749a16c92f3b75a5b7db3d36f9c8a51cc219f","kind":"file","path":"governance/COMPONENT_REGISTRY_V1.json","state":"file"},{"content_sha256":"a6b567f0d9e867c3522ec73b8f1631727322cb6e9a514b1ca068328eea7cfc44","kind":"file","path":"governance/FROZEN_TEST_MANIFEST_V1.json","state":"file"},{"content_sha256":"1cc7207f172c17ffc8994010498cbe14911085f9c980e0f277c736cd67b8343c","kind":"file","path":"governance/GROUND_TRUTH_MANIFEST_V1.json","state":"file"},{"content_sha256":"5ddc36b8cc54846b55364164087d91a1c1de9066f994a72f6c22997113ece617","kind":"file","path":"governance/IMPLEMENTATION_TARGETS_V1.json","state":"file"},{"content_sha256":"16521aed0eb3e865212440522ec2a6ae19eb346ab9f7d2faf3a735f46465fd7f","kind":"file","path":"governance/PROJECT_METHOD_POLICY_V1.json","state":"file"},{"content_sha256":"e5a09adabae16cecd6062bc9e047b87414840a7d67f795cd0a967f62c90084dc","kind":"file","path":"governance/RESEARCH_LIVING_REVIEW_POLICY_V1.json","state":"file"},{"content_sha256":"97ca376a9b7595f8fd58583753a5d953d6a9f76e56ce823a47f576534f2d27c1","kind":"file","path":"governance/RESEARCH_LIVING_REVIEW_STATE_V1.json","state":"file"},{"content_sha256":"1ec5c8ac2494f24f93728955c73798e925298119690ef24b9dc27e20d5f119e4","kind":"file","path":"governance/TRACEABILITY_V1.json","state":"file"},{"content_sha256":"afe52fb11de614afdf05559e69fb16cabc15042f4961f8ecb9766594f492140b","kind":"file","path":"governance/WORK_PACKET_POLICY_V2.json","state":"file"},{"content_sha256":"d19fde32639e1f027b8673c7dd34ab7febd8dbf4a007d1a46303788e99dbaeef","kind":"file","path":"governance_tests/test_research_living_review.py","state":"file"},{"content_sha256":"9eba436fbd5c476d638a09a555d10e80e2c34b74cb01d1e9bc27b11094bee5e0","kind":"file","path":"governance_tests/test_research_source_manifest.py","state":"file"},{"content_sha256":"d144466d3e160ae397cc0a18fa5e22566f42dc0fa55f71449b50f8735e5b37c5","kind":"file","path":"governance_tests/test_work_packet_dag.py","state":"file"},{"content_sha256":"f1530af94c2ca11cf54d017ae9fe1d63bc022df28f40bcba22e7bddd2724080f","kind":"file","path":"research/AI_PROJECT_FAILURE_EVIDENCE_REFRESH_R10_2026-07-25.md","state":"file"},{"content_sha256":"133b7f6f808346c8094551aeae761af9c72f04030cb53963d4d6e3d62af583ae","kind":"file","path":"research/AI_PROJECT_METHOD_EVIDENCE_REFRESH_R10_2026-07-25.md","state":"file"},{"content_sha256":"b0831c53906d9a38aff10498d1d7a0985b13b7df8cb17af2d0f01eac340b66ac","kind":"tree","path":"research/evidence/r10","state":"tree"},{"content_sha256":"52f74a68d046df6b56ecf7174745308bf1c1e42e4514173f1c8f8efae8e0f527","kind":"file","path":"scripts/verify_governance.py","state":"file"},{"content_sha256":"88aee7034c3d4c216d134a227b966d69908e31ac180a4043d75e3245dc46f126","kind":"file","path":"scripts/verify_research_living_review.py","state":"file"},{"content_sha256":"ce2cd4cd132c0ef8a75eece31e882e480c235ce13b627b109ee9c9ad86a5c53a","kind":"file","path":"scripts/verify_research_source_manifest.py","state":"file"},{"content_sha256":"74c476c350da415f4d2d790ec576a0af05c95b7b27f573d6688423c0acfe86e7","kind":"file","path":"scripts/verify_work_packets.py","state":"file"}],"claims_sha256":"bbc918461ad454699fff26b7860d0085a6c5cc6c888dabb8b660770f3223ad79","excluded_paths":[".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.v2.json"]},"cost_observation":{"token_usage":{"availability":"unknown","input_tokens":null,"measurement_source":null,"output_tokens":null,"total_tokens":null},"wall_time_source":"timestamps"},"declared_progress":false,"ended_at":"2026-07-26T00:55:12.000Z","evidence_delta":{"added":[],"after":[],"before":[],"removed":[]},"failure_delta":{"after":[],"before":[],"introduced":[],"resolved":[]},"previous_attempt_sha256":null,"record_sha256":"0b29d5d76d39a35ecca9f580a91e54f95806496bdf1904aed9dd2ede194ce8a5","retry_index":null,"schema_version":"execution-attempt/v2","sequence":1,"started_at":"2026-07-26T00:55:12.000Z","wall_time_ms":0}],"cost_accounting_claim":"partial","packet_contract_sha256":"732f18eea3fd5cd4f66793c13200ba4d2e9d6a09a7bfae3a05be6aa7e52f7ca1","packet_id":"WP-METHOD-INTEGRATION","packet_path":".work_packets/packets/WP-METHOD-INTEGRATION.packet.json","reported_state":"pending","schema_version":"execution-attempt-ledger/v2"}
+{
+  "attempts": [
+    {
+      "attempt_kind": "baseline_observation",
+      "blocker": {
+        "failure_ids": [],
+        "fingerprint_sha256": "2ba3960770d353e8d2e7655819260442221741c573f22743e12aa3565918862a",
+        "root_cause": "Packet is waiting for its declared prerequisite",
+        "root_cause_id": "WAITING-FOR-PREREQUISITE",
+        "status_after": "waiting"
+      },
+      "controlled_snapshot": {
+        "algorithm": "canonical_sha256_of_sorted_claim_snapshots_v1",
+        "claims": [
+          {
+            "content_sha256": "9a245d75ed44a763175f34fba61593a6a1b50346b261d925c50016064bc79633",
+            "kind": "file",
+            "path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
+            "state": "file"
+          },
+          {
+            "content_sha256": "bf7f28d583621c1bb9e33bce6b097f7cdd7417384e342245d8b8524e2b1ab9ce",
+            "kind": "tree",
+            "path": "audits/research_r10",
+            "state": "tree"
+          },
+          {
+            "content_sha256": "1e8603b78b2479fc200c20f673bb09fc15b35a6f39c806a988d16098dd1a0c1d",
+            "kind": "file",
+            "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "8215eee39fc7a30cedc69a51bce1a3d928c82320bbe66ed0462115af0eab8d01",
+            "kind": "file",
+            "path": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "e15e55ed4f8aa6d397f3e912bc9cb355533825c3b84e89c84695ee015ebd76e7",
+            "kind": "file",
+            "path": "governance/ASSURANCE_SUBJECTS_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "0b37ca979a0fe2c85fe656fe910749a16c92f3b75a5b7db3d36f9c8a51cc219f",
+            "kind": "file",
+            "path": "governance/COMPONENT_REGISTRY_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "a6b567f0d9e867c3522ec73b8f1631727322cb6e9a514b1ca068328eea7cfc44",
+            "kind": "file",
+            "path": "governance/FROZEN_TEST_MANIFEST_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "1cc7207f172c17ffc8994010498cbe14911085f9c980e0f277c736cd67b8343c",
+            "kind": "file",
+            "path": "governance/GROUND_TRUTH_MANIFEST_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "5ddc36b8cc54846b55364164087d91a1c1de9066f994a72f6c22997113ece617",
+            "kind": "file",
+            "path": "governance/IMPLEMENTATION_TARGETS_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "16521aed0eb3e865212440522ec2a6ae19eb346ab9f7d2faf3a735f46465fd7f",
+            "kind": "file",
+            "path": "governance/PROJECT_METHOD_POLICY_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "e5a09adabae16cecd6062bc9e047b87414840a7d67f795cd0a967f62c90084dc",
+            "kind": "file",
+            "path": "governance/RESEARCH_LIVING_REVIEW_POLICY_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "97ca376a9b7595f8fd58583753a5d953d6a9f76e56ce823a47f576534f2d27c1",
+            "kind": "file",
+            "path": "governance/RESEARCH_LIVING_REVIEW_STATE_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "1ec5c8ac2494f24f93728955c73798e925298119690ef24b9dc27e20d5f119e4",
+            "kind": "file",
+            "path": "governance/TRACEABILITY_V1.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "afe52fb11de614afdf05559e69fb16cabc15042f4961f8ecb9766594f492140b",
+            "kind": "file",
+            "path": "governance/WORK_PACKET_POLICY_V2.json",
+            "state": "file"
+          },
+          {
+            "content_sha256": "d19fde32639e1f027b8673c7dd34ab7febd8dbf4a007d1a46303788e99dbaeef",
+            "kind": "file",
+            "path": "governance_tests/test_research_living_review.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "9eba436fbd5c476d638a09a555d10e80e2c34b74cb01d1e9bc27b11094bee5e0",
+            "kind": "file",
+            "path": "governance_tests/test_research_source_manifest.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "d144466d3e160ae397cc0a18fa5e22566f42dc0fa55f71449b50f8735e5b37c5",
+            "kind": "file",
+            "path": "governance_tests/test_work_packet_dag.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "f1530af94c2ca11cf54d017ae9fe1d63bc022df28f40bcba22e7bddd2724080f",
+            "kind": "file",
+            "path": "research/AI_PROJECT_FAILURE_EVIDENCE_REFRESH_R10_2026-07-25.md",
+            "state": "file"
+          },
+          {
+            "content_sha256": "133b7f6f808346c8094551aeae761af9c72f04030cb53963d4d6e3d62af583ae",
+            "kind": "file",
+            "path": "research/AI_PROJECT_METHOD_EVIDENCE_REFRESH_R10_2026-07-25.md",
+            "state": "file"
+          },
+          {
+            "content_sha256": "b0831c53906d9a38aff10498d1d7a0985b13b7df8cb17af2d0f01eac340b66ac",
+            "kind": "tree",
+            "path": "research/evidence/r10",
+            "state": "tree"
+          },
+          {
+            "content_sha256": "88aee7034c3d4c216d134a227b966d69908e31ac180a4043d75e3245dc46f126",
+            "kind": "file",
+            "path": "scripts/verify_research_living_review.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "ce2cd4cd132c0ef8a75eece31e882e480c235ce13b627b109ee9c9ad86a5c53a",
+            "kind": "file",
+            "path": "scripts/verify_research_source_manifest.py",
+            "state": "file"
+          },
+          {
+            "content_sha256": "74c476c350da415f4d2d790ec576a0af05c95b7b27f573d6688423c0acfe86e7",
+            "kind": "file",
+            "path": "scripts/verify_work_packets.py",
+            "state": "file"
+          }
+        ],
+        "claims_sha256": "8bc93dcf3fb92feb5f0346e7a46c67df8b0a8ed0ef4b351d8633b6fe4c2d4578",
+        "excluded_paths": []
+      },
+      "cost_observation": {
+        "token_usage": {
+          "availability": "unknown",
+          "input_tokens": null,
+          "measurement_source": null,
+          "output_tokens": null,
+          "total_tokens": null
+        },
+        "wall_time_source": "timestamps"
+      },
+      "declared_progress": false,
+      "ended_at": "2026-07-26T02:00:47.000Z",
+      "evidence_delta": {
+        "added": [],
+        "after": [],
+        "before": [],
+        "removed": []
+      },
+      "failure_delta": {
+        "after": [],
+        "before": [],
+        "introduced": [],
+        "resolved": []
+      },
+      "previous_attempt_sha256": null,
+      "process_observation": {
+        "argv": null,
+        "capture_authority": "tool_observed_baseline",
+        "exit_code": null,
+        "mode": "baseline",
+        "stderr_bytes": null,
+        "stderr_sha256": null,
+        "stdout_bytes": null,
+        "stdout_sha256": null
+      },
+      "record_sha256": "b8b3948bce0ddc45a56f73283cdcc7598814a670e5c68c7ae6ff64c409d0b932",
+      "retry_index": null,
+      "schema_version": "execution-attempt/v2",
+      "sequence": 1,
+      "started_at": "2026-07-26T02:00:47.000Z",
+      "wall_time_ms": 0
+    }
+  ],
+  "cost_accounting_claim": "partial",
+  "initial_state": {
+    "evidence": [],
+    "failure_ids": []
+  },
+  "packet_contract_sha256": "038619aef249c9539eec2a651cb905806d5b01ba8a19efa252b292674dad467d",
+  "packet_id": "WP-METHOD-INTEGRATION",
+  "packet_path": ".work_packets/packets/WP-METHOD-INTEGRATION.packet.json",
+  "reported_state": "pending",
+  "schema_version": "execution-attempt-ledger/v2",
+  "terminal_completion": null
+}

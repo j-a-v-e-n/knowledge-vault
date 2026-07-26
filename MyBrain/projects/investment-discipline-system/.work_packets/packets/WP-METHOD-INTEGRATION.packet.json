@@ -87,10 +87,6 @@
       "kind": "tree"
     },
     {
-      "path": "scripts/verify_governance.py",
-      "kind": "file"
-    },
-    {
       "path": "scripts/verify_research_living_review.py",
       "kind": "file"
     },
@@ -100,10 +96,6 @@
     },
     {
       "path": "scripts/verify_work_packets.py",
-      "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.v2.json",
       "kind": "file"
     }
   ],

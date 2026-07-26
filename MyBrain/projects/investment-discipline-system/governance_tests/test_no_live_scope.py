@@ -56,7 +56,7 @@ class NoLiveScopeVerifierTests(unittest.TestCase):
 
     def paper_packet(self) -> dict[str, Any]:
         return {
-            "schema_version": "work-packet-instance/v1",
+            "schema_version": "work-packet-instance/v2",
             "packet_id": "WP-PAPER-BASELINE",
             "goal_id": "GOAL-PAPER-ONLY",
             "state": "active",
@@ -72,7 +72,23 @@ class NoLiveScopeVerifierTests(unittest.TestCase):
             "retry_budget": 1,
             "external_side_effects": ["git_remote_autobackup_observed"],
             "semantic_invariants": [],
+            "depends_on": [],
+            "activates": [],
+            "integration_invariants": [],
+            "routing": {},
         }
+
+    def historical_packet(self) -> dict[str, Any]:
+        packet = self.paper_packet()
+        packet["schema_version"] = "work-packet-instance/v1"
+        for field in (
+            "depends_on",
+            "activates",
+            "integration_invariants",
+            "routing",
+        ):
+            packet.pop(field)
+        return packet
 
     def write_packet(self, packet: dict[str, Any]) -> Path:
         return self.write_json(
@@ -287,6 +303,26 @@ BROKER_ENDPOINT = _build_endpoint()
         packet["state"] = "active"
         self.write_packet(packet)
         self.assert_rejected("NLS-PACKET-SCHEMA")
+
+    def test_v1_packet_is_allowed_only_as_superseded_history(self) -> None:
+        historical = self.historical_packet()
+        historical["state"] = "superseded"
+        historical["superseded_by"] = "WP-PAPER-BASELINE"
+        historical["external_side_effects"] = []
+        self.write_packet(historical)
+        self.assert_passes()
+
+        historical["state"] = "active"
+        historical.pop("superseded_by")
+        self.write_packet(historical)
+        payload = self.assert_rejected("NLS-PACKET-SCHEMA")
+        self.assertTrue(
+            any(
+                "only as superseded history" in error["message"]
+                for error in payload["errors"]
+            ),
+            payload,
+        )
 
     def test_unlisted_execution_capable_class_is_rejected(self) -> None:
         self.assert_passes()

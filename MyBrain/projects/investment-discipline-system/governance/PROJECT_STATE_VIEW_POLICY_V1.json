@@ -147,7 +147,21 @@
   "rendering": {
     "start_marker": "<!-- PROJECT_STATE_VIEW:START -->",
     "end_marker": "<!-- PROJECT_STATE_VIEW:END -->",
-    "language": "json"
+    "language": "json",
+    "view_templates": {
+      "STATUS.md": {
+        "title": "# 当前状态｜投研纪律系统",
+        "description": "此入口由 `scripts/derive_project_state.py refresh` 整文件生成；任何额外内容都会使 freshness 检查失败。"
+      },
+      "TASK_BOARD.md": {
+        "title": "# 工作板｜投研纪律系统",
+        "description": "此入口由 `scripts/derive_project_state.py refresh` 整文件生成；任何额外内容都会使 freshness 检查失败。"
+      },
+      "LOOP_RUN_LOG.md": {
+        "title": "# 循环运行记录｜投研纪律系统",
+        "description": "此入口由 `scripts/derive_project_state.py refresh` 整文件生成；任何额外内容都会使 freshness 检查失败。"
+      }
+    }
   },
   "basis": {
     "policy_json_pointers": [
@@ -176,7 +190,7 @@
     "A V2 dependency packet whose state is complete must pass local work-packet receipt and execution-freshness verification, but remains self-reported candidate evidence rather than authenticated independent completion.",
     "The design-freeze authority verifier is intentionally unsupported in V1. A missing FROZEN_BUNDLE blocks, and file existence alone also remains blocked.",
     "Only design_freeze is supported. Any future phase requires an explicit policy schema update and a structured authority verifier; product completion is never inferred.",
-    "Refresh preflights all three views and atomically replaces each individual file, but a local filesystem cannot provide one atomic transaction spanning all three files.",
+    "Refresh preflights all three views and atomically replaces each view's entire file, but a local filesystem cannot provide one atomic transaction spanning all three files.",
     "Runtime verifier observations are deterministic local point-in-time receipts; candidate-bound remote execution and independent review remain separate authorities."
   ]
 }

@@ -7,23 +7,15 @@
   "reviewer": "independent-reviewer",
   "bounded_write_paths": [
     {
-      "path": "STATUS.md",
-      "kind": "file"
-    },
-    {
-      "path": "TASK_BOARD.md",
-      "kind": "file"
-    },
-    {
-      "path": "LOOP_RUN_LOG.md",
-      "kind": "file"
-    },
-    {
       "path": "audits/execution_loop_v2",
       "kind": "tree"
     },
     {
       "path": "governance/EXECUTION_LOOP_POLICY_V2.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
       "kind": "file"
     },
     {
@@ -35,6 +27,18 @@
       "kind": "file"
     },
     {
+      "path": "governance_tests/test_execution_recorder_v2.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_no_live_scope.py",
+      "kind": "file"
+    },
+    {
+      "path": "governance_tests/test_project_method_acceptance_runner.py",
+      "kind": "file"
+    },
+    {
       "path": "governance_tests/test_project_state_freshness.py",
       "kind": "file"
     },
@@ -43,31 +47,23 @@
       "kind": "file"
     },
     {
+      "path": "scripts/record_execution_attempt_v2.py",
+      "kind": "file"
+    },
+    {
+      "path": "scripts/run_project_method_acceptance.py",
+      "kind": "file"
+    },
+    {
       "path": "scripts/verify_execution_loop_v2.py",
       "kind": "file"
     },
     {
-      "path": ".work_packets/attempts/WP-METHOD-RUNTIME-FOUNDATION.attempts.v2.json",
+      "path": "scripts/verify_governance.py",
       "kind": "file"
     },
     {
-      "path": ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.v2.json",
-      "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-DEPENDENCY-BOUNDARY.attempts.v2.json",
-      "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-CI-ASSURANCE-RUNTIME.attempts.v2.json",
-      "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-CI-LINT-BASELINE.attempts.v2.json",
-      "kind": "file"
-    },
-    {
-      "path": ".work_packets/attempts/WP-FREEZE-CLOSURE-PROTOCOL.attempts.v2.json",
+      "path": "scripts/verify_no_live_scope.py",
       "kind": "file"
     }
   ],
@@ -104,6 +100,40 @@
         "-m",
         "unittest",
         "governance_tests.test_execution_loop_v2",
+        "-v"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-EXECUTION-RECORDER-V2-TESTS",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "governance_tests.test_execution_recorder_v2",
+        "-v"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-NO-LIVE-SCOPE",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/verify_no_live_scope.py",
+        "--json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-NO-LIVE-SCOPE-TESTS",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "governance_tests.test_no_live_scope",
         "-v"
       ],
       "expected_exit_code": 0

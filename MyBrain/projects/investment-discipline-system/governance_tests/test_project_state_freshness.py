@@ -594,25 +594,57 @@ class ProjectStateFreshnessTests(unittest.TestCase):
             right["basis"]["state_basis_sha256"],
         )
 
-    def test_refresh_preserves_all_outside_bytes_and_is_idempotent(self) -> None:
-        before: dict[str, tuple[bytes, bytes]] = {}
-        for view in VIEW_PATHS:
-            data = (self.root / view).read_bytes()
-            start = data.index(START_MARKER)
-            end = data.index(END_MARKER) + len(END_MARKER)
-            before[view] = (data[:start], data[end:])
-
-        self.refresh()
+    def test_refresh_replaces_legacy_outside_bytes_and_is_idempotent(self) -> None:
+        projection = self.refresh()
+        policy = self.read_json(
+            "governance/PROJECT_STATE_VIEW_POLICY_V1.json"
+        )
         once = {view: (self.root / view).read_bytes() for view in VIEW_PATHS}
         for view, data in once.items():
-            start = data.index(START_MARKER)
-            end = data.index(END_MARKER) + len(END_MARKER)
-            self.assertEqual(before[view][0], data[:start])
-            self.assertEqual(before[view][1], data[end:])
+            self.assertEqual(
+                project_state.render_canonical_view(projection, policy, view),
+                data,
+            )
+            self.assertNotIn(b"Existing title", data)
+            self.assertNotIn(b"outside-before", data)
+            self.assertNotIn(b"outside-after", data)
+            self.assertNotIn(b"legacy R5", data)
 
         self.refresh()
         twice = {view: (self.root / view).read_bytes() for view in VIEW_PATHS}
         self.assertEqual(once, twice)
+
+    def test_check_rejects_fake_current_status_before_or_after_markers(self) -> None:
+        self.refresh()
+        baselines = {
+            view: (self.root / view).read_bytes()
+            for view in VIEW_PATHS
+        }
+        fake_status = b"FAKE CURRENT STATUS: COMPLETE"
+
+        for view in VIEW_PATHS:
+            for location in ("before", "after"):
+                with self.subTest(view=view, location=location):
+                    for path, baseline in baselines.items():
+                        self.write_bytes(path, baseline)
+                    data = baselines[view]
+                    if location == "before":
+                        marker = data.index(START_MARKER)
+                        tampered = (
+                            data[:marker] + fake_status + b"\n" + data[marker:]
+                        )
+                    else:
+                        marker = data.index(END_MARKER) + len(END_MARKER)
+                        tampered = (
+                            data[:marker] + b"\n" + fake_status + data[marker:]
+                        )
+                    self.write_bytes(view, tampered)
+
+                    with self.assertRaisesRegex(
+                        project_state.ProjectStateError,
+                        "views are stale",
+                    ):
+                        project_state.check_project_state(self.root)
 
     def test_refresh_preflight_failure_does_not_partially_write_other_views(self) -> None:
         baselines = {

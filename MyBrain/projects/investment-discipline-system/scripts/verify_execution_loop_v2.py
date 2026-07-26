@@ -43,6 +43,7 @@ POLICY_FIELDS = {
     "baseline_observation",
     "stopping_rules",
     "completion_semantics",
+    "recorder_runtime",
     "cost_accounting",
     "legacy_v1_history",
     "completed_before_v2_exemptions",
@@ -55,7 +56,22 @@ LEDGER_FIELDS = {
     "packet_contract_sha256",
     "reported_state",
     "cost_accounting_claim",
+    "initial_state",
+    "terminal_completion",
     "attempts",
+}
+INITIAL_STATE_FIELDS = {"failure_ids", "evidence"}
+TERMINAL_COMPLETION_FIELDS = {
+    "authority_kind",
+    "packet_contract_sha256",
+    "latest_record_sha256",
+    "controlled_claims_sha256",
+    "checkpoint_path",
+    "checkpoint_canonical_sha256",
+    "acceptance_path",
+    "acceptance_canonical_sha256",
+    "execution_receipt_path",
+    "execution_receipt_canonical_sha256",
 }
 ATTEMPT_FIELDS = {
     "schema_version",
@@ -69,6 +85,7 @@ ATTEMPT_FIELDS = {
     "failure_delta",
     "evidence_delta",
     "controlled_snapshot",
+    "process_observation",
     "cost_observation",
     "declared_progress",
     "previous_attempt_sha256",
@@ -89,6 +106,35 @@ SNAPSHOT_FIELDS = {
     "excluded_paths",
     "claims",
     "claims_sha256",
+}
+PROCESS_OBSERVATION_FIELDS = {
+    "mode",
+    "argv",
+    "exit_code",
+    "stdout_sha256",
+    "stderr_sha256",
+    "stdout_bytes",
+    "stderr_bytes",
+    "capture_authority",
+}
+EXECUTION_RECEIPT_FIELDS = {
+    "schema_version",
+    "packet_id",
+    "packet_contract_sha256",
+    "checks",
+}
+EXECUTION_CHECK_FIELDS = {
+    "check_id",
+    "argv",
+    "expected_exit_code",
+    "actual_exit_code",
+    "started_at",
+    "ended_at",
+    "wall_time_ms",
+    "stdout_sha256",
+    "stderr_sha256",
+    "stdout_bytes",
+    "stderr_bytes",
 }
 CLAIM_FIELDS = {"path", "kind", "state", "content_sha256"}
 COST_FIELDS = {"wall_time_source", "token_usage"}
@@ -131,7 +177,9 @@ EXPECTED_WORK_PACKETS = {
         "complete",
     ],
     "historical_state": "superseded",
-    "ledger_claim_rule": "exact_named_file_must_be_in_bounded_write_paths",
+    "ledger_claim_rule": (
+        "derived_runtime_sidecar_must_not_be_in_bounded_write_paths"
+    ),
 }
 EXPECTED_LEDGER_SCHEMA = {
     "directory": ".work_packets/attempts",
@@ -144,7 +192,25 @@ EXPECTED_LEDGER_SCHEMA = {
         "packet_contract_sha256",
         "reported_state",
         "cost_accounting_claim",
+        "initial_state",
+        "terminal_completion",
         "attempts",
+    ],
+    "initial_state_required_fields": [
+        "failure_ids",
+        "evidence",
+    ],
+    "terminal_completion_required_fields": [
+        "authority_kind",
+        "packet_contract_sha256",
+        "latest_record_sha256",
+        "controlled_claims_sha256",
+        "checkpoint_path",
+        "checkpoint_canonical_sha256",
+        "acceptance_path",
+        "acceptance_canonical_sha256",
+        "execution_receipt_path",
+        "execution_receipt_canonical_sha256",
     ],
     "attempt_schema_version": "execution-attempt/v2",
     "attempt_required_fields": [
@@ -159,6 +225,7 @@ EXPECTED_LEDGER_SCHEMA = {
         "failure_delta",
         "evidence_delta",
         "controlled_snapshot",
+        "process_observation",
         "cost_observation",
         "declared_progress",
         "previous_attempt_sha256",
@@ -196,6 +263,17 @@ EXPECTED_LEDGER_SCHEMA = {
         "claims",
         "claims_sha256",
     ],
+    "process_observation_required_fields": [
+        "mode",
+        "argv",
+        "exit_code",
+        "stdout_sha256",
+        "stderr_sha256",
+        "stdout_bytes",
+        "stderr_bytes",
+        "capture_authority",
+    ],
+    "process_observation_modes": ["baseline", "passive", "run"],
     "claim_snapshot_required_fields": [
         "path",
         "kind",
@@ -219,7 +297,7 @@ EXPECTED_CURRENT_SNAPSHOT = {
     "algorithm": "canonical_sha256_of_sorted_claim_snapshots_v1",
     "source": "packet.bounded_write_paths",
     "excluded_claim_rule": (
-        "exact_discovered_v2_ledgers_and_exact_generated_project_state_views"
+        "runtime_ledgers_and_generated_views_must_not_be_bounded_write_claims"
     ),
     "excluded_generated_view_paths": [
         "STATUS.md",
@@ -241,15 +319,21 @@ EXPECTED_PROGRESS = {
     "progress_requires": "verified_evidence_addition_or_failure_resolution",
     "resolved_failure_requires_added_supporting_evidence": True,
     "progress_evidence_must_be_controlled_write_claim": True,
+    "first_attempt_before_state_source": "ledger.initial_state",
+    "cross_attempt_failure_state_continuity": True,
+    "cross_attempt_evidence_state_continuity": True,
+    "introduced_resolved_and_support_ids_must_be_closed": True,
     "allowed_evidence_kinds": ["policy", "implementation", "test", "other"],
 }
 EXPECTED_BASELINE = {
     "only_first_attempt": True,
-    "allowed_reported_state": "pending",
+    "allowed_reported_states": ["pending", "active"],
     "retry_index": None,
     "declared_progress": False,
     "failure_and_evidence_deltas_must_be_empty": True,
     "blocker_status_after": "waiting",
+    "pending_ledger_exact_attempt_count": 1,
+    "pending_ledger_only_attempt_kind": "baseline_observation",
 }
 EXPECTED_STOPPING = {
     "same_blocker_consecutive_no_progress_threshold": 3,
@@ -257,9 +341,13 @@ EXPECTED_STOPPING = {
     "consecutive_no_progress_threshold": 3,
     "consecutive_no_progress_threshold_outcome": "blocked",
     "retry_budget_source": "packet.retry_budget",
+    "retry_budget_meaning": "maximum_execution_attempt_count",
     "execution_attempt_retry_indices_contiguous_from_zero": True,
-    "retry_index_above_budget_outcome": "invalid",
+    "retry_index_at_or_above_budget_outcome": "invalid",
     "budget_exhausted_without_verified_acceptance_outcome": "blocked",
+    "every_historical_prefix_is_evaluated": True,
+    "first_forced_stop_is_absorbing": True,
+    "blocked_continuation_requires": "successor_packet",
 }
 EXPECTED_COMPLETION = {
     "local_receipts_are": (
@@ -268,13 +356,59 @@ EXPECTED_COMPLETION = {
     "candidate_complete_and_complete_require_latest_execution_status": (
         "resolved"
     ),
+    "terminal_completion_required_states": [
+        "candidate_complete",
+        "complete",
+    ],
+    "terminal_completion_authority_kind": "self_reported_local_candidate",
+    "terminal_record_must_bind_latest_attempt_snapshot_contract_and_receipts": True,
+    "execution_receipt_schema_version": "execution-finalization-receipt/v2",
+    "execution_receipt_required_fields": [
+        "schema_version",
+        "packet_id",
+        "packet_contract_sha256",
+        "checks",
+    ],
+    "execution_check_required_fields": [
+        "check_id",
+        "argv",
+        "expected_exit_code",
+        "actual_exit_code",
+        "started_at",
+        "ended_at",
+        "wall_time_ms",
+        "stdout_sha256",
+        "stderr_sha256",
+        "stdout_bytes",
+        "stderr_bytes",
+    ],
+    "execution_receipt_checks_must_exactly_match_packet_acceptance_checks": True,
+    "execution_check_timestamps_and_output_digests_required": True,
+    "terminal_completion_is_append_absorbing": True,
     "controlled_change_after_complete_requires": (
-        "reopen_or_supersede_and_reaccept"
+        "successor_packet_supersession_in_v2"
     ),
     "authenticated_completion_authority": (
         "candidate_bound_remote_execution_plus_independent_read_only_review"
     ),
     "design_freeze_or_product_completion_may_not_be_inferred": True,
+}
+EXPECTED_RECORDER = {
+    "script_path": "scripts/record_execution_attempt_v2.py",
+    "transaction_directory": ".work_packets/runtime-transactions",
+    "lock_directory_scope": "system_temp_by_project_packet_and_global_transaction",
+    "per_packet_lock": True,
+    "global_transaction_lock": True,
+    "expected_tail_compare_and_swap": True,
+    "existing_attempt_records_are_immutable": True,
+    "before_after_snapshots_are_tool_observed": True,
+    "run_mode_captures_process_exit_and_output_digest": True,
+    "passive_mode_is_self_reported": True,
+    "ledger_write": "atomic_replace_after_fsync",
+    "interrupted_multi_file_transition": (
+        "fail_closed_journal_then_deterministic_roll_forward"
+    ),
+    "post_write_verifier_required": True,
 }
 EXPECTED_COST = {
     "wall_time_source": "started_at_and_ended_at",
@@ -340,6 +474,8 @@ EXPECTED_LIMITATIONS = [
     "Filesystem checks are point-in-time and cannot eliminate time-of-check/time-of-use, mount replacement, hard-link alias, or every case-folding race.",
     "Tree hashing rejects observed symlinks and special entries but does not provide operating-system sandboxing or distributed locking.",
     "A pending baseline proves only the current bytes were observed; it does not prove the work was authorized, unstarted, or produced after the prerequisite state.",
+    "The formal recorder prevents cooperative concurrent writers from overwriting one another, but a process with arbitrary filesystem access can still bypass it and rewrite local history; immutable Git candidates and independent review remain required.",
+    "A V2 blocked or completed packet cannot resume in place; continued work requires a named successor packet so the prior terminal chain remains visible.",
     "Legacy V1 artifacts are hash-retained history only and cannot be used to assert current V2 freshness.",
     "Current execution freshness does not prove research sufficiency, design freeze, product completion, or investment effectiveness.",
 ]
@@ -503,6 +639,7 @@ def validate_policy(policy: Any, errors: list[str]) -> bool:
         "baseline_observation": EXPECTED_BASELINE,
         "stopping_rules": EXPECTED_STOPPING,
         "completion_semantics": EXPECTED_COMPLETION,
+        "recorder_runtime": EXPECTED_RECORDER,
         "cost_accounting": EXPECTED_COST,
         "legacy_v1_history": EXPECTED_LEGACY,
         "completed_before_v2_exemptions": EXPECTED_EXEMPTIONS,
@@ -597,13 +734,16 @@ def current_claim_snapshots(
         if relative in set(
             EXPECTED_CURRENT_SNAPSHOT["excluded_generated_view_paths"]
         ):
-            excluded.append(relative)
+            errors.append(
+                f"{label}: generated project-state views are runtime sidecars "
+                "and cannot be bounded product write claims"
+            )
             continue
         if relative.startswith(".work_packets/attempts/"):
-            if not is_v2_ledger_path(relative, live_packet_ids):
-                errors.append(f"{label}: unrecognized attempt-ledger write claim")
-            else:
-                excluded.append(relative)
+            errors.append(
+                f"{label}: execution ledgers are derived runtime sidecars and "
+                "cannot be bounded product write claims"
+            )
             continue
         candidate = resolve_path(
             root,
@@ -758,6 +898,8 @@ def validate_evidence_list(
             errors.append(f"{item_label}: duplicate evidence reference")
         identities.add(identity)
         result.append(item)
+    if result != sorted(result, key=evidence_identity):
+        errors.append(f"{label}: evidence references must be sorted")
     return result
 
 
@@ -815,6 +957,284 @@ def validate_cost(
     return availability == "unknown"
 
 
+def validate_process_observation(
+    value: Any,
+    kind: Any,
+    label: str,
+    errors: list[str],
+) -> None:
+    if not exact_keys(
+        value,
+        PROCESS_OBSERVATION_FIELDS,
+        f"{label}.process_observation",
+        errors,
+    ):
+        return
+    mode = value["mode"]
+    if mode not in {"baseline", "passive", "run"}:
+        errors.append(f"{label}.process_observation: unsupported mode")
+        return
+    if kind == "baseline_observation" and mode != "baseline":
+        errors.append(
+            f"{label}.process_observation: baseline attempt requires baseline mode"
+        )
+    if kind == "execution_attempt" and mode == "baseline":
+        errors.append(
+            f"{label}.process_observation: execution attempt cannot use baseline mode"
+        )
+    if mode in {"baseline", "passive"}:
+        expected_authority = (
+            "tool_observed_baseline"
+            if mode == "baseline"
+            else "self_reported_no_process"
+        )
+        if (
+            value["capture_authority"] != expected_authority
+            or any(
+                value[field] is not None
+                for field in (
+                    "argv",
+                    "exit_code",
+                    "stdout_sha256",
+                    "stderr_sha256",
+                    "stdout_bytes",
+                    "stderr_bytes",
+                )
+            )
+        ):
+            errors.append(
+                f"{label}.process_observation: {mode} semantics differ"
+            )
+        return
+    argv = value["argv"]
+    if (
+        value["capture_authority"] != "recorder_executed_process"
+        or not isinstance(argv, list)
+        or not argv
+        or any(not isinstance(item, str) or not item for item in argv)
+        or not is_int(value["exit_code"])
+        or any(
+            not isinstance(value[field], str)
+            or SHA256_RE.fullmatch(value[field]) is None
+            for field in ("stdout_sha256", "stderr_sha256")
+        )
+        or any(
+            not is_int(value[field]) or value[field] < 0
+            for field in ("stdout_bytes", "stderr_bytes")
+        )
+    ):
+        errors.append(f"{label}.process_observation: run semantics differ")
+
+
+def validate_execution_receipt(
+    value: Any,
+    packet: dict[str, Any],
+    contract_digest: str,
+    label: str,
+    errors: list[str],
+) -> None:
+    if not exact_keys(value, EXECUTION_RECEIPT_FIELDS, label, errors):
+        return
+    if (
+        value["schema_version"] != "execution-finalization-receipt/v2"
+        or value["packet_id"] != packet["packet_id"]
+        or value["packet_contract_sha256"] != contract_digest
+    ):
+        errors.append(f"{label}: packet or schema binding differs")
+    observations = value["checks"]
+    declared_checks = packet["acceptance_checks"]
+    if not isinstance(observations, list):
+        errors.append(f"{label}.checks: must be a list")
+        return
+    if len(observations) != len(declared_checks):
+        errors.append(f"{label}.checks: count differs from packet")
+        return
+    for index, (observation, declared) in enumerate(
+        zip(observations, declared_checks, strict=True)
+    ):
+        check_label = f"{label}.checks[{index}]"
+        if not exact_keys(
+            observation,
+            EXECUTION_CHECK_FIELDS,
+            check_label,
+            errors,
+        ):
+            continue
+        if (
+            observation["check_id"] != declared["check_id"]
+            or observation["argv"] != declared["argv"]
+            or observation["expected_exit_code"]
+            != declared["expected_exit_code"]
+            or observation["actual_exit_code"]
+            != declared["expected_exit_code"]
+        ):
+            errors.append(
+                f"{check_label}: declaration or successful exit binding differs"
+            )
+        started = parse_timestamp(
+            observation["started_at"],
+            f"{check_label}.started_at",
+            errors,
+        )
+        ended = parse_timestamp(
+            observation["ended_at"],
+            f"{check_label}.ended_at",
+            errors,
+        )
+        wall_time_ms = observation["wall_time_ms"]
+        if started is not None and ended is not None:
+            expected_wall = int((ended - started).total_seconds() * 1000)
+            if (
+                ended < started
+                or not is_int(wall_time_ms)
+                or wall_time_ms != expected_wall
+            ):
+                errors.append(
+                    f"{check_label}: wall_time_ms differs from timestamps"
+                )
+        if any(
+            not isinstance(observation[field], str)
+            or SHA256_RE.fullmatch(observation[field]) is None
+            for field in ("stdout_sha256", "stderr_sha256")
+        ):
+            errors.append(f"{check_label}: output digest differs")
+        if any(
+            not is_int(observation[field]) or observation[field] < 0
+            for field in ("stdout_bytes", "stderr_bytes")
+        ):
+            errors.append(f"{check_label}: output byte count differs")
+
+
+def validate_terminal_completion(
+    ledger: dict[str, Any],
+    packet: dict[str, Any],
+    latest: dict[str, Any],
+    root: Path,
+    errors: list[str],
+) -> None:
+    packet_id = packet["packet_id"]
+    terminal_states = {"candidate_complete", "complete"}
+    terminal = ledger["terminal_completion"]
+    if ledger["reported_state"] not in terminal_states:
+        if terminal is not None:
+            errors.append(
+                f"ledger {packet_id}: nonterminal state requires null terminal_completion"
+            )
+        return
+    if not exact_keys(
+        terminal,
+        TERMINAL_COMPLETION_FIELDS,
+        f"ledger {packet_id}.terminal_completion",
+        errors,
+    ):
+        return
+    snapshot = latest.get("controlled_snapshot")
+    if not isinstance(snapshot, dict):
+        errors.append(f"ledger {packet_id}: terminal latest snapshot is invalid")
+        return
+    contract_digest = work_packets.packet_contract_sha256(packet)
+    if (
+        terminal["authority_kind"] != "self_reported_local_candidate"
+        or terminal["packet_contract_sha256"] != contract_digest
+        or terminal["latest_record_sha256"] != latest.get("record_sha256")
+        or terminal["controlled_claims_sha256"] != snapshot.get("claims_sha256")
+    ):
+        errors.append(f"ledger {packet_id}: terminal record binding differs")
+    receipt_fields = (
+        (
+            "checkpoint",
+            "checkpoint_path",
+            "checkpoint_canonical_sha256",
+        ),
+        (
+            "acceptance",
+            "acceptance_receipt_path",
+            "acceptance_canonical_sha256",
+        ),
+    )
+    for label, packet_field, digest_field in receipt_fields:
+        expected_path = packet.get(packet_field)
+        terminal_path = terminal[
+            "checkpoint_path" if label == "checkpoint" else "acceptance_path"
+        ]
+        if terminal_path != expected_path:
+            errors.append(
+                f"ledger {packet_id}: terminal {label} path differs from packet"
+            )
+            continue
+        path = resolve_path(
+            root,
+            terminal_path,
+            f"ledger {packet_id} terminal {label}",
+            errors,
+            must_exist=True,
+        )
+        if path is None:
+            continue
+        try:
+            value = load_json(path)
+        except (
+            OSError,
+            UnicodeDecodeError,
+            json.JSONDecodeError,
+            DuplicateKeyError,
+            ValueError,
+        ) as exc:
+            errors.append(
+                f"ledger {packet_id} terminal {label}: invalid JSON: {exc}"
+            )
+            continue
+        if canonical_sha256(value) != terminal[digest_field]:
+            errors.append(
+                f"ledger {packet_id}: terminal {label} digest differs"
+            )
+    expected_execution_path = (
+        f".work_packets/receipts/{packet_id}.execution.v2.json"
+    )
+    if terminal["execution_receipt_path"] != expected_execution_path:
+        errors.append(
+            f"ledger {packet_id}: terminal execution receipt path differs"
+        )
+    else:
+        execution_path = resolve_path(
+            root,
+            expected_execution_path,
+            f"ledger {packet_id} terminal execution receipt",
+            errors,
+            must_exist=True,
+        )
+        if execution_path is not None:
+            try:
+                execution_value = load_json(execution_path)
+            except (
+                OSError,
+                UnicodeDecodeError,
+                json.JSONDecodeError,
+                DuplicateKeyError,
+                ValueError,
+            ) as exc:
+                errors.append(
+                    f"ledger {packet_id} terminal execution receipt: "
+                    f"invalid JSON: {exc}"
+                )
+            else:
+                if (
+                    canonical_sha256(execution_value)
+                    != terminal["execution_receipt_canonical_sha256"]
+                ):
+                    errors.append(
+                        f"ledger {packet_id}: terminal execution receipt "
+                        "digest differs"
+                    )
+                validate_execution_receipt(
+                    execution_value,
+                    packet,
+                    contract_digest,
+                    f"ledger {packet_id} terminal execution receipt",
+                    errors,
+                )
+
+
 def validate_attempts(
     ledger: dict[str, Any],
     packet: dict[str, Any],
@@ -825,12 +1245,58 @@ def validate_attempts(
     live_packet_ids: set[str],
     policy: dict[str, Any],
     errors: list[str],
+    *,
+    allow_latest_snapshot_stale: bool = False,
 ) -> None:
     attempts = ledger["attempts"]
     packet_id = packet["packet_id"]
     if not isinstance(attempts, list) or not attempts:
         errors.append(f"ledger {packet_id}: attempts must be a non-empty list")
         return
+    initial = ledger["initial_state"]
+    initial_failures: list[str] | None = None
+    initial_evidence: list[dict[str, Any]] | None = None
+    if exact_keys(
+        initial,
+        INITIAL_STATE_FIELDS,
+        f"ledger {packet_id}.initial_state",
+        errors,
+    ):
+        initial_failures = unique_strings(
+            initial["failure_ids"],
+            f"ledger {packet_id}.initial_state.failure_ids",
+            errors,
+        )
+        initial_evidence = validate_evidence_list(
+            initial["evidence"],
+            f"ledger {packet_id}.initial_state.evidence",
+            root,
+            packet_path,
+            live_packet_ids,
+            current_claims,
+            set(policy["progress_derivation"]["allowed_evidence_kinds"]),
+            errors,
+            require_current=False,
+        )
+        if initial_failures is not None and initial_failures != sorted(
+            initial_failures
+        ):
+            errors.append(
+                f"ledger {packet_id}.initial_state.failure_ids: must be sorted"
+            )
+        if initial_failures is not None and initial_evidence is not None:
+            supported = {
+                failure_id
+                for item in initial_evidence
+                for failure_id in item["supports_failure_ids"]
+            }
+            if not supported.issubset(set(initial_failures)):
+                errors.append(
+                    f"ledger {packet_id}.initial_state: evidence references "
+                    "unknown failure ids"
+                )
+    expected_failure_before = initial_failures
+    expected_evidence_before = initial_evidence
     execution_retry = 0
     prior: dict[str, Any] | None = None
     unknown_cost_seen = False
@@ -910,12 +1376,25 @@ def validate_attempts(
                     errors,
                 )
             if all(value is not None for value in failure_lists.values()):
+                for field in ("before", "after", "resolved", "introduced"):
+                    if failure_delta[field] != sorted(failure_delta[field]):
+                        errors.append(
+                            f"{label}.failure_delta.{field}: must be sorted"
+                        )
                 before = set(failure_lists["before"] or [])
                 after = set(failure_lists["after"] or [])
                 if failure_delta["resolved"] != sorted(before - after):
                     errors.append(f"{label}: resolved failure delta differs")
                 if failure_delta["introduced"] != sorted(after - before):
                     errors.append(f"{label}: introduced failure delta differs")
+                if (
+                    expected_failure_before is not None
+                    and failure_delta["before"] != expected_failure_before
+                ):
+                    errors.append(
+                        f"{label}: failure state is not continuous with prior attempt"
+                    )
+                expected_failure_before = failure_delta["after"]
 
         evidence_delta = attempt["evidence_delta"]
         evidence_lists: dict[str, list[dict[str, Any]] | None] = {}
@@ -956,6 +1435,28 @@ def validate_attempts(
                     errors.append(f"{label}: added evidence delta differs")
                 if removed != before - after:
                     errors.append(f"{label}: removed evidence delta differs")
+                if (
+                    expected_evidence_before is not None
+                    and before_items != expected_evidence_before
+                ):
+                    errors.append(
+                        f"{label}: evidence state is not continuous with prior attempt"
+                    )
+                expected_evidence_before = after_items
+
+        known_failure_ids = set(failure_delta.get("before", [])) | set(
+            failure_delta.get("after", [])
+        )
+        referenced_failure_ids = set(blocker.get("failure_ids", []))
+        for item in evidence_delta.get("after", []):
+            if isinstance(item, dict):
+                referenced_failure_ids.update(
+                    item.get("supports_failure_ids", [])
+                )
+        if not referenced_failure_ids.issubset(known_failure_ids):
+            errors.append(
+                f"{label}: blocker or evidence references unknown failure ids"
+            )
 
         snapshot = attempt["controlled_snapshot"]
         if exact_keys(snapshot, SNAPSHOT_FIELDS, f"{label}.controlled_snapshot", errors):
@@ -989,6 +1490,12 @@ def validate_attempts(
             if excluded != current_excluded:
                 errors.append(f"{label}: excluded ledger paths differ")
 
+        validate_process_observation(
+            attempt["process_observation"],
+            kind,
+            label,
+            errors,
+        )
         unknown_cost_seen = validate_cost(
             attempt["cost_observation"],
             f"{label}.cost_observation",
@@ -1021,17 +1528,19 @@ def validate_attempts(
                     f"{label}: resolved failures lack newly added supporting evidence"
                 )
         if kind == "baseline_observation":
-            empty_failure = all(
-                failure_delta.get(field) == []
-                for field in ("before", "after", "resolved", "introduced")
+            unchanged_failure = (
+                failure_delta.get("before") == failure_delta.get("after")
+                and failure_delta.get("resolved") == []
+                and failure_delta.get("introduced") == []
             )
-            empty_evidence = all(
-                evidence_delta.get(field) == []
-                for field in ("before", "after", "added", "removed")
+            unchanged_evidence = (
+                evidence_delta.get("before") == evidence_delta.get("after")
+                and evidence_delta.get("added") == []
+                and evidence_delta.get("removed") == []
             )
             if (
-                not empty_failure
-                or not empty_evidence
+                not unchanged_failure
+                or not unchanged_evidence
                 or attempt["declared_progress"] is not False
                 or blocker.get("status_after") != "waiting"
             ):
@@ -1052,16 +1561,27 @@ def validate_attempts(
         return
     latest = validated_attempts[-1]
     latest_snapshot = latest.get("controlled_snapshot")
-    if isinstance(latest_snapshot, dict):
+    if isinstance(latest_snapshot, dict) and not allow_latest_snapshot_stale:
         if latest_snapshot.get("claims") != current_claims:
             errors.append(f"ledger {packet_id}: latest controlled snapshot is stale")
-    if (
+    if ledger["reported_state"] == "pending":
+        if (
+            len(validated_attempts) != 1
+            or validated_attempts[0].get("attempt_kind")
+            != "baseline_observation"
+        ):
+            errors.append(
+                f"ledger {packet_id}: pending ledger must contain exactly one "
+                "baseline observation"
+            )
+    elif (
         len(validated_attempts) == 1
         and validated_attempts[0].get("attempt_kind") == "baseline_observation"
-        and ledger["reported_state"] != "pending"
+        and ledger["reported_state"] not in {"pending", "active"}
     ):
         errors.append(
-            f"ledger {packet_id}: baseline-only ledger is allowed only while pending"
+            f"ledger {packet_id}: baseline-only ledger is allowed only while "
+            "pending or newly active"
         )
     execution_attempts = [
         attempt
@@ -1069,45 +1589,87 @@ def validate_attempts(
         if attempt.get("attempt_kind") == "execution_attempt"
     ]
     if execution_attempts:
-        maximum_retry = max(attempt["retry_index"] for attempt in execution_attempts)
         retry_budget = packet["retry_budget"]
-        if maximum_retry > retry_budget:
+        blocked_indices = [
+            index
+            for index, attempt in enumerate(execution_attempts)
+            if attempt["blocker"]["status_after"] == "blocked"
+        ]
+        if blocked_indices and blocked_indices != [len(execution_attempts) - 1]:
+            errors.append(
+                f"ledger {packet_id}: a blocked transition is absorbing and "
+                "must be the final execution attempt"
+            )
+        if ledger["reported_state"] == "blocked":
+            if execution_attempts[-1]["blocker"]["status_after"] != "blocked":
+                errors.append(
+                    f"ledger {packet_id}: blocked packet requires a final "
+                    "blocked transition"
+                )
+        elif blocked_indices:
+            errors.append(
+                f"ledger {packet_id}: blocked transition requires blocked packet state"
+            )
+        if len(execution_attempts) > retry_budget:
             errors.append(f"ledger {packet_id}: retry budget exceeded")
-        if (
-            maximum_retry == retry_budget
-            and execution_attempts[-1]["blocker"]["status_after"]
-            not in {"resolved", "blocked"}
-            and ledger["reported_state"] not in {"blocked", "candidate_complete", "complete"}
+        terminal_states = {"candidate_complete", "complete"}
+        if len(execution_attempts) == retry_budget and (
+            ledger["reported_state"] not in terminal_states
+            and (
+                ledger["reported_state"] != "blocked"
+                or execution_attempts[-1]["blocker"]["status_after"] != "blocked"
+            )
         ):
             errors.append(
                 f"ledger {packet_id}: exhausted retry budget must remain blocked"
             )
-        tail = execution_attempts[-3:]
-        if (
-            len(tail) == 3
-            and all(item["declared_progress"] is False for item in tail)
-            and len(
-                {
-                    item["blocker"]["fingerprint_sha256"]
-                    for item in tail
-                }
-            )
-            == 1
-            and ledger["reported_state"] != "blocked"
-        ):
-            errors.append(
-                f"ledger {packet_id}: three identical no-progress blockers "
-                "require blocked state"
-            )
-        if (
-            len(tail) == 3
-            and all(item["declared_progress"] is False for item in tail)
-            and ledger["reported_state"] != "blocked"
-        ):
-            errors.append(
-                f"ledger {packet_id}: three consecutive no-progress attempts "
-                "require blocked state regardless of blocker labels"
-            )
+        consecutive_no_progress = 0
+        same_blocker_no_progress = 0
+        previous_fingerprint: str | None = None
+        forced_stop_index: int | None = None
+        forced_stop_reason: str | None = None
+        for index, attempt in enumerate(execution_attempts):
+            if attempt["declared_progress"] is True:
+                consecutive_no_progress = 0
+                same_blocker_no_progress = 0
+                previous_fingerprint = None
+                continue
+            consecutive_no_progress += 1
+            fingerprint = attempt["blocker"]["fingerprint_sha256"]
+            if fingerprint == previous_fingerprint:
+                same_blocker_no_progress += 1
+            else:
+                same_blocker_no_progress = 1
+                previous_fingerprint = fingerprint
+            if (
+                same_blocker_no_progress
+                >= policy["stopping_rules"][
+                    "same_blocker_consecutive_no_progress_threshold"
+                ]
+            ):
+                forced_stop_index = index
+                forced_stop_reason = "three identical no-progress blockers"
+                break
+            if (
+                consecutive_no_progress
+                >= policy["stopping_rules"]["consecutive_no_progress_threshold"]
+            ):
+                forced_stop_index = index
+                forced_stop_reason = (
+                    "three consecutive no-progress attempts require blocked"
+                )
+                break
+        if forced_stop_index is not None:
+            stopped = execution_attempts[forced_stop_index]
+            if (
+                forced_stop_index != len(execution_attempts) - 1
+                or ledger["reported_state"] != "blocked"
+                or stopped["blocker"]["status_after"] != "blocked"
+            ):
+                errors.append(
+                    f"ledger {packet_id}: {forced_stop_reason}; forced stop "
+                    "is absorbing and must be the final blocked attempt"
+                )
     if ledger["reported_state"] in {"candidate_complete", "complete"}:
         if (
             not execution_attempts
@@ -1117,6 +1679,13 @@ def validate_attempts(
                 f"ledger {packet_id}: candidate_complete and complete require "
                 "a latest resolved execution attempt"
             )
+    validate_terminal_completion(
+        ledger,
+        packet,
+        latest,
+        root,
+        errors,
+    )
     expected_claim = "partial" if unknown_cost_seen else "measured"
     if ledger["cost_accounting_claim"] != expected_claim:
         errors.append(f"ledger {packet_id}: cost accounting claim differs")
@@ -1195,6 +1764,8 @@ def verify_legacy_and_exemptions(
 def verify(
     project_root: Path,
     policy_path: Path = DEFAULT_POLICY,
+    *,
+    allow_stale_packet_id: str | None = None,
 ) -> dict[str, Any]:
     errors: list[str] = []
     try:
@@ -1237,6 +1808,24 @@ def verify(
             "errors": sorted(set(errors)),
             "claim_boundary": "No execution-freshness claim was established.",
         }
+
+    transaction_directory = (
+        root / policy["recorder_runtime"]["transaction_directory"]
+    )
+    if transaction_directory.exists():
+        if transaction_directory.is_symlink() or not transaction_directory.is_dir():
+            errors.append(
+                "execution recorder transaction path must be a real directory"
+            )
+        else:
+            pending_transactions = sorted(
+                entry.name for entry in transaction_directory.iterdir()
+            )
+            if pending_transactions:
+                errors.append(
+                    "execution recorder has an interrupted transaction requiring "
+                    f"recovery: {pending_transactions}"
+                )
 
     packet_dir = root / policy["work_packets"]["packet_directory"]
     work_policy = root / policy["work_packets"]["policy_path"]
@@ -1283,6 +1872,13 @@ def verify(
         and packet.get("state") in set(policy["work_packets"]["ledger_required_states"])
     }
     live_packet_ids = set(live_v2)
+    if (
+        allow_stale_packet_id is not None
+        and allow_stale_packet_id not in live_packet_ids
+    ):
+        errors.append(
+            "recorder stale exception does not name one live V2 packet"
+        )
     exempt_ids = verify_legacy_and_exemptions(
         root,
         packets,
@@ -1344,11 +1940,14 @@ def verify(
         packet = live_v2[packet_id]
         ledger_relative = ledger_path_for(packet_id)
         claims = packet.get("bounded_write_paths")
-        if not isinstance(claims, list) or claims.count(
-            {"path": ledger_relative, "kind": "file"}
-        ) != 1:
+        if isinstance(claims, list) and any(
+            isinstance(claim, dict)
+            and claim.get("path", "").startswith(".work_packets/attempts/")
+            for claim in claims
+        ):
             errors.append(
-                f"packet {packet_id}: exact V2 ledger file claim is required"
+                f"packet {packet_id}: V2 ledger runtime sidecars must not be "
+                "bounded product write claims"
             )
         ledger_path = resolve_path(
             root,
@@ -1402,6 +2001,9 @@ def verify(
             live_packet_ids,
             policy,
             errors,
+            allow_latest_snapshot_stale=(
+                packet_id == allow_stale_packet_id
+            ),
         )
         latest_attempt = (
             ledger["attempts"][-1]
@@ -1433,7 +2035,13 @@ def verify(
     return {
         "verification_status": "valid" if not unique_errors else "invalid",
         "execution_freshness_status": (
-            "current" if not unique_errors else "invalid"
+            (
+                "stale_authorized_for_recorder"
+                if allow_stale_packet_id is not None
+                else "current"
+            )
+            if not unique_errors
+            else "invalid"
         ),
         "policy_id": policy["policy_id"],
         "tracked_packet_count": len(live_v2),
@@ -1445,10 +2053,19 @@ def verify(
         ),
         "errors": unique_errors,
         "claim_boundary": (
-            "Current means every non-exempt live V2 packet has a contract-bound "
-            "latest observation matching its controlled bytes. It does not "
-            "authenticate execution, establish semantic adequacy, freeze the "
-            "design, prove product completion, or prove investment effectiveness."
+            (
+                "Recorder preflight validates every contract and history while "
+                "allowing exactly one named active packet's latest controlled "
+                "snapshot to be stale so a new observation can be appended."
+                if allow_stale_packet_id is not None
+                else (
+                    "Current means every non-exempt live V2 packet has a "
+                    "contract-bound latest observation matching its controlled "
+                    "bytes. It does not authenticate execution, establish "
+                    "semantic adequacy, freeze the design, prove product "
+                    "completion, or prove investment effectiveness."
+                )
+            )
         ),
     }
 
