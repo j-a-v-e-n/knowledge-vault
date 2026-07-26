@@ -455,6 +455,25 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         )
         return completed.stdout.strip()
 
+    def trusted_repository_root(self) -> Path:
+        return Path(self.git("rev-parse", "--show-toplevel")).resolve()
+
+    def git_with_input(self, value: bytes, *argv: str) -> str:
+        completed = subprocess.run(
+            ["git", *argv],
+            cwd=self.root,
+            input=value,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertEqual(
+            0,
+            completed.returncode,
+            (completed.stdout, completed.stderr),
+        )
+        return completed.stdout.decode("utf-8").strip()
+
     def prepare_seal_authority(
         self,
         packet_id: str = TARGET_ID,
@@ -474,7 +493,22 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.git("add", "-A")
         self.git("commit", "-q", "-m", f"candidate {packet_id}")
         candidate_commit = self.git("rev-parse", "HEAD")
+        review_commit = self.commit_review_for_candidate(
+            candidate_commit,
+            packet_id,
+        )
+        return candidate_commit, review_commit
+
+    def commit_review_for_candidate(
+        self,
+        candidate_commit: str,
+        packet_id: str = TARGET_ID,
+    ) -> str:
         candidate_tree = self.git("rev-parse", "HEAD^{tree}")
+        self.assertEqual(
+            candidate_tree,
+            self.git("rev-parse", f"{candidate_commit}^{{tree}}"),
+        )
         candidate_terminal = self.ledger(packet_id)["terminal_completion"]
         review = {
             "schema_version": "work-packet-independent-review/v2",
@@ -501,7 +535,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             f"ids-reviewed/{packet_id}",
             review_commit,
         )
-        return candidate_commit, review_commit
+        return review_commit
 
     def seal_candidate(
         self,
@@ -514,6 +548,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             self.tail(packet_id),
             candidate_commit,
             review_commit,
+            self.trusted_repository_root(),
         )
         return candidate_commit, review_commit, result
 
@@ -1241,6 +1276,102 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.assertEqual([], recorder.pending_operation_paths(self.root))
         self.assert_execution_current()
 
+    def test_finalize_recovery_quiesces_live_acceptance_group(self) -> None:
+        target_ready = Path(self._temporary.name) / "finalize-target-ready"
+        target_script = self.write_text(
+            "acceptance-live-target.py",
+            (
+                "import os, pathlib, signal, sys, time\n"
+                "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+                "for descriptor in range(3, 256):\n"
+                "    try:\n"
+                "        os.close(descriptor)\n"
+                "    except OSError:\n"
+                "        pass\n"
+                "pathlib.Path(sys.argv[1]).write_text('ready')\n"
+                "time.sleep(1.0)\n"
+                "pathlib.Path(sys.argv[2]).write_text('late-finalize-write\\n')\n"
+            ),
+        )
+        packet = self.read_json(self.packet_path(TARGET_ID))
+        packet["acceptance_checks"][0]["argv"] = [
+            sys.executable,
+            target_script.relative_to(self.root).as_posix(),
+            str(target_ready),
+            str(self.root / TARGET_OUTPUT),
+        ]
+        self.write_json(self.packet_path(TARGET_ID), packet)
+        ledger = self.ledger()
+        ledger["packet_contract_sha256"] = work_packets.packet_contract_sha256(packet)
+        self.write_json(self.ledger_relative(TARGET_ID), ledger)
+        self.assert_execution_current()
+        self.record_resolved()
+        expected_tail = self.tail()
+        worker = (
+            "import sys\n"
+            "from pathlib import Path\n"
+            f"sys.path.insert(0, {str(SOURCE_ROOT)!r})\n"
+            "from scripts import record_execution_attempt_v2 as recorder\n"
+            "recorder.finalize_packet("
+            "Path(sys.argv[1]), sys.argv[2], sys.argv[3])"
+        )
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                worker,
+                str(self.root),
+                TARGET_ID,
+                expected_tail,
+            ],
+            cwd=SOURCE_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        deadline = time.monotonic() + 15
+        while not target_ready.exists() and process.poll() is None:
+            if time.monotonic() >= deadline:
+                process.kill()
+                stdout, stderr = process.communicate()
+                self.fail((stdout, stderr))
+            time.sleep(0.01)
+        self.assertTrue(target_ready.exists())
+        process.kill()
+        process.communicate(timeout=10)
+        pending = recorder.pending_operation_paths(self.root)
+        self.assertEqual(1, len(pending))
+        operation = recorder.validate_operation(pending[0])
+        self.assertEqual("finalize", operation["kind"])
+        self.assertEqual("check_prepared", operation["phase"])
+        self.assertIsNotNone(operation["child_process"])
+
+        with (
+            mock.patch.object(
+                recorder,
+                "CHILD_TERMINATION_GRACE_SECONDS",
+                0.1,
+            ),
+            mock.patch.object(
+                recorder,
+                "CHILD_KILL_WAIT_SECONDS",
+                1.0,
+            ),
+        ):
+            self.assertEqual(
+                [operation["operation_id"]],
+                recorder.recover_operations(self.root),
+            )
+        time.sleep(1.2)
+        self.assertEqual(
+            "target-v1\n",
+            (self.root / TARGET_OUTPUT).read_text(encoding="utf-8"),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual("indeterminate", latest["process_observation"]["mode"])
+        self.assertEqual(["RECORDER-902"], latest["failure_delta"]["after"])
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
     def test_postcore_crash_keeps_operation_until_views_are_refreshed(
         self,
     ) -> None:
@@ -1636,14 +1767,15 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             authority_errors: list[str] = []
             authority = execution.git_repository_authority(
                 self.root,
+                repository_root,
                 "hostile environment authority",
                 authority_errors,
             )
             self.assertEqual([], authority_errors)
             self.assertIsNotNone(authority)
             assert authority is not None
-            self.assertEqual(repository_root.resolve(), authority[0])
-            self.assertEqual("project", authority[2])
+            self.assertEqual(repository_root.resolve(), authority.repository_root)
+            self.assertEqual("project", authority.project_prefix)
             with self.assertRaisesRegex(
                 recorder.RecorderError,
                 "Git observation failed",
@@ -1654,6 +1786,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                     self.tail(),
                     candidate_commit,
                     review_commit,
+                    repository_root,
                 )
 
         self.assertEqual(
@@ -1662,6 +1795,293 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         )
         self.assertEqual([], recorder.pending_operation_paths(self.root))
         self.assert_execution_current()
+
+    def test_nested_repository_cannot_replace_pinned_parent_authority(
+        self,
+    ) -> None:
+        self.finalize_with_consistent_clock()
+        repository_root = self.root.parent
+        subprocess.run(
+            ["git", "init", "-q", str(repository_root)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+        candidate_commit, review_commit = self.prepare_seal_authority()
+        subprocess.run(
+            ["git", "init", "-q", str(self.root)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "nested Git repository marker",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                repository_root,
+            )
+        self.assertEqual(
+            "candidate_complete",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+
+    def test_repository_local_core_worktree_cannot_redirect_authority(
+        self,
+    ) -> None:
+        self.finalize_with_consistent_clock()
+        candidate_commit, review_commit = self.prepare_seal_authority()
+        repository_root = self.trusted_repository_root()
+        self.git("config", "core.worktree", str(repository_root.parent))
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "unsafe repository-local Git config key core.worktree",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                repository_root,
+            )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+
+    def test_repository_local_include_cannot_redirect_authority(self) -> None:
+        self.finalize_with_consistent_clock()
+        candidate_commit, review_commit = self.prepare_seal_authority()
+        repository_root = self.trusted_repository_root()
+        self.git(
+            "config",
+            "include.path",
+            str(Path(self._temporary.name) / "untrusted-git-config"),
+        )
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "unsafe repository-local Git config key include.path",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                repository_root,
+            )
+
+    def test_repository_promisor_configuration_is_rejected(self) -> None:
+        self.finalize_with_consistent_clock()
+        candidate_commit, review_commit = self.prepare_seal_authority()
+        repository_root = self.trusted_repository_root()
+        self.git("config", "remote.origin.promisor", "true")
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "unsafe repository-local Git config key remote.origin.promisor",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                repository_root,
+            )
+
+    def test_git_alternate_object_store_is_rejected(self) -> None:
+        self.finalize_with_consistent_clock()
+        candidate_commit, review_commit = self.prepare_seal_authority()
+        repository_root = self.trusted_repository_root()
+        alternate = repository_root / ".git/objects/info/alternates"
+        alternate.parent.mkdir(parents=True, exist_ok=True)
+        alternate.write_text(
+            str(repository_root / ".git/objects") + "\n",
+            encoding="utf-8",
+        )
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "external or ancestry-altering Git metadata is forbidden",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                repository_root,
+            )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+
+    def test_pinned_authority_supports_linked_worktree_common_directory(
+        self,
+    ) -> None:
+        main = Path(self._temporary.name) / "linked-main"
+        linked = Path(self._temporary.name) / "linked-worktree"
+        subprocess.run(["git", "init", "-q", str(main)], check=True)
+        subprocess.run(
+            ["git", "config", "user.name", "Recorder Test"],
+            cwd=main,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "config", "user.email", "recorder@example.invalid"],
+            cwd=main,
+            check=True,
+        )
+        (main / "seed.txt").write_text("seed\n", encoding="utf-8")
+        subprocess.run(["git", "add", "seed.txt"], cwd=main, check=True)
+        subprocess.run(
+            ["git", "commit", "-q", "-m", "seed"],
+            cwd=main,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "worktree", "add", "-q", "-b", "linked-test", str(linked)],
+            cwd=main,
+            check=True,
+        )
+        project = linked / "project"
+        project.mkdir()
+        errors: list[str] = []
+        authority = execution.git_repository_authority(
+            project,
+            linked,
+            "linked-worktree authority",
+            errors,
+        )
+        self.assertEqual([], errors)
+        self.assertIsNotNone(authority)
+        assert authority is not None
+        self.assertEqual("project", authority.project_prefix)
+        self.assertEqual("gitdir_file", authority.git_marker_kind)
+        self.assertEqual((main / ".git").resolve(), authority.common_directory)
+
+    def test_candidate_missing_controlled_path_cannot_be_sealed(self) -> None:
+        self.finalize_with_consistent_clock()
+        self.git("init", "-q")
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+        self.git("add", "-A")
+        self.git("rm", "-q", "--cached", TARGET_OUTPUT)
+        self.git("commit", "-q", "-m", "candidate missing controlled path")
+        candidate_commit = self.git("rev-parse", "HEAD")
+        review_commit = self.commit_review_for_candidate(candidate_commit)
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "candidate Git controlled claims differ",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                self.trusted_repository_root(),
+            )
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
+    def test_candidate_symlink_blob_cannot_be_sealed(self) -> None:
+        self.finalize_with_consistent_clock()
+        self.git("init", "-q")
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+        self.git("add", "-A")
+        target = self.root / TARGET_OUTPUT
+        accepted = target.read_bytes()
+        target.unlink()
+        os.symlink("elsewhere", target)
+        self.git("add", TARGET_OUTPUT)
+        target.unlink()
+        target.write_bytes(accepted)
+        self.git("commit", "-q", "-m", "candidate symlink")
+        candidate_commit = self.git("rev-parse", "HEAD")
+        review_commit = self.commit_review_for_candidate(candidate_commit)
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "candidate file is not a regular Git blob",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                self.trusted_repository_root(),
+            )
+
+    def test_candidate_gitlink_cannot_be_sealed(self) -> None:
+        self.finalize_with_consistent_clock()
+        self.git("init", "-q")
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "valid parent")
+        parent_commit = self.git("rev-parse", "HEAD")
+        self.git(
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            f"160000,{parent_commit},{TARGET_OUTPUT}",
+        )
+        self.git("commit", "-q", "-m", "candidate gitlink")
+        candidate_commit = self.git("rev-parse", "HEAD")
+        review_commit = self.commit_review_for_candidate(candidate_commit)
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "candidate file is not a regular Git blob",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                self.trusted_repository_root(),
+            )
+
+    def test_nonancestor_review_commit_cannot_be_sealed(self) -> None:
+        self.finalize_with_consistent_clock()
+        self.git("init", "-q")
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "candidate")
+        candidate_commit = self.git("rev-parse", "HEAD")
+        empty_tree = self.git_with_input(b"", "mktree")
+        review_commit = self.git_with_input(
+            b"unrelated review\n",
+            "commit-tree",
+            empty_tree,
+        )
+        self.git("tag", f"ids-reviewed/{TARGET_ID}", review_commit)
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "Git observation failed",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                self.trusted_repository_root(),
+            )
 
     def test_nested_tree_candidate_matches_worktree_order(
         self,
@@ -1684,8 +2104,16 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
 
         candidate_commit, review_commit = self.prepare_seal_authority()
         errors: list[str] = []
-        candidate_claims = execution.git_claim_snapshots(
+        authority = execution.git_repository_authority(
             self.root,
+            self.trusted_repository_root(),
+            "nested-tree candidate authority",
+            errors,
+        )
+        self.assertIsNotNone(authority)
+        assert authority is not None
+        candidate_claims = execution.git_claim_snapshots(
+            authority,
             candidate_commit,
             packet,
             errors,
@@ -1711,6 +2139,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             self.tail(),
             candidate_commit,
             review_commit,
+            self.trusted_repository_root(),
         )
         self.assertEqual("sealed_complete", result["status"])
         self.assert_execution_current()
@@ -1730,7 +2159,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             ) as git_output,
         ):
             observed = execution.git_tree_entries(
-                self.root,
+                mock.sentinel.authority,
                 "a" * 40,
                 "src/recorder-tree",
                 recursive=True,
@@ -1772,8 +2201,16 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.git("replace", original_commit, replacement_commit)
 
         errors: list[str] = []
-        observed = execution.git_json(
+        authority = execution.git_repository_authority(
             self.root,
+            self.trusted_repository_root(),
+            "replace-object authority",
+            errors,
+        )
+        self.assertIsNotNone(authority)
+        assert authority is not None
+        observed = execution.git_json(
+            authority,
             original_commit,
             probe_path,
             "replace-object probe",
@@ -1826,6 +2263,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                 self.tail(),
                 candidate_commit,
                 review_commit,
+                self.trusted_repository_root(),
             )
         self.assertEqual(
             "candidate_complete",
@@ -1846,6 +2284,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                 self.tail(),
                 candidate_commit,
                 review_commit,
+                self.trusted_repository_root(),
                 crash_after_core_commit=True,
             )
         operation_id = str(raised.exception)

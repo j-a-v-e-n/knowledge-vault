@@ -1,0 +1,188 @@
+{
+  "schema_version": "foundation-finite-program-authority/v1",
+  "authority_id": "FOUNDATION-FINITE-PROGRAM-R4-2026-07-26",
+  "packet_id": "WP-METHOD-RUNTIME-FOUNDATION",
+  "status": "machine_consumed_candidate",
+  "supersedes_narrative_limit_only": "FOUNDATION-RETRY-BUDGET-12-TO-16-2026-07-26",
+  "retry_budget_authority": {
+    "from": 12,
+    "to": 16,
+    "final": true,
+    "migration_path": "audits/execution_loop_v2/FOUNDATION_RETRY_BUDGET_CONTRACT_MIGRATION_R3_2026-07-26.json",
+    "migration_raw_sha256": "d3d1d52edf026512a496f08c3bdff4537e46bd541ffe60a9070708fd783837ba",
+    "allowed_migration_artifacts": [
+      {
+        "path": "audits/execution_loop_v2/FOUNDATION_RETRY_BUDGET_CONTRACT_MIGRATION_2026-07-26.json",
+        "raw_sha256": "1d4e0810e82a9181367c58aa5dfebc2b7f558f22f7c0c9c5bebdf5e6c5a8ec8b"
+      },
+      {
+        "path": "audits/execution_loop_v2/FOUNDATION_RETRY_BUDGET_CONTRACT_MIGRATION_R2_2026-07-26.json",
+        "raw_sha256": "84119ea9e16f6e898753aecc79fd1c535beba86a1c414c4d5bb7804125bdb921"
+      },
+      {
+        "path": "audits/execution_loop_v2/FOUNDATION_RETRY_BUDGET_CONTRACT_MIGRATION_R3_2026-07-26.json",
+        "raw_sha256": "d3d1d52edf026512a496f08c3bdff4537e46bd541ffe60a9070708fd783837ba"
+      }
+    ]
+  },
+  "predecessor_authority": {
+    "commit": "f8f4b26e680cd0cecfa0467bf5642640e9f5b013",
+    "tree": "2e71897e6fede71f2d1296ef008d0d9be0b2dfae",
+    "committed_attempt_count": 8,
+    "committed_ledger_raw_sha256": "ac57f75f4da4a4187fd433bd94613f15061147da5cacead171d2265101fabf00"
+  },
+  "intermediate_before_migration": {
+    "authority": "reconstructible_uncommitted_intermediate_not_authenticated_snapshot",
+    "raw_sha256": "d380e0fe03f460b18ef38109baf70a6bb9024c66223435e0648749744d738385",
+    "reconstruction": {
+      "source": "current immutable ledger prefix",
+      "retain_execution_retry_indices_through": 9,
+      "packet_contract_sha256": "b542c6e91f428fdea4e9a4835a0f34b7f7a9cfd529ee52dd983fb5b5cfc7d892",
+      "serialization": "json_indent_2_sort_keys_utf8_trailing_newline"
+    }
+  },
+  "stopping_progress_rule": {
+    "separate_from_declared_evidence_progress": true,
+    "historical_records_are_exact_allowlist": true,
+    "migration_audit_narrative_or_formatter_only_change_resets_stop": false,
+    "unprogrammed_transition_resets_stop": false
+  },
+  "historical_stopping_progress": [
+    {
+      "retry_index": 0,
+      "record_sha256": "ba113e1db307ccc2f8f42d14a7e0ada29a33724fcc5200f374a610fcd8b62389",
+      "transition_class": "bootstrap_remediation",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 1,
+      "record_sha256": "56e0b56493bda91b61f07bb9369e8a539548d9b00bbb4affe1e83fa2d9f8cca0",
+      "transition_class": "independent_review_finding",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 2,
+      "record_sha256": "f69b223ff37dabc20177a543dd49d8607ff9b82cef7f5605ae150954759f316b",
+      "transition_class": "semantic_remediation",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 3,
+      "record_sha256": "df57816727f214fe45d30eb9dbe0055b3c313dea02315149718b8ec2b589a965",
+      "transition_class": "fresh_candidate_observation",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 4,
+      "record_sha256": "577240769787e8f98b64c516003bb04722ee54e86560e3f3b702f73bddba6b2e",
+      "transition_class": "independent_review_finding",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 5,
+      "record_sha256": "46b74f9ff04833b6c7c6b47bf257b4a013f570725d37e86e067de5772aa1bf9b",
+      "transition_class": "semantic_remediation",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 6,
+      "record_sha256": "a896fc7a9ecd2f5b2562677cb553ae5feb8d554c87a945969f234b96eb4a7874",
+      "transition_class": "independent_review_finding",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 7,
+      "record_sha256": "3273373aff33c50b80793d604bbca964c6d478a57e57f35e1c4b58738d126b10",
+      "transition_class": "semantic_remediation",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 8,
+      "record_sha256": "4878138cd0d6c05c2971216bf57478d2957c0ccca0689dac51de47dbcfd2e385",
+      "transition_class": "independent_review_finding",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 9,
+      "record_sha256": "6a12b37b3d81df6291f677b161b09537d4f906ba0ff7d9736404e6d50a0f3b13",
+      "transition_class": "semantic_remediation",
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 10,
+      "record_sha256": "7c625923aca3135a6db1796711f94d7fc98f46260a9eaeba8f3d3a29e91eb5c5",
+      "transition_class": "migration_and_formatter_observation",
+      "stopping_progress": false
+    },
+    {
+      "retry_index": 11,
+      "record_sha256": "725071cd9d066c19967b68279474c2a532f942a1f38b3644f58bd55fcf6ce25b",
+      "transition_class": "independent_review_finding",
+      "stopping_progress": true
+    }
+  ],
+  "remaining_program": [
+    {
+      "retry_index": 12,
+      "transition_id": "review_g_semantic_remediation",
+      "required_root_cause_id": "REVIEW-G-REMEDIATION-CANDIDATE",
+      "required_status_after": "open",
+      "failure_disposition": "unchanged",
+      "required_added_evidence_kinds": [
+        "implementation",
+        "policy",
+        "test"
+      ],
+      "required_added_evidence": [
+        {
+          "path": "scripts/record_execution_attempt_v2.py",
+          "raw_sha256": "7c8fcde48b644b74fe00b55660f636397501044d1902af5c2282e6109a205178"
+        },
+        {
+          "path": "governance_tests/test_execution_loop_v2.py",
+          "raw_sha256": "3288b0b1ab8307e4184cc82cccad1764950a6659245945bd2b90fc45652fd08c"
+        },
+        {
+          "path": "governance_tests/test_execution_recorder_v2.py",
+          "raw_sha256": "8f192fd6965aa9580808fb92f2d2e098675a799074d6262e9535e15bf40b71e9"
+        }
+      ],
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 13,
+      "transition_id": "review_h_independent_acceptance",
+      "required_root_cause_id": "REVIEW-H-INDEPENDENT-ACCEPTANCE",
+      "required_status_after": "resolved",
+      "failure_disposition": "resolve_all_with_support",
+      "required_added_evidence_paths": [
+        "audits/execution_loop_v2/EXECUTION_LOOP_V2_REVIEW_H_2026-07-26.md"
+      ],
+      "stopping_progress": true
+    },
+    {
+      "retry_index": 13,
+      "transition_id": "review_h_blocking_stop",
+      "required_root_cause_id": "REVIEW-H-BLOCKING-FINDINGS",
+      "required_status_after": "blocked",
+      "failure_disposition": "preserve_and_block",
+      "required_added_evidence_paths": [
+        "audits/execution_loop_v2/EXECUTION_LOOP_V2_REVIEW_H_2026-07-26.md"
+      ],
+      "stopping_progress": false
+    }
+  ],
+  "forbidden_outcomes": [
+    "retry_budget_above_16",
+    "a_fourth_retry_budget_migration",
+    "an_execution_attempt_after_retry_index_13",
+    "audit_only_or_formatter_only_stopping_progress",
+    "review_h_blocked_followed_by_in_place_continuation"
+  ],
+  "limitations": [
+    "The authority is packet-specific rather than a general migration framework.",
+    "The predecessor commit and tree are content-addressed references; authenticated remote identity remains a separate completion concern.",
+    "A process with arbitrary write access can still edit policy and verifier together; exact-candidate Git review remains required.",
+    "Finite governance progress does not establish product usability or investment effectiveness."
+  ]
+}

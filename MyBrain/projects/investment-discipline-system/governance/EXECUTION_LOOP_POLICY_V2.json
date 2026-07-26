@@ -172,6 +172,8 @@
     "progress_requires": "verified_evidence_addition_or_failure_resolution",
     "resolved_failure_requires_added_supporting_evidence": true,
     "progress_evidence_must_be_controlled_write_claim": true,
+    "stopping_progress_is_separate_from_evidence_progress": true,
+    "finite_program_audit_or_formatter_change_cannot_reset_stop": true,
     "first_attempt_before_state_source": "ledger.initial_state",
     "cross_attempt_failure_state_continuity": true,
     "cross_attempt_evidence_state_continuity": true,
@@ -210,6 +212,14 @@
     "first_forced_stop_is_absorbing": true,
     "blocked_continuation_requires": "successor_packet"
   },
+  "finite_packet_programs": [
+    {
+      "packet_id": "WP-METHOD-RUNTIME-FOUNDATION",
+      "activation_record_sha256": "ba113e1db307ccc2f8f42d14a7e0ada29a33724fcc5200f374a610fcd8b62389",
+      "authority_path": "audits/execution_loop_v2/FOUNDATION_FINITE_PROGRAM_AUTHORITY_R4_2026-07-26.json",
+      "authority_raw_sha256": "39acfe4ed4137e20abfa8b57292db769fb12971575ce8d5a8e7f2f85674bfe54"
+    }
+  ],
   "completion_semantics": {
     "local_receipts_are": "self_reported_candidate_evidence_not_authenticated_execution",
     "candidate_complete_and_complete_require_latest_execution_status": "resolved",
@@ -277,9 +287,14 @@
     "proposed_attempt_chain_is_validated_before_commit_plan": true,
     "forced_stop_disposition_derived_before_commit": true,
     "recorded_child_liveness_lock_held_by_supervisor": true,
+    "finalize_recovery_quiesces_recorded_acceptance_group": true,
     "candidate_tree_hash_uses_worktree_record_order": true,
     "git_observation_disables_replace_objects": true,
     "git_controlled_paths_use_literal_pathspecs": true,
+    "git_seal_requires_external_pinned_repository_root": true,
+    "git_repository_authority_rejects_nested_marker": true,
+    "git_repository_local_worktree_include_and_promisor_redirection_rejected": true,
+    "git_object_store_authority": "pinned_common_directory_primary_objects_only_no_alternates_or_promisor",
     "acceptance_check_timeout_seconds": 7200,
     "max_captured_output_bytes_per_stream": 16777216,
     "output_limit_exit_code": 125,
@@ -348,6 +363,8 @@
     "A process outcome and its durable controlled snapshot establish one observed interval boundary, not semantic causality between the command and every changed byte.",
     "Recorder process-group recovery controls the supervised target and descendants still in the owned group while the supervisor remains alive; a deliberately backgrounded child that survives its immediate parent or a detached descendant can escape that boundary and requires operating-system sandboxing.",
     "Captured stdout and stderr are each bounded; exit 125 means the configured evidence-capture limit was exceeded and the retained digest covers only the bounded captured prefix.",
+    "Git sealing trusts the explicitly supplied repository-root pin for that operation; supplying a dishonest pin remains outside the project-local verifier and must be challenged by candidate review.",
+    "The Git object boundary rejects nested repository markers, local include/worktree/promisor redirection, alternates, promisor packs, shallow ancestry, and grafts, but does not prove Git executable integrity, repository ownership, immutable mounts, or absence of TOCTOU replacement.",
     "A local Git review tag raises the cost and visibility of coherent rewrites but is not an authenticated identity or protected remote ref; hostile-author resistance requires pushing the tag to a protected remote and verifying that external ref.",
     "A V2 blocked or completed packet cannot resume in place; continued work requires a named successor packet so the prior terminal chain remains visible.",
     "Legacy V1 artifacts are hash-retained history only and cannot be used to assert current V2 freshness.",

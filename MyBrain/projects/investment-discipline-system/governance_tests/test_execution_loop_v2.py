@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -364,6 +365,19 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             "supports_failure_ids": sorted(supports or []),
         }
 
+    def production_foundation_ledger(self) -> dict[str, Any]:
+        return json.loads(
+            (
+                SOURCE_ROOT / execution.ledger_path_for("WP-METHOD-RUNTIME-FOUNDATION")
+            ).read_text(encoding="utf-8")
+        )
+
+    def foundation_finite_authority(self) -> dict[str, Any]:
+        locator = execution.EXPECTED_FINITE_PACKET_PROGRAMS[0]
+        return json.loads(
+            (self.root / locator["authority_path"]).read_text(encoding="utf-8")
+        )
+
     def test_generated_fixture_is_current(self) -> None:
         receipt = self.assert_valid()
         self.assertEqual(7, receipt["tracked_packet_count"])
@@ -413,6 +427,199 @@ class ExecutionLoopV2Tests(unittest.TestCase):
         policy["stopping_rules"]["same_blocker_consecutive_no_progress_threshold"] = 4
         write_json(path, policy)
         self.assert_invalid("policy.stopping_rules")
+
+    def test_finite_packet_authority_locator_is_frozen(self) -> None:
+        path = self.root / POLICY_RELATIVE
+        policy = json.loads(path.read_text(encoding="utf-8"))
+        policy["finite_packet_programs"][0]["authority_raw_sha256"] = "0" * 64
+        write_json(path, policy)
+        self.assert_invalid("policy.finite_packet_programs")
+
+    def test_foundation_final_retry_ceiling_and_migration_set_are_enforced(
+        self,
+    ) -> None:
+        packet = json.loads(
+            (
+                SOURCE_ROOT
+                / PACKET_DIRECTORY
+                / "WP-METHOD-RUNTIME-FOUNDATION.packet.json"
+            ).read_text(encoding="utf-8")
+        )
+        ledger = self.production_foundation_ledger()
+        attempts = ledger["attempts"]
+        authority = self.foundation_finite_authority()
+        errors: list[str] = []
+        execution.validate_finite_migration_authority(
+            self.root,
+            packet,
+            ledger,
+            attempts,
+            authority,
+            errors,
+        )
+        self.assertEqual([], errors)
+
+        widened = copy.deepcopy(packet)
+        widened["retry_budget"] = 20
+        widened_errors: list[str] = []
+        execution.validate_finite_migration_authority(
+            self.root,
+            widened,
+            ledger,
+            attempts,
+            authority,
+            widened_errors,
+        )
+        self.assertTrue(
+            any("final retry ceiling differs" in item for item in widened_errors),
+            widened_errors,
+        )
+
+        extra = (
+            self.root / "audits/execution_loop_v2/"
+            "FOUNDATION_RETRY_BUDGET_CONTRACT_MIGRATION_R4_2026-07-26.json"
+        )
+        extra.write_text("{}\n", encoding="utf-8")
+        migration_errors: list[str] = []
+        execution.validate_finite_migration_authority(
+            self.root,
+            packet,
+            ledger,
+            attempts,
+            authority,
+            migration_errors,
+        )
+        self.assertTrue(
+            any("migration artifact set differs" in item for item in migration_errors),
+            migration_errors,
+        )
+
+    def test_foundation_stopping_progress_is_not_evidence_progress(self) -> None:
+        packet = json.loads(
+            (
+                SOURCE_ROOT
+                / PACKET_DIRECTORY
+                / "WP-METHOD-RUNTIME-FOUNDATION.packet.json"
+            ).read_text(encoding="utf-8")
+        )
+        ledger = self.production_foundation_ledger()
+        errors: list[str] = []
+        progress = execution.finite_stopping_progress_map(
+            self.root.resolve(),
+            packet,
+            ledger,
+            ledger["attempts"],
+            errors,
+        )
+        self.assertEqual([], errors)
+        self.assertIsNotNone(progress)
+        assert progress is not None
+        self.assertFalse(progress[10])
+        self.assertTrue(ledger["attempts"][10]["declared_progress"])
+        self.assertTrue(progress[11])
+
+    def test_audit_only_remediation_cannot_reset_foundation_stop(self) -> None:
+        authority = self.foundation_finite_authority()
+        prior = self.production_foundation_ledger()["attempts"][-1]
+        attempt = copy.deepcopy(prior)
+        attempt["retry_index"] = 12
+        attempt["blocker"] = blocker("REVIEW-G-REMEDIATION-CANDIDATE", "open")
+        attempt["failure_delta"] = {
+            "before": ["REC-11"],
+            "after": ["REC-11"],
+            "resolved": [],
+            "introduced": [],
+        }
+        attempt["evidence_delta"] = {
+            "before": [],
+            "after": [],
+            "added": [
+                {
+                    "path": "audits/execution_loop_v2/narrative.md",
+                    "sha256": "0" * 64,
+                    "kind": "other",
+                    "supports_failure_ids": [],
+                }
+            ],
+            "removed": [],
+        }
+        errors: list[str] = []
+        execution.finite_transition_stopping_progress(
+            authority,
+            attempt,
+            "audit-only remediation",
+            errors,
+        )
+        self.assertTrue(
+            any("evidence kinds differ" in item for item in errors),
+            errors,
+        )
+
+    def test_exact_foundation_remediation_transition_is_allowed(self) -> None:
+        authority = self.foundation_finite_authority()
+        prior = self.production_foundation_ledger()["attempts"][-1]
+        attempt = copy.deepcopy(prior)
+        attempt["retry_index"] = 12
+        attempt["blocker"] = blocker("REVIEW-G-REMEDIATION-CANDIDATE", "open")
+        failures = prior["failure_delta"]["after"]
+        attempt["failure_delta"] = {
+            "before": failures,
+            "after": failures,
+            "resolved": [],
+            "introduced": [],
+        }
+        required = authority["remaining_program"][0]["required_added_evidence"]
+        additions = [
+            {
+                "path": item["path"],
+                "sha256": item["raw_sha256"],
+                "kind": (
+                    "implementation" if item["path"].startswith("scripts/") else "test"
+                ),
+                "supports_failure_ids": [],
+            }
+            for item in required
+        ]
+        additions.append(
+            {
+                "path": "governance/EXECUTION_LOOP_POLICY_V2.json",
+                "sha256": "0" * 64,
+                "kind": "policy",
+                "supports_failure_ids": [],
+            }
+        )
+        attempt["evidence_delta"] = {
+            "before": [],
+            "after": additions,
+            "added": additions,
+            "removed": [],
+        }
+        errors: list[str] = []
+        progress = execution.finite_transition_stopping_progress(
+            authority,
+            attempt,
+            "exact remediation",
+            errors,
+        )
+        self.assertEqual([], errors)
+        self.assertTrue(progress)
+
+    def test_unprogrammed_foundation_attempt_is_rejected(self) -> None:
+        authority = self.foundation_finite_authority()
+        attempt = copy.deepcopy(self.production_foundation_ledger()["attempts"][-1])
+        attempt["retry_index"] = 14
+        attempt["blocker"] = blocker("UNPROGRAMMED-CONTINUATION", "open")
+        errors: list[str] = []
+        execution.finite_transition_stopping_progress(
+            authority,
+            attempt,
+            "unprogrammed continuation",
+            errors,
+        )
+        self.assertTrue(
+            any("outside the finite packet program" in item for item in errors),
+            errors,
+        )
 
     def test_record_hash_tampering_is_rejected(self) -> None:
         self.mutate_ledger(

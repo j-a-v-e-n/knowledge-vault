@@ -29,9 +29,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts import derive_project_state as project_state
-from scripts import verify_execution_loop_v2 as execution
-from scripts import verify_work_packets as work_packets
+from scripts import derive_project_state as project_state  # noqa: E402
+from scripts import verify_execution_loop_v2 as execution  # noqa: E402
+from scripts import verify_work_packets as work_packets  # noqa: E402
 
 
 POLICY_RELATIVE = Path("governance/EXECUTION_LOOP_POLICY_V2.json")
@@ -901,7 +901,7 @@ def quiesce_recorded_child(
     root: Path,
     operation: dict[str, Any],
 ) -> None:
-    if operation["kind"] != "run":
+    if operation["kind"] not in {"run", "finalize"}:
         return
     directory = operation_root(root) / operation["operation_id"]
     ready_path = directory / "child.ready.json"
@@ -1959,17 +1959,38 @@ def derive_evidence_after(
     return after, added, removed
 
 
-def forced_block_required(attempts: list[dict[str, Any]], retry_budget: int) -> bool:
+def forced_block_required(
+    root: Path,
+    packet: dict[str, Any],
+    ledger: dict[str, Any],
+    attempts: list[dict[str, Any]],
+) -> bool:
     execution_attempts = [
         item for item in attempts if item["attempt_kind"] == "execution_attempt"
     ]
-    if len(execution_attempts) >= retry_budget:
+    if len(execution_attempts) >= packet["retry_budget"]:
         return True
+    finite_errors: list[str] = []
+    finite_progress = execution.finite_stopping_progress_map(
+        root,
+        packet,
+        {**ledger, "attempts": attempts},
+        execution_attempts,
+        finite_errors,
+    )
+    if finite_errors:
+        raise RecorderError("; ".join(finite_errors))
     consecutive = 0
     same = 0
     prior_fingerprint: str | None = None
     for attempt in execution_attempts:
-        if attempt["declared_progress"]:
+        retry_index = attempt["retry_index"]
+        stopping_progress = (
+            finite_progress.get(retry_index, False)
+            if finite_progress is not None
+            else attempt["declared_progress"]
+        )
+        if stopping_progress:
             consecutive = 0
             same = 0
             prior_fingerprint = None
@@ -2203,8 +2224,10 @@ def _append_observation_core(
         }
         if (
             forced_block_required(
+                root,
+                packet,
+                ledger,
                 [*ledger["attempts"], attempt],
-                packet["retry_budget"],
             )
             and status_after != "blocked"
         ):
@@ -2261,7 +2284,12 @@ def _append_observation_core(
         )
         ledger["attempts"].append(attempt)
         ledger["reported_state"] = packet["state"]
-        if forced_block_required(ledger["attempts"], packet["retry_budget"]):
+        if forced_block_required(
+            root,
+            packet,
+            ledger,
+            ledger["attempts"],
+        ):
             if status_after != "blocked" or packet["state"] != "blocked":
                 raise RecorderError(
                     "this attempt reaches a stopping threshold and must be "
@@ -3100,6 +3128,7 @@ def build_completion_seal(
     ledger: dict[str, Any],
     candidate_commit: str,
     review_commit: str,
+    authority: execution.GitRepositoryAuthority,
 ) -> dict[str, Any]:
     packet_id = packet["packet_id"]
     if (
@@ -3111,7 +3140,7 @@ def build_completion_seal(
     errors: list[str] = []
     candidate_tree = require_git_value(
         execution.git_object_id(
-            root,
+            authority,
             f"{candidate_commit}^{{tree}}",
             "candidate commit tree",
             errors,
@@ -3120,7 +3149,7 @@ def build_completion_seal(
     )
     review_tree = require_git_value(
         execution.git_object_id(
-            root,
+            authority,
             f"{review_commit}^{{tree}}",
             "review commit tree",
             errors,
@@ -3130,7 +3159,7 @@ def build_completion_seal(
     anchor_ref = f"refs/tags/ids-reviewed/{packet_id}"
     anchor_commit = require_git_value(
         execution.git_object_id(
-            root,
+            authority,
             anchor_ref,
             "independent review anchor ref",
             errors,
@@ -3141,7 +3170,7 @@ def build_completion_seal(
         raise RecorderError("independent review anchor ref differs")
     if (
         execution.git_output(
-            root,
+            authority,
             ["merge-base", "--is-ancestor", candidate_commit, review_commit],
             "candidate/review ancestry",
             errors,
@@ -3153,14 +3182,14 @@ def build_completion_seal(
     packet_relative = f".work_packets/packets/{packet_id}.packet.json"
     ledger_relative = execution.ledger_path_for(packet_id)
     candidate_packet = execution.git_json(
-        root,
+        authority,
         candidate_commit,
         packet_relative,
         "candidate packet",
         errors,
     )
     candidate_ledger = execution.git_json(
-        root,
+        authority,
         candidate_commit,
         ledger_relative,
         "candidate ledger",
@@ -3168,7 +3197,7 @@ def build_completion_seal(
     )
     candidate_claims = (
         execution.git_claim_snapshots(
-            root,
+            authority,
             candidate_commit,
             candidate_packet,
             errors,
@@ -3184,7 +3213,7 @@ def build_completion_seal(
     }
     candidate_receipts = {
         name: execution.git_json(
-            root,
+            authority,
             candidate_commit,
             relative,
             f"candidate {name} receipt",
@@ -3219,7 +3248,7 @@ def build_completion_seal(
     review_path = f".work_packets/reviews/{packet_id}.review.v2.json"
     current_review = strict_load(root / review_path, "independent review")
     committed_review = execution.git_json(
-        root,
+        authority,
         review_commit,
         review_path,
         "committed independent review",
@@ -3251,6 +3280,15 @@ def build_completion_seal(
         raise RecorderError("independent review does not accept this candidate")
     return {
         "schema_version": "execution-completion-seal/v2",
+        "repository_root_locator": authority.repository_root_locator,
+        "project_prefix": authority.project_prefix,
+        "git_marker_kind": authority.git_marker_kind,
+        "git_marker_raw_sha256": authority.git_marker_raw_sha256,
+        "git_directory_locator": authority.git_directory_locator,
+        "git_common_directory_locator": authority.git_common_directory_locator,
+        "object_store_authority": (
+            "pinned_common_directory_primary_objects_only_no_alternates_or_promisor"
+        ),
         "candidate_commit": candidate_commit,
         "candidate_tree": candidate_tree,
         "candidate_packet_canonical_sha256": execution.canonical_sha256(
@@ -3384,12 +3422,34 @@ def resume_seal_operation(
     require_tail(tail_sha256(ledger), operation["expected_tail"])
     if operation["phase"] == "prepared":
         request = operation["request"]
+        authority_errors: list[str] = []
+        repository_root = execution.repository_root_from_locator(
+            root,
+            request.get("repository_root_locator"),
+            "seal repository authority",
+            authority_errors,
+        )
+        authority = (
+            execution.git_repository_authority(
+                root,
+                repository_root,
+                "seal repository authority",
+                authority_errors,
+            )
+            if repository_root is not None
+            else None
+        )
+        if authority is None or authority_errors:
+            raise RecorderError(
+                "; ".join(authority_errors) or "seal repository authority is missing"
+            )
         seal = build_completion_seal(
             root,
             packet,
             ledger,
             request["candidate_commit"],
             request["review_commit"],
+            authority,
         )
         set_operation_outcome(root, operation, {"seal": seal})
     outcome = operation["outcome"]
@@ -3441,6 +3501,7 @@ def seal_packet(
     expected_tail: str,
     candidate_commit: str,
     review_commit: str,
+    trusted_repository_root: Path,
     *,
     crash_after_replacements: int | None = None,
     crash_after_core_commit: bool = False,
@@ -3464,12 +3525,25 @@ def seal_packet(
                 or ledger.get("reported_state") != "candidate_complete"
             ):
                 raise RecorderError("seal requires candidate_complete state")
+            authority_errors: list[str] = []
+            authority = execution.git_repository_authority(
+                root,
+                trusted_repository_root,
+                "seal repository authority",
+                authority_errors,
+            )
+            if authority is None or authority_errors:
+                raise RecorderError(
+                    "; ".join(authority_errors)
+                    or "seal repository authority is missing"
+                )
             build_completion_seal(
                 root,
                 packet,
                 ledger,
                 candidate_commit,
                 review_commit,
+                authority,
             )
             operation = create_operation(
                 root,
@@ -3479,6 +3553,7 @@ def seal_packet(
                 {
                     "candidate_commit": candidate_commit,
                     "review_commit": review_commit,
+                    "repository_root_locator": authority.repository_root_locator,
                 },
             )
             return resume_seal_operation(
@@ -3524,6 +3599,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     seal.add_argument("--expected-tail", required=True)
     seal.add_argument("--candidate-commit", required=True)
     seal.add_argument("--review-commit", required=True)
+    seal.add_argument("--trusted-repository-root", type=Path, required=True)
     return parser.parse_args(argv)
 
 
@@ -3581,6 +3657,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.expected_tail,
                 args.candidate_commit,
                 args.review_commit,
+                args.trusted_repository_root,
             )
     except (RecorderError, OSError, ValueError) as exc:
         print(

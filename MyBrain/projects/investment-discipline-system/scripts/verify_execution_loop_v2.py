@@ -11,6 +11,7 @@ import posixpath
 import re
 import subprocess
 import sys
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -19,7 +20,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts import verify_work_packets as work_packets
+from scripts import verify_work_packets as work_packets  # noqa: E402
 
 
 DEFAULT_POLICY = Path("governance/EXECUTION_LOOP_POLICY_V2.json")
@@ -45,6 +46,7 @@ POLICY_FIELDS = {
     "progress_derivation",
     "baseline_observation",
     "stopping_rules",
+    "finite_packet_programs",
     "completion_semantics",
     "recorder_runtime",
     "cost_accounting",
@@ -79,6 +81,13 @@ TERMINAL_COMPLETION_FIELDS = {
 }
 COMPLETION_SEAL_FIELDS = {
     "schema_version",
+    "repository_root_locator",
+    "project_prefix",
+    "git_marker_kind",
+    "git_marker_raw_sha256",
+    "git_directory_locator",
+    "git_common_directory_locator",
+    "object_store_authority",
     "candidate_commit",
     "candidate_tree",
     "candidate_packet_canonical_sha256",
@@ -94,6 +103,22 @@ COMPLETION_SEAL_FIELDS = {
     "anchor_commit",
     "anchor_authority",
 }
+
+
+@dataclass(frozen=True)
+class GitRepositoryAuthority:
+    project_root: Path
+    repository_root: Path
+    git_directory: Path
+    common_directory: Path
+    project_prefix: str
+    repository_root_locator: str
+    git_marker_kind: str
+    git_marker_raw_sha256: str
+    git_directory_locator: str
+    git_common_directory_locator: str
+
+
 INDEPENDENT_REVIEW_FIELDS = {
     "schema_version",
     "packet_id",
@@ -355,6 +380,8 @@ EXPECTED_PROGRESS = {
     "progress_requires": "verified_evidence_addition_or_failure_resolution",
     "resolved_failure_requires_added_supporting_evidence": True,
     "progress_evidence_must_be_controlled_write_claim": True,
+    "stopping_progress_is_separate_from_evidence_progress": True,
+    "finite_program_audit_or_formatter_change_cannot_reset_stop": True,
     "first_attempt_before_state_source": "ledger.initial_state",
     "cross_attempt_failure_state_continuity": True,
     "cross_attempt_evidence_state_continuity": True,
@@ -385,6 +412,21 @@ EXPECTED_STOPPING = {
     "first_forced_stop_is_absorbing": True,
     "blocked_continuation_requires": "successor_packet",
 }
+EXPECTED_FINITE_PACKET_PROGRAMS = [
+    {
+        "packet_id": "WP-METHOD-RUNTIME-FOUNDATION",
+        "activation_record_sha256": (
+            "ba113e1db307ccc2f8f42d14a7e0ada29a33724fcc5200f374a610fcd8b62389"
+        ),
+        "authority_path": (
+            "audits/execution_loop_v2/"
+            "FOUNDATION_FINITE_PROGRAM_AUTHORITY_R4_2026-07-26.json"
+        ),
+        "authority_raw_sha256": (
+            "39acfe4ed4137e20abfa8b57292db769fb12971575ce8d5a8e7f2f85674bfe54"
+        ),
+    }
+]
 EXPECTED_COMPLETION = {
     "local_receipts_are": (
         "self_reported_candidate_evidence_not_authenticated_execution"
@@ -458,9 +500,16 @@ EXPECTED_RECORDER = {
     "proposed_attempt_chain_is_validated_before_commit_plan": True,
     "forced_stop_disposition_derived_before_commit": True,
     "recorded_child_liveness_lock_held_by_supervisor": True,
+    "finalize_recovery_quiesces_recorded_acceptance_group": True,
     "candidate_tree_hash_uses_worktree_record_order": True,
     "git_observation_disables_replace_objects": True,
     "git_controlled_paths_use_literal_pathspecs": True,
+    "git_seal_requires_external_pinned_repository_root": True,
+    "git_repository_authority_rejects_nested_marker": True,
+    "git_repository_local_worktree_include_and_promisor_redirection_rejected": True,
+    "git_object_store_authority": (
+        "pinned_common_directory_primary_objects_only_no_alternates_or_promisor"
+    ),
     "acceptance_check_timeout_seconds": 7200,
     "max_captured_output_bytes_per_stream": 16777216,
     "output_limit_exit_code": 125,
@@ -542,6 +591,8 @@ EXPECTED_LIMITATIONS = [
     "A process outcome and its durable controlled snapshot establish one observed interval boundary, not semantic causality between the command and every changed byte.",
     "Recorder process-group recovery controls the supervised target and descendants still in the owned group while the supervisor remains alive; a deliberately backgrounded child that survives its immediate parent or a detached descendant can escape that boundary and requires operating-system sandboxing.",
     "Captured stdout and stderr are each bounded; exit 125 means the configured evidence-capture limit was exceeded and the retained digest covers only the bounded captured prefix.",
+    "Git sealing trusts the explicitly supplied repository-root pin for that operation; supplying a dishonest pin remains outside the project-local verifier and must be challenged by candidate review.",
+    "The Git object boundary rejects nested repository markers, local include/worktree/promisor redirection, alternates, promisor packs, shallow ancestry, and grafts, but does not prove Git executable integrity, repository ownership, immutable mounts, or absence of TOCTOU replacement.",
     "A local Git review tag raises the cost and visibility of coherent rewrites but is not an authenticated identity or protected remote ref; hostile-author resistance requires pushing the tag to a protected remote and verifying that external ref.",
     "A V2 blocked or completed packet cannot resume in place; continued work requires a named successor packet so the prior terminal chain remains visible.",
     "Legacy V1 artifacts are hash-retained history only and cannot be used to assert current V2 freshness.",
@@ -706,6 +757,7 @@ def validate_policy(policy: Any, errors: list[str]) -> bool:
         "progress_derivation": EXPECTED_PROGRESS,
         "baseline_observation": EXPECTED_BASELINE,
         "stopping_rules": EXPECTED_STOPPING,
+        "finite_packet_programs": EXPECTED_FINITE_PACKET_PROGRAMS,
         "completion_semantics": EXPECTED_COMPLETION,
         "recorder_runtime": EXPECTED_RECORDER,
         "cost_accounting": EXPECTED_COST,
@@ -1311,11 +1363,126 @@ def normalized_git_prefix(
     return prefix
 
 
-def git_repository_authority(
-    root: Path,
+def path_locator(base: Path, target: Path) -> str:
+    return Path(os.path.relpath(target, base)).as_posix()
+
+
+def repository_root_from_locator(
+    project_root: Path,
+    locator: str,
     label: str,
     errors: list[str],
-) -> tuple[Path, Path, str] | None:
+) -> Path | None:
+    if not isinstance(locator, str) or not locator:
+        errors.append(f"{label}: repository-root locator is invalid")
+        return None
+    parts = PurePosixPath(locator).parts
+    if locator != "." and (not parts or any(part != ".." for part in parts)):
+        errors.append(f"{label}: repository-root locator must name an ancestor")
+        return None
+    try:
+        repository_root = project_root.joinpath(*parts).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        errors.append(f"{label}: repository root cannot be resolved: {exc}")
+        return None
+    if not repository_root.is_dir():
+        errors.append(f"{label}: repository root is not a directory")
+        return None
+    try:
+        project_root.relative_to(repository_root)
+    except ValueError:
+        errors.append(f"{label}: project root is outside the pinned repository")
+        return None
+    return repository_root
+
+
+def git_config_entries(
+    config_path: Path,
+    repository_root: Path,
+    label: str,
+    errors: list[str],
+) -> list[tuple[str, str]] | None:
+    if config_path.is_symlink() or not config_path.is_file():
+        errors.append(f"{label}: Git config is not a regular file")
+        return None
+    payload = raw_git_output(
+        repository_root,
+        [
+            "config",
+            "--file",
+            str(config_path),
+            "--no-includes",
+            "--null",
+            "--list",
+        ],
+        label,
+        errors,
+    )
+    if payload is None:
+        return None
+    entries: list[tuple[str, str]] = []
+    for raw_entry in payload.split(b"\0"):
+        if not raw_entry:
+            continue
+        raw_key, separator, raw_value = raw_entry.partition(b"\n")
+        if not separator:
+            errors.append(f"{label}: Git config entry is malformed")
+            return None
+        try:
+            key = raw_key.decode("utf-8").lower()
+            value = raw_value.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            errors.append(f"{label}: Git config is not UTF-8: {exc}")
+            return None
+        entries.append((key, value))
+    return entries
+
+
+def validate_git_config_boundary(
+    common_directory: Path,
+    git_directory: Path,
+    repository_root: Path,
+    label: str,
+    errors: list[str],
+) -> None:
+    config_paths = [common_directory / "config"]
+    worktree_config = git_directory / "config.worktree"
+    if worktree_config.exists() or worktree_config.is_symlink():
+        config_paths.append(worktree_config)
+    for config_path in config_paths:
+        entries = git_config_entries(
+            config_path,
+            repository_root,
+            f"{label}.{config_path.name}",
+            errors,
+        )
+        if entries is None:
+            continue
+        for key, value in entries:
+            if (
+                key.startswith("include.")
+                or key.startswith("includeif.")
+                or key == "core.worktree"
+                or key == "extensions.partialclone"
+                or re.fullmatch(r"remote\..+\.partialclonefilter", key) is not None
+                or (
+                    re.fullmatch(r"remote\..+\.promisor", key) is not None
+                    and value.lower() not in {"", "false", "no", "off", "0"}
+                )
+                or (
+                    key == "core.bare"
+                    and value.lower() not in {"", "false", "no", "off", "0"}
+                )
+            ):
+                errors.append(f"{label}: unsafe repository-local Git config key {key}")
+
+
+def git_repository_authority(
+    root: Path,
+    trusted_repository_root: Path,
+    label: str,
+    errors: list[str],
+) -> GitRepositoryAuthority | None:
     try:
         project_root = root.resolve(strict=True)
     except OSError as exc:
@@ -1324,81 +1491,228 @@ def git_repository_authority(
     if not project_root.is_dir():
         errors.append(f"{label}: project root is not a directory")
         return None
-    payload = raw_git_output(
-        root,
-        [
-            "--no-replace-objects",
-            "rev-parse",
-            "--show-toplevel",
-            "--absolute-git-dir",
-            "--show-prefix",
-        ],
-        label,
-        errors,
-    )
-    if payload is None:
+    if not trusted_repository_root.is_absolute():
+        errors.append(f"{label}: pinned repository root must be absolute")
         return None
     try:
-        lines = payload.decode("utf-8").splitlines()
-    except UnicodeDecodeError as exc:
-        errors.append(f"{label}: Git repository authority is invalid: {exc}")
-        return None
-    if len(lines) != 3:
-        errors.append(f"{label}: Git repository authority fields differ")
-        return None
-    raw_repository_root, raw_git_directory, raw_prefix = lines
-    repository_path = Path(raw_repository_root)
-    git_directory_path = Path(raw_git_directory)
-    if not repository_path.is_absolute() or not git_directory_path.is_absolute():
-        errors.append(f"{label}: Git repository authority is not absolute")
-        return None
-    try:
-        repository_root = repository_path.resolve(strict=True)
-        git_directory = git_directory_path.resolve(strict=True)
+        repository_root = trusted_repository_root.resolve(strict=True)
     except OSError as exc:
-        errors.append(f"{label}: Git repository authority cannot be resolved: {exc}")
+        errors.append(f"{label}: pinned repository root cannot be resolved: {exc}")
         return None
-    if not repository_root.is_dir() or not git_directory.is_dir():
-        errors.append(f"{label}: Git repository authority is not a directory")
+    if not repository_root.is_dir():
+        errors.append(f"{label}: pinned repository root is not a directory")
         return None
     try:
         relative_project_root = project_root.relative_to(repository_root)
     except ValueError:
-        errors.append(f"{label}: project root is outside the Git repository")
+        errors.append(f"{label}: project root is outside the pinned repository")
         return None
+
+    cursor = project_root
+    while cursor != repository_root:
+        nested_marker = cursor / ".git"
+        if nested_marker.exists() or nested_marker.is_symlink():
+            errors.append(
+                f"{label}: nested Git repository marker precedes pinned authority"
+            )
+            return None
+        if cursor.parent == cursor:
+            errors.append(f"{label}: pinned repository ancestor walk escaped")
+            return None
+        cursor = cursor.parent
+
+    marker = repository_root / ".git"
+    if marker.is_symlink():
+        errors.append(f"{label}: pinned Git marker cannot be a symlink")
+        return None
+    if marker.is_dir():
+        git_marker_kind = "directory"
+        marker_bytes = b"directory\n"
+        git_directory = marker.resolve(strict=True)
+    elif marker.is_file():
+        git_marker_kind = "gitdir_file"
+        try:
+            marker_bytes = marker.read_bytes()
+        except OSError as exc:
+            errors.append(f"{label}: pinned Git marker cannot be read: {exc}")
+            return None
+        if len(marker_bytes) > 4096 or b"\0" in marker_bytes:
+            errors.append(f"{label}: pinned Git marker is malformed")
+            return None
+        try:
+            marker_text = marker_bytes.decode("utf-8").strip()
+        except UnicodeDecodeError as exc:
+            errors.append(f"{label}: pinned Git marker is not UTF-8: {exc}")
+            return None
+        if not marker_text.startswith("gitdir: "):
+            errors.append(f"{label}: pinned Git marker lacks gitdir")
+            return None
+        raw_git_directory = marker_text.removeprefix("gitdir: ")
+        candidate_git_directory = Path(raw_git_directory)
+        if not candidate_git_directory.is_absolute():
+            candidate_git_directory = repository_root / candidate_git_directory
+        if candidate_git_directory.is_symlink():
+            errors.append(f"{label}: linked-worktree Git directory is a symlink")
+            return None
+        try:
+            git_directory = candidate_git_directory.resolve(strict=True)
+        except OSError as exc:
+            errors.append(f"{label}: linked-worktree Git directory is invalid: {exc}")
+            return None
+    else:
+        errors.append(f"{label}: pinned repository lacks a regular Git marker")
+        return None
+    if git_directory.is_symlink() or not git_directory.is_dir():
+        errors.append(f"{label}: Git directory is not a real directory")
+        return None
+
+    common_marker = git_directory / "commondir"
+    if common_marker.is_symlink():
+        errors.append(f"{label}: Git common-directory marker cannot be a symlink")
+        return None
+    if common_marker.exists():
+        if not common_marker.is_file():
+            errors.append(f"{label}: Git common-directory marker is invalid")
+            return None
+        try:
+            common_text = common_marker.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeDecodeError) as exc:
+            errors.append(f"{label}: Git common-directory marker cannot be read: {exc}")
+            return None
+        if not common_text or "\0" in common_text or "\n" in common_text:
+            errors.append(f"{label}: Git common-directory marker is malformed")
+            return None
+        common_candidate = Path(common_text)
+        if not common_candidate.is_absolute():
+            common_candidate = git_directory / common_candidate
+        if common_candidate.is_symlink():
+            errors.append(f"{label}: Git common directory is a symlink")
+            return None
+        try:
+            common_directory = common_candidate.resolve(strict=True)
+        except OSError as exc:
+            errors.append(f"{label}: Git common directory is invalid: {exc}")
+            return None
+    else:
+        common_directory = git_directory
+    if common_directory.is_symlink() or not common_directory.is_dir():
+        errors.append(f"{label}: Git common directory is not a real directory")
+        return None
+
+    objects = common_directory / "objects"
+    if objects.is_symlink() or not objects.is_dir():
+        errors.append(f"{label}: primary Git object directory is invalid")
+        return None
+    forbidden_metadata = [
+        objects / "info" / "alternates",
+        objects / "info" / "http-alternates",
+        common_directory / "info" / "grafts",
+        common_directory / "shallow",
+    ]
+    for forbidden in forbidden_metadata:
+        if forbidden.exists() or forbidden.is_symlink():
+            errors.append(
+                f"{label}: external or ancestry-altering Git metadata is forbidden"
+            )
+    if list((objects / "pack").glob("*.promisor")):
+        errors.append(f"{label}: promisor object packs are forbidden")
+    validate_git_config_boundary(
+        common_directory,
+        git_directory,
+        repository_root,
+        label,
+        errors,
+    )
+    if errors:
+        return None
+
     expected_prefix = (
         "" if relative_project_root == Path(".") else relative_project_root.as_posix()
     )
-    prefix = normalized_git_prefix(raw_prefix, label, errors)
-    if prefix is None:
+    explicit_prefix = raw_git_output(
+        project_root,
+        [
+            f"--git-dir={git_directory}",
+            f"--work-tree={repository_root}",
+            "--no-replace-objects",
+            "rev-parse",
+            "--show-prefix",
+        ],
+        f"{label}.project_prefix",
+        errors,
+    )
+    if explicit_prefix is None:
+        return None
+    try:
+        prefix = normalized_git_prefix(
+            explicit_prefix.decode("utf-8").strip(),
+            label,
+            errors,
+        )
+    except UnicodeDecodeError as exc:
+        errors.append(f"{label}: Git project prefix is invalid: {exc}")
         return None
     if prefix != expected_prefix:
         errors.append(
-            f"{label}: Git project prefix differs from the filesystem location"
+            f"{label}: pinned Git project prefix differs from filesystem location"
         )
         return None
-    return repository_root, git_directory, prefix
 
-
-def git_output(
-    root: Path,
-    argv: list[str],
-    label: str,
-    errors: list[str],
-) -> bytes | None:
-    authority = git_repository_authority(
-        root,
-        f"{label}.repository_authority",
-        errors,
-    )
-    if authority is None:
-        return None
-    repository_root, git_directory, _ = authority
-    return raw_git_output(
+    common_output = raw_git_output(
         repository_root,
         [
             f"--git-dir={git_directory}",
             f"--work-tree={repository_root}",
+            "--no-replace-objects",
+            "rev-parse",
+            "--git-common-dir",
+        ],
+        f"{label}.common_directory",
+        errors,
+    )
+    if common_output is None:
+        return None
+    raw_common = common_output.decode("utf-8", errors="replace").strip()
+    observed_common = Path(raw_common)
+    if not observed_common.is_absolute():
+        observed_common = repository_root / observed_common
+    try:
+        observed_common = observed_common.resolve(strict=True)
+    except OSError as exc:
+        errors.append(f"{label}: observed Git common directory is invalid: {exc}")
+        return None
+    if observed_common != common_directory:
+        errors.append(f"{label}: Git common directory differs from pinned metadata")
+        return None
+
+    return GitRepositoryAuthority(
+        project_root=project_root,
+        repository_root=repository_root,
+        git_directory=git_directory,
+        common_directory=common_directory,
+        project_prefix=expected_prefix,
+        repository_root_locator=path_locator(project_root, repository_root),
+        git_marker_kind=git_marker_kind,
+        git_marker_raw_sha256=hashlib.sha256(marker_bytes).hexdigest(),
+        git_directory_locator=path_locator(repository_root, git_directory),
+        git_common_directory_locator=path_locator(
+            repository_root,
+            common_directory,
+        ),
+    )
+
+
+def git_output(
+    authority: GitRepositoryAuthority,
+    argv: list[str],
+    label: str,
+    errors: list[str],
+) -> bytes | None:
+    return raw_git_output(
+        authority.repository_root,
+        [
+            f"--git-dir={authority.git_directory}",
+            f"--work-tree={authority.repository_root}",
             "--no-replace-objects",
             *argv,
         ],
@@ -1408,18 +1722,13 @@ def git_output(
 
 
 def git_project_prefix(
-    root: Path,
-    label: str,
-    errors: list[str],
-) -> str | None:
-    authority = git_repository_authority(root, label, errors)
-    if authority is None:
-        return None
-    return authority[2]
+    authority: GitRepositoryAuthority,
+) -> str:
+    return authority.project_prefix
 
 
 def git_json(
-    root: Path,
+    authority: GitRepositoryAuthority,
     commit: str,
     relative: str,
     label: str,
@@ -1431,16 +1740,10 @@ def git_json(
     normalized = normalized_relative(relative, f"{label}.path", errors)
     if normalized is None:
         return None
-    prefix = git_project_prefix(
-        root,
-        f"{label}.project_prefix",
-        errors,
-    )
-    if prefix is None:
-        return None
+    prefix = git_project_prefix(authority)
     object_path = f"{prefix}/{normalized}" if prefix else normalized
     payload = git_output(
-        root,
+        authority,
         ["show", f"{commit}:{object_path}"],
         label,
         errors,
@@ -1459,13 +1762,13 @@ def git_json(
 
 
 def git_object_id(
-    root: Path,
+    authority: GitRepositoryAuthority,
     revision: str,
     label: str,
     errors: list[str],
 ) -> str | None:
     payload = git_output(
-        root,
+        authority,
         ["rev-parse", "--verify", revision],
         label,
         errors,
@@ -1480,7 +1783,7 @@ def git_object_id(
 
 
 def git_tree_entries(
-    root: Path,
+    authority: GitRepositoryAuthority,
     commit: str,
     relative: str,
     *,
@@ -1489,15 +1792,15 @@ def git_tree_entries(
     errors: list[str],
 ) -> tuple[str, list[dict[str, str]]] | None:
     normalized = normalized_relative(relative, f"{label}.path", errors)
-    prefix = git_project_prefix(root, f"{label}.project_prefix", errors)
-    if normalized is None or prefix is None:
+    prefix = git_project_prefix(authority)
+    if normalized is None:
         return None
     object_path = f"{prefix}/{normalized}" if prefix else normalized
     argv = ["ls-tree", "--full-tree", "-z"]
     if recursive:
         argv.extend(["-r", "-t"])
     argv.extend([commit, "--", f":(top,literal){object_path}"])
-    payload = git_output(root, argv, label, errors)
+    payload = git_output(authority, argv, label, errors)
     if payload is None:
         return None
     entries: list[dict[str, str]] = []
@@ -1523,7 +1826,7 @@ def git_tree_entries(
 
 
 def git_blob_bytes(
-    root: Path,
+    authority: GitRepositoryAuthority,
     object_id: str,
     label: str,
     errors: list[str],
@@ -1531,11 +1834,11 @@ def git_blob_bytes(
     if GIT_OBJECT_RE.fullmatch(object_id) is None:
         errors.append(f"{label}: Git blob object id is invalid")
         return None
-    return git_output(root, ["cat-file", "blob", object_id], label, errors)
+    return git_output(authority, ["cat-file", "blob", object_id], label, errors)
 
 
 def git_claim_snapshots(
-    root: Path,
+    authority: GitRepositoryAuthority,
     commit: str,
     packet: dict[str, Any],
     errors: list[str],
@@ -1546,7 +1849,7 @@ def git_claim_snapshots(
         kind = claim.get("kind")
         label = f"candidate claim[{index}]"
         observed = git_tree_entries(
-            root,
+            authority,
             commit,
             relative,
             recursive=(kind == "tree"),
@@ -1584,7 +1887,7 @@ def git_claim_snapshots(
                 errors.append(f"{label}: candidate file is not a regular Git blob")
                 continue
             content = git_blob_bytes(
-                root,
+                authority,
                 top_entry["object_id"],
                 f"{label}.blob",
                 errors,
@@ -1625,7 +1928,7 @@ def git_claim_snapshots(
                 valid_tree = False
                 break
             content = git_blob_bytes(
-                root,
+                authority,
                 item["object_id"],
                 f"{label}.{child}",
                 errors,
@@ -1653,6 +1956,45 @@ def git_claim_snapshots(
                 }
             )
     return sorted(snapshots, key=lambda item: (item["path"], item["kind"]))
+
+
+def authority_from_completion_seal(
+    root: Path,
+    seal: dict[str, Any],
+    label: str,
+    errors: list[str],
+) -> GitRepositoryAuthority | None:
+    repository_root = repository_root_from_locator(
+        root.resolve(strict=True),
+        seal.get("repository_root_locator"),
+        f"{label}.repository_root_locator",
+        errors,
+    )
+    if repository_root is None:
+        return None
+    authority = git_repository_authority(
+        root,
+        repository_root,
+        f"{label}.repository_authority",
+        errors,
+    )
+    if authority is None:
+        return None
+    expected = {
+        "repository_root_locator": authority.repository_root_locator,
+        "project_prefix": authority.project_prefix,
+        "git_marker_kind": authority.git_marker_kind,
+        "git_marker_raw_sha256": authority.git_marker_raw_sha256,
+        "git_directory_locator": authority.git_directory_locator,
+        "git_common_directory_locator": authority.git_common_directory_locator,
+        "object_store_authority": (
+            "pinned_common_directory_primary_objects_only_no_alternates_or_promisor"
+        ),
+    }
+    if any(seal.get(field) != value for field, value in expected.items()):
+        errors.append(f"{label}: recorded Git repository authority differs")
+        return None
+    return authority
 
 
 def validate_completion_seal(
@@ -1696,24 +2038,29 @@ def validate_completion_seal(
         or seal["anchor_commit"] != review_commit
         or seal["anchor_authority"]
         != "local_git_ref_content_addressed_not_authenticated_remote"
+        or seal["object_store_authority"]
+        != "pinned_common_directory_primary_objects_only_no_alternates_or_promisor"
     ):
         errors.append(f"{label}: identity or schema binding differs")
         return
 
+    authority = authority_from_completion_seal(root, seal, label, errors)
+    if authority is None:
+        return
     candidate_tree = git_object_id(
-        root,
+        authority,
         f"{candidate_commit}^{{tree}}",
         f"{label}.candidate_tree",
         errors,
     )
     review_tree = git_object_id(
-        root,
+        authority,
         f"{review_commit}^{{tree}}",
         f"{label}.review_tree",
         errors,
     )
     anchor_commit = git_object_id(
-        root,
+        authority,
         seal["anchor_ref"],
         f"{label}.anchor_ref",
         errors,
@@ -1725,7 +2072,7 @@ def validate_completion_seal(
     if anchor_commit is not None and anchor_commit != review_commit:
         errors.append(f"{label}: review anchor ref moved")
     ancestor = git_output(
-        root,
+        authority,
         ["merge-base", "--is-ancestor", candidate_commit, review_commit],
         f"{label}.candidate_ancestry",
         errors,
@@ -1736,14 +2083,14 @@ def validate_completion_seal(
     packet_relative = f".work_packets/packets/{packet_id}.packet.json"
     ledger_relative = ledger_path_for(packet_id)
     candidate_packet = git_json(
-        root,
+        authority,
         candidate_commit,
         packet_relative,
         f"{label}.candidate_packet",
         errors,
     )
     candidate_ledger = git_json(
-        root,
+        authority,
         candidate_commit,
         ledger_relative,
         f"{label}.candidate_ledger",
@@ -1751,7 +2098,7 @@ def validate_completion_seal(
     )
     if isinstance(candidate_packet, dict) and isinstance(candidate_ledger, dict):
         candidate_claims = git_claim_snapshots(
-            root,
+            authority,
             candidate_commit,
             candidate_packet,
             errors,
@@ -1797,7 +2144,7 @@ def validate_completion_seal(
     candidate_receipts: dict[str, Any] = {}
     for relative, digest_field, receipt_label in receipt_specs:
         value = git_json(
-            root,
+            authority,
             candidate_commit,
             relative,
             f"{label}.{receipt_label}",
@@ -1855,7 +2202,7 @@ def validate_completion_seal(
         ) as exc:
             errors.append(f"{label}: review JSON is invalid: {exc}")
     committed_review = git_json(
-        root,
+        authority,
         review_commit,
         review_path,
         f"{label}.committed_review",
@@ -2039,6 +2386,321 @@ def validate_terminal_completion(
                     f"ledger {packet_id} terminal execution receipt",
                     errors,
                 )
+
+
+def finite_program_authority(
+    root: Path,
+    packet_id: str,
+    execution_attempts: list[dict[str, Any]],
+    errors: list[str],
+) -> dict[str, Any] | None:
+    locator = next(
+        (
+            item
+            for item in EXPECTED_FINITE_PACKET_PROGRAMS
+            if item["packet_id"] == packet_id
+        ),
+        None,
+    )
+    if locator is None:
+        return None
+    record_hashes = {attempt.get("record_sha256") for attempt in execution_attempts}
+    if locator["activation_record_sha256"] not in record_hashes:
+        return None
+    path = resolve_path(
+        root,
+        locator["authority_path"],
+        f"finite program {packet_id}.authority_path",
+        errors,
+        must_exist=True,
+    )
+    if path is None:
+        return None
+    if raw_sha256(path) != locator["authority_raw_sha256"]:
+        errors.append(f"finite program {packet_id}: authority hash differs")
+        return None
+    try:
+        authority = load_json(path)
+    except (
+        OSError,
+        UnicodeDecodeError,
+        json.JSONDecodeError,
+        DuplicateKeyError,
+        ValueError,
+    ) as exc:
+        errors.append(f"finite program {packet_id}: authority is invalid: {exc}")
+        return None
+    if (
+        not isinstance(authority, dict)
+        or authority.get("schema_version") != "foundation-finite-program-authority/v1"
+        or authority.get("packet_id") != packet_id
+        or authority.get("status") != "machine_consumed_candidate"
+    ):
+        errors.append(f"finite program {packet_id}: authority identity differs")
+        return None
+    return authority
+
+
+def indented_json_sha256(value: Any) -> str:
+    payload = (
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def validate_finite_migration_authority(
+    root: Path,
+    packet: dict[str, Any],
+    ledger: dict[str, Any],
+    execution_attempts: list[dict[str, Any]],
+    authority: dict[str, Any],
+    errors: list[str],
+) -> None:
+    packet_id = packet["packet_id"]
+    retry = authority.get("retry_budget_authority")
+    predecessor = authority.get("predecessor_authority")
+    intermediate = authority.get("intermediate_before_migration")
+    if (
+        not isinstance(retry, dict)
+        or retry.get("from") != 12
+        or retry.get("to") != 16
+        or retry.get("final") is not True
+        or packet.get("retry_budget") != 16
+        or not isinstance(predecessor, dict)
+        or not isinstance(intermediate, dict)
+    ):
+        errors.append(f"finite program {packet_id}: final retry ceiling differs")
+        return
+    allowed = retry.get("allowed_migration_artifacts")
+    if not isinstance(allowed, list):
+        errors.append(f"finite program {packet_id}: migration allowlist is invalid")
+        return
+    expected_paths = {
+        item.get("path"): item.get("raw_sha256")
+        for item in allowed
+        if isinstance(item, dict)
+    }
+    observed_paths = {
+        path.relative_to(root).as_posix()
+        for path in (root / "audits/execution_loop_v2").glob("*RETRY_BUDGET*.json")
+        if path.is_file() and not path.is_symlink()
+    }
+    if (
+        len(expected_paths) != len(allowed)
+        or observed_paths != set(expected_paths)
+        or retry.get("migration_path") not in expected_paths
+        or retry.get("migration_raw_sha256")
+        != expected_paths.get(retry.get("migration_path"))
+    ):
+        errors.append(f"finite program {packet_id}: migration artifact set differs")
+    for relative, expected_hash in expected_paths.items():
+        if not isinstance(relative, str) or not isinstance(expected_hash, str):
+            errors.append(f"finite program {packet_id}: migration locator is invalid")
+            continue
+        path = root / relative
+        if not path.is_file() or path.is_symlink() or raw_sha256(path) != expected_hash:
+            errors.append(
+                f"finite program {packet_id}: migration artifact hash differs"
+            )
+
+    reconstruction = intermediate.get("reconstruction")
+    if not isinstance(reconstruction, dict):
+        errors.append(
+            f"finite program {packet_id}: intermediate reconstruction is invalid"
+        )
+        return
+    prior_contract = reconstruction.get("packet_contract_sha256")
+    predecessor_count = predecessor.get("committed_attempt_count")
+    through_retry = reconstruction.get("retain_execution_retry_indices_through")
+    if (
+        not isinstance(prior_contract, str)
+        or SHA256_RE.fullmatch(prior_contract) is None
+        or predecessor_count != 8
+        or through_retry != 9
+        or intermediate.get("authority")
+        != "reconstructible_uncommitted_intermediate_not_authenticated_snapshot"
+        or reconstruction.get("serialization")
+        != "json_indent_2_sort_keys_utf8_trailing_newline"
+    ):
+        errors.append(f"finite program {packet_id}: reconstruction rule differs")
+        return
+    committed_prefix = execution_attempts[:predecessor_count]
+    intermediate_prefix = [
+        attempt
+        for attempt in execution_attempts
+        if isinstance(attempt.get("retry_index"), int)
+        and attempt["retry_index"] <= through_retry
+    ]
+    committed_ledger = {
+        **ledger,
+        "packet_contract_sha256": prior_contract,
+        "attempts": committed_prefix,
+    }
+    reconstructed_intermediate = {
+        **ledger,
+        "packet_contract_sha256": prior_contract,
+        "attempts": intermediate_prefix,
+    }
+    if len(committed_prefix) != predecessor_count or indented_json_sha256(
+        committed_ledger
+    ) != predecessor.get("committed_ledger_raw_sha256"):
+        errors.append(f"finite program {packet_id}: predecessor ledger differs")
+    if len(intermediate_prefix) != through_retry + 1 or indented_json_sha256(
+        reconstructed_intermediate
+    ) != intermediate.get("raw_sha256"):
+        errors.append(
+            f"finite program {packet_id}: intermediate ledger reconstruction differs"
+        )
+    if (
+        not isinstance(predecessor.get("commit"), str)
+        or GIT_OBJECT_RE.fullmatch(predecessor["commit"]) is None
+        or not isinstance(predecessor.get("tree"), str)
+        or GIT_OBJECT_RE.fullmatch(predecessor["tree"]) is None
+    ):
+        errors.append(f"finite program {packet_id}: predecessor Git binding differs")
+
+
+def finite_transition_stopping_progress(
+    authority: dict[str, Any],
+    attempt: dict[str, Any],
+    label: str,
+    errors: list[str],
+) -> bool:
+    retry_index = attempt.get("retry_index")
+    historical = authority.get("historical_stopping_progress")
+    remaining = authority.get("remaining_program")
+    if not isinstance(historical, list) or not isinstance(remaining, list):
+        errors.append(f"{label}: finite transition tables are invalid")
+        return False
+    historical_matches = [
+        item
+        for item in historical
+        if isinstance(item, dict) and item.get("retry_index") == retry_index
+    ]
+    if historical_matches:
+        if len(historical_matches) != 1:
+            errors.append(f"{label}: historical finite transition is duplicated")
+            return False
+        item = historical_matches[0]
+        if attempt.get("record_sha256") != item.get("record_sha256") or not isinstance(
+            item.get("stopping_progress"), bool
+        ):
+            errors.append(f"{label}: historical finite transition differs")
+            return False
+        return item["stopping_progress"]
+
+    candidates = [
+        item
+        for item in remaining
+        if isinstance(item, dict)
+        and item.get("retry_index") == retry_index
+        and item.get("required_root_cause_id")
+        == attempt.get("blocker", {}).get("root_cause_id")
+        and item.get("required_status_after")
+        == attempt.get("blocker", {}).get("status_after")
+    ]
+    if len(candidates) != 1:
+        errors.append(f"{label}: transition is outside the finite packet program")
+        return False
+    transition = candidates[0]
+    failure_delta = attempt.get("failure_delta", {})
+    disposition = transition.get("failure_disposition")
+    if disposition == "unchanged":
+        valid_disposition = (
+            failure_delta.get("before") == failure_delta.get("after")
+            and failure_delta.get("resolved") == []
+            and failure_delta.get("introduced") == []
+        )
+    elif disposition == "resolve_all_with_support":
+        valid_disposition = (
+            bool(failure_delta.get("before"))
+            and failure_delta.get("after") == []
+            and failure_delta.get("resolved") == failure_delta.get("before")
+            and failure_delta.get("introduced") == []
+        )
+    elif disposition == "preserve_and_block":
+        valid_disposition = (
+            set(failure_delta.get("before", [])).issubset(
+                set(failure_delta.get("after", []))
+            )
+            and failure_delta.get("resolved") == []
+        )
+    else:
+        valid_disposition = False
+    if not valid_disposition:
+        errors.append(f"{label}: finite transition failure disposition differs")
+
+    added = attempt.get("evidence_delta", {}).get("added", [])
+    added_kinds = {item.get("kind") for item in added if isinstance(item, dict)}
+    added_paths = {item.get("path") for item in added if isinstance(item, dict)}
+    added_hashes = {
+        item.get("path"): item.get("sha256")
+        for item in added
+        if isinstance(item, dict)
+    }
+    required_kinds = set(transition.get("required_added_evidence_kinds", []))
+    required_paths = set(transition.get("required_added_evidence_paths", []))
+    required_evidence = transition.get("required_added_evidence", [])
+    if not required_kinds.issubset(added_kinds):
+        errors.append(f"{label}: finite transition evidence kinds differ")
+    if not required_paths.issubset(added_paths):
+        errors.append(f"{label}: finite transition evidence paths differ")
+    if not isinstance(required_evidence, list) or any(
+        not isinstance(item, dict)
+        or set(item) != {"path", "raw_sha256"}
+        or added_hashes.get(item["path"]) != item["raw_sha256"]
+        for item in required_evidence
+    ):
+        errors.append(f"{label}: finite transition exact evidence differs")
+    stopping_progress = transition.get("stopping_progress")
+    if not isinstance(stopping_progress, bool):
+        errors.append(f"{label}: finite stopping progress is invalid")
+        return False
+    return stopping_progress
+
+
+def finite_stopping_progress_map(
+    root: Path,
+    packet: dict[str, Any],
+    ledger: dict[str, Any],
+    execution_attempts: list[dict[str, Any]],
+    errors: list[str],
+) -> dict[int, bool] | None:
+    authority = finite_program_authority(
+        root,
+        packet["packet_id"],
+        execution_attempts,
+        errors,
+    )
+    if authority is None:
+        return None
+    validate_finite_migration_authority(
+        root,
+        packet,
+        ledger,
+        execution_attempts,
+        authority,
+        errors,
+    )
+    progress: dict[int, bool] = {}
+    for attempt in execution_attempts:
+        retry_index = attempt.get("retry_index")
+        if not isinstance(retry_index, int):
+            continue
+        progress[retry_index] = finite_transition_stopping_progress(
+            authority,
+            attempt,
+            f"ledger {packet['packet_id']} retry {retry_index}",
+            errors,
+        )
+    return progress
 
 
 def validate_attempts(
@@ -2402,6 +3064,13 @@ def validate_attempts(
         if attempt.get("attempt_kind") == "execution_attempt"
     ]
     if execution_attempts:
+        finite_progress = finite_stopping_progress_map(
+            root,
+            packet,
+            ledger,
+            execution_attempts,
+            errors,
+        )
         retry_budget = packet["retry_budget"]
         blocked_indices = [
             index
@@ -2442,7 +3111,13 @@ def validate_attempts(
         forced_stop_index: int | None = None
         forced_stop_reason: str | None = None
         for index, attempt in enumerate(execution_attempts):
-            if attempt["declared_progress"] is True:
+            retry_index = attempt["retry_index"]
+            stopping_progress = (
+                finite_progress.get(retry_index, False)
+                if finite_progress is not None
+                else attempt["declared_progress"]
+            )
+            if stopping_progress is True:
                 consecutive_no_progress = 0
                 same_blocker_no_progress = 0
                 previous_fingerprint = None
