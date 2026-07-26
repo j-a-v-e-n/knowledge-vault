@@ -449,7 +449,15 @@ EXPECTED_RECORDER = {
     "passive_mode_is_self_reported": True,
     "operation_intent_is_durable_before_process_launch": True,
     "process_outcome_is_durable_before_ledger_commit": True,
+    "process_outcome_and_controlled_snapshot_share_one_durable_envelope": True,
+    "post_outcome_snapshot_divergence_preserves_prior_failures_and_blocks": True,
     "missing_process_outcome_recovers_as_explicit_indeterminate_block": True,
+    "failed_or_indeterminate_process_preserves_prior_failures": True,
+    "caller_transition_is_validated_before_durable_operation": True,
+    "proposed_attempt_chain_is_validated_before_commit_plan": True,
+    "acceptance_check_timeout_seconds": 7200,
+    "max_captured_output_bytes_per_stream": 16777216,
+    "output_limit_exit_code": 125,
     "ledger_write": "atomic_replace_after_fsync",
     "interrupted_multi_file_transition": (
         "discard_verified_precommit_prepare_or_roll_forward_durable_commit_journal"
@@ -523,6 +531,9 @@ EXPECTED_LIMITATIONS = [
     "Tree hashing rejects observed symlinks and special entries but does not provide operating-system sandboxing or distributed locking.",
     "A pending baseline proves only the current bytes were observed; it does not prove the work was authorized, unstarted, or produced after the prerequisite state.",
     "The formal recorder prevents cooperative concurrent writers from overwriting one another, but a process with arbitrary filesystem access can still bypass it and rewrite local history; immutable Git candidates and independent review remain required.",
+    "A process outcome and its durable controlled snapshot establish one observed interval boundary, not semantic causality between the command and every changed byte.",
+    "Recorder process-group recovery controls descendants that remain in the owned process group; a deliberately detached descendant can escape that boundary and requires operating-system sandboxing.",
+    "Captured stdout and stderr are each bounded; exit 125 means the configured evidence-capture limit was exceeded and the retained digest covers only the bounded captured prefix.",
     "A local Git review tag raises the cost and visibility of coherent rewrites but is not an authenticated identity or protected remote ref; hostile-author resistance requires pushing the tag to a protected remote and verifying that external ref.",
     "A V2 blocked or completed packet cannot resume in place; continued work requires a named successor packet so the prior terminal chain remains visible.",
     "Legacy V1 artifacts are hash-retained history only and cannot be used to assert current V2 freshness.",
@@ -1092,6 +1103,7 @@ def validate_execution_receipt(
     value: Any,
     packet: dict[str, Any],
     contract_digest: str,
+    not_before: datetime | None,
     label: str,
     errors: list[str],
 ) -> None:
@@ -1111,6 +1123,7 @@ def validate_execution_receipt(
     if len(observations) != len(declared_checks):
         errors.append(f"{label}.checks: count differs from packet")
         return
+    prior_ended = not_before
     for index, (observation, declared) in enumerate(
         zip(observations, declared_checks, strict=True)
     ):
@@ -1150,6 +1163,11 @@ def validate_execution_receipt(
                 or wall_time_ms != expected_wall
             ):
                 errors.append(f"{check_label}: wall_time_ms differs from timestamps")
+            if prior_ended is not None and started < prior_ended:
+                errors.append(
+                    f"{check_label}: started_at precedes the prior execution event"
+                )
+            prior_ended = ended
         if any(
             not isinstance(observation[field], str)
             or SHA256_RE.fullmatch(observation[field]) is None
@@ -1189,6 +1207,35 @@ def git_output(
     return completed.stdout
 
 
+def git_project_prefix(
+    root: Path,
+    label: str,
+    errors: list[str],
+) -> str | None:
+    payload = git_output(
+        root,
+        ["rev-parse", "--show-prefix"],
+        label,
+        errors,
+    )
+    if payload is None:
+        return None
+    try:
+        raw_prefix = payload.decode("utf-8").strip()
+    except UnicodeDecodeError as exc:
+        errors.append(f"{label}: Git project prefix is invalid: {exc}")
+        return None
+    if raw_prefix.startswith("/"):
+        errors.append(f"{label}: Git project prefix is unsafe")
+        return None
+    prefix = raw_prefix[:-1] if raw_prefix.endswith("/") else raw_prefix
+    if "\\" in prefix or any(part in {"", ".", ".."} for part in prefix.split("/")):
+        if prefix:
+            errors.append(f"{label}: Git project prefix is unsafe")
+            return None
+    return prefix
+
+
 def git_json(
     root: Path,
     commit: str,
@@ -1202,9 +1249,17 @@ def git_json(
     normalized = normalized_relative(relative, f"{label}.path", errors)
     if normalized is None:
         return None
+    prefix = git_project_prefix(
+        root,
+        f"{label}.project_prefix",
+        errors,
+    )
+    if prefix is None:
+        return None
+    object_path = f"{prefix}/{normalized}" if prefix else normalized
     payload = git_output(
         root,
-        ["show", f"{commit}:{normalized}"],
+        ["show", f"{commit}:{object_path}"],
         label,
         errors,
     )
@@ -1240,6 +1295,179 @@ def git_object_id(
         errors.append(f"{label}: Git object id is invalid")
         return None
     return value
+
+
+def git_tree_entries(
+    root: Path,
+    commit: str,
+    relative: str,
+    *,
+    recursive: bool,
+    label: str,
+    errors: list[str],
+) -> tuple[str, list[dict[str, str]]] | None:
+    normalized = normalized_relative(relative, f"{label}.path", errors)
+    prefix = git_project_prefix(root, f"{label}.project_prefix", errors)
+    if normalized is None or prefix is None:
+        return None
+    object_path = f"{prefix}/{normalized}" if prefix else normalized
+    argv = ["ls-tree", "--full-tree", "-z"]
+    if recursive:
+        argv.extend(["-r", "-t"])
+    argv.extend([commit, "--", f":(top){object_path}"])
+    payload = git_output(root, argv, label, errors)
+    if payload is None:
+        return None
+    entries: list[dict[str, str]] = []
+    for raw_entry in payload.split(b"\0"):
+        if not raw_entry:
+            continue
+        try:
+            metadata, raw_path = raw_entry.split(b"\t", 1)
+            mode, kind, object_id = metadata.decode("ascii").split(" ", 2)
+            path = raw_path.decode("utf-8")
+        except (UnicodeDecodeError, ValueError) as exc:
+            errors.append(f"{label}: malformed Git tree entry: {exc}")
+            return None
+        entries.append(
+            {
+                "mode": mode,
+                "kind": kind,
+                "object_id": object_id,
+                "path": path,
+            }
+        )
+    return object_path, entries
+
+
+def git_blob_bytes(
+    root: Path,
+    object_id: str,
+    label: str,
+    errors: list[str],
+) -> bytes | None:
+    if GIT_OBJECT_RE.fullmatch(object_id) is None:
+        errors.append(f"{label}: Git blob object id is invalid")
+        return None
+    return git_output(root, ["cat-file", "blob", object_id], label, errors)
+
+
+def git_claim_snapshots(
+    root: Path,
+    commit: str,
+    packet: dict[str, Any],
+    errors: list[str],
+) -> list[dict[str, Any]]:
+    snapshots: list[dict[str, Any]] = []
+    for index, claim in enumerate(packet.get("bounded_write_paths", [])):
+        relative = claim.get("path")
+        kind = claim.get("kind")
+        label = f"candidate claim[{index}]"
+        observed = git_tree_entries(
+            root,
+            commit,
+            relative,
+            recursive=(kind == "tree"),
+            label=label,
+            errors=errors,
+        )
+        if observed is None:
+            continue
+        object_path, entries = observed
+        relevant = [
+            item
+            for item in entries
+            if item["path"] == object_path or item["path"].startswith(f"{object_path}/")
+        ]
+        top = [item for item in relevant if item["path"] == object_path]
+        if not top:
+            snapshots.append(
+                {
+                    "path": relative,
+                    "kind": kind,
+                    "state": "absent",
+                    "content_sha256": None,
+                }
+            )
+            continue
+        if len(top) != 1:
+            errors.append(f"{label}: candidate path has multiple top entries")
+            continue
+        top_entry = top[0]
+        if kind == "file":
+            if top_entry["kind"] != "blob" or top_entry["mode"] not in {
+                "100644",
+                "100755",
+            }:
+                errors.append(f"{label}: candidate file is not a regular Git blob")
+                continue
+            content = git_blob_bytes(
+                root,
+                top_entry["object_id"],
+                f"{label}.blob",
+                errors,
+            )
+            if content is None:
+                continue
+            snapshots.append(
+                {
+                    "path": relative,
+                    "kind": kind,
+                    "state": "file",
+                    "content_sha256": hashlib.sha256(content).hexdigest(),
+                }
+            )
+            continue
+        if kind != "tree" or (
+            top_entry["kind"] != "tree" or top_entry["mode"] != "040000"
+        ):
+            errors.append(f"{label}: candidate tree is not a Git tree")
+            continue
+        records: list[dict[str, str]] = []
+        valid_tree = True
+        for item in relevant:
+            if item["path"] == object_path:
+                continue
+            child = item["path"][len(object_path) + 1 :]
+            if item["kind"] == "tree" and item["mode"] == "040000":
+                records.append({"path": child, "type": "directory"})
+                continue
+            if item["kind"] != "blob" or item["mode"] not in {
+                "100644",
+                "100755",
+            }:
+                errors.append(
+                    f"{label}: candidate tree contains a symlink, "
+                    "submodule, or special entry"
+                )
+                valid_tree = False
+                break
+            content = git_blob_bytes(
+                root,
+                item["object_id"],
+                f"{label}.{child}",
+                errors,
+            )
+            if content is None:
+                valid_tree = False
+                break
+            records.append(
+                {
+                    "path": child,
+                    "type": "file",
+                    "sha256": hashlib.sha256(content).hexdigest(),
+                }
+            )
+        if valid_tree:
+            snapshots.append(
+                {
+                    "path": relative,
+                    "kind": kind,
+                    "state": "tree",
+                    "content_sha256": canonical_sha256(records),
+                }
+            )
+    return sorted(snapshots, key=lambda item: (item["path"], item["kind"]))
 
 
 def validate_completion_seal(
@@ -1336,6 +1564,34 @@ def validate_completion_seal(
         f"{label}.candidate_ledger",
         errors,
     )
+    if isinstance(candidate_packet, dict) and isinstance(candidate_ledger, dict):
+        candidate_claims = git_claim_snapshots(
+            root,
+            candidate_commit,
+            candidate_packet,
+            errors,
+        )
+        candidate_attempts = candidate_ledger.get("attempts")
+        candidate_latest = (
+            candidate_attempts[-1]
+            if isinstance(candidate_attempts, list) and candidate_attempts
+            else None
+        )
+        candidate_snapshot = (
+            candidate_latest.get("controlled_snapshot")
+            if isinstance(candidate_latest, dict)
+            else None
+        )
+        if (
+            not isinstance(candidate_snapshot, dict)
+            or candidate_claims != candidate_snapshot.get("claims")
+            or canonical_sha256(candidate_claims)
+            != candidate_snapshot.get("claims_sha256")
+        ):
+            errors.append(
+                f"{label}: candidate Git controlled claims differ from "
+                "the accepted snapshot"
+            )
     receipt_specs = (
         (
             terminal["checkpoint_path"],
@@ -1590,6 +1846,11 @@ def validate_terminal_completion(
                     execution_value,
                     packet,
                     contract_digest,
+                    parse_timestamp(
+                        latest.get("ended_at"),
+                        f"ledger {packet_id} terminal latest ended_at",
+                        errors,
+                    ),
                     f"ledger {packet_id} terminal execution receipt",
                     errors,
                 )

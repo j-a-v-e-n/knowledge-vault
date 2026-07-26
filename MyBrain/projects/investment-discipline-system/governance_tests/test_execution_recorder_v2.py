@@ -428,8 +428,8 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             recorder,
             "utc_datetime_milliseconds",
             side_effect=[
-                datetime(2026, 7, 25, 1, 0, 0, tzinfo=UTC),
-                datetime(2026, 7, 25, 1, 0, 0, 125000, tzinfo=UTC),
+                datetime(2030, 7, 25, 1, 0, 0, tzinfo=UTC),
+                datetime(2030, 7, 25, 1, 0, 0, 125000, tzinfo=UTC),
             ],
         ):
             return recorder.finalize_packet(
@@ -458,7 +458,15 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self,
         packet_id: str = TARGET_ID,
     ) -> tuple[str, str]:
-        if not (self.root / ".git").exists():
+        probe = subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"],
+            cwd=self.root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+        )
+        if probe.returncode != 0:
             self.git("init", "-q")
             self.git("config", "user.name", "Recorder Test")
             self.git("config", "user.email", "recorder@example.invalid")
@@ -513,6 +521,25 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         with self.assertRaisesRegex(recorder.RecorderError, "expected-tail CAS"):
             self.append_passive(expected_tail="0" * 64)
         self.assertEqual(before, self.project_files())
+
+    def test_invalid_transition_input_changes_no_file_or_operation(self) -> None:
+        before = self.project_files()
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "failure_after must contain unique valid failure identifiers",
+        ):
+            recorder.append_passive(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                ["bad failure"],
+                "open",
+                "bad",
+                "Invalid caller data",
+            )
+        self.assertEqual(before, self.project_files())
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
 
     def test_two_concurrent_recorders_with_same_tail_have_one_winner(self) -> None:
         expected_tail = self.tail()
@@ -771,6 +798,53 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.assertEqual("passive", after[-1]["process_observation"]["mode"])
         self.assert_execution_current()
 
+    def test_post_outcome_change_cannot_be_attributed_to_finished_run(
+        self,
+    ) -> None:
+        recorder.append_passive(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            ["REC-01"],
+            "open",
+            "RECORDER-PRIOR-FAILURE",
+            "Create one unresolved failure",
+        )
+        command = [sys.executable, "-c", "raise SystemExit(0)"]
+        with self.assertRaises(recorder.SimulatedOperationCrash) as raised:
+            recorder.run_and_append(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                command,
+                [],
+                "resolved",
+                "RECORDER-REQUESTED-RESOLUTION",
+                "The child itself changes no controlled bytes",
+                10,
+                crash_after_outcome=True,
+            )
+        operation_id = str(raised.exception)
+        self.write_text(TARGET_OUTPUT, "changed-after-durable-outcome\n")
+
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            ["REC-01", "RECORDER-905"],
+            latest["failure_delta"]["after"],
+        )
+        self.assertEqual([], latest["failure_delta"]["resolved"])
+        self.assertEqual("blocked", latest["blocker"]["status_after"])
+        self.assertEqual(
+            "RECORDER-POST-OUTCOME-DIVERGENCE",
+            latest["blocker"]["root_cause_id"],
+        )
+        self.assertEqual(0, latest["process_observation"]["exit_code"])
+        self.assert_execution_current()
+
     def test_sigkill_after_durable_child_outcome_recovers_exact_result(
         self,
     ) -> None:
@@ -842,6 +916,74 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.assertEqual(len(child_stdout), observed["stdout_bytes"])
         self.assert_execution_current()
 
+    def test_sigkill_while_child_runs_terminates_group_before_recovery(
+        self,
+    ) -> None:
+        barrier = Path(self._temporary.name) / "child-running"
+        expected_tail = self.tail()
+        child = (
+            "import pathlib, sys, time; "
+            "time.sleep(30); "
+            "pathlib.Path(sys.argv[1]).write_text('late-child-write\\n')"
+        )
+        worker = (
+            "import signal, sys\n"
+            "from pathlib import Path\n"
+            f"sys.path.insert(0, {str(SOURCE_ROOT)!r})\n"
+            "from scripts import record_execution_attempt_v2 as recorder\n"
+            "root = Path(sys.argv[1])\n"
+            "barrier = Path(sys.argv[2])\n"
+            "def hook(phase, operation_id):\n"
+            "    if phase == 'process_started':\n"
+            "        barrier.write_text(operation_id)\n"
+            "        signal.pause()\n"
+            "recorder.run_and_append("
+            "root, sys.argv[3], sys.argv[4], "
+            f"[sys.executable, '-c', {child!r}, str(root / {TARGET_OUTPUT!r})], "
+            "None, 'open', 'RECORDER-LIVE-CHILD', "
+            "'Recorder owns the still-running child group', 60, "
+            "_lifecycle_hook=hook)"
+        )
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                worker,
+                str(self.root),
+                str(barrier),
+                TARGET_ID,
+                expected_tail,
+            ],
+            cwd=SOURCE_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        deadline = time.monotonic() + 15
+        while not barrier.exists() and process.poll() is None:
+            if time.monotonic() >= deadline:
+                process.kill()
+                stdout, stderr = process.communicate()
+                self.fail((stdout, stderr))
+            time.sleep(0.01)
+        operation_id = barrier.read_text()
+        process.kill()
+        process.communicate(timeout=10)
+
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        time.sleep(0.1)
+        self.assertEqual(
+            "target-v1\n",
+            (self.root / TARGET_OUTPUT).read_text(encoding="utf-8"),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual("indeterminate", latest["process_observation"]["mode"])
+        self.assertEqual(["RECORDER-902"], latest["failure_delta"]["after"])
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
     def test_postcore_crash_keeps_operation_until_views_are_refreshed(
         self,
     ) -> None:
@@ -903,6 +1045,41 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         )
         self.assert_execution_current()
 
+    def test_missing_run_outcome_preserves_every_prior_failure(self) -> None:
+        recorder.append_passive(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            ["REC-01"],
+            "open",
+            "RECORDER-PRIOR-FAILURE",
+            "Create one unresolved failure",
+        )
+        with self.assertRaises(recorder.SimulatedOperationCrash) as raised:
+            recorder.run_and_append(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                [sys.executable, "-c", "raise SystemExit(0)"],
+                [],
+                "resolved",
+                "RECORDER-RUN-INTENT",
+                "Requested resolution is not yet observed",
+                10,
+                crash_after_intent=True,
+            )
+        self.assertEqual(
+            [str(raised.exception)],
+            recorder.recover_operations(self.root),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            ["REC-01", "RECORDER-902"],
+            latest["failure_delta"]["after"],
+        )
+        self.assertEqual([], latest["failure_delta"]["resolved"])
+        self.assert_execution_current()
+
     def test_nonzero_run_cannot_be_discarded_by_requested_resolution(
         self,
     ) -> None:
@@ -921,6 +1098,98 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.assertEqual(7, result["process_exit_code"])
         self.assertEqual("open", latest["blocker"]["status_after"])
         self.assertEqual(["RECORDER-901"], latest["failure_delta"]["after"])
+        self.assert_execution_current()
+
+    def test_nonzero_run_preserves_every_prior_failure(self) -> None:
+        recorder.append_passive(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            ["REC-01"],
+            "open",
+            "RECORDER-PRIOR-FAILURE",
+            "Create one unresolved failure",
+        )
+        recorder.run_and_append(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            [sys.executable, "-c", "raise SystemExit(7)"],
+            [],
+            "resolved",
+            "RECORDER-NONZERO",
+            "Caller requested resolution",
+            10,
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            ["REC-01", "RECORDER-901"],
+            latest["failure_delta"]["after"],
+        )
+        self.assertEqual([], latest["failure_delta"]["resolved"])
+        self.assertEqual("open", latest["blocker"]["status_after"])
+        self.assert_execution_current()
+
+    def test_run_output_capture_has_a_hard_limit(self) -> None:
+        with mock.patch.object(
+            recorder,
+            "MAX_CAPTURED_OUTPUT_BYTES_PER_STREAM",
+            32,
+        ):
+            recorder.run_and_append(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                [sys.executable, "-c", "import os; os.write(1, b'x' * 1000)"],
+                [],
+                "resolved",
+                "RECORDER-OUTPUT-LIMIT",
+                "Bound child output capture",
+                10,
+            )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            recorder.OUTPUT_LIMIT_EXIT_CODE,
+            latest["process_observation"]["exit_code"],
+        )
+        self.assertEqual(32, latest["process_observation"]["stdout_bytes"])
+        self.assertEqual(["RECORDER-901"], latest["failure_delta"]["after"])
+        self.assert_execution_current()
+
+    def test_unsupported_resolution_is_recorded_before_any_invalid_commit(
+        self,
+    ) -> None:
+        recorder.append_passive(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            ["REC-01"],
+            "open",
+            "RECORDER-PRIOR-FAILURE",
+            "Create one unresolved failure",
+        )
+        recorder.run_and_append(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            [sys.executable, "-c", "raise SystemExit(0)"],
+            [],
+            "resolved",
+            "RECORDER-UNSUPPORTED",
+            "No controlled byte changed",
+            10,
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            ["REC-01", "RECORDER-906"],
+            latest["failure_delta"]["after"],
+        )
+        self.assertEqual([], latest["failure_delta"]["resolved"])
+        self.assertEqual(
+            "RECORDER-UNSUPPORTED-RESOLUTION",
+            latest["blocker"]["root_cause_id"],
+        )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
         self.assert_execution_current()
 
     def test_finalize_outcome_recovers_without_rerunning_observed_check(
@@ -994,6 +1263,80 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         )
         self.assert_execution_current()
         project_state.check_project_state(self.root)
+
+    def test_seal_reads_candidate_from_real_parent_repository_prefix(
+        self,
+    ) -> None:
+        self.finalize_with_consistent_clock()
+        repository_root = self.root.parent
+        subprocess.run(
+            ["git", "init", "-q", str(repository_root)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+
+        candidate_commit, review_commit, result = self.seal_candidate()
+        prefix = self.git("rev-parse", "--show-prefix")
+        self.assertTrue(prefix.endswith("project/"), prefix)
+        self.assertEqual("sealed_complete", result["status"])
+        self.assertEqual(candidate_commit, result["candidate_commit"])
+        self.assertEqual(review_commit, result["review_commit"])
+        self.assert_execution_current()
+
+    def test_seal_rejects_index_bytes_not_seen_by_acceptance(self) -> None:
+        self.finalize_with_consistent_clock()
+        self.git("init", "-q")
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+        self.git("add", "-A")
+        accepted_bytes = (self.root / TARGET_OUTPUT).read_bytes()
+        self.write_text(TARGET_OUTPUT, "candidate-index-only-bytes\n")
+        self.git("add", TARGET_OUTPUT)
+        (self.root / TARGET_OUTPUT).write_bytes(accepted_bytes)
+        self.git("commit", "-q", "-m", "candidate with divergent index")
+        candidate_commit = self.git("rev-parse", "HEAD")
+        candidate_tree = self.git("rev-parse", "HEAD^{tree}")
+        terminal = self.ledger()["terminal_completion"]
+        review = {
+            "schema_version": "work-packet-independent-review/v2",
+            "packet_id": TARGET_ID,
+            "candidate_commit": candidate_commit,
+            "candidate_tree": candidate_tree,
+            "candidate_terminal_canonical_sha256": (
+                execution.canonical_sha256(terminal)
+            ),
+            "reviewer_mode": "independent_read_only",
+            "verdict": "accepted",
+            "findings": [],
+            "limitations": ["Fixture exercises candidate content binding."],
+        }
+        review_path = f".work_packets/reviews/{TARGET_ID}.review.v2.json"
+        self.write_json(review_path, review)
+        self.git("add", review_path)
+        self.git("commit", "-q", "-m", "review divergent candidate")
+        review_commit = self.git("rev-parse", "HEAD")
+        self.git("tag", f"ids-reviewed/{TARGET_ID}", review_commit)
+
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "candidate Git controlled claims differ",
+        ):
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+            )
+        self.assertEqual(
+            "candidate_complete",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
 
     def test_interrupted_seal_recovers_before_retiring_operation(
         self,
@@ -1281,6 +1624,69 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         )
         self.assert_execution_current()
 
+    def test_acceptance_timeout_is_bounded_and_durably_failed(self) -> None:
+        packet = self.read_json(self.packet_path(TARGET_ID))
+        packet["acceptance_checks"][0]["argv"] = [
+            sys.executable,
+            "-c",
+            "import time; time.sleep(30)",
+        ]
+        self.write_json(self.packet_path(TARGET_ID), packet)
+        ledger = self.ledger()
+        ledger["packet_contract_sha256"] = work_packets.packet_contract_sha256(packet)
+        self.write_json(self.ledger_relative(TARGET_ID), ledger)
+        self.assert_execution_current()
+        self.record_resolved()
+
+        with mock.patch.object(
+            recorder,
+            "ACCEPTANCE_CHECK_TIMEOUT_SECONDS",
+            0.05,
+        ):
+            result = recorder.finalize_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+            )
+
+        self.assertEqual("recorded", result["status"])
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(["RECORDER-904"], latest["failure_delta"]["after"])
+        self.assertEqual(124, latest["process_observation"]["exit_code"])
+        self.assertEqual("blocked", latest["blocker"]["status_after"])
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
+    def test_acceptance_time_cannot_precede_resolved_attempt(self) -> None:
+        self.record_resolved()
+        latest_ended = self.ledger()["attempts"][-1]["ended_at"]
+        rollback = datetime(2026, 7, 24, tzinfo=UTC)
+        with mock.patch.object(
+            recorder,
+            "utc_datetime_milliseconds",
+            side_effect=[rollback, rollback],
+        ):
+            recorder.finalize_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+            )
+        execution_relative = f".work_packets/receipts/{TARGET_ID}.execution.v2.json"
+        receipt = self.read_json(execution_relative)
+        self.assertEqual(latest_ended, receipt["checks"][0]["started_at"])
+        self.assertEqual(latest_ended, receipt["checks"][0]["ended_at"])
+
+        receipt["checks"][0]["started_at"] = "2026-07-24T00:00:00.000Z"
+        receipt["checks"][0]["ended_at"] = "2026-07-24T00:00:00.000Z"
+        receipt["checks"][0]["wall_time_ms"] = 0
+        self.write_json(execution_relative, receipt)
+        ledger = self.ledger()
+        ledger["terminal_completion"]["execution_receipt_canonical_sha256"] = (
+            execution.canonical_sha256(receipt)
+        )
+        self.write_json(self.ledger_relative(TARGET_ID), ledger)
+        self.assert_execution_invalid("started_at precedes the prior execution event")
+
     def test_cross_attempt_clock_rollback_is_clamped_and_detected(
         self,
     ) -> None:
@@ -1417,8 +1823,8 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                 recorder,
                 "utc_datetime_milliseconds",
                 side_effect=[
-                    datetime(2026, 7, 25, 3, 0, 0, tzinfo=UTC),
-                    datetime(2026, 7, 25, 3, 0, 0, 125000, tzinfo=UTC),
+                    datetime(2030, 7, 25, 3, 0, 0, tzinfo=UTC),
+                    datetime(2030, 7, 25, 3, 0, 0, 125000, tzinfo=UTC),
                 ],
             ),
             mock.patch.object(
@@ -1492,8 +1898,8 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                     "argv": check["argv"],
                     "expected_exit_code": 0,
                     "actual_exit_code": 0,
-                    "started_at": "2026-07-25T03:00:00.000Z",
-                    "ended_at": "2026-07-25T03:00:00.125Z",
+                    "started_at": "2030-07-25T03:00:00.000Z",
+                    "ended_at": "2030-07-25T03:00:00.125Z",
                     "wall_time_ms": 125,
                     "stdout_sha256": hashlib.sha256(FINALIZE_STDOUT).hexdigest(),
                     "stderr_sha256": hashlib.sha256(FINALIZE_STDERR).hexdigest(),

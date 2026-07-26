@@ -9,13 +9,16 @@ import contextlib
 import fcntl
 import hashlib
 import json
+import math
 import os
 import re
+import signal
 import shutil
 import subprocess
 import sys
 import tempfile
 import threading
+import time
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -39,8 +42,52 @@ PREPARE_SCHEMA = "execution-recorder-transaction-prepare/v2"
 OPERATION_SCHEMA = "execution-recorder-operation/v2"
 OPERATION_PREPARE_SCHEMA = "execution-recorder-operation-prepare/v2"
 EXECUTION_RECEIPT_SCHEMA = "execution-finalization-receipt/v2"
+CHILD_PROCESS_SCHEMA = "execution-recorder-child-process/v2"
 TRANSACTION_ID_RE = re.compile(r"[0-9a-f]{32}")
 OPERATION_ID_RE = re.compile(r"[0-9a-f]{32}")
+ACCEPTANCE_CHECK_TIMEOUT_SECONDS = float(
+    execution.EXPECTED_RECORDER["acceptance_check_timeout_seconds"]
+)
+MAX_CAPTURED_OUTPUT_BYTES_PER_STREAM = int(
+    execution.EXPECTED_RECORDER["max_captured_output_bytes_per_stream"]
+)
+OUTPUT_LIMIT_EXIT_CODE = int(execution.EXPECTED_RECORDER["output_limit_exit_code"])
+RECORDED_CHILD_BOOTSTRAP = r"""
+import fcntl
+import json
+import os
+import sys
+import time
+
+lock_path, ready_path, start_path, command_json = sys.argv[1:5]
+descriptor = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+fcntl.flock(descriptor, fcntl.LOCK_EX)
+os.set_inheritable(descriptor, True)
+payload = {
+    "schema_version": "execution-recorder-child-ready/v2",
+    "pid": os.getpid(),
+    "process_group_id": os.getpgrp(),
+}
+temporary = ready_path + ".tmp-" + str(os.getpid())
+with open(temporary, "w", encoding="utf-8") as handle:
+    json.dump(payload, handle, sort_keys=True)
+    handle.write("\n")
+    handle.flush()
+    os.fsync(handle.fileno())
+os.replace(temporary, ready_path)
+directory_descriptor = os.open(os.path.dirname(ready_path), os.O_RDONLY)
+try:
+    os.fsync(directory_descriptor)
+finally:
+    os.close(directory_descriptor)
+deadline = time.monotonic() + 30.0
+while not os.path.exists(start_path):
+    if time.monotonic() >= deadline:
+        raise SystemExit(125)
+    time.sleep(0.01)
+command = json.loads(command_json)
+os.execvpe(command[0], command, os.environ)
+"""
 _LOCAL_LOCKS_GUARD = threading.Lock()
 _LOCAL_LOCKS: dict[str, threading.RLock] = {}
 _HELD_LOCK_DEPTH = threading.local()
@@ -267,6 +314,7 @@ def operation_document(
         "phase": "prepared",
         "expected_tail": expected_tail,
         "request": request,
+        "child_process": None,
         "outcome": None,
         "commit_plan": None,
     }
@@ -316,6 +364,7 @@ def validate_operation(directory: Path) -> dict[str, Any]:
         "phase",
         "expected_tail",
         "request",
+        "child_process",
         "outcome",
         "commit_plan",
     }
@@ -333,6 +382,7 @@ def validate_operation(directory: Path) -> dict[str, Any]:
         or operation["phase"]
         not in {
             "prepared",
+            "process_started",
             "check_prepared",
             "outcome_recorded",
             "commit_preparing",
@@ -346,6 +396,10 @@ def validate_operation(directory: Path) -> dict[str, Any]:
         )
         or not isinstance(operation["request"], dict)
         or (
+            operation["child_process"] is not None
+            and not isinstance(operation["child_process"], dict)
+        )
+        or (
             operation["outcome"] is not None
             and not isinstance(operation["outcome"], dict)
         )
@@ -355,7 +409,40 @@ def validate_operation(directory: Path) -> dict[str, Any]:
         )
     ):
         raise RecorderError("operation identity or lifecycle differs")
-    allowed_entries = {"prepare.json", "operation.json", "planned"}
+    child = operation["child_process"]
+    if child is not None:
+        if (
+            set(child)
+            != {
+                "schema_version",
+                "pid",
+                "process_group_id",
+                "ready_path",
+                "start_path",
+                "lock_path",
+            }
+            or child["schema_version"] != CHILD_PROCESS_SCHEMA
+            or operation["kind"] not in {"run", "finalize"}
+            or operation["phase"] == "prepared"
+            or isinstance(child["pid"], bool)
+            or not isinstance(child["pid"], int)
+            or child["pid"] <= 1
+            or child["process_group_id"] != child["pid"]
+            or child["ready_path"] != "child.ready.json"
+            or child["start_path"] != "child.start"
+            or child["lock_path"] != "child.lock"
+        ):
+            raise RecorderError("operation child-process identity differs")
+    elif operation["phase"] == "process_started":
+        raise RecorderError("started process phase lacks child identity")
+    allowed_entries = {
+        "prepare.json",
+        "operation.json",
+        "planned",
+        "child.lock",
+        "child.ready.json",
+        "child.start",
+    }
     unexpected = {entry.name for entry in directory.iterdir()} - allowed_entries
     if unexpected:
         raise RecorderError(
@@ -460,7 +547,11 @@ def set_operation_outcome(
     operation: dict[str, Any],
     outcome: dict[str, Any],
 ) -> None:
-    if operation["phase"] not in {"prepared", "outcome_recorded"}:
+    if operation["phase"] not in {
+        "prepared",
+        "process_started",
+        "outcome_recorded",
+    }:
         raise RecorderError("operation cannot record an outcome in this phase")
     operation["outcome"] = outcome
     operation["phase"] = "outcome_recorded"
@@ -604,6 +695,265 @@ def remove_operation(root: Path, operation_id: str) -> None:
     validate_operation(directory)
     shutil.rmtree(directory)
     fsync_directory(directory.parent)
+
+
+def child_process_document(pid: int) -> dict[str, Any]:
+    return {
+        "schema_version": CHILD_PROCESS_SCHEMA,
+        "pid": pid,
+        "process_group_id": pid,
+        "ready_path": "child.ready.json",
+        "start_path": "child.start",
+        "lock_path": "child.lock",
+    }
+
+
+def read_child_ready(directory: Path) -> dict[str, int]:
+    ready = strict_load(directory / "child.ready.json", "child ready record")
+    if (
+        set(ready) != {"schema_version", "pid", "process_group_id"}
+        or ready["schema_version"] != "execution-recorder-child-ready/v2"
+        or isinstance(ready["pid"], bool)
+        or not isinstance(ready["pid"], int)
+        or ready["pid"] <= 1
+        or ready["process_group_id"] != ready["pid"]
+    ):
+        raise RecorderError("child ready identity differs")
+    return ready
+
+
+def launch_recorded_child(
+    root: Path,
+    operation: dict[str, Any],
+    command: list[str],
+    *,
+    phase_after_start: str,
+) -> subprocess.Popen[bytes]:
+    if phase_after_start not in {"process_started", "check_prepared"}:
+        raise RecorderError("recorded-child start phase is invalid")
+    if operation["child_process"] is not None:
+        raise RecorderError("operation already owns a recorded child")
+    directory = operation_root(root) / operation["operation_id"]
+    ready_path = directory / "child.ready.json"
+    start_path = directory / "child.start"
+    lock_path = directory / "child.lock"
+    process = subprocess.Popen(
+        [
+            sys.executable,
+            "-c",
+            RECORDED_CHILD_BOOTSTRAP,
+            str(lock_path),
+            str(ready_path),
+            str(start_path),
+            json.dumps(command, ensure_ascii=False),
+        ],
+        cwd=root,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=True,
+    )
+    deadline = time.monotonic() + 10.0
+    while not ready_path.exists():
+        if process.poll() is not None:
+            stdout, stderr = process.communicate()
+            raise RecorderError(
+                "recorded-child bootstrap failed before durable readiness "
+                f"(exit={process.returncode}, stdout={raw_sha256(stdout)}, "
+                f"stderr={raw_sha256(stderr)})"
+            )
+        if time.monotonic() >= deadline:
+            terminate_process_group(process)
+            process.communicate()
+            raise RecorderError("recorded-child bootstrap readiness timed out")
+        time.sleep(0.01)
+    ready = read_child_ready(directory)
+    if ready["pid"] != process.pid:
+        terminate_process_group(process)
+        process.communicate()
+        raise RecorderError("recorded-child bootstrap PID differs")
+    operation["child_process"] = child_process_document(process.pid)
+    operation["phase"] = phase_after_start
+    write_operation(root, operation)
+    atomic_write(start_path, b"start\n")
+    return process
+
+
+def child_lock_is_held(lock_path: Path) -> tuple[bool, int]:
+    descriptor = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        return True, descriptor
+    return False, descriptor
+
+
+def wait_for_child_lock_release(lock_path: Path, timeout_seconds: float) -> bool:
+    deadline = time.monotonic() + timeout_seconds
+    while True:
+        held, descriptor = child_lock_is_held(lock_path)
+        if not held:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+            os.close(descriptor)
+            return True
+        os.close(descriptor)
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(0.02)
+
+
+def terminate_process_group(process: subprocess.Popen[bytes]) -> None:
+    if process.poll() is not None:
+        return
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait(timeout=5)
+
+
+def communicate_bounded(
+    process: subprocess.Popen[bytes],
+    *,
+    timeout_seconds: float,
+) -> tuple[bytes, bytes, int]:
+    if process.stdout is None or process.stderr is None:
+        raise RecorderError("recorded child lacks captured output streams")
+    overflow = threading.Event()
+    outputs = [bytearray(), bytearray()]
+
+    def drain(stream: Any, destination: bytearray) -> None:
+        total = 0
+        while True:
+            chunk = stream.read(65536)
+            if not chunk:
+                return
+            total += len(chunk)
+            remaining = MAX_CAPTURED_OUTPUT_BYTES_PER_STREAM - len(destination)
+            if remaining > 0:
+                destination.extend(chunk[:remaining])
+            if total > MAX_CAPTURED_OUTPUT_BYTES_PER_STREAM:
+                overflow.set()
+
+    threads = [
+        threading.Thread(
+            target=drain,
+            args=(process.stdout, outputs[0]),
+            name=f"recorder-stdout-{process.pid}",
+        ),
+        threading.Thread(
+            target=drain,
+            args=(process.stderr, outputs[1]),
+            name=f"recorder-stderr-{process.pid}",
+        ),
+    ]
+    for thread in threads:
+        thread.start()
+    deadline = time.monotonic() + timeout_seconds
+    timed_out = False
+    while process.poll() is None:
+        if overflow.is_set():
+            terminate_process_group(process)
+            break
+        if time.monotonic() >= deadline:
+            timed_out = True
+            terminate_process_group(process)
+            break
+        time.sleep(0.01)
+    for thread in threads:
+        thread.join(timeout=5)
+        if thread.is_alive():
+            raise RecorderError("recorded-child output reader did not terminate")
+    process.stdout.close()
+    process.stderr.close()
+    if overflow.is_set():
+        exit_code = OUTPUT_LIMIT_EXIT_CODE
+    elif timed_out:
+        exit_code = 124
+    else:
+        exit_code = process.returncode
+    if not isinstance(exit_code, int):
+        raise RecorderError("recorded child has no final exit code")
+    return bytes(outputs[0]), bytes(outputs[1]), exit_code
+
+
+def quiesce_recorded_child(
+    root: Path,
+    operation: dict[str, Any],
+) -> None:
+    if operation["kind"] != "run":
+        return
+    directory = operation_root(root) / operation["operation_id"]
+    ready_path = directory / "child.ready.json"
+    lock_path = directory / "child.lock"
+    if operation["child_process"] is None and not ready_path.exists():
+        deadline = time.monotonic() + 2.0
+        while (
+            not ready_path.exists()
+            and lock_path.exists()
+            and time.monotonic() < deadline
+        ):
+            time.sleep(0.01)
+    if operation["child_process"] is None and ready_path.exists():
+        ready = read_child_ready(directory)
+        operation["child_process"] = child_process_document(ready["pid"])
+        operation["phase"] = "process_started"
+        write_operation(root, operation)
+    child = operation["child_process"]
+    if child is None:
+        return
+    if not lock_path.exists():
+        raise RecorderError("recorded child identity lacks its liveness lock")
+    held, descriptor = child_lock_is_held(lock_path)
+    if not held:
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
+        os.close(descriptor)
+        return
+    os.close(descriptor)
+    try:
+        os.killpg(child["process_group_id"], signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    if not wait_for_child_lock_release(lock_path, 5.0):
+        try:
+            os.killpg(child["process_group_id"], signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        if not wait_for_child_lock_release(lock_path, 5.0):
+            raise RecorderError("recorded child process group did not terminate")
+
+
+def clear_recorded_child(
+    root: Path,
+    operation: dict[str, Any],
+    *,
+    phase_after_clear: str,
+) -> None:
+    child = operation["child_process"]
+    if child is None:
+        operation["phase"] = phase_after_clear
+        write_operation(root, operation)
+        return
+    directory = operation_root(root) / operation["operation_id"]
+    lock_path = directory / child["lock_path"]
+    if lock_path.exists() and not wait_for_child_lock_release(lock_path, 0.0):
+        raise RecorderError("cannot clear a still-running recorded child")
+    for name in ("child.start", "child.ready.json", "child.lock"):
+        path = directory / name
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+    fsync_directory(directory)
+    operation["child_process"] = None
+    operation["phase"] = phase_after_clear
+    write_operation(root, operation)
 
 
 def lock_path(root: Path, packet_id: str) -> Path:
@@ -954,7 +1304,15 @@ def recover_append_or_run_operation(
     }
     if not required.issubset(request):
         raise RecorderError("recoverable append request fields differ")
-    if operation["phase"] == "prepared":
+    if operation["phase"] in {"prepared", "process_started"}:
+        quiesce_recorded_child(root, operation)
+        packets = load_packets(root)
+        packet = packets.get(operation["packet_id"])
+        if packet is None or packet.get("state") != "active":
+            raise RecorderError(
+                "prepared append/run recovery requires one active packet"
+            )
+        snapshot = controlled_snapshot_observation(root, packet, packets)
         timestamp = format_utc_milliseconds(utc_datetime_milliseconds())
         if operation["kind"] == "append":
             outcome = {
@@ -962,6 +1320,7 @@ def recover_append_or_run_operation(
                 "started_at": timestamp,
                 "ended_at": timestamp,
                 "wall_time_ms": 0,
+                "controlled_snapshot": snapshot,
             }
         else:
             command = request.get("command")
@@ -981,7 +1340,7 @@ def recover_append_or_run_operation(
                 prior_failures if requested_failures is None else requested_failures
             )
             request["failure_after"] = sorted(
-                set(effective_failures) | {"RECORDER-902"}
+                set(prior_failures) | set(effective_failures) | {"RECORDER-902"}
             )
             request["status_after"] = "blocked"
             request["root_cause_id"] = "RECORDER-INDETERMINATE-OUTCOME"
@@ -995,6 +1354,7 @@ def recover_append_or_run_operation(
                 "started_at": timestamp,
                 "ended_at": timestamp,
                 "wall_time_ms": 0,
+                "controlled_snapshot": snapshot,
             }
         set_operation_outcome(root, operation, outcome)
     discard_incomplete_commit_preparation(root, operation)
@@ -1217,6 +1577,163 @@ def claim_snapshots(
     if errors:
         raise RecorderError("; ".join(errors))
     return excluded, claims
+
+
+def controlled_snapshot_observation(
+    root: Path,
+    packet: dict[str, Any],
+    packets: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    excluded, claims = claim_snapshots(root, packet, packets)
+    return {
+        "algorithm": execution.EXPECTED_CURRENT_SNAPSHOT["algorithm"],
+        "excluded_paths": excluded,
+        "claims": claims,
+        "claims_sha256": execution.canonical_sha256(claims),
+    }
+
+
+def require_durable_outcome_snapshot(
+    operation: dict[str, Any],
+) -> dict[str, Any]:
+    outcome = operation.get("outcome")
+    snapshot = outcome.get("controlled_snapshot") if isinstance(outcome, dict) else None
+    errors: list[str] = []
+    if (
+        not isinstance(snapshot, dict)
+        or set(snapshot)
+        != {
+            "algorithm",
+            "excluded_paths",
+            "claims",
+            "claims_sha256",
+        }
+        or snapshot.get("algorithm") != execution.EXPECTED_CURRENT_SNAPSHOT["algorithm"]
+        or not isinstance(snapshot.get("excluded_paths"), list)
+        or snapshot["excluded_paths"] != sorted(snapshot["excluded_paths"])
+        or len(snapshot["excluded_paths"]) != len(set(snapshot["excluded_paths"]))
+        or any(
+            not isinstance(item, str) or not item for item in snapshot["excluded_paths"]
+        )
+        or not isinstance(snapshot.get("claims"), list)
+    ):
+        raise RecorderError("durable process outcome snapshot differs")
+    for index, claim in enumerate(snapshot["claims"]):
+        execution.validate_claim_snapshot(
+            claim,
+            f"durable outcome claim[{index}]",
+            errors,
+        )
+    if (
+        errors
+        or snapshot["claims"]
+        != sorted(
+            snapshot["claims"],
+            key=lambda item: (item.get("path", ""), item.get("kind", "")),
+        )
+        or snapshot.get("claims_sha256")
+        != execution.canonical_sha256(snapshot["claims"])
+    ):
+        raise RecorderError(
+            "durable process outcome snapshot is invalid: " + "; ".join(errors)
+        )
+    return snapshot
+
+
+def validate_transition_request(
+    failure_after: list[str] | None,
+    status_after: str,
+    root_cause_id: str,
+    root_cause: str,
+) -> list[str] | None:
+    if failure_after is not None:
+        if (
+            not isinstance(failure_after, list)
+            or any(
+                not isinstance(item, str)
+                or execution.FAILURE_ID_RE.fullmatch(item) is None
+                for item in failure_after
+            )
+            or len(failure_after) != len(set(failure_after))
+        ):
+            raise RecorderError(
+                "failure_after must contain unique valid failure identifiers"
+            )
+        failure_after = sorted(failure_after)
+    if status_after not in {"open", "resolved", "blocked"}:
+        raise RecorderError("status_after is invalid")
+    if (
+        not isinstance(root_cause_id, str)
+        or execution.ROOT_CAUSE_ID_RE.fullmatch(root_cause_id) is None
+        or not isinstance(root_cause, str)
+        or not root_cause.strip()
+    ):
+        raise RecorderError("root-cause identity or description is invalid")
+    return failure_after
+
+
+def validate_process_observation_input(
+    process_observation: dict[str, Any],
+) -> None:
+    errors: list[str] = []
+    execution.validate_process_observation(
+        process_observation,
+        "execution_attempt",
+        "recorder process observation",
+        errors,
+    )
+    if errors:
+        raise RecorderError("; ".join(errors))
+
+
+def persist_operation_disposition(
+    root: Path,
+    operation: dict[str, Any],
+    failure_after: list[str],
+    status_after: str,
+    root_cause_id: str,
+    root_cause: str,
+) -> None:
+    request = operation["request"]
+    request["failure_after"] = failure_after
+    request["status_after"] = status_after
+    request["root_cause_id"] = root_cause_id
+    request["root_cause"] = root_cause
+    write_operation(root, operation)
+
+
+def validate_proposed_attempt_chain(
+    root: Path,
+    packet: dict[str, Any],
+    packets: dict[str, dict[str, Any]],
+    ledger: dict[str, Any],
+    current_snapshot: dict[str, Any],
+) -> None:
+    policy = execution.load_json(root / POLICY_RELATIVE)
+    live_packet_ids = {
+        packet_id
+        for packet_id, item in packets.items()
+        if item.get("schema_version") == "work-packet-instance/v2"
+        and item.get("state")
+        in set(execution.EXPECTED_WORK_PACKETS["ledger_required_states"])
+    }
+    errors: list[str] = []
+    execution.validate_attempts(
+        ledger,
+        packet,
+        packet_path(root, packet["packet_id"]).relative_to(root).as_posix(),
+        current_snapshot["excluded_paths"],
+        current_snapshot["claims"],
+        root,
+        live_packet_ids,
+        policy,
+        errors,
+    )
+    if errors:
+        raise RecorderError(
+            "proposed attempt failed semantic validation before commit: "
+            + "; ".join(errors)
+        )
 
 
 def no_process_observation(mode: str) -> dict[str, Any]:
@@ -1462,12 +1979,77 @@ def _append_observation_core(
         ended_at = format_utc_milliseconds(ended_value)
         wall_time_ms = int((ended_value - started_value).total_seconds() * 1000)
         before_failures = sorted(previous["failure_delta"]["after"])
-        after_failures = sorted(
+        requested_failures = sorted(
             before_failures if failure_after is None else set(failure_after)
         )
+        after_failures = requested_failures
+        if (
+            operation["kind"] == "run"
+            and process_observation["mode"] == "run"
+            and process_observation["exit_code"] != 0
+        ):
+            after_failures = sorted(
+                set(before_failures) | set(after_failures) | {"RECORDER-901"}
+            )
+            if status_after == "resolved":
+                status_after = "open"
+            root_cause = (
+                root_cause
+                + "; recorder-observed process exited nonzero, so every prior "
+                "failure remains unresolved"
+            )
+            persist_operation_disposition(
+                root,
+                operation,
+                after_failures,
+                status_after,
+                root_cause_id,
+                root_cause,
+            )
+        elif process_observation["mode"] == "indeterminate":
+            after_failures = sorted(
+                set(before_failures) | set(after_failures) | {"RECORDER-902"}
+            )
+            status_after = "blocked"
+            root_cause_id = "RECORDER-INDETERMINATE-OUTCOME"
+            root_cause = (
+                "A durable process intent existed without a recoverable child "
+                "outcome; every prior failure remains unresolved."
+            )
+            persist_operation_disposition(
+                root,
+                operation,
+                after_failures,
+                status_after,
+                root_cause_id,
+                root_cause,
+            )
+        current_snapshot = controlled_snapshot_observation(root, packet, packets)
+        outcome_snapshot = require_durable_outcome_snapshot(operation)
+        if current_snapshot != outcome_snapshot:
+            after_failures = sorted(
+                set(before_failures) | set(after_failures) | {"RECORDER-905"}
+            )
+            status_after = "blocked"
+            root_cause_id = "RECORDER-POST-OUTCOME-DIVERGENCE"
+            root_cause = (
+                "Controlled claims changed after the durable process outcome "
+                f"(outcome={outcome_snapshot['claims_sha256']}, "
+                f"current={current_snapshot['claims_sha256']}); every prior "
+                "failure remains unresolved."
+            )
+            persist_operation_disposition(
+                root,
+                operation,
+                after_failures,
+                status_after,
+                root_cause_id,
+                root_cause,
+            )
         resolved = sorted(set(before_failures) - set(after_failures))
         introduced = sorted(set(after_failures) - set(before_failures))
-        excluded, after_claims = claim_snapshots(root, packet, packets)
+        excluded = current_snapshot["excluded_paths"]
+        after_claims = current_snapshot["claims"]
         before_claims = previous["controlled_snapshot"]["claims"]
         before_evidence = sorted(
             previous["evidence_delta"]["after"],
@@ -1480,16 +2062,41 @@ def _append_observation_core(
             after_claims,
             resolved,
         )
+        supported_resolutions = {
+            failure_id for item in added for failure_id in item["supports_failure_ids"]
+        }
+        unsupported_resolutions = sorted(set(resolved) - supported_resolutions)
+        if unsupported_resolutions:
+            after_failures = sorted(
+                set(before_failures) | set(after_failures) | {"RECORDER-906"}
+            )
+            resolved = []
+            introduced = sorted(set(after_failures) - set(before_failures))
+            status_after = "open"
+            root_cause_id = "RECORDER-UNSUPPORTED-RESOLUTION"
+            root_cause = (
+                "The requested disposition lacked newly observed supporting "
+                "evidence for "
+                + ", ".join(unsupported_resolutions)
+                + "; every prior failure remains unresolved."
+            )
+            after_evidence, added, removed = derive_evidence_after(
+                root,
+                before_evidence,
+                before_claims,
+                after_claims,
+                resolved,
+            )
+            persist_operation_disposition(
+                root,
+                operation,
+                after_failures,
+                status_after,
+                root_cause_id,
+                root_cause,
+            )
         if status_after == "resolved" and after_failures:
             raise RecorderError("resolved status requires an empty failure set")
-        if (
-            process_observation["mode"] == "run"
-            and status_after == "resolved"
-            and process_observation["exit_code"] != 0
-        ):
-            raise RecorderError(
-                "a nonzero recorder-observed process cannot resolve the attempt"
-            )
         if status_after == "blocked":
             packet["state"] = "blocked"
         sequence = len(ledger["attempts"]) + 1
@@ -1546,6 +2153,13 @@ def _append_observation_core(
                     "this attempt reaches a stopping threshold and must be "
                     "recorded as the final blocked transition"
                 )
+        validate_proposed_attempt_chain(
+            root,
+            packet,
+            packets,
+            ledger,
+            current_snapshot,
+        )
         replacements = {
             execution.ledger_path_for(packet_id): canonical_bytes(ledger),
         }
@@ -1619,6 +2233,21 @@ def append_observation(
     crash_after_outcome: bool = False,
     crash_after_core_commit: bool = False,
 ) -> dict[str, Any]:
+    failure_after = validate_transition_request(
+        failure_after,
+        status_after,
+        root_cause_id,
+        root_cause,
+    )
+    validate_process_observation_input(process_observation)
+    parse_utc_milliseconds(started_at)
+    parse_utc_milliseconds(ended_at)
+    if (
+        isinstance(wall_time_ms, bool)
+        or not isinstance(wall_time_ms, int)
+        or wall_time_ms < 0
+    ):
+        raise RecorderError("wall_time_ms must be a nonnegative integer")
     with packet_lock(root, "__GLOBAL-OPERATION__"):
         with packet_lock(root, packet_id):
             require_no_pending_transactions(root)
@@ -1635,6 +2264,7 @@ def append_observation(
                 raise RecorderError("append requires one active packet")
             if ledger.get("terminal_completion") is not None:
                 raise RecorderError("terminal ledger cannot be appended")
+            snapshot = controlled_snapshot_observation(root, packet, packets)
             request = {
                 "failure_after": failure_after,
                 "status_after": status_after,
@@ -1656,6 +2286,7 @@ def append_observation(
                     "started_at": started_at,
                     "ended_at": ended_at,
                     "wall_time_ms": wall_time_ms,
+                    "controlled_snapshot": snapshot,
                 },
             )
             if crash_after_outcome:
@@ -1729,8 +2360,25 @@ def run_and_append(
     crash_after_core_commit: bool = False,
     _lifecycle_hook: Callable[[str, str], None] | None = None,
 ) -> dict[str, Any]:
-    if not command or any(not item for item in command):
+    if (
+        not isinstance(command, list)
+        or not command
+        or any(not isinstance(item, str) or not item for item in command)
+    ):
         raise RecorderError("run mode requires a non-empty argv")
+    if (
+        isinstance(timeout_seconds, bool)
+        or not isinstance(timeout_seconds, (int, float))
+        or not math.isfinite(timeout_seconds)
+        or timeout_seconds <= 0
+    ):
+        raise RecorderError("run timeout must be a positive finite number")
+    failure_after = validate_transition_request(
+        failure_after,
+        status_after,
+        root_cause_id,
+        root_cause,
+    )
     with packet_lock(root, "__GLOBAL-OPERATION__"):
         with packet_lock(root, packet_id):
             require_no_pending_transactions(root)
@@ -1769,54 +2417,35 @@ def run_and_append(
                 _lifecycle_hook("intent", operation["operation_id"])
             started = utc_datetime_milliseconds()
             started_at = format_utc_milliseconds(started)
-            try:
-                completed = subprocess.run(
-                    command,
-                    cwd=root,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    check=False,
-                    timeout=timeout_seconds,
-                )
-            except subprocess.TimeoutExpired as exc:
-                stdout = exc.stdout or b""
-                stderr = exc.stderr or b""
-                process_observation = {
-                    "mode": "run",
-                    "argv": command,
-                    "exit_code": 124,
-                    "stdout_sha256": raw_sha256(stdout),
-                    "stderr_sha256": raw_sha256(stderr),
-                    "stdout_bytes": len(stdout),
-                    "stderr_bytes": len(stderr),
-                    "capture_authority": "recorder_executed_process",
-                }
-            else:
-                process_observation = {
-                    "mode": "run",
-                    "argv": command,
-                    "exit_code": completed.returncode,
-                    "stdout_sha256": raw_sha256(completed.stdout),
-                    "stderr_sha256": raw_sha256(completed.stderr),
-                    "stdout_bytes": len(completed.stdout),
-                    "stderr_bytes": len(completed.stderr),
-                    "capture_authority": "recorder_executed_process",
-                }
+            process = launch_recorded_child(
+                root,
+                operation,
+                command,
+                phase_after_start="process_started",
+            )
+            if _lifecycle_hook is not None:
+                _lifecycle_hook("process_started", operation["operation_id"])
+            stdout, stderr, exit_code = communicate_bounded(
+                process,
+                timeout_seconds=timeout_seconds,
+            )
+            process_observation = {
+                "mode": "run",
+                "argv": command,
+                "exit_code": exit_code,
+                "stdout_sha256": raw_sha256(stdout),
+                "stderr_sha256": raw_sha256(stderr),
+                "stdout_bytes": len(stdout),
+                "stderr_bytes": len(stderr),
+                "capture_authority": "recorder_executed_process",
+            }
+            clear_recorded_child(
+                root,
+                operation,
+                phase_after_clear="prepared",
+            )
             ended_at, wall_time_ms = observed_interval(started)
-            if process_observation["exit_code"] != 0 and status_after == "resolved":
-                prior_failures = ledger["attempts"][-1]["failure_delta"]["after"]
-                effective_failures = (
-                    prior_failures if failure_after is None else failure_after
-                )
-                failure_after = sorted(set(effective_failures) | {"RECORDER-901"})
-                status_after = "open"
-                operation["request"]["failure_after"] = failure_after
-                operation["request"]["status_after"] = status_after
-                operation["request"]["root_cause"] = (
-                    root_cause + "; recorder-observed process exited nonzero, so "
-                    "resolution was rejected"
-                )
-                root_cause = operation["request"]["root_cause"]
+            snapshot = controlled_snapshot_observation(root, packet, packets)
             set_operation_outcome(
                 root,
                 operation,
@@ -1825,6 +2454,7 @@ def run_and_append(
                     "started_at": started_at,
                     "ended_at": ended_at,
                     "wall_time_ms": wall_time_ms,
+                    "controlled_snapshot": snapshot,
                 },
             )
             if _lifecycle_hook is not None:
@@ -1887,6 +2517,18 @@ def record_finalize_failure(
         "root_cause": root_cause,
         "observation": observation,
     }
+    packets = load_packets(root)
+    packet = packets.get(operation["packet_id"])
+    if packet is None:
+        raise RecorderError("finalize failure packet is missing")
+    outcome = operation.get("outcome")
+    if not isinstance(outcome, dict):
+        raise RecorderError("finalize failure outcome is missing")
+    outcome["controlled_snapshot"] = controlled_snapshot_observation(
+        root,
+        packet,
+        packets,
+    )
     write_operation(root, operation)
     return _append_observation_core(
         root,
@@ -2140,6 +2782,7 @@ def resume_finalize_operation(
         current = outcome.get("current_check")
         if not isinstance(current, dict):
             raise RecorderError("prepared acceptance check is missing")
+        quiesce_recorded_child(root, operation)
         now = utc_datetime_milliseconds()
         started = parse_utc_milliseconds(current["started_at"])
         if now < started:
@@ -2169,6 +2812,13 @@ def resume_finalize_operation(
         check = checks[index]
         _, claims_before = claim_snapshots(root, packet, packets)
         started = utc_datetime_milliseconds()
+        chronology_floor = parse_utc_milliseconds(latest["ended_at"])
+        if outcome["checks"]:
+            chronology_floor = parse_utc_milliseconds(
+                outcome["checks"][-1]["observation"]["ended_at"]
+            )
+        if started < chronology_floor:
+            started = chronology_floor
         started_at = format_utc_milliseconds(started)
         outcome["current_check"] = {
             "index": index,
@@ -2181,12 +2831,20 @@ def resume_finalize_operation(
         write_operation(root, operation)
         if crash_after_check_prepare == index + 1:
             raise SimulatedOperationCrash(operation["operation_id"])
-        completed = subprocess.run(
+        process = launch_recorded_child(
+            root,
+            operation,
             check["argv"],
-            cwd=root,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
+            phase_after_start="check_prepared",
+        )
+        stdout, stderr, actual_exit_code = communicate_bounded(
+            process,
+            timeout_seconds=ACCEPTANCE_CHECK_TIMEOUT_SECONDS,
+        )
+        clear_recorded_child(
+            root,
+            operation,
+            phase_after_clear="check_prepared",
         )
         ended_at, wall_time_ms = observed_interval(started)
         _, claims_after = claim_snapshots(root, packet, packets)
@@ -2194,14 +2852,14 @@ def resume_finalize_operation(
             "check_id": check["check_id"],
             "argv": check["argv"],
             "expected_exit_code": check["expected_exit_code"],
-            "actual_exit_code": completed.returncode,
+            "actual_exit_code": actual_exit_code,
             "started_at": started_at,
             "ended_at": ended_at,
             "wall_time_ms": wall_time_ms,
-            "stdout_sha256": raw_sha256(completed.stdout),
-            "stderr_sha256": raw_sha256(completed.stderr),
-            "stdout_bytes": len(completed.stdout),
-            "stderr_bytes": len(completed.stderr),
+            "stdout_sha256": raw_sha256(stdout),
+            "stderr_sha256": raw_sha256(stderr),
+            "stdout_bytes": len(stdout),
+            "stderr_bytes": len(stderr),
         }
         envelope = {
             "observation": observation,
@@ -2384,6 +3042,16 @@ def build_completion_seal(
         "candidate ledger",
         errors,
     )
+    candidate_claims = (
+        execution.git_claim_snapshots(
+            root,
+            candidate_commit,
+            candidate_packet,
+            errors,
+        )
+        if isinstance(candidate_packet, dict)
+        else []
+    )
     terminal = ledger["terminal_completion"]
     receipt_specs = {
         "checkpoint": terminal["checkpoint_path"],
@@ -2406,6 +3074,16 @@ def build_completion_seal(
         raise RecorderError(
             "candidate commit does not exactly contain the current candidate "
             "packet and execution ledger"
+        )
+    candidate_latest = candidate_ledger["attempts"][-1]
+    candidate_snapshot = candidate_latest["controlled_snapshot"]
+    if (
+        candidate_claims != candidate_snapshot["claims"]
+        or execution.canonical_sha256(candidate_claims)
+        != candidate_snapshot["claims_sha256"]
+    ):
+        raise RecorderError(
+            "candidate Git controlled claims differ from the accepted snapshot"
         )
     for name, relative in receipt_specs.items():
         current = strict_load(root / relative, f"current {name} receipt")
