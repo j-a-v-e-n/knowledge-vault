@@ -9,6 +9,7 @@ import json
 import os
 import posixpath
 import re
+import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
@@ -30,6 +31,8 @@ TIMESTAMP_RE = re.compile(
     r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T"
     r"[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$"
 )
+GIT_OBJECT_RE = re.compile(r"^[0-9a-f]{40}(?:[0-9a-f]{24})?$")
+REVIEW_REF_RE = re.compile(r"^refs/tags/ids-reviewed/WP-[A-Z0-9]+(?:-[A-Z0-9]+)*$")
 
 POLICY_FIELDS = {
     "schema_version",
@@ -72,6 +75,35 @@ TERMINAL_COMPLETION_FIELDS = {
     "acceptance_canonical_sha256",
     "execution_receipt_path",
     "execution_receipt_canonical_sha256",
+    "completion_seal",
+}
+COMPLETION_SEAL_FIELDS = {
+    "schema_version",
+    "candidate_commit",
+    "candidate_tree",
+    "candidate_packet_canonical_sha256",
+    "candidate_ledger_canonical_sha256",
+    "candidate_checkpoint_canonical_sha256",
+    "candidate_acceptance_canonical_sha256",
+    "candidate_execution_receipt_canonical_sha256",
+    "review_commit",
+    "review_tree",
+    "review_path",
+    "review_canonical_sha256",
+    "anchor_ref",
+    "anchor_commit",
+    "anchor_authority",
+}
+INDEPENDENT_REVIEW_FIELDS = {
+    "schema_version",
+    "packet_id",
+    "candidate_commit",
+    "candidate_tree",
+    "candidate_terminal_canonical_sha256",
+    "reviewer_mode",
+    "verdict",
+    "findings",
+    "limitations",
 }
 ATTEMPT_FIELDS = {
     "schema_version",
@@ -177,9 +209,7 @@ EXPECTED_WORK_PACKETS = {
         "complete",
     ],
     "historical_state": "superseded",
-    "ledger_claim_rule": (
-        "derived_runtime_sidecar_must_not_be_in_bounded_write_paths"
-    ),
+    "ledger_claim_rule": ("derived_runtime_sidecar_must_not_be_in_bounded_write_paths"),
 }
 EXPECTED_LEDGER_SCHEMA = {
     "directory": ".work_packets/attempts",
@@ -211,6 +241,7 @@ EXPECTED_LEDGER_SCHEMA = {
         "acceptance_canonical_sha256",
         "execution_receipt_path",
         "execution_receipt_canonical_sha256",
+        "completion_seal",
     ],
     "attempt_schema_version": "execution-attempt/v2",
     "attempt_required_fields": [
@@ -273,7 +304,12 @@ EXPECTED_LEDGER_SCHEMA = {
         "stderr_bytes",
         "capture_authority",
     ],
-    "process_observation_modes": ["baseline", "passive", "run"],
+    "process_observation_modes": [
+        "baseline",
+        "passive",
+        "run",
+        "indeterminate",
+    ],
     "claim_snapshot_required_fields": [
         "path",
         "kind",
@@ -353,14 +389,13 @@ EXPECTED_COMPLETION = {
     "local_receipts_are": (
         "self_reported_candidate_evidence_not_authenticated_execution"
     ),
-    "candidate_complete_and_complete_require_latest_execution_status": (
-        "resolved"
-    ),
+    "candidate_complete_and_complete_require_latest_execution_status": ("resolved"),
     "terminal_completion_required_states": [
         "candidate_complete",
         "complete",
     ],
-    "terminal_completion_authority_kind": "self_reported_local_candidate",
+    "candidate_terminal_authority_kind": "self_reported_local_candidate",
+    "sealed_terminal_authority_kind": "git_review_sealed_candidate",
     "terminal_record_must_bind_latest_attempt_snapshot_contract_and_receipts": True,
     "execution_receipt_schema_version": "execution-finalization-receipt/v2",
     "execution_receipt_required_fields": [
@@ -385,33 +420,47 @@ EXPECTED_COMPLETION = {
     "execution_receipt_checks_must_exactly_match_packet_acceptance_checks": True,
     "execution_check_timestamps_and_output_digests_required": True,
     "terminal_completion_is_append_absorbing": True,
+    "candidate_complete_does_not_activate_successors": True,
+    "complete_requires_content_addressed_candidate_and_independent_review_ref": True,
+    "review_sidecar_directory": ".work_packets/reviews",
+    "review_schema_version": "work-packet-independent-review/v2",
+    "seal_schema_version": "execution-completion-seal/v2",
+    "seal_anchor_ref_template": "refs/tags/ids-reviewed/{packet_id}",
     "controlled_change_after_complete_requires": (
         "successor_packet_supersession_in_v2"
     ),
     "authenticated_completion_authority": (
-        "candidate_bound_remote_execution_plus_independent_read_only_review"
+        "git_content_addressed_candidate_plus_independent_read_only_review_ref"
     ),
     "design_freeze_or_product_completion_may_not_be_inferred": True,
 }
 EXPECTED_RECORDER = {
     "script_path": "scripts/record_execution_attempt_v2.py",
     "transaction_directory": ".work_packets/runtime-transactions",
+    "operation_directory": ".work_packets/runtime-operations",
     "lock_directory_scope": "system_temp_by_project_packet_and_global_transaction",
     "per_packet_lock": True,
     "global_transaction_lock": True,
+    "global_operation_lock": True,
     "expected_tail_compare_and_swap": True,
     "existing_attempt_records_are_immutable": True,
     "before_after_snapshots_are_tool_observed": True,
     "run_mode_captures_process_exit_and_output_digest": True,
     "passive_mode_is_self_reported": True,
+    "operation_intent_is_durable_before_process_launch": True,
+    "process_outcome_is_durable_before_ledger_commit": True,
+    "missing_process_outcome_recovers_as_explicit_indeterminate_block": True,
     "ledger_write": "atomic_replace_after_fsync",
     "interrupted_multi_file_transition": (
-        "fail_closed_journal_then_deterministic_roll_forward"
+        "discard_verified_precommit_prepare_or_roll_forward_durable_commit_journal"
     ),
+    "operation_remains_pending_through_view_refresh": True,
+    "ordinary_verifier_rejects_pending_operations": True,
     "post_write_verifier_required": True,
 }
 EXPECTED_COST = {
     "wall_time_source": "started_at_and_ended_at",
+    "attempt_timestamps_nondecreasing": True,
     "token_availability_values": ["measured", "unknown"],
     "unknown_tokens_require_null_counts_and_source": True,
     "measured_tokens_require_nonnegative_counts_sum_and_source": True,
@@ -439,8 +488,7 @@ EXPECTED_EXEMPTIONS = [
     {
         "packet_id": "WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY",
         "packet_path": (
-            ".work_packets/packets/"
-            "WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY.packet.json"
+            ".work_packets/packets/WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY.packet.json"
         ),
         "packet_schema_version": "work-packet-instance/v2",
         "packet_state": "complete",
@@ -475,6 +523,7 @@ EXPECTED_LIMITATIONS = [
     "Tree hashing rejects observed symlinks and special entries but does not provide operating-system sandboxing or distributed locking.",
     "A pending baseline proves only the current bytes were observed; it does not prove the work was authorized, unstarted, or produced after the prerequisite state.",
     "The formal recorder prevents cooperative concurrent writers from overwriting one another, but a process with arbitrary filesystem access can still bypass it and rewrite local history; immutable Git candidates and independent review remain required.",
+    "A local Git review tag raises the cost and visibility of coherent rewrites but is not an authenticated identity or protected remote ref; hostile-author resistance requires pushing the tag to a protected remote and verifying that external ref.",
     "A V2 blocked or completed packet cannot resume in place; continued work requires a named successor packet so the prior terminal chain remains visible.",
     "Legacy V1 artifacts are hash-retained history only and cannot be used to assert current V2 freshness.",
     "Current execution freshness does not prove research sufficiency, design freeze, product completion, or investment effectiveness.",
@@ -731,9 +780,7 @@ def current_claim_snapshots(
             continue
         if relative is None:
             continue
-        if relative in set(
-            EXPECTED_CURRENT_SNAPSHOT["excluded_generated_view_paths"]
-        ):
+        if relative in set(EXPECTED_CURRENT_SNAPSHOT["excluded_generated_view_paths"]):
             errors.append(
                 f"{label}: generated project-state views are runtime sidecars "
                 "and cannot be bounded product write claims"
@@ -871,10 +918,7 @@ def validate_evidence_list(
             errors.append(f"{item_label}: packet and ledger files cannot be evidence")
         if not any(
             path == claim["path"]
-            or (
-                claim["kind"] == "tree"
-                and path.startswith(f"{claim['path']}/")
-            )
+            or (claim["kind"] == "tree" and path.startswith(f"{claim['path']}/"))
             for claim in controlled_claims
         ):
             errors.append(
@@ -892,7 +936,9 @@ def validate_evidence_list(
                 if not candidate.is_file() or candidate.is_symlink():
                     errors.append(f"{item_label}: evidence must be a regular file")
                 elif raw_sha256(candidate) != digest:
-                    errors.append(f"{item_label}: evidence hash differs from current file")
+                    errors.append(
+                        f"{item_label}: evidence hash differs from current file"
+                    )
         identity = evidence_identity(item)
         if identity in identities:
             errors.append(f"{item_label}: duplicate evidence reference")
@@ -971,7 +1017,7 @@ def validate_process_observation(
     ):
         return
     mode = value["mode"]
-    if mode not in {"baseline", "passive", "run"}:
+    if mode not in {"baseline", "passive", "run", "indeterminate"}:
         errors.append(f"{label}.process_observation: unsupported mode")
         return
     if kind == "baseline_observation" and mode != "baseline":
@@ -988,12 +1034,28 @@ def validate_process_observation(
             if mode == "baseline"
             else "self_reported_no_process"
         )
+        if value["capture_authority"] != expected_authority or any(
+            value[field] is not None
+            for field in (
+                "argv",
+                "exit_code",
+                "stdout_sha256",
+                "stderr_sha256",
+                "stdout_bytes",
+                "stderr_bytes",
+            )
+        ):
+            errors.append(f"{label}.process_observation: {mode} semantics differ")
+        return
+    if mode == "indeterminate":
         if (
-            value["capture_authority"] != expected_authority
+            value["capture_authority"] != "durable_intent_without_recoverable_outcome"
+            or not isinstance(value["argv"], list)
+            or not value["argv"]
+            or any(not isinstance(item, str) or not item for item in value["argv"])
             or any(
                 value[field] is not None
                 for field in (
-                    "argv",
                     "exit_code",
                     "stdout_sha256",
                     "stderr_sha256",
@@ -1003,7 +1065,7 @@ def validate_process_observation(
             )
         ):
             errors.append(
-                f"{label}.process_observation: {mode} semantics differ"
+                f"{label}.process_observation: indeterminate semantics differ"
             )
         return
     argv = value["argv"]
@@ -1063,10 +1125,8 @@ def validate_execution_receipt(
         if (
             observation["check_id"] != declared["check_id"]
             or observation["argv"] != declared["argv"]
-            or observation["expected_exit_code"]
-            != declared["expected_exit_code"]
-            or observation["actual_exit_code"]
-            != declared["expected_exit_code"]
+            or observation["expected_exit_code"] != declared["expected_exit_code"]
+            or observation["actual_exit_code"] != declared["expected_exit_code"]
         ):
             errors.append(
                 f"{check_label}: declaration or successful exit binding differs"
@@ -1089,9 +1149,7 @@ def validate_execution_receipt(
                 or not is_int(wall_time_ms)
                 or wall_time_ms != expected_wall
             ):
-                errors.append(
-                    f"{check_label}: wall_time_ms differs from timestamps"
-                )
+                errors.append(f"{check_label}: wall_time_ms differs from timestamps")
         if any(
             not isinstance(observation[field], str)
             or SHA256_RE.fullmatch(observation[field]) is None
@@ -1103,6 +1161,298 @@ def validate_execution_receipt(
             for field in ("stdout_bytes", "stderr_bytes")
         ):
             errors.append(f"{check_label}: output byte count differs")
+
+
+def git_output(
+    root: Path,
+    argv: list[str],
+    label: str,
+    errors: list[str],
+) -> bytes | None:
+    try:
+        completed = subprocess.run(
+            ["git", *argv],
+            cwd=root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+            timeout=15,
+            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "LC_ALL": "C"},
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        errors.append(f"{label}: Git observation failed: {exc}")
+        return None
+    if completed.returncode != 0:
+        detail = completed.stderr.decode("utf-8", errors="replace").strip()
+        errors.append(f"{label}: Git observation failed: {detail}")
+        return None
+    return completed.stdout
+
+
+def git_json(
+    root: Path,
+    commit: str,
+    relative: str,
+    label: str,
+    errors: list[str],
+) -> Any | None:
+    if GIT_OBJECT_RE.fullmatch(commit) is None:
+        errors.append(f"{label}: invalid Git commit")
+        return None
+    normalized = normalized_relative(relative, f"{label}.path", errors)
+    if normalized is None:
+        return None
+    payload = git_output(
+        root,
+        ["show", f"{commit}:{normalized}"],
+        label,
+        errors,
+    )
+    if payload is None:
+        return None
+    try:
+        return json.loads(
+            payload.decode("utf-8"),
+            object_pairs_hook=strict_object,
+            parse_constant=reject_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        errors.append(f"{label}: committed JSON is invalid: {exc}")
+        return None
+
+
+def git_object_id(
+    root: Path,
+    revision: str,
+    label: str,
+    errors: list[str],
+) -> str | None:
+    payload = git_output(
+        root,
+        ["rev-parse", "--verify", revision],
+        label,
+        errors,
+    )
+    if payload is None:
+        return None
+    value = payload.decode("ascii", errors="replace").strip()
+    if GIT_OBJECT_RE.fullmatch(value) is None:
+        errors.append(f"{label}: Git object id is invalid")
+        return None
+    return value
+
+
+def validate_completion_seal(
+    seal: Any,
+    terminal: dict[str, Any],
+    ledger: dict[str, Any],
+    packet: dict[str, Any],
+    root: Path,
+    errors: list[str],
+) -> None:
+    packet_id = packet["packet_id"]
+    label = f"ledger {packet_id}.terminal_completion.completion_seal"
+    if not exact_keys(seal, COMPLETION_SEAL_FIELDS, label, errors):
+        return
+    candidate_commit = seal["candidate_commit"]
+    review_commit = seal["review_commit"]
+    if (
+        seal["schema_version"] != "execution-completion-seal/v2"
+        or not isinstance(candidate_commit, str)
+        or GIT_OBJECT_RE.fullmatch(candidate_commit) is None
+        or not isinstance(review_commit, str)
+        or GIT_OBJECT_RE.fullmatch(review_commit) is None
+        or candidate_commit == review_commit
+        or not isinstance(seal["candidate_tree"], str)
+        or GIT_OBJECT_RE.fullmatch(seal["candidate_tree"]) is None
+        or not isinstance(seal["review_tree"], str)
+        or GIT_OBJECT_RE.fullmatch(seal["review_tree"]) is None
+        or any(
+            not isinstance(seal[field], str) or SHA256_RE.fullmatch(seal[field]) is None
+            for field in (
+                "candidate_packet_canonical_sha256",
+                "candidate_ledger_canonical_sha256",
+                "candidate_checkpoint_canonical_sha256",
+                "candidate_acceptance_canonical_sha256",
+                "candidate_execution_receipt_canonical_sha256",
+                "review_canonical_sha256",
+            )
+        )
+        or seal["anchor_ref"] != f"refs/tags/ids-reviewed/{packet_id}"
+        or REVIEW_REF_RE.fullmatch(seal["anchor_ref"]) is None
+        or seal["anchor_commit"] != review_commit
+        or seal["anchor_authority"]
+        != "local_git_ref_content_addressed_not_authenticated_remote"
+    ):
+        errors.append(f"{label}: identity or schema binding differs")
+        return
+
+    candidate_tree = git_object_id(
+        root,
+        f"{candidate_commit}^{{tree}}",
+        f"{label}.candidate_tree",
+        errors,
+    )
+    review_tree = git_object_id(
+        root,
+        f"{review_commit}^{{tree}}",
+        f"{label}.review_tree",
+        errors,
+    )
+    anchor_commit = git_object_id(
+        root,
+        seal["anchor_ref"],
+        f"{label}.anchor_ref",
+        errors,
+    )
+    if candidate_tree is not None and candidate_tree != seal["candidate_tree"]:
+        errors.append(f"{label}: candidate tree differs")
+    if review_tree is not None and review_tree != seal["review_tree"]:
+        errors.append(f"{label}: review tree differs")
+    if anchor_commit is not None and anchor_commit != review_commit:
+        errors.append(f"{label}: review anchor ref moved")
+    ancestor = git_output(
+        root,
+        ["merge-base", "--is-ancestor", candidate_commit, review_commit],
+        f"{label}.candidate_ancestry",
+        errors,
+    )
+    if ancestor is None:
+        return
+
+    packet_relative = f".work_packets/packets/{packet_id}.packet.json"
+    ledger_relative = ledger_path_for(packet_id)
+    candidate_packet = git_json(
+        root,
+        candidate_commit,
+        packet_relative,
+        f"{label}.candidate_packet",
+        errors,
+    )
+    candidate_ledger = git_json(
+        root,
+        candidate_commit,
+        ledger_relative,
+        f"{label}.candidate_ledger",
+        errors,
+    )
+    receipt_specs = (
+        (
+            terminal["checkpoint_path"],
+            "candidate_checkpoint_canonical_sha256",
+            "candidate_checkpoint",
+        ),
+        (
+            terminal["acceptance_path"],
+            "candidate_acceptance_canonical_sha256",
+            "candidate_acceptance",
+        ),
+        (
+            terminal["execution_receipt_path"],
+            "candidate_execution_receipt_canonical_sha256",
+            "candidate_execution_receipt",
+        ),
+    )
+    candidate_receipts: dict[str, Any] = {}
+    for relative, digest_field, receipt_label in receipt_specs:
+        value = git_json(
+            root,
+            candidate_commit,
+            relative,
+            f"{label}.{receipt_label}",
+            errors,
+        )
+        candidate_receipts[receipt_label] = value
+        if value is not None and canonical_sha256(value) != seal[digest_field]:
+            errors.append(f"{label}: {receipt_label} digest differs")
+    if candidate_packet is not None:
+        expected_packet = dict(packet)
+        expected_packet["state"] = "candidate_complete"
+        if candidate_packet != expected_packet:
+            errors.append(f"{label}: candidate packet differs from sealed transition")
+        if (
+            canonical_sha256(candidate_packet)
+            != seal["candidate_packet_canonical_sha256"]
+        ):
+            errors.append(f"{label}: candidate packet digest differs")
+    if isinstance(candidate_ledger, dict):
+        expected_terminal = dict(terminal)
+        expected_terminal["authority_kind"] = "self_reported_local_candidate"
+        expected_terminal["completion_seal"] = None
+        expected_ledger = dict(ledger)
+        expected_ledger["reported_state"] = "candidate_complete"
+        expected_ledger["terminal_completion"] = expected_terminal
+        if candidate_ledger != expected_ledger:
+            errors.append(f"{label}: candidate ledger differs from sealed transition")
+        if (
+            canonical_sha256(candidate_ledger)
+            != seal["candidate_ledger_canonical_sha256"]
+        ):
+            errors.append(f"{label}: candidate ledger digest differs")
+
+    review_path = f".work_packets/reviews/{packet_id}.review.v2.json"
+    if seal["review_path"] != review_path:
+        errors.append(f"{label}: review path differs")
+        return
+    current_review_path = resolve_path(
+        root,
+        review_path,
+        f"{label}.review",
+        errors,
+        must_exist=True,
+    )
+    current_review: Any | None = None
+    if current_review_path is not None:
+        try:
+            current_review = load_json(current_review_path)
+        except (
+            OSError,
+            UnicodeDecodeError,
+            json.JSONDecodeError,
+            DuplicateKeyError,
+            ValueError,
+        ) as exc:
+            errors.append(f"{label}: review JSON is invalid: {exc}")
+    committed_review = git_json(
+        root,
+        review_commit,
+        review_path,
+        f"{label}.committed_review",
+        errors,
+    )
+    if current_review is not None:
+        if canonical_sha256(current_review) != seal["review_canonical_sha256"]:
+            errors.append(f"{label}: current review digest differs")
+        if current_review != committed_review:
+            errors.append(f"{label}: current review differs from anchored commit")
+        if exact_keys(
+            current_review,
+            INDEPENDENT_REVIEW_FIELDS,
+            f"{label}.review",
+            errors,
+        ):
+            expected_candidate_terminal = None
+            if isinstance(candidate_ledger, dict):
+                expected_candidate_terminal = candidate_ledger.get(
+                    "terminal_completion"
+                )
+            if (
+                current_review["schema_version"] != "work-packet-independent-review/v2"
+                or current_review["packet_id"] != packet_id
+                or current_review["candidate_commit"] != candidate_commit
+                or current_review["candidate_tree"] != seal["candidate_tree"]
+                or current_review["reviewer_mode"] != "independent_read_only"
+                or current_review["verdict"] != "accepted"
+                or current_review["findings"] != []
+                or not isinstance(current_review["limitations"], list)
+                or any(
+                    not isinstance(item, str) or not item
+                    for item in current_review["limitations"]
+                )
+                or current_review["candidate_terminal_canonical_sha256"]
+                != canonical_sha256(expected_candidate_terminal)
+            ):
+                errors.append(f"{label}: independent review binding differs")
 
 
 def validate_terminal_completion(
@@ -1133,13 +1483,32 @@ def validate_terminal_completion(
         errors.append(f"ledger {packet_id}: terminal latest snapshot is invalid")
         return
     contract_digest = work_packets.packet_contract_sha256(packet)
+    expected_authority = (
+        "self_reported_local_candidate"
+        if ledger["reported_state"] == "candidate_complete"
+        else "git_review_sealed_candidate"
+    )
     if (
-        terminal["authority_kind"] != "self_reported_local_candidate"
+        terminal["authority_kind"] != expected_authority
         or terminal["packet_contract_sha256"] != contract_digest
         or terminal["latest_record_sha256"] != latest.get("record_sha256")
         or terminal["controlled_claims_sha256"] != snapshot.get("claims_sha256")
     ):
         errors.append(f"ledger {packet_id}: terminal record binding differs")
+    if ledger["reported_state"] == "candidate_complete":
+        if terminal["completion_seal"] is not None:
+            errors.append(
+                f"ledger {packet_id}: candidate completion must remain unsealed"
+            )
+    else:
+        validate_completion_seal(
+            terminal["completion_seal"],
+            terminal,
+            ledger,
+            packet,
+            root,
+            errors,
+        )
     receipt_fields = (
         (
             "checkpoint",
@@ -1180,21 +1549,13 @@ def validate_terminal_completion(
             DuplicateKeyError,
             ValueError,
         ) as exc:
-            errors.append(
-                f"ledger {packet_id} terminal {label}: invalid JSON: {exc}"
-            )
+            errors.append(f"ledger {packet_id} terminal {label}: invalid JSON: {exc}")
             continue
         if canonical_sha256(value) != terminal[digest_field]:
-            errors.append(
-                f"ledger {packet_id}: terminal {label} digest differs"
-            )
-    expected_execution_path = (
-        f".work_packets/receipts/{packet_id}.execution.v2.json"
-    )
+            errors.append(f"ledger {packet_id}: terminal {label} digest differs")
+    expected_execution_path = f".work_packets/receipts/{packet_id}.execution.v2.json"
     if terminal["execution_receipt_path"] != expected_execution_path:
-        errors.append(
-            f"ledger {packet_id}: terminal execution receipt path differs"
-        )
+        errors.append(f"ledger {packet_id}: terminal execution receipt path differs")
     else:
         execution_path = resolve_path(
             root,
@@ -1223,8 +1584,7 @@ def validate_terminal_completion(
                     != terminal["execution_receipt_canonical_sha256"]
                 ):
                     errors.append(
-                        f"ledger {packet_id}: terminal execution receipt "
-                        "digest differs"
+                        f"ledger {packet_id}: terminal execution receipt digest differs"
                     )
                 validate_execution_receipt(
                     execution_value,
@@ -1299,6 +1659,7 @@ def validate_attempts(
     expected_evidence_before = initial_evidence
     execution_retry = 0
     prior: dict[str, Any] | None = None
+    prior_ended: datetime | None = None
     unknown_cost_seen = False
     validated_attempts: list[dict[str, Any]] = []
     for index, attempt in enumerate(attempts):
@@ -1329,6 +1690,11 @@ def validate_attempts(
             expected_wall = int((ended - started).total_seconds() * 1000)
             if ended < started or not is_int(wall) or wall != expected_wall:
                 errors.append(f"{label}: wall_time_ms differs from timestamps")
+            if prior_ended is not None and started < prior_ended:
+                errors.append(
+                    f"{label}: started_at precedes the prior attempt ended_at"
+                )
+            prior_ended = ended
 
         blocker = attempt["blocker"]
         if exact_keys(blocker, BLOCKER_FIELDS, f"{label}.blocker", errors):
@@ -1378,9 +1744,7 @@ def validate_attempts(
             if all(value is not None for value in failure_lists.values()):
                 for field in ("before", "after", "resolved", "introduced"):
                     if failure_delta[field] != sorted(failure_delta[field]):
-                        errors.append(
-                            f"{label}.failure_delta.{field}: must be sorted"
-                        )
+                        errors.append(f"{label}.failure_delta.{field}: must be sorted")
                 before = set(failure_lists["before"] or [])
                 after = set(failure_lists["after"] or [])
                 if failure_delta["resolved"] != sorted(before - after):
@@ -1415,7 +1779,9 @@ def validate_attempts(
                     set(policy["progress_derivation"]["allowed_evidence_kinds"]),
                     errors,
                     require_current=(
-                        index == len(attempts) - 1 and field == "after"
+                        index == len(attempts) - 1
+                        and field == "after"
+                        and not allow_latest_snapshot_stale
                     ),
                 )
             if all(value is not None for value in evidence_lists.values()):
@@ -1424,8 +1790,7 @@ def validate_attempts(
                 before = {evidence_identity(item) for item in before_items}
                 after = {evidence_identity(item) for item in after_items}
                 added = {
-                    evidence_identity(item)
-                    for item in (evidence_lists["added"] or [])
+                    evidence_identity(item) for item in (evidence_lists["added"] or [])
                 }
                 removed = {
                     evidence_identity(item)
@@ -1450,16 +1815,16 @@ def validate_attempts(
         referenced_failure_ids = set(blocker.get("failure_ids", []))
         for item in evidence_delta.get("after", []):
             if isinstance(item, dict):
-                referenced_failure_ids.update(
-                    item.get("supports_failure_ids", [])
-                )
+                referenced_failure_ids.update(item.get("supports_failure_ids", []))
         if not referenced_failure_ids.issubset(known_failure_ids):
             errors.append(
                 f"{label}: blocker or evidence references unknown failure ids"
             )
 
         snapshot = attempt["controlled_snapshot"]
-        if exact_keys(snapshot, SNAPSHOT_FIELDS, f"{label}.controlled_snapshot", errors):
+        if exact_keys(
+            snapshot, SNAPSHOT_FIELDS, f"{label}.controlled_snapshot", errors
+        ):
             if snapshot["algorithm"] != policy["current_snapshot"]["algorithm"]:
                 errors.append(f"{label}: controlled snapshot algorithm differs")
             excluded = unique_strings(
@@ -1496,11 +1861,14 @@ def validate_attempts(
             label,
             errors,
         )
-        unknown_cost_seen = validate_cost(
-            attempt["cost_observation"],
-            f"{label}.cost_observation",
-            errors,
-        ) or unknown_cost_seen
+        unknown_cost_seen = (
+            validate_cost(
+                attempt["cost_observation"],
+                f"{label}.cost_observation",
+                errors,
+            )
+            or unknown_cost_seen
+        )
 
         resolved = (
             set(failure_delta.get("resolved", []))
@@ -1567,8 +1935,7 @@ def validate_attempts(
     if ledger["reported_state"] == "pending":
         if (
             len(validated_attempts) != 1
-            or validated_attempts[0].get("attempt_kind")
-            != "baseline_observation"
+            or validated_attempts[0].get("attempt_kind") != "baseline_observation"
         ):
             errors.append(
                 f"ledger {packet_id}: pending ledger must contain exactly one "
@@ -1723,8 +2090,7 @@ def verify_legacy_and_exemptions(
         exempt_ids.add(packet_id)
         if (
             packet_paths.get(packet_id) != exemption["packet_path"]
-            or packet.get("schema_version")
-            != exemption["packet_schema_version"]
+            or packet.get("schema_version") != exemption["packet_schema_version"]
             or packet.get("state") != exemption["packet_state"]
             or work_packets.packet_contract_sha256(packet)
             != exemption["packet_contract_sha256"]
@@ -1755,9 +2121,7 @@ def verify_legacy_and_exemptions(
                 )
                 continue
             if canonical_sha256(value) != exemption[f"{kind}_canonical_sha256"]:
-                errors.append(
-                    f"execution exemption {packet_id} {kind}: digest differs"
-                )
+                errors.append(f"execution exemption {packet_id} {kind}: digest differs")
     return exempt_ids
 
 
@@ -1766,6 +2130,7 @@ def verify(
     policy_path: Path = DEFAULT_POLICY,
     *,
     allow_stale_packet_id: str | None = None,
+    allow_pending_operation_id: str | None = None,
 ) -> dict[str, Any]:
     errors: list[str] = []
     try:
@@ -1809,9 +2174,7 @@ def verify(
             "claim_boundary": "No execution-freshness claim was established.",
         }
 
-    transaction_directory = (
-        root / policy["recorder_runtime"]["transaction_directory"]
-    )
+    transaction_directory = root / policy["recorder_runtime"]["transaction_directory"]
     if transaction_directory.exists():
         if transaction_directory.is_symlink() or not transaction_directory.is_dir():
             errors.append(
@@ -1826,6 +2189,32 @@ def verify(
                     "execution recorder has an interrupted transaction requiring "
                     f"recovery: {pending_transactions}"
                 )
+
+    operation_directory = root / policy["recorder_runtime"]["operation_directory"]
+    if operation_directory.exists():
+        if operation_directory.is_symlink() or not operation_directory.is_dir():
+            errors.append("execution recorder operation path must be a real directory")
+        else:
+            pending_operations = sorted(
+                entry.name for entry in operation_directory.iterdir()
+            )
+            if allow_pending_operation_id is not None:
+                if re.fullmatch(
+                    r"[0-9a-f]{32}", allow_pending_operation_id
+                ) is None or pending_operations != [allow_pending_operation_id]:
+                    errors.append(
+                        "recorder operation exception must name the sole "
+                        "pending operation"
+                    )
+                else:
+                    pending_operations = []
+            if pending_operations:
+                errors.append(
+                    "execution recorder has an interrupted operation requiring "
+                    f"recovery: {pending_operations}"
+                )
+    elif allow_pending_operation_id is not None:
+        errors.append("recorder operation exception names no pending operation")
 
     packet_dir = root / policy["work_packets"]["packet_directory"]
     work_policy = root / policy["work_packets"]["policy_path"]
@@ -1876,9 +2265,7 @@ def verify(
         allow_stale_packet_id is not None
         and allow_stale_packet_id not in live_packet_ids
     ):
-        errors.append(
-            "recorder stale exception does not name one live V2 packet"
-        )
+        errors.append("recorder stale exception does not name one live V2 packet")
     exempt_ids = verify_legacy_and_exemptions(
         root,
         packets,
@@ -1894,8 +2281,7 @@ def verify(
         )
 
     expected_ledger_paths = {
-        ledger_path_for(packet_id)
-        for packet_id in live_packet_ids - exempt_ids
+        ledger_path_for(packet_id) for packet_id in live_packet_ids - exempt_ids
     }
     actual_v2_paths: set[str] = set()
     ledger_dir = root / policy["ledger_schema"]["directory"]
@@ -1925,9 +2311,7 @@ def verify(
             {
                 "packet_id": packet_id,
                 "packet_path": packet_paths.get(packet_id),
-                "packet_contract_sha256": exemption[
-                    "packet_contract_sha256"
-                ],
+                "packet_contract_sha256": exemption["packet_contract_sha256"],
                 "reported_state": exemption["packet_state"],
                 "ledger_path": None,
                 "ledger_canonical_sha256": None,
@@ -2001,9 +2385,7 @@ def verify(
             live_packet_ids,
             policy,
             errors,
-            allow_latest_snapshot_stale=(
-                packet_id == allow_stale_packet_id
-            ),
+            allow_latest_snapshot_stale=(packet_id == allow_stale_packet_id),
         )
         latest_attempt = (
             ledger["attempts"][-1]
@@ -2053,18 +2435,16 @@ def verify(
         ),
         "errors": unique_errors,
         "claim_boundary": (
-            (
-                "Recorder preflight validates every contract and history while "
-                "allowing exactly one named active packet's latest controlled "
-                "snapshot to be stale so a new observation can be appended."
-                if allow_stale_packet_id is not None
-                else (
-                    "Current means every non-exempt live V2 packet has a "
-                    "contract-bound latest observation matching its controlled "
-                    "bytes. It does not authenticate execution, establish "
-                    "semantic adequacy, freeze the design, prove product "
-                    "completion, or prove investment effectiveness."
-                )
+            "Recorder preflight validates every contract and history while "
+            "allowing exactly one named active packet's latest controlled "
+            "snapshot to be stale so a new observation can be appended."
+            if allow_stale_packet_id is not None
+            else (
+                "Current means every non-exempt live V2 packet has a "
+                "contract-bound latest observation matching its controlled "
+                "bytes. It does not authenticate execution, establish "
+                "semantic adequacy, freeze the design, prove product "
+                "completion, or prove investment effectiveness."
             )
         ),
     }

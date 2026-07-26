@@ -1,0 +1,28 @@
+{
+  "schema_version": "active-packet-contract-migration-audit/v1",
+  "migration_id": "FOUNDATION-RETRY-BUDGET-3-TO-8-2026-07-26",
+  "recorded_at": "2026-07-26T03:38:28.000Z",
+  "packet_id": "WP-METHOD-RUNTIME-FOUNDATION",
+  "reason": "Independent Review C introduced seven separately testable blocking findings after the first execution attempt. A retry budget of three cannot both preserve those failed-review observations and permit a later independently accepted terminal transition, because an active resolved third attempt is invalid before finalization. The budget is therefore widened before any further attempt, with the prior ledger hash retained here.",
+  "before": {
+    "retry_budget": 3,
+    "packet_contract_sha256": "1f508ac7059c75a95c6f2fd67484f32cfd65c22f6cabdcff05a2264815a34919",
+    "ledger_raw_sha256": "ad5e6dbc0bf6072dc37a28a6f9a67e23adb2705ef7f83ff4eebd9b6395607800",
+    "latest_record_sha256": "ba113e1db307ccc2f8f42d14a7e0ada29a33724fcc5200f374a610fcd8b62389"
+  },
+  "after": {
+    "retry_budget": 8,
+    "packet_contract_sha256": "43d65bd38280a1c987d8c2103f45b9a6186b6957f83e4dd8a2109fced6f9919b"
+  },
+  "invariants": [
+    "No existing attempt object is changed.",
+    "The packet remains active and no failure is declared resolved by this migration.",
+    "The next recorder observation must bind all current controlled bytes and explicitly retain the Review C findings as open.",
+    "The wider budget is capacity for evidence-bearing review cycles, not permission to ignore forced-stop rules.",
+    "No completion, design-freeze, product-quality, or investment-effectiveness claim is created."
+  ],
+  "limitations": [
+    "The audit preserves the old ledger raw hash but cannot embed the new ledger hash because this file is itself inside the packet's controlled audit tree.",
+    "Local hashes are tamper-evident consistency evidence, not authenticated reviewer identity."
+  ]
+}

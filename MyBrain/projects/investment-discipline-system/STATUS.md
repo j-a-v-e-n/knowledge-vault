@@ -123,7 +123,7 @@
         "path": ".work_packets/packets/WP-METHOD-RUNTIME-FOUNDATION.packet.json"
       },
       {
-        "canonical_sha256": "dc8a17f8104cff03a147c3eee12acff6f8b7f5a4eea930647be69eddf3d0a88d",
+        "canonical_sha256": "700add4cc071ed22c6c03e2c2d7b09306ae3aa988b9ec32a4ca4efcab2ef3973",
         "json_pointers": [],
         "path": "@runtime/execution-freshness"
       },
@@ -177,7 +177,7 @@
         "path": "governance/PROJECT_STATE_VIEW_POLICY_V1.json"
       }
     ],
-    "state_basis_sha256": "0cd70ec89fcc933c6a2d52a1f70f17e605052c5421d1e8aff0bf3786895b8d1d"
+    "state_basis_sha256": "7ce43e53c531370da53eb5a8f00371cdfdb5e7cfa3a717be912baefcfed083ee"
   },
   "latest_blocking_review": {
     "evidence_path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",

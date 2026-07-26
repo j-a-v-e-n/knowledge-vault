@@ -87,14 +87,10 @@ def rehash_attempts(ledger: dict[str, Any]) -> None:
     previous: dict[str, Any] | None = None
     for attempt in ledger["attempts"]:
         attempt["previous_attempt_sha256"] = (
-            None
-            if previous is None
-            else execution.canonical_sha256(previous)
+            None if previous is None else execution.canonical_sha256(previous)
         )
         without_record = {
-            key: value
-            for key, value in attempt.items()
-            if key != "record_sha256"
+            key: value for key, value in attempt.items() if key != "record_sha256"
         }
         attempt["record_sha256"] = execution.canonical_sha256(without_record)
         previous = attempt
@@ -123,9 +119,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             shutil.copy2(source, target)
 
     def copy_fixture(self) -> None:
-        packet_sources = sorted(
-            (SOURCE_ROOT / PACKET_DIRECTORY).glob("*.packet.json")
-        )
+        packet_sources = sorted((SOURCE_ROOT / PACKET_DIRECTORY).glob("*.packet.json"))
         for packet_source in packet_sources:
             relative = packet_source.relative_to(SOURCE_ROOT).as_posix()
             self.copy_one(relative)
@@ -163,9 +157,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
 
     def build_ledgers(self) -> None:
         resolved_root = self.root.resolve()
-        packet_paths = sorted(
-            (self.root / PACKET_DIRECTORY).glob("*.packet.json")
-        )
+        packet_paths = sorted((self.root / PACKET_DIRECTORY).glob("*.packet.json"))
         packets = {
             packet["packet_id"]: packet
             for path in packet_paths
@@ -204,9 +196,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
                 "failure_delta": empty_failure_delta(),
                 "evidence_delta": empty_evidence_delta(),
                 "controlled_snapshot": {
-                    "algorithm": execution.EXPECTED_CURRENT_SNAPSHOT[
-                        "algorithm"
-                    ],
+                    "algorithm": execution.EXPECTED_CURRENT_SNAPSHOT["algorithm"],
                     "excluded_paths": excluded,
                     "claims": claims,
                     "claims_sha256": execution.canonical_sha256(claims),
@@ -225,9 +215,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
                 "packet_path": (
                     PACKET_DIRECTORY / f"{packet_id}.packet.json"
                 ).as_posix(),
-                "packet_contract_sha256": (
-                    work_packets.packet_contract_sha256(packet)
-                ),
+                "packet_contract_sha256": (work_packets.packet_contract_sha256(packet)),
                 "reported_state": packet["state"],
                 "cost_accounting_claim": "partial",
                 "initial_state": {
@@ -283,15 +271,11 @@ class ExecutionLoopV2Tests(unittest.TestCase):
         failure_after: list[str] | None = None,
         added_evidence: list[dict[str, Any]] | None = None,
     ) -> None:
-        packet = json.loads(
-            self.packet_path(packet_id).read_text(encoding="utf-8")
-        )
+        packet = json.loads(self.packet_path(packet_id).read_text(encoding="utf-8"))
         live_ids = {
             json.loads(path.read_text(encoding="utf-8"))["packet_id"]
             for path in (self.root / PACKET_DIRECTORY).glob("*.packet.json")
-            if json.loads(path.read_text(encoding="utf-8")).get(
-                "schema_version"
-            )
+            if json.loads(path.read_text(encoding="utf-8")).get("schema_version")
             == "work-packet-instance/v2"
         }
         excluded, claims = execution.current_claim_snapshots(
@@ -340,12 +324,8 @@ class ExecutionLoopV2Tests(unittest.TestCase):
                 "failure_delta": {
                     "before": before_failures,
                     "after": after_failures,
-                    "resolved": sorted(
-                        set(before_failures) - set(after_failures)
-                    ),
-                    "introduced": sorted(
-                        set(after_failures) - set(before_failures)
-                    ),
+                    "resolved": sorted(set(before_failures) - set(after_failures)),
+                    "introduced": sorted(set(after_failures) - set(before_failures)),
                 },
                 "evidence_delta": {
                     "before": before_evidence,
@@ -354,9 +334,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
                     "removed": [],
                 },
                 "controlled_snapshot": {
-                    "algorithm": execution.EXPECTED_CURRENT_SNAPSHOT[
-                        "algorithm"
-                    ],
+                    "algorithm": execution.EXPECTED_CURRENT_SNAPSHOT["algorithm"],
                     "excluded_paths": excluded,
                     "claims": claims,
                     "claims_sha256": execution.canonical_sha256(claims),
@@ -364,8 +342,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
                 "process_observation": no_process_observation("passive"),
                 "cost_observation": unknown_cost(),
                 "declared_progress": bool(
-                    additions
-                    or set(before_failures) - set(after_failures)
+                    additions or set(before_failures) - set(after_failures)
                 ),
                 "previous_attempt_sha256": None,
                 "record_sha256": "",
@@ -382,9 +359,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
     ) -> dict[str, Any]:
         return {
             "path": relative,
-            "sha256": hashlib.sha256(
-                (self.root / relative).read_bytes()
-            ).hexdigest(),
+            "sha256": hashlib.sha256((self.root / relative).read_bytes()).hexdigest(),
             "kind": "other",
             "supports_failure_ids": sorted(supports or []),
         }
@@ -435,9 +410,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
     def test_weakening_same_blocker_threshold_is_rejected(self) -> None:
         path = self.root / POLICY_RELATIVE
         policy = json.loads(path.read_text(encoding="utf-8"))
-        policy["stopping_rules"][
-            "same_blocker_consecutive_no_progress_threshold"
-        ] = 4
+        policy["stopping_rules"]["same_blocker_consecutive_no_progress_threshold"] = 4
         write_json(path, policy)
         self.assert_invalid("policy.stopping_rules")
 
@@ -458,8 +431,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
         path.write_text(
             raw.replace(
                 '{\n  "attempts"',
-                '{\n  "schema_version": "execution-attempt-ledger/v2",'
-                '\n  "attempts"',
+                '{\n  "schema_version": "execution-attempt-ledger/v2",\n  "attempts"',
                 1,
             ),
             encoding="utf-8",
@@ -498,9 +470,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
 
     def test_controlled_claims_hash_tampering_is_rejected(self) -> None:
         def mutate(ledger: dict[str, Any]) -> None:
-            ledger["attempts"][0]["controlled_snapshot"][
-                "claims_sha256"
-            ] = "0" * 64
+            ledger["attempts"][0]["controlled_snapshot"]["claims_sha256"] = "0" * 64
 
         self.mutate_ledger("WP-CI-LINT-BASELINE", mutate, rehash=True)
         self.assert_invalid("controlled claims hash differs")
@@ -513,10 +483,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
         self.assert_invalid("packet or schema binding differs")
 
     def test_legacy_history_hash_is_enforced(self) -> None:
-        path = (
-            self.root
-            / ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.json"
-        )
+        path = self.root / ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.json"
         path.write_text(
             path.read_text(encoding="utf-8") + "\n",
             encoding="utf-8",
@@ -525,8 +492,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
 
     def test_pre_v2_exemption_receipt_is_exactly_bound(self) -> None:
         path = (
-            self.root
-            / ".work_packets/receipts/"
+            self.root / ".work_packets/receipts/"
             "WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY.acceptance.json"
         )
         receipt = json.loads(path.read_text(encoding="utf-8"))
@@ -579,9 +545,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             mutate,
             rehash=True,
         )
-        self.assert_invalid(
-            "three consecutive no-progress attempts require blocked"
-        )
+        self.assert_invalid("three consecutive no-progress attempts require blocked")
 
     def test_pending_baseline_cannot_be_followed_by_execution_attempt(self) -> None:
         self.append_execution_attempt("WP-CI-LINT-BASELINE")
@@ -600,14 +564,10 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             failure_after=[],
             added_evidence=[evidence],
         )
-        self.assert_invalid(
-            "failure state is not continuous with prior attempt"
-        )
+        self.assert_invalid("failure state is not continuous with prior attempt")
 
     def test_evidence_state_must_be_continuous_across_attempts(self) -> None:
-        evidence = self.evidence_reference(
-            "governance/EXECUTION_LOOP_POLICY_V2.json"
-        )
+        evidence = self.evidence_reference("governance/EXECUTION_LOOP_POLICY_V2.json")
         self.append_execution_attempt(
             "WP-METHOD-RUNTIME-FOUNDATION",
             added_evidence=[evidence],
@@ -624,9 +584,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             mutate,
             rehash=True,
         )
-        self.assert_invalid(
-            "evidence state is not continuous with prior attempt"
-        )
+        self.assert_invalid("evidence state is not continuous with prior attempt")
 
     def test_forced_stop_prefix_cannot_be_erased_by_fourth_progress(self) -> None:
         packet_id = "WP-METHOD-RUNTIME-FOUNDATION"
@@ -638,9 +596,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
             packet_id,
             root_cause_id="ROTATED-BLOCKER-THREE",
         )
-        evidence = self.evidence_reference(
-            "governance/EXECUTION_LOOP_POLICY_V2.json"
-        )
+        evidence = self.evidence_reference("governance/EXECUTION_LOOP_POLICY_V2.json")
         self.append_execution_attempt(
             packet_id,
             status_after="resolved",
@@ -651,10 +607,14 @@ class ExecutionLoopV2Tests(unittest.TestCase):
 
     def test_retry_budget_cannot_end_resolved_without_acceptance(self) -> None:
         packet_id = "WP-METHOD-RUNTIME-FOUNDATION"
+        packet = json.loads(self.packet_path(packet_id).read_text(encoding="utf-8"))
+        packet["retry_budget"] = 3
+        write_json(self.packet_path(packet_id), packet)
+        ledger = json.loads(self.ledger_path(packet_id).read_text(encoding="utf-8"))
+        ledger["packet_contract_sha256"] = work_packets.packet_contract_sha256(packet)
+        write_json(self.ledger_path(packet_id), ledger)
         self.append_execution_attempt(packet_id)
-        evidence = self.evidence_reference(
-            "governance/EXECUTION_LOOP_POLICY_V2.json"
-        )
+        evidence = self.evidence_reference("governance/EXECUTION_LOOP_POLICY_V2.json")
         self.append_execution_attempt(
             packet_id,
             status_after="resolved",
@@ -678,10 +638,7 @@ class ExecutionLoopV2Tests(unittest.TestCase):
 
         def mutate(ledger: dict[str, Any]) -> None:
             attempt = ledger["attempts"][0]
-            relative = (
-                ".work_packets/packets/"
-                "WP-METHOD-RUNTIME-FOUNDATION.packet.json"
-            )
+            relative = ".work_packets/packets/WP-METHOD-RUNTIME-FOUNDATION.packet.json"
             reference = {
                 "path": relative,
                 "sha256": hashlib.sha256(

@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from datetime import UTC, datetime
 from pathlib import Path
@@ -28,9 +29,11 @@ PROJECT_STATE_POLICY = Path("governance/PROJECT_STATE_VIEW_POLICY_V1.json")
 PACKET_DIRECTORY = Path(".work_packets/packets")
 TARGET_ID = "WP-METHOD-RUNTIME-FOUNDATION"
 SUCCESSOR_ID = "WP-RECORDER-SUCCESSOR"
+SECOND_ID = "WP-RECORDER-SECOND"
 EXEMPT_ID = "WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY"
 TARGET_OUTPUT = "src/recorder-target.txt"
 SUCCESSOR_OUTPUT = "src/recorder-successor.txt"
+SECOND_OUTPUT = "src/recorder-second.txt"
 VIEW_PATHS = ("STATUS.md", "TASK_BOARD.md", "LOOP_RUN_LOG.md")
 FINALIZE_STDOUT = b"acceptance-out\n"
 FINALIZE_STDERR = b"acceptance-err\n"
@@ -146,12 +149,8 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             "state": "active",
             "owner": "recorder-fixture",
             "reviewer": "recorder-test",
-            "bounded_write_paths": [
-                {"path": TARGET_OUTPUT, "kind": "file"}
-            ],
-            "read_dependencies": [
-                "governance_tests/test_contract_supersession.py"
-            ],
+            "bounded_write_paths": [{"path": TARGET_OUTPUT, "kind": "file"}],
+            "read_dependencies": ["governance_tests/test_contract_supersession.py"],
             "acceptance_checks": [
                 {
                     "check_id": check_id,
@@ -181,10 +180,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                     "inputs": [
                         {
                             "packet_id": EXEMPT_ID,
-                            "path": (
-                                "governance_tests/"
-                                "test_contract_supersession.py"
-                            ),
+                            "path": ("governance_tests/test_contract_supersession.py"),
                         }
                     ],
                     "probe_check_ids": [check_id],
@@ -208,9 +204,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             "state": "pending",
             "owner": "recorder-fixture",
             "reviewer": "recorder-test",
-            "bounded_write_paths": [
-                {"path": SUCCESSOR_OUTPUT, "kind": "file"}
-            ],
+            "bounded_write_paths": [{"path": SUCCESSOR_OUTPUT, "kind": "file"}],
             "read_dependencies": [TARGET_OUTPUT],
             "acceptance_checks": [
                 {
@@ -230,9 +224,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             "integration_invariants": [
                 {
                     "invariant_id": "INV-RECORDER-SUCCESSOR-INPUT",
-                    "inputs": [
-                        {"packet_id": TARGET_ID, "path": TARGET_OUTPUT}
-                    ],
+                    "inputs": [{"packet_id": TARGET_ID, "path": TARGET_OUTPUT}],
                     "probe_check_ids": [check_id],
                 }
             ],
@@ -246,11 +238,15 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         }
 
     def baseline_ledger(self, packet: dict[str, Any]) -> dict[str, Any]:
+        live_packet_ids = {
+            path.name.removesuffix(".packet.json")
+            for path in (self.root / PACKET_DIRECTORY).glob("*.packet.json")
+        }
         errors: list[str] = []
         excluded, claims = execution.current_claim_snapshots(
             self.root.resolve(),
             packet,
-            {EXEMPT_ID, TARGET_ID, SUCCESSOR_ID},
+            live_packet_ids,
             errors,
         )
         self.assertEqual([], errors)
@@ -301,19 +297,13 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             "record_sha256": "",
         }
         attempt["record_sha256"] = execution.canonical_sha256(
-            {
-                key: value
-                for key, value in attempt.items()
-                if key != "record_sha256"
-            }
+            {key: value for key, value in attempt.items() if key != "record_sha256"}
         )
         return {
             "schema_version": "execution-attempt-ledger/v2",
             "packet_id": packet["packet_id"],
             "packet_path": self.packet_path(packet["packet_id"]),
-            "packet_contract_sha256": work_packets.packet_contract_sha256(
-                packet
-            ),
+            "packet_contract_sha256": work_packets.packet_contract_sha256(packet),
             "reported_state": packet["state"],
             "cost_accounting_claim": "partial",
             "initial_state": {"failure_ids": [], "evidence": []},
@@ -347,9 +337,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                 "status": "candidate_under_challenge",
                 "change_control": {
                     "closure_mutation_policy": {
-                        "freeze_state_authority": (
-                            "governance/FROZEN_BUNDLE_V1.json"
-                        )
+                        "freeze_state_authority": ("governance/FROZEN_BUNDLE_V1.json")
                     }
                 },
             },
@@ -413,6 +401,9 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         failure_after: list[str] | None = None,
         expected_tail: str | None = None,
         crash_after_replacements: int | None = None,
+        crash_before_journal_after_staged: bool = False,
+        crash_after_outcome: bool = False,
+        crash_after_core_commit: bool = False,
     ) -> dict[str, Any]:
         return recorder.append_passive(
             self.root,
@@ -423,6 +414,9 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             "RECORDER-OBSERVATION",
             "Recorder fixture observation",
             crash_after_replacements=crash_after_replacements,
+            crash_before_journal_after_staged=(crash_before_journal_after_staged),
+            crash_after_outcome=crash_after_outcome,
+            crash_after_core_commit=crash_after_core_commit,
         )
 
     def record_resolved(self) -> dict[str, Any]:
@@ -443,6 +437,76 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                 TARGET_ID,
                 self.tail(),
             )
+
+    def git(self, *argv: str) -> str:
+        completed = subprocess.run(
+            ["git", *argv],
+            cwd=self.root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(
+            0,
+            completed.returncode,
+            (completed.stdout, completed.stderr),
+        )
+        return completed.stdout.strip()
+
+    def prepare_seal_authority(
+        self,
+        packet_id: str = TARGET_ID,
+    ) -> tuple[str, str]:
+        if not (self.root / ".git").exists():
+            self.git("init", "-q")
+            self.git("config", "user.name", "Recorder Test")
+            self.git("config", "user.email", "recorder@example.invalid")
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", f"candidate {packet_id}")
+        candidate_commit = self.git("rev-parse", "HEAD")
+        candidate_tree = self.git("rev-parse", "HEAD^{tree}")
+        candidate_terminal = self.ledger(packet_id)["terminal_completion"]
+        review = {
+            "schema_version": "work-packet-independent-review/v2",
+            "packet_id": packet_id,
+            "candidate_commit": candidate_commit,
+            "candidate_tree": candidate_tree,
+            "candidate_terminal_canonical_sha256": (
+                execution.canonical_sha256(candidate_terminal)
+            ),
+            "reviewer_mode": "independent_read_only",
+            "verdict": "accepted",
+            "findings": [],
+            "limitations": [
+                "Fixture review validates binding mechanics, not reviewer identity."
+            ],
+        }
+        review_path = f".work_packets/reviews/{packet_id}.review.v2.json"
+        self.write_json(review_path, review)
+        self.git("add", review_path)
+        self.git("commit", "-q", "-m", f"review {packet_id}")
+        review_commit = self.git("rev-parse", "HEAD")
+        self.git(
+            "tag",
+            f"ids-reviewed/{packet_id}",
+            review_commit,
+        )
+        return candidate_commit, review_commit
+
+    def seal_candidate(
+        self,
+        packet_id: str = TARGET_ID,
+    ) -> tuple[str, str, dict[str, Any]]:
+        candidate_commit, review_commit = self.prepare_seal_authority(packet_id)
+        result = recorder.seal_packet(
+            self.root,
+            packet_id,
+            self.tail(packet_id),
+            candidate_commit,
+            review_commit,
+        )
+        return candidate_commit, review_commit, result
 
     def test_wrong_expected_tail_cas_changes_no_project_file(self) -> None:
         before = self.project_files()
@@ -598,6 +662,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                 crash_after_replacements=1,
             )
         transaction_id = str(raised.exception)
+        operation_id = recorder.pending_operation_paths(self.root)[0].name
         receipt = self.assert_execution_invalid(
             "interrupted transaction requiring recovery"
         )
@@ -608,8 +673,12 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         ):
             project_state.derive_projection(self.root)
 
-        recovered = recorder.recover_transactions(self.root)
-        self.assertEqual([transaction_id], recovered)
+        self.assertEqual(
+            [transaction_id],
+            [path.name for path in recorder.pending_transaction_paths(self.root)],
+        )
+        recovered = recorder.recover_operations(self.root)
+        self.assertEqual([operation_id], recovered)
         ledger = self.ledger()
         self.assertEqual(before_attempts, ledger["attempts"][:-1])
         self.assertEqual(2, len(ledger["attempts"]))
@@ -622,8 +691,620 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         project_state.check_project_state(self.root)
 
         rolled_forward = self.project_files()
-        self.assertEqual([], recorder.recover_transactions(self.root))
+        self.assertEqual([], recorder.recover_operations(self.root))
         self.assertEqual(rolled_forward, self.project_files())
+
+    def test_prejournal_staging_is_discarded_then_operation_rolls_forward(
+        self,
+    ) -> None:
+        before = copy.deepcopy(self.ledger()["attempts"])
+        with self.assertRaises(recorder.SimulatedRecorderCrash):
+            self.append_passive(
+                crash_before_journal_after_staged=True,
+            )
+        transaction = recorder.pending_transaction_paths(self.root)[0]
+        self.assertTrue((transaction / "prepare.json").is_file())
+        self.assertFalse((transaction / "journal.json").exists())
+        operation_id = recorder.pending_operation_paths(self.root)[0].name
+        self.assertEqual(before, self.ledger()["attempts"])
+        self.assert_execution_invalid("interrupted transaction requiring recovery")
+
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        self.assertEqual(len(before) + 1, len(self.ledger()["attempts"]))
+        self.assertEqual([], recorder.pending_transaction_paths(self.root))
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+        project_state.check_project_state(self.root)
+
+    def test_empty_prelaunch_operation_is_recoverable_and_never_executes(
+        self,
+    ) -> None:
+        operation_id = "a" * 32
+        directory = (
+            self.root
+            / execution.EXPECTED_RECORDER["operation_directory"]
+            / operation_id
+        )
+        directory.mkdir(parents=True)
+        self.assert_execution_invalid("interrupted operation requiring recovery")
+        before = self.project_files()
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        self.assertFalse(directory.exists())
+        self.assertEqual(
+            {
+                path: content
+                for path, content in before.items()
+                if not path.startswith(
+                    execution.EXPECTED_RECORDER["operation_directory"]
+                )
+            },
+            {
+                path: content
+                for path, content in self.project_files().items()
+                if not path.startswith(
+                    execution.EXPECTED_RECORDER["operation_directory"]
+                )
+            },
+        )
+        self.assert_execution_current()
+
+    def test_durable_outcome_recovers_instead_of_disappearing(self) -> None:
+        before = copy.deepcopy(self.ledger()["attempts"])
+        with self.assertRaises(recorder.SimulatedOperationCrash) as raised:
+            self.append_passive(crash_after_outcome=True)
+        operation_id = str(raised.exception)
+        self.assertEqual(before, self.ledger()["attempts"])
+        self.assert_execution_invalid("interrupted operation requiring recovery")
+
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        after = self.ledger()["attempts"]
+        self.assertEqual(before, after[:-1])
+        self.assertEqual("passive", after[-1]["process_observation"]["mode"])
+        self.assert_execution_current()
+
+    def test_sigkill_after_durable_child_outcome_recovers_exact_result(
+        self,
+    ) -> None:
+        barrier = Path(self._temporary.name) / "outcome-durable"
+        expected_tail = self.tail()
+        child_stdout = b"durable-child-out\n"
+        worker = (
+            "import signal, sys\n"
+            "from pathlib import Path\n"
+            f"sys.path.insert(0, {str(SOURCE_ROOT)!r})\n"
+            "from scripts import record_execution_attempt_v2 as recorder\n"
+            "root = Path(sys.argv[1])\n"
+            "barrier = Path(sys.argv[2])\n"
+            "def hook(phase, operation_id):\n"
+            "    if phase == 'outcome':\n"
+            "        barrier.write_text(operation_id)\n"
+            "        signal.pause()\n"
+            "recorder.run_and_append("
+            "root, sys.argv[3], sys.argv[4], "
+            f"[sys.executable, '-c', {('import os; os.write(1, ' + repr(child_stdout) + ')')!r}], "
+            "None, 'open', 'RECORDER-SIGKILL', "
+            "'Persist child outcome before forced termination', 10, "
+            "_lifecycle_hook=hook)"
+        )
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                worker,
+                str(self.root),
+                str(barrier),
+                TARGET_ID,
+                expected_tail,
+            ],
+            cwd=SOURCE_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        deadline = time.monotonic() + 15
+        while not barrier.exists() and process.poll() is None:
+            if time.monotonic() >= deadline:
+                process.kill()
+                stdout, stderr = process.communicate()
+                self.fail((stdout, stderr))
+            time.sleep(0.01)
+        self.assertTrue(barrier.exists())
+        operation_id = barrier.read_text()
+        process.kill()
+        process.communicate(timeout=10)
+        self.assertNotEqual(0, process.returncode)
+        operation = recorder.validate_operation(
+            self.root
+            / execution.EXPECTED_RECORDER["operation_directory"]
+            / operation_id
+        )
+        self.assertEqual("outcome_recorded", operation["phase"])
+        self.assert_execution_invalid("interrupted operation requiring recovery")
+
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        observed = self.ledger()["attempts"][-1]["process_observation"]
+        self.assertEqual(0, observed["exit_code"])
+        self.assertEqual(
+            hashlib.sha256(child_stdout).hexdigest(),
+            observed["stdout_sha256"],
+        )
+        self.assertEqual(len(child_stdout), observed["stdout_bytes"])
+        self.assert_execution_current()
+
+    def test_postcore_crash_keeps_operation_until_views_are_refreshed(
+        self,
+    ) -> None:
+        before_views = {
+            relative: (self.root / relative).read_bytes() for relative in VIEW_PATHS
+        }
+        with self.assertRaises(recorder.SimulatedOperationCrash) as raised:
+            self.append_passive(crash_after_core_commit=True)
+        operation_id = str(raised.exception)
+        self.assertEqual(2, len(self.ledger()["attempts"]))
+        self.assertEqual(
+            before_views,
+            {relative: (self.root / relative).read_bytes() for relative in VIEW_PATHS},
+        )
+        self.assert_execution_invalid("interrupted operation requiring recovery")
+
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        self.assert_execution_current()
+        project_state.check_project_state(self.root)
+        self.assertNotEqual(
+            before_views,
+            {relative: (self.root / relative).read_bytes() for relative in VIEW_PATHS},
+        )
+
+    def test_missing_run_outcome_recovers_as_explicit_block(self) -> None:
+        command = [sys.executable, "-c", "raise SystemExit(0)"]
+        with self.assertRaises(recorder.SimulatedOperationCrash) as raised:
+            recorder.run_and_append(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                command,
+                None,
+                "resolved",
+                "RECORDER-RUN-INTENT",
+                "Durable run intent",
+                10,
+                crash_after_intent=True,
+            )
+        operation_id = str(raised.exception)
+        self.assert_execution_invalid("interrupted operation requiring recovery")
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            "indeterminate",
+            latest["process_observation"]["mode"],
+        )
+        self.assertEqual("blocked", latest["blocker"]["status_after"])
+        self.assertEqual(["RECORDER-902"], latest["failure_delta"]["after"])
+        self.assertEqual(
+            "blocked",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assert_execution_current()
+
+    def test_nonzero_run_cannot_be_discarded_by_requested_resolution(
+        self,
+    ) -> None:
+        result = recorder.run_and_append(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            [sys.executable, "-c", "raise SystemExit(7)"],
+            None,
+            "resolved",
+            "RECORDER-NONZERO",
+            "Caller requested resolution",
+            10,
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(7, result["process_exit_code"])
+        self.assertEqual("open", latest["blocker"]["status_after"])
+        self.assertEqual(["RECORDER-901"], latest["failure_delta"]["after"])
+        self.assert_execution_current()
+
+    def test_finalize_outcome_recovers_without_rerunning_observed_check(
+        self,
+    ) -> None:
+        self.record_resolved()
+        with self.assertRaises(recorder.SimulatedOperationCrash) as raised:
+            recorder.finalize_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                crash_after_check_outcome=1,
+            )
+        operation_id = str(raised.exception)
+        operation = recorder.validate_operation(
+            recorder.pending_operation_paths(self.root)[0]
+        )
+        self.assertEqual(1, operation["outcome"]["next_check_index"])
+        self.assertEqual(1, len(operation["outcome"]["checks"]))
+        self.assert_execution_invalid("interrupted operation requiring recovery")
+
+        with mock.patch.object(
+            recorder,
+            "subprocess",
+            wraps=recorder.subprocess,
+        ) as process_module:
+            self.assertEqual(
+                [operation_id],
+                recorder.recover_operations(self.root),
+            )
+        self.assertEqual(0, process_module.run.call_count)
+        self.assertEqual(
+            "candidate_complete",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assert_execution_current()
+
+    def test_git_review_seal_is_required_before_successor_activation(
+        self,
+    ) -> None:
+        self.finalize_with_consistent_clock()
+        self.assertEqual(
+            "candidate_complete",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assertEqual(
+            "pending",
+            self.read_json(self.packet_path(SUCCESSOR_ID))["state"],
+        )
+
+        candidate_commit, review_commit, result = self.seal_candidate()
+        self.assertEqual("sealed_complete", result["status"])
+        self.assertEqual(candidate_commit, result["candidate_commit"])
+        self.assertEqual(review_commit, result["review_commit"])
+        self.assertEqual(
+            "complete",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assertEqual(
+            "active",
+            self.read_json(self.packet_path(SUCCESSOR_ID))["state"],
+        )
+        terminal = self.ledger()["terminal_completion"]
+        self.assertEqual(
+            "git_review_sealed_candidate",
+            terminal["authority_kind"],
+        )
+        self.assertEqual(
+            f"refs/tags/ids-reviewed/{TARGET_ID}",
+            terminal["completion_seal"]["anchor_ref"],
+        )
+        self.assert_execution_current()
+        project_state.check_project_state(self.root)
+
+    def test_interrupted_seal_recovers_before_retiring_operation(
+        self,
+    ) -> None:
+        self.finalize_with_consistent_clock()
+        candidate_commit, review_commit = self.prepare_seal_authority()
+        with self.assertRaises(recorder.SimulatedOperationCrash) as raised:
+            recorder.seal_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                candidate_commit,
+                review_commit,
+                crash_after_core_commit=True,
+            )
+        operation_id = str(raised.exception)
+        self.assertEqual(
+            "complete",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assert_execution_invalid("interrupted operation requiring recovery")
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+        project_state.check_project_state(self.root)
+
+    def test_coherent_terminal_and_receipt_rewrite_fails_git_anchor(
+        self,
+    ) -> None:
+        self.finalize_with_consistent_clock()
+        self.seal_candidate()
+        execution_relative = f".work_packets/receipts/{TARGET_ID}.execution.v2.json"
+        receipt = self.read_json(execution_relative)
+        receipt["checks"][0]["stdout_sha256"] = "0" * 64
+        self.write_json(execution_relative, receipt)
+        ledger = self.ledger()
+        terminal = ledger["terminal_completion"]
+        rewritten_digest = execution.canonical_sha256(receipt)
+        terminal["execution_receipt_canonical_sha256"] = rewritten_digest
+        terminal["completion_seal"]["candidate_execution_receipt_canonical_sha256"] = (
+            rewritten_digest
+        )
+        self.write_json(self.ledger_relative(TARGET_ID), ledger)
+
+        invalid = self.execution_receipt()
+        forged_receipt = copy.deepcopy(invalid)
+        forged_receipt["verification_status"] = "valid"
+        forged_receipt["execution_freshness_status"] = "current"
+        forged_receipt["verified_ledger_count"] = (
+            forged_receipt["tracked_packet_count"]
+            - forged_receipt["exempt_packet_count"]
+        )
+        forged_receipt["errors"] = []
+        work_receipt = self.work_receipt()
+
+        def forged_observer(
+            _root: Path,
+            _policy: dict[str, Any],
+        ) -> dict[str, Any]:
+            return {
+                "work_packets": {
+                    "status": work_receipt["status"],
+                    "policy_id": work_receipt["policy_id"],
+                    "receipt_sha256": project_state.canonical_sha256(work_receipt),
+                    "completion_verified_count": work_receipt[
+                        "completion_verified_count"
+                    ],
+                    "superseded_receipt_verified_count": work_receipt[
+                        "superseded_receipt_verified_count"
+                    ],
+                    "dag_edges": work_receipt["dag_edges"],
+                    "root_packet_ids": work_receipt["root_packet_ids"],
+                    "sink_packet_ids": work_receipt["sink_packet_ids"],
+                },
+                "execution_freshness": {
+                    "verification_status": "valid",
+                    "execution_freshness_status": "current",
+                    "policy_id": forged_receipt["policy_id"],
+                    "receipt_sha256": project_state.canonical_sha256(forged_receipt),
+                    "tracked_packet_count": forged_receipt["tracked_packet_count"],
+                    "verified_ledger_count": forged_receipt["verified_ledger_count"],
+                    "exempt_packet_count": forged_receipt["exempt_packet_count"],
+                    "authority_basis": forged_receipt["authority_basis"],
+                },
+            }
+
+        project_state.refresh_project_state(
+            self.root,
+            runtime_authority_observer=forged_observer,
+        )
+        with self.assertRaisesRegex(
+            project_state.ProjectStateError,
+            "execution-freshness verifier failed",
+        ):
+            project_state.check_project_state(self.root)
+        self.assertEqual("invalid", invalid["verification_status"], invalid)
+        self.assertTrue(
+            any(
+                "candidate_execution_receipt digest differs" in error
+                or "candidate ledger differs from sealed transition" in error
+                for error in invalid["errors"]
+            ),
+            invalid["errors"],
+        )
+
+    def test_fanin_predecessor_completes_before_join_activation(
+        self,
+    ) -> None:
+        target = self.read_json(self.packet_path(TARGET_ID))
+        target["activates"] = [SECOND_ID, SUCCESSOR_ID]
+        second = {
+            "schema_version": "work-packet-instance/v2",
+            "packet_id": SECOND_ID,
+            "goal_id": target["goal_id"],
+            "state": "pending",
+            "owner": "recorder-fixture",
+            "reviewer": "recorder-test",
+            "bounded_write_paths": [{"path": SECOND_OUTPUT, "kind": "file"}],
+            "read_dependencies": [TARGET_OUTPUT],
+            "acceptance_checks": [
+                {
+                    "check_id": "CHECK-RECORDER-SECOND",
+                    "kind": "process_exit",
+                    "argv": [sys.executable, "-c", "raise SystemExit(0)"],
+                    "expected_exit_code": 0,
+                }
+            ],
+            "checkpoint_path": None,
+            "acceptance_receipt_path": None,
+            "retry_budget": 8,
+            "external_side_effects": [],
+            "semantic_invariants": [],
+            "depends_on": [TARGET_ID],
+            "activates": [SUCCESSOR_ID],
+            "integration_invariants": [
+                {
+                    "invariant_id": "INV-RECORDER-SECOND-INPUT",
+                    "inputs": [{"packet_id": TARGET_ID, "path": TARGET_OUTPUT}],
+                    "probe_check_ids": ["CHECK-RECORDER-SECOND"],
+                }
+            ],
+            "routing": {
+                "phase_id": "design_freeze",
+                "action_id": "ACT-RECORDER-SECOND",
+                "route_order": 15,
+                "addresses_finding_ids": ["F-RECORDER"],
+                "summary": "Complete the second fan-in branch",
+            },
+        }
+        successor = self.read_json(self.packet_path(SUCCESSOR_ID))
+        successor["depends_on"] = [TARGET_ID, SECOND_ID]
+        successor["read_dependencies"] = [TARGET_OUTPUT, SECOND_OUTPUT]
+        successor["integration_invariants"][0]["inputs"] = [
+            {"packet_id": TARGET_ID, "path": TARGET_OUTPUT},
+            {"packet_id": SECOND_ID, "path": SECOND_OUTPUT},
+        ]
+        register = self.read_json("governance/AI_PROJECT_RESEARCH_REGISTER_V1.json")
+        required_actions = register["challenge"]["rounds"][0]["findings"][0][
+            "required_action_ids"
+        ]
+        required_actions.append("ACT-RECORDER-SECOND")
+        required_actions.sort()
+        self.write_text(SECOND_OUTPUT, "second-v1\n")
+        self.write_json(self.packet_path(TARGET_ID), target)
+        self.write_json(self.packet_path(SECOND_ID), second)
+        self.write_json(self.packet_path(SUCCESSOR_ID), successor)
+        self.write_json(
+            "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+            register,
+        )
+        for packet in (target, second, successor):
+            self.write_json(
+                self.ledger_relative(packet["packet_id"]),
+                self.baseline_ledger(packet),
+            )
+        self.assertEqual("pass", self.work_receipt()["status"])
+        self.assert_execution_current()
+        project_state.refresh_project_state(self.root)
+
+        self.record_resolved()
+        recorder.finalize_packet(self.root, TARGET_ID, self.tail())
+        self.seal_candidate(TARGET_ID)
+        self.assertEqual(
+            "complete",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assertEqual(
+            "active",
+            self.read_json(self.packet_path(SECOND_ID))["state"],
+        )
+        self.assertEqual(
+            "pending",
+            self.read_json(self.packet_path(SUCCESSOR_ID))["state"],
+        )
+        self.assert_execution_current()
+
+        recorder.append_passive(
+            self.root,
+            SECOND_ID,
+            self.tail(SECOND_ID),
+            None,
+            "resolved",
+            "RECORDER-SECOND-RESOLVED",
+            "Second fan-in branch is ready",
+        )
+        recorder.finalize_packet(
+            self.root,
+            SECOND_ID,
+            self.tail(SECOND_ID),
+        )
+        self.seal_candidate(SECOND_ID)
+        self.assertEqual(
+            "complete",
+            self.read_json(self.packet_path(SECOND_ID))["state"],
+        )
+        self.assertEqual(
+            "active",
+            self.read_json(self.packet_path(SUCCESSOR_ID))["state"],
+        )
+        self.assert_execution_current()
+        project_state.check_project_state(self.root)
+
+    def test_finalize_prepared_check_without_outcome_blocks_explicitly(
+        self,
+    ) -> None:
+        self.record_resolved()
+        with self.assertRaises(recorder.SimulatedOperationCrash) as raised:
+            recorder.finalize_packet(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                crash_after_check_prepare=1,
+            )
+        operation_id = str(raised.exception)
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            "indeterminate",
+            latest["process_observation"]["mode"],
+        )
+        self.assertEqual(["RECORDER-902"], latest["failure_delta"]["after"])
+        self.assertEqual("blocked", latest["blocker"]["status_after"])
+        self.assertIsNone(self.ledger()["terminal_completion"])
+        self.assert_execution_current()
+
+    def test_acceptance_check_mutation_is_recorded_and_never_completes(
+        self,
+    ) -> None:
+        packet = self.read_json(self.packet_path(TARGET_ID))
+        packet["acceptance_checks"][0]["argv"] = [
+            sys.executable,
+            "-c",
+            (
+                "from pathlib import Path; "
+                f"Path({TARGET_OUTPUT!r}).write_text('mutated\\n')"
+            ),
+        ]
+        self.write_json(self.packet_path(TARGET_ID), packet)
+        ledger = self.ledger()
+        ledger["packet_contract_sha256"] = work_packets.packet_contract_sha256(packet)
+        self.write_json(self.ledger_relative(TARGET_ID), ledger)
+        self.assert_execution_current()
+        self.record_resolved()
+
+        result = recorder.finalize_packet(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+        )
+        self.assertEqual("recorded", result["status"])
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(["RECORDER-903"], latest["failure_delta"]["after"])
+        self.assertEqual("blocked", latest["blocker"]["status_after"])
+        self.assertIsNone(self.ledger()["terminal_completion"])
+        self.assertFalse(
+            (
+                self.root / f".work_packets/receipts/{TARGET_ID}.execution.v2.json"
+            ).exists()
+        )
+        self.assert_execution_current()
+
+    def test_cross_attempt_clock_rollback_is_clamped_and_detected(
+        self,
+    ) -> None:
+        prior_ended = self.ledger()["attempts"][-1]["ended_at"]
+        with mock.patch.object(
+            recorder,
+            "utc_datetime_milliseconds",
+            return_value=datetime(2026, 7, 24, tzinfo=UTC),
+        ):
+            self.append_passive()
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(prior_ended, latest["started_at"])
+        self.assertEqual(prior_ended, latest["ended_at"])
+
+        ledger = self.ledger()
+        latest = ledger["attempts"][-1]
+        latest["started_at"] = "2026-07-24T23:59:59.000Z"
+        latest["ended_at"] = "2026-07-24T23:59:59.000Z"
+        latest["wall_time_ms"] = 0
+        latest["record_sha256"] = execution.canonical_sha256(
+            {key: value for key, value in latest.items() if key != "record_sha256"}
+        )
+        self.write_json(self.ledger_relative(TARGET_ID), ledger)
+        self.assert_execution_invalid("started_at precedes the prior attempt ended_at")
 
     def test_append_preserves_every_existing_attempt_record(self) -> None:
         before = copy.deepcopy(self.ledger()["attempts"])
@@ -636,6 +1317,27 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             [recorder.canonical_bytes(item) for item in after[: len(before)]],
         )
         self.assertEqual(len(before) + 1, len(after))
+
+    def test_recorder_can_replace_stale_latest_evidence_observation(
+        self,
+    ) -> None:
+        self.write_text(TARGET_OUTPUT, "target-v2\n")
+        self.append_passive()
+        first = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            [TARGET_OUTPUT],
+            [item["path"] for item in first["evidence_delta"]["after"]],
+        )
+        self.write_text(TARGET_OUTPUT, "target-v3\n")
+        self.assert_execution_invalid("evidence hash differs from current file")
+
+        self.append_passive()
+        second = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            hashlib.sha256(b"target-v3\n").hexdigest(),
+            second["evidence_delta"]["after"][0]["sha256"],
+        )
+        self.assert_execution_current()
 
     def test_successful_write_refreshes_execution_and_all_state_views(self) -> None:
         result = self.append_passive()
@@ -739,8 +1441,6 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             f".work_packets/receipts/{TARGET_ID}.checkpoint.json",
             f".work_packets/receipts/{TARGET_ID}.acceptance.json",
             f".work_packets/receipts/{TARGET_ID}.execution.v2.json",
-            self.packet_path(SUCCESSOR_ID),
-            self.ledger_relative(SUCCESSOR_ID),
         }
         self.assertEqual(expected_replacements, set(replacements))
 
@@ -780,9 +1480,7 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             "checkpoint_receipt_sha256": execution.canonical_sha256(
                 expected_checkpoint
             ),
-            "checks": [
-                {"check_id": check["check_id"], "actual_exit_code": 0}
-            ],
+            "checks": [{"check_id": check["check_id"], "actual_exit_code": 0}],
         }
         expected_execution = {
             "schema_version": "execution-finalization-receipt/v2",
@@ -797,12 +1495,8 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
                     "started_at": "2026-07-25T03:00:00.000Z",
                     "ended_at": "2026-07-25T03:00:00.125Z",
                     "wall_time_ms": 125,
-                    "stdout_sha256": hashlib.sha256(
-                        FINALIZE_STDOUT
-                    ).hexdigest(),
-                    "stderr_sha256": hashlib.sha256(
-                        FINALIZE_STDERR
-                    ).hexdigest(),
+                    "stdout_sha256": hashlib.sha256(FINALIZE_STDOUT).hexdigest(),
+                    "stderr_sha256": hashlib.sha256(FINALIZE_STDERR).hexdigest(),
                     "stdout_bytes": len(FINALIZE_STDOUT),
                     "stderr_bytes": len(FINALIZE_STDERR),
                 }
@@ -810,25 +1504,19 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         }
         self.assertEqual(
             expected_checkpoint,
-            self.read_json(
-                f".work_packets/receipts/{TARGET_ID}.checkpoint.json"
-            ),
+            self.read_json(f".work_packets/receipts/{TARGET_ID}.checkpoint.json"),
         )
         self.assertEqual(
             expected_acceptance,
-            self.read_json(
-                f".work_packets/receipts/{TARGET_ID}.acceptance.json"
-            ),
+            self.read_json(f".work_packets/receipts/{TARGET_ID}.acceptance.json"),
         )
         self.assertEqual(
             expected_execution,
-            self.read_json(
-                f".work_packets/receipts/{TARGET_ID}.execution.v2.json"
-            ),
+            self.read_json(f".work_packets/receipts/{TARGET_ID}.execution.v2.json"),
         )
 
         target_after = self.read_json(self.packet_path(TARGET_ID))
-        self.assertEqual("complete", target_after["state"])
+        self.assertEqual("candidate_complete", target_after["state"])
         self.assertEqual(
             f".work_packets/receipts/{TARGET_ID}.checkpoint.json",
             target_after["checkpoint_path"],
@@ -846,18 +1534,12 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             "authority_kind": "self_reported_local_candidate",
             "packet_contract_sha256": contract_digest,
             "latest_record_sha256": latest["record_sha256"],
-            "controlled_claims_sha256": latest["controlled_snapshot"][
-                "claims_sha256"
-            ],
-            "checkpoint_path": (
-                f".work_packets/receipts/{TARGET_ID}.checkpoint.json"
-            ),
+            "controlled_claims_sha256": latest["controlled_snapshot"]["claims_sha256"],
+            "checkpoint_path": (f".work_packets/receipts/{TARGET_ID}.checkpoint.json"),
             "checkpoint_canonical_sha256": execution.canonical_sha256(
                 expected_checkpoint
             ),
-            "acceptance_path": (
-                f".work_packets/receipts/{TARGET_ID}.acceptance.json"
-            ),
+            "acceptance_path": (f".work_packets/receipts/{TARGET_ID}.acceptance.json"),
             "acceptance_canonical_sha256": execution.canonical_sha256(
                 expected_acceptance
             ),
@@ -867,15 +1549,19 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             "execution_receipt_canonical_sha256": execution.canonical_sha256(
                 expected_execution
             ),
+            "completion_seal": None,
         }
-        self.assertEqual("complete", target_ledger["reported_state"])
+        self.assertEqual(
+            "candidate_complete",
+            target_ledger["reported_state"],
+        )
         self.assertEqual(expected_terminal, target_ledger["terminal_completion"])
         self.assertEqual(
-            "active",
+            "pending",
             self.read_json(self.packet_path(SUCCESSOR_ID))["state"],
         )
         self.assertEqual(
-            "active",
+            "pending",
             self.ledger(SUCCESSOR_ID)["reported_state"],
         )
         self.assertEqual(
