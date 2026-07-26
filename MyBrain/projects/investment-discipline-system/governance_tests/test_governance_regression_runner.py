@@ -72,6 +72,8 @@ class GovernanceRegressionRunnerTests(unittest.TestCase):
             "source_fingerprint_before": "b" * 64,
             "source_fingerprint_after": "b" * 64,
             "exact_execution": True,
+            "captured_output_sha256": "c" * 64,
+            "captured_output_bytes": 0,
         }
 
     def validate_fixture_receipt(
@@ -133,6 +135,40 @@ class GovernanceRegressionRunnerTests(unittest.TestCase):
         self.assertEqual(len(payload["heavy_workers"]), 2)
         self.assertEqual(payload["active_process_count_after"], 0)
         self.assertTrue(payload["all_temporary_roots_removed"])
+
+    def test_test_stdout_is_captured_without_corrupting_worker_json(self) -> None:
+        self.write_test(
+            "test_fast.py",
+            "import sys\n"
+            "import unittest\n"
+            "class Fast(unittest.TestCase):\n"
+            "    def test_noisy(self):\n"
+            "        print('python stdout noise')\n"
+            "        print('python stderr noise', file=sys.stderr)\n"
+            "        self.assertTrue(True)\n",
+        )
+        self.write_test(
+            "test_heavy.py",
+            "import os\n"
+            "import unittest\n"
+            "class Heavy(unittest.TestCase):\n"
+            "    def test_fd_noise(self):\n"
+            "        os.write(1, b'fd stdout noise\\n')\n"
+            "        os.write(2, b'fd stderr noise\\n')\n"
+            "        self.assertTrue(True)\n",
+        )
+        payload = self.run_fixture()
+        self.assertEqual(payload["status"], "pass", payload)
+        receipts = [
+            payload["non_heavy_worker"]["worker_receipt"],
+            *[
+                worker["worker_receipt"]
+                for worker in payload["heavy_workers"]
+            ],
+        ]
+        self.assertTrue(
+            all(receipt["captured_output_bytes"] > 0 for receipt in receipts)
+        )
 
     def test_duplicate_substitution_cannot_fake_exact_execution(self) -> None:
         expected = ["fixture.Case.test_a", "fixture.Case.test_b"]
@@ -279,6 +315,15 @@ class GovernanceRegressionRunnerTests(unittest.TestCase):
         expected = ["fixture.Case.test_a"]
         receipt = copy.deepcopy(self.valid_worker_receipt(expected))
         receipt["exact_execution"] = 1
+        self.assertFalse(self.validate_fixture_receipt(receipt, expected))
+
+    def test_worker_receipt_rejects_invalid_captured_output_metadata(self) -> None:
+        expected = ["fixture.Case.test_a"]
+        receipt = copy.deepcopy(self.valid_worker_receipt(expected))
+        receipt["captured_output_sha256"] = "not-a-digest"
+        self.assertFalse(self.validate_fixture_receipt(receipt, expected))
+        receipt = copy.deepcopy(self.valid_worker_receipt(expected))
+        receipt["captured_output_bytes"] = True
         self.assertFalse(self.validate_fixture_receipt(receipt, expected))
 
 

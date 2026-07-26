@@ -2835,10 +2835,17 @@ def verify_research_register(
     if not isinstance(rounds, list) or not rounds:
         errors.append("research challenge rounds must be nonempty")
         return
+    projection_review_sequences: list[int] = []
     for challenge_round in rounds:
         if not isinstance(challenge_round, dict):
             continue
         round_id = challenge_round.get("id", "<unknown>")
+        review_sequence = challenge_round.get("review_sequence")
+        if review_sequence is not None:
+            if type(review_sequence) is not int or review_sequence <= 0:
+                errors.append(f"{round_id} review_sequence is invalid")
+            else:
+                projection_review_sequences.append(review_sequence)
         reviewers = challenge_round.get("reviewer_subjects")
         if (
             not isinstance(reviewers, list)
@@ -2930,6 +2937,99 @@ def verify_research_register(
                     errors.append(
                         f"{round_id} passing review candidate tree differs"
                     )
+        if type(review_sequence) is int and review_sequence >= 10:
+            candidate_commit = challenge_round.get("candidate_commit")
+            candidate_tree = challenge_round.get("candidate_tree")
+            if not isinstance(candidate_commit, str) or re.fullmatch(
+                r"[0-9a-f]{40}", candidate_commit
+            ) is None:
+                errors.append(
+                    f"{round_id} state-projection review lacks candidate_commit"
+                )
+            if not isinstance(candidate_tree, str) or re.fullmatch(
+                r"[0-9a-f]{40}", candidate_tree
+            ) is None:
+                errors.append(
+                    f"{round_id} state-projection review lacks candidate_tree"
+                )
+            if isinstance(candidate_commit, str) and isinstance(
+                candidate_tree, str
+            ):
+                resolved_tree = run_git(
+                    ["rev-parse", f"{candidate_commit}^{{tree}}"], errors
+                )
+                if resolved_tree and resolved_tree != candidate_tree:
+                    errors.append(
+                        f"{round_id} state-projection review candidate tree differs"
+                    )
+            findings = challenge_round.get("findings")
+            if not isinstance(findings, list) or not findings:
+                errors.append(
+                    f"{round_id} state-projection review findings are missing"
+                )
+            else:
+                finding_ids: set[str] = set()
+                for finding_index, finding in enumerate(findings):
+                    label = f"{round_id} findings[{finding_index}]"
+                    if not isinstance(finding, dict) or set(finding) != {
+                        "finding_id",
+                        "severity",
+                        "state",
+                        "required_action_ids",
+                    }:
+                        errors.append(f"{label} schema differs")
+                        continue
+                    finding_id = finding.get("finding_id")
+                    if (
+                        not isinstance(finding_id, str)
+                        or re.fullmatch(r"R[0-9]+-[A-Z0-9-]+", finding_id)
+                        is None
+                        or finding_id in finding_ids
+                    ):
+                        errors.append(f"{label} finding_id is invalid or duplicate")
+                    else:
+                        finding_ids.add(finding_id)
+                    if finding.get("severity") not in {
+                        "critical",
+                        "major",
+                        "minor",
+                    }:
+                        errors.append(f"{label} severity differs")
+                    if finding.get("state") not in {
+                        "open",
+                        "resolved",
+                        "superseded",
+                    }:
+                        errors.append(f"{label} state differs")
+                    action_ids = finding.get("required_action_ids")
+                    if (
+                        not isinstance(action_ids, list)
+                        or not action_ids
+                        or len(action_ids) != len(set(action_ids))
+                        or not all(
+                            isinstance(action_id, str)
+                            and re.fullmatch(
+                                r"ACT-[A-Z0-9][A-Z0-9-]+",
+                                action_id,
+                            )
+                            is not None
+                            for action_id in action_ids
+                        )
+                    ):
+                        errors.append(f"{label} required_action_ids differ")
+
+    if (
+        projection_review_sequences
+        != sorted(set(projection_review_sequences))
+    ):
+        errors.append(
+            "state-projection review sequences must be unique and strictly "
+            "increasing in challenge order"
+        )
+    if not any(
+        sequence >= 10 for sequence in projection_review_sequences
+    ):
+        errors.append("state projection lacks a structured current review")
 
     stop_rule = research.get("stop_rule")
     expected_stop_rule = {

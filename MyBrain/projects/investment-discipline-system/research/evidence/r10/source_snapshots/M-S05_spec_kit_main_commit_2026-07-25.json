@@ -1,0 +1,113 @@
+{
+  "sha": "c0fe0e43cd728ebc3dd1f714343f3921510a157f",
+  "node_id": "C_kwDOPiFCndoAKGMwZmUwZTQzY2Q3MjhlYmMzZGQxZjcxNDM0M2YzOTIxNTEwYTE1N2Y",
+  "commit": {
+    "author": {
+      "name": "Manfred Riem",
+      "email": "15701806+mnriem@users.noreply.github.com",
+      "date": "2026-07-24T20:42:56Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-07-24T20:42:56Z"
+    },
+    "message": "chore: release 0.14.2, begin 0.14.3.dev0 development (#3730)\n\n* chore: bump version to 0.14.2\n\n* chore: begin 0.14.3.dev0 development\n\n---------\n\nCo-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+    "tree": {
+      "sha": "7c80eef1a888542d20073a56d4198fbd3916e5bd",
+      "url": "https://api.github.com/repos/github/spec-kit/git/trees/7c80eef1a888542d20073a56d4198fbd3916e5bd"
+    },
+    "url": "https://api.github.com/repos/github/spec-kit/git/commits/c0fe0e43cd728ebc3dd1f714343f3921510a157f",
+    "comment_count": 0,
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqY85QCRC1aQ7uu5UhlAAAf4cQAJFvrmTPI58ftBT2p8cp1g+8\nays2+P1duXUA+g17VwBHjG5VbYFAseippR+wPEPrqtd8Sic9vM0FJSi+2GTDGmiS\nQXLBf4ao42JB2gV6dyEgCs2HmlO7ho4+xIum+3e949xmoloB5dX0/q6lGijnjoL9\npazSL3bs/5PTuyMmLZueypIqwmRl9rxWhpAJo+d+Rmd1ocgFpeexR+J2TsizuYiL\nSS+Rz3qCZrB4+GEv25KdWUsWjmk6Jxh5jlEsKAi+g3awD3XDyczdRszCUhnEufjY\noGAu0xuGP71HsBJQQRIfDS5sc3Tt2aPkFrJM3zpZNgY19869BaW9Jx3hChdz98Gl\nOc8dqW/S06l92e7JNvg327VyFzF+bf7zUJ9l4w/FjnYiIJIVs88S3MSc+ZmIISaW\ndJSJq4UCU3aJmJuFkO7kDEo2dWRfbznE+NTt3TKbGg8PWLER2TxKQAFz8kRg71SX\nsTXzLhs311kGrC0tSTL7Uj9OetRFksTtebwLDgTk/9VEeLWoLac1zb0pDaZvEjPh\nxXLilMKuR4ZNkJP1L31/t68IISJ82FgZ1yL3tX9WlEbBYs2jzLm9dwdZ3io2uiez\nICZroGk09GYTzwpliE6o7L3ZP6T0IXbVPW1PCZEXsS8gGkk66tW0Ht/hdix3IpTo\ny7LhPZjPNJw609G6FXiN\n=AHt1\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 7c80eef1a888542d20073a56d4198fbd3916e5bd\nparent ae0b8ca2b0f23621fdf491dd9102186fc8dcec90\nauthor Manfred Riem <15701806+mnriem@users.noreply.github.com> 1784925776 -0500\ncommitter GitHub <noreply@github.com> 1784925776 -0500\n\nchore: release 0.14.2, begin 0.14.3.dev0 development (#3730)\n\n* chore: bump version to 0.14.2\n\n* chore: begin 0.14.3.dev0 development\n\n---------\n\nCo-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+      "verified_at": "2026-07-24T20:42:56Z"
+    }
+  },
+  "url": "https://api.github.com/repos/github/spec-kit/commits/c0fe0e43cd728ebc3dd1f714343f3921510a157f",
+  "html_url": "https://github.com/github/spec-kit/commit/c0fe0e43cd728ebc3dd1f714343f3921510a157f",
+  "comments_url": "https://api.github.com/repos/github/spec-kit/commits/c0fe0e43cd728ebc3dd1f714343f3921510a157f/comments",
+  "author": {
+    "login": "mnriem",
+    "id": 15701806,
+    "node_id": "MDQ6VXNlcjE1NzAxODA2",
+    "avatar_url": "https://avatars.githubusercontent.com/u/15701806?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/mnriem",
+    "html_url": "https://github.com/mnriem",
+    "followers_url": "https://api.github.com/users/mnriem/followers",
+    "following_url": "https://api.github.com/users/mnriem/following{/other_user}",
+    "gists_url": "https://api.github.com/users/mnriem/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/mnriem/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/mnriem/subscriptions",
+    "organizations_url": "https://api.github.com/users/mnriem/orgs",
+    "repos_url": "https://api.github.com/users/mnriem/repos",
+    "events_url": "https://api.github.com/users/mnriem/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/mnriem/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": true
+  },
+  "committer": {
+    "login": "web-flow",
+    "id": 19864447,
+    "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/web-flow",
+    "html_url": "https://github.com/web-flow",
+    "followers_url": "https://api.github.com/users/web-flow/followers",
+    "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+    "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+    "organizations_url": "https://api.github.com/users/web-flow/orgs",
+    "repos_url": "https://api.github.com/users/web-flow/repos",
+    "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/web-flow/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ae0b8ca2b0f23621fdf491dd9102186fc8dcec90",
+      "url": "https://api.github.com/repos/github/spec-kit/commits/ae0b8ca2b0f23621fdf491dd9102186fc8dcec90",
+      "html_url": "https://github.com/github/spec-kit/commit/ae0b8ca2b0f23621fdf491dd9102186fc8dcec90"
+    }
+  ],
+  "stats": {
+    "total": 27,
+    "additions": 26,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "8e2e5acafd2d55cdc155cac4670e45876315dc20",
+      "filename": "CHANGELOG.md",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/github/spec-kit/blob/c0fe0e43cd728ebc3dd1f714343f3921510a157f/CHANGELOG.md",
+      "raw_url": "https://github.com/github/spec-kit/raw/c0fe0e43cd728ebc3dd1f714343f3921510a157f/CHANGELOG.md",
+      "contents_url": "https://api.github.com/repos/github/spec-kit/contents/CHANGELOG.md?ref=c0fe0e43cd728ebc3dd1f714343f3921510a157f",
+      "patch": "@@ -2,6 +2,31 @@\n \n <!-- insert new changelog below this comment -->\n \n+## [0.14.2] - 2026-07-24\n+\n+### Changed\n+\n+- Update Intake Review Governance preset to v0.1.1 (#3729)\n+- Update Verify Review Ship extension to v0.3.0 (#3728)\n+- Update Architecture Guard extension to v1.13.1 (#3724)\n+- docs(upgrade): Claude Code files live in .claude/skills, not .claude/commands (#3708)\n+- fix(kilocode): install commands under .kilo/commands (#3672)\n+- fix(auth): normalize whitespace in auth-config env-var/id references at store time (#3691)\n+- fix(workflows): guard non-mapping 'inputs:' block in engine._resolve_inputs (#3696)\n+- Update Intake Authoring Governance preset to v0.2.0 (#3721)\n+- docs: clarify shell-step interpolation safety (#3719)\n+- [extension] Add Blueprint Index — Living Architecture Map extension to community catalog (#3718)\n+- fix(github-http): return None on malformed host in resolve_github_release_asset_api_url (#3715)\n+- fix(integrations): declare PiIntegration multi_install_safe (#3652)\n+- harden: remove shell parameter from run_command() (#3716)\n+- chore(deps): bump github/codeql-action/init from 4.37.1 to 4.37.3 (#3699)\n+- fix: auto-correct conflicting feature prefixes (#1829)\n+- chore(deps): bump actions/checkout from 6.0.3 to 7.0.1 (#3703)\n+- chore(deps): bump DavidAnson/markdownlint-cli2-action (#3702)\n+- chore(deps): bump actions/setup-node from 6.4.0 to 7.0.0 (#3701)\n+- chore(deps): bump astral-sh/setup-uv from 8.3.2 to 9.0.0 (#3700)\n+- chore: release 0.14.1, begin 0.14.2.dev0 development (#3698)\n+\n ## [0.14.1] - 2026-07-23\n \n ### Changed"
+    },
+    {
+      "sha": "7c51c6ab200a1dcd34447c8988ba6c94af196d17",
+      "filename": "pyproject.toml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/github/spec-kit/blob/c0fe0e43cd728ebc3dd1f714343f3921510a157f/pyproject.toml",
+      "raw_url": "https://github.com/github/spec-kit/raw/c0fe0e43cd728ebc3dd1f714343f3921510a157f/pyproject.toml",
+      "contents_url": "https://api.github.com/repos/github/spec-kit/contents/pyproject.toml?ref=c0fe0e43cd728ebc3dd1f714343f3921510a157f",
+      "patch": "@@ -1,6 +1,6 @@\n [project]\n name = \"specify-cli\"\n-version = \"0.14.2.dev0\"\n+version = \"0.14.3.dev0\"\n description = \"Specify CLI, part of GitHub Spec Kit. A tool to bootstrap your projects for Spec-Driven Development (SDD).\"\n readme = \"README.md\"\n requires-python = \">=3.11\""
+    }
+  ]
+}

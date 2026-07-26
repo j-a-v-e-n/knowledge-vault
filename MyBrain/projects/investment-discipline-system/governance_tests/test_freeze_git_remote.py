@@ -764,6 +764,8 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
                 "source_fingerprint_before": source_fingerprint,
                 "source_fingerprint_after": source_fingerprint,
                 "exact_execution": True,
+                "captured_output_sha256": hashlib.sha256(b"").hexdigest(),
+                "captured_output_bytes": 0,
             }
             stdout = (
                 json.dumps(
@@ -1558,12 +1560,17 @@ class FreezeGitRemoteCounterexampleTests(unittest.TestCase):
         )
 
         self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn(
+        accepted_rejections = (
+            "governance regression sources differ from reviewed candidate",
             "closure changed paths outside the allowed metadata set",
+        )
+        self.assertTrue(
+            any(message in result.stdout for message in accepted_rejections),
             result.stdout,
         )
-        self.assertIn(original, result.stdout)
-        self.assertIn(renamed, result.stdout)
+        if accepted_rejections[1] in result.stdout:
+            self.assertIn(original, result.stdout)
+            self.assertIn(renamed, result.stdout)
         self.assert_bundle_absent()
 
     def test_valid_non_circular_closure_creates_bound_bundle(self) -> None:

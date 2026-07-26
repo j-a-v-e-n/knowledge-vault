@@ -304,6 +304,8 @@ WORKER_RECEIPT_FIELDS = {
     "source_fingerprint_before",
     "source_fingerprint_after",
     "exact_execution",
+    "captured_output_sha256",
+    "captured_output_bytes",
 }
 
 
@@ -374,6 +376,14 @@ def validate_worker_receipt(
         and receipt.get("source_fingerprint_before") == source_fingerprint
         and receipt.get("source_fingerprint_after") == source_fingerprint
         and receipt.get("exact_execution") is True
+        and isinstance(receipt.get("captured_output_sha256"), str)
+        and len(receipt["captured_output_sha256"]) == 64
+        and all(
+            character in "0123456789abcdef"
+            for character in receipt["captured_output_sha256"]
+        )
+        and type(receipt.get("captured_output_bytes")) is int
+        and receipt["captured_output_bytes"] >= 0
     )
 
 

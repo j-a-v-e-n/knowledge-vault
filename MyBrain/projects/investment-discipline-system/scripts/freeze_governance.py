@@ -903,6 +903,8 @@ REGRESSION_WORKER_RECEIPT_FIELDS = {
     "source_fingerprint_before",
     "source_fingerprint_after",
     "exact_execution",
+    "captured_output_sha256",
+    "captured_output_bytes",
 }
 REGRESSION_WORKER_FIELDS = {
     "request_kind",
@@ -1021,8 +1023,14 @@ def require_regression_worker(
         or receipt.get("source_fingerprint_before") != source_fingerprint
         or receipt.get("source_fingerprint_after") != source_fingerprint
         or receipt.get("exact_execution") is not True
+        or type(receipt.get("captured_output_bytes")) is not int
+        or receipt.get("captured_output_bytes") < 0
     ):
         raise SystemExit(f"{label} receipt result differs")
+    require_sha256(
+        receipt.get("captured_output_sha256"),
+        f"{label} captured output",
+    )
     expected_stdout = (
         json.dumps(receipt, ensure_ascii=False, sort_keys=True) + "\n"
     )

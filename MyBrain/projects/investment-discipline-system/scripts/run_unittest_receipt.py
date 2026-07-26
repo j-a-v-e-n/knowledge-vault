@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import sys
+import tempfile
 import traceback
 import unittest
 from pathlib import Path
@@ -201,6 +202,33 @@ class RecordingResult(unittest.TestResult):
         super().addUnexpectedSuccess(test)
 
 
+def run_with_captured_process_output(
+    suite: unittest.TestSuite,
+    result: RecordingResult,
+) -> bytes:
+    """Run tests while keeping worker stdout as one unambiguous JSON object."""
+    sys.stdout.flush()
+    sys.stderr.flush()
+    saved_stdout = os.dup(1)
+    saved_stderr = os.dup(2)
+    try:
+        with tempfile.TemporaryFile(mode="w+b") as capture:
+            os.dup2(capture.fileno(), 1)
+            os.dup2(capture.fileno(), 2)
+            try:
+                suite.run(result)
+            finally:
+                sys.stdout.flush()
+                sys.stderr.flush()
+                os.dup2(saved_stdout, 1)
+                os.dup2(saved_stderr, 2)
+            capture.seek(0)
+            return capture.read()
+    finally:
+        os.close(saved_stdout)
+        os.close(saved_stderr)
+
+
 def execute(
     *,
     project_root: Path,
@@ -211,7 +239,7 @@ def execute(
     source_before = test_source_fingerprint(project_root, test_package)
     suite, loaded = load_suite(names, project_root=project_root)
     result = RecordingResult()
-    suite.run(result)
+    captured_output = run_with_captured_process_output(suite, result)
     source_after = test_source_fingerprint(project_root, test_package)
     loaded_counts = collections.Counter(loaded)
     started_counts = collections.Counter(result.started_test_ids)
@@ -249,6 +277,8 @@ def execute(
         "source_fingerprint_before": source_before,
         "source_fingerprint_after": source_after,
         "exact_execution": exact_execution,
+        "captured_output_sha256": sha256_bytes(captured_output),
+        "captured_output_bytes": len(captured_output),
     }
 
 

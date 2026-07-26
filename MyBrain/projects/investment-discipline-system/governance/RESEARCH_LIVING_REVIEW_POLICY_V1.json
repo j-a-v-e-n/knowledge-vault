@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "status": "candidate_for_freeze",
+  "policy_id": "ids-research-living-review-v1",
+  "scope": "Freshness and event-driven reopening of AI-project-method research used by the personal Paper V1 project.",
+  "clock_contract": {
+    "input": "explicit_cli_as_of",
+    "format": "YYYY-MM-DD",
+    "timezone": "UTC",
+    "implicit_wall_clock_allowed": false,
+    "as_of_before_refresh_outcome": "invalid"
+  },
+  "scheduled_review": {
+    "maximum_age_days": 30,
+    "fresh_through_due_date_inclusive": true,
+    "next_due_derivation": "latest_accepted_independent_review.completed_on + maximum_age_days"
+  },
+  "accepted_independent_review_requires": [
+    "candidate_bound",
+    "reviewer_read_only",
+    "artifact_set_exact",
+    "receipt_hash_matches",
+    "no_open_critical_or_major_finding"
+  ],
+  "event_triggers": [
+    {
+      "id": "LR-EVENT-MODEL-OR-RUNTIME",
+      "description": "principal model, agent runtime, compaction behavior, or orchestration tool changes"
+    },
+    {
+      "id": "LR-EVENT-SOURCE-REVISION",
+      "description": "a decision-bearing source is revised, retracted, removed, or materially contradicted"
+    },
+    {
+      "id": "LR-EVENT-NEW-FAILURE",
+      "description": "a field failure is observed that is not represented by the current failure graph"
+    },
+    {
+      "id": "LR-EVENT-CONTROL-DRIFT",
+      "description": "a control produces repeated false positives, false negatives, bypasses, or excessive burden"
+    },
+    {
+      "id": "LR-EVENT-SCOPE-OR-AUTHORITY",
+      "description": "the project becomes multi-user or changes its privacy, paper-only, or execution-authority boundary"
+    },
+    {
+      "id": "LR-EVENT-ABLATION-CONTRADICTION",
+      "description": "the fixed same-task comparison materially contradicts a current method decision"
+    }
+  ],
+  "derived_living_review_statuses": [
+    "current",
+    "blocked_pending_independent_review",
+    "stale_due_to_event",
+    "stale_due_to_time",
+    "invalid"
+  ],
+  "precedence": [
+    "invalid",
+    "blocked_pending_independent_review",
+    "stale_due_to_event",
+    "stale_due_to_time",
+    "current"
+  ],
+  "stale_propagation": {
+    "research_claim": "bounded_incomplete",
+    "design_freeze": "blocked",
+    "product_completion": "blocked",
+    "historical_evidence": "preserved_not_rewritten"
+  },
+  "network_contract": {
+    "verifier_may_access_network": false,
+    "successful_verification_means": "tracked bytes, review receipt, date arithmetic, and event state are internally valid",
+    "successful_verification_does_not_mean": "the internet was searched, sources remain externally current, claims are true, or the product is complete"
+  }
+}

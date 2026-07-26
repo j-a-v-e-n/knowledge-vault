@@ -1,0 +1,166 @@
+{
+  "schema_version": "project-state-view-policy/v1",
+  "policy_id": "PROJECT-STATE-VIEW-V1",
+  "projection_schema_version": "project-state-view/v1",
+  "sources": {
+    "acceptance_contract": {
+      "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
+      "json_pointers": [
+        "/schema_version",
+        "/contract_id",
+        "/status",
+        "/change_control/closure_mutation_policy/freeze_state_authority"
+      ]
+    },
+    "review_register": {
+      "path": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+      "rounds_pointer": "/challenge/rounds"
+    },
+    "work_packets": {
+      "directory": ".work_packets/packets",
+      "filename_suffix": ".packet.json",
+      "recursive": false
+    },
+    "views": [
+      "STATUS.md",
+      "TASK_BOARD.md",
+      "LOOP_RUN_LOG.md"
+    ]
+  },
+  "review_source": {
+    "minimum_projection_sequence": 10,
+    "explicit_sequence_rule": "strictly_increasing_unique",
+    "projection_sequence_rule": "contiguous_from_minimum",
+    "round_required_fields": [
+      "id",
+      "review_sequence",
+      "candidate_commit",
+      "candidate_tree",
+      "result",
+      "evidence_path",
+      "evidence_sha256",
+      "findings"
+    ],
+    "finding_required_fields": [
+      "finding_id",
+      "severity",
+      "state",
+      "required_action_ids"
+    ],
+    "result_values": [
+      "blocked_freeze",
+      "passed_freeze"
+    ],
+    "finding_severity_values": [
+      "critical",
+      "major",
+      "minor"
+    ],
+    "finding_state_values": [
+      "open",
+      "resolved",
+      "superseded"
+    ],
+    "finding_snapshot_rule": "complete_snapshot_each_projection_review"
+  },
+  "packet_routing": {
+    "instance_schema_version": "work-packet-instance/v2",
+    "historical_superseded_instance_schema_versions": [
+      "work-packet-instance/v1"
+    ],
+    "historical_required_fields": [
+      "schema_version",
+      "packet_id",
+      "state",
+      "superseded_by"
+    ],
+    "historical_behavior": "accept_only_superseded_and_exclude_from_live_routing",
+    "packet_required_fields": [
+      "schema_version",
+      "packet_id",
+      "state",
+      "depends_on",
+      "routing"
+    ],
+    "routing_required_fields": [
+      "phase_id",
+      "action_id",
+      "route_order",
+      "addresses_finding_ids",
+      "summary"
+    ],
+    "state_values": [
+      "pending",
+      "active",
+      "blocked",
+      "candidate_complete",
+      "complete",
+      "superseded"
+    ],
+    "terminal_states": [
+      "complete",
+      "superseded"
+    ],
+    "dependency_satisfied_states": [
+      "complete"
+    ],
+    "completion_verification": "declared_complete_candidate_only",
+    "route_order_rule": "global_unique_positive_integer",
+    "addresses_finding_ids_rule": "unique_identifiers_may_be_empty",
+    "direct_target_rule": "nonterminal_current_phase_packet_addressing_finding_with_required_action",
+    "ready_rule": "minimum_route_order_ready_packet_in_dependency_closure_of_direct_targets"
+  },
+  "phase_model": {
+    "current_phase_id": "design_freeze",
+    "supported_phases": [
+      {
+        "phase_id": "design_freeze",
+        "completion_authority_path": "governance/FROZEN_BUNDLE_V1.json",
+        "completion_verifier": {
+          "mode": "unsupported",
+          "receipt_path": null,
+          "receipt_schema_version": null
+        },
+        "blocking_gate_ids": {
+          "open_findings": "GATE-DESIGN-FREEZE-OPEN-FINDINGS",
+          "authority_missing": "GATE-DESIGN-FREEZE-AUTHORITY-MISSING",
+          "authority_verification_unsupported": "GATE-DESIGN-FREEZE-AUTHORITY-VERIFICATION-UNSUPPORTED"
+        }
+      }
+    ],
+    "unsupported_phase_behavior": "fail_closed"
+  },
+  "rendering": {
+    "start_marker": "<!-- PROJECT_STATE_VIEW:START -->",
+    "end_marker": "<!-- PROJECT_STATE_VIEW:END -->",
+    "language": "json"
+  },
+  "basis": {
+    "policy_json_pointers": [
+      "/schema_version",
+      "/projection_schema_version",
+      "/sources/acceptance_contract",
+      "/sources/review_register",
+      "/sources/work_packets",
+      "/review_source",
+      "/packet_routing",
+      "/phase_model"
+    ],
+    "state_basis_rule": "canonical_sha256_of_sorted_fact_descriptors",
+    "excluded_inputs": [
+      "head_commit",
+      "head_tree",
+      "observed_head",
+      "observed_tree",
+      "generated_at",
+      "view_file_hashes",
+      "projection_sha256"
+    ]
+  },
+  "limitations": [
+    "A V2 dependency packet whose state is complete is only a declarative completion candidate here; receipt verification must be integrated before this projection can call that dependency independently verified.",
+    "The design-freeze authority verifier is intentionally unsupported in V1. A missing FROZEN_BUNDLE blocks, and file existence alone also remains blocked.",
+    "Only design_freeze is supported. Any future phase requires an explicit policy schema update and a structured authority verifier; product completion is never inferred.",
+    "Refresh preflights all three views and atomically replaces each individual file, but a local filesystem cannot provide one atomic transaction spanning all three files."
+  ]
+}

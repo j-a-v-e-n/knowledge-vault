@@ -189,6 +189,42 @@
       "evidence_sha256": "95809fe12e2397e5e15830c47649019551ccf070a6c5004fe4515dbcd50443a7"
     },
     {
+      "id": "SUBJECT-DESIGN-REVIEW-R8-PLATFORM-OBSERVABLE",
+      "role": "design_reviewer",
+      "locator": "Codex separate-thread review; exact subagent locator unavailable in recovered context",
+      "candidate_commit": "2fc2b710d0494afbf92a69855b35cf0e564b8540",
+      "candidate_tree": "65e1924ef2634fe41e85055f3e169359f2ca9bf2",
+      "write_access_used": false,
+      "participated_in_candidate_construction": false,
+      "verdict": "blocked_freeze",
+      "evidence_path": "audits/PROJECT_METHOD_GAP_CLOSURE_REVIEW_R8_2026-07-25.md",
+      "evidence_sha256": "071f5064ef7deb68ba5307b3b5e3c24d4bdb8040de092553babb144a701dc845"
+    },
+    {
+      "id": "SUBJECT-STATE-FRESHNESS-REVIEW-R10",
+      "role": "design_reviewer",
+      "locator": "subagent:019f9b84-18b9-77a2-b989-45aa5449323a",
+      "candidate_commit": "aa0a5966e114d6d7c87aa14fe2c27253f9f89f26",
+      "candidate_tree": "36935032f40b3519960cf7e79ea611bc8f031bbf",
+      "write_access_used": false,
+      "participated_in_candidate_construction": false,
+      "verdict": "blocked_freeze",
+      "evidence_path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
+      "evidence_sha256": "9a245d75ed44a763175f34fba61593a6a1b50346b261d925c50016064bc79633"
+    },
+    {
+      "id": "SUBJECT-WORK-GRAPH-REVIEW-R10",
+      "role": "design_reviewer",
+      "locator": "subagent:019f9b84-32de-7813-815a-4174c04be6b1",
+      "candidate_commit": "aa0a5966e114d6d7c87aa14fe2c27253f9f89f26",
+      "candidate_tree": "36935032f40b3519960cf7e79ea611bc8f031bbf",
+      "write_access_used": false,
+      "participated_in_candidate_construction": false,
+      "verdict": "blocked_freeze",
+      "evidence_path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
+      "evidence_sha256": "9a245d75ed44a763175f34fba61593a6a1b50346b261d925c50016064bc79633"
+    },
+    {
       "id": "SUBJECT-JAVEN",
       "role": "human_owner",
       "locator": "local user; no secret, email or private account stored here",

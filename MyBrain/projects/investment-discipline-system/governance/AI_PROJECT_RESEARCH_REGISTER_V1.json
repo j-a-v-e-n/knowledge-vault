@@ -365,6 +365,18 @@
       "path": "research/RESEARCH_REFRESH_PREREGISTRATION_R8_2026-07-25.json",
       "sha256": "613f2feb98707e6bcba5835632e2eba657ab98f81825a7678213de7ceddf92a8",
       "role": "preregistered_gap_closure_protocol"
+    },
+    {
+      "id": "ARTIFACT-CHALLENGE-R8",
+      "path": "audits/PROJECT_METHOD_GAP_CLOSURE_REVIEW_R8_2026-07-25.md",
+      "sha256": "071f5064ef7deb68ba5307b3b5e3c24d4bdb8040de092553babb144a701dc845",
+      "role": "independent_challenge"
+    },
+    {
+      "id": "ARTIFACT-CHALLENGE-R10",
+      "path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
+      "sha256": "9a245d75ed44a763175f34fba61593a6a1b50346b261d925c50016064bc79633",
+      "role": "independent_challenge"
     }
   ],
   "challenge": {
@@ -555,6 +567,116 @@
         ],
         "minor_findings": [],
         "disposition": "候选 0683a9c3 已 supersede；引入分层 assurance trust model、GitHub/Sigstore 机器执行 provenance、真实 attack runner、ground-truth 动态范围、research sufficiency receipt、novelty probe、failure registry 和 delegated-choice provenance 后重新挑战"
+      },
+      {
+        "id": "CHALLENGE-08",
+        "review_sequence": 8,
+        "candidate_commit": "2fc2b710d0494afbf92a69855b35cf0e564b8540",
+        "candidate_tree": "65e1924ef2634fe41e85055f3e169359f2ca9bf2",
+        "reviewer_subjects": [
+          "SUBJECT-DESIGN-REVIEW-R8-PLATFORM-OBSERVABLE"
+        ],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/PROJECT_METHOD_GAP_CLOSURE_REVIEW_R8_2026-07-25.md",
+        "evidence_sha256": "071f5064ef7deb68ba5307b3b5e3c24d4bdb8040de092553babb144a701dc845",
+        "new_architecture_changing_classes": [],
+        "critical_findings": [
+          "项目方法 closure oracle 循环信任 failure registry 的 covered 标签"
+        ],
+        "major_findings": [
+          "正式 V-PROJECT-METHOD 没有与实际 mutation execution 和逐 case raw result 闭合",
+          "OPS-08 指定的 incident regression 在未变异 baseline 已失败",
+          "静态 policy mutation 不能完整关闭 CTX-02、ORG-03、HUM-05 与 ECO-03 的行为和长期风险"
+        ],
+        "minor_findings": [],
+        "disposition": "保持 blocked-freeze；failure 状态必须由可执行证据推导，补齐 context、并行语义、真实用户和长期维护证据后，以新 commit/tree 重审"
+      },
+      {
+        "id": "CHALLENGE-10",
+        "review_sequence": 10,
+        "candidate_commit": "aa0a5966e114d6d7c87aa14fe2c27253f9f89f26",
+        "candidate_tree": "36935032f40b3519960cf7e79ea611bc8f031bbf",
+        "reviewer_subjects": [
+          "SUBJECT-STATE-FRESHNESS-REVIEW-R10",
+          "SUBJECT-WORK-GRAPH-REVIEW-R10"
+        ],
+        "result": "blocked_freeze",
+        "evidence_path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
+        "evidence_sha256": "9a245d75ed44a763175f34fba61593a6a1b50346b261d925c50016064bc79633",
+        "new_architecture_changing_classes": [
+          "可推导项目状态与可执行工作依赖图"
+        ],
+        "critical_findings": [
+          "项目状态入口可陈旧而 context recovery 仍通过",
+          "项目方法机器结论受候选自填 failure coverage 标签控制",
+          "扩大后的完整回归预算尚无成功回执"
+        ],
+        "major_findings": [
+          "工作包没有可执行依赖图、阻断传播和强制集成探针",
+          "执行循环台账没有记录当前候选推进",
+          "研究回执有效性与研究充分性使用同一个通用 pass 词",
+          "living review 仍是文本触发器而非可到期、可重开的运行机制"
+        ],
+        "minor_findings": [],
+        "findings": [
+          {
+            "finding_id": "R10-CRIT-STATE-FRESHNESS",
+            "severity": "critical",
+            "state": "open",
+            "required_action_ids": [
+              "ACT-METHOD-GOVERNANCE-ROOT"
+            ]
+          },
+          {
+            "finding_id": "R10-CRIT-CIRCULAR-COVERAGE",
+            "severity": "critical",
+            "state": "open",
+            "required_action_ids": [
+              "ACT-METHOD-GOVERNANCE-ROOT"
+            ]
+          },
+          {
+            "finding_id": "R10-CRIT-REGRESSION-BUDGET",
+            "severity": "critical",
+            "state": "open",
+            "required_action_ids": [
+              "ACT-FREEZE-CLOSURE"
+            ]
+          },
+          {
+            "finding_id": "R10-MAJOR-WORK-GRAPH",
+            "severity": "major",
+            "state": "open",
+            "required_action_ids": [
+              "ACT-METHOD-GOVERNANCE-ROOT"
+            ]
+          },
+          {
+            "finding_id": "R10-MAJOR-LOOP-FRESHNESS",
+            "severity": "major",
+            "state": "open",
+            "required_action_ids": [
+              "ACT-METHOD-GOVERNANCE-ROOT"
+            ]
+          },
+          {
+            "finding_id": "R10-MAJOR-RESEARCH-STATUS",
+            "severity": "major",
+            "state": "open",
+            "required_action_ids": [
+              "ACT-METHOD-GOVERNANCE-ROOT"
+            ]
+          },
+          {
+            "finding_id": "R10-MAJOR-LIVING-REVIEW",
+            "severity": "major",
+            "state": "open",
+            "required_action_ids": [
+              "ACT-METHOD-GOVERNANCE-ROOT"
+            ]
+          }
+        ],
+        "disposition": "保持 design_freeze=blocked 与 product_complete=false；修复循环自证、状态新鲜度、DAG、台账新鲜度、研究状态语义和 living review，完成完整回归后以新 commit/tree 重审"
       }
     ]
   },

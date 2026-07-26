@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "policy_id": "ids-research-living-review-v1",
+  "research_subject": "AI project method and failure controls for the personal Paper V1 project",
+  "latest_refresh": {
+    "refresh_id": "RESEARCH-REFRESH-R10",
+    "completed_on": "2026-07-26",
+    "artifacts": [
+      {
+        "path": "research/AI_PROJECT_METHOD_EVIDENCE_REFRESH_R10_2026-07-25.md",
+        "sha256": "133b7f6f808346c8094551aeae761af9c72f04030cb53963d4d6e3d62af583ae"
+      },
+      {
+        "path": "research/AI_PROJECT_FAILURE_EVIDENCE_REFRESH_R10_2026-07-25.md",
+        "sha256": "f1530af94c2ca11cf54d017ae9fe1d63bc022df28f40bcba22e7bddd2724080f"
+      },
+      {
+        "path": "research/evidence/r10/SOURCE_MANIFEST.json",
+        "sha256": "ad4b1ecb8a092622c97fb69514cd43e23f3347554bb212a014cab4099c37a612"
+      }
+    ],
+    "claim_status": "bounded_incomplete"
+  },
+  "latest_accepted_independent_review": null,
+  "event_log": []
+}

@@ -1,0 +1,401 @@
+{
+  "schema_version": 1,
+  "manifest_id": "AI-PROJECT-METHOD-FAILURE-R10-SOURCE-MANIFEST",
+  "created_at_utc": "2026-07-26T00:08:06Z",
+  "scope": "Decision-relevant external sources used by the R10 AI-project method and failure reports, plus the local audit and preregistration locators needed by those reports.",
+  "report_paths": [
+    "research/AI_PROJECT_METHOD_EVIDENCE_REFRESH_R10_2026-07-25.md",
+    "research/AI_PROJECT_FAILURE_EVIDENCE_REFRESH_R10_2026-07-25.md"
+  ],
+  "authority_rules": {
+    "fixed_snapshot": "A fixed-version locator plus locally retained bytes and SHA-256 permits replay of the bounded source claim; it does not make the source universally valid or sufficient for a project decision.",
+    "mutable_snapshot": "A mutable page snapshot proves only the bytes retrieved at the recorded time. It cannot establish later page state, historical prevalence, or independent effectiveness.",
+    "field_probe_only": "A source without retained bytes may generate a probe or search lead but cannot close a decision-bearing gate.",
+    "local_artifact": "A local artifact is evidence only for the exact recorded scope and bytes; a finding is not proof that its repair is complete."
+  },
+  "sources": [
+    {
+      "source_ids": [
+        "M-S01"
+      ],
+      "canonical_title": "Harness engineering: leveraging Codex in an agent-first world",
+      "canonical_version_locator": "https://openai.com/index/harness-engineering/",
+      "revision_state": "mutable vendor page dated 2026-02-11",
+      "retrieval_observation_ended_at_utc": "2026-07-26T00:08:06Z",
+      "snapshot_status": "not_retained_http_403",
+      "snapshot_artifacts": [],
+      "authority": "field_probe_only",
+      "retrieval_limit": "The page was readable through the web research surface, but two direct snapshot attempts and one browser-user-agent retry returned HTTP 403. No local byte-replay claim is made."
+    },
+    {
+      "source_ids": [
+        "M-S02"
+      ],
+      "canonical_title": "Harness design for long-running application development",
+      "canonical_version_locator": "https://www.anthropic.com/engineering/harness-design-long-running-apps",
+      "revision_state": "Anthropic Sanity article _id d247b270-f917-40ca-8d67-d5ae517e117d, _rev nndkrAuP7NXH0SvEsFos86, _updatedAt 2026-03-24T16:23:08Z",
+      "retrieved_at_utc": "2026-07-25T16:23:27Z",
+      "snapshot_status": "retained_reused_from_r8",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r8/RS-02/snapshots/RS02-SRC-HARNESS-ANTHROPIC-2026-03-24.html",
+          "byte_count": 248479,
+          "sha256": "3643c6685d30c4d4a3e3e9d7bef5ed53da5f2ce0e4c070f11c07c5c4e43e6aa7"
+        },
+        {
+          "path": "research/evidence/r8/RS-02/MANIFEST.json",
+          "byte_count": 17175,
+          "sha256": "a419e48d23b1b51a354133b602edfd2e35e73af318b089fa1ed0b90b26cf481e"
+        }
+      ],
+      "authority": "snapshot_primary_vendor_report_with_narrow_claim_boundary"
+    },
+    {
+      "source_ids": [
+        "M-S03"
+      ],
+      "canonical_title": "AI Harness Engineering: A Runtime Substrate for Foundation-Model Software Agents",
+      "canonical_version_locator": "https://arxiv.org/abs/2605.13357v1",
+      "revision_state": "arXiv 2605.13357v1, submitted 2026-05-13T11:14:59Z",
+      "retrieved_at_utc": "2026-07-26T00:05:09Z",
+      "snapshot_status": "retained_fixed_version",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S03_arxiv_2605.13357v1.pdf",
+          "byte_count": 263956,
+          "sha256": "a1e2d7ce307c662411ca6bd5f833d7dae7f122ce6ef1ddd6d2370e82575b2fb9",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "fixed_snapshot_primary_preprint"
+    },
+    {
+      "source_ids": [
+        "M-S04"
+      ],
+      "canonical_title": "Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses",
+      "canonical_version_locator": "https://arxiv.org/abs/2604.25850v4",
+      "revision_state": "arXiv 2604.25850v4, last revised 2026-05-18T15:11:47Z",
+      "retrieved_at_utc": "2026-07-26T00:05:28Z",
+      "snapshot_status": "retained_fixed_version",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S04_arxiv_2604.25850v4.pdf",
+          "byte_count": 1432986,
+          "sha256": "299f2633b4c13db7bed52434b4db7c48ea621993581014d30e7bcd036d3464df",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "fixed_snapshot_primary_preprint"
+    },
+    {
+      "source_ids": [
+        "M-S05"
+      ],
+      "canonical_title": "GitHub Spec Kit documentation and spec-driven development reference",
+      "canonical_version_locator": "https://github.com/github/spec-kit/commit/c0fe0e43cd728ebc3dd1f714343f3921510a157f",
+      "revision_state": "main resolved to commit c0fe0e43cd728ebc3dd1f714343f3921510a157f, committed 2026-07-24T20:42:56Z",
+      "retrieved_at_utc": "2026-07-26T00:06:28Z",
+      "snapshot_status": "retained_commit_and_content",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S05_spec_kit_main_commit_2026-07-25.json",
+          "byte_count": 8389,
+          "sha256": "f83c3a0a7f8ac62787b0174ea8f3386cff711962ea594dd6f1a2598bba3acc54"
+        },
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S05_spec-driven_c0fe0e43cd728ebc3dd1f714343f3921510a157f.md",
+          "retrieved_at_utc": "2026-07-26T00:07:05Z",
+          "byte_count": 26229,
+          "sha256": "1517eba9868e7066541ffa484009d5eb9c7d8d04bf740dbfd86e5e88c396f0c6"
+        },
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S05_docs-index_c0fe0e43cd728ebc3dd1f714343f3921510a157f.md",
+          "retrieved_at_utc": "2026-07-26T00:07:10Z",
+          "byte_count": 5894,
+          "sha256": "3b1344a0127f396850bcebb5326b5230fe712d2110eec409ee4ab857d4f0c183"
+        },
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S05_spec_kit_docs_live_2026-07-25.html",
+          "byte_count": 10231,
+          "sha256": "ee6622a81002e7dd8c59040252b9c8156578b25ff835297ed7f7e61cb3aa7dc6",
+          "claim_boundary": "convenience live-page snapshot; the commit-pinned raw documents are the replay authority"
+        }
+      ],
+      "authority": "commit_pinned_official_open_source_documentation"
+    },
+    {
+      "source_ids": [
+        "M-S06"
+      ],
+      "canonical_title": "LangGraph workflows and agents",
+      "canonical_version_locator": "https://docs.langchain.com/oss/python/langgraph/workflows-agents",
+      "revision_state": "mutable official documentation; no repository commit was established",
+      "retrieved_at_utc": "2026-07-26T00:06:29Z",
+      "snapshot_status": "retained_mutable_page",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S06_langgraph_workflows_agents_live_2026-07-25.html",
+          "byte_count": 1642765,
+          "sha256": "bc379d7e7c61f5483c5840c5ab17a013a8d0eacd01086abd8c70a9d3442a1613"
+        }
+      ],
+      "authority": "snapshot_of_mutable_docs_field_probe_only"
+    },
+    {
+      "source_ids": [
+        "M-S07",
+        "F-S11"
+      ],
+      "canonical_title": "Coding Agents are Effective Long-Context Processors",
+      "canonical_version_locator": "https://arxiv.org/abs/2603.20432v1",
+      "revision_state": "arXiv 2603.20432v1, submitted 2026-03-20T19:03:20Z",
+      "retrieved_at_utc": "2026-07-26T00:05:27Z",
+      "snapshot_status": "retained_fixed_version",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S07_arxiv_2603.20432v1.pdf",
+          "byte_count": 4833605,
+          "sha256": "3a2529f02167517a7f793ca7041938ff56d618c1d4dc999d2a134796b94a9c99",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "fixed_snapshot_primary_preprint"
+    },
+    {
+      "source_ids": [
+        "M-S08",
+        "F-S07"
+      ],
+      "canonical_title": "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents",
+      "canonical_version_locator": "https://arxiv.org/abs/2605.21384v1",
+      "revision_state": "arXiv 2605.21384v1, submitted 2026-05-20T16:41:51Z",
+      "retrieved_at_utc": "2026-07-26T00:05:29Z",
+      "snapshot_status": "retained_fixed_version",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S08_F-S07_arxiv_2605.21384v1.pdf",
+          "byte_count": 1084976,
+          "sha256": "53e5df6ccd2ef9628d87edf39610a94d3017cc24782f3c950ffe5274aae8b9b0",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "fixed_snapshot_primary_preprint"
+    },
+    {
+      "source_ids": [
+        "M-S09",
+        "F-S08"
+      ],
+      "canonical_title": "BackendForge: Benchmarking Agentic End-to-End Code Generation with Backend Services",
+      "canonical_version_locator": "https://arxiv.org/abs/2607.11042v1",
+      "revision_state": "arXiv 2607.11042v1, submitted 2026-07-13",
+      "retrieved_at_utc": "2026-07-26T00:05:27Z",
+      "snapshot_status": "retained_fixed_version",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S09_F-S08_arxiv_2607.11042v1.pdf",
+          "byte_count": 545953,
+          "sha256": "9d5fb7c6ad0e0663669e633f2b08a42d202c1e949d9f1a6d1f0f49d03fbfd41d",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "fixed_snapshot_primary_preprint"
+    },
+    {
+      "source_ids": [
+        "M-S10",
+        "F-S10"
+      ],
+      "canonical_title": "When Agents Do Not Stop: Uncovering Infinite Agentic Loops in LLM Agents",
+      "canonical_version_locator": "https://arxiv.org/abs/2607.01641v1",
+      "revision_state": "arXiv 2607.01641v1, submitted 2026-07-02",
+      "retrieved_at_utc": "2026-07-26T00:05:25Z",
+      "snapshot_status": "retained_fixed_version",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/M-S10_F-S10_arxiv_2607.01641v1.pdf",
+          "byte_count": 1135956,
+          "sha256": "b83573a510a6653c176bde3666a95b2302b819f24b2d2d767ccc60c6039ad335",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "fixed_snapshot_primary_preprint"
+    },
+    {
+      "source_ids": [
+        "F-S01"
+      ],
+      "canonical_title": "Beyond the Surface: Measuring Self-Preference in LLM Judgments",
+      "canonical_version_locator": "https://aclanthology.org/2025.emnlp-main.86/",
+      "revision_state": "ACL Anthology stable identifier 2025.emnlp-main.86",
+      "retrieved_at_utc": "2026-07-26T00:05:47Z",
+      "snapshot_status": "retained_stable_anthology_pdf",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/F-S01_acl_2025.emnlp-main.86.pdf",
+          "byte_count": 1222100,
+          "sha256": "816a1769569999c165c9dc512b5d6b2b5ea59fd4316a27dd43c0b4b5d3e0f0ce",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "stable_peer_reviewed_source_snapshot"
+    },
+    {
+      "source_ids": [
+        "F-S02"
+      ],
+      "canonical_title": "Mitigating Judgment Preference Bias in Large Language Models through Group-Based Polling",
+      "canonical_version_locator": "https://aclanthology.org/2026.findings-acl.71/",
+      "revision_state": "ACL Anthology stable identifier 2026.findings-acl.71",
+      "retrieved_at_utc": "2026-07-26T00:05:52Z",
+      "snapshot_status": "retained_stable_anthology_pdf",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/F-S02_acl_2026.findings-acl.71.pdf",
+          "byte_count": 1817101,
+          "sha256": "ee75f368467c6be7224384cac8b40933381c17c14e64556fe210559b9dc8ee51",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "stable_peer_reviewed_source_snapshot"
+    },
+    {
+      "source_ids": [
+        "F-S03"
+      ],
+      "canonical_title": "Humans or LLMs as the Judge? A Study on Judgement Bias",
+      "canonical_version_locator": "https://aclanthology.org/2024.emnlp-main.474/",
+      "revision_state": "ACL Anthology stable identifier 2024.emnlp-main.474",
+      "retrieved_at_utc": "2026-07-26T00:05:46Z",
+      "snapshot_status": "retained_stable_anthology_pdf",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/F-S03_acl_2024.emnlp-main.474.pdf",
+          "byte_count": 4628010,
+          "sha256": "6889da368643d023f160878214cbdb65ae42659999039718ab1136861573ad8b",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "stable_peer_reviewed_source_snapshot"
+    },
+    {
+      "source_ids": [
+        "F-S04"
+      ],
+      "canonical_title": "Prior Beliefs Prejudice LLM-as-Judge: Evidence from Persuasion Evaluation",
+      "canonical_version_locator": "https://aclanthology.org/2026.findings-acl.2087/",
+      "revision_state": "ACL Anthology stable identifier 2026.findings-acl.2087",
+      "retrieved_at_utc": "2026-07-26T00:05:50Z",
+      "snapshot_status": "retained_stable_anthology_pdf",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/F-S04_acl_2026.findings-acl.2087.pdf",
+          "byte_count": 2573942,
+          "sha256": "d8cea08a6f927a21b70a1c3014c4f09e69086af9f8af668164d018a7bc9a4960",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "stable_peer_reviewed_source_snapshot"
+    },
+    {
+      "source_ids": [
+        "F-S05"
+      ],
+      "canonical_title": "SycoBench-600: Measuring Sycophancy and Correction Selectivity in LLM Assistants",
+      "canonical_version_locator": "https://aclanthology.org/2026.findings-acl.1759/",
+      "revision_state": "ACL Anthology stable identifier 2026.findings-acl.1759",
+      "retrieved_at_utc": "2026-07-26T00:05:53Z",
+      "snapshot_status": "retained_stable_anthology_pdf",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/F-S05_acl_2026.findings-acl.1759.pdf",
+          "byte_count": 190678,
+          "sha256": "68c86f4644bab74e815c13249bccdcff9384bcfafb503d3d5f1dbbec3ffebdc3",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "stable_peer_reviewed_source_snapshot"
+    },
+    {
+      "source_ids": [
+        "F-S06"
+      ],
+      "canonical_title": "Good Arguments Against the People Pleasers: How Reasoning Mitigates (Yet Masks) LLM Sycophancy",
+      "canonical_version_locator": "https://aclanthology.org/2026.acl-long.1126/",
+      "revision_state": "ACL Anthology stable identifier 2026.acl-long.1126",
+      "retrieved_at_utc": "2026-07-26T00:05:46Z",
+      "snapshot_status": "retained_stable_anthology_pdf",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/F-S06_acl_2026.acl-long.1126.pdf",
+          "byte_count": 3934274,
+          "sha256": "7f03e0de022767e86e4b4f6d5c1e719f6709b7b8248bac14331f2b6107e2535a",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "stable_peer_reviewed_source_snapshot"
+    },
+    {
+      "source_ids": [
+        "F-S09"
+      ],
+      "canonical_title": "SpecBench: Evaluating Specification-Level Reasoning for Software Engineering LLM Agents",
+      "canonical_version_locator": "https://arxiv.org/abs/2605.30314v1",
+      "revision_state": "arXiv 2605.30314v1, submitted 2026-05-28",
+      "retrieved_at_utc": "2026-07-26T00:05:27Z",
+      "snapshot_status": "retained_fixed_version",
+      "snapshot_artifacts": [
+        {
+          "path": "research/evidence/r10/source_snapshots/F-S09_arxiv_2605.30314v1.pdf",
+          "byte_count": 1102712,
+          "sha256": "5c842a36ae9b203825e3ede97ea601ac43c068462727c242b43e011f4375b1be",
+          "validation": "PDF file magic and pdfinfo parse succeeded"
+        }
+      ],
+      "authority": "fixed_snapshot_primary_preprint"
+    }
+  ],
+  "local_sources": [
+    {
+      "local_source_id": "LOCAL-R10-STATE-FRESHNESS-AUDIT",
+      "path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
+      "sha256": "9a245d75ed44a763175f34fba61593a6a1b50346b261d925c50016064bc79633",
+      "scope": "The R10 finding and required repair for stale project-state entry points; it does not prove the repair complete."
+    },
+    {
+      "local_source_id": "LOCAL-R9-SAME-TASK-PREREGISTRATION",
+      "path": "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json",
+      "sha256": "948c4d06a0c3835c7e508a7700beba59e73f4875b04ffd74d9c465216debb5ef",
+      "scope": "The only currently preregistered same-task method comparison; status is preregistered_not_executed."
+    },
+    {
+      "local_source_id": "LOCAL-PROJECT-AI-WORK-RULES",
+      "path": "AGENTS.md",
+      "sha256": "4702e67a59ad61d24170449bce98ba428e26d4f6553d73ee69e12aa6ea45e817",
+      "scope": "Current project policy requiring recovery from repository artifacts before work."
+    },
+    {
+      "local_source_id": "LOCAL-PROJECT-CHARTER",
+      "path": "PROJECT_CHARTER.md",
+      "sha256": "3ea9139f8647119cafbbce05404b77c50afcd688a5731a315032eb41b1201ca8",
+      "scope": "Current project scope, human authority boundary, and evidence-defined completion policy."
+    }
+  ],
+  "excluded_mutable_field_sources": {
+    "source_ids": [
+      "M-P01",
+      "M-P02",
+      "M-P03",
+      "M-P04",
+      "M-P05",
+      "M-P06",
+      "F-P01",
+      "F-P02",
+      "F-P03",
+      "F-P04",
+      "F-P05"
+    ],
+    "reason": "Mutable GitHub and Reddit anecdotes remain non-replayable field probes only. They have no authority to close a historical fact, architecture adoption, or completion decision in R10."
+  }
+}
