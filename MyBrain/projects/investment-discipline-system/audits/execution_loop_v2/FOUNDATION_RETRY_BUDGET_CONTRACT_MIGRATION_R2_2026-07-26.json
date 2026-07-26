@@ -1,0 +1,29 @@
+{
+  "schema_version": "active-packet-contract-migration-audit/v1",
+  "migration_id": "FOUNDATION-RETRY-BUDGET-8-TO-12-2026-07-26",
+  "recorded_at": "2026-07-26T04:58:45.000Z",
+  "packet_id": "WP-METHOD-RUNTIME-FOUNDATION",
+  "reason": "Six execution attempts already preserve Reviews C and D. Review E adds a separately bound failed candidate, and its remediation must be followed by another independent exact-candidate review. A budget of eight would force the remediation observation itself to be terminal blocked, preventing an evidence-bearing re-review and accepted terminal transition. The budget is widened before the Review E observation, with the exact prior packet and ledger identities retained here.",
+  "before": {
+    "retry_budget": 8,
+    "packet_raw_sha256": "57283ee6cc431b89b62eaa47d2b17b068d3519d6320f55057ab5e58e799d3441",
+    "packet_contract_sha256": "43d65bd38280a1c987d8c2103f45b9a6186b6957f83e4dd8a2109fced6f9919b",
+    "ledger_raw_sha256": "dacf65e44e1940f98bceb57ccb23d1647a7a81972a87c4a65e25cff6c1f47a3d",
+    "latest_record_sha256": "46b74f9ff04833b6c7c6b47bf257b4a013f570725d37e86e067de5772aa1bf9b"
+  },
+  "after": {
+    "retry_budget": 12,
+    "packet_contract_sha256": "b542c6e91f428fdea4e9a4835a0f34b7f7a9cfd529ee52dd983fb5b5cfc7d892"
+  },
+  "invariants": [
+    "No existing attempt object is changed.",
+    "The packet remains active and every existing failure remains open.",
+    "Review E must be recorded as a failed exact-candidate observation before remediation is claimed.",
+    "The wider budget is capacity for evidence-bearing challenge and repair cycles, not permission to bypass forced-stop rules.",
+    "No completion, design-freeze, product-quality, or investment-effectiveness claim is created."
+  ],
+  "limitations": [
+    "The audit preserves the pre-migration raw packet and ledger hashes but does not embed a final post-observation ledger hash because the migration audit is itself inside the packet's controlled audit tree.",
+    "Local hashes are tamper-evident consistency evidence, not authenticated reviewer identity."
+  ]
+}

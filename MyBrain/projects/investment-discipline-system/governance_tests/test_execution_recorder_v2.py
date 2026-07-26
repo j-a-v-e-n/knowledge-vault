@@ -541,6 +541,86 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.assertEqual([], recorder.pending_operation_paths(self.root))
         self.assert_execution_current()
 
+    def test_resolved_with_explicit_failures_changes_nothing(self) -> None:
+        before = self.project_files()
+        with self.assertRaisesRegex(
+            recorder.RecorderError,
+            "resolved status requires an empty failure set",
+        ):
+            recorder.append_passive(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                ["REC-01"],
+                "resolved",
+                "RECORDER-CONTRADICTORY-REQUEST",
+                "A resolved request cannot retain an explicit failure",
+            )
+        self.assertEqual(before, self.project_files())
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
+    def test_resolved_with_inherited_failures_never_launches_or_journals(
+        self,
+    ) -> None:
+        recorder.append_passive(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            ["REC-01"],
+            "open",
+            "RECORDER-PRIOR-FAILURE",
+            "Create one unresolved failure",
+        )
+        before = self.project_files()
+        with (
+            mock.patch.object(recorder.subprocess, "Popen") as process,
+            self.assertRaisesRegex(
+                recorder.RecorderError,
+                "resolved status requires an empty failure set",
+            ),
+        ):
+            recorder.run_and_append(
+                self.root,
+                TARGET_ID,
+                self.tail(),
+                [sys.executable, "-c", "raise SystemExit(0)"],
+                None,
+                "resolved",
+                "RECORDER-INHERITED-FAILURE",
+                "An omitted after-set inherits the unresolved failure",
+                10,
+            )
+        process.assert_not_called()
+        self.assertEqual(before, self.project_files())
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
+    def test_third_no_progress_request_is_atomically_forced_blocked(
+        self,
+    ) -> None:
+        first = self.append_passive()
+        second = self.append_passive()
+        third = self.append_passive()
+        self.assertEqual("recorded", first["status"])
+        self.assertEqual("recorded", second["status"])
+        self.assertEqual("recorded", third["status"])
+        attempts = self.ledger()["attempts"]
+        self.assertEqual(4, len(attempts))
+        latest = attempts[-1]
+        self.assertEqual("blocked", latest["blocker"]["status_after"])
+        self.assertEqual(
+            "RECORDER-FORCED-STOP",
+            latest["blocker"]["root_cause_id"],
+        )
+        self.assertEqual(["RECORDER-907"], latest["failure_delta"]["after"])
+        self.assertEqual(
+            "blocked",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
     def test_two_concurrent_recorders_with_same_tail_have_one_winner(self) -> None:
         expected_tail = self.tail()
         barrier = Path(self._temporary.name) / "recorder-barrier"
@@ -984,6 +1064,89 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.assertEqual([], recorder.pending_operation_paths(self.root))
         self.assert_execution_current()
 
+    def test_target_cannot_close_supervisor_liveness_lock(self) -> None:
+        target_ready = Path(self._temporary.name) / "target-closed-fds"
+        expected_tail = self.tail()
+        child = (
+            "import os, pathlib, signal, sys, time\n"
+            "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+            "for descriptor in range(3, 256):\n"
+            "    try:\n"
+            "        os.close(descriptor)\n"
+            "    except OSError:\n"
+            "        pass\n"
+            "pathlib.Path(sys.argv[1]).write_text('ready')\n"
+            "time.sleep(1.0)\n"
+            "pathlib.Path(sys.argv[2]).write_text('late-child-write\\n')\n"
+        )
+        worker = (
+            "import sys\n"
+            "from pathlib import Path\n"
+            f"sys.path.insert(0, {str(SOURCE_ROOT)!r})\n"
+            "from scripts import record_execution_attempt_v2 as recorder\n"
+            "root = Path(sys.argv[1])\n"
+            "recorder.run_and_append("
+            "root, sys.argv[2], sys.argv[3], "
+            f"[sys.executable, '-c', {child!r}, sys.argv[4], "
+            f"str(root / {TARGET_OUTPUT!r})], "
+            "None, 'open', 'RECORDER-SUPERVISOR-LOCK', "
+            "'The supervisor alone owns the liveness lock', 30)"
+        )
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                worker,
+                str(self.root),
+                TARGET_ID,
+                expected_tail,
+                str(target_ready),
+            ],
+            cwd=SOURCE_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        deadline = time.monotonic() + 15
+        while not target_ready.exists() and process.poll() is None:
+            if time.monotonic() >= deadline:
+                process.kill()
+                stdout, stderr = process.communicate()
+                self.fail((stdout, stderr))
+            time.sleep(0.01)
+        self.assertTrue(target_ready.exists())
+        process.kill()
+        process.communicate(timeout=10)
+        pending = recorder.pending_operation_paths(self.root)
+        self.assertEqual(1, len(pending))
+        operation_id = pending[0].name
+
+        with (
+            mock.patch.object(
+                recorder,
+                "CHILD_TERMINATION_GRACE_SECONDS",
+                0.1,
+            ),
+            mock.patch.object(
+                recorder,
+                "CHILD_KILL_WAIT_SECONDS",
+                1.0,
+            ),
+        ):
+            self.assertEqual(
+                [operation_id],
+                recorder.recover_operations(self.root),
+            )
+        time.sleep(1.2)
+        self.assertEqual(
+            "target-v1\n",
+            (self.root / TARGET_OUTPUT).read_text(encoding="utf-8"),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual("indeterminate", latest["process_observation"]["mode"])
+        self.assertEqual(["RECORDER-902"], latest["failure_delta"]["after"])
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
     def test_postcore_crash_keeps_operation_until_views_are_refreshed(
         self,
     ) -> None:
@@ -1285,6 +1448,125 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.assertEqual(candidate_commit, result["candidate_commit"])
         self.assertEqual(review_commit, result["review_commit"])
         self.assert_execution_current()
+
+    def test_nested_tree_candidate_matches_worktree_order(
+        self,
+    ) -> None:
+        tree_root = "src/recorder-tree"
+        self.write_text(f"{tree_root}/alpha/deep/value.txt", "deep\n")
+        self.write_text(f"{tree_root}/alpha/sibling.txt", "sibling\n")
+        self.write_text(f"{tree_root}/zeta/value.txt", "zeta\n")
+        self.write_text(f"{tree_root}/middle.txt", "middle\n")
+        packet = self.read_json(self.packet_path(TARGET_ID))
+        packet["bounded_write_paths"].append({"path": tree_root, "kind": "tree"})
+        self.write_json(self.packet_path(TARGET_ID), packet)
+        self.write_json(
+            self.ledger_relative(TARGET_ID),
+            self.baseline_ledger(packet),
+        )
+        project_state.refresh_project_state(self.root)
+        self.assert_execution_current()
+        self.finalize_with_consistent_clock()
+
+        candidate_commit, review_commit = self.prepare_seal_authority()
+        errors: list[str] = []
+        candidate_claims = execution.git_claim_snapshots(
+            self.root,
+            candidate_commit,
+            packet,
+            errors,
+        )
+        self.assertEqual([], errors)
+        expected_claims = self.ledger()["attempts"][-1]["controlled_snapshot"]["claims"]
+        self.assertEqual(expected_claims, candidate_claims)
+        tree_claim = next(
+            item for item in candidate_claims if item["path"] == tree_root
+        )
+        worktree_errors: list[str] = []
+        worktree_digest = execution.tree_sha256(
+            self.root / tree_root,
+            "nested fixture tree",
+            worktree_errors,
+        )
+        self.assertEqual([], worktree_errors)
+        self.assertEqual(worktree_digest, tree_claim["content_sha256"])
+
+        result = recorder.seal_packet(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            candidate_commit,
+            review_commit,
+        )
+        self.assertEqual("sealed_complete", result["status"])
+        self.assert_execution_current()
+
+    def test_candidate_tree_lookup_uses_literal_top_level_pathspec(self) -> None:
+        errors: list[str] = []
+        with (
+            mock.patch.object(
+                execution,
+                "git_project_prefix",
+                return_value="parent/project",
+            ),
+            mock.patch.object(
+                execution,
+                "git_output",
+                return_value=b"",
+            ) as git_output,
+        ):
+            observed = execution.git_tree_entries(
+                self.root,
+                "a" * 40,
+                "src/recorder-tree",
+                recursive=True,
+                label="literal pathspec probe",
+                errors=errors,
+            )
+        self.assertEqual([], errors)
+        self.assertEqual(
+            ("parent/project/src/recorder-tree", []),
+            observed,
+        )
+        self.assertEqual(
+            [
+                "ls-tree",
+                "--full-tree",
+                "-z",
+                "-r",
+                "-t",
+                "a" * 40,
+                "--",
+                ":(top,literal)parent/project/src/recorder-tree",
+            ],
+            git_output.call_args.args[1],
+        )
+
+    def test_git_observations_ignore_local_replace_objects(self) -> None:
+        probe_path = "replace-probe.json"
+        self.git("init", "-q")
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+        self.write_json(probe_path, {"version": "original"})
+        self.git("add", probe_path)
+        self.git("commit", "-q", "-m", "original probe")
+        original_commit = self.git("rev-parse", "HEAD")
+        self.write_json(probe_path, {"version": "replacement"})
+        self.git("add", probe_path)
+        self.git("commit", "-q", "-m", "replacement probe")
+        replacement_commit = self.git("rev-parse", "HEAD")
+        self.git("replace", original_commit, replacement_commit)
+
+        errors: list[str] = []
+        observed = execution.git_json(
+            self.root,
+            original_commit,
+            probe_path,
+            "replace-object probe",
+            errors,
+        )
+        self.assertEqual([], errors)
+        self.assertEqual({"version": "original"}, observed)
 
     def test_seal_rejects_index_bytes_not_seen_by_acceptance(self) -> None:
         self.finalize_with_consistent_clock()

@@ -52,17 +52,27 @@ MAX_CAPTURED_OUTPUT_BYTES_PER_STREAM = int(
     execution.EXPECTED_RECORDER["max_captured_output_bytes_per_stream"]
 )
 OUTPUT_LIMIT_EXIT_CODE = int(execution.EXPECTED_RECORDER["output_limit_exit_code"])
+CHILD_TERMINATION_GRACE_SECONDS = float(
+    execution.EXPECTED_RECORDER["child_termination_grace_seconds"]
+)
+CHILD_KILL_WAIT_SECONDS = float(execution.EXPECTED_RECORDER["child_kill_wait_seconds"])
 RECORDED_CHILD_BOOTSTRAP = r"""
 import fcntl
 import json
 import os
+import signal
+import subprocess
 import sys
 import time
 
 lock_path, ready_path, start_path, command_json = sys.argv[1:5]
 descriptor = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
 fcntl.flock(descriptor, fcntl.LOCK_EX)
-os.set_inheritable(descriptor, True)
+os.set_inheritable(descriptor, False)
+def retain_supervisor_liveness(_signum, _frame):
+    return None
+signal.signal(signal.SIGTERM, retain_supervisor_liveness)
+signal.signal(signal.SIGINT, retain_supervisor_liveness)
 payload = {
     "schema_version": "execution-recorder-child-ready/v2",
     "pid": os.getpid(),
@@ -86,7 +96,11 @@ while not os.path.exists(start_path):
         raise SystemExit(125)
     time.sleep(0.01)
 command = json.loads(command_json)
-os.execvpe(command[0], command, os.environ)
+completed = subprocess.run(command, check=False, close_fds=True)
+if completed.returncode < 0:
+    os.kill(os.getpid(), -completed.returncode)
+    raise SystemExit(128 - completed.returncode)
+raise SystemExit(completed.returncode)
 """
 _LOCAL_LOCKS_GUARD = threading.Lock()
 _LOCAL_LOCKS: dict[str, threading.RLock] = {}
@@ -809,13 +823,13 @@ def terminate_process_group(process: subprocess.Popen[bytes]) -> None:
     except ProcessLookupError:
         return
     try:
-        process.wait(timeout=5)
+        process.wait(timeout=CHILD_TERMINATION_GRACE_SECONDS)
     except subprocess.TimeoutExpired:
         try:
             os.killpg(process.pid, signal.SIGKILL)
         except ProcessLookupError:
             pass
-        process.wait(timeout=5)
+        process.wait(timeout=CHILD_KILL_WAIT_SECONDS)
 
 
 def communicate_bounded(
@@ -920,12 +934,18 @@ def quiesce_recorded_child(
         os.killpg(child["process_group_id"], signal.SIGTERM)
     except ProcessLookupError:
         pass
-    if not wait_for_child_lock_release(lock_path, 5.0):
+    if not wait_for_child_lock_release(
+        lock_path,
+        CHILD_TERMINATION_GRACE_SECONDS,
+    ):
         try:
             os.killpg(child["process_group_id"], signal.SIGKILL)
         except ProcessLookupError:
             pass
-        if not wait_for_child_lock_release(lock_path, 5.0):
+        if not wait_for_child_lock_release(
+            lock_path,
+            CHILD_KILL_WAIT_SECONDS,
+        ):
             raise RecorderError("recorded child process group did not terminate")
 
 
@@ -1304,6 +1324,36 @@ def recover_append_or_run_operation(
     }
     if not required.issubset(request):
         raise RecorderError("recoverable append request fields differ")
+    precommit_ledger: dict[str, Any] | None = None
+    if operation["phase"] not in {"commit_planned", "core_committed"}:
+        precommit_ledger = strict_load(
+            ledger_path(root, operation["packet_id"]),
+            f"ledger {operation['packet_id']}",
+        )
+        prior_failures = precommit_ledger["attempts"][-1]["failure_delta"]["after"]
+        requested_failures = request["failure_after"]
+        effective_failures = (
+            prior_failures if requested_failures is None else requested_failures
+        )
+        if request["status_after"] == "resolved" and effective_failures:
+            request["failure_after"] = sorted(
+                set(prior_failures) | set(effective_failures) | {"RECORDER-908"}
+            )
+            request["status_after"] = "blocked"
+            request["root_cause_id"] = "RECORDER-INVALID-DURABLE-REQUEST"
+            request["root_cause"] = (
+                "A durable operation from an earlier recorder contains a "
+                "contradictory resolved disposition with unresolved failures; "
+                "every prior failure remains unresolved."
+            )
+            persist_operation_disposition(
+                root,
+                operation,
+                request["failure_after"],
+                request["status_after"],
+                request["root_cause_id"],
+                request["root_cause"],
+            )
     if operation["phase"] in {"prepared", "process_started"}:
         quiesce_recorded_child(root, operation)
         packets = load_packets(root)
@@ -1330,11 +1380,9 @@ def recover_append_or_run_operation(
                 or any(not isinstance(item, str) or not item for item in command)
             ):
                 raise RecorderError("recoverable run argv differs")
-            ledger = strict_load(
-                ledger_path(root, operation["packet_id"]),
-                f"ledger {operation['packet_id']}",
-            )
-            prior_failures = ledger["attempts"][-1]["failure_delta"]["after"]
+            if precommit_ledger is None:
+                raise RecorderError("recoverable run ledger is unavailable")
+            prior_failures = precommit_ledger["attempts"][-1]["failure_delta"]["after"]
             requested_failures = request["failure_after"]
             effective_failures = (
                 prior_failures if requested_failures is None else requested_failures
@@ -1662,6 +1710,8 @@ def validate_transition_request(
         failure_after = sorted(failure_after)
     if status_after not in {"open", "resolved", "blocked"}:
         raise RecorderError("status_after is invalid")
+    if status_after == "resolved" and failure_after:
+        raise RecorderError("resolved status requires an empty failure set")
     if (
         not isinstance(root_cause_id, str)
         or execution.ROOT_CAUSE_ID_RE.fullmatch(root_cause_id) is None
@@ -1670,6 +1720,16 @@ def validate_transition_request(
     ):
         raise RecorderError("root-cause identity or description is invalid")
     return failure_after
+
+
+def validate_effective_transition_request(
+    failure_after: list[str] | None,
+    status_after: str,
+    prior_failures: list[str],
+) -> None:
+    effective = prior_failures if failure_after is None else failure_after
+    if status_after == "resolved" and effective:
+        raise RecorderError("resolved status requires an empty failure set")
 
 
 def validate_process_observation_input(
@@ -2141,6 +2201,60 @@ def _append_observation_core(
             "previous_attempt_sha256": None,
             "record_sha256": "",
         }
+        if (
+            forced_block_required(
+                [*ledger["attempts"], attempt],
+                packet["retry_budget"],
+            )
+            and status_after != "blocked"
+        ):
+            after_failures = sorted(
+                set(before_failures) | set(after_failures) | {"RECORDER-907"}
+            )
+            resolved = []
+            introduced = sorted(set(after_failures) - set(before_failures))
+            status_after = "blocked"
+            root_cause_id = "RECORDER-FORCED-STOP"
+            root_cause = (
+                "The first stopping-rule threshold was reached; the recorder "
+                "mechanically preserves every prior failure and records this "
+                "attempt as the final blocked transition."
+            )
+            after_evidence, added, removed = derive_evidence_after(
+                root,
+                before_evidence,
+                before_claims,
+                after_claims,
+                resolved,
+            )
+            packet["state"] = "blocked"
+            attempt["blocker"] = blocker(
+                root_cause_id,
+                root_cause,
+                after_failures,
+                status_after,
+            )
+            attempt["failure_delta"] = {
+                "before": before_failures,
+                "after": after_failures,
+                "resolved": resolved,
+                "introduced": introduced,
+            }
+            attempt["evidence_delta"] = {
+                "before": before_evidence,
+                "after": after_evidence,
+                "added": added,
+                "removed": removed,
+            }
+            attempt["declared_progress"] = bool(resolved or added)
+            persist_operation_disposition(
+                root,
+                operation,
+                after_failures,
+                status_after,
+                root_cause_id,
+                root_cause,
+            )
         attempt["previous_attempt_sha256"] = execution.canonical_sha256(previous)
         attempt["record_sha256"] = execution.canonical_sha256(
             {key: value for key, value in attempt.items() if key != "record_sha256"}
@@ -2258,6 +2372,11 @@ def append_observation(
                 f"ledger {packet_id}",
             )
             require_tail(tail_sha256(ledger), expected_tail)
+            validate_effective_transition_request(
+                failure_after,
+                status_after,
+                ledger["attempts"][-1]["failure_delta"]["after"],
+            )
             packets = load_packets(root)
             packet = packets.get(packet_id)
             if packet is None or packet.get("state") != "active":
@@ -2389,6 +2508,11 @@ def run_and_append(
                 f"ledger {packet_id}",
             )
             require_tail(tail_sha256(ledger), expected_tail)
+            validate_effective_transition_request(
+                failure_after,
+                status_after,
+                ledger["attempts"][-1]["failure_delta"]["after"],
+            )
             packets = load_packets(root)
             packet = packets.get(packet_id)
             if packet is None or packet.get("state") != "active":

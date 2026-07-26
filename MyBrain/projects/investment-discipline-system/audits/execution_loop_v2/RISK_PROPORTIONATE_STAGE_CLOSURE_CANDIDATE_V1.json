@@ -1,0 +1,103 @@
+{
+  "schema_version": "risk-proportionate-stage-closure-candidate/v1",
+  "proposal_id": "CANDIDATE-RISK-PROPORTIONATE-STAGE-CLOSURE-V1",
+  "recorded_at": "2026-07-26T04:58:45.000Z",
+  "status": "candidate_pending_independent_challenge",
+  "authority": {
+    "source": "user-authorized-candidate-proposal",
+    "scope": "record_and_challenge_only",
+    "may_freeze_core_rules": false,
+    "may_change_current_completion_semantics": false
+  },
+  "problem_statement": "An exhaustive project can either stop too early after local green checks or continue reviewing forever. The proposed protocol seeks an auditable, risk-proportionate stage boundary without converting process compliance into a claim of product or investment effectiveness.",
+  "candidate_protocol": {
+    "fixed_subject": [
+      "Fix one exact candidate commit and tree before a closure review begins.",
+      "Bind every review, reproduction, result, and disposition to that candidate.",
+      "A later modification creates a new candidate and cannot inherit an earlier acceptance verdict."
+    ],
+    "finding_closure_chain": [
+      "reproduce the finding or preserve a bounded reason why reproduction is unavailable",
+      "identify and challenge the root cause rather than only the observed symptom",
+      "implement a bounded repair",
+      "add a negative regression that fails on the vulnerable behavior",
+      "add or retain the adjacent positive path so fail-closed behavior cannot masquerade as correctness",
+      "re-run affected and neighboring checks on the fixed candidate"
+    ],
+    "review_scope": [
+      "Challenge both the candidate behavior and whether the declared review scope omitted relevant goals, components, failure classes, evidence, or user journeys.",
+      "Require candidate-postfix novelty probes rather than relying only on builder-authored canonical tests.",
+      "Keep machine execution provenance separate from semantic reviewer independence."
+    ],
+    "risk_proportionality": {
+      "critical_and_major": "Every known finding must complete the full closure chain or remain explicitly open and block the stage.",
+      "minor": "May be deferred only with bounded impact, an owner or successor location, and a concrete future trigger.",
+      "unknowns": "Must be listed with threat boundary, consequence, detection or monitoring path, and the event that reopens the stage."
+    },
+    "candidate_freeze_eligibility": [
+      "Every known Critical and Major finding is closed by fresh, reproducible evidence on the exact candidate.",
+      "Required evidence can be regenerated from recorded commands or runners and still matches its bound hashes and candidate identity.",
+      "Remaining unknowns and deferred items are explicit and each has a future trigger or successor boundary.",
+      "Independent review challenged both defects and omissions in scope.",
+      "Successive bounded review rounds show defensible convergence rather than merely repeating the same checklist."
+    ],
+    "non_equivalence": [
+      "Stage closure is not project completion.",
+      "Governance green is not product usability.",
+      "Software assurance is not evidence that an investment strategy has edge.",
+      "Paper performance is not evidence of realizable live returns."
+    ]
+  },
+  "required_independent_challenges": [
+    "Can a builder game convergence by renaming, splitting, suppressing, or downgrading findings?",
+    "Can repeated reviewers share the same blind spot and create false confidence while appearing independent?",
+    "Does the protocol add enough complexity that maintaining the process displaces building or testing the product?",
+    "Can a positive adjacent path still be too narrow to detect overblocking or unusable fail-closed behavior?",
+    "Can explicit unknowns become a dumping ground that permits premature freeze?",
+    "What observable evidence distinguishes genuine review convergence from reviewer fatigue or a fixed prompt reaching saturation?",
+    "Which later triggers reliably reopen a frozen stage when evidence, dependencies, AI methods, market rules, or user needs change?",
+    "How is financial effectiveness kept outside this process gate and evaluated by a separate prospective evidence program?"
+  ],
+  "known_side_effects_and_failure_modes": [
+    {
+      "id": "CLOSURE-CANDIDATE-RISK-01",
+      "risk": "governance complexity and maintenance burden",
+      "required_challenge": "Compare the additional artifacts and runtime cost with the marginal risk reduction; reject ceremony that has no decision consequence."
+    },
+    {
+      "id": "CLOSURE-CANDIDATE-RISK-02",
+      "risk": "same-origin evidence or reviewers create an independence illusion",
+      "required_challenge": "Track construction participation, evidence provenance, novelty probes, and the explicit limit of platform-observable rather than organizational independence."
+    },
+    {
+      "id": "CLOSURE-CANDIDATE-RISK-03",
+      "risk": "process green is misreported as product or financial validity",
+      "required_challenge": "Keep usability, longitudinal paper operation, calibration, benchmark comparison, and investment-effectiveness claims behind separate evidence gates."
+    },
+    {
+      "id": "CLOSURE-CANDIDATE-RISK-04",
+      "risk": "endless review caused by an undefined demand for exhaustive certainty",
+      "required_challenge": "Define bounded review questions and candidate-specific stopping evidence without claiming that unknown defects are impossible."
+    },
+    {
+      "id": "CLOSURE-CANDIDATE-RISK-05",
+      "risk": "premature convergence caused by fixed prompts, reviewer fatigue, or narrow fixtures",
+      "required_challenge": "Require scope attacks, mutation or counterexample novelty, and explicit disclosure when an additional reviewer produced no verdict."
+    }
+  ],
+  "research_basis": {
+    "role": "supporting_analogy_not_automatic_acceptance",
+    "project_evidence": [
+      "research/ASSURANCE_PROVENANCE_REFRESH_2026-07-25.md",
+      "PRODUCT_ASSURANCE_BLUEPRINT_V2.md",
+      "audits/DESIGN_FREEZE_ASSURANCE_REVIEW_ROUND6_2026-07-25.md"
+    ],
+    "external_traditions_to_verify_during_review": [
+      "assurance cases",
+      "independent verification and validation",
+      "eliminative or defeater-oriented argumentation"
+    ]
+  },
+  "promotion_rule": "This proposal may enter a frozen governance contract only after an exact-candidate independent review addresses every required challenge, records any new Critical or Major finding, and identifies the smaller executable mechanism that should replace this narrative candidate.",
+  "current_effect": "none_beyond_candidate_backlog_and_review_scope"
+}

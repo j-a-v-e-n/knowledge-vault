@@ -341,7 +341,7 @@ EXPECTED_CURRENT_SNAPSHOT = {
         "LOOP_RUN_LOG.md",
     ],
     "file_hash": "raw_sha256",
-    "tree_hash": "canonical_sha256_of_sorted_relative_entry_records",
+    "tree_hash": ("canonical_sha256_of_directory_first_relative_entry_records_v1"),
     "absent_state": "explicit_null_digest",
     "latest_attempt_must_equal_current_claims": True,
     "pending_requires_baseline_observation": True,
@@ -454,10 +454,18 @@ EXPECTED_RECORDER = {
     "missing_process_outcome_recovers_as_explicit_indeterminate_block": True,
     "failed_or_indeterminate_process_preserves_prior_failures": True,
     "caller_transition_is_validated_before_durable_operation": True,
+    "resolved_request_effective_failure_set_prevalidated": True,
     "proposed_attempt_chain_is_validated_before_commit_plan": True,
+    "forced_stop_disposition_derived_before_commit": True,
+    "recorded_child_liveness_lock_held_by_supervisor": True,
+    "candidate_tree_hash_uses_worktree_record_order": True,
+    "git_observation_disables_replace_objects": True,
+    "git_controlled_paths_use_literal_pathspecs": True,
     "acceptance_check_timeout_seconds": 7200,
     "max_captured_output_bytes_per_stream": 16777216,
     "output_limit_exit_code": 125,
+    "child_termination_grace_seconds": 5,
+    "child_kill_wait_seconds": 5,
     "ledger_write": "atomic_replace_after_fsync",
     "interrupted_multi_file_transition": (
         "discard_verified_precommit_prepare_or_roll_forward_durable_commit_journal"
@@ -532,7 +540,7 @@ EXPECTED_LIMITATIONS = [
     "A pending baseline proves only the current bytes were observed; it does not prove the work was authorized, unstarted, or produced after the prerequisite state.",
     "The formal recorder prevents cooperative concurrent writers from overwriting one another, but a process with arbitrary filesystem access can still bypass it and rewrite local history; immutable Git candidates and independent review remain required.",
     "A process outcome and its durable controlled snapshot establish one observed interval boundary, not semantic causality between the command and every changed byte.",
-    "Recorder process-group recovery controls descendants that remain in the owned process group; a deliberately detached descendant can escape that boundary and requires operating-system sandboxing.",
+    "Recorder process-group recovery controls the supervised target and descendants still in the owned group while the supervisor remains alive; a deliberately backgrounded child that survives its immediate parent or a detached descendant can escape that boundary and requires operating-system sandboxing.",
     "Captured stdout and stderr are each bounded; exit 125 means the configured evidence-capture limit was exceeded and the retained digest covers only the bounded captured prefix.",
     "A local Git review tag raises the cost and visibility of coherent rewrites but is not an authenticated identity or protected remote ref; hostile-author resistance requires pushing the tag to a protected remote and verifying that external ref.",
     "A V2 blocked or completed packet cannot resume in place; continued work requires a named successor packet so the prior terminal chain remains visible.",
@@ -719,6 +727,64 @@ def is_v2_ledger_path(value: str, live_packet_ids: set[str]) -> bool:
     return value in {ledger_path_for(packet_id) for packet_id in live_packet_ids}
 
 
+def ordered_tree_records(
+    records: list[dict[str, str]],
+    label: str,
+    errors: list[str],
+) -> list[dict[str, str]] | None:
+    """Return the shared directory-first traversal used by both authorities."""
+    start = len(errors)
+    by_path: dict[str, dict[str, str]] = {}
+    children: dict[str, list[dict[str, str]]] = {}
+    directories: set[str] = set()
+    for record in records:
+        path = record.get("path")
+        kind = record.get("type")
+        if (
+            not isinstance(path, str)
+            or not path
+            or kind not in {"directory", "file"}
+            or path in by_path
+        ):
+            errors.append(f"{label}: tree records are malformed or duplicated")
+            continue
+        by_path[path] = record
+        if kind == "directory":
+            directories.add(path)
+        parent = PurePosixPath(path).parent.as_posix()
+        parent = "" if parent == "." else parent
+        children.setdefault(parent, []).append(record)
+    for path in by_path:
+        parent = PurePosixPath(path).parent.as_posix()
+        if parent != "." and parent not in directories:
+            errors.append(f"{label}: tree record lacks parent directory: {path}")
+    if len(errors) != start:
+        return None
+
+    ordered: list[dict[str, str]] = []
+
+    def visit(parent: str) -> None:
+        immediate = children.get(parent, [])
+        child_directories = sorted(
+            (item for item in immediate if item["type"] == "directory"),
+            key=lambda item: item["path"],
+        )
+        child_files = sorted(
+            (item for item in immediate if item["type"] == "file"),
+            key=lambda item: item["path"],
+        )
+        ordered.extend(child_directories)
+        ordered.extend(child_files)
+        for directory in child_directories:
+            visit(directory["path"])
+
+    visit("")
+    if len(ordered) != len(records):
+        errors.append(f"{label}: tree traversal did not cover every record")
+        return None
+    return ordered
+
+
 def tree_sha256(directory: Path, label: str, errors: list[str]) -> str | None:
     start = len(errors)
     records: list[dict[str, str]] = []
@@ -765,7 +831,8 @@ def tree_sha256(directory: Path, label: str, errors: list[str]) -> str | None:
         return None
     if len(errors) != start:
         return None
-    return canonical_sha256(records)
+    ordered = ordered_tree_records(records, label, errors)
+    return None if ordered is None else canonical_sha256(ordered)
 
 
 def current_claim_snapshots(
@@ -1195,7 +1262,12 @@ def git_output(
             stderr=subprocess.PIPE,
             check=False,
             timeout=15,
-            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "LC_ALL": "C"},
+            env={
+                **os.environ,
+                "GIT_NO_REPLACE_OBJECTS": "1",
+                "GIT_OPTIONAL_LOCKS": "0",
+                "LC_ALL": "C",
+            },
         )
     except (OSError, subprocess.SubprocessError) as exc:
         errors.append(f"{label}: Git observation failed: {exc}")
@@ -1314,7 +1386,7 @@ def git_tree_entries(
     argv = ["ls-tree", "--full-tree", "-z"]
     if recursive:
         argv.extend(["-r", "-t"])
-    argv.extend([commit, "--", f":(top){object_path}"])
+    argv.extend([commit, "--", f":(top,literal){object_path}"])
     payload = git_output(root, argv, label, errors)
     if payload is None:
         return None
@@ -1459,12 +1531,15 @@ def git_claim_snapshots(
                 }
             )
         if valid_tree:
+            ordered = ordered_tree_records(records, label, errors)
+            if ordered is None:
+                continue
             snapshots.append(
                 {
                     "path": relative,
                     "kind": kind,
                     "state": "tree",
-                    "content_sha256": canonical_sha256(records),
+                    "content_sha256": canonical_sha256(ordered),
                 }
             )
     return sorted(snapshots, key=lambda item: (item["path"], item["kind"]))
