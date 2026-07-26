@@ -21,6 +21,20 @@
       "filename_suffix": ".packet.json",
       "recursive": false
     },
+    "runtime_authorities": {
+      "work_packets": {
+        "verifier_path": "scripts/verify_work_packets.py",
+        "policy_path": "governance/WORK_PACKET_POLICY_V2.json",
+        "packet_directory": ".work_packets/packets",
+        "required_status": "pass"
+      },
+      "execution_freshness": {
+        "verifier_path": "scripts/verify_execution_loop_v2.py",
+        "policy_path": "governance/EXECUTION_LOOP_POLICY_V2.json",
+        "required_verification_status": "valid",
+        "required_freshness_status": "current"
+      }
+    },
     "views": [
       "STATUS.md",
       "TASK_BOARD.md",
@@ -104,7 +118,7 @@
     "dependency_satisfied_states": [
       "complete"
     ],
-    "completion_verification": "declared_complete_candidate_only",
+    "completion_verification": "work_packet_receipt_and_execution_freshness_candidate_only",
     "route_order_rule": "global_unique_positive_integer",
     "addresses_finding_ids_rule": "unique_identifiers_may_be_empty",
     "direct_target_rule": "nonterminal_current_phase_packet_addressing_finding_with_required_action",
@@ -142,6 +156,7 @@
       "/sources/acceptance_contract",
       "/sources/review_register",
       "/sources/work_packets",
+      "/sources/runtime_authorities",
       "/review_source",
       "/packet_routing",
       "/phase_model"
@@ -158,9 +173,10 @@
     ]
   },
   "limitations": [
-    "A V2 dependency packet whose state is complete is only a declarative completion candidate here; receipt verification must be integrated before this projection can call that dependency independently verified.",
+    "A V2 dependency packet whose state is complete must pass local work-packet receipt and execution-freshness verification, but remains self-reported candidate evidence rather than authenticated independent completion.",
     "The design-freeze authority verifier is intentionally unsupported in V1. A missing FROZEN_BUNDLE blocks, and file existence alone also remains blocked.",
     "Only design_freeze is supported. Any future phase requires an explicit policy schema update and a structured authority verifier; product completion is never inferred.",
-    "Refresh preflights all three views and atomically replaces each individual file, but a local filesystem cannot provide one atomic transaction spanning all three files."
+    "Refresh preflights all three views and atomically replaces each individual file, but a local filesystem cannot provide one atomic transaction spanning all three files.",
+    "Runtime verifier observations are deterministic local point-in-time receipts; candidate-bound remote execution and independent review remain separate authorities."
   ]
 }

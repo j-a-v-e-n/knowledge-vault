@@ -1,0 +1,21 @@
+{
+  "schema_version": "work-packet-checkpoint/v2",
+  "packet_id": "WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY",
+  "packet_contract_sha256": "1f98863e7ab1fee7a511dc712c2ceb5e7bdea8ba20b8ab0e4f7f0ce0344a7b76",
+  "sequence": 2,
+  "snapshots": [
+    {
+      "path": "governance_tests/test_contract_supersession.py",
+      "kind": "file",
+      "state": "file",
+      "content_sha256": "ba793e4cdcd8a05d54ad081baf64c96930084ddc9594b8ad71272c16b7440a69"
+    },
+    {
+      "path": "scripts/verify_contract_supersession.py",
+      "kind": "file",
+      "state": "file",
+      "content_sha256": "ae174c046b3f4eca4a2789019f2efcc46289ed3bb1f5e6b8dd735697d772030a"
+    }
+  ],
+  "prerequisite_receipts": []
+}

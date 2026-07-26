@@ -1,0 +1,226 @@
+{
+  "schema_version": "execution-loop-policy/v2",
+  "status": "candidate_for_freeze",
+  "policy_id": "ids-execution-loop-v2",
+  "linked_failure_ids": [
+    "ECO-01",
+    "ORG-04"
+  ],
+  "work_packets": {
+    "policy_path": "governance/WORK_PACKET_POLICY_V2.json",
+    "packet_directory": ".work_packets/packets",
+    "packet_filename_suffix": ".packet.json",
+    "live_schema_version": "work-packet-instance/v2",
+    "historical_schema_versions": [
+      "work-packet-instance/v1"
+    ],
+    "ledger_required_states": [
+      "pending",
+      "active",
+      "blocked",
+      "candidate_complete",
+      "complete"
+    ],
+    "historical_state": "superseded",
+    "ledger_claim_rule": "exact_named_file_must_be_in_bounded_write_paths"
+  },
+  "ledger_schema": {
+    "directory": ".work_packets/attempts",
+    "filename_template": "{packet_id}.attempts.v2.json",
+    "ledger_schema_version": "execution-attempt-ledger/v2",
+    "ledger_required_fields": [
+      "schema_version",
+      "packet_id",
+      "packet_path",
+      "packet_contract_sha256",
+      "reported_state",
+      "cost_accounting_claim",
+      "attempts"
+    ],
+    "attempt_schema_version": "execution-attempt/v2",
+    "attempt_required_fields": [
+      "schema_version",
+      "attempt_kind",
+      "sequence",
+      "retry_index",
+      "started_at",
+      "ended_at",
+      "wall_time_ms",
+      "blocker",
+      "failure_delta",
+      "evidence_delta",
+      "controlled_snapshot",
+      "cost_observation",
+      "declared_progress",
+      "previous_attempt_sha256",
+      "record_sha256"
+    ],
+    "attempt_kind_values": [
+      "baseline_observation",
+      "execution_attempt"
+    ],
+    "blocker_required_fields": [
+      "root_cause_id",
+      "failure_ids",
+      "root_cause",
+      "status_after",
+      "fingerprint_sha256"
+    ],
+    "failure_delta_required_fields": [
+      "before",
+      "after",
+      "resolved",
+      "introduced"
+    ],
+    "evidence_delta_required_fields": [
+      "before",
+      "after",
+      "added",
+      "removed"
+    ],
+    "evidence_reference_required_fields": [
+      "path",
+      "sha256",
+      "kind",
+      "supports_failure_ids"
+    ],
+    "controlled_snapshot_required_fields": [
+      "algorithm",
+      "excluded_paths",
+      "claims",
+      "claims_sha256"
+    ],
+    "claim_snapshot_required_fields": [
+      "path",
+      "kind",
+      "state",
+      "content_sha256"
+    ],
+    "cost_observation_required_fields": [
+      "wall_time_source",
+      "token_usage"
+    ],
+    "token_usage_required_fields": [
+      "availability",
+      "input_tokens",
+      "output_tokens",
+      "total_tokens",
+      "measurement_source"
+    ],
+    "first_sequence": 1,
+    "first_execution_retry_index": 0,
+    "timestamp_format": "RFC3339_UTC_Z_MILLISECONDS",
+    "record_hash_rule": "canonical_sha256_of_attempt_without_record_sha256"
+  },
+  "current_snapshot": {
+    "algorithm": "canonical_sha256_of_sorted_claim_snapshots_v1",
+    "source": "packet.bounded_write_paths",
+    "excluded_claim_rule": "exact_discovered_v2_ledgers_and_exact_generated_project_state_views",
+    "excluded_generated_view_paths": [
+      "STATUS.md",
+      "TASK_BOARD.md",
+      "LOOP_RUN_LOG.md"
+    ],
+    "file_hash": "raw_sha256",
+    "tree_hash": "canonical_sha256_of_sorted_relative_entry_records",
+    "absent_state": "explicit_null_digest",
+    "latest_attempt_must_equal_current_claims": true,
+    "pending_requires_baseline_observation": true,
+    "packet_ledger_and_generated_view_files_cannot_count_as_progress_evidence": true
+  },
+  "progress_derivation": {
+    "declared_progress_must_equal_derived": true,
+    "failure_delta_must_be_set_difference": true,
+    "evidence_delta_must_be_set_difference": true,
+    "latest_evidence_after_must_match_current_regular_files": true,
+    "progress_requires": "verified_evidence_addition_or_failure_resolution",
+    "resolved_failure_requires_added_supporting_evidence": true,
+    "progress_evidence_must_be_controlled_write_claim": true,
+    "allowed_evidence_kinds": [
+      "policy",
+      "implementation",
+      "test",
+      "other"
+    ]
+  },
+  "baseline_observation": {
+    "only_first_attempt": true,
+    "allowed_reported_state": "pending",
+    "retry_index": null,
+    "declared_progress": false,
+    "failure_and_evidence_deltas_must_be_empty": true,
+    "blocker_status_after": "waiting"
+  },
+  "stopping_rules": {
+    "same_blocker_consecutive_no_progress_threshold": 3,
+    "same_blocker_threshold_outcome": "blocked",
+    "consecutive_no_progress_threshold": 3,
+    "consecutive_no_progress_threshold_outcome": "blocked",
+    "retry_budget_source": "packet.retry_budget",
+    "execution_attempt_retry_indices_contiguous_from_zero": true,
+    "retry_index_above_budget_outcome": "invalid",
+    "budget_exhausted_without_verified_acceptance_outcome": "blocked"
+  },
+  "completion_semantics": {
+    "local_receipts_are": "self_reported_candidate_evidence_not_authenticated_execution",
+    "candidate_complete_and_complete_require_latest_execution_status": "resolved",
+    "controlled_change_after_complete_requires": "reopen_or_supersede_and_reaccept",
+    "authenticated_completion_authority": "candidate_bound_remote_execution_plus_independent_read_only_review",
+    "design_freeze_or_product_completion_may_not_be_inferred": true
+  },
+  "cost_accounting": {
+    "wall_time_source": "started_at_and_ended_at",
+    "token_availability_values": [
+      "measured",
+      "unknown"
+    ],
+    "unknown_tokens_require_null_counts_and_source": true,
+    "measured_tokens_require_nonnegative_counts_sum_and_source": true,
+    "ledger_claim_values": [
+      "measured",
+      "partial"
+    ],
+    "any_unknown_token_observation_forces_partial": true
+  },
+  "legacy_v1_history": {
+    "authority": "historical_bytes_only_not_current_execution_authority",
+    "artifacts": [
+      {
+        "path": "governance/EXECUTION_LOOP_POLICY_V1.json",
+        "sha256": "bab2e798cf44534bd2168c6ce9d11f2f8e4e5935b321a73575dd72fc9d52c75f"
+      },
+      {
+        "path": "scripts/verify_execution_loop.py",
+        "sha256": "7e45eac95733369a34cb68c209c3bef47ea726d9d0ba478231103308f248fbe2"
+      },
+      {
+        "path": ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.json",
+        "sha256": "038dc1e4338a1e759d50279de2c923febfa4d64fcf96607229c8b5d8f5773b75"
+      }
+    ]
+  },
+  "completed_before_v2_exemptions": [
+    {
+      "packet_id": "WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY",
+      "packet_path": ".work_packets/packets/WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY.packet.json",
+      "packet_schema_version": "work-packet-instance/v2",
+      "packet_state": "complete",
+      "packet_contract_sha256": "1f98863e7ab1fee7a511dc712c2ceb5e7bdea8ba20b8ab0e4f7f0ce0344a7b76",
+      "checkpoint_path": ".work_packets/receipts/WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY.checkpoint.json",
+      "checkpoint_canonical_sha256": "699582eaedcbff2d712a9636c1808f5ce1ab6d613decd60f21257fb48d63a8f8",
+      "acceptance_path": ".work_packets/receipts/WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY.acceptance.json",
+      "acceptance_canonical_sha256": "c918091a5bcf3a0e657948590ced6a2d0531e8b3983fcc51c93fd94e98e14145",
+      "reason": "Completed and receipt-bound before the V2 execution-ledger runtime was activated."
+    }
+  ],
+  "platform_and_process_limitations": [
+    "Content snapshots and ledger hashes are tamper-evident consistency checks, not proof of who wrote the bytes or when the work actually occurred.",
+    "The verifier does not execute work-packet acceptance commands and does not treat a hand-written actual_exit_code as authenticated process evidence.",
+    "A dishonest author can split one semantic blocker into different root-cause identifiers; candidate-bound independent review remains required.",
+    "Filesystem checks are point-in-time and cannot eliminate time-of-check/time-of-use, mount replacement, hard-link alias, or every case-folding race.",
+    "Tree hashing rejects observed symlinks and special entries but does not provide operating-system sandboxing or distributed locking.",
+    "A pending baseline proves only the current bytes were observed; it does not prove the work was authorized, unstarted, or produced after the prerequisite state.",
+    "Legacy V1 artifacts are hash-retained history only and cannot be used to assert current V2 freshness.",
+    "Current execution freshness does not prove research sufficiency, design freeze, product completion, or investment effectiveness."
+  ]
+}

@@ -13,10 +13,13 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, Callable
 
 
 SCRIPT_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(SCRIPT_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_PROJECT_ROOT))
+
 DEFAULT_POLICY_RELATIVE = Path("governance/PROJECT_STATE_VIEW_POLICY_V1.json")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GIT_OBJECT_RE = re.compile(r"^[0-9a-f]{40}(?:[0-9a-f]{24})?$")
@@ -279,6 +282,168 @@ class FactSet:
         return [self._facts[path].as_dict() for path in sorted(self._facts)]
 
 
+RuntimeAuthorityObserver = Callable[
+    [Path, dict[str, Any]],
+    dict[str, Any],
+]
+
+
+def validate_runtime_authority_observation(
+    value: Any,
+    policy: dict[str, Any],
+) -> dict[str, Any]:
+    observation = require_exact_fields(
+        value,
+        {"work_packets", "execution_freshness"},
+        "runtime authority observation",
+    )
+    work = require_exact_fields(
+        observation["work_packets"],
+        {
+            "status",
+            "policy_id",
+            "receipt_sha256",
+            "completion_verified_count",
+            "superseded_receipt_verified_count",
+            "dag_edges",
+            "root_packet_ids",
+            "sink_packet_ids",
+        },
+        "runtime authority work_packets",
+    )
+    execution = require_exact_fields(
+        observation["execution_freshness"],
+        {
+            "verification_status",
+            "execution_freshness_status",
+            "policy_id",
+            "receipt_sha256",
+            "tracked_packet_count",
+            "verified_ledger_count",
+            "exempt_packet_count",
+            "authority_basis",
+        },
+        "runtime authority execution_freshness",
+    )
+    configured = policy["sources"]["runtime_authorities"]
+    if work["status"] != configured["work_packets"]["required_status"]:
+        raise ProjectStateError("runtime authority: work-packet verification failed")
+    if (
+        execution["verification_status"]
+        != configured["execution_freshness"][
+            "required_verification_status"
+        ]
+        or execution["execution_freshness_status"]
+        != configured["execution_freshness"]["required_freshness_status"]
+    ):
+        raise ProjectStateError(
+            "runtime authority: execution freshness is not current"
+        )
+    for label, digest in (
+        ("work-packet receipt", work["receipt_sha256"]),
+        ("execution receipt", execution["receipt_sha256"]),
+    ):
+        if not isinstance(digest, str) or SHA256_RE.fullmatch(digest) is None:
+            raise ProjectStateError(f"runtime authority: invalid {label} digest")
+    for label, count in (
+        ("completion_verified_count", work["completion_verified_count"]),
+        (
+            "superseded_receipt_verified_count",
+            work["superseded_receipt_verified_count"],
+        ),
+        ("tracked_packet_count", execution["tracked_packet_count"]),
+        ("verified_ledger_count", execution["verified_ledger_count"]),
+        ("exempt_packet_count", execution["exempt_packet_count"]),
+    ):
+        if not is_int(count) or count < 0:
+            raise ProjectStateError(f"runtime authority: invalid {label}")
+    if not all(
+        isinstance(work[field], list)
+        for field in ("dag_edges", "root_packet_ids", "sink_packet_ids")
+    ):
+        raise ProjectStateError("runtime authority: invalid work-packet graph")
+    if not isinstance(execution["authority_basis"], list):
+        raise ProjectStateError("runtime authority: invalid execution basis")
+    return observation
+
+
+def observe_runtime_authorities(
+    project_root: Path,
+    policy: dict[str, Any],
+) -> dict[str, Any]:
+    from scripts import verify_execution_loop_v2
+    from scripts import verify_work_packets
+
+    configured = policy["sources"]["runtime_authorities"]
+    work_config = configured["work_packets"]
+    execution_config = configured["execution_freshness"]
+    work_receipt = verify_work_packets.verify(
+        project_root,
+        project_root / work_config["policy_path"],
+        project_root / work_config["packet_directory"],
+    )
+    if work_receipt.get("status") != work_config["required_status"]:
+        details = work_receipt.get("errors")
+        if not isinstance(details, list):
+            details = ["invalid work-packet receipt"]
+        raise ProjectStateError(
+            "runtime authority: work-packet verifier failed: "
+            + "; ".join(str(item) for item in details)
+        )
+    execution_receipt = verify_execution_loop_v2.verify(
+        project_root,
+        Path(execution_config["policy_path"]),
+    )
+    if (
+        execution_receipt.get("verification_status")
+        != execution_config["required_verification_status"]
+        or execution_receipt.get("execution_freshness_status")
+        != execution_config["required_freshness_status"]
+    ):
+        details = execution_receipt.get("errors")
+        if not isinstance(details, list):
+            details = ["invalid execution-freshness receipt"]
+        raise ProjectStateError(
+            "runtime authority: execution-freshness verifier failed: "
+            + "; ".join(str(item) for item in details)
+        )
+    observation = {
+        "work_packets": {
+            "status": work_receipt["status"],
+            "policy_id": work_receipt["policy_id"],
+            "receipt_sha256": canonical_sha256(work_receipt),
+            "completion_verified_count": work_receipt[
+                "completion_verified_count"
+            ],
+            "superseded_receipt_verified_count": work_receipt[
+                "superseded_receipt_verified_count"
+            ],
+            "dag_edges": work_receipt["dag_edges"],
+            "root_packet_ids": work_receipt["root_packet_ids"],
+            "sink_packet_ids": work_receipt["sink_packet_ids"],
+        },
+        "execution_freshness": {
+            "verification_status": execution_receipt["verification_status"],
+            "execution_freshness_status": execution_receipt[
+                "execution_freshness_status"
+            ],
+            "policy_id": execution_receipt["policy_id"],
+            "receipt_sha256": canonical_sha256(execution_receipt),
+            "tracked_packet_count": execution_receipt[
+                "tracked_packet_count"
+            ],
+            "verified_ledger_count": execution_receipt[
+                "verified_ledger_count"
+            ],
+            "exempt_packet_count": execution_receipt[
+                "exempt_packet_count"
+            ],
+            "authority_basis": execution_receipt["authority_basis"],
+        },
+    }
+    return validate_runtime_authority_observation(observation, policy)
+
+
 def validate_policy(policy: dict[str, Any]) -> None:
     require_exact_fields(
         policy,
@@ -305,7 +470,13 @@ def validate_policy(policy: dict[str, Any]) -> None:
 
     sources = require_exact_fields(
         policy["sources"],
-        {"acceptance_contract", "review_register", "work_packets", "views"},
+        {
+            "acceptance_contract",
+            "review_register",
+            "work_packets",
+            "runtime_authorities",
+            "views",
+        },
         "policy.sources",
     )
     contract = require_exact_fields(
@@ -338,6 +509,45 @@ def validate_policy(policy: dict[str, Any]) -> None:
     normalize_relative_path(packets["directory"], "policy packet directory")
     if packets["filename_suffix"] != ".packet.json" or packets["recursive"] is not False:
         raise ProjectStateError("policy: packet discovery rule differs")
+    authorities = require_exact_fields(
+        sources["runtime_authorities"],
+        {"work_packets", "execution_freshness"},
+        "policy.sources.runtime_authorities",
+    )
+    work_authority = require_exact_fields(
+        authorities["work_packets"],
+        {
+            "verifier_path",
+            "policy_path",
+            "packet_directory",
+            "required_status",
+        },
+        "policy.sources.runtime_authorities.work_packets",
+    )
+    if work_authority != {
+        "verifier_path": "scripts/verify_work_packets.py",
+        "policy_path": "governance/WORK_PACKET_POLICY_V2.json",
+        "packet_directory": ".work_packets/packets",
+        "required_status": "pass",
+    }:
+        raise ProjectStateError("policy: work-packet runtime authority differs")
+    execution_authority = require_exact_fields(
+        authorities["execution_freshness"],
+        {
+            "verifier_path",
+            "policy_path",
+            "required_verification_status",
+            "required_freshness_status",
+        },
+        "policy.sources.runtime_authorities.execution_freshness",
+    )
+    if execution_authority != {
+        "verifier_path": "scripts/verify_execution_loop_v2.py",
+        "policy_path": "governance/EXECUTION_LOOP_POLICY_V2.json",
+        "required_verification_status": "valid",
+        "required_freshness_status": "current",
+    }:
+        raise ProjectStateError("policy: execution runtime authority differs")
     if sources["views"] != ["STATUS.md", "TASK_BOARD.md", "LOOP_RUN_LOG.md"]:
         raise ProjectStateError("policy: visible view set differs")
     for index, view in enumerate(sources["views"]):
@@ -458,7 +668,9 @@ def validate_policy(policy: dict[str, Any]) -> None:
         raise ProjectStateError("policy: packet terminal states differ")
     if routing["dependency_satisfied_states"] != ["complete"]:
         raise ProjectStateError("policy: dependency completion states differ")
-    if routing["completion_verification"] != "declared_complete_candidate_only":
+    if routing["completion_verification"] != (
+        "work_packet_receipt_and_execution_freshness_candidate_only"
+    ):
         raise ProjectStateError("policy: unsupported packet completion verification")
     if routing["route_order_rule"] != "global_unique_positive_integer":
         raise ProjectStateError("policy: route order rule differs")
@@ -544,6 +756,7 @@ def validate_policy(policy: dict[str, Any]) -> None:
         "/sources/acceptance_contract",
         "/sources/review_register",
         "/sources/work_packets",
+        "/sources/runtime_authorities",
         "/review_source",
         "/packet_routing",
         "/phase_model",
@@ -570,9 +783,10 @@ def validate_policy(policy: dict[str, Any]) -> None:
     )
     expected_limitations = [
         (
-            "A V2 dependency packet whose state is complete is only a declarative "
-            "completion candidate here; receipt verification must be integrated "
-            "before this projection can call that dependency independently verified."
+            "A V2 dependency packet whose state is complete must pass local "
+            "work-packet receipt and execution-freshness verification, but remains "
+            "self-reported candidate evidence rather than authenticated independent "
+            "completion."
         ),
         (
             "The design-freeze authority verifier is intentionally unsupported in "
@@ -588,6 +802,11 @@ def validate_policy(policy: dict[str, Any]) -> None:
             "Refresh preflights all three views and atomically replaces each "
             "individual file, but a local filesystem cannot provide one atomic "
             "transaction spanning all three files."
+        ),
+        (
+            "Runtime verifier observations are deterministic local point-in-time "
+            "receipts; candidate-bound remote execution and independent review "
+            "remain separate authorities."
         ),
     ]
     if limitations != expected_limitations:
@@ -1196,6 +1415,7 @@ def derive_projection(
     project_root: Path,
     policy_path: Path | None = None,
     *,
+    runtime_authority_observer: RuntimeAuthorityObserver | None = None,
     observed_head: str | None = None,
     observed_tree: str | None = None,
     generated_at: str | None = None,
@@ -1271,6 +1491,24 @@ def derive_projection(
     review_fold = fold_reviews(register, policy)
     facts.add_selected(register_relative, register, list(review_fold.fact_pointers))
 
+    observer = (
+        observe_runtime_authorities
+        if runtime_authority_observer is None
+        else runtime_authority_observer
+    )
+    runtime_observation = validate_runtime_authority_observation(
+        observer(root, policy),
+        policy,
+    )
+    facts.add_observation(
+        "@runtime/work-packets",
+        runtime_observation["work_packets"],
+    )
+    facts.add_observation(
+        "@runtime/execution-freshness",
+        runtime_observation["execution_freshness"],
+    )
+
     packets = discover_packets(root, policy, facts)
     next_packet = select_next_action(packets, review_fold, policy)
 
@@ -1329,6 +1567,8 @@ def derive_projection(
 def derive_project_state(
     project_root: Path,
     policy_path: Path | None = None,
+    *,
+    runtime_authority_observer: RuntimeAuthorityObserver | None = None,
     **observations: str | None,
 ) -> dict[str, Any]:
     """Compatibility alias with an explicit name for callers and tests."""
@@ -1337,7 +1577,12 @@ def derive_project_state(
     unexpected = set(observations) - allowed
     if unexpected:
         raise TypeError(f"unexpected observations: {sorted(unexpected)}")
-    return derive_projection(project_root, policy_path, **observations)
+    return derive_projection(
+        project_root,
+        policy_path,
+        runtime_authority_observer=runtime_authority_observer,
+        **observations,
+    )
 
 
 def render_generated_block(projection: dict[str, Any], policy: dict[str, Any]) -> bytes:
@@ -1421,8 +1666,14 @@ def prepare_view_replacements(
 def check_project_state(
     project_root: Path,
     policy_path: Path | None = None,
+    *,
+    runtime_authority_observer: RuntimeAuthorityObserver | None = None,
 ) -> dict[str, Any]:
-    projection = derive_projection(project_root, policy_path)
+    projection = derive_projection(
+        project_root,
+        policy_path,
+        runtime_authority_observer=runtime_authority_observer,
+    )
     root, policy = load_policy_for_views(project_root, policy_path)
     expected = render_generated_block(projection, policy)
     stale, _ = prepare_view_replacements(root, policy, expected)
@@ -1460,8 +1711,14 @@ def atomic_replace_bytes(path: Path, content: bytes) -> None:
 def refresh_project_state(
     project_root: Path,
     policy_path: Path | None = None,
+    *,
+    runtime_authority_observer: RuntimeAuthorityObserver | None = None,
 ) -> dict[str, Any]:
-    projection = derive_projection(project_root, policy_path)
+    projection = derive_projection(
+        project_root,
+        policy_path,
+        runtime_authority_observer=runtime_authority_observer,
+    )
     root, policy = load_policy_for_views(project_root, policy_path)
     expected = render_generated_block(projection, policy)
     _, replacements = prepare_view_replacements(root, policy, expected)

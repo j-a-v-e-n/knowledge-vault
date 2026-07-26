@@ -1,29 +1,25 @@
 {
-  "schema_version": "work-packet-instance/v1",
+  "schema_version": "work-packet-instance/v2",
   "packet_id": "WP-METHOD-INTEGRATION",
   "goal_id": "METHOD-GOVERNANCE-CLOSURE",
-  "state": "active",
+  "state": "pending",
   "owner": "main-agent",
   "reviewer": "independent-reviewer",
   "bounded_write_paths": [
-    {
-      "path": "governance/ACCEPTANCE_CASES_V1.json",
-      "kind": "file"
-    },
     {
       "path": "governance/ACCEPTANCE_CONTRACT_V1.json",
       "kind": "file"
     },
     {
+      "path": "governance/AI_PROJECT_RESEARCH_REGISTER_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/ASSURANCE_SUBJECTS_V1.json",
+      "kind": "file"
+    },
+    {
       "path": "governance/COMPONENT_REGISTRY_V1.json",
-      "kind": "file"
-    },
-    {
-      "path": "governance/EXECUTION_LOOP_POLICY_V1.json",
-      "kind": "file"
-    },
-    {
-      "path": "governance/FAILURE_CLASSES_V1.json",
       "kind": "file"
     },
     {
@@ -39,15 +35,15 @@
       "kind": "file"
     },
     {
-      "path": "governance/MIGRATION_DRILL_SPEC_V1.json",
-      "kind": "file"
-    },
-    {
-      "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
-      "kind": "file"
-    },
-    {
       "path": "governance/PROJECT_METHOD_POLICY_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/RESEARCH_LIVING_REVIEW_POLICY_V1.json",
+      "kind": "file"
+    },
+    {
+      "path": "governance/RESEARCH_LIVING_REVIEW_STATE_V1.json",
       "kind": "file"
     },
     {
@@ -55,79 +51,59 @@
       "kind": "file"
     },
     {
-      "path": "governance/VERIFICATION_SPECS_V1.json",
+      "path": "governance/WORK_PACKET_POLICY_V2.json",
       "kind": "file"
     },
     {
-      "path": "governance_tests/test_assurance_metadata.py",
+      "path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
       "kind": "file"
     },
     {
-      "path": "governance_tests/test_frozen_tests.py",
+      "path": "audits/research_r10",
+      "kind": "tree"
+    },
+    {
+      "path": "governance_tests/test_research_living_review.py",
       "kind": "file"
     },
     {
-      "path": "governance_tests/test_execution_loop.py",
+      "path": "governance_tests/test_research_source_manifest.py",
       "kind": "file"
     },
     {
-      "path": "governance_tests/test_migration_drill.py",
+      "path": "governance_tests/test_work_packet_dag.py",
       "kind": "file"
     },
     {
-      "path": "governance_tests/test_no_live_scope.py",
+      "path": "research/AI_PROJECT_FAILURE_EVIDENCE_REFRESH_R10_2026-07-25.md",
       "kind": "file"
     },
     {
-      "path": "governance_tests/test_project_method.py",
+      "path": "research/AI_PROJECT_METHOD_EVIDENCE_REFRESH_R10_2026-07-25.md",
       "kind": "file"
     },
     {
-      "path": "governance_tests/test_project_method_acceptance_runner.py",
-      "kind": "file"
-    },
-    {
-      "path": "governance_tests/test_r9_same_task_comparison.py",
-      "kind": "file"
-    },
-    {
-      "path": "scripts/run_project_method_acceptance.py",
-      "kind": "file"
-    },
-    {
-      "path": "scripts/verify_migration_drill.py",
-      "kind": "file"
-    },
-    {
-      "path": "scripts/verify_no_live_scope.py",
-      "kind": "file"
-    },
-    {
-      "path": "scripts/verify_assurance_metadata.py",
-      "kind": "file"
-    },
-    {
-      "path": "scripts/verify_execution_loop.py",
-      "kind": "file"
-    },
-    {
-      "path": "scripts/verify_frozen_tests.py",
-      "kind": "file"
+      "path": "research/evidence/r10",
+      "kind": "tree"
     },
     {
       "path": "scripts/verify_governance.py",
       "kind": "file"
     },
     {
-      "path": "scripts/verify_project_method.py",
+      "path": "scripts/verify_research_living_review.py",
       "kind": "file"
     },
     {
-      "path": "scripts/verify_r9_same_task_comparison.py",
+      "path": "scripts/verify_research_source_manifest.py",
       "kind": "file"
     },
     {
-      "path": ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.json",
+      "path": "scripts/verify_work_packets.py",
+      "kind": "file"
+    },
+    {
+      "path": ".work_packets/attempts/WP-METHOD-INTEGRATION.attempts.v2.json",
       "kind": "file"
     }
   ],
@@ -138,8 +114,12 @@
     "EVIDENCE_GOVERNED_AI_SYSTEM.md",
     "PROJECT_CHARTER.md",
     "governance/CONTEXT_RECOVERY_SPEC_V1.json",
+    "governance/EXECUTION_LOOP_POLICY_V1.json",
+    "governance/PROJECT_STATE_VIEW_POLICY_V1.json",
     "governance/WORK_PACKET_POLICY_V1.json",
-    "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json"
+    "research/SAME_TASK_METHOD_COMPARISON_PREREGISTRATION_R9_2026-07-25.json",
+    "scripts/verify_contract_supersession.py",
+    "scripts/verify_execution_loop.py"
   ],
   "acceptance_checks": [
     {
@@ -173,6 +153,65 @@
         "--allow-candidate"
       ],
       "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-WORK-GRAPH-V2",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/verify_work_packets.py",
+        "--project-root",
+        ".",
+        "--policy",
+        "governance/WORK_PACKET_POLICY_V2.json",
+        "--packet-dir",
+        ".work_packets/packets",
+        "--json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-PROJECT-STATE-VIEW",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/derive_project_state.py",
+        "check"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-RESEARCH-SOURCE-MANIFEST",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/verify_research_source_manifest.py",
+        "--json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-RESEARCH-LIVING-REVIEW",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/verify_research_living_review.py",
+        "--as-of",
+        "2026-07-26",
+        "--require-current",
+        "--json"
+      ],
+      "expected_exit_code": 0
+    },
+    {
+      "check_id": "CHECK-EXECUTION-LOOP-V2",
+      "kind": "process_exit",
+      "argv": [
+        "python3",
+        "scripts/verify_execution_loop_v2.py",
+        "--json"
+      ],
+      "expected_exit_code": 0
     }
   ],
   "checkpoint_path": null,
@@ -181,5 +220,27 @@
   "external_side_effects": [
     "git_remote_autobackup_observed"
   ],
-  "semantic_invariants": []
+  "semantic_invariants": [],
+  "depends_on": [
+    "WP-METHOD-RUNTIME-FOUNDATION"
+  ],
+  "activates": [
+    "WP-CI-LINT-BASELINE",
+    "WP-DEPENDENCY-BOUNDARY"
+  ],
+  "integration_invariants": [],
+  "routing": {
+    "phase_id": "design_freeze",
+    "action_id": "ACT-METHOD-GOVERNANCE-ROOT",
+    "route_order": 3,
+    "addresses_finding_ids": [
+      "R10-CRIT-STATE-FRESHNESS",
+      "R10-CRIT-CIRCULAR-COVERAGE",
+      "R10-MAJOR-WORK-GRAPH",
+      "R10-MAJOR-LOOP-FRESHNESS",
+      "R10-MAJOR-RESEARCH-STATUS",
+      "R10-MAJOR-LIVING-REVIEW"
+    ],
+    "summary": "Close the R10 state, evidence, work-graph, execution-freshness, and living-review findings without claiming product completion."
+  }
 }

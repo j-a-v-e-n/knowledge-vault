@@ -1,0 +1,12 @@
+{
+  "schema_version": "work-packet-acceptance/v2",
+  "packet_id": "WP-CONTRACT-SUPERSESSION-CLOSURE-POLICY",
+  "packet_contract_sha256": "1f98863e7ab1fee7a511dc712c2ceb5e7bdea8ba20b8ab0e4f7f0ce0344a7b76",
+  "checkpoint_receipt_sha256": "699582eaedcbff2d712a9636c1808f5ce1ab6d613decd60f21257fb48d63a8f8",
+  "checks": [
+    {
+      "check_id": "CHECK-CONTRACT-SUPERSESSION-CLOSURE-POLICY",
+      "actual_exit_code": 0
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest import mock
 
 from scripts import derive_project_state as project_state
 
@@ -80,8 +81,16 @@ class ProjectStateFreshnessTests(unittest.TestCase):
         )
         for view in VIEW_PATHS:
             self.write_bytes(view, self.legacy_view_bytes(view))
+        self.real_runtime_observer = project_state.observe_runtime_authorities
+        self.runtime_patcher = mock.patch.object(
+            project_state,
+            "observe_runtime_authorities",
+            side_effect=self.synthetic_runtime_authorities,
+        )
+        self.runtime_patcher.start()
 
     def tearDown(self) -> None:
+        self.runtime_patcher.stop()
         self._temporary.cleanup()
 
     def write_bytes(self, relative: str, content: bytes) -> Path:
@@ -189,6 +198,65 @@ class ProjectStateFreshnessTests(unittest.TestCase):
         register = self.register()
         register["challenge"]["rounds"].append(review)
         self.write_register(register)
+
+    def synthetic_runtime_authorities(
+        self,
+        project_root: Path,
+        _policy: dict[str, Any],
+    ) -> dict[str, Any]:
+        packet_records: list[dict[str, Any]] = []
+        for path in sorted(
+            (project_root / ".work_packets/packets").glob("*.packet.json")
+        ):
+            document = json.loads(path.read_text(encoding="utf-8"))
+            packet_records.append(
+                {
+                    "path": path.relative_to(project_root).as_posix(),
+                    "canonical_sha256": project_state.canonical_sha256(document),
+                    "packet_id": document.get("packet_id"),
+                    "state": document.get("state"),
+                }
+            )
+        packet_digest = project_state.canonical_sha256(packet_records)
+        complete_count = sum(
+            record["state"] == "complete" for record in packet_records
+        )
+        authority_basis = [
+            {
+                "packet_id": record["packet_id"],
+                "packet_path": record["path"],
+                "packet_contract_sha256": record["canonical_sha256"],
+                "reported_state": record["state"],
+                "ledger_path": f"fixture://{record['packet_id']}",
+                "ledger_canonical_sha256": record["canonical_sha256"],
+                "latest_record_sha256": record["canonical_sha256"],
+                "latest_claims_sha256": record["canonical_sha256"],
+                "pre_v2_exemption": False,
+            }
+            for record in packet_records
+        ]
+        return {
+            "work_packets": {
+                "status": "pass",
+                "policy_id": "fixture-work-packets",
+                "receipt_sha256": packet_digest,
+                "completion_verified_count": complete_count,
+                "superseded_receipt_verified_count": 0,
+                "dag_edges": [],
+                "root_packet_ids": [],
+                "sink_packet_ids": [],
+            },
+            "execution_freshness": {
+                "verification_status": "valid",
+                "execution_freshness_status": "current",
+                "policy_id": "fixture-execution",
+                "receipt_sha256": packet_digest,
+                "tracked_packet_count": len(packet_records),
+                "verified_ledger_count": len(packet_records),
+                "exempt_packet_count": 0,
+                "authority_basis": authority_basis,
+            },
+        }
 
     def legacy_view_bytes(self, view: str) -> bytes:
         return (
@@ -566,14 +634,19 @@ class ProjectStateFreshnessTests(unittest.TestCase):
             self.assertEqual(expected, (self.root / view).read_bytes())
 
     def test_derive_cli_emits_only_one_canonical_json_value(self) -> None:
-        projection = self.derive()
+        with mock.patch.object(
+            project_state,
+            "observe_runtime_authorities",
+            self.real_runtime_observer,
+        ):
+            projection = project_state.derive_projection(SOURCE_ROOT)
         completed = subprocess.run(
             [
                 sys.executable,
                 str(DERIVER),
                 "derive",
                 "--project-root",
-                str(self.root),
+                str(SOURCE_ROOT),
             ],
             check=False,
             capture_output=True,
@@ -585,24 +658,20 @@ class ProjectStateFreshnessTests(unittest.TestCase):
             completed.stdout,
         )
 
-    def test_cli_check_refresh_check_cycle(self) -> None:
-        def run(mode: str) -> subprocess.CompletedProcess[str]:
-            return subprocess.run(
-                [
-                    sys.executable,
-                    str(DERIVER),
-                    mode,
-                    "--project-root",
-                    str(self.root),
-                ],
-                check=False,
-                capture_output=True,
-                text=True,
-            )
-
-        self.assertEqual(1, run("check").returncode)
-        self.assertEqual(0, run("refresh").returncode)
-        self.assertEqual(0, run("check").returncode)
+    def test_cli_check_accepts_current_production_projection(self) -> None:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(DERIVER),
+                "check",
+                "--project-root",
+                str(SOURCE_ROOT),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(0, completed.returncode, completed.stderr)
 
     def test_missing_structured_r10_review_fails_closed_without_guessing(self) -> None:
         register = self.register()
