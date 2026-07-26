@@ -1,0 +1,142 @@
+{
+  "child_process": null,
+  "commit_plan": null,
+  "expected_tail": "09e70996869892340b364d88683b4662f08dac22b1d3bda1a1e899e6217d29ac",
+  "kind": "append",
+  "operation_id": "86b964b1709c466e8ca4c05fb4c2225b",
+  "outcome": {
+    "controlled_snapshot": {
+      "algorithm": "canonical_sha256_of_sorted_claim_snapshots_v1",
+      "claims": [
+        {
+          "content_sha256": "886d44cbc17d0a3445baf8f6d13110f7ae7f6b6e6b93b71f690d9101845d72e2",
+          "kind": "tree",
+          "path": "audits/execution_loop_v2",
+          "state": "tree"
+        },
+        {
+          "content_sha256": "da2cb8af5ae7bf919bd4b185fbbbddea40a2cdac148dd2d1067f00783a24524b",
+          "kind": "file",
+          "path": "governance/EXECUTION_LOOP_POLICY_V2.json",
+          "state": "file"
+        },
+        {
+          "content_sha256": "3537ad1678fd775f6d56ddcd53d1719a050ae19d7ab27aba2048fdcb6efd5bf1",
+          "kind": "file",
+          "path": "governance/NO_LIVE_SCOPE_POLICY_V1.json",
+          "state": "file"
+        },
+        {
+          "content_sha256": "683a13742a6ab7abc0e7ee2c57f2226d48353b2b891220ac10f821a25093394a",
+          "kind": "file",
+          "path": "governance/PROJECT_STATE_VIEW_POLICY_V1.json",
+          "state": "file"
+        },
+        {
+          "content_sha256": "3288b0b1ab8307e4184cc82cccad1764950a6659245945bd2b90fc45652fd08c",
+          "kind": "file",
+          "path": "governance_tests/test_execution_loop_v2.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "8f192fd6965aa9580808fb92f2d2e098675a799074d6262e9535e15bf40b71e9",
+          "kind": "file",
+          "path": "governance_tests/test_execution_recorder_v2.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "52dcd06c1f947e230d1498e6d5e488ff06bba048da332ca80ecdacf8398c3a01",
+          "kind": "file",
+          "path": "governance_tests/test_no_live_scope.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "1e52d6102fc6594e496abb0394428ff667fc9480755a62e8bf48ebb5d6779bc5",
+          "kind": "file",
+          "path": "governance_tests/test_project_method_acceptance_runner.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "280699689a38dbc6d16e5238110e297df98adc619c45d8f97aee545d79b2c050",
+          "kind": "file",
+          "path": "governance_tests/test_project_state_freshness.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "278e56c4616ffefd640ca00ef35da3dcb54cbce957f8d0e6ade1e9f9500fb0f6",
+          "kind": "file",
+          "path": "scripts/derive_project_state.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "7c8fcde48b644b74fe00b55660f636397501044d1902af5c2282e6109a205178",
+          "kind": "file",
+          "path": "scripts/record_execution_attempt_v2.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "531a659205a553259e06a253506983cf4829a4d47f06537599157c608825c1b0",
+          "kind": "file",
+          "path": "scripts/run_project_method_acceptance.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "6dceaf070f11cc22b76b82006892b9271f43d4ef27514dc0996a41a23de1483d",
+          "kind": "file",
+          "path": "scripts/verify_execution_loop_v2.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "7488baca8f30675f2c8a4b119b6aa3b76cc38d2b0ff8cdf7930f95083d2749b9",
+          "kind": "file",
+          "path": "scripts/verify_governance.py",
+          "state": "file"
+        },
+        {
+          "content_sha256": "7648bc3b3d1d783132466f4c76382eb94ee5216d0d3bddc7b746d30a867e2a09",
+          "kind": "file",
+          "path": "scripts/verify_no_live_scope.py",
+          "state": "file"
+        }
+      ],
+      "claims_sha256": "5e8e61c39c433e6d466ec1035bd7d067f9d6b5b9393d8fa16bf04e9ef7eef96c",
+      "excluded_paths": []
+    },
+    "ended_at": "2026-07-26T08:03:00.272Z",
+    "process_observation": {
+      "argv": null,
+      "capture_authority": "self_reported_no_process",
+      "exit_code": null,
+      "mode": "passive",
+      "stderr_bytes": null,
+      "stderr_sha256": null,
+      "stdout_bytes": null,
+      "stdout_sha256": null
+    },
+    "started_at": "2026-07-26T08:03:00.272Z",
+    "wall_time_ms": 0
+  },
+  "packet_id": "WP-METHOD-RUNTIME-FOUNDATION",
+  "phase": "outcome_recorded",
+  "request": {
+    "failure_after": [
+      "ECO-01",
+      "ORG-04",
+      "REC-11",
+      "REC-12",
+      "REC-13",
+      "REC-14",
+      "REC-15",
+      "REC-16",
+      "REC-17",
+      "REC-18",
+      "REC-19",
+      "REC-20",
+      "REC-21"
+    ],
+    "root_cause": "Independent Review H found reproducible Major omissions; preserve every prior failure and stop this packet without widening or in-place continuation.",
+    "root_cause_id": "REVIEW-H-BLOCKING-FINDINGS",
+    "status_after": "blocked"
+  },
+  "schema_version": "execution-recorder-operation/v2"
+}
