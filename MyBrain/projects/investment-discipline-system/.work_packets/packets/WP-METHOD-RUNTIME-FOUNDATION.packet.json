@@ -163,7 +163,7 @@
   ],
   "checkpoint_path": null,
   "acceptance_receipt_path": null,
-  "retry_budget": 12,
+  "retry_budget": 16,
   "external_side_effects": [],
   "semantic_invariants": [],
   "depends_on": [

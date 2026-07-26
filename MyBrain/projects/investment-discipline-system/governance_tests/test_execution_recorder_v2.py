@@ -4,6 +4,7 @@ import copy
 import hashlib
 import inspect
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -516,6 +517,47 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         )
         return candidate_commit, review_commit, result
 
+    def create_legacy_contradictory_operation(
+        self,
+        failure_after: list[str] | None,
+    ) -> str:
+        packets = recorder.load_packets(self.root)
+        packet = packets[TARGET_ID]
+        timestamp = recorder.format_utc_milliseconds(
+            recorder.utc_datetime_milliseconds()
+        )
+        operation = recorder.create_operation(
+            self.root,
+            TARGET_ID,
+            "append",
+            self.tail(),
+            {
+                "failure_after": failure_after,
+                "status_after": "resolved",
+                "root_cause_id": "RECORDER-LEGACY-CONTRADICTION",
+                "root_cause": (
+                    "Simulate a durable contradictory request created by an "
+                    "earlier recorder."
+                ),
+            },
+        )
+        recorder.set_operation_outcome(
+            self.root,
+            operation,
+            {
+                "process_observation": recorder.no_process_observation("passive"),
+                "started_at": timestamp,
+                "ended_at": timestamp,
+                "wall_time_ms": 0,
+                "controlled_snapshot": recorder.controlled_snapshot_observation(
+                    self.root,
+                    packet,
+                    packets,
+                ),
+            },
+        )
+        return operation["operation_id"]
+
     def test_wrong_expected_tail_cas_changes_no_project_file(self) -> None:
         before = self.project_files()
         with self.assertRaisesRegex(recorder.RecorderError, "expected-tail CAS"):
@@ -593,6 +635,58 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
             )
         process.assert_not_called()
         self.assertEqual(before, self.project_files())
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
+    def test_legacy_explicit_contradictory_operation_recovers_blocked(
+        self,
+    ) -> None:
+        operation_id = self.create_legacy_contradictory_operation(["REC-77"])
+        self.assert_execution_invalid("interrupted operation requiring recovery")
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            ["REC-77", "RECORDER-908"],
+            latest["failure_delta"]["after"],
+        )
+        self.assertEqual("blocked", latest["blocker"]["status_after"])
+        self.assertEqual(
+            "RECORDER-INVALID-DURABLE-REQUEST",
+            latest["blocker"]["root_cause_id"],
+        )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
+        self.assert_execution_current()
+
+    def test_legacy_inherited_contradictory_operation_preserves_failures(
+        self,
+    ) -> None:
+        recorder.append_passive(
+            self.root,
+            TARGET_ID,
+            self.tail(),
+            ["REC-01"],
+            "open",
+            "RECORDER-PRIOR-FAILURE",
+            "Create one unresolved failure",
+        )
+        operation_id = self.create_legacy_contradictory_operation(None)
+        self.assertEqual(
+            [operation_id],
+            recorder.recover_operations(self.root),
+        )
+        latest = self.ledger()["attempts"][-1]
+        self.assertEqual(
+            ["REC-01", "RECORDER-908"],
+            latest["failure_delta"]["after"],
+        )
+        self.assertEqual("blocked", latest["blocker"]["status_after"])
+        self.assertEqual(
+            "RECORDER-INVALID-DURABLE-REQUEST",
+            latest["blocker"]["root_cause_id"],
+        )
         self.assertEqual([], recorder.pending_operation_paths(self.root))
         self.assert_execution_current()
 
@@ -1447,6 +1541,126 @@ class ExecutionRecorderV2Tests(unittest.TestCase):
         self.assertEqual("sealed_complete", result["status"])
         self.assertEqual(candidate_commit, result["candidate_commit"])
         self.assertEqual(review_commit, result["review_commit"])
+        self.assert_execution_current()
+
+    def test_hostile_git_environment_cannot_redirect_seal_authority(
+        self,
+    ) -> None:
+        self.finalize_with_consistent_clock()
+        repository_root = self.root.parent
+        subprocess.run(
+            ["git", "init", "-q", str(repository_root)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.git("config", "user.name", "Recorder Test")
+        self.git("config", "user.email", "recorder@example.invalid")
+
+        decoy_worktree = Path(self._temporary.name) / "decoy-worktree"
+        shutil.copytree(self.root, decoy_worktree)
+
+        def decoy_git(*argv: str) -> str:
+            completed = subprocess.run(
+                ["git", *argv],
+                cwd=decoy_worktree,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(
+                0,
+                completed.returncode,
+                (completed.stdout, completed.stderr),
+            )
+            return completed.stdout.strip()
+
+        decoy_git("init", "-q")
+        decoy_git("config", "user.name", "Decoy Recorder Test")
+        decoy_git("config", "user.email", "decoy@example.invalid")
+        decoy_git("add", "-A")
+        decoy_git("commit", "-q", "-m", "decoy candidate")
+        candidate_commit = decoy_git("rev-parse", "HEAD")
+        candidate_tree = decoy_git("rev-parse", "HEAD^{tree}")
+        review = {
+            "schema_version": "work-packet-independent-review/v2",
+            "packet_id": TARGET_ID,
+            "candidate_commit": candidate_commit,
+            "candidate_tree": candidate_tree,
+            "candidate_terminal_canonical_sha256": execution.canonical_sha256(
+                self.ledger()["terminal_completion"]
+            ),
+            "reviewer_mode": "independent_read_only",
+            "verdict": "accepted",
+            "findings": [],
+            "limitations": ["This review exists only in the decoy repository."],
+        }
+        review_relative = f".work_packets/reviews/{TARGET_ID}.review.v2.json"
+        review_path = decoy_worktree / review_relative
+        review_path.parent.mkdir(parents=True, exist_ok=True)
+        review_path.write_bytes(recorder.canonical_bytes(review))
+        decoy_git("add", review_relative)
+        decoy_git("commit", "-q", "-m", "decoy review")
+        review_commit = decoy_git("rev-parse", "HEAD")
+        decoy_git("tag", f"ids-reviewed/{TARGET_ID}", review_commit)
+
+        true_candidate = subprocess.run(
+            ["git", "cat-file", "-e", f"{candidate_commit}^{{commit}}"],
+            cwd=self.root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertNotEqual(0, true_candidate.returncode)
+
+        decoy_git_directory = decoy_worktree / ".git"
+        poisoned_environment = {
+            "GIT_ALTERNATE_OBJECT_DIRECTORIES": str(decoy_git_directory / "objects"),
+            "GIT_CONFIG_COUNT": "1",
+            "GIT_CONFIG_KEY_0": "core.worktree",
+            "GIT_CONFIG_VALUE_0": str(self.root),
+            "GIT_DIR": str(decoy_git_directory),
+            "GIT_INDEX_FILE": str(decoy_git_directory / "index"),
+            "GIT_OBJECT_DIRECTORY": str(decoy_git_directory / "objects"),
+            "GIT_WORK_TREE": str(self.root),
+        }
+        with mock.patch.dict(
+            os.environ,
+            poisoned_environment,
+            clear=False,
+        ):
+            sanitized = execution.verifier_git_environment()
+            for variable in poisoned_environment:
+                self.assertNotIn(variable, sanitized)
+            authority_errors: list[str] = []
+            authority = execution.git_repository_authority(
+                self.root,
+                "hostile environment authority",
+                authority_errors,
+            )
+            self.assertEqual([], authority_errors)
+            self.assertIsNotNone(authority)
+            assert authority is not None
+            self.assertEqual(repository_root.resolve(), authority[0])
+            self.assertEqual("project", authority[2])
+            with self.assertRaisesRegex(
+                recorder.RecorderError,
+                "Git observation failed",
+            ):
+                recorder.seal_packet(
+                    self.root,
+                    TARGET_ID,
+                    self.tail(),
+                    candidate_commit,
+                    review_commit,
+                )
+
+        self.assertEqual(
+            "candidate_complete",
+            self.read_json(self.packet_path(TARGET_ID))["state"],
+        )
+        self.assertEqual([], recorder.pending_operation_paths(self.root))
         self.assert_execution_current()
 
     def test_nested_tree_candidate_matches_worktree_order(

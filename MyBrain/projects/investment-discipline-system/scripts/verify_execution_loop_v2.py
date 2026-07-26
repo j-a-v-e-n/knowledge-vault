@@ -1248,7 +1248,28 @@ def validate_execution_receipt(
             errors.append(f"{check_label}: output byte count differs")
 
 
-def git_output(
+def verifier_git_environment() -> dict[str, str]:
+    environment = {
+        key: value for key, value in os.environ.items() if not key.startswith("GIT_")
+    }
+    environment.update(
+        {
+            "GIT_ATTR_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_SYSTEM": os.devnull,
+            "GIT_NO_REPLACE_OBJECTS": "1",
+            "GIT_OPTIONAL_LOCKS": "0",
+            "GIT_PAGER": "cat",
+            "GIT_TERMINAL_PROMPT": "0",
+            "LANG": "C",
+            "LC_ALL": "C",
+        }
+    )
+    return environment
+
+
+def raw_git_output(
     root: Path,
     argv: list[str],
     label: str,
@@ -1262,12 +1283,7 @@ def git_output(
             stderr=subprocess.PIPE,
             check=False,
             timeout=15,
-            env={
-                **os.environ,
-                "GIT_NO_REPLACE_OBJECTS": "1",
-                "GIT_OPTIONAL_LOCKS": "0",
-                "LC_ALL": "C",
-            },
+            env=verifier_git_environment(),
         )
     except (OSError, subprocess.SubprocessError) as exc:
         errors.append(f"{label}: Git observation failed: {exc}")
@@ -1279,24 +1295,11 @@ def git_output(
     return completed.stdout
 
 
-def git_project_prefix(
-    root: Path,
+def normalized_git_prefix(
+    raw_prefix: str,
     label: str,
     errors: list[str],
 ) -> str | None:
-    payload = git_output(
-        root,
-        ["rev-parse", "--show-prefix"],
-        label,
-        errors,
-    )
-    if payload is None:
-        return None
-    try:
-        raw_prefix = payload.decode("utf-8").strip()
-    except UnicodeDecodeError as exc:
-        errors.append(f"{label}: Git project prefix is invalid: {exc}")
-        return None
     if raw_prefix.startswith("/"):
         errors.append(f"{label}: Git project prefix is unsafe")
         return None
@@ -1306,6 +1309,113 @@ def git_project_prefix(
             errors.append(f"{label}: Git project prefix is unsafe")
             return None
     return prefix
+
+
+def git_repository_authority(
+    root: Path,
+    label: str,
+    errors: list[str],
+) -> tuple[Path, Path, str] | None:
+    try:
+        project_root = root.resolve(strict=True)
+    except OSError as exc:
+        errors.append(f"{label}: project root cannot be resolved: {exc}")
+        return None
+    if not project_root.is_dir():
+        errors.append(f"{label}: project root is not a directory")
+        return None
+    payload = raw_git_output(
+        root,
+        [
+            "--no-replace-objects",
+            "rev-parse",
+            "--show-toplevel",
+            "--absolute-git-dir",
+            "--show-prefix",
+        ],
+        label,
+        errors,
+    )
+    if payload is None:
+        return None
+    try:
+        lines = payload.decode("utf-8").splitlines()
+    except UnicodeDecodeError as exc:
+        errors.append(f"{label}: Git repository authority is invalid: {exc}")
+        return None
+    if len(lines) != 3:
+        errors.append(f"{label}: Git repository authority fields differ")
+        return None
+    raw_repository_root, raw_git_directory, raw_prefix = lines
+    repository_path = Path(raw_repository_root)
+    git_directory_path = Path(raw_git_directory)
+    if not repository_path.is_absolute() or not git_directory_path.is_absolute():
+        errors.append(f"{label}: Git repository authority is not absolute")
+        return None
+    try:
+        repository_root = repository_path.resolve(strict=True)
+        git_directory = git_directory_path.resolve(strict=True)
+    except OSError as exc:
+        errors.append(f"{label}: Git repository authority cannot be resolved: {exc}")
+        return None
+    if not repository_root.is_dir() or not git_directory.is_dir():
+        errors.append(f"{label}: Git repository authority is not a directory")
+        return None
+    try:
+        relative_project_root = project_root.relative_to(repository_root)
+    except ValueError:
+        errors.append(f"{label}: project root is outside the Git repository")
+        return None
+    expected_prefix = (
+        "" if relative_project_root == Path(".") else relative_project_root.as_posix()
+    )
+    prefix = normalized_git_prefix(raw_prefix, label, errors)
+    if prefix is None:
+        return None
+    if prefix != expected_prefix:
+        errors.append(
+            f"{label}: Git project prefix differs from the filesystem location"
+        )
+        return None
+    return repository_root, git_directory, prefix
+
+
+def git_output(
+    root: Path,
+    argv: list[str],
+    label: str,
+    errors: list[str],
+) -> bytes | None:
+    authority = git_repository_authority(
+        root,
+        f"{label}.repository_authority",
+        errors,
+    )
+    if authority is None:
+        return None
+    repository_root, git_directory, _ = authority
+    return raw_git_output(
+        repository_root,
+        [
+            f"--git-dir={git_directory}",
+            f"--work-tree={repository_root}",
+            "--no-replace-objects",
+            *argv,
+        ],
+        label,
+        errors,
+    )
+
+
+def git_project_prefix(
+    root: Path,
+    label: str,
+    errors: list[str],
+) -> str | None:
+    authority = git_repository_authority(root, label, errors)
+    if authority is None:
+        return None
+    return authority[2]
 
 
 def git_json(

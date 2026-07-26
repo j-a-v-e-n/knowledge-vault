@@ -1,0 +1,37 @@
+{
+  "schema_version": "active-packet-contract-migration-audit/v1",
+  "migration_id": "FOUNDATION-RETRY-BUDGET-12-TO-16-2026-07-26",
+  "recorded_at": "2026-07-26T05:53:25.000Z",
+  "packet_id": "WP-METHOD-RUNTIME-FOUNDATION",
+  "reason": "Ten execution attempts now preserve Reviews C through F. Review F introduced one new critical Git-authority counterexample, and attempt ten recorded its semantic remediation before the final formatter changed the verifier bytes. A clean exact candidate therefore requires an eleventh current observation, while the independent exact-candidate verdict and any supported resolution require a later observation. A budget of twelve would mechanically force that later evidence-bearing transition to blocked even if the review accepts it. The budget is widened before attempt eleven to permit the current candidate review plus at most one additional bounded challenge-and-repair cycle; this migration itself resolves no failure.",
+  "before": {
+    "retry_budget": 12,
+    "packet_raw_sha256": "6cd90a7d9a414050eec53cf537287c0ce9e6983b734899d98c5045ae2af8ec11",
+    "packet_contract_sha256": "b542c6e91f428fdea4e9a4835a0f34b7f7a9cfd529ee52dd983fb5b5cfc7d892",
+    "ledger_raw_sha256": "d380e0fe03f460b18ef38109baf70a6bb9024c66223435e0648749744d738385",
+    "latest_record_sha256": "6a12b37b3d81df6291f677b161b09537d4f906ba0ff7d9736404e6d50a0f3b13"
+  },
+  "after": {
+    "retry_budget": 16,
+    "packet_raw_sha256": "36dff864aa629fc9b1e247d918a6a2d346aa381611cbe3ad6b6140ec8f84b9f3",
+    "packet_contract_sha256": "6540515132271d66ce4c8d71df3bffd2bca7a93b7c0522571b411c8615aef17b"
+  },
+  "invariants": [
+    "No existing attempt object or record hash is changed.",
+    "The packet remains active and every existing failure remains open.",
+    "The formatter-only byte change must receive a new current observation before an exact candidate is committed.",
+    "The next independent review must bind the exact post-migration candidate commit and tree.",
+    "A later resolution still requires newly observed supporting evidence for every failure.",
+    "The wider budget is bounded review capacity, not evidence of convergence and not permission to suppress, rename, split, downgrade, or delete findings.",
+    "No completion, design-freeze, product-quality, usability, strategy-edge, or investment-effectiveness claim is created."
+  ],
+  "known_risks": [
+    "Repeated retry-budget widening can become a mechanism for endless process or for evading a stopping rule.",
+    "This migration is acceptable only because it is recorded before the threshold, preserves the exact prior identities, and gives a finite four-attempt ceiling.",
+    "If the next bounded review cycles do not converge, the packet must block rather than widen again without a separately challenged governance decision."
+  ],
+  "limitations": [
+    "The audit preserves the pre-migration raw packet and ledger hashes but does not embed a final post-observation ledger hash because the migration audit is itself inside the packet's controlled audit tree.",
+    "Local hashes are tamper-evident consistency evidence, not authenticated reviewer identity."
+  ]
+}
