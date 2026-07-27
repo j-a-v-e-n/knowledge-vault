@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1",
+  "record_type": "observation",
+  "id": "observation-restaurant-owner-attribution-uncertainty",
+  "created_at": "2026-07-27",
+  "source": {
+    "kind": "public_forum_post",
+    "locator": "https://www.reddit.com/r/restaurantowners/comments/1t3zhsg/what_actually_works_in_restaurant_marketing_right/"
+  },
+  "captured_at": "2026-07-27",
+  "actor_context": "A Reddit participant self-identifies as running a small restaurant; business identity and claim authenticity are not independently verified.",
+  "verbatim_or_observable": [
+    "Some weeks we’re busy other weeks it’s dead and I can’t really tell what’s driving traffic."
+  ],
+  "known_context": [
+    "The participant says they tried local SEO, social posting, small paid ads, and online-ordering improvements.",
+    "The expressed problem is inconsistent results and uncertainty about where to focus."
+  ],
+  "unknown_context": [
+    "The restaurant identity, operating data, channel costs, and actual causes of demand variation.",
+    "Whether the participant would buy a website or measurement service."
+  ],
+  "visibility": "explicit"
+}
+

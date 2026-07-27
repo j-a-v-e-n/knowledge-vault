@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Saffrono — private homepage preview</title>
+  <style>
+    :root {
+      --ink: #24140f;
+      --paper: #f6f0e5;
+      --paper-deep: #e9ddc9;
+      --saffron: #d89419;
+      --wine: #6f2132;
+      --herb: #405a45;
+      --line: rgba(36, 20, 15, 0.16);
+      --shadow: 0 24px 70px rgba(47, 24, 15, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 14%, rgba(216, 148, 25, 0.16), transparent 25rem),
+        radial-gradient(circle at 88% 38%, rgba(111, 33, 50, 0.12), transparent 28rem),
+        var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; }
+
+    .preview-bar {
+      padding: 0.65rem 1.25rem;
+      color: #fff8ea;
+      background: var(--wine);
+      text-align: center;
+      font-size: 0.76rem;
+      font-weight: 750;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .shell { width: min(1160px, calc(100% - 2rem)); margin: 0 auto; }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.25rem 0;
+    }
+
+    .brand {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.55rem, 3vw, 2.1rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .brand span { color: var(--saffron); }
+
+    .nav-links { display: flex; align-items: center; gap: 1.15rem; font-size: 0.92rem; }
+    .nav-links a { text-decoration: none; }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3rem;
+      padding: 0.78rem 1.15rem;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 0.88rem;
+      font-weight: 750;
+      text-decoration: none;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    .button:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(36, 20, 15, 0.18); }
+    .button.secondary { background: transparent; color: var(--ink); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(19rem, 0.9fr);
+      align-items: center;
+      gap: clamp(2rem, 7vw, 6.5rem);
+      min-height: 72vh;
+      padding: 4.2rem 0 5.5rem;
+    }
+
+    .eyebrow {
+      margin: 0 0 1rem;
+      color: var(--wine);
+      font-size: 0.77rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.05; }
+
+    h1 {
+      max-width: 12ch;
+      margin: 0;
+      font-size: clamp(3.5rem, 8vw, 7.4rem);
+      letter-spacing: -0.055em;
+    }
+
+    h1 em { color: var(--wine); font-weight: 500; }
+
+    .lead {
+      max-width: 38rem;
+      margin: 1.7rem 0 0;
+      color: rgba(36, 20, 15, 0.76);
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+    }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
+
+    .art {
+      position: relative;
+      aspect-ratio: 0.88;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 48% 48% 2.2rem 2.2rem;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.36), transparent 42%),
+        var(--herb);
+      box-shadow: var(--shadow);
+    }
+
+    .art::before,
+    .art::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(246, 240, 229, 0.48);
+    }
+
+    .art::before { inset: 13%; }
+    .art::after { inset: 27%; }
+
+    .sun {
+      position: absolute;
+      top: 15%;
+      right: 14%;
+      width: 36%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--saffron);
+      box-shadow: 0 0 0 1.1rem rgba(216, 148, 25, 0.12);
+    }
+
+    .motif {
+      position: absolute;
+      left: 12%;
+      bottom: 11%;
+      width: 70%;
+      padding: 1.1rem 1.2rem;
+      border: 1px solid rgba(246, 240, 229, 0.36);
+      background: rgba(36, 20, 15, 0.28);
+      color: var(--paper);
+      backdrop-filter: blur(10px);
+    }
+
+    .motif strong { display: block; font-family: Georgia, serif; font-size: 1.55rem; }
+    .motif span { display: block; margin-top: 0.35rem; color: rgba(246,240,229,0.74); font-size: 0.84rem; }
+
+    section { padding: 6rem 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2.2rem;
+    }
+
+    h2 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 5vw, 4.8rem); letter-spacing: -0.04em; }
+
+    .section-note { max-width: 32rem; color: rgba(36, 20, 15, 0.67); }
+
+    .dishes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+    }
+
+    .dish {
+      min-height: 16rem;
+      padding: 1.4rem;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.18);
+    }
+
+    .dish-index { color: var(--wine); font-size: 0.76rem; font-weight: 800; letter-spacing: 0.14em; }
+    .dish h3 { margin: 5rem 0 0.7rem; font-size: 1.65rem; }
+    .dish p { margin: 0; color: rgba(36, 20, 15, 0.62); font-size: 0.9rem; }
+
+    .gather {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      overflow: hidden;
+      border-radius: 2.2rem;
+      background: var(--wine);
+      color: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .gather-copy { padding: clamp(2rem, 6vw, 5.5rem); }
+    .gather h2 { max-width: 11ch; }
+    .gather p { max-width: 34rem; color: rgba(246,240,229,0.76); }
+    .gather .button { border-color: var(--paper); background: var(--paper); color: var(--wine); }
+
+    .pattern {
+      min-height: 31rem;
+      background-color: var(--saffron);
+      background-image:
+        linear-gradient(30deg, rgba(111,33,50,0.18) 12%, transparent 12.5%, transparent 87%, rgba(111,33,50,0.18) 87.5%),
+        linear-gradient(150deg, rgba(111,33,50,0.18) 12%, transparent 12.5%, transparent 87%, rgba(111,33,50,0.18) 87.5%),
+        linear-gradient(30deg, rgba(111,33,50,0.18) 12%, transparent 12.5%, transparent 87%, rgba(111,33,50,0.18) 87.5%),
+        linear-gradient(150deg, rgba(111,33,50,0.18) 12%, transparent 12.5%, transparent 87%, rgba(111,33,50,0.18) 87.5%);
+      background-position: 0 0, 0 0, 42px 74px, 42px 74px;
+      background-size: 84px 148px;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+      padding: 2.5rem 0 3.5rem;
+      border-top: 1px solid var(--line);
+      color: rgba(36, 20, 15, 0.62);
+      font-size: 0.78rem;
+    }
+
+    footer strong { color: var(--ink); }
+
+    @media (max-width: 850px) {
+      .nav-links a:not(.button) { display: none; }
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 2.7rem; }
+      .art { width: min(100%, 32rem); justify-self: center; }
+      .dishes { grid-template-columns: repeat(2, 1fr); }
+      .gather { grid-template-columns: 1fr; }
+      .pattern { min-height: 16rem; }
+    }
+
+    @media (max-width: 520px) {
+      .shell { width: min(100% - 1.25rem, 1160px); }
+      h1 { font-size: clamp(3.2rem, 17vw, 5.2rem); }
+      .section-head { align-items: start; flex-direction: column; }
+      .dishes { grid-template-columns: 1fr; }
+      .dish { min-height: 12rem; }
+      .dish h3 { margin-top: 2.8rem; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-bar">Private concept preview · not published · all facts require owner confirmation</div>
+
+  <header class="shell">
+    <nav aria-label="Preview navigation">
+      <a class="brand" href="#top">Saffron<span>o</span></a>
+      <div class="nav-links">
+        <a href="#menu">Cuisine</a>
+        <a href="#gather">Catering</a>
+        <a class="button" href="https://saffronorestaurant.com/menu/">View current menu</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <div class="shell hero">
+      <div>
+        <p class="eyebrow">Persian &amp; Afghan cuisine · Del Mar, San Diego</p>
+        <h1>A table rich with <em>tradition.</em></h1>
+        <p class="lead">A cleaner first impression built only from publicly visible restaurant information, with every detail held for owner verification before publication.</p>
+        <div class="actions">
+          <a class="button" href="https://saffronorestaurant.com/menu/">Explore the current menu</a>
+          <a class="button secondary" href="https://saffronorestaurant.com/catering/">Catering &amp; private events</a>
+        </div>
+      </div>
+
+      <div class="art" role="img" aria-label="Abstract saffron, wine, and herb colored composition">
+        <div class="sun"></div>
+        <div class="motif">
+          <strong>Warmth, spice, gathering.</strong>
+          <span>Concept copy — confirm tone and claims with the owner.</span>
+        </div>
+      </div>
+    </div>
+
+    <section id="menu" class="shell">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">From the public menu</p>
+          <h2>Distinct dishes, clearly presented.</h2>
+        </div>
+        <p class="section-note">Dish names below were visible on the restaurant’s public menu during the audit. Availability, descriptions, and prices are intentionally omitted until confirmed.</p>
+      </div>
+
+      <div class="dishes">
+        <article class="dish">
+          <span class="dish-index">01 · KABOB</span>
+          <h3>Beef Barg Kabob</h3>
+          <p>Public-menu item · owner confirmation required.</p>
+        </article>
+        <article class="dish">
+          <span class="dish-index">02 · STEW</span>
+          <h3>Fesenjoon</h3>
+          <p>Public-menu item · owner confirmation required.</p>
+        </article>
+        <article class="dish">
+          <span class="dish-index">03 · DUMPLING</span>
+          <h3>Mantu</h3>
+          <p>Public-menu item · owner confirmation required.</p>
+        </article>
+        <article class="dish">
+          <span class="dish-index">04 · RICE</span>
+          <h3>Qaboli Palow</h3>
+          <p>Public-menu item · owner confirmation required.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="gather" class="shell">
+      <div class="gather">
+        <div class="gather-copy">
+          <p class="eyebrow" style="color:#f0c86c">Catering &amp; private events</p>
+          <h2>Gather around something memorable.</h2>
+          <p>The current public site says the restaurant offers catering and can accommodate private events. Exact capacity, service area, packages, and availability need owner confirmation.</p>
+          <div class="actions">
+            <a class="button" href="https://saffronorestaurant.com/catering/">See current catering page</a>
+          </div>
+        </div>
+        <div class="pattern" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <div><strong>Saffrono homepage concept</strong><br>Local value preview only.</div>
+    <div>No external publication, tracking, or contact has occurred.</div>
+  </footer>
+</body>
+</html>
+

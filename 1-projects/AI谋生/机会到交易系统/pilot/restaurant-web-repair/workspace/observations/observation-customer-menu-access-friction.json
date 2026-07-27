@@ -1,0 +1,26 @@
+{
+  "schema_version": "0.1",
+  "record_type": "observation",
+  "id": "observation-customer-menu-access-friction",
+  "created_at": "2026-07-27",
+  "source": {
+    "kind": "public_forum_post",
+    "locator": "https://www.reddit.com/r/PetPeeves/comments/1tpa22g/when_restaurants_dont_have_menus_on_their_websites/"
+  },
+  "captured_at": "2026-07-27",
+  "actor_context": "A Reddit participant describes their own restaurant-menu browsing experience; identity and representativeness are unknown.",
+  "verbatim_or_observable": [
+    "I JUST WANT TO SEE THE MENU!!! I DONT KNOW IF I WANT TO ORDER YET!"
+  ],
+  "known_context": [
+    "The complaint concerns being routed into an ordering flow before the person has decided whether to order.",
+    "Other comments on the thread describe different preferences, including a preference for ordering interfaces over menu pictures."
+  ],
+  "unknown_context": [
+    "How common this behavior is among customers of any particular restaurant.",
+    "Whether easier menu access changes visits, orders, or revenue.",
+    "Whether this participant has encountered the target business."
+  ],
+  "visibility": "explicit"
+}
+

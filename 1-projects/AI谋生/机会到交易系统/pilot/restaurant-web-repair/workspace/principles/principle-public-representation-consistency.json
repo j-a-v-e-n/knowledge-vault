@@ -1,0 +1,16 @@
+{
+  "schema_version": "0.1",
+  "record_type": "principle",
+  "id": "principle-public-representation-consistency",
+  "created_at": "2026-07-27",
+  "premises": [
+    "A prospective customer uses public information to form an expectation about a business.",
+    "Information that contradicts the business's actual identity makes accurate evaluation harder."
+  ],
+  "derivation": [
+    "If a public page mixes the real business identity with unrelated template content, removing the contradiction may reduce evaluation friction."
+  ],
+  "prediction": "A decision-maker who values the website as a customer touchpoint may prefer a version without contradictory template content.",
+  "falsifier": "The decision-maker understands the inconsistency and still prefers the current page or does not treat the website as a meaningful touchpoint."
+}
+

@@ -1,0 +1,16 @@
+{
+  "schema_version": "0.1",
+  "record_type": "principle",
+  "id": "principle-tailored-preview-reduces-uncertainty",
+  "created_at": "2026-07-27",
+  "premises": [
+    "A buyer cannot directly evaluate an outcome that remains abstract.",
+    "A tailored preview makes part of the proposed outcome observable before purchase."
+  ],
+  "derivation": [
+    "A bounded preview may reduce the buyer's uncertainty about relevance and seller capability without requiring a full delivery."
+  ],
+  "prediction": "Some buyers who ignore a generic pitch will request a next step after seeing a relevant, accurate preview.",
+  "falsifier": "Target buyers understand accurate previews but do not take a next step more often than they do after a plain description."
+}
+

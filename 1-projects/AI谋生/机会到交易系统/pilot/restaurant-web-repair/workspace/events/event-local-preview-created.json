@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1",
+  "record_type": "event",
+  "id": "event-local-preview-created",
+  "created_at": "2026-07-27",
+  "opportunity_ref": "opportunity-saffrono-public-page-repair",
+  "event_kind": "prototype_created",
+  "occurred_at": "2026-07-27",
+  "evidence_locator": "../../artifacts/preview/index.html",
+  "evidence_origin": "system_log",
+  "actor": "Local opportunity-to-transaction system",
+  "notes": "A local unpublished homepage preview was created and rendered at desktop and narrow viewport sizes; no external party has seen it."
+}
+

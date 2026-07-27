@@ -1,0 +1,59 @@
+{
+  "harness_version": "0.1",
+  "generated_at": "2026-07-27T21:05:42Z",
+  "mode": "probe",
+  "opportunity_ref": "opportunity-saffrono-public-page-repair",
+  "probe_ref": "probe-saffrono-private-preview",
+  "objective": "After seeing an accurate private before-and-after preview, the authorized decision-maker will request a concrete next step.",
+  "inputs": {
+    "principle_refs": [
+      "principle-public-representation-consistency",
+      "principle-tailored-preview-reduces-uncertainty"
+    ],
+    "observation_refs": [
+      "observation-saffrono-template-residue",
+      "observation-customer-menu-access-friction",
+      "observation-restaurant-owner-attribution-uncertainty"
+    ],
+    "buyer": "The person authorized to change Saffrono Lounge Bar & Grill's public website",
+    "situation": "The public homepage presents the restaurant while also displaying unrelated template menu content",
+    "offer": "A bounded repair of the public homepage using owner-verified content, with scope, price, ownership, maintenance, and acceptance terms fixed before contact.",
+    "target": "The verified person authorized to change saffronorestaurant.com"
+  },
+  "permissions": {
+    "read_public_information": true,
+    "create_local_artifacts": true,
+    "external_communication": "not_authorized",
+    "financial_actions": "not_authorized",
+    "contractual_commitments": "not_authorized"
+  },
+  "constraints": [
+    "Preserve source wording and provenance.",
+    "Label AI interpretation as hypothesis.",
+    "Do not infer budget, authority, urgency, payment, or satisfaction without evidence.",
+    "Record counterevidence and negative outcomes.",
+    "Do not broaden the target or Offer without a new probe record."
+  ],
+  "evaluation": {
+    "success_event_kinds": [
+      "next_step_requested",
+      "meeting_scheduled",
+      "required_input_shared"
+    ],
+    "failure_or_stop_events": [
+      "declined",
+      "no_response"
+    ],
+    "claim_rule": "Only recorded external events can update market stage."
+  },
+  "stop_conditions": [
+    "Stop after one local static preview and factual audit; do not publish, contact, purchase, or modify external systems.",
+    "Stop before any external action not allowed by the probe policy.",
+    "Stop if the artifact would require invented facts about the target."
+  ],
+  "outputs": [
+    "A local, unpublished single-page preview plus a factual discrepancy list",
+    "evidence-ready Offer draft",
+    "run log"
+  ]
+}

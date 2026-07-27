@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1",
+  "record_type": "probe",
+  "id": "probe-saffrono-private-preview",
+  "created_at": "2026-07-27",
+  "opportunity_ref": "opportunity-saffrono-public-page-repair",
+  "claim_tested": "After seeing an accurate private before-and-after preview, the authorized decision-maker will request a concrete next step.",
+  "offer": "A bounded repair of the public homepage using owner-verified content, with scope, price, ownership, maintenance, and acceptance terms fixed before contact.",
+  "artifact": "A local, unpublished single-page preview plus a factual discrepancy list",
+  "target": "The verified person authorized to change saffronorestaurant.com",
+  "success_event_kinds": [
+    "next_step_requested",
+    "meeting_scheduled",
+    "required_input_shared"
+  ],
+  "failure_or_stop_events": [
+    "declined",
+    "no_response"
+  ],
+  "effort_boundary": "Stop after one local static preview and factual audit; do not publish, contact, purchase, or modify external systems.",
+  "external_action_policy": "draft_only"
+}
+

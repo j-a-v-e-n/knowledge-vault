@@ -1,0 +1,29 @@
+{
+  "schema_version": "0.1",
+  "record_type": "observation",
+  "id": "observation-saffrono-template-residue",
+  "created_at": "2026-07-27",
+  "source": {
+    "kind": "public_business_webpage",
+    "locator": "https://saffronorestaurant.com/"
+  },
+  "captured_at": "2026-07-27",
+  "actor_context": "Public homepage for Saffrono Lounge Bar & Grill; the site operator and current decision-maker are unknown.",
+  "verbatim_or_observable": [
+    "The page describes Persian and Afghani cuisine.",
+    "The same page shows Build Your Own Burger......$99.00.",
+    "The same page contains Lorem ipsum dolor sit amet and Pizza of the day."
+  ],
+  "known_context": [
+    "The observations appeared on the same publicly accessible homepage at capture time.",
+    "The page links to menu, ordering, reservation, contact, and social destinations."
+  ],
+  "unknown_context": [
+    "Whether the owner knows about the template content.",
+    "Whether a redesign is already underway.",
+    "Whether the website affects customer behavior or revenue.",
+    "Whether the business controls the website and has a repair budget."
+  ],
+  "visibility": "latent_indicator"
+}
+

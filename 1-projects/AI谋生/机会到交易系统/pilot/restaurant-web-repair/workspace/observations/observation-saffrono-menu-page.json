@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.1",
+  "record_type": "observation",
+  "id": "observation-saffrono-menu-page",
+  "created_at": "2026-07-27",
+  "source": {
+    "kind": "public_business_webpage",
+    "locator": "https://saffronorestaurant.com/menu/"
+  },
+  "captured_at": "2026-07-27",
+  "actor_context": "Public menu page for Saffrono Lounge Bar & Grill; ownership, freshness, and authoritative menu status are unknown.",
+  "verbatim_or_observable": [
+    "The page lists Beef Barg Kabob, Fesenjoon, Mantu, and Qaboli Palow.",
+    "It also shows Build Your Own Burger......$99.00 and Lorem ipsum dolor sit amet."
+  ],
+  "known_context": [
+    "The dish names and template content appear on the same public menu page.",
+    "The page provides descriptions and prices for multiple Persian and Afghan dishes."
+  ],
+  "unknown_context": [
+    "Whether the listed dishes, descriptions, and prices are current.",
+    "Which content is approved by the restaurant owner.",
+    "Whether the menu page is the source of truth used by staff and customers."
+  ],
+  "visibility": "latent_indicator"
+}
+
