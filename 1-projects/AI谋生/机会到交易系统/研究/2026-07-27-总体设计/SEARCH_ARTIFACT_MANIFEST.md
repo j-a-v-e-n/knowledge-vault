@@ -1,0 +1,53 @@
+# 检索产物机械对账清单
+
+状态：`MECHANICALLY-COMPLETE / EXECUTION INVALID`。本文件只证明下列完整重试响应与主审初筛文件之间的字节身份和可见条目数量对账，不证明来源质量、类别裁决正确、检索饱和或研究闭合。本运行因 `S2` 在 `S1` 第一次共同裁决前执行而失效。
+
+## 执行身份
+
+- 执行 ID：`SSP-1.0-RUN-20260727T152001-0700`
+- 冻结协议：`SEARCH_SATURATION_PROTOCOL.md`
+- 协议 SHA-256：`911b6353b23f180a400865a810b3d45cbfa0ea2598e1127f1e548195ef0c30c1`
+- 哈希算法：SHA-256，针对文件当前原始字节
+- 原始响应目录：`raw-search/`
+- 主审初筛目录：`lead-screening-complete/`
+- 原始响应计数方法：逐文件统计以 `cite` 开头的可见结果块
+- 初筛计数方法：逐文件统计以序号开头的筛查项，并与文件头 `visible results screened` 对账
+
+## 逐查询身份与数量
+
+| Query ID | Raw SHA-256 | Lead-screen SHA-256 | Raw visible | Screened entries | Declared |
+|---|---|---|---:|---:|---:|
+| `S1-K01` | `5e18288b47d053e5c9e189f3ccfe662a530569a9a94f722c0bdd19ab35cdda0e` | `84a95b96e3c604b4b1768cbba1986b939e989127580fada05243bb8b6ad4542e` | 28 | 28 | 28 |
+| `S1-K02` | `2d5c0d858b1a50c31dffe822947e92082dc2ae2276009c3a59122ed3d3c10911` | `7ca0fd0c2c89688a15d5d810d7234753b5436aa9e5d1b51a321b43ab4f40d5af` | 27 | 27 | 27 |
+| `S1-K03` | `bfd20088c39cc25918d22a2b676dbe8533dc11fd3c29f2873d8add0bc5fdffac` | `9b60a9848ee0fb825c686d222cd15fb3b9c73e9dc44c5d07e96b10c87e98f728` | 30 | 30 | 30 |
+| `S1-K04` | `34f5512da26cf74a79859cb4c1b10840e9be96ffe338b96200de9220ae7457f0` | `866a2a8d45ec0c39322aca06df13d6578ee7be4dc6b3648a533a2f1bff0c4e00` | 38 | 38 | 38 |
+| `S1-K05` | `71d819add6f4a15d9d7e5e7cd072fb643200f73df2a479431d2c2aeac2f5de55` | `8f2413e3ba2fd70bc13e6e0c7d63b73caba3dbe684918683e6bd0d33eff7759f` | 22 | 22 | 22 |
+| `S1-K06` | `e656bea8a87d3cf8c314a66ccc2a6f36653f931b0a824f8ccc9a8e371669dd6b` | `af627f822a93ff3c9d8ddd0a109667322df5a12a26af76c08493de75b619e0ca` | 40 | 40 | 40 |
+| `S1-K07` | `393ae36c0751e97e1f3c08d10e9ba1976287659fedb59ca4551d885a059b1fa5` | `dd5a67aec483d1667b7060459a6073d59e455cf1e3f71b1a539539dd850083f2` | 39 | 39 | 39 |
+| `S1-K08` | `5532c63098ecab902c7bdf1e3ffb559c036d7831fa45e47de1f0280a6247f4dc` | `b75958f1018d086b78e4f1fa49555a393e65cccc60138d7cb8cb8d78840640a7` | 34 | 34 | 34 |
+| `S1-K09` | `d4fe43d71e89c0feb9504a8d2d5a310a65d57c0ae826054f8d3618622d899bde` | `3edb35dd99eea55b4b47d8c059712271c892b5b3884384265263052681c961da` | 30 | 30 | 30 |
+| `S1-K10` | `895eee77cd58448def6b7bb22c444c578f75ddb5ec2b556a19b6d7fed0530426` | `60074ffd0141079df3c52c5c90457d86f77741aef99e8d2f2df091c5530d5829` | 36 | 36 | 36 |
+| `S1-K11` | `82fb2a35cbc3c1a4e4d458b60ccc19f9d157006f92b38658ac003d53d96ff308` | `bb4fa3ab1d872500007277ec05e3a0c2b4588fdc710427ca7d4f986d0e2dd6b0` | 36 | 36 | 36 |
+| `S1-K12` | `41a8e054807dbe1681810a29e2c68783f8344cd48c85e7669d5286257f370e38` | `f0d678ac5191cdb13876f36cb5a5af8517b5a63e0f51565a2f98c783bb9be359` | 35 | 35 | 35 |
+| `S1-K13` | `d5cf41db52854362f1715df9fae91f1d9332d16ad8c6a5b722c3387c987a1e08` | `1ced61b076657deac3d756224ff7eb6bcd11c6daf1c3203f3fdef90decd99d64` | 37 | 37 | 37 |
+| `S2-K01` | `c80981d537eb08c784fdd56776592a68f20d64ddef655166bbe7984c65411255` | `f8eaaf0c3bf899fbb90c89e25d71fc4479fe09474e320cb94b3e6c837f6af863` | 21 | 21 | 21 |
+| `S2-K02` | `6e8c5032adc9ba0a5a82a048eab59979c3439afb8999e535cc60eeb84c098042` | `07b123e61dc36aedb80b9225a6f9bbeeba4f4db175c57e0b7a8386529b2c4a02` | 21 | 21 | 21 |
+| `S2-K03` | `c9767c024aa7e91b70b1ed6af7e2e7566377731d2be3ac5c118a1b0e0f5410af` | `3da8595f92dc1ce8abb53de91d2d3359ef3eb7f91034b945f056901b90ba489f` | 21 | 21 | 21 |
+| `S2-K04` | `4f36b1cd57075afa11b1764047d00a9856cb2739a2dc6e5d332f8528356c826f` | `cb059156544fe191f3a3cb29c16381a76d1ce3aae042cb83d5f84df45e10d844` | 17 | 17 | 17 |
+| `S2-K05` | `fc50db321230e6fa7f6b3d5552a40b9f0e8a1eff94a0e3f8fcd119b2e957698b` | `eab5814acf6e0b316b46a3eb42962bd3e1cf7d23522bc09e688769735d64b94a` | 23 | 23 | 23 |
+| `S2-K06` | `f4f3e9746ec82550293669fb646480797153dd10e72d4ba102ac7756f0b4365b` | `0572719ac9f6f6a6dda8e90467383e257b9db76761a015f24f00dc64eb86950b` | 22 | 22 | 22 |
+| `S2-K07` | `64fb58082e64e78743d4ba208011fc02f0cae8071fd5a0f7f981fb73dedc4cf9` | `ea4f5233da51cbff92957cea5cd296cd559e2ddc53822b0528b5bcb0fd0551d8` | 24 | 24 | 24 |
+| `S2-K08` | `83d6d7625b3f33ae489cc631a48afde6ea1791ede10f83a9b56c4f05cb07a82f` | `91a5231611ff58bbb3b76a948f2fd754cb7b862736944a7efba957c2c59c5be5` | 34 | 34 | 34 |
+| `S2-K09` | `f86be92b56c03d1a48de2db12396ddfa27518623c9ab93f1df60555bd68d6cf6` | `c8025abb3690340683803404b66a8cf23b34f239876495cce2615c7ea7a4704d` | 36 | 36 | 36 |
+| `S2-K10` | `9e40e39e394e0d7ef3d610fbdea9a1363d1db0a173fe28765fb140b0e2290aee` | `367c72df046f70f89f0d492f2c1f5aef71e45495d41247939f3a1c1222604ade` | 38 | 38 | 38 |
+| `S2-K11` | `20128c9131e815b7a2fed89e16751393c054c3369e8b0aad1a15d4d740956df1` | `18dfc35a4ce897f077edc86599fba65b9bccef68a876bc997c0bb9b37510c58c` | 30 | 30 | 30 |
+| `S2-K12` | `38bc79b80dbbf623ef9881b7e587e1246af1c660cf5cd64f6fd902cf381e47e8` | `6770fb58c464bf3b850ee4401e0a38e86c2da654e429ca79968e827e846770f8` | 28 | 28 | 28 |
+| `S2-K13` | `02e4cd8b7bb0ba98b0992b1836143552ceb01cec97de9ffe2865aaee910d7b47` | `c9d6accab7153ba769af45a66bf26cb5e4d00732ff3af092b5610c136614f9bb` | 32 | 32 | 32 |
+
+## 机械结论与残余限制
+
+- 表中所有查询的三种计数相等；完整重试响应中共有 `779` 个可见结果块，主审初筛中有同数目的逐项记录。
+- `S1-K01` 的第一次调用被执行包装器截断；其可见失败片段只保留在 Codex 任务轨迹，表中 hash 绑定的是随后完成的完整重试响应。联合裁决必须明确这是否满足协议的失败尝试保留要求。
+- `SEARCH_RESULT_INDEX.md` 是被聚合输出截断的旧索引，不能作为完整结果宇宙；`lead-screening/` 是未完成旧目录。两者均排除在本清单和任何闭合判断之外。
+- 独立筛查、两位专项挑战者及联合裁决不在本机械清单中；它们必须另有 exact-hash 身份与裁决记录。
+- 机械完整不能修复轮次顺序；这些 hash 只绑定失效运行 `SSP-1.0-RUN-20260727T152001-0700`，不得被新的执行身份追认。
