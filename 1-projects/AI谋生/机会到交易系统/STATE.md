@@ -1,5 +1,7 @@
 # 当前状态
 
+> 历史快照警告：以下内容是当前总体研究启动前的旧原型状态，不再代表项目当前权威状态。当前状态以 [LEGACY_STATUS.md](./LEGACY_STATUS.md) 和 [`研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md`](./研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md) 为准；餐馆 Pilot 未获追认。
+
 更新时间：2026-07-27
 
 ## 已有
