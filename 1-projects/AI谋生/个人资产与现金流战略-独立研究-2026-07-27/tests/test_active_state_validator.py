@@ -1400,7 +1400,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
                     any(needle in error for error in attack_errors), attack_errors
                 )
 
-        with self.subTest("requested r2 identity cannot be rewritten as r3"):
+        with self.subTest("requested r2 identity cannot be rewritten as r4"):
             changed = copy.deepcopy(incident)
             changed["candidate_review_identity"]["review_id"] = (
                 VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID
@@ -1907,14 +1907,14 @@ class ActiveStateValidatorTests(unittest.TestCase):
         review_path = ROOT / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
             "ca012650_internal_candidate"
         ]
-        now = datetime.fromisoformat("2026-07-28T01:11:00-07:00")
+        now = datetime.fromisoformat("2026-07-28T01:31:00-07:00")
         errors: list[str] = []
         recorded_at = VALIDATOR.validate_ca_precontact_successor_receipt_contract(
             review, receipt_path=review_path, now=now, errors=errors
         )
         self.assertEqual([], errors)
         self.assertEqual(
-            datetime.fromisoformat("2026-07-28T01:10:00-07:00"), recorded_at
+            datetime.fromisoformat("2026-07-28T01:30:00-07:00"), recorded_at
         )
 
         scalar_attacks = {
@@ -2001,13 +2001,25 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 errors,
             )
 
+        with self.subTest("review must be strictly later than r3 candidate drift"):
+            changed = copy.deepcopy(review)
+            changed["recorded_at"] = "2026-07-28T01:16:28-07:00"
+            errors = []
+            VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+                changed, receipt_path=review_path, now=now, errors=errors
+            )
+            self.assertTrue(
+                any("later than r3 candidate-drift FAIL" in error for error in errors),
+                errors,
+            )
+
     def test_precontact_successor_candidate_set_rejects_omission_substitution_and_paths(
         self,
     ) -> None:
         receipt_parent = ROOT / "evidence"
         bindings = self.successor_candidate_bindings()
-        self.assertEqual(35, len(bindings))
-        self.assertEqual(35, len(VALIDATOR.ca_precontact_successor_candidate_paths()))
+        self.assertEqual(36, len(bindings))
+        self.assertEqual(36, len(VALIDATOR.ca_precontact_successor_candidate_paths()))
         attacks: dict[str, tuple[list[dict[str, str]], str]] = {}
 
         omitted = copy.deepcopy(bindings)
@@ -2037,6 +2049,21 @@ class ActiveStateValidatorTests(unittest.TestCase):
         ]
         attacks["r2 infrastructure event omitted"] = (
             incident_omitted,
+            "exact unique closed successor candidate",
+        )
+
+        drift_literal = Path(
+            VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_CANDIDATE_DRIFT_BINDING[
+                "path"
+            ]
+        ).name
+        drift_omitted = [
+            copy.deepcopy(binding)
+            for binding in bindings
+            if binding["path"] != drift_literal
+        ]
+        attacks["r3 candidate-drift FAIL omitted"] = (
+            drift_omitted,
             "exact unique closed successor candidate",
         )
 
@@ -2080,6 +2107,28 @@ class ActiveStateValidatorTests(unittest.TestCase):
         )["path"] = f"./{incident_literal}"
         attacks["r2 infrastructure event path drift"] = (
             incident_path_drift,
+            "not an exact declared receipt literal",
+        )
+
+        drift_hash_drift = copy.deepcopy(bindings)
+        next(
+            binding
+            for binding in drift_hash_drift
+            if binding["path"] == drift_literal
+        )["sha256"] = "3" * 64
+        attacks["r3 candidate-drift FAIL hash drift"] = (
+            drift_hash_drift,
+            "sha256 mismatch",
+        )
+
+        drift_path_drift = copy.deepcopy(bindings)
+        next(
+            binding
+            for binding in drift_path_drift
+            if binding["path"] == drift_literal
+        )["path"] = f"./{drift_literal}"
+        attacks["r3 candidate-drift FAIL path drift"] = (
+            drift_path_drift,
             "not an exact declared receipt literal",
         )
 
@@ -2145,7 +2194,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
                                 "ca012650_internal_candidate"
                             ]
                         ),
-                        now=datetime.fromisoformat("2026-07-28T01:11:00-07:00"),
+                        now=datetime.fromisoformat("2026-07-28T01:31:00-07:00"),
                         errors=errors,
                     )
                 self.assertTrue(
@@ -2164,7 +2213,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
         review_path = ROOT / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
             "ca012650_internal_candidate"
         ]
-        now = datetime.fromisoformat("2026-07-28T01:11:00-07:00")
+        now = datetime.fromisoformat("2026-07-28T01:31:00-07:00")
 
         with self.subTest("duplicate expected declaration"):
             review = self.successor_review()
