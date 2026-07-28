@@ -92,6 +92,7 @@ SHADOW_ACCEPTANCE_RUNNER = f"{RESEARCH}/run_shadow_acceptance.py"
 SHADOW_ACCEPTANCE_TEST = f"{RESEARCH}/test_shadow_acceptance.py"
 SANDBOX_PROBE_REPORT = f"{RESEARCH}/C6_SANDBOX_PROBE_REPORT.md"
 C7_SHADOW_FAILURE = f"{RESEARCH}/C7_SHADOW_FAILURE_RECORD.md"
+C8_DOMAIN_GATE_REPORT = f"{RESEARCH}/C8_DOMAIN_GATE_REVIEW_REPORT.md"
 
 
 SPECS: dict[str, dict[str, Any]] = {
@@ -215,6 +216,16 @@ SPECS: dict[str, dict[str, Any]] = {
         "exact-schema external freeze report builder",
         "MECHANICAL_GENERATION_ONLY",
         CANDIDATE_VERIFIER,
+    ),
+    C8_DOMAIN_GATE_REPORT: spec(
+        "exact-byte C8 domain Gate code and interface review report",
+        "REVIEW_EVIDENCE_ONLY_NO_SELF_APPROVAL",
+        C7_SHADOW_FAILURE,
+        CAPABILITY_POLICY,
+        SHADOW_ACCEPTANCE_RUNNER,
+        SHADOW_ACCEPTANCE_TEST,
+        POST_VERIFIER,
+        PHASE_TEST,
     ),
     BUILDER: spec(
         "explicit closed-inventory canonical manifest builder",
@@ -406,16 +417,19 @@ SPECS.update(
             ACCEPTANCE_VERIFIER,
             ACCEPTANCE_TEST,
             ENVELOPE,
+            C7_SHADOW_FAILURE,
             "EXTERNAL_LEGACY_QUARANTINE.md",
             f"{RESEARCH}/FINAL_REVIEW_HISTORY.md",
             CANDIDATE_VERIFIER,
             POST_VERIFIER,
             PHASE_TEST,
+            BUILDER,
             FREEZE_BUILDER,
             CAPABILITY_POLICY,
             SHADOW_ACCEPTANCE_RUNNER,
             SHADOW_ACCEPTANCE_TEST,
             SANDBOX_PROBE_REPORT,
+            C8_DOMAIN_GATE_REPORT,
         ),
         "FINAL_CANDIDATE_MANIFEST.md": spec(
             "human-readable final candidate freeze and review instructions",

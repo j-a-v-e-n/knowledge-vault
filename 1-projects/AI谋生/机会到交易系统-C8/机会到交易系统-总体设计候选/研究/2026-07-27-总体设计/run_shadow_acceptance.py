@@ -1605,32 +1605,39 @@ def build_static_reports(
         runner_snapshot=runner_snapshot,
     )
     tcb = runtime_tcb_document(runner_snapshot)
+    rejection_code_set_sha256 = sha256_json(sorted(DOMAIN_REJECTION_CODES))
     sbom = {
-        "schema_version": "otts.shadow-declarative-sbom/1",
-        "language_scope": "CANONICAL_JSON_DECLARATIVE_IR_ONLY",
+        "schema_version": "otts.shadow-declarative-sbom/2",
+        "language_scope": "CANONICAL_JSON_CLOSED_OPPORTUNITY_SEMANTIC_GATE_ONLY",
         "programs": programs,
         "artifact_executable_or_native_dependency_count": 0,
         "trusted_runtime": "FIXED_RUNNER_AND_CPYTHON_OUTSIDE_ARTIFACT_SBOM",
         "external_action_authority": False,
     }
     capability_report = {
-        "schema_version": "otts.shadow-capability-report/3",
+        "schema_version": "otts.shadow-capability-report/4",
         "policy_id": policy["policy_id"],
         "policy_sha256": policy_snapshot.sha256,
-        "analysis_scope": "EXACT_SNAPSHOT_CANONICAL_JSON_CLOSED_IR_SCHEMA_AND_GRAPH",
+        "analysis_scope": "EXACT_SNAPSHOT_CLOSED_DOMAIN_GATE_SCHEMA_GRAPH_AND_REJECTION_CODE_SET",
         "programs": programs,
         "sbom_sha256": sha256_json(sbom),
         "snapshot_ledger_sha256": canonical_document_sha256(snapshot_ledger),
         "runtime_tcb_base_digest_sha256": sha256_json(tcb),
+        "domain_gate_id": policy["domain_gate"]["gate_id"],
+        "domain_gate_opcode": policy["domain_gate"]["opcode"],
+        "domain_rejection_code_set_sha256": rejection_code_set_sha256,
+        "required_acceptance_rejection_codes": sorted(
+            REQUIRED_ACCEPTANCE_REJECTION_CODES
+        ),
         "language_level_artifact_executable_constructs": "ABSENT_BY_EXACT_SCHEMA",
         "os_sandbox_observed_enforcement": "NOT_OBSERVED_STATIC_PHASE",
         "exact_opened_unlinked_snapshot_execution": "NOT_EXECUTED_STATIC_PHASE",
         "same_uid_concurrent_mutation_resistance_proven": False,
         "host_level_universal_noninterference_proven": False,
         "sandbox_inherited_fd_boundary": "PARENT_CONFIGURED_ONLY_RUNNER_OPENED_UNLINKED_READ_FDS_AND_BOUNDED_UNLINKED_STDIO_FDS; POST_SANDBOX_FD_ENUMERATION_NOT_PERFORMED",
-        "sandbox_same_runtime_reexec_residual": "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; CLOSED_IR_HAS_NO_EXEC_OPCODE",
+        "sandbox_same_runtime_reexec_residual": "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; CLOSED_DOMAIN_IR_HAS_NO_EXEC_OPCODE",
         "memory_boundary": "NO_HOST_RSS_LIMIT_ON_DARWIN; FIXED_STRUCTURAL_IR_BYTE_BOUNDS_ONLY",
-        "result": "DECLARATIVE_IR_LANGUAGE_VALID",
+        "result": "CLOSED_OPPORTUNITY_SEMANTIC_GATE_LANGUAGE_VALID",
         "runtime_authority": False,
         "deployment_authority": False,
         "freeze_authority": False,
@@ -1828,6 +1835,50 @@ def _decode_worker_response(returncode: int, stdout: bytes, stderr: bytes, label
     return response
 
 
+def _validate_domain_worker_response(value: Any) -> dict[str, Any]:
+    require_exact_keys(value, {
+        "ok", "outcome", "result_sha256", "result_type",
+        "result_byte_length", "rejection_code", "steps",
+        "output_inventory_digest_sha256", "runtime_observation",
+    }, "domain worker response")
+    if value["ok"] is not True:
+        raise CapabilityError("domain worker response did not complete safely")
+    if (
+        not isinstance(value["steps"], int)
+        or isinstance(value["steps"], bool)
+        or value["steps"] <= 0
+    ):
+        raise CapabilityError("domain worker response steps invalid")
+    require_sha(
+        value["output_inventory_digest_sha256"],
+        "domain worker output inventory digest",
+    )
+    if value["outcome"] == "PASS":
+        require_sha(value["result_sha256"], "domain worker result hash")
+        if value["result_type"] != "object":
+            raise CapabilityError("domain worker PASS must return normalized object")
+        if (
+            not isinstance(value["result_byte_length"], int)
+            or isinstance(value["result_byte_length"], bool)
+            or value["result_byte_length"] <= 0
+        ):
+            raise CapabilityError("domain worker PASS result length invalid")
+        if value["rejection_code"] is not None:
+            raise CapabilityError("domain worker PASS cannot include rejection code")
+    elif value["outcome"] == "REJECT":
+        if (
+            value["result_sha256"] is not None
+            or value["result_type"] is not None
+            or value["result_byte_length"] is not None
+        ):
+            raise CapabilityError("domain worker REJECT cannot include a result")
+        if value["rejection_code"] not in DOMAIN_REJECTION_CODES:
+            raise CapabilityError("domain worker rejection code outside closed set")
+    else:
+        raise CapabilityError("domain worker outcome outside PASS/REJECT closed set")
+    return value
+
+
 def _validate_runtime_observation(value: Any) -> dict[str, Any]:
     keys = {
         "python_version", "python_implementation_cache_tag", "python_executable",
@@ -1952,6 +2003,7 @@ def run_case(
     runner_path: Optional[Path] = None,
     runner_snapshot: Optional[Snapshot] = None,
     aggregate_deadline: Optional[float] = None,
+    expected_parent_candidate_sha256: Optional[str] = None,
 ) -> dict[str, Any]:
     """Evaluate exact opened-and-unlinked bytes through the fixed sandboxed runner.
 
@@ -1977,6 +2029,11 @@ def run_case(
         policy_path = policy_path or Path(__file__).with_name("SHADOW_CAPABILITY_POLICY.json")
         policy_snapshot = read_once_regular(policy_path, "capability_policy", 524288)
     policy = load_policy_snapshot(policy_snapshot)
+    if expected_parent_candidate_sha256 is not None:
+        require_sha(
+            expected_parent_candidate_sha256,
+            "expected parent candidate manifest hash",
+        )
     if aggregate_deadline is None:
         aggregate_deadline = (
             time.monotonic() + policy["limits"]["aggregate_wall_timeout_seconds"]
@@ -2022,6 +2079,7 @@ def run_case(
         )
         opened_fds.append(policy_fd)
         request = {
+            "expected_parent_candidate_sha256": expected_parent_candidate_sha256,
             "fixture_fd": fixture_fd,
             "fixture_sha256": fixture_snapshot.sha256,
             "output_root": str(output),
@@ -2062,8 +2120,9 @@ def run_case(
                 timeout=min(policy["limits"]["wall_timeout_seconds"], remaining),
             )
             response = _decode_worker_response(
-                returncode, stdout, stderr, "declarative worker"
+                returncode, stdout, stderr, "domain Gate worker"
             )
+            response = _validate_domain_worker_response(response)
             response["runtime_observation"] = _validate_runtime_observation(
                 response.get("runtime_observation")
             )
@@ -2091,7 +2150,7 @@ def run_case(
                 "same_uid_concurrent_mutation_resistance_proven": False,
                 "host_level_universal_noninterference_proven": False,
                 "sandbox_inherited_fd_boundary": "PARENT_CONFIGURED_ONLY_RUNNER_OPENED_UNLINKED_READ_FDS_AND_BOUNDED_UNLINKED_STDIO_FDS; POST_SANDBOX_FD_ENUMERATION_NOT_PERFORMED",
-                "sandbox_same_runtime_reexec_residual": "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; CLOSED_IR_HAS_NO_EXEC_OPCODE",
+                "sandbox_same_runtime_reexec_residual": "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; CLOSED_DOMAIN_IR_HAS_NO_EXEC_OPCODE",
                 "memory_boundary": "NO_HOST_RSS_LIMIT_ON_DARWIN; FIXED_STRUCTURAL_IR_BYTE_BOUNDS_ENFORCED",
             }
         finally:
@@ -2104,6 +2163,26 @@ def _file_ref(shadow: dict[str, Any], key: str) -> dict[str, str]:
     require_sha(value["sha256"], f"shadow.{key}.sha256")
     _normalized_parts(value["path"], f"shadow.{key}.path")
     return value
+
+
+def validate_acceptance_case(case: Any, label: str) -> dict[str, Any]:
+    if not isinstance(case, dict):
+        raise CapabilityError(f"{label}: expected object")
+    outcome = case.get("expected_outcome")
+    if outcome == "PASS":
+        require_exact_keys(case, PASS_CASE_KEYS, label)
+        require_sha(case["expected_result_sha256"], f"{label}.expected_result_sha256")
+    elif outcome == "REJECT":
+        require_exact_keys(case, REJECT_CASE_KEYS, label)
+        if case["expected_rejection_code"] not in DOMAIN_REJECTION_CODES:
+            raise CapabilityError(f"{label}.expected_rejection_code outside closed set")
+    else:
+        raise CapabilityError(f"{label}.expected_outcome must be PASS or REJECT")
+    case_id = case["case_id"]
+    if not isinstance(case_id, str) or not IDENTIFIER_RE.fullmatch(case_id):
+        raise CapabilityError(f"{label}.case_id invalid")
+    _normalized_parts(case["fixture_path"], f"{label}.fixture_path")
+    return case
 
 
 def _validate_supplied_report(
@@ -2184,36 +2263,93 @@ def validate_shadow_acceptance(
         len(cases) > policy["limits"]["max_acceptance_cases"]
     ):
         raise CapabilityError("shadow.acceptance_cases must be non-empty and within fixed limit")
+    parent_candidate_sha256 = require_sha(
+        shadow.get("parent_candidate_manifest_sha256"),
+        "shadow.parent_candidate_manifest_sha256",
+    )
     case_ids: set[str] = set()
+    prepared_cases: list[tuple[dict[str, Any], str, Snapshot]] = []
+    expected_rejection_codes: set[str] = set()
+    expected_pass_count = 0
+    for index, case in enumerate(cases):
+        label = f"acceptance_cases[{index}]"
+        validated_case = validate_acceptance_case(case, label)
+        case_id = validated_case["case_id"]
+        if case_id in case_ids:
+            raise CapabilityError(f"{label}.case_id invalid or duplicate")
+        case_ids.add(case_id)
+        fixture_relative, _ = _normalized_parts(
+            validated_case["fixture_path"], f"{label}.fixture_path"
+        )
+        if (
+            fixture_relative not in entries
+            or entries[fixture_relative][0].get("role") != "fixture"
+        ):
+            raise CapabilityError("acceptance fixture must be a manifest-bound fixture entry")
+        if validated_case["expected_outcome"] == "PASS":
+            expected_pass_count += 1
+        else:
+            expected_rejection_codes.add(
+                validated_case["expected_rejection_code"]
+            )
+        prepared_cases.append(
+            (validated_case, fixture_relative, entries[fixture_relative][1])
+        )
+    if expected_pass_count < 1:
+        raise CapabilityError("acceptance suite must contain at least one PASS case")
+    missing_rejection_coverage = sorted(
+        REQUIRED_ACCEPTANCE_REJECTION_CODES - expected_rejection_codes
+    )
+    if missing_rejection_coverage:
+        raise CapabilityError(
+            "acceptance suite missing required domain rejection coverage: "
+            f"{missing_rejection_coverage}"
+        )
+
     case_results: list[dict[str, Any]] = []
     observed_binding: Optional[dict[str, str]] = None
     runtime_observation_binding: Optional[dict[str, Any]] = None
-    for index, case in enumerate(cases):
+    actual_pass_count = 0
+    actual_reject_count = 0
+    for case, fixture_relative, fixture_snapshot in prepared_cases:
         require_aggregate_time()
-        require_exact_keys(case, CASE_KEYS, f"acceptance_cases[{index}]")
         case_id = case["case_id"]
-        if not isinstance(case_id, str) or not IDENTIFIER_RE.fullmatch(case_id) or case_id in case_ids:
-            raise CapabilityError(f"acceptance_cases[{index}].case_id invalid or duplicate")
-        case_ids.add(case_id)
-        fixture_relative, _ = _normalized_parts(
-            case["fixture_path"], f"acceptance_cases[{index}].fixture_path"
-        )
-        if fixture_relative not in entries or entries[fixture_relative][0].get("role") != "fixture":
-            raise CapabilityError("acceptance fixture must be a manifest-bound fixture entry")
-        fixture_snapshot = entries[fixture_relative][1]
-        expected = require_sha(case["expected_result_sha256"], f"acceptance_cases[{index}].expected_result_sha256")
         response = run_case(
             shadow_root=shadow_root, program_snapshot=program_snapshot,
             fixture_snapshot=fixture_snapshot, policy_snapshot=policy_snapshot,
             runner_snapshot=runner_snapshot,
             aggregate_deadline=aggregate_deadline,
+            expected_parent_candidate_sha256=parent_candidate_sha256,
         )
         require_aggregate_time()
-        if response["result_sha256"] != expected:
+        expected_outcome = case["expected_outcome"]
+        actual_outcome = response["outcome"]
+        if actual_outcome != expected_outcome:
             raise CapabilityError(
-                f"acceptance case {case_id}: result hash mismatch; expected={expected}; "
-                f"actual={response['result_sha256']}"
+                f"acceptance case {case_id}: outcome mismatch; "
+                f"expected={expected_outcome}; actual={actual_outcome}; "
+                f"actual_rejection_code={response['rejection_code']}"
             )
+        if expected_outcome == "PASS":
+            expected_result_sha256 = case["expected_result_sha256"]
+            if response["result_sha256"] != expected_result_sha256:
+                raise CapabilityError(
+                    f"acceptance case {case_id}: result hash mismatch; "
+                    f"expected={expected_result_sha256}; "
+                    f"actual={response['result_sha256']}"
+                )
+            expected_rejection_code: Optional[str] = None
+            actual_pass_count += 1
+        else:
+            expected_result_sha256 = None
+            expected_rejection_code = case["expected_rejection_code"]
+            if response["rejection_code"] != expected_rejection_code:
+                raise CapabilityError(
+                    f"acceptance case {case_id}: rejection code mismatch; "
+                    f"expected={expected_rejection_code}; "
+                    f"actual={response['rejection_code']}"
+                )
+            actual_reject_count += 1
         if observed_binding is None:
             observed_binding = response["sandbox_observed_enforcement"]
         elif observed_binding != response["sandbox_observed_enforcement"]:
@@ -2226,10 +2362,15 @@ def validate_shadow_acceptance(
             "case_id": case_id,
             "fixture_path": fixture_relative,
             "fixture_sha256": fixture_snapshot.sha256,
-            "expected_result_sha256": expected,
+            "expected_outcome": expected_outcome,
+            "actual_outcome": actual_outcome,
+            "expected_result_sha256": expected_result_sha256,
             "actual_result_sha256": response["result_sha256"],
+            "expected_rejection_code": expected_rejection_code,
+            "actual_rejection_code": response["rejection_code"],
             "result_type": response["result_type"],
             "result_byte_length": response["result_byte_length"],
+            "steps": response["steps"],
             "output_inventory_digest_sha256": response["output_inventory_digest_sha256"],
             "loaded_module_file_closure_digest_sha256": response["runtime_observation"][
                 "loaded_module_file_closure_digest_sha256"
@@ -2241,10 +2382,11 @@ def validate_shadow_acceptance(
     runtime_tcb_digest_sha256 = sha256_json(tcb)
     acceptance_output_set_digest_sha256 = sha256_json(case_results)
     test_report = {
-        "schema_version": "otts.shadow-acceptance-test-report/3",
-        "result": "LOCAL_DETERMINISTIC_DECLARATIVE_EVALUATION_PASS",
+        "schema_version": "otts.shadow-acceptance-test-report/4",
+        "result": "LOCAL_DETERMINISTIC_DOMAIN_GATE_ACCEPTANCE_PASS",
         "runner_sha256": runner_snapshot.sha256,
         "policy_sha256": policy_snapshot.sha256,
+        "parent_candidate_manifest_sha256": parent_candidate_sha256,
         "sbom_sha256": sbom_snapshot.sha256,
         "capability_report_sha256": capability_snapshot.sha256,
         "program_sha256": program_snapshot.sha256,
@@ -2255,6 +2397,15 @@ def validate_shadow_acceptance(
             "loaded_module_file_closure_digest_sha256"
         ],
         "acceptance_output_set_digest_sha256": acceptance_output_set_digest_sha256,
+        "domain_gate_id": policy["domain_gate"]["gate_id"],
+        "domain_rejection_code_set_sha256": sha256_json(
+            sorted(DOMAIN_REJECTION_CODES)
+        ),
+        "required_acceptance_rejection_codes": sorted(
+            REQUIRED_ACCEPTANCE_REJECTION_CODES
+        ),
+        "pass_case_count": actual_pass_count,
+        "reject_case_count": actual_reject_count,
         "program": program_relative,
         "cases": case_results,
         "language_level_artifact_executable_constructs": "ABSENT_BY_EXACT_SCHEMA",
@@ -2265,8 +2416,10 @@ def validate_shadow_acceptance(
         "same_uid_concurrent_mutation_resistance_proven": False,
         "host_level_universal_noninterference_proven": False,
         "sandbox_inherited_fd_boundary": "PARENT_CONFIGURED_ONLY_RUNNER_OPENED_UNLINKED_READ_FDS_AND_BOUNDED_UNLINKED_STDIO_FDS; POST_SANDBOX_FD_ENUMERATION_NOT_PERFORMED",
-        "sandbox_same_runtime_reexec_residual": "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; CLOSED_IR_HAS_NO_EXEC_OPCODE",
+        "sandbox_same_runtime_reexec_residual": "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; CLOSED_DOMAIN_IR_HAS_NO_EXEC_OPCODE",
         "memory_boundary": "NO_HOST_RSS_LIMIT_ON_DARWIN; FIXED_STRUCTURAL_IR_BYTE_BOUNDS_ENFORCED",
+        "natural_language_speech_act_inference_proven": False,
+        "semantic_truth_of_human_labels_proven": False,
         "aggregate_deadline_enforced": True,
         "aggregate_wall_timeout_seconds": policy["limits"]["aggregate_wall_timeout_seconds"],
         "runtime_authority": False,
@@ -2286,6 +2439,7 @@ def validate_shadow_acceptance(
         "acceptance_test_report_sha256": report_snapshot.sha256,
         "runner_sha256": runner_snapshot.sha256,
         "policy_sha256": policy_snapshot.sha256,
+        "parent_candidate_manifest_sha256": parent_candidate_sha256,
         "program_sha256": program_snapshot.sha256,
         "node_graph_digest_sha256": graph["node_graph_digest_sha256"],
         "snapshot_ledger_document": snapshot_ledger,
@@ -2296,9 +2450,14 @@ def validate_shadow_acceptance(
             "loaded_module_file_closure_digest_sha256"
         ],
         "acceptance_output_set_digest_sha256": acceptance_output_set_digest_sha256,
+        "domain_rejection_code_set_sha256": sha256_json(
+            sorted(DOMAIN_REJECTION_CODES)
+        ),
         "snapshot_ledger": _snapshot_ledger(snapshots),
         "case_count": len(case_results),
-        "local_deterministic_declarative_evaluation_pass": True,
+        "pass_case_count": actual_pass_count,
+        "reject_case_count": actual_reject_count,
+        "local_deterministic_domain_gate_acceptance_pass": True,
         "exact_opened_unlinked_snapshot_execution": True,
         "staged_target_controlled_pathname_reopen_count": 0,
         "same_uid_concurrent_mutation_resistance_proven": False,
@@ -2306,6 +2465,8 @@ def validate_shadow_acceptance(
         "aggregate_deadline_enforced": True,
         "aggregate_wall_timeout_seconds": policy["limits"]["aggregate_wall_timeout_seconds"],
         "host_level_universal_noninterference_proven": False,
+        "natural_language_speech_act_inference_proven": False,
+        "semantic_truth_of_human_labels_proven": False,
         "runtime_authority": False,
         "deployment_authority": False,
         "freeze_authority": False,
@@ -2362,9 +2523,18 @@ def _worker(request_fd: int) -> int:
         request_snapshot = _snapshot_inherited_fd(request_fd, "worker request", 65536)
         request = canonical_load_snapshot(request_snapshot, "worker request")
         require_exact_keys(request, {
-            "fixture_fd", "fixture_sha256", "output_root", "policy_fd",
-            "policy_sha256", "program_fd", "program_sha256",
+            "expected_parent_candidate_sha256", "fixture_fd", "fixture_sha256",
+            "output_root", "policy_fd", "policy_sha256", "program_fd",
+            "program_sha256",
         }, "worker request")
+        expected_parent_candidate_sha256 = request[
+            "expected_parent_candidate_sha256"
+        ]
+        if expected_parent_candidate_sha256 is not None:
+            require_sha(
+                expected_parent_candidate_sha256,
+                "worker expected parent candidate manifest hash",
+            )
         inherited = [request["policy_fd"], request["program_fd"], request["fixture_fd"]]
         if len(set(inherited + [request_fd])) != 4:
             raise CapabilityError("worker inherited FDs must be distinct")
@@ -2396,15 +2566,33 @@ def _worker(request_fd: int) -> int:
             raise CapabilityError("worker output root invariant failed")
         cas_root = output_root / "cas"
         cas_root.mkdir(mode=0o700)
-        result, steps = evaluate_program(program, fixture, policy, cas_root)
-        result_bytes = canonical_bytes(result)
+        try:
+            result, steps = evaluate_program(
+                program, fixture, policy, cas_root,
+                expected_parent_candidate_sha256,
+            )
+            result_bytes = canonical_bytes(result)
+            outcome = "PASS"
+            result_sha256: Optional[str] = sha256_bytes(result_bytes)
+            result_type: Optional[str] = json_type_name(result)
+            result_byte_length: Optional[int] = len(result_bytes)
+            rejection_code: Optional[str] = None
+        except DomainRejection as rejection:
+            outcome = "REJECT"
+            steps = rejection.steps
+            result_sha256 = None
+            result_type = None
+            result_byte_length = None
+            rejection_code = rejection.code
         inventory = _output_inventory(output_root, policy["limits"])
         runtime_observation = _loaded_python_module_file_closure()
         response = {
             "ok": True,
-            "result_sha256": sha256_bytes(result_bytes),
-            "result_type": json_type_name(result),
-            "result_byte_length": len(result_bytes),
+            "outcome": outcome,
+            "result_sha256": result_sha256,
+            "result_type": result_type,
+            "result_byte_length": result_byte_length,
+            "rejection_code": rejection_code,
             "steps": steps,
             "output_inventory_digest_sha256": sha256_json(inventory),
             "runtime_observation": runtime_observation,
