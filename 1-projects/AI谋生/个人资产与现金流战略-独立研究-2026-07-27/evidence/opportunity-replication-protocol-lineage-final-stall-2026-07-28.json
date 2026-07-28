@@ -1,6 +1,7 @@
 {
   "schema_version": "1.0",
   "recorded_at": "2026-07-28T05:53:40-07:00",
+  "updated_at": "2026-07-28T06:04:12-07:00",
   "record_type": "IMMUTABLE_PROTOCOL_REVIEW_LINEAGE_AND_STALL_OBSERVATION_NOT_AUTHORITY_TRANSFER",
   "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
   "review_scope": "PROTOCOL_MECHANICS_ONLY_NO_QUERY_RESULTS",
@@ -84,6 +85,58 @@
       },
       "root_cause": "EVALUATED was keyed to an attempted open, but its required canonical permalink existed only after successful final-URL resolution; a complete web.open failure classified as UNAVAILABLE_CONTEXT could not satisfy the row schema.",
       "minimal_reproduction": "A returned row enters the evaluated prefix, web.open fails completely, and the row must simultaneously receive UNAVAILABLE_CONTEXT and provide a final-URL-derived canonical permalink."
+    },
+    {
+      "candidate": {
+        "commit": "cc14d48f0edcd187ff925595a47b84a3cf33a54e",
+        "root_tree": "0139dae1731596ea70a7775aba76faf1c11f4548",
+        "parent_final_fail_commit": "dc57e8c4c21d5aa8daa07ad5b00fa5b561899924",
+        "protocol_sha256": "aff2b6d010fcff2d9ec1765f49e12aa77ef006a160c72f2c9f69cfa0a034e77e",
+        "contract_sha256": "043ed94e6cba873992984c9b3a64d0342cfc0d7983fc03689d1c8ffc7ea5781e",
+        "synthetic_fixture_sha256": "efcb5c0cc1eb4413c1a2d7fe1ead98991b6b582f6fc4c3e934edec5db47c22e1",
+        "verifier_sha256": "1e2ed38e1790c40f10d73da2f05693b2b4d5f2d1f5f6ee4156a7bb015468d91c",
+        "tests_sha256": "2c6076d3328292b8397cc3a8a94b881a7316f86aa496a40456351c64b73e395e"
+      },
+      "archive_reproduction": {
+        "exact_changed_file_count": 7,
+        "git_diff_check_passed": true,
+        "shipped_unit_tests": "Ran 11 tests; OK",
+        "bytecode_found": false
+      },
+      "reviewer_identities": [
+        "/root",
+        "/root/first_public_observation_review",
+        "/root/public_gate_successor_final"
+      ],
+      "verdict": {
+        "value": "FINAL_FAIL_NO_GO",
+        "critical": 0,
+        "major": 4,
+        "minor": 0,
+        "authority_effect": "NONE"
+      },
+      "root_causes": [
+        "Caller-selected replacement protocol bytes can be rehashed and accepted; the natural-language protocol also retains row vocabulary and author-independence requirements not represented by the closed machine schema.",
+        "An opposite-lane ELIGIBLE disposition can pass instead of being forced to OFF_TARGET_QUARANTINE.",
+        "A declared stop rank can occur after an earlier target-eligible row instead of being the first target eligible.",
+        "Changing only record_mode can relabel the unchanged synthetic fixture as EXECUTION_TRAIL."
+      ],
+      "root_matrix": {
+        "declared_mutations": 57,
+        "rejected": 53,
+        "direct_semantic_false_accepts": 3,
+        "internally_consistent_alternate_positive": 1,
+        "additional_binding_or_mode_false_accepts": 2,
+        "crashes": 0
+      },
+      "independent_matrix": {
+        "total_checks": 174,
+        "expected_positives": 2,
+        "expected_rejections": 172,
+        "correct_rejections": 169,
+        "false_accepts": 3,
+        "crashes": 0
+      }
     }
   ],
   "stall_decision": {
@@ -97,7 +150,8 @@
       "NOT_VISITED_AFTER_EARLY_STOP",
       "QUERY_UNAVAILABLE"
     ],
-    "moving_successor_status": "NOT_YET_IMMUTABLY_REVIEWED"
+    "first_closed_contract_candidate": "FINAL_FAIL_NO_GO",
+    "moving_successor_status": "NO_REVIEWED_SUCCESSOR_AFTER_CC14D48"
   },
   "authority_boundary": {
     "run_search_queries_authorized": false,
