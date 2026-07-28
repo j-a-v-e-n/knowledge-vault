@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T05:16:07-07:00",
+  "record_type": "IMMUTABLE_WORKFLOW_RECORD_REVIEW_OBSERVATION_NOT_AUTHORITY_TRANSFER",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "reviewer_identity": "/root/first_public_observation_review",
+  "candidate": {
+    "commit": "d06221014731d0223579c06c28fc20f77053a914",
+    "parent_predeclared_protocol_commit": "149886e87eaa1a93e8b1436a6af8911d302a2ab6",
+    "reviewed_gate_ancestor": "71b50434051c7ad46fbfc9596914c045e2ecfd33",
+    "root_tree": "0a78d5e825c836a69847da64edb99f2682a43040",
+    "record_sha256": "a1c72f95f08da9ed84c3ef04e41497312c0a0c587501290906ff8124200f0ee9",
+    "result_note_sha256": "e13d14e8e37cdc04e0b75106302600b3d1bafcb8430925bbe1b30680579a2493",
+    "protocol_sha256": "8fdf2bc983d8a7910cdd231b7a44902aafae02f059484ee1d608f76ae5be4a0c"
+  },
+  "source_verification": {
+    "permalink": "https://github.com/SillyTavern/SillyTavern/issues/1400",
+    "public_without_login": true,
+    "excerpt_verbatim": true,
+    "excerpt": "I've found myself putting the same {{random}} strings throughout the text several times",
+    "excerpt_word_count": 13,
+    "excerpt_sha256": "f8a2a238ffef729131f61bf905f9656901ea70675cad9faf158a1731ea47c7d9",
+    "statement_type": "WORKAROUND",
+    "author_identity_stored": false,
+    "unnecessary_personal_data_stored": false,
+    "long_source_copy_stored": false
+  },
+  "selection_boundary": {
+    "protocol_exists_in_direct_parent": true,
+    "record_and_result_absent_from_direct_parent": true,
+    "classification": "BOUNDED_PAST_TENSE_OPERATOR_REPORT_NOT_REPRODUCIBLE_RANKING_EVIDENCE",
+    "search_rank_stability_claimed": false,
+    "exhaustive_coverage_claimed": false,
+    "current_or_future_search_result_drift": "NONCLAIM"
+  },
+  "gate_binding": {
+    "reviewed_verifier_bytes_unchanged": true,
+    "reviewed_prior_bytes_unchanged": true,
+    "reviewed_tests_and_gate_readme_bytes_unchanged": true,
+    "valid": true,
+    "record_mode": "PUBLIC_OBSERVATION",
+    "evidence_effect": "OBSERVATION_ONLY",
+    "highest_evidence_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "external_authority": false,
+    "unit_test_result": "Ran 15 tests; OK",
+    "bytecode_found": false
+  },
+  "evidence_inference_boundary": {
+    "supported_observation": "One public issue reports repeatedly duplicating the same macro strings as a workaround.",
+    "interpretation_proportionate": true,
+    "prevalence_known": false,
+    "buyer_identity_known": false,
+    "willingness_to_pay_known": false,
+    "persistence_today_known": false,
+    "delivery_feasibility_known": false,
+    "transaction_path_known": false,
+    "commercial_claim": false
+  },
+  "independent_reviewer_matrix": {
+    "checks": 19,
+    "mutations_rejected_with_evidence_none": 18,
+    "synthetic_mode_control_valid_with_evidence_none": 1,
+    "unexpected_results": 0,
+    "crashes": 0
+  },
+  "portfolio_cross_check_matrix": {
+    "checks": 53,
+    "exact_positive": 1,
+    "full_entry_rejections_with_evidence_none": 44,
+    "exact_record_identity_rejections": 8,
+    "unexpected_results": 0,
+    "crashes": 0
+  },
+  "verdict": {
+    "value": "FINAL_PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "authority_effect": "OBSERVATION_ONLY_EXACT_RECORD"
+  },
+  "authority_boundary": {
+    "demand_validated": false,
+    "purchase_intent_validated": false,
+    "solution_selected": false,
+    "market_size_validated": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_contract_or_delivery_authorized": false,
+    "commercial_authority": false
+  }
+}
