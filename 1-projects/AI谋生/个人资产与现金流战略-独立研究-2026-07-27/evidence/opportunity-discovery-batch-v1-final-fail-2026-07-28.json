@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T05:25:34-07:00",
+  "record_type": "IMMUTABLE_WORKFLOW_BATCH_REVIEW_OBSERVATION_NOT_AUTHORITY_TRANSFER",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "reviewer_identity": "/root/public_gate_successor_final",
+  "candidate": {
+    "commit": "0d41f83ff0c6418bc2fff3fec31edbf038dc4f71",
+    "parent_protocol_commit": "05e98e3eea8340a3c4b9d53bde03b747f2225f0e",
+    "root_tree": "6bc7080196babda1e77dcad63e04a00d280aa9a4",
+    "batch_record_sha256": "e9238f5571d947439ccf3e6acdff7e25943f97a307b8bab33692b2e7c909d41e",
+    "result_note_sha256": "634d05cf408b1eb706039696b0754e7b44d6db64c5e5aa0d86fbdc22743fcb66",
+    "protocol_sha256": "44d158612dbf9ef409f42b5f2a0085decc095a8b75e4df0f28f4b312e843076f",
+    "protocol_parent_blob": "db1da240117e96c08dd3033241042f9297dbb5d0"
+  },
+  "archive_reproduction": {
+    "valid": true,
+    "record_mode": "PUBLIC_OBSERVATION",
+    "evidence_effect": "OBSERVATION_ONLY",
+    "highest_evidence_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "external_authority": false,
+    "unit_test_result": "Ran 15 tests; OK",
+    "bytecode_found": false
+  },
+  "source_fidelity": [
+    {
+      "observation_id": "OBS-BATCH-GITHUB-QBITTORRENT-001",
+      "source_url": "https://github.com/qbittorrent/qBittorrent/issues/6236",
+      "excerpt_word_count": 15,
+      "excerpt_sha256": "dc280accb98fe3d50f8b036762a329e513125478f1cdc90f41dfc00c87a370cd",
+      "verbatim": true,
+      "statement_type_supported": true,
+      "selection_classification": "ELIGIBLE_CLEAN_OBSERVATION"
+    },
+    {
+      "observation_id": "OBS-BATCH-GITHUB-GRADLE-001",
+      "source_url": "https://github.com/gradle/gradle/issues/26115",
+      "excerpt_word_count": 21,
+      "excerpt_sha256": "7a8f0854c87d4ef68f8e7fd03c7bde9efb31d7a1b83faee6518cbb4faf65b184",
+      "verbatim": true,
+      "statement_type_supported": true,
+      "selection_classification": "ELIGIBLE_CLEAN_OBSERVATION"
+    },
+    {
+      "observation_id": "OBS-BATCH-REDDIT-FOLLOWUP-001",
+      "source_url": "https://www.reddit.com/r/smallbusiness/comments/1svub6a/spent_3_hours_this_week_just_following_up_with/",
+      "excerpt_word_count": 14,
+      "excerpt_sha256": "3ce7d10e775774661f7deba567964b5024a8c6beeba9e94db909e1e94d4abbfe",
+      "verbatim": true,
+      "statement_type_supported": true,
+      "selection_classification": "QUARANTINE_RESEARCH_PROMPT_CONTAMINATED"
+    },
+    {
+      "observation_id": "OBS-BATCH-REDDIT-OUTREACH-001",
+      "source_url": "https://www.reddit.com/r/Entrepreneur/comments/1l6zwqd/the_hidden_cost_of_manual_processes_in_earlystage/",
+      "excerpt_word_count": 18,
+      "excerpt_sha256": "f13b06ad8132d5f5575a1a48a3e566d19d397cfe8092e63b53b2d8ef087a4b7c",
+      "verbatim": true,
+      "statement_type_supported": true,
+      "selection_classification": "QUARANTINE_PRODUCT_STORY_CONTAMINATED"
+    }
+  ],
+  "merge_review": {
+    "claimed_pattern": "HYP-BATCH-OUTREACH-CONTINUITY-001",
+    "claimed_advisory_state": "REPEATED_SIGNAL_UNVALIDATED",
+    "accepted": false,
+    "reason": "The pair shares a broad owner-operator and customer-acquisition theme, but inbound lead follow-up and outbound prospect research/personalized-email preparation do not share a sufficiently specific current state and desired outcome.",
+    "smallest_correction": "Quarantine the two contaminated Reddit selections, keep qBittorrent and Gradle separate, remove the merged outreach pattern, and record NO_REPEATED_PATTERN_IN_BATCH until two uncontaminated semantic matches exist."
+  },
+  "verification": {
+    "root_matrix": {
+      "checks": 60,
+      "positive_controls": 1,
+      "negative_attacks": 59,
+      "unexpected_results": 0,
+      "crashes": 0
+    },
+    "independent_reviewer_matrix": {
+      "checks": 31,
+      "expected_results": 31,
+      "unexpected_results": 0,
+      "crashes": 0
+    }
+  },
+  "findings": [
+    {
+      "severity": "MAJOR",
+      "title": "Reddit selection eligibility was inferred from excerpts instead of whole-source incentives",
+      "bounded_fix": "Quarantine the smallbusiness item as research-prompt-contaminated and the Entrepreneur item as product-story-contaminated for repeated-signal use."
+    },
+    {
+      "severity": "MAJOR",
+      "title": "Broad customer-acquisition similarity was treated as a fieldwise semantic match",
+      "bounded_fix": "Split the Reddit interpretations and replace REPEATED_SIGNAL_UNVALIDATED with NO_REPEATED_PATTERN_IN_BATCH."
+    }
+  ],
+  "verdict": {
+    "value": "FINAL_FAIL_NO_GO",
+    "critical": 0,
+    "major": 2,
+    "minor": 0,
+    "raw_structural_gate": "PASS",
+    "advisory_repeated_signal_merge": "FAIL",
+    "authority_effect": "NO_ADVISORY_PATTERN_AUTHORITY"
+  },
+  "authority_boundary": {
+    "clean_github_observations_remain_separate_observation_only": true,
+    "repeated_signal_accepted": false,
+    "demand_validated": false,
+    "purchase_intent_validated": false,
+    "product_selected": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_contract_or_delivery_authorized": false,
+    "commercial_authority": false
+  }
+}

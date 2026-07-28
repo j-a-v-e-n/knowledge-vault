@@ -46,7 +46,7 @@
 
 ## 当前下一步
 
-`18-PB010最小组合基线.md` 要求的只读 workflow-local refresh 已记录并更新在 `19-PB010两工作流只读刷新与排序输入.md`。机会线 synthetic baseline、corrected public-input offline Gate，以及第一条 exact 真实只读公开 record 均已获 fresh PASS；该 record 只证明一条公开 workaround 表达存在，权限效果是 `OBSERVATION_ONLY`，最高仍为 `OPPORTUNITY_HYPOTHESIS_UNVALIDATED`，不证明需求、购买意愿、解决方案或市场。下一 workflow-local 检查点必须另行预声明最低成本、无外联的现实反证及 claim ceiling，不能由 portfolio 从单条记录自动选产品。投研线最后一次 portfolio-bound 状态仍为 `design_freeze / blocked`；其 owner task 正在移动候选中处理 direct/genesis findings，portfolio 等新 immutable snapshot，不监控或冻结 mutable root。当前不启动 R4、portfolio model qualification 或任何跨 workflow 写入。
+`18-PB010最小组合基线.md` 要求的只读 workflow-local refresh 已记录并更新在 `19-PB010两工作流只读刷新与排序输入.md`。机会线 synthetic baseline、corrected public-input offline Gate，以及第一条 exact 真实只读公开 record 均已获 fresh PASS；discovery batch v1 的 predecessor 因选样污染与语义过度合并获 `FINAL FAIL / NO-GO`，该历史被保留。interpretation-only successor `956286dfd4731462f154d97ff4ecceb0d8657936` 随后获 `FINAL PASS`：四条 raw observation 未改，两条 Reddit interpretation 已隔离，qBittorrent 与 Gradle 仍是互相分离的未验证假设，结论固定为 `NO_REPEATED_PATTERN_IN_BATCH`。这个 PASS 只接受解释层修正，最高仍为 `OBSERVATION_ONLY / OPPORTUNITY_HYPOTHESIS_UNVALIDATED`，不证明重复信号、需求、购买意愿、解决方案或市场，也不授权 competitor mapping。投研线最后一次 portfolio-bound 状态仍为 `design_freeze / blocked`；其 owner task 正在移动候选中处理 direct/genesis findings，portfolio 等新 immutable snapshot，不监控或冻结 mutable root。当前不启动 R4、portfolio model qualification 或任何跨 workflow 写入。
 
 机会实验只推进到权限允许的位置：CA012650 内部研究包已因持久证据升级而变成新候选；文档与实验本身不宣告 PASS，状态 marker 固定为 `REVIEW-STATUS-DETERMINED-BY-EXACT-DETACHED-RECEIPT`，当前复核状态只由活动状态绑定的精确字节 detached receipt 派生。发送账户、观察截止、完整且语义绑定的发送前来源刷新、以及用户对精确消息的单次授权仍未绑定，所以不发送、不报价、不追访。
 
