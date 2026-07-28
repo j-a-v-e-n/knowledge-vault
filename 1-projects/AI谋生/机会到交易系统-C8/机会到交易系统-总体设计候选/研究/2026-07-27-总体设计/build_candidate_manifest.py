@@ -124,6 +124,7 @@ SPECS: dict[str, dict[str, Any]] = {
         "CLOSURE_RULES_NO_SELF_APPROVAL",
         P,
         C7_SHADOW_FAILURE,
+        f"{RESEARCH}/FINAL_REVIEW_HISTORY.md",
     ),
     f"{RESEARCH}/FINAL_REVIEW_HISTORY.md": spec(
         "immutable predecessor rejection and remediation history",

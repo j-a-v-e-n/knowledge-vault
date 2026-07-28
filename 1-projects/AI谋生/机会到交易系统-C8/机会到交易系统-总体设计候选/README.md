@@ -13,7 +13,7 @@ C7 原件、限定治理链和失败 Shadow 均保持原样：
 
 C7 的 exact design review 本身通过，且 governance Gate 正确只授权本地零外部副作用 Shadow。但第一份 Shadow 的独立实现审查发现：C7 closed IR 只是安全的 transport/sealer，不能机械验证领域 record、两条 lane 隔离、contamination、rights、legacy、staleness 和未执行实验状态。因此该 Shadow 保持 `PRESENT_SNAPSHOT_OBSERVED_UNREVIEWED`，没有 shadow-review receipt/root，不得追认 PASS。
 
-C8 的根因修订是：在仍然不能表达网络、账户、脚本或任意代码的 closed IR 中，加入窄而闭合的 OpportunityRecord 领域验证器；验收协议同时绑定“应当 PASS 的 exact output”与“应当 REJECT 的 exact error code”，使污染、权利变化、旧 schema、失效父节点和已执行实验不再依赖 fixture 自述。
+C8 的根因修订目标是：在仍然不能表达网络、账户、脚本或任意代码的 closed IR 中，加入窄而闭合的 OpportunityRecord 领域验证器；验收协议同时绑定“应当 PASS 的 exact output”与“应当 REJECT 的 exact error code”。它是否真正使污染、权利变化、旧 schema、失效父节点和已执行实验不再依赖 fixture 自述，必须由对抗测试和独立代码/接口审查确认，当前不预告 PASS。
 
 当前阅读顺序：
 

@@ -54,7 +54,7 @@ python3 -B 研究/2026-07-27-总体设计/build_freeze_report.py FINAL_CANDIDATE
 
 测试在系统临时目录构造 synthetic candidate/governance/declarative-shadow/review，不创建真实 sibling root；入口自身即使漏写 `-B` 也在 local import 前禁用 bytecode 写入。除既有 crosswalk、receipt、inventory、governance 与 phase-boundary 负向路径外，Capability Gate 测试还必须覆盖 IR exact schema/typed DAG、未知 opcode、代码或 native artifact、snapshot mutation、路径与 URI 数据注入、CAS digest round-trip/corruption、资源上限、OS sandbox 外部读写/网络/进程拒绝、bounded logs/timeout 和全部报告绑定。manifest builder 只接受显式声明的闭集文件，不会把意外文件自动吸收为候选；freeze-report builder 拒绝写入 candidate inventory 或覆盖不同的已有报告。
 
-final PASS 后，governance 或 shadow root 使用另一验证器：
+final PASS 后，governance 或 shadow root 使用另一验证器。下列命令从 C8 container 目录（即候选目录的父目录）运行，不是从候选目录内运行：
 
 ```bash
 python3 -B 机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/verify_post_closure_manifest.py \

@@ -986,21 +986,23 @@ def validate_opportunity_record(
     ):
         raise DomainRejection("OBSERVATION_EVIDENCE_CLASSIFICATION_INVALID")
 
-    first_lane_id = _domain_register_id(first_lane["lane_id"], "Lane", seen_ids)
-    observation_lane_id = _domain_register_id(
-        observation_lane["lane_id"], "Lane", seen_ids
+    first_lane_id = _domain_typed_id_syntax(first_lane["lane_id"], "Lane")
+    observation_lane_id = _domain_typed_id_syntax(
+        observation_lane["lane_id"], "Lane"
     )
     if first_lane_id == observation_lane_id:
         raise DomainRejection("LANE_ID_COLLISION")
+    _domain_register_id(first_lane_id, "Lane", seen_ids)
+    _domain_register_id(observation_lane_id, "Lane", seen_ids)
     first_epoch = _domain_typed_id_syntax(first_lane["lane_epoch_id"], "LaneEpoch")
     observation_epoch = _domain_typed_id_syntax(
         observation_lane["lane_epoch_id"], "LaneEpoch"
     )
     if first_epoch != observation_epoch:
         raise DomainRejection("DOMAIN_RECORD_INVALID")
-    first_canary_id = _domain_register_id(first_lane["canary_id"], "Canary", seen_ids)
-    observation_canary_id = _domain_register_id(
-        observation_lane["canary_id"], "Canary", seen_ids
+    first_canary_id = _domain_typed_id_syntax(first_lane["canary_id"], "Canary")
+    observation_canary_id = _domain_typed_id_syntax(
+        observation_lane["canary_id"], "Canary"
     )
     first_canary_token = _domain_string(first_lane["canary_token"])
     observation_canary_token = _domain_string(observation_lane["canary_token"])
@@ -1009,6 +1011,8 @@ def validate_opportunity_record(
         or first_canary_token == observation_canary_token
     ):
         raise DomainRejection("CANARY_ID_COLLISION")
+    _domain_register_id(first_canary_id, "Canary", seen_ids)
+    _domain_register_id(observation_canary_id, "Canary", seen_ids)
     if (
         _domain_contains_scalar(observation_lane, first_canary_id)
         or _domain_contains_scalar(observation_lane, first_canary_token)

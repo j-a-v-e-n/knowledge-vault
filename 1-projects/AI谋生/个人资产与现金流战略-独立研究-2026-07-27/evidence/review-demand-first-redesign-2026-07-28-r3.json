@@ -1,0 +1,142 @@
+{
+  "schema_version": "demand-first-redesign-independent-review/3",
+  "review_id": "review-demand-first-redesign-2026-07-28-r3",
+  "recorded_at": "2026-07-28T00:37:06-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/demand_redesign_r3_review",
+  "supporting_reviewer_agent_identity": "/root/demand_redesign_r3_review/gate_attack",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 1,
+    "major": 3
+  },
+  "candidate_bindings": [
+    {
+      "path": "../15-需求优先的现实实验重设计.md",
+      "sha256": "8ff0f5d62695081ee83d10a52952ecb73e88759c6095288733f11611450e5974",
+      "git_blob_oid": "c550bf8b1b064fe993051c16111617cd1f9c20af"
+    },
+    {
+      "path": "demand-first-public-listings-observation-2026-07-27.json",
+      "sha256": "61f91e67f16ab004a3944635831c76c4de556b7a35d182bc35f08b7c640dcae5",
+      "git_blob_oid": "713a09011c8213202337f41b6054f45094b7e3a9"
+    },
+    {
+      "path": "review-demand-first-redesign-2026-07-28-r2.json",
+      "sha256": "26daf8a48a10db3159ac0c55fed33bc8394dcccc4ec63e42edb172ca91226d42",
+      "git_blob_oid": "26a93a5c88fe81d5c4d024b65bf2bfd86e76dc6e"
+    }
+  ],
+  "candidate_git_identity": {
+    "commit": "22c8d3686f8610fa4413c71faf5cb65a2f9816b1",
+    "tree": "dec606a39e12c46b52233dc8f2c4138e69459f9b"
+  },
+  "critical_findings": [
+    {
+      "id": "DEMAND-FIRST-R3-C1",
+      "title": "User authorization lacks trustworthy provenance and external actions are not exactly-once",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:383",
+        "../15-需求优先的现实实验重设计.md:396",
+        "../15-需求优先的现实实验重设计.md:413",
+        "../15-需求优先的现实实验重设计.md:427",
+        "../15-需求优先的现实实验重设计.md:438",
+        "../15-需求优先的现实实验重设计.md:439"
+      ],
+      "evidence": [
+        "user_identity is a locally fillable string and is not bound to an original user confirmation, signature, or non-forgeable interaction receipt.",
+        "A local consumed_at write cannot be atomically committed with an external platform submission or payout.",
+        "The design has no bound operation or idempotency key, CAS reservation, submitted-unknown state, or provider reconciliation rule."
+      ],
+      "reproduction": "Start with consumed_at=null; let the platform accept the payout; interrupt the process before the local consumed_at write. After restart the same authorization still appears unused and the payout can be submitted again. Writing consumed_at first instead can consume an action that was never submitted, and concurrent workers can both observe null.",
+      "required_fix": "Bind authorization to verifiable user-confirmation provenance; bind one operation or idempotency key to authorization, payload, and provider request; perform a durable CAS reservation before submission; use a closed UNUSED, RESERVED, SUBMITTED_UNKNOWN, CONFIRMED, FAILED_FINAL lifecycle; reconcile unknown outcomes by operation ID and prohibit automatic retry."
+    }
+  ],
+  "major_findings": [
+    {
+      "id": "DEMAND-FIRST-R3-M1",
+      "title": "Withheld and oracle isolation plus pre-result contract freeze are not provable in the shared local environment",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:215",
+        "../15-需求优先的现实实验重设计.md:227",
+        "../15-需求优先的现实实验重设计.md:263",
+        "../15-需求优先的现实实验重设计.md:306"
+      ],
+      "evidence": [
+        "The implementer and candidate process share the same filesystem identity as the proposed withheld fixtures and oracle.",
+        "The design has no restricted runner, OS access boundary, verifiable open-file ledger, or closed isolation receipt schema.",
+        "Current hashes identify bytes but do not prove the contract was independently anchored before anyone observed withheld results."
+      ],
+      "reproduction": "Place expected withheld data in the shared project directory, read it from the implementer or candidate process, and produce exact answers. A later internally consistent manifest and hash set cannot distinguish this oracle leakage from a genuine withheld run.",
+      "required_fix": "Put withheld storage and execution under reviewer control; run the candidate with read access only to input projections; independently anchor the contract manifest before results; bind a closed isolation receipt and access boundary; bind any revision to the original FAIL and the same withheld contract. If this cannot be demonstrated, label the run only as a development smoke test."
+    },
+    {
+      "id": "DEMAND-FIRST-R3-M2",
+      "title": "Independent replay does not prove a second fresh acquisition and redirect rules conflict",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:59",
+        "../15-需求优先的现实实验重设计.md:66",
+        "../15-需求优先的现实实验重设计.md:349",
+        "../15-需求优先的现实实验重设计.md:381"
+      ],
+      "evidence": [
+        "The replay can reuse the capture artifact path, bytes, hash, and values while changing only the replay timestamp and reviewer string.",
+        "There is no separately content-addressed acquisition event binding request, redirect chain, tool, session, operator, or authenticated role history.",
+        "The stated policy blocks every redirect, but the evaluator text only blocks a change in redirect endpoint between capture and replay."
+      ],
+      "reproduction": "Copy the capture artifact path, hash, URL, status, and observed value into replay; set a later replayed_at and a different reviewer string. All listed checks can pass without a second acquisition. Two acquisitions can also stably redirect to the same endpoint despite the earlier no-redirect policy.",
+      "required_fix": "Bind two separate acquisition-event receipts with requested URL, final URL, full redirect chain, allowed origin, acquisition time, tool, session, operator, and authenticated role history. If the no-redirect policy is authoritative, mechanically require requested_url to equal final_url."
+    },
+    {
+      "id": "DEMAND-FIRST-R3-M3",
+      "title": "Gate receipt, stage ordering, action timing, and payout lifecycle lack closed instantiable schemas",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:312",
+        "../15-需求优先的现实实验重设计.md:329",
+        "../15-需求优先的现实实验重设计.md:368",
+        "../15-需求优先的现实实验重设计.md:374",
+        "../15-需求优先的现实实验重设计.md:377",
+        "../15-需求优先的现实实验重设计.md:383",
+        "../15-需求优先的现实实验重设计.md:402",
+        "../15-需求优先的现实实验重设计.md:439"
+      ],
+      "evidence": [
+        "No typed GateReceipt stores decision time, PASS or BLOCKED result, predecessor receipt hash, policy, registry, evaluator, or canonicalizer hashes, or actual submitted_at.",
+        "Gate B does not mechanically require a Gate A PASS receipt, and the Gate B receipt referenced by Gate C has no closed hash and result schema.",
+        "An action can be submitted after evidence expiry because only decision_at is bounded.",
+        "The A, B, C evidence enum and exact-key schema cannot represent payout balance, quote, transaction, post-action, pending, unknown, settled, failed, or reversed states."
+      ],
+      "reproduction": "Produce a decision before expiry but submit after expiry; construct Gate B without a typed Gate A predecessor PASS; or attempt to represent payout fields in the A/B/C exact-key schema, where required fields are either absent or forbidden as extras.",
+      "required_fix": "Freeze typed GateReceipt, ActionAttempt, payout pre-action, and payout post-action schemas; bind predecessor PASS and policy, registry, evaluator, and canonicalizer hashes; require submitted_at to precede every evidence and authorization expiry; define a closed payout pending, unknown, settled, failed, and reversed lifecycle with recovery rules."
+    }
+  ],
+  "predecessor_finding_status": {
+    "DEMAND-FIRST-R2-M1": "CLOSED_AT_PAPER_CONTRACT_LEVEL_NOT_YET_MATERIALIZED",
+    "DEMAND-FIRST-R2-M2": "PARTIALLY_CLOSED_BY_DEMAND-FIRST-R3-C1_AND_M2_AND_M3"
+  },
+  "sufficiency_judgment": "The exact r3 candidate may continue only as an unscored local implementation spike. It is not sufficient to produce a trustworthy LOCAL_SYNTHETIC_GAP_TEST_PASS because withheld isolation, freeze ordering, and executable Gate action receipts remain unproved. Any future local pass would still not prove market demand, current listing fit, production experience, willingness to pay, payment likelihood, stable cash flow, profit, repeatability, or asset value.",
+  "mechanical_checks": {
+    "strict_json_and_duplicate_key_checks_passed_for_bound_json_records": true,
+    "r1_and_r2_fail_history_preserved": true,
+    "r2_predecessor_bindings_recomputed_exactly": true,
+    "current_application_candidate_count_remains_zero": true,
+    "candidate_hashes_recomputed_after_review": true,
+    "candidate_files_clean_at_review_end": true
+  },
+  "external_actions_observed_within_review_scope": {
+    "network_access_by_reviewer": false,
+    "account_login": false,
+    "application": false,
+    "message": false,
+    "connects_or_spend": false,
+    "contract_acceptance": false,
+    "private_data_access": false,
+    "delivery": false,
+    "payment_or_payout": false,
+    "cloud_service": false,
+    "remote_model_call": false
+  },
+  "claim_boundary": "This exact independent review rejects the bound r3 redesign candidate. It records a paper-contract improvement and real remaining defects, not a local synthetic pass, market result, current opportunity, job fit, production experience, user authorization, payment likelihood, stable cash flow, profit, repeatability, or asset value. It authorizes no login, application, message, Connects use, contract, private-data access, delivery, payment, payout, cloud service, remote model call, publication, investment action, or other external action."
+}
