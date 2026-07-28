@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "recorded_at": "2026-07-28T05:53:40-07:00",
-  "updated_at": "2026-07-28T06:44:02-07:00",
+  "updated_at": "2026-07-28T07:10:37-07:00",
   "record_type": "IMMUTABLE_PROTOCOL_REVIEW_LINEAGE_AND_STALL_OBSERVATION_NOT_AUTHORITY_TRANSFER",
   "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
   "review_scope": "PROTOCOL_MECHANICS_ONLY_NO_QUERY_RESULTS",
@@ -399,6 +399,97 @@
         "Exact canonical-permalink serialization.",
         "Historical and in-run duplicate identity enforcement."
       ]
+    },
+    {
+      "candidate": {
+        "commit": "8f0c6d9b76424f1277bc1581b1baf3ee8fd81e2a",
+        "root_tree": "c0a5076fd46266b786ef3285af3969d42e45aa0c",
+        "parent_final_fail_commit": "5bd2cbf74167a8cb9c20477849de7c3561d6efc9",
+        "protocol_sha256": "41b2aa0d16bac0b08244015aa2f10816f98c5487d69641c88cc7f70fb4ede275",
+        "decisions_sha256": "8e1dec496616ee25c6216b5aac9c4aa1bddc52dabcfbaf2cf0ae510e2e8199ab",
+        "reused_public_validator_sha256": "411ce09a47c7b81217b9eb044603a9445779081ab55c915675e523b876c5648c",
+        "reused_public_tests_sha256": "85c1d330c46f53969f853577397d9f1f4da81e2aeef7b2b8d66e7cb9288f5dc7"
+      },
+      "archive_reproduction": {
+        "exact_changed_file_count": 4,
+        "git_diff_check_passed": true,
+        "control_plane_checks": "13/13",
+        "control_plane_unit_tests": "Ran 21 tests; OK",
+        "reused_public_gate_unit_tests": "Ran 15 tests; OK",
+        "control_plane_valid": true,
+        "control_plane_snapshot_stable": true,
+        "control_plane_snapshot_sha256": "1c26b2523793cfd013e54feb560724a1ae33b4e13e24cd5cd8728bd064aa0357",
+        "bytecode_found": false,
+        "real_queries_executed_or_inspected": 0
+      },
+      "reviewer_identities": [
+        "/root",
+        "/root/first_public_observation_review",
+        "/root/public_gate_successor_final/trail_successor_static"
+      ],
+      "verdict": {
+        "value": "FINAL_FAIL_NO_GO",
+        "critical": 0,
+        "major": 3,
+        "minor": 0,
+        "authority_effect": "NONE"
+      },
+      "root_causes": [
+        "The result_ref, open_input_ref, capture record and receipt can be rebound as one internally consistent tuple because no independent search-response or open-action envelope owns their provenance.",
+        "The capture outcome algebra omits the stated identity-ambiguity state, and the pinned URL callable accepts explicit-empty port and empty query or fragment delimiters that the simple-identity prose assumes are already closed.",
+        "The content-evidence hash has no exact recomputable artifact and the locator receipt does not bind semantic disposition, contamination, four-dimensional job assignment, author independence, early stop or derived count."
+      ],
+      "upstream_remediation_boundary": [
+        "Downgrade opaque result refs to within-run correlation unless an execution adapter can persist authoritative search-response and open-action envelopes; do not invent stable provenance.",
+        "Define one closed capture outcome sum type and either reuse a separately reviewed raw-serialization identity component or conservatively use exact Gate-accepted raw final-locator bytes and hashes without new normalization.",
+        "Bind an exact recomputable content artifact and a separately reviewable semantic-decision record to eligibility, stop and count; otherwise use a fixed window that does not depend on unaudited online semantics."
+      ],
+      "protocol_authority_ceiling_if_future_passes": "PROTOCOL_ACCEPTED_FOR_IMPLEMENTATION_ONLY"
+    },
+    {
+      "candidate": {
+        "commit": "509862d28712caed93e67cf35e6e632d3d30f8d7",
+        "root_tree": "9333bb93f24d84ab3894b4d271b5253747fc10dd",
+        "parent_final_fail_commit": "8f0c6d9b76424f1277bc1581b1baf3ee8fd81e2a",
+        "protocol_sha256": "457f2b51aa6d8cdc50c6828bffe36263ff7fc3f845a71ca852f85bd8e8f89676",
+        "decisions_sha256": "eba8af432e59fc9fe293b27ac5467cd076ca73708da6fbe0f39e7458ca8c6ca9",
+        "referenced_v2_sha256_observed_but_not_normatively_pinned": "4e39ce0674dd87988cebdfeda1ba215536ec225517e36765ff308f0d4e370c08"
+      },
+      "archive_reproduction": {
+        "exact_changed_file_count": 4,
+        "control_plane_checks": "13/13",
+        "control_plane_unit_tests": "Ran 21 tests; OK",
+        "control_plane_valid": true,
+        "control_plane_snapshot_stable": true,
+        "control_plane_snapshot_sha256": "f19f139c08f7a8bf5fe8d001b724ec5ddf97e5006bca7efdc9e2816d847b8dd7",
+        "bytecode_found": false,
+        "real_queries_executed_or_inspected": 0
+      },
+      "reviewer_identities": [
+        "/root",
+        "/root/first_public_observation_review",
+        "/root/public_locator_reuse_map"
+      ],
+      "verdict": {
+        "value": "FINAL_FAIL_NO_GO",
+        "critical": 0,
+        "major": 3,
+        "minor": 0,
+        "authority_effect": "NONE"
+      },
+      "predecessor_roots_closed": [
+        "Result refs are explicitly nonauthoritative ephemeral correlation tokens and cannot grant provenance, semantic or count authority.",
+        "The fixed-window design removes semantic early stop and unvisited suffixes.",
+        "Capture exact JSON bytes own excerpt and paraphrase evidence, capture outcomes are total accepted or rejected, and accepted identity is exact raw final-locator UTF-8 SHA without canonicalization.",
+        "A missing or rebound semantic receipt makes the batch incomplete with no outcome."
+      ],
+      "root_causes": [
+        "The v2 query, surface, window and J1/J2 signature dependency is inherited by path without exact normative commit or SHA binding; the Gate path and historical raw-identity manifest are also not fully bound.",
+        "The returned-window selection rule is ambiguous when response entries lack a result ref or display locator, and duplicate refs have no unique invalid or incomplete terminal state.",
+        "The semantic receipt contract lacks verifier-enforced reviewer and review-request independence plus a closed per-job source-supported field vector to terminal-disposition decision table, so a bound PASS receipt can still preserve a contradictory or self-issued eligibility assertion."
+      ],
+      "sampling_boundary": "Query lane is metadata in v3.1, so counts become a union-of-six operator-claimed convenience sample rather than the original targeted-lane replication frame; a successor must state and bind that changed count universe without treating it as coverage or prevalence.",
+      "protocol_authority_ceiling_if_future_passes": "PROTOCOL_ACCEPTED_FOR_IMPLEMENTATION_ONLY"
     }
   ],
   "stall_decision": {
@@ -420,8 +511,12 @@
     "url_grammar_stall_triggered": true,
     "url_grammar_backtrack_node": "D027",
     "url_grammar_prohibited_next_step": "ANOTHER_PER_STRING_OR_PER_SEPARATOR_URL_GRAMMAR_PATCH",
-    "latest_reviewed_candidate": "5bd2cbf74167a8cb9c20477849de7c3561d6efc9",
-    "moving_successor_status": "BACKTRACK_REQUIRED_AFTER_5BD2CBF_FINAL_FAIL"
+    "latest_reviewed_candidate": "509862d28712caed93e67cf35e6e632d3d30f8d7",
+    "moving_successor_status": "DEPENDENCY_WINDOW_AND_SEMANTIC_ACCEPTANCE_REMEDIATION_REQUIRED_AFTER_V3_1_FINAL_FAIL",
+    "d028_protocol_verdict": "FINAL_FAIL_NO_GO",
+    "d028_protocol_authority_effect": "NONE",
+    "v3_1_protocol_verdict": "FINAL_FAIL_NO_GO",
+    "v3_1_protocol_authority_effect": "NONE"
   },
   "authority_boundary": {
     "run_search_queries_authorized": false,
