@@ -52,6 +52,8 @@ D034 的 no-information 回溯 successor `fbedb67631a357fc8f204ebea1e1423b060b16
 
 简化 v2 design `77958750b41f45a56781e11982069f0f2cb0ac57` 已关闭说话者归属和谓词本体两项 Major，但 fresh review 仍为 `FINAL FAIL C0/M1/m0`：结果合同没有把 claim ceiling 与 authority 对象绑定为固定低权限常量，结构合法的结果仍可自报需求/WTP/C8/Shadow 等升级。页面继续零运行；精确证据见 `evidence/opportunity-trade-proximity-v2-design-final-fail-2026-07-28.json`。
 
+root-authority successor `affcb1653c24d7f02954155444a31e22313b16eb` 已实质关闭该常量漏洞，但两名 reviewer 的合并结论仍为 `FINAL FAIL C0/M1/m1`：选择性负例清单被协议误当成完整机器验收 oracle；协议另有一个字段路径写错。Git exact commit/tree 已封住 manifest self 与四个 payload，不再追加递归 self-hash。按 stall/backtrack，当前不做 v2.2 alias/DSL 补丁，改为冻结最小人工只读协议：每页只生成 `UNREVIEWED_DRAFT / authority_effect=NONE`，再由独立 reviewer 打开原页核对；页面仍未运行。精确证据见 `evidence/opportunity-trade-proximity-v2-1-review-and-backtrack-2026-07-28.json`。
+
 历史 CA012650 precontact 分支没有取得发送账户、观察截止、完整且语义绑定的发送前来源刷新或用户对精确消息的单次授权，因此从未发送、报价或追访，也不是当前机会线 next action。当前机会线只处理 D032 状态矛盾的窄 successor 与后续原页忠实度/污染审查；不从 live 搜索草稿推导 repeated signal、需求、产品或外部权限。
 
 投研纪律系统保持 paper-only、human-final。最后一次 portfolio-bound 状态仍为 `design_freeze / blocked`；owner 正在处理 moving implementation，但尚未发布新的 immutable checkpoint，因此 portfolio 不称恢复、运行、完成或收益来源。

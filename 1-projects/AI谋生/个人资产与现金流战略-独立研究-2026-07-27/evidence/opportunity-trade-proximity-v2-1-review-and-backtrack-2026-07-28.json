@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T08:59:57-07:00",
+  "record_type": "IMMUTABLE_TRADE_PROXIMITY_V2_1_MERGED_FINAL_FAIL_AND_BACKTRACK_FROM_NEGATIVE_DSL_NOT_PAGE_RUN_AUTHORITY",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "candidate": {
+    "commit": "affcb1653c24d7f02954155444a31e22313b16eb",
+    "root_tree": "071d2649a9fa5921607fe0068cd9f475b6409605",
+    "parent": "fd5e5e3ae577b8b21939906d777c80871c5d65bb",
+    "predecessor_design": "77958750b41f45a56781e11982069f0f2cb0ac57",
+    "protocol": {
+      "sha256": "282e45468bea5286b8b55927dc5294e3c9ba78833bdc608d603bf3b38026899c",
+      "bytes": 7512
+    },
+    "fixture": {
+      "sha256": "dec2733082a43ba207b45291a4f756b5f7b286008ad1da304a14577b1629cd41",
+      "bytes": 3225,
+      "git_blob": "4500b185d71013410bb5aba0d0c0d1075622f2c8",
+      "unchanged_from_predecessor": true
+    },
+    "result_contract": {
+      "sha256": "5c54e20f1b772f31d1d4f7cf754e54f1554dd68fa06f167d9a42915d0e55e676",
+      "bytes": 5476
+    },
+    "design_manifest": {
+      "sha256": "072aa7e37bea3a6a7739e7178acd5fcf45c079029cddefe0564b505f005088ba",
+      "bytes": 1619,
+      "git_blob": "f6521df2fe6cd1e674b1beb6cd7360b68d76fa0b"
+    },
+    "negative_cases": {
+      "sha256": "9fe08796d7db97e1d006b92a616366678251d8c76f45626298e429ad25110c91",
+      "bytes": 4987
+    }
+  },
+  "independent_reviews": [
+    {
+      "reviewer": "/root/trade_proximity_v2_successor_review",
+      "verdict": "FINAL_FAIL",
+      "critical": 0,
+      "major": 2,
+      "minor": 1,
+      "authority_effect": "NONE"
+    },
+    {
+      "reviewer": "/root/trade_v21_schema_oracle",
+      "verdict": "FINAL_FAIL",
+      "critical": 0,
+      "major": 1,
+      "minor": 0,
+      "authority_effect": "NONE"
+    }
+  ],
+  "merged_adjudication": {
+    "verdict": "FINAL_FAIL",
+    "critical": 0,
+    "major": 1,
+    "minor": 1,
+    "authority_effect": "NONE",
+    "closed_predecessor_root": "The result contract now binds exact root constants, exact closed authority keys, exact JSON booleans and all authority values false. A synthetic all-PAGE_UNAVAILABLE design witness proves the result algebra is nonempty.",
+    "major_finding": {
+      "root_cause": "SELECTIVE_NEGATIVE_CASE_LIST_IS_CLAIMED_AS_TOTAL_MACHINE_ACCEPTANCE_ORACLE",
+      "minimal_reproduction": "A validator can reject every declared zero, zero-point-zero and true case while accepting authority values such as the string false, null, a list, an object, integer one or float one-point-zero.",
+      "why_current_blocker": "The protocol makes the declared case file a mandatory full-entry implementation acceptance oracle, but the file has neither a coverage generator nor a closed mutation grammar from which the missing alias classes can be derived."
+    },
+    "minor_finding": {
+      "root_cause": "PROTOCOL_REFERENCES_NONEXISTENT_ROOT_EXACT_VALUES_FIELD",
+      "actual_path": "root_shape.exact_values"
+    },
+    "manifest_self_hash_finding_not_counted": {
+      "reason": "The immutable candidate and any reviewed execution candidate are externally bound to an exact Git commit and tree. That tree closes the manifest self plus the four non-self payload entries. A recursive self-hash is not required and must not be added."
+    }
+  },
+  "backtrack_decision": {
+    "trigger": "The remaining failure has moved from experiment semantics to a negative-case DSL and self-governance layer before any page is read.",
+    "do_not_build_v2_2_alias_patch": true,
+    "do_not_add_recursive_manifest_self_hash": true,
+    "next_design": "Freeze a minimal manual-read protocol that reuses the fixed five-page fixture, one source-authored statement container per page, typed literal predicates, four page states and all-false authority, while removing automated verifier acceptance as a page-read prerequisite.",
+    "draft_rule": "Each page may only produce an UNREVIEWED_DRAFT record with authority_effect NONE. A separate reviewer must reopen the exact source and verify speaker, excerpt and literal predicate before any observation is accepted.",
+    "aggregation_rule": "No cross-page count, repeated pattern, demand, buyer, willingness-to-pay, product or transaction inference is permitted."
+  },
+  "current_boundary": {
+    "page_run_performed": false,
+    "page_run_authorized_by_this_review": false,
+    "result_exists": false,
+    "observation_accepted": false,
+    "demand_buyer_willingness_to_pay_or_product_validated": false,
+    "external_contact_or_write_authorized": false,
+    "publication_account_payment_contract_or_delivery_authorized": false,
+    "c8_or_shadow_authorized": false,
+    "commercial_authority": false
+  }
+}
