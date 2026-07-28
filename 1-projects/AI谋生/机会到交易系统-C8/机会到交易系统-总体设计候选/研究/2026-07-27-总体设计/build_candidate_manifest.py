@@ -227,6 +227,8 @@ SPECS: dict[str, dict[str, Any]] = {
         SHADOW_ACCEPTANCE_TEST,
         POST_VERIFIER,
         PHASE_TEST,
+        ACCEPTANCE_VERIFIER,
+        ACCEPTANCE_TEST,
     ),
     BUILDER: spec(
         "explicit closed-inventory canonical manifest builder",

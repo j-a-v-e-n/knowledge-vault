@@ -1546,6 +1546,36 @@ class ActiveStateValidatorTests(unittest.TestCase):
         self.assertEqual([], wrapper_errors)
         self.assertEqual(recorded_at, wrapper_at)
 
+        with self.subTest("requested r2 receipt path must remain absent"), (
+            tempfile.TemporaryDirectory(
+                prefix="validator-precontact-r2-receipt-", dir="/private/tmp"
+            )
+        ) as temp_dir:
+            temp_root = Path(temp_dir)
+            event_relative = Path(exact_binding["path"])
+            event_copy = temp_root / event_relative
+            event_copy.parent.mkdir(parents=True, exist_ok=True)
+            event_copy.write_bytes((ROOT / event_relative).read_bytes())
+            (
+                temp_root
+                / "evidence"
+                / "review-ca012650-precontact-rejection-successor-2026-07-28-r2.json"
+            ).write_text("{}\n", encoding="utf-8")
+            attack_errors = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_failure(
+                    exact_binding,
+                    now=now,
+                    errors=attack_errors,
+                )
+            self.assertTrue(
+                any(
+                    "requested r2 receipt must remain absent" in error
+                    for error in attack_errors
+                ),
+                attack_errors,
+            )
+
         for label, binding, needle in (
             (
                 "event path substitution",

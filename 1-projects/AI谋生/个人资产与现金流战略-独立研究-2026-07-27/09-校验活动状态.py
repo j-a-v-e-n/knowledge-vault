@@ -3074,6 +3074,7 @@ def validate_ca_precontact_successor_r2_infrastructure_record(
             "review-ca012650-precontact-successor-r2-"
             "infrastructure-failure-2026-07-28"
         ),
+        "recorded_at": "2026-07-28T01:02:41-07:00",
         "recorded_by": "/root",
         "attempt_count": 2,
         "candidate_verdict": None,
@@ -3265,11 +3266,25 @@ def validate_ca_precontact_successor_r2_infrastructure_failure(
     )
     if incident is None:
         return None
-    return validate_ca_precontact_successor_r2_infrastructure_record(
+    recorded_at = validate_ca_precontact_successor_r2_infrastructure_record(
         incident,
         now=now,
         errors=errors,
     )
+    r2_receipt_path = (
+        RESEARCH_ROOT
+        / "evidence"
+        / "review-ca012650-precontact-rejection-successor-2026-07-28-r2.json"
+    )
+    try:
+        os.lstat(r2_receipt_path)
+    except FileNotFoundError:
+        pass
+    except OSError:
+        errors.append(f"{prefix}: requested r2 receipt absence cannot be verified")
+    else:
+        errors.append(f"{prefix}: requested r2 receipt must remain absent")
+    return recorded_at
 
 
 def validate_ca_precontact_successor_receipt_contract(

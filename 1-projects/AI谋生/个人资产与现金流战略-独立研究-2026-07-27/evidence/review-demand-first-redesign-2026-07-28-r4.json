@@ -1,0 +1,137 @@
+{
+  "schema_version": "demand-first-redesign-independent-review/4",
+  "review_id": "review-demand-first-redesign-2026-07-28-r4",
+  "recorded_at": "2026-07-28T01:11:37-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/demand_redesign_r4_review",
+  "reviewer_role": "independent_read_only_reviewer",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 2,
+    "major": 3
+  },
+  "candidate_binding": {
+    "path": "../15-需求优先的现实实验重设计.md",
+    "sha256": "227e0a3efcafe4534c7bd50f8bf8f712136cd97274e8fcf40e9e3f32ffaf2104",
+    "git_blob_oid": "6f1370e672f538f35d42f9850989065bcc41d7ec"
+  },
+  "candidate_git_identity": {
+    "commit": "c823e41e60a1e2d6e36c7013d54402f0234c9309",
+    "tree": "c2a22d3a4dd23b744921324a93d2d0d6ff45573d"
+  },
+  "predecessor_review_binding": {
+    "path": "review-demand-first-redesign-2026-07-28-r3.json",
+    "sha256": "632143af52e6c4ee0d0342fadac58bba26e977bdc8f845a76d993eddac78f29f",
+    "verdict": "FAIL",
+    "severity_counts": {
+      "critical": 1,
+      "major": 3
+    }
+  },
+  "critical_findings": [
+    {
+      "id": "DEMAND-FIRST-R4-C1",
+      "title": "User confirmation has no externally frozen trust root, so a fabricated verifier can self-attest VERIFIED",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:487",
+        "../15-需求优先的现实实验重设计.md:537"
+      ],
+      "evidence": [
+        "UserConfirmationReceipt/1 contains provider identity, attestation path and hash, confirmation verifier identity and hash, and verification result inside the object being verified.",
+        "The frozen Gate manifest does not bind an allowed interaction-provider registry, provider signature key or other trust root, a closed attestation schema and parser, the required verifier identity and hash, or a recomputable raw displayed-manifest and confirmation artifact."
+      ],
+      "reproduction": "An implementer can create a local provider-attestation artifact and an always-VERIFIED verifier, hash both, self-fill provider, user, and message identities, and satisfy every current exact-key and internal hash relationship because no externally expected trust-root value exists.",
+      "required_fix": "Before receipt creation, bind a trusted provider registry, provider key or other trust root, attestation schema and parser, exact confirmation-verifier hash, and raw displayed-manifest and confirmation artifacts in the Gate manifest. Missing trust root or artifact must produce GR-AUTH-PROVENANCE."
+    },
+    {
+      "id": "DEMAND-FIRST-R4-C2",
+      "title": "A SUBMITTED_UNKNOWN effect can be duplicated through a fresh authorization, operation, and idempotency key",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:562",
+        "../15-需求优先的现实实验重设计.md:603",
+        "../15-需求优先的现实实验重设计.md:621"
+      ],
+      "evidence": [
+        "The only uniqueness constraint is the tuple authorization_id, operation_id, and idempotency_key.",
+        "No provider-effect-specific canonical identity or active-effect uniqueness index spans authorizations and operations, and no new Gate or CAS proof requires the absence of an unresolved equivalent attempt."
+      ],
+      "reproduction": "Let attempt A for one account, target, action, and payload reach SUBMITTED_UNKNOWN. Create a new valid confirmation and authorization B with a new operation and idempotency key but the same external effect. The tuple is new, so the current uniqueness constraint permits B, while the provider cannot deduplicate A and B because their keys differ.",
+      "required_fix": "Define a provider-effect-specific canonical key and a persistent active-effect uniqueness constraint across authorizations and operations. Gate evaluation, CAS reservation, and pre-submit verification must bind proof that no equivalent unresolved effect exists. A new operation is allowed only after authoritative FAILED_FINAL no-effect evidence for the old effect."
+    }
+  ],
+  "major_findings": [
+    {
+      "id": "DEMAND-FIRST-R4-M1",
+      "title": "Future withheld independence can still be self-filled by a common principal",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:218",
+        "../15-需求优先的现实实验重设计.md:298"
+      ],
+      "evidence": [
+        "Reviewer, controller, store, and runner identities remain strings without implementer identity, contribution history, conflict declaration, or trusted-principal attestation.",
+        "The anchor-store attestation has no closed schema, trusted control-plane registry, or frozen verifier trust root."
+      ],
+      "reproduction": "The implementer can control a local append-only directory and container, self-fill independent reviewer and controller identities, and include a self-made attestation verifier in the manifest. Bytes, timing, logs, and hashes remain internally consistent without proving independent control.",
+      "required_fix": "Before contract freeze, externally bind reviewer and controller principals, participation history, conflict relationships, trusted control plane, and attestation verifier. Mechanically compare provider-attested implementer, fixture author, candidate author, reviewer, and controller identities."
+    },
+    {
+      "id": "DEMAND-FIRST-R4-M2",
+      "title": "Two fresh acquisitions and no-redirect are closed, but independent operator identity is not mechanically verifiable",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:403",
+        "../15-需求优先的现实实验重设计.md:470"
+      ],
+      "evidence": [
+        "Gate implementer identity is absent from AcquisitionEvent, GateReceipt, and the explicitly frozen manifest schema.",
+        "Operator identity has no principal attestation or verifier, and GateReceipt does not bind an acquisition-tool allowlist or control-plane verifier hash."
+      ],
+      "reproduction": "One actual operator can perform both reads while self-filling distinct operator strings and request or session IDs, or can create a local acquisition-tool receipt. Field uniqueness holds, but role independence is unproved.",
+      "required_fix": "Freeze gate-implementer identity, provider-attested operator principals, role history, acquisition-tool allowlist, and control-plane verifier. Bind their hashes in Gate manifest and receipt and mechanically require distinct actual principals."
+    },
+    {
+      "id": "DEMAND-FIRST-R4-M3",
+      "title": "The ActionAttempt unknown-reconciliation machine has a missing self-transition and an unreachable no-effect terminal branch",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:584",
+        "../15-需求优先的现实实验重设计.md:623"
+      ],
+      "evidence": [
+        "The text requires remaining SUBMITTED_UNKNOWN after an inconclusive reconciliation but the transition table omits SUBMITTED_UNKNOWN to SUBMITTED_UNKNOWN.",
+        "A crash after the pre-call CAS and before provider emission permits submitted and provider-request fields to remain absent, while the reconciliation-final-no-effect FAILED_FINAL branch requires those fields to be present."
+      ],
+      "reproduction": "After RESERVED to SUBMITTED_UNKNOWN, crash before the provider call. Record a NOT_FOUND_NONTERMINAL reconciliation: there is no legal unknown self-transition. If the provider later proves no effect, the no-effect terminal branch still requires an impossible provider-request receipt.",
+      "required_fix": "Add a hash-chain and CAS-constrained SUBMITTED_UNKNOWN self-transition. Add a distinct pre-call-crash plus authoritative-no-effect terminal branch that explicitly permits absent provider-request fields while binding complete reconciliation and no-emission evidence."
+    }
+  ],
+  "checks_that_passed": {
+    "r1_r2_r3_fail_history_preserved": true,
+    "r4_declared_unreviewed_unimplemented_and_no_gate_run": true,
+    "shared_environment_limited_to_development_smoke": true,
+    "two_fresh_acquisition_artifacts_requests_and_sessions_specified": true,
+    "requested_url_equals_final_url_and_redirect_chain_empty": true,
+    "primary_capture_based_freshness_specified": true,
+    "strict_json_example_count": 13,
+    "duplicate_json_keys_found": 0,
+    "historical_current_application_candidate_count": 0,
+    "current_application_ready_true_count": 0,
+    "materialized_action_attempt_object_count": 0,
+    "candidate_sha_stable_after_review": true,
+    "git_diff_check_clean": true
+  },
+  "external_actions_observed_within_review_scope": {
+    "login": false,
+    "account_creation": false,
+    "application": false,
+    "message": false,
+    "contract": false,
+    "private_data_access": false,
+    "delivery": false,
+    "payment_or_payout": false,
+    "publication": false,
+    "cloud_service": false,
+    "remote_model": false,
+    "investment_action": false
+  },
+  "claim_boundary": "This exact independent review rejects the bound r4 paper contract. It does not prove or disprove a local Harness implementation, withheld result, real market demand, current listing fit, application outcome, payment probability, cash flow, profit, repeatability, or asset value. It authorizes no login, account creation, application, message, contract, private-data access, delivery, payment, payout, publication, cloud service, remote model call, or investment action."
+}

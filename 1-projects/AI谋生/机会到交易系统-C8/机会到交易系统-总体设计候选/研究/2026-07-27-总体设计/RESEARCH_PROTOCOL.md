@@ -84,7 +84,7 @@
 
 ## 研究闭合条件
 
-检索类别饱和只按冻结的 [SEARCH_SATURATION_PROTOCOL.md](./SEARCH_SATURATION_PROTOCOL.md) 执行。协议文件本身保持冻结时的 `NOT_RUN`，动态执行状态位于 Run2 外部工件；Run2 已完成两轮执行、joint 与完整 crosswalk，[`FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json`](./ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json) 已对同一 [`FINAL_RUN_STATUS.md`](./ssp-run2/FINAL_RUN_STATUS.md) exact bytes 明确 `ACCEPT`。因此 `SATURATED-WITHIN-PROTOCOL` 现只关闭类别代码本谓词，不追认历史检索，不替代主张证据、架构审查、现实外部有效性或 C8 final review。
+检索类别饱和只按冻结的 [SEARCH_SATURATION_PROTOCOL.md](./SEARCH_SATURATION_PROTOCOL.md) 执行。协议文件本身保持冻结时的 `NOT_RUN`，动态执行状态位于 Run2 外部工件；Run2 已完成两轮执行、joint 与完整 crosswalk，[`FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json`](./ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json) 已对同一 [`FINAL_RUN_STATUS.md`](./ssp-run2/FINAL_RUN_STATUS.md) exact bytes 明确 `ACCEPT`。该 receipt 保持 C7 被审原路径和全部字节不变；C8 的 candidate-specific verifier 分开检查“receipt 仍指向原 C7 reviewed path”与“C8 内本地副本逐文件等于被接受 hash”，并拒绝把 C8 路径写入 receipt 来冒充原审查范围。因此 `SATURATED-WITHIN-PROTOCOL` 现只关闭类别代码本谓词，不追认历史检索，不声称 reviewer 曾审查 C8 路径，不替代主张证据、架构审查、现实外部有效性或 C8 final review。
 
 只有同时满足以下条件，状态才能从 `BLOCKED` 变为 `CONDITIONALLY_READY`：
 

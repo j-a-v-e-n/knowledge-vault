@@ -10,7 +10,7 @@
 canonical JSON 逐文件绑定：
 
 - 研究协议、访谈核查、Claim/RQ/DD、总体设计、来源日志与 closure matrix；
-- SSP-1.0 Run2 的协议、raw responses、双方 sealed ledgers、两次 joint、S2 independent receipt、lead final-status object、完整 CE-IN JSONL、exact final-status independent acceptance receipt、两个验证器与两组负向测试；
+- SSP-1.0 Run2 的协议、raw responses、双方 sealed ledgers、两次 joint、S2 independent receipt、lead final-status object、完整 CE-IN JSONL、exact final-status independent acceptance receipt、两个验证器与两组负向测试；原 receipt 的 C7 reviewed paths 保持不变，C8 verifier 只在另一层机械证明本地副本与被接受 hashes 相同，不改写或扩大独立审查范围；
 - 只读 Action Envelope、旧实现差距审计、外部旧根隔离记录和所有用户可能误读的历史入口警告；
 - C1–C7 的实际 `FAIL`/PASS 边界、两次 Run2 semantic remediation、C7 exact final review/governance 与 C7 Shadow `FAIL` 保存在 `FINAL_REVIEW_HISTORY.md` 和 `C7_SHADOW_FAILURE_RECORD.md`，不能被 successor 替换静默覆盖；
 - C6 pre-freeze Python Capability Gate 的两份 `FREEZE BLOCKED / NO-GO` 静态审查、被审 exact hashes 与 declarative IR 根因修订也保存在同一历史；该草案没有形成 candidate manifest 或任何 PASS；
