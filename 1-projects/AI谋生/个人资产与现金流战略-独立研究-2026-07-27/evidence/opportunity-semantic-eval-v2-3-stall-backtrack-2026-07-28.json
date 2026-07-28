@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T08:27:43-07:00",
+  "record_type": "IMMUTABLE_SEMANTIC_EVAL_V2_3_FINAL_SAME_SIGNATURE_FAIL_AND_BACKTRACK_NOT_MODEL_OR_COMMERCIAL_AUTHORITY",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "design_candidate": {
+    "commit": "c222f1fcc312b8d96235a265eba6f420c04d4f9d",
+    "root_tree": "efde3d03df775c8330d1831b2b326d01d41dd1df",
+    "parent": "77853f9e89e0500f3507df6432d284b0db80a925",
+    "subtree_git_tree": "fac38986bccea781b708911e2b6ac48877aa44cf",
+    "readme_sha256": "9165b44f1d945005a0afa8f30c8d97e34dfc6f5319c686786222ec857f0aa169",
+    "readme_bytes": 2535,
+    "build_contract_sha256": "e2dc54fae5572776dfe70b795477ea5d0ad2c427dc76e786099fff645e57272e",
+    "build_contract_bytes": 3855,
+    "design_manifest_sha256": "f69232cff6ccd5d63c48ace0f1d44a681333e6f2dcc9713860ef2da2e4eaca3e",
+    "design_manifest_bytes": 679,
+    "exact_added_file_count": 3,
+    "contains_verifier_tests_or_run": false
+  },
+  "recovery_pointer": {
+    "commit": "a58825e1157431cb8c508b3b22e9738a09f0ecf8",
+    "root_tree": "a43ffb440dcb498581974b2925a3bcc627f83875",
+    "parent": "c222f1fcc312b8d96235a265eba6f420c04d4f9d",
+    "exact_changed_file_count": 2
+  },
+  "recovery_review": {
+    "reviewer": "/root/d032_notebook_ceiling_review",
+    "verdict": "FINAL_PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "review_effect": "RECOVERY_POINTER_ACCEPTED_ONLY",
+    "authority_effect": "NONE"
+  },
+  "design_review": {
+    "reviewer": "/root/semantic_v2_design_review",
+    "verdict": "FINAL_FAIL",
+    "critical": 0,
+    "major": 1,
+    "minor": 0,
+    "authority_effect": "NONE",
+    "major_finding": {
+      "root_cause": "CLOSED_CALLER_INTERFACE_CONTRADICTS_INHERITED_EXACT_CONTRACT",
+      "minimal_reproduction": [
+        "The caller follows v2.3 and supplies only J1 and a perfect adapter output.",
+        "The fixed root selects the exact v2.2 J1 evaluator contract.",
+        "That contract requires PINNED_CONTRACT_PRESENTED_BY_CALLER for PASS.",
+        "v2.3 forbids caller-presented contract, so the predicate is false and the exact algebra requires FAIL_CLOSED."
+      ],
+      "why_no_local_patch": "Ignoring the predicate would stop applying the exact root-bound contract; allowing caller presentation would reopen the previous whole-chain replacement vulnerability."
+    },
+    "closed_other_checks": [
+      "The build-time root path, SHA-256 and byte length are fixed and non-overridable by the caller.",
+      "Source-relative resolution ignores cwd, environment and runtime configuration.",
+      "Caller surface is lane plus adapter output only, with wrong or extra inputs rejected.",
+      "History, NOT_TESTED, no cross-lane composition, no qualification and no authority remain correct."
+    ]
+  },
+  "stall_and_backtrack": {
+    "failure_signature": "EVALUATOR_CALLER_OWNERSHIP_AND_ROOT_TRUST",
+    "same_signature_attempt": 3,
+    "stall_triggered": true,
+    "v2_4_or_fourth_pin_patch_forbidden": true,
+    "backtrack_node": "D020",
+    "declared_options": [
+      "Use a single directly build-time-owned per-lane evaluator, oracle and configuration without inheriting the contradictory v2.2 contract.",
+      "Stop the model-qualification branch and use a human-reviewed or deterministic reality experiment."
+    ],
+    "portfolio_recommendation": "Prefer stopping the model-qualification branch now because exact-context conformance does not reduce source-interpretation, demand, buyer or willingness-to-pay uncertainty; retain the per-lane evaluator as backlog rather than a reality-feedback prerequisite."
+  },
+  "current_evidence_ceiling": {
+    "highest_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "semantic_eval_design_accepted": false,
+    "model_qualified": false,
+    "source_interpretation_tested": false,
+    "repeated_signal": false,
+    "demand_validated": false,
+    "buyer_identified": false,
+    "willingness_to_pay_validated": false,
+    "product_selected": false
+  },
+  "authority_boundary": {
+    "d020_backtrack_decision_allowed": true,
+    "fourth_pin_patch_allowed": false,
+    "implementation_authorized": false,
+    "model_run_authorized": false,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_contract_or_delivery_authorized": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "commercial_authority": false
+  }
+}
