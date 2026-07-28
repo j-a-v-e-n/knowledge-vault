@@ -1,0 +1,287 @@
+{
+  "schema_version": "1.1",
+  "as_of": "2026-07-27T22:14:56-07:00",
+  "freshness_policy": {
+    "max_age_hours": 72,
+    "pre_send_refresh_max_age_hours": 24,
+    "refresh_due_at": "2026-07-30T22:14:56-07:00",
+    "on_stale": "fail_closed"
+  },
+  "state_scope": "Current durable state for the independent personal-asset and cash-flow research root; legacy documents are locators or evidence subjects, never authority.",
+  "truth_policy": {
+    "old_documents_are_authority": false,
+    "ai_summary_is_evidence": false,
+    "required_claim_classes": [
+      "observed",
+      "inferred",
+      "unknown",
+      "externally_validated"
+    ]
+  },
+  "authority_envelope": {
+    "default": "deny_high_impact_or_external_actions",
+    "autonomous_scopes": [
+      "public_read_only_research",
+      "workspace_read",
+      "local_reversible_edit",
+      "local_test",
+      "paper_simulation",
+      "unpublished_draft",
+      "independent_review"
+    ],
+    "explicit_approval_required": [
+      "external_contact",
+      "public_publish_or_deploy",
+      "spend_or_purchase",
+      "receive_or_refund_payment",
+      "contract_or_legal_commitment",
+      "private_account_or_credential_use",
+      "nonpublic_third_party_data_use",
+      "new_external_integration",
+      "live_or_shadow_investment_execution",
+      "investment_risk_rule_change"
+    ],
+    "hard_boundaries": {
+      "investment_paper_only": true,
+      "investment_human_final": true,
+      "broker_connection_allowed": false,
+      "live_order_allowed": false
+    }
+  },
+  "workstreams": [
+    {
+      "id": "long_term_capability_strategy",
+      "path": ".",
+      "classification": "strategic_capability_portfolio",
+      "status": "active_internal",
+      "observed_facts": [
+        {
+          "claim_class": "observed",
+          "claim": "本项目原始问题是数周到数年应长期学习与积累什么；Agent、Harness、投研系统和单个市场 Probe 都是载体，不是北极星。",
+          "evidence_locator": "00-项目北极星与三层结构.md"
+        },
+        {
+          "claim_class": "inferred",
+          "claim": "当前一手来源支持把可靠自主系统作为技术主轴，把需求、交易和结果验证作为商业主轴；通用 Agent/Harness 机制值得深学，但通用框架本身正在被平台化。",
+          "evidence_locator": "13-长期能力投资地图与训练路线.md; 14-Agent-Harness与垂直适配独立复核.md"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "本轮已独立获取并绑定黄仁勋与 LangChain 公开访谈的英文字幕身份；访谈同时强调足够强的模型、Harness、领域信息、工具与后续 post-training，而不是模型任意互换。",
+          "evidence_locator": "evidence/jensen-open-agent-interview-caption-identity-2026-07-27.json"
+        }
+      ],
+      "strategy_artifacts": [
+        {
+          "path": "00-项目北极星与三层结构.md",
+          "sha256": "e5b3c82a10fa74c2186e1252916e065677798693b4e86d8bce9e15f8ae057c16"
+        },
+        {
+          "path": "13-长期能力投资地图与训练路线.md",
+          "sha256": "feca14ed29d06c3cdec930f19c00355ab006f51121565e10515a8b9a9d471ea1"
+        },
+        {
+          "path": "14-Agent-Harness与垂直适配独立复核.md",
+          "sha256": "637b06f94ba7736dad87e18aa367e83cf5017101dfdba133d65e0e207e546e45"
+        },
+        {
+          "path": "evidence/jensen-open-agent-interview-caption-identity-2026-07-27.json",
+          "sha256": "c467711ced77fabf2d770e90b3325e59aa3edc43dd22a4abab7b29aec080266e"
+        }
+      ],
+      "unknowns": [
+        "哪个具体领域能让 Javen 合法取得真实工作流、设备、数据和责任人反馈",
+        "跨模型与跨 Harness 的改进能否在未见案例和环境变化下稳定成立",
+        "可靠自主系统与 EE/ML/Controls 的组合能否形成现实结果、交易或长期接入"
+      ],
+      "next_action": {
+        "description": "设计一个有外部验收的跨模型、跨 Harness 失败归因实验，并寻找一个经授权的 EE/ML/Controls 现实接口；不把完成课程或背框架 API 当作验收。",
+        "scope": "unpublished_draft",
+        "external_effect": false,
+        "destructive": false
+      },
+      "stop_conditions": [
+        "学习产物只在看过的内部样本或公开 benchmark 上有效",
+        "托管平台以更低全成本提供同等通用能力而项目仍重复造轮子",
+        "长期无法取得真实领域接口、授权数据或责任人反馈",
+        "所谓资产仍完全依赖 Javen 逐项判断与交付"
+      ]
+    },
+    {
+      "id": "opportunity_to_transaction",
+      "path": ".",
+      "classification": "problem_discovery_experiment_with_unproven_cash_and_asset_hypotheses",
+      "status": "blocked_external",
+      "observed_facts": [
+        {
+          "claim_class": "observed",
+          "claim": "旧 schema/workspace 0.1 已全局 tombstone；保留 API 与 CLI 均 fail closed，根测试输出 Ran 6 tests 与 OK，独立复审结论为 PASS。这个 PASS 只证明旧运行时被隔离，不证明存在新的可运行系统。",
+          "evidence_locator": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "CA012650 内部实验包的持久公开源字节、确定性转换脚本、复现记录、校验器与对抗测试已由当前精确 detached receipt 独立复核为 PASS；该 PASS 只支持内部候选闭包，不证明需求、付款、交付、利润、复购或资产价值，也不授权任何发送。",
+          "evidence_locator": "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "发送账户、观察截止时间、发送前公开源刷新和精确用户授权均未绑定，external_contact_authorized 为 false。",
+          "evidence_locator": "evidence/experiment-ca012650-internal-2026-07-27.json"
+        }
+      ],
+      "unknowns": [
+        "当前公开状态是否对应目标组织尚未解决的问题",
+        "公开组织邮箱能否把问题路由给拥有授权的人",
+        "是否存在真实需求或付款意愿",
+        "是否能够准确交付并形成正向利润",
+        "是否会复购以及能否沉淀为可重复资产"
+      ],
+      "independent_reviews": {
+        "legacy_runtime_tombstone": {
+          "path": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json",
+          "sha256": "416fadef2832825793118b05346abb745c7e55456a0c1e60e36d67a858cc9aee",
+          "verdict": "PASS"
+        },
+      "ca012650_internal_candidate": {
+        "path": "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json",
+        "sha256": "70b7e8e44d1095452fd26209eb43e65630bff4441a466db00e29fa7ef5790e07",
+        "verdict": "PASS"
+      }
+      },
+      "current_experiment": {
+        "experiment_id": "experiment-ca012650-public-record-verification",
+        "spec_path": "evidence/experiment-ca012650-internal-2026-07-27.json",
+        "spec_sha256": "f16b463f4259e1032a672b41dc42eda41b51d1a4fe600cae350c71b62181feda",
+      "internal_review_result": "PASS",
+      "internal_review_scope": "The exact detached receipt passed only the current internal candidate closure; it does not validate demand, payment, delivery, profit, repeatability, asset value, current source freshness, or any external authorization.",
+        "external_action_status": "blocked",
+        "external_contact_authorized": false,
+        "result_claims": {
+          "externally_validated_demand": false,
+          "willingness_to_pay": false,
+          "delivery_feasible": false,
+          "profitable": false,
+          "repeatable": false,
+          "asset_candidate": false
+        }
+      },
+      "next_action": {
+        "description": "保持不发送；只有在精确发送账户、精确观察截止、临发送公开源刷新和用户对精确消息的授权全部绑定后，才可重新进入发送前校验。",
+        "scope": "unpublished_draft",
+        "external_effect": false,
+        "destructive": false
+      },
+      "stop_conditions": [
+        "发送前公开源显示记录已经解决、豁免或目标错误",
+        "目标组织要求停止联系或路由身份被反证",
+        "任何必需绑定仍为空或用户未精确授权",
+        "动作扩大为报价、交付、付款、账户访问或自动跟进"
+      ]
+    },
+    {
+      "id": "investment_discipline",
+      "path": "../../../MyBrain/projects/investment-discipline-system",
+      "classification": "paper_only_research_and_discipline_system",
+      "status": "blocked_internal",
+      "observed_facts": [
+        {
+          "claim_class": "observed",
+          "claim": "精确干净候选绑定为 commit fed7d6694dc1b47490848b83e3ff0b56e04a3f39、tree 2da5f0af186345da05738f971cb8afbdb6dac8db、parent d8c108f81f84f4c5be99fe09902ace161bda5745。",
+          "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "最新持久完整治理测试输出 Ran 532 tests in 862.542s 与 FAILED (failures=40, errors=2)，因此候选未通过整体接纳。",
+          "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "目标 no-live 测试输出 Ran 18 tests in 7.518s 与 OK，点时 no-live verifier 也 pass；这只支持狭窄的 no-live 检查，不证明系统恢复、运行、完整、安全或收益。",
+          "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
+        },
+      {
+        "claim_class": "observed",
+        "claim": "独立根因审查已把完整治理测试的 failures/errors 分类为 metadata、contract migration、stale receipt、stale freeze、shared-baseline cascade 与 fixture gaps；独立持久 suite 转录复核确认 failure headings 40、error headings 2，裁决仍为 NO_GO_BLOCKED_INTERNAL。",
+        "evidence_locator": "evidence/review-investment-fed7-root-causes-2026-07-27.json; evidence/review-investment-fed7-persisted-suite-2026-07-27.json"
+      }
+      ],
+      "candidate_audit": {
+        "path": "evidence/investment-candidate-audit-2026-07-27.json",
+        "sha256": "9e3de7267dfe1b90fd0d331fe0d0b4bc5e956b29d002401a16e6097e2c747e09",
+        "overall_acceptance": "blocked_internal"
+      },
+    "unknowns": [
+      "可组合 successor recovery proof 的精确协议能否同时保留历史过渡证明并安全允许后续合法后代",
+      "独立 successor candidate 按已分类根因顺序修复后能否通过 targeted suites 与完整 suite",
+      "修复后的 exact successor 能否通过两份 candidate-bound 独立审查并形成真实 review envelope 和 full-history/tag bundle"
+    ],
+    "next_action": {
+      "description": "保持 fed7 及其持久 bundle 不变；只在新的隔离 successor candidate 中先设计可组合 recovery proof 与正反测试，再按已确认根因顺序修复；不创建追溯性 review tag，不运行恢复、启动、live 或 shadow 脚本。",
+        "scope": "local_test",
+        "external_effect": false,
+        "destructive": false
+      },
+      "stop_conditions": [
+        "候选 commit、tree 或 parent 身份变化",
+        "工作树不再干净或验证结果无法绑定到精确候选",
+        "任何整体接纳检查仍失败或关键覆盖不可用",
+        "任何动作会越过 paper-only 或 human-final"
+      ],
+      "safety_boundary": {
+        "paper_only": true,
+        "human_final": true,
+        "live_trading": false,
+        "broker_integration": false
+      }
+    }
+  ],
+  "approval_queue": [
+    {
+      "id": "approval-ca012650-one-message-verification",
+      "action": "external_contact",
+      "experiment_id": "experiment-ca012650-public-record-verification",
+      "status": "blocked_missing_bindings",
+      "external_effect": true,
+      "authorized": false,
+      "ready": false,
+      "executable": false,
+      "authorization_consumed": false,
+      "exact_target": {
+        "public_building_id": "Building #CA012650",
+        "public_record_location": "Best Western Plus Marina Gateway Hotel",
+        "routing_contact_only": true
+      },
+      "exact_channel": "guestservices@bwmarinagateway.com",
+      "channel_source": "https://www.bwmarinagateway.com/contact.htm",
+      "message_binding": {
+        "path": "12-首个反证实验与对外动作候选.md",
+        "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
+      },
+      "sender_account": null,
+      "observation_cutoff_at": null,
+      "pre_send_source_refresh": {
+        "status": "not_completed",
+        "completed_at": null,
+        "cec_status_record": null,
+        "organization_channel_record": null
+      },
+      "exact_user_authorization": false,
+      "missing_bindings": [
+        "sender_account",
+        "observation_cutoff_at",
+        "pre_send_source_refresh",
+        "exact_user_authorization"
+      ],
+      "lifecycle": {
+        "stage": "blocked_missing_bindings",
+        "previous_stage": null,
+        "readiness_receipt": null,
+        "authorization_receipt": null,
+        "execution_receipt": null,
+        "observation_receipt": null,
+        "closure_receipt": null
+      },
+      "claim_boundary": "Any future detached internal review PASS would not authorize sending and would not establish demand, payment, delivery, profit, repeatability, or an asset."
+    }
+  ]
+}

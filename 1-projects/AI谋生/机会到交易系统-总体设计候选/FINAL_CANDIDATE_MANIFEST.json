@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1",
-  "candidate_id": "OTTS-DESIGN-20260727-C6",
+  "candidate_id": "OTTS-DESIGN-20260727-C7",
   "status": "FROZEN-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW",
   "scope": "Research and design closure candidate for a local read-only, zero-external-side-effect shadow MVP; no market, customer, product, payment, deployment, production, or external-action authority.",
   "candidate_inventory_root": ".",
@@ -14,7 +14,7 @@
       "post_closure_required_state": "MUST_BE_PRESENT",
       "activation_gate": "EXACT_CANDIDATE_REVIEW_PASS",
       "governed_by_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
-      "governed_by_sha256": "56506521de46e32483eee13c354b40d0de6e246f7e46f8f209b6eabc33ef11b9"
+      "governed_by_sha256": "e74d5fbb0f85655c753e712c5becb2f0990b71db88c7df873fae869503207c99"
     },
     {
       "root_id": "shadow-mvp",
@@ -25,7 +25,7 @@
       "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
       "activation_gate": "EXACT_CLOSURE_DECISION",
       "governed_by_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
-      "governed_by_sha256": "56506521de46e32483eee13c354b40d0de6e246f7e46f8f209b6eabc33ef11b9"
+      "governed_by_sha256": "e74d5fbb0f85655c753e712c5becb2f0990b71db88c7df873fae869503207c99"
     },
     {
       "root_id": "shadow-review",
@@ -36,7 +36,7 @@
       "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
       "activation_gate": "EXACT_DECLARATIVE_SHADOW_SNAPSHOT_AND_CALLER_BOUND_REVIEW",
       "governed_by_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
-      "governed_by_sha256": "56506521de46e32483eee13c354b40d0de6e246f7e46f8f209b6eabc33ef11b9"
+      "governed_by_sha256": "e74d5fbb0f85655c753e712c5becb2f0990b71db88c7df873fae869503207c99"
     }
   ],
   "entries": [
@@ -52,7 +52,7 @@
     },
     {
       "path": "FINAL_CANDIDATE_MANIFEST.md",
-      "sha256": "9387e72bd5ff6b6b40c0c942bb3580540b7341944fcfe9f66c21b2a7c95c33e7",
+      "sha256": "13c9a142714601a64039f81df471f19027f7f5afde1f280bfa4f4ebf64521e7e",
       "role": "human-readable final candidate freeze and review instructions",
       "authority_status": "REVIEW_ROUTING_ONLY_NO_SELF_APPROVAL",
       "depends_on": [
@@ -89,7 +89,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "014f1cee20e7e0f53cf60537e0d088dae6f387fe722a1cfe9cd062b65e8b53c8",
+      "sha256": "0e42b3f586e048d4d64f213d73a083a8273ac3fa2eb41598701d1def283f82a6",
       "role": "candidate root entrypoint and authority warning",
       "authority_status": "ENTRYPOINT_ONLY_NO_EXTERNAL_AUTHORITY",
       "depends_on": [
@@ -107,7 +107,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/02-主张与证据地图.md",
-      "sha256": "557c45cd65d8a7d2d95e28bdca94b29267e053aa94d9b6aba4d0108ae795c109",
+      "sha256": "205dbdb6bbcbb6cb87bbae5a5a2e487402bcbe56e33e6d8cbcb760eda5d4152f",
       "role": "typed Claim RQ DD evidence and unknown map",
       "authority_status": "DESIGN_EVIDENCE_ONLY",
       "depends_on": [
@@ -119,7 +119,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md",
-      "sha256": "1ec9b358bea0f6b4b7f44a47592177222795a1a5cc11f8e5ad218d67b0415fa0",
+      "sha256": "3fadeeafb0b32d59cb5f82604d208d779bfb368c8bf3a93ae8b5cecae857994a",
       "role": "opportunity-to-transaction system design",
       "authority_status": "DESIGN_SPECIFICATION_NO_IMPLEMENTATION_AUTHORITY",
       "depends_on": [
@@ -131,7 +131,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/04-来源与检索日志.md",
-      "sha256": "10a28bdd250f4e9829b23c900a780c96cd1de727f2e49ccaefce802f8fdbe494",
+      "sha256": "03c6c85462e9a174583aa90fd3e6f09247f9a4219b528f1428418d32bf2fc00a",
       "role": "source universe retrieval log and residual gaps",
       "authority_status": "RESEARCH_TRACE_ONLY",
       "depends_on": [
@@ -150,14 +150,14 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
-      "sha256": "b3ebe4cadbda33fe0361197683cd2f4f85ce02a66a4f555978b8b62003914a02",
+      "sha256": "d66ba239a0123dfd343b84ec95c4585dc42963ebd8256ad8c14a00baf876b6e0",
       "role": "immutable predecessor rejection and remediation history",
       "authority_status": "HISTORY_ONLY_NO_SUCCESSOR_APPROVAL",
       "depends_on": []
     },
     {
       "path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
-      "sha256": "56506521de46e32483eee13c354b40d0de6e246f7e46f8f209b6eabc33ef11b9",
+      "sha256": "e74d5fbb0f85655c753e712c5becb2f0990b71db88c7df873fae869503207c99",
       "role": "conditional read-only zero-side-effect shadow action envelope",
       "authority_status": "CONDITIONAL_SCOPE_NO_CURRENT_IMPLEMENTATION_AUTHORITY",
       "depends_on": [
@@ -168,7 +168,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md",
-      "sha256": "37bd811bd0ebcf482d01a6c3e5392baa112e3735d302b86b5ed8a0d6aeb369ab",
+      "sha256": "e3281f7918c8c1b2b2eb630ce90e4a05d1bf4105a3e1ec3c89f10a4e9e1ba2ae",
       "role": "research closure predicate matrix",
       "authority_status": "LEAD_CANDIDATE_JUDGMENT_NO_SELF_APPROVAL",
       "depends_on": [
@@ -197,7 +197,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md",
-      "sha256": "271eab463de6486156e44be27573d3f3a52635379653da866639d230276fa69e",
+      "sha256": "0a1d620ba4d768d2ff0b62263d75207e5eaca79d169b0e060664920361eb265b",
       "role": "research closure protocol",
       "authority_status": "CLOSURE_RULES_NO_SELF_APPROVAL",
       "depends_on": [
@@ -206,7 +206,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl",
-      "sha256": "1e055c08a8aaf18173a8eaab670747879abb57e8cc96dcf69edc56518342f23b",
+      "sha256": "b31b67b255a6f2b797e261199c5ff8196001963e21011b07396e837ab8b0273b",
       "role": "canonical exhaustive final CE-IN crosswalk",
       "authority_status": "EXHAUSTIVE_LEDGER_NO_EXTERNAL_AUTHORITY",
       "depends_on": [
@@ -221,7 +221,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
-      "sha256": "c035a55ff1ae5572f81c36a4a1e2b5d349439d4e560837a90e6a17c7a61cee6e",
+      "sha256": "8c71e9b5e5b5069259e820db8e1eae490aa21822094ef2e519d815c209ba8a0a",
       "role": "human-readable direct-use CE to Claim RQ DD crosswalk",
       "authority_status": "SYNTHESIS_MAP_NO_EXTERNAL_AUTHORITY",
       "depends_on": [
@@ -250,10 +250,12 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/build_candidate_manifest.py",
-      "sha256": "a1c920c223806b1f8ef5df549e0e9e0171ec8df19f2604f86f4c5ff4c06c8fae",
+      "sha256": "41e2c4f2f00ebee53e999eb976b5f596bdf1fcac7567ffe84a6f26901404a0fb",
       "role": "explicit closed-inventory canonical manifest builder",
       "authority_status": "MECHANICAL_GENERATION_ONLY",
-      "depends_on": []
+      "depends_on": [
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py"
+      ]
     },
     {
       "path": "研究/2026-07-27-总体设计/build_freeze_report.py",
@@ -286,7 +288,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md",
-      "sha256": "35ffc2e34ca69a491cc5cabe25dc55b7fbf58edde67539fe1257ab23d736d30f",
+      "sha256": "5b27030ff9c13a6196ffb81a0e828de3e69ac0ee176651d3fa35fab088e1a6c3",
       "role": "lead Run2 final-status object",
       "authority_status": "RUN2_CATEGORY_SATURATION_PROPOSAL_ONLY",
       "depends_on": [
@@ -309,7 +311,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json",
-      "sha256": "be30f6967b5872749403eef2af2c1e0cc25f99828c7ceb01aa0b744692b8a788",
+      "sha256": "7f473fdf93a3bb70ecb463fb3f48e124ba1d4267de48f3051a5c41950d64155c",
       "role": "independent exact-hash acceptance of Run2 final status",
       "authority_status": "RUN2_CATEGORY_SATURATION_ACCEPTANCE_ONLY",
       "depends_on": [
@@ -685,7 +687,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/test_phase_manifests.py",
-      "sha256": "d6ea9916c9bff14e9111d5b881dce518a35df9d9c23a9841b1e3f84d91f9bcad",
+      "sha256": "13b5f5da3998f72740a752b2bbabdc7621dacc8437f5ca632467cf8443dd3ff8",
       "role": "phase-boundary fail-closed regression tests",
       "authority_status": "MECHANICAL_TEST_ONLY",
       "depends_on": [
@@ -698,7 +700,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/test_run2_acceptance.py",
-      "sha256": "7668842912daf97ce65629220de5aab8224fed5c22ecb98262ce74fca898d1e4",
+      "sha256": "1e41bf34e3c51294e27bb9109ed1c6ac5994cfc643becdbf643a01325d8a177d",
       "role": "negative and positive regression tests for Run2 acceptance",
       "authority_status": "MECHANICAL_TEST_ONLY",
       "depends_on": [
@@ -708,7 +710,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/test_run2_crosswalk.py",
-      "sha256": "1fdfa58d6ec3382b7d86e512f5a0001a5d5d38893f667f2d51295d59b35c8e12",
+      "sha256": "0b58f975d46d9a17f91881f4362623fdc36716031c603f935a5abfd82e50c99d",
       "role": "negative and positive regression tests for exhaustive crosswalk",
       "authority_status": "MECHANICAL_TEST_ONLY",
       "depends_on": [
@@ -729,7 +731,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
-      "sha256": "20e65581be5ab16d74fb0bdf75d025e3a9c5eb677462c51e87854c20fb2cc9c9",
+      "sha256": "88c16f8860811215fa4845bdd03c4f15ef4f5fcd2e8cdb85238cd4a77ee3bc69",
       "role": "closed candidate inventory and phase verifier",
       "authority_status": "MECHANICAL_VALIDATION_ONLY",
       "depends_on": [
@@ -751,7 +753,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/verify_run2_acceptance.py",
-      "sha256": "4132c72773c2fd4506f92030e2471692fb57d543d1180ebc9e42957fc21e4ed7",
+      "sha256": "fa40601090c9c454fbdb62b33a62e965f072deda8be330d3387fa0736ad7d6be",
       "role": "exact-hash Run2 final-status acceptance receipt verifier",
       "authority_status": "MECHANICAL_VALIDATION_ONLY",
       "depends_on": [
@@ -762,7 +764,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/verify_run2_crosswalk.py",
-      "sha256": "2094a655b174c7cd1793790b22fb0024d5b84479ce49e42a38d60b2327bb3655",
+      "sha256": "1c1dafd1f7abfa9ae1ab6c918ccf1b7089c68d9c755c53663fe5a9d823a43ae0",
       "role": "independent reconstruction verifier for every final CE-IN row",
       "authority_status": "MECHANICAL_VALIDATION_ONLY",
       "depends_on": [

@@ -266,3 +266,20 @@ Minor：`RESEARCH_CLOSURE_PREDICATE_MATRIX.md` 仍用“manifest/freeze 待生�
 - `S2-K07/R17` 保留 data-integration truth-discovery 算法及 source FP/FN quality 的 CE-IN/category value，但降为 `NO_DIRECT_LOAD_BEARING_USE`；该模型不认证网页作者、经历、独立性或未被操纵，不能桥到 `SS-04`；
 - 两份审查均明确接受 `S2-K06/R05 → TF-04` 的形式模型窄桥，且要求继续禁止经验 WTP、AI 降本、卖方利润、价值捕获或效果量外推；
 - verifier/test 必须把上述五项加入独立于计数的语义拒绝不变量。Attempt 1 的 exact bytes 永久保持 rejected，不得生成或迁移 acceptance receipt。
+
+## C7 Run2 semantic remediation attempt 2 exact acceptance
+
+- Final-status SHA-256：`5b27030ff9c13a6196ffb81a0e828de3e69ac0ee176651d3fa35fab088e1a6c3`
+- Human crosswalk SHA-256：`8c71e9b5e5b5069259e820db8e1eae490aa21822094ef2e519d815c209ba8a0a`
+- Canonical JSONL SHA-256：`b31b67b255a6f2b797e261199c5ff8196001963e21011b07396e837ab8b0273b`
+- Crosswalk verifier SHA-256：`1c1dafd1f7abfa9ae1ab6c918ccf1b7089c68d9c755c53663fe5a9d823a43ae0`
+- Crosswalk tests SHA-256：`0b58f975d46d9a17f91881f4362623fdc36716031c603f935a5abfd82e50c99d`
+- Reviewer A：`fresh-c2-final-review-remediation-2`；`ACCEPT / 0 Critical / 0 Major / 0 Minor`
+- Reviewer B：`/root/declarative_gate_code_review`；`PASS / ACCEPT / 0 Critical / 0 Major / 0 Minor`
+- Canonical lead-materialized receipt SHA-256：`7f473fdf93a3bb70ecb463fb3f48e124ba1d4267de48f3051a5c41950d64155c`
+- Receipt verifier SHA-256：`fa40601090c9c454fbdb62b33a62e965f072deda8be330d3387fa0736ad7d6be`
+- Receipt tests SHA-256：`1e41bf34e3c51294e27bb9109ed1c6ac5994cfc643becdbf643a01325d8a177d`
+
+两名 reviewer 均未参与 attempt 2 的修订、未修改文件、未创建 receipt/root；两者都审过 earlier rejected bytes，因此独立于 authorship/remediation，但不是 blind。Reviewer A 重新审查全部 `23` 条 direct rows、三条 no-direct identity、sealed inputs 与 final-status bindings；Reviewer B 重查前轮全部拒绝项、相邻有效窄桥、拒绝集和负向路径。两份审查都明确接受 `S2-K06/R05 → TF-04` 的形式模型窄桥，并确认全部已否决 identity/Claim 关系没有回流。
+
+本 acceptance 只允许在 SSP-1.0 声明的 scope、engine、frozen queries、visible results 与 review rules 内表述两轮未产生扩展 `K01`–`K13` 的新关键类别。它不接受来源真值、开放世界穷尽、总体设计、candidate closure、实现、shadow、Pilot、商机、盈利或外部动作。Canonical receipt 是 lead 对 reviewer 本地声明的机械物化，不是 reviewer 数字签名或 trusted timestamp；任何绑定字节变化都使其失效。只有 C7 manifest 精确绑定 receipt 且通过完整 RC-26 review 后，该限定状态才可作为 candidate evidence 使用。

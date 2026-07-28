@@ -1,0 +1,94 @@
+{
+  "schema_version": "demand-first-public-listings-observation/1",
+  "observation_id": "demand-first-public-listings-observation-2026-07-27",
+  "observed_at": "2026-07-27T23:35:23-07:00",
+  "observed_by": "/root",
+  "capture_method": "public_web_search_and_open",
+  "authenticated_account_used": false,
+  "raw_page_bytes_persisted": false,
+  "sources": [
+    {
+      "id": "cec-benchmarking-faq",
+      "source_class": "official_program_page",
+      "url": "https://www.energy.ca.gov/programs-and-topics/programs/building-energy-benchmarking-program/building-energy-benchmarking",
+      "observations": [
+        "The CEC says reporting is free, Portfolio Manager is free, and an owner may hire a consultant.",
+        "The CEC provides its own helpdesk and tells recipients who are unsure about company delinquency correspondence to verify it with the official hotline.",
+        "Anyone preparing or submitting a report must be authorized by the building owner."
+      ]
+    },
+    {
+      "id": "upwork-nyc-benchmarking-specialist",
+      "source_class": "buyer_posted_marketplace_listing",
+      "url": "https://www.upwork.com/freelance-jobs/apply/NYC-Local-Law-Energy-Benchmarking-Specialist-Portfolio-Manager-Experience-Required_~022003840278048439186/",
+      "page_reported_observations": [
+        "The listing asks for recurring hands-on ENERGY STAR Portfolio Manager and NYC benchmarking execution.",
+        "The listing says general Portfolio Manager experience without NYC exposure is usually insufficient.",
+        "The listing describes a long-term role and asks applicants to report prior NYC submissions and the number of buildings they have handled."
+      ]
+    },
+    {
+      "id": "upwork-langfuse-llm-evals",
+      "source_class": "buyer_posted_marketplace_listing",
+      "url": "https://www.upwork.com/freelance-jobs/apply/Set-LangFuse-and-help-with-LLM-evals_~022005041009324646164/",
+      "page_reported_observations": [
+        "The listing asks for a Langfuse evaluation system that replays real chatbot interactions against prompt versions, measures accuracy, and catches regressions.",
+        "The reported stack is Node.js, TypeScript, and Postgres.",
+        "The page reports an hourly range of $30.00-$70.00, a 3-6 month duration, an Expert experience level, 10 to 15 proposals, and 1 interview."
+      ]
+    },
+    {
+      "id": "langfuse-evaluation-core-concepts",
+      "source_class": "official_product_documentation",
+      "url": "https://langfuse.com/docs/evaluation/core-concepts",
+      "observations": [
+        "Langfuse distinguishes offline datasets and experiments from online trace evaluation and monitoring.",
+        "Its documented evaluation methods include deterministic code evaluators, LLM-as-a-judge, human annotation, and API or SDK scores.",
+        "Production traces can be added back into evaluation datasets to preserve discovered edge cases as regression cases."
+      ]
+    },
+    {
+      "id": "upwork-data-cleaning-excel-sheets",
+      "source_class": "buyer_posted_marketplace_listing",
+      "url": "https://www.upwork.com/freelance-jobs/apply/Data-Cleaning-Specialist-Needed-for-Excel-and-Google-Sheets-Cleanup_~022080590091373829052/",
+      "page_reported_observations": [
+        "The listing asks for duplicate removal, format and field standardization, missing-value handling, validation, and a clean spreadsheet.",
+        "The page reports a $30.00 fixed price, an Intermediate experience level, 20 to 50 proposals, and 2 interviews.",
+        "The listing requires all communication, work submission, and payment to remain inside Upwork."
+      ]
+    },
+    {
+      "id": "upwork-ai-saas-qa",
+      "source_class": "buyer_posted_marketplace_listing",
+      "url": "https://www.upwork.com/freelance-jobs/apply/Engineer-for-SaaS-Platform_~022011838145296429887/",
+      "page_reported_observations": [
+        "The listing asks for test plans, edge cases, bug reproduction, AI workflow validation, concurrency testing, and clear repro reports for a real-time AI SaaS product.",
+        "The page reports an hourly range of $15.00-$25.00, a duration longer than 6 months, an Expert experience level, 20 to 50 proposals, and 20 interviews."
+      ]
+    },
+    {
+      "id": "kittle-portfolio-management-intern",
+      "source_class": "employer_job_listing",
+      "url": "https://www.linkedin.com/jobs/view/portfolio-management-intern-fall-2026-semester-at-kittle-property-group-4436508763",
+      "page_reported_observations": [
+        "The listing includes ENERGY STAR Portfolio Manager data entry, utility-data collection, validation, and portfolio work.",
+        "The page reports $15.00/hour, 20 to 25 hours per week, Fall 2026, and an onsite location in Indianapolis, Indiana.",
+        "The qualifications accept a currently enrolled university student but the location makes this listing a poor current fit for a UCSD student."
+      ]
+    }
+  ],
+  "inferences": [
+    "Buyer-posted listings remove the basic ambiguity about why a response concerns the recipient, but they do not prove that the listing is trustworthy, still open, fairly priced, or likely to hire this user.",
+    "The Langfuse listing is direct evidence that at least one buyer publicly requested customer-specific LLM evaluation and regression work; it is not evidence of a broad market size or this user's present qualification.",
+    "The NYC benchmarking listing shows recurring procedural demand but also exposes a hard experience gate that the user cannot truthfully claim to satisfy from the present evidence.",
+    "Low-ticket data cleaning work may test transaction mechanics sooner, but the observed price and competition make it weak evidence for an attractive long-term asset."
+  ],
+  "external_actions": {
+    "account_accessed": false,
+    "profile_created_or_modified": false,
+    "application_submitted": false,
+    "message_sent": false,
+    "payment_or_connects_spent": false
+  },
+  "claim_boundary": "This observation records what public pages displayed at the observation time. Raw response bytes were not persisted, pages can change or disappear, and marketplace listings can be stale, misleading, unfilled, or fraudulent. It proves neither hiring, payment, user fit, market size, nor permission to access an account, apply, message, publish, spend, contract, or deliver."
+}

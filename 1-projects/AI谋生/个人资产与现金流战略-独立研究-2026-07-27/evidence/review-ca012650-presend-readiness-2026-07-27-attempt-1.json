@@ -1,0 +1,87 @@
+{
+  "schema_version": "ca012650-presend-readiness-review/1",
+  "review_id": "review-ca012650-presend-readiness-2026-07-27-attempt-1",
+  "recorded_at": "2026-07-27T23:28:47-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/ca_gate_fix_map",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 0,
+    "major": 1
+  },
+  "candidate_bindings": [
+    {
+      "path": "../09-校验活动状态.py",
+      "sha256": "584d02cd8e5bf3541f594bf53944fa12a524ea17873381e999f3d779285d194c"
+    },
+    {
+      "path": "../tests/test_active_state_validator.py",
+      "sha256": "244d22b14fa8670ee3b63c52bf5937b8a999b12bc24fc8df94edd567c86435ae"
+    },
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
+    },
+    {
+      "path": "gmail-sender-profile-observation-2026-07-27T2320.json",
+      "sha256": "96276ab493a5cdd78a27608c28471a44347838cba5cca6bdf65ad8db9066b686"
+    },
+    {
+      "path": "refresh-ca012650-cec-status-2026-07-27T2317.json",
+      "sha256": "0076adc9de1bd4d5c0709814da4654027a27038b66015ce9487412061529d6a2"
+    },
+    {
+      "path": "refresh-ca012650-organization-channel-2026-07-27T2317.json",
+      "sha256": "9e88da895e7f4739f1d59bb6c3fe3d72f103d2d865a0c7cf2f1c7a5915a6095a"
+    }
+  ],
+  "verified_subpremises": [
+    "The two refresh JSON records strictly parse with no recursive duplicate keys and bind the expected raw files by recomputed SHA-256.",
+    "The captured CEC CSV has exactly one Building #CA012650 row with the bound address, reporting year, and not-submitted status.",
+    "The captured organization page identifies Best Western Plus Marina Gateway Hotel and contains the exact public routing mailbox guestservices@bwmarinagateway.com.",
+    "The Gmail profile observation records jacao@ucsd.edu through a read-only lookup with no draft and no sent message."
+  ],
+  "attack_results": [
+    {
+      "mutation": "non-email sender",
+      "result": "REJECTED"
+    },
+    {
+      "mutation": "state sender only differs from receipt",
+      "result": "REJECTED"
+    },
+    {
+      "mutation": "state and receipt sender are both changed to other@example.com",
+      "result": "ACCEPTED"
+    },
+    {
+      "mutation": "wrong refresh hash",
+      "result": "REJECTED"
+    },
+    {
+      "mutation": "expired refresh or observation cutoff",
+      "result": "REJECTED"
+    },
+    {
+      "mutation": "request_ready self-authorization",
+      "result": "REJECTED"
+    }
+  ],
+  "major_findings": [
+    {
+      "id": "PRESEND-RR-M1",
+      "title": "Exact sender provenance is unbound",
+      "exact_locations": [
+        "09-校验活动状态.py:2601",
+        "09-校验活动状态.py:2974"
+      ],
+      "counterexample": "A candidate in which both state and readiness receipt replace the confirmed sender with other@example.com passes validation because the sender has only a format and state-receipt consistency check.",
+      "required_fix": "Bind the Gmail profile observation as a strict content-addressed readiness input, including path, SHA-256, exact account, read-only operation, no draft, no send, and its no-authority claim boundary; add mutate-both and evidence-substitution negative tests."
+    }
+  ],
+  "request_ready_permitted": false,
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "claim_boundary": "This is a historical independent rejection of the first pre-send readiness candidate. It authorizes no draft, contact, follow-up, quote, account access, submission, payment, delivery, publication, investment execution, or external action."
+}

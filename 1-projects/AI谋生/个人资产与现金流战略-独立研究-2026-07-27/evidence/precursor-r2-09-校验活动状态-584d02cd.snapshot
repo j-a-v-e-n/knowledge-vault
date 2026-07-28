@@ -36,7 +36,6 @@ EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+$")
 EXPECTED_SCHEMA_VERSION = "1.1"
 EXPECTED_MAX_AGE_HOURS = 72
 PRE_SEND_REFRESH_MAX_AGE_HOURS = 24
-SENDER_PROFILE_MAX_AGE_HOURS = PRE_SEND_REFRESH_MAX_AGE_HOURS
 
 ALLOWED_STATUSES = {
     "active_internal",
@@ -155,28 +154,6 @@ EXPECTED_CA_CHANNEL = "guestservices@bwmarinagateway.com"
 EXPECTED_CA_CHANNEL_SOURCE = "https://www.bwmarinagateway.com/contact.htm"
 EXPECTED_CA_EXPERIMENT_ID = "experiment-ca012650-public-record-verification"
 EXPECTED_CA_APPROVAL_ID = "approval-ca012650-one-message-verification"
-EXPECTED_CA_SENDER_ACCOUNT = "jacao@ucsd.edu"
-EXPECTED_CA_SENDER_PROFILE_BINDING = {
-    "path": "evidence/gmail-sender-profile-observation-2026-07-27T2320.json",
-    "sha256": "96276ab493a5cdd78a27608c28471a44347838cba5cca6bdf65ad8db9066b686",
-}
-EXPECTED_CA_SENDER_PROFILE_KEYS = {
-    "schema_version",
-    "observed_at",
-    "connector_operation",
-    "account_email",
-    "display_name",
-    "read_only",
-    "draft_created",
-    "message_sent",
-    "proposed_use",
-    "claim_boundary",
-}
-EXPECTED_CA_SENDER_PROFILE_CLAIM_BOUNDARY = (
-    "This observation identifies the authenticated Gmail profile only. It does "
-    "not authorize creating a draft, sending, following up, quoting, payment, "
-    "account sharing, or any other external action."
-)
 EXPECTED_REVIEW_STATE_PATHS = {
     "legacy_runtime_tombstone": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json",
     "ca012650_internal_candidate": (
@@ -260,7 +237,6 @@ EXPECTED_CA_R2_CANDIDATE_PATHS = {
     "tests/test_active_state_validator.py",
     "evidence/cec-building-benchmarking-prescreen-2026-07-27.json",
     "evidence/experiment-ca012650-internal-2026-07-27.json",
-    "evidence/gmail-sender-profile-observation-2026-07-27T2320.json",
     "evidence/reproduce_cec_prescreen.py",
     "evidence/cec-building-benchmarking-reproduction-2026-07-27.json",
     "evidence/raw/CoveredBuildingsExport-2026-07-27.csv",
@@ -748,7 +724,6 @@ APPROVAL_KEYS = {
     "lifecycle",
     "claim_boundary",
 }
-APPROVAL_READY_PROVENANCE_KEYS = {"sender_profile_record"}
 APPROVAL_TARGET_KEYS = {
     "public_building_id",
     "public_record_location",
@@ -974,153 +949,6 @@ def load_json(path: Path, *, errors: list[str], label: str) -> dict | None:
         errors.append(f"{label}: JSON root must be an object")
         return None
     return value
-
-
-def validate_sender_profile_observation(
-    binding: object,
-    *,
-    snapshot_at: datetime,
-    errors: list[str],
-) -> datetime | None:
-    """Validate the exact read-only Gmail sender observation used by readiness.
-
-    A sender address copied into both active state and a lifecycle receipt is
-    self-consistent but not independently grounded.  This gate therefore binds
-    the immutable observation bytes and rechecks their narrow, non-authorizing
-    semantics before any request-ready or later state can validate.
-    """
-
-    prefix = "CA012650 approval sender profile observation:"
-    if binding != EXPECTED_CA_SENDER_PROFILE_BINDING:
-        errors.append(f"{prefix} exact content-addressed binding changed")
-    if not isinstance(binding, dict):
-        errors.append(f"{prefix} binding must be an object")
-        return None
-    if not exact_object(
-        binding, BINDING_KEYS, errors=errors, label=f"{prefix} binding"
-    ):
-        return None
-    record_path = confined_file(
-        binding.get("path"),
-        base=RESEARCH_ROOT,
-        errors=errors,
-        label=prefix,
-        allowed_root=RESEARCH_ROOT,
-    )
-    if record_path is None:
-        return None
-    expected_digest = binding.get("sha256")
-    if not isinstance(expected_digest, str) or not SHA256_RE.fullmatch(
-        expected_digest
-    ):
-        errors.append(f"{prefix} sha256 must be an exact lowercase digest")
-        return None
-    try:
-        raw = record_path.read_bytes()
-    except OSError:
-        errors.append(f"{prefix} unreadable evidence bytes")
-        return None
-    if hashlib.sha256(raw).hexdigest() != expected_digest:
-        errors.append(f"{prefix} sha256 mismatch")
-    try:
-        decoded = raw.decode("utf-8")
-        record = loads_json_strict(decoded)
-    except DuplicateJSONKeyError as exc:
-        errors.append(f"{prefix} duplicate JSON key rejected: {exc.key!r}")
-        return None
-    except (UnicodeError, json.JSONDecodeError):
-        errors.append(f"{prefix} unreadable or invalid JSON")
-        return None
-    if not isinstance(record, dict):
-        errors.append(f"{prefix} JSON root must be an object")
-        return None
-    if not exact_object(
-        record,
-        EXPECTED_CA_SENDER_PROFILE_KEYS,
-        errors=errors,
-        label=prefix,
-    ):
-        return None
-    if record.get("schema_version") != "gmail-sender-profile-observation/1":
-        errors.append(f"{prefix} schema changed")
-    observed_at = validate_not_future(
-        record.get("observed_at"),
-        now=snapshot_at,
-        errors=errors,
-        label=f"{prefix} observed_at",
-    )
-    if record.get("connector_operation") != "gmail_get_profile":
-        errors.append(f"{prefix} connector operation is not the read-only profile lookup")
-    if record.get("account_email") != EXPECTED_CA_SENDER_ACCOUNT:
-        errors.append(f"{prefix} authenticated account differs from the exact sender")
-    if record.get("display_name") != "Javen Cao":
-        errors.append(f"{prefix} display name changed")
-    if record.get("read_only") is not True:
-        errors.append(f"{prefix} read_only must be the JSON boolean true")
-    if record.get("draft_created") is not False:
-        errors.append(f"{prefix} draft_created must be the JSON boolean false")
-    if record.get("message_sent") is not False:
-        errors.append(f"{prefix} message_sent must be the JSON boolean false")
-    if record.get("proposed_use") != (
-        "sender_account_candidate_for_unexecuted_one_message_approval"
-    ):
-        errors.append(f"{prefix} proposed use changed")
-    if record.get("claim_boundary") != EXPECTED_CA_SENDER_PROFILE_CLAIM_BOUNDARY:
-        errors.append(f"{prefix} claim boundary differs from the exact closed value")
-    return observed_at
-
-
-def validate_sender_profile_window(
-    observed_at: datetime | None,
-    *,
-    stage: str,
-    validation_now: datetime,
-    lifecycle_times: dict[str, datetime | None],
-    errors: list[str],
-) -> None:
-    """Bind sender observation freshness to readiness or the execution instant."""
-
-    if observed_at is None:
-        return
-    prefix = "CA012650 approval sender profile freshness:"
-    observed_utc = observed_at.astimezone(timezone.utc)
-    validation_utc = validation_now.astimezone(timezone.utc)
-    if stage in {"request_ready", "authorized_once"}:
-        if validation_utc < observed_utc:
-            errors.append(f"{prefix} observation is in the future")
-        elif validation_utc - observed_utc > timedelta(
-            hours=SENDER_PROFILE_MAX_AGE_HOURS
-        ):
-            errors.append(f"{prefix} observation is older than the pre-send window")
-
-    for event_name in ("readiness_recorded_at", "authorized_at", "executed_at"):
-        event_time = lifecycle_times.get(event_name)
-        if event_time is not None and event_time.astimezone(timezone.utc) < observed_utc:
-            errors.append(f"{prefix} {event_name} predates the sender observation")
-
-    if APPROVAL_STAGES.index(stage) >= APPROVAL_STAGES.index("executed_once"):
-        executed_at = lifecycle_times.get("executed_at")
-        if executed_at is None:
-            errors.append(f"{prefix} executed stage lacks executed_at")
-        else:
-            executed_utc = executed_at.astimezone(timezone.utc)
-            if executed_utc >= observed_utc and executed_utc - observed_utc > timedelta(
-                hours=SENDER_PROFILE_MAX_AGE_HOURS
-            ):
-                errors.append(
-                    f"{prefix} execution occurred after the sender profile window"
-                )
-
-
-def validate_sender_execution_boundary(stage: str, *, errors: list[str]) -> None:
-    """Keep send stages unreachable until an atomic same-session preflight exists."""
-
-    if APPROVAL_STAGES.index(stage) >= APPROVAL_STAGES.index("authorized_once"):
-        errors.append(
-            "CA012650 approval sender execution boundary: static profile observation "
-            "supports readiness only; authorized or executed stages require an "
-            "unimplemented same-session get_profile execution-envelope gate"
-        )
 
 
 def validate_freshness(
@@ -2735,7 +2563,6 @@ def validate_stage_receipt(
         errors=errors,
         label=prefix,
         closed=True,
-        allowed_root=RESEARCH_ROOT,
     )
     if receipt_path is None:
         return None
@@ -2760,7 +2587,7 @@ def validate_stage_receipt(
     for key, expected in expected_values.items():
         if receipt.get(key) != expected:
             errors.append(f"{prefix} {key} does not bind the exact action")
-    receipt_recorded_at = validate_not_future(
+    validate_not_future(
         receipt.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
     )
     receipt_message = receipt.get("message_binding")
@@ -2775,7 +2602,6 @@ def validate_stage_receipt(
     if receipt_field == "readiness_receipt":
         keys = {
             "sender_account",
-            "sender_profile_record",
             "observation_cutoff_at",
             "cec_status_record",
             "organization_channel_record",
@@ -2784,23 +2610,6 @@ def validate_stage_receipt(
             assert isinstance(payload, dict)
             if payload.get("sender_account") != item.get("sender_account"):
                 errors.append(f"{prefix} sender account differs from approval")
-            if payload.get("sender_account") != EXPECTED_CA_SENDER_ACCOUNT:
-                errors.append(f"{prefix} sender account differs from authenticated profile")
-            if payload.get("sender_profile_record") != item.get(
-                "sender_profile_record"
-            ):
-                errors.append(f"{prefix} sender profile binding differs from approval")
-            sender_observed_at = validate_sender_profile_observation(
-                payload.get("sender_profile_record"),
-                snapshot_at=now,
-                errors=errors,
-            )
-            if (
-                sender_observed_at is not None
-                and receipt_recorded_at is not None
-                and receipt_recorded_at < sender_observed_at
-            ):
-                errors.append(f"{prefix} readiness predates sender profile observation")
             if payload.get("observation_cutoff_at") != item.get("observation_cutoff_at"):
                 errors.append(f"{prefix} observation cutoff differs from approval")
             refresh = item.get("pre_send_source_refresh", {})
@@ -3039,18 +2848,7 @@ def validate_approval_queue(
     if not approval_queue:
         return None
     item = approval_queue[0]
-    declared_stage = item.get("status") if isinstance(item, dict) else None
-    expected_approval_keys = APPROVAL_KEYS | (
-        APPROVAL_READY_PROVENANCE_KEYS
-        if declared_stage in APPROVAL_STAGES[1:]
-        else set()
-    )
-    if not exact_object(
-        item,
-        expected_approval_keys,
-        errors=errors,
-        label="approval_queue[0]",
-    ):
+    if not exact_object(item, APPROVAL_KEYS, errors=errors, label="approval_queue[0]"):
         if not isinstance(item, dict):
             return None
     assert isinstance(item, dict)
@@ -3117,7 +2915,6 @@ def validate_approval_queue(
     )
     if stage is None:
         return None
-    validate_sender_execution_boundary(stage, errors=errors)
     if item.get("claim_boundary") != EXPECTED_CA_APPROVAL_CLAIM_BOUNDARIES.get(stage):
         errors.append(f"{prefix} claim boundary differs from exact lifecycle stage")
     if APPROVAL_STAGES.index(stage) >= APPROVAL_STAGES.index("request_ready"):
@@ -3177,20 +2974,6 @@ def validate_approval_queue(
         sender = item.get("sender_account")
         if not isinstance(sender, str) or not EMAIL_RE.fullmatch(sender):
             errors.append(f"{prefix} request-ready or later stage needs an exact sender account")
-        if sender != EXPECTED_CA_SENDER_ACCOUNT:
-            errors.append(f"{prefix} sender account differs from authenticated profile")
-        sender_observed_at = validate_sender_profile_observation(
-            item.get("sender_profile_record"),
-            snapshot_at=snapshot_at,
-            errors=errors,
-        )
-        validate_sender_profile_window(
-            sender_observed_at,
-            stage=stage,
-            validation_now=now,
-            lifecycle_times=lifecycle_times,
-            errors=errors,
-        )
         cutoff = parse_timestamp(
             item.get("observation_cutoff_at"),
             errors=errors,
@@ -3206,7 +2989,7 @@ def validate_approval_queue(
         elif stage == "authorized_once":
             if item.get("exact_user_authorization") is not True:
                 errors.append(f"{prefix} authorized_once requires exact user authorization")
-            expected_flags = (True, True, False, False)
+            expected_flags = (True, True, True, False)
         else:
             if item.get("exact_user_authorization") is not True:
                 errors.append(f"{prefix} post-execution state must retain authorization fact")

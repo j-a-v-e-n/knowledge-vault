@@ -14,6 +14,7 @@ sys.dont_write_bytecode = True
 from verify_run2_acceptance import (  # noqa: E402
     AcceptanceError,
     DEFAULT_RECEIPT,
+    EXPECTED_CROSSWALK_COUNTS,
     validate_acceptance,
 )
 from verify_run2_crosswalk import CrosswalkError  # noqa: E402
@@ -174,6 +175,18 @@ class Run2AcceptanceTests(unittest.TestCase):
             side_effect=CrosswalkError("synthetic reconstruction failure"),
         ):
             with self.assertRaisesRegex(AcceptanceError, "exhaustive crosswalk"):
+                validate_acceptance(DEFAULT_RECEIPT)
+
+    def test_crosswalk_accepted_count_drift_fails(self) -> None:
+        synthetic = {
+            "valid": True,
+            "external_action_authority": False,
+            "crosswalk_sha256": "0" * 64,
+            **EXPECTED_CROSSWALK_COUNTS,
+        }
+        synthetic["total_direct_mappings"] += 1
+        with patch("verify_run2_acceptance.validate_crosswalk", return_value=synthetic):
+            with self.assertRaisesRegex(AcceptanceError, "independently accepted count"):
                 validate_acceptance(DEFAULT_RECEIPT)
 
 

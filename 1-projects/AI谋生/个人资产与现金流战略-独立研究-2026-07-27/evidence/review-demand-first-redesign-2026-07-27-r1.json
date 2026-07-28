@@ -1,0 +1,74 @@
+{
+  "schema_version": "demand-first-redesign-independent-review/1",
+  "review_id": "review-demand-first-redesign-2026-07-27-r1",
+  "recorded_at": "2026-07-27T23:45:30-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/demand_first_redesign_review",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 0,
+    "major": 4
+  },
+  "candidate_bindings": [
+    {
+      "path": "../15-需求优先的现实实验重设计.md",
+      "sha256": "13d4f34fc5d5b582eeda0d2ff3872fb12b06c7e1c7874c8063caae45a48ac7dd"
+    },
+    {
+      "path": "demand-first-public-listings-observation-2026-07-27.json",
+      "sha256": "d1655c146f8720eb6c789a318f9f2feb6f1a933686e3328ca96a3f3b62faf8a5"
+    }
+  ],
+  "major_findings": [
+    {
+      "id": "DEMAND-FIRST-R1-M1",
+      "title": "Unavailable or unreproducible listings are described as current requests",
+      "evidence": [
+        "The Langfuse listing now redirects to a category page.",
+        "The NYC benchmarking listing now redirects to the general jobs page.",
+        "The AI SaaS QA page says the job is no longer available.",
+        "Raw response bytes, final URLs, HTTP status, screenshots, and source hashes were not persisted."
+      ],
+      "required_fix": "Downgrade these pages to historical single-point demand samples and require a fresh, directly open, content-addressed listing before any current application experiment."
+    },
+    {
+      "id": "DEMAND-FIRST-R1-M2",
+      "title": "The proposed LLM evaluation artifact can collapse into a generic Langfuse feature demonstration",
+      "evidence": [
+        "Langfuse already supplies datasets, experiments, prompt comparison, code evaluators, annotation, judges, online traces, and regression feedback loops.",
+        "The draft does not freeze a job-requirement matrix, client-specific semantics, failure taxonomy, expected outputs, objective thresholds, withheld tests, or a Langfuse-native versus custom responsibility split.",
+        "Synthetic traces cannot be represented as production-trace experience."
+      ],
+      "required_fix": "Create a closed customer-style acceptance contract tied only to a historical reference specification, with deterministic limits, withheld cases, explicit gaps, and no production-experience claim."
+    },
+    {
+      "id": "DEMAND-FIRST-R1-M3",
+      "title": "The local experiment action envelope does not close remote service, credential, telemetry, or cost paths",
+      "evidence": [
+        "Using Langfuse, a judge, or cost and latency collection can invoke cloud accounts, API keys, remote trace uploads, external models, telemetry, or fees.",
+        "The no-login statement is scoped to job applications rather than all experiment services."
+      ],
+      "required_fix": "Default the experiment to no network, no cloud account or login, no private key, no trace upload, no paid model, no telemetry, no publication, and zero external cost; require separate exact authorization for every remote service."
+    },
+    {
+      "id": "DEMAND-FIRST-R1-M4",
+      "title": "Fraud, payment protection, and delivery-start risks are warnings rather than deterministic gates",
+      "evidence": [
+        "The application packet does not require current client payment verification, spend, hire history, proposal state, free-test restrictions, or platform costs.",
+        "The contract and work-start boundaries do not separately require funded milestones or applicable hourly payment protection.",
+        "The directly open data-cleaning listing shows a newly joined client and no displayed spend or hire history; that is an unknown risk, not proof of fraud."
+      ],
+      "required_fix": "Add separate application-risk, contract-acceptance, and delivery-start gates; prohibit free tests and off-platform contact; require current payment protection evidence before work begins."
+    }
+  ],
+  "confirmed_boundaries": [
+    "The candidate did not claim that a single listing proves market size.",
+    "The candidate did not recommend immediate application to the expert Langfuse, AI QA, or NYC benchmarking roles.",
+    "The candidate accurately disclosed missing production and NYC experience and the Kittle location mismatch.",
+    "No account, application, message, payment, or external action occurred during review."
+  ],
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "claim_boundary": "This is a historical independent rejection of the first demand-first redesign. It authorizes no account access, profile change, application, message, free test, Connects purchase, contract, private-data access, delivery, payment, publication, cloud service, model call, or other external action."
+}

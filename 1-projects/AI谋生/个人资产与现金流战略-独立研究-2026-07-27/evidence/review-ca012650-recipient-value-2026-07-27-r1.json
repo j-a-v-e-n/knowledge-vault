@@ -1,0 +1,55 @@
+{
+  "schema_version": "ca012650-recipient-value-review/1",
+  "review_id": "review-ca012650-recipient-value-2026-07-27-r1",
+  "recorded_at": "2026-07-27T23:30:13-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root",
+  "reviewer_role": "recipient_perspective_design_review",
+  "independent_review": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 0,
+    "major": 1
+  },
+  "candidate_bindings": [
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
+    },
+    {
+      "path": "../08-活动状态.json",
+      "sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab"
+    }
+  ],
+  "user_objection": "A recipient may reasonably read the message as a stranger asking about the hotel's status and ask why the inquiry concerns them or deserves a response.",
+  "major_findings": [
+    {
+      "id": "CA-RECIPIENT-VALUE-M1",
+      "title": "The message asks for recipient effort without establishing recipient relevance or immediate value",
+      "evidence": [
+        "The message frames the contact as the sender's independent research question.",
+        "The message explicitly says it is not offering a service.",
+        "The message asks the public routing mailbox to confirm resolution status or identify an owner-authorized handler.",
+        "The public routing mailbox is not proven to be authorized to discuss the owner's reporting record."
+      ],
+      "measurement_confounders": [
+        "wrong organizational route",
+        "lack of recipient incentive",
+        "low sender trust",
+        "perceived phishing, regulatory, complaint, or sales risk",
+        "sensitivity of discussing an owner reporting record",
+        "absence of a real problem"
+      ],
+      "consequence": "A non-response cannot distinguish absence of demand from routing, trust, relevance, or incentive failure, so this message is a weak demand experiment."
+    }
+  ],
+  "decision": {
+    "request_send_authorization": false,
+    "enter_request_ready": false,
+    "send_message": false,
+    "follow_up": false,
+    "next_local_action": "Preserve this candidate as a rejected pre-contact experiment and redesign around clear recipient value, a legitimate responsible role, and outcomes that discriminate the main hypothesis."
+  },
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "claim_boundary": "This review rejects only the bound message and its ability to measure demand. It does not prove that the public record is wrong, that the organization has no unresolved problem, or that the broader market has no demand. It authorizes no draft, contact, follow-up, quote, account access, payment, delivery, publication, investment execution, or external action."
+}

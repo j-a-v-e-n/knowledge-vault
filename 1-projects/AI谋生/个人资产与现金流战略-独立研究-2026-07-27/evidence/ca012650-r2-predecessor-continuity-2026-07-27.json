@@ -1,0 +1,40 @@
+{
+  "schema_version": "ca012650-predecessor-continuity/1",
+  "record_id": "ca012650-r2-predecessor-continuity-2026-07-27",
+  "recorded_at": "2026-07-27T23:41:04-07:00",
+  "recorded_by": "/root",
+  "predecessor_review": {
+    "path": "review-ca012650-durable-candidate-2026-07-27-r2.json",
+    "sha256": "70b7e8e44d1095452fd26209eb43e65630bff4441a466db00e29fa7ef5790e07",
+    "historical_verdict": "PASS",
+    "current_successor_authority": false
+  },
+  "byte_mappings": [
+    {
+      "historical_path": "../08-活动状态.json",
+      "historical_sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
+      "snapshot_path": "active-state-ca012650-precontact-rejection-precursor-2026-07-27.json",
+      "snapshot_sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
+      "byte_identical_to_git_head_at_freeze": true
+    },
+    {
+      "historical_path": "../09-校验活动状态.py",
+      "historical_sha256": "584d02cd8e5bf3541f594bf53944fa12a524ea17873381e999f3d779285d194c",
+      "snapshot_path": "precursor-r2-09-校验活动状态-584d02cd.snapshot",
+      "snapshot_sha256": "584d02cd8e5bf3541f594bf53944fa12a524ea17873381e999f3d779285d194c",
+      "byte_identical_to_git_head_at_freeze": true
+    },
+    {
+      "historical_path": "../tests/test_active_state_validator.py",
+      "historical_sha256": "244d22b14fa8670ee3b63c52bf5937b8a999b12bc24fc8df94edd567c86435ae",
+      "snapshot_path": "precursor-r2-test_active_state_validator-244d22b1.snapshot",
+      "snapshot_sha256": "244d22b14fa8670ee3b63c52bf5937b8a999b12bc24fc8df94edd567c86435ae",
+      "byte_identical_to_git_head_at_freeze": true
+    }
+  ],
+  "verification": {
+    "method": "sha256_and_bytewise_cmp_against_git_head_objects",
+    "all_mappings_verified": true
+  },
+  "claim_boundary": "This record preserves exact predecessor bytes so the historical r2 review remains auditable after successor edits. It does not make r2 a review of any successor, does not authorize request_ready or any external action, and does not establish demand, payment, delivery, profit, repeatability, or asset value."
+}

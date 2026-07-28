@@ -6,7 +6,7 @@ the exact package they accepted, re-runs exhaustive crosswalk reconstruction,
 and rejects any authority claim beyond category-codebook saturation within the
 frozen protocol.  It cannot cryptographically prove reviewer identity or
 independence; that residual limit remains explicit in the receipt and must be
-reviewed again at the manifest-bound C4 Gate.
+reviewed again at the successor manifest-bound final Gate.
 """
 
 from __future__ import annotations
@@ -30,8 +30,8 @@ ROOT = Path(__file__).resolve().parent
 DEFAULT_RECEIPT = ROOT / "ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json"
 SCHEMA_VERSION = "otts.run2-final-status-independent-acceptance/1"
 EXECUTION_ID = "SSP-1.0-RUN-20260727T154803-0700"
-RECEIPT_ID = "otts-run2-final-status-independent-acceptance-35ffc2e34ca69a49"
-REVIEWER_ID = "otts-run2-final-status-independent-reviewer-20260727-c2-boundary-inspect"
+RECEIPT_ID = "otts-run2-final-status-independent-acceptance-5b27030ff9c13a61"
+REVIEWER_ID = "fresh-c2-final-review-remediation-2"
 ACCEPTED_STATUS = "SATURATED-WITHIN-PROTOCOL"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
@@ -73,23 +73,23 @@ EXPECTED_BINDINGS = {
     ),
     "final_status": (
         "ssp-run2/FINAL_RUN_STATUS.md",
-        "35ffc2e34ca69a491cc5cabe25dc55b7fbf58edde67539fe1257ab23d736d30f",
+        "5b27030ff9c13a6196ffb81a0e828de3e69ac0ee176651d3fa35fab088e1a6c3",
     ),
     "human_crosswalk": (
         "RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
-        "c035a55ff1ae5572f81c36a4a1e2b5d349439d4e560837a90e6a17c7a61cee6e",
+        "8c71e9b5e5b5069259e820db8e1eae490aa21822094ef2e519d815c209ba8a0a",
     ),
     "exhaustive_crosswalk": (
         "RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl",
-        "1e055c08a8aaf18173a8eaab670747879abb57e8cc96dcf69edc56518342f23b",
+        "b31b67b255a6f2b797e261199c5ff8196001963e21011b07396e837ab8b0273b",
     ),
     "verifier": (
         "verify_run2_crosswalk.py",
-        "2094a655b174c7cd1793790b22fb0024d5b84479ce49e42a38d60b2327bb3655",
+        "1c1dafd1f7abfa9ae1ab6c918ccf1b7089c68d9c755c53663fe5a9d823a43ae0",
     ),
     "test": (
         "test_run2_crosswalk.py",
-        "1fdfa58d6ec3382b7d86e512f5a0001a5d5d38893f667f2d51295d59b35c8e12",
+        "0b58f975d46d9a17f91881f4362623fdc36716031c603f935a5abfd82e50c99d",
     ),
     "s1_joint": (
         "ssp-run2/S1_JOINT_ADJUDICATION.md",
@@ -106,19 +106,28 @@ EXPECTED_BINDINGS = {
 }
 EXPECTED_EXECUTION_RESULTS = {"verifier": "valid", "test": "OK"}
 EXPECTED_INDEPENDENCE_ASSERTION = (
-    "I did not author or modify C4, this successor Run2 package, or the current "
-    "remediation. I previously reviewed C3 and reported crosswalk/final-status "
-    "defects, so this review is independent of authorship but not blind. The "
-    "present review was read-only."
+    "I did not author or modify remediation attempt 2. Review was read-only. "
+    "I reviewed earlier rejected bytes, so this was not blind, but I remained "
+    "independent of authorship and remediation. No receipt, root, or other file "
+    "was created by the reviewer."
 )
 EXPECTED_REVIEW_SCOPE = (
-    "Exact current bytes of the successor Run2 package only: SSP, S1/S2 raw "
-    "manifests, lead/independent ledgers, S1/S2 joint adjudications, S2 "
-    "independent receipt, human and exhaustive JSONL crosswalks, verifier/tests, "
-    "and FINAL_RUN_STATUS. Excludes overall C4 acceptance, factual or open-world "
-    "research closure, design closure, implementation, shadow operation, and "
-    "external action authority."
+    "Exact remediation-attempt-2 Run2 bytes only: SSP, S1/S2 raw manifests, "
+    "lead/independent ledgers, S1/S2 joint adjudications, S2 independent receipt, "
+    "all 23 direct semantic bridges, all 272 exhaustive JSONL rows, verifier/tests, "
+    "and FINAL_RUN_STATUS. Excludes source truth, open-world exhaustiveness, "
+    "candidate or design closure, implementation, shadow operation, Pilot, "
+    "profitability, and external action authority."
 )
+EXPECTED_CROSSWALK_COUNTS = {
+    "s1_final_ce_in": 131,
+    "s2_final_ce_in": 141,
+    "total_final_ce_in": 272,
+    "s1_direct_mappings": 18,
+    "s2_direct_mappings": 5,
+    "total_direct_mappings": 23,
+    "total_no_direct_load_bearing_use": 249,
+}
 EXPECTED_RESIDUAL_LIMITS = [
     (
         "Acceptance establishes saturation only within the frozen SSP "
@@ -130,18 +139,22 @@ EXPECTED_RESIDUAL_LIMITS = [
         "attestations rather than cryptographic signatures or trusted timestamps."
     ),
     (
-        "The supplied verifier does not by itself validate raw-manifest bytes, "
-        "the duplicate canonical graph, reviewer identity, or chronology; this "
-        "read-only review independently checked those exact frozen bytes."
+        "The supplied verifier reconstructs sealed identities and frozen rejection "
+        "sets, but it cannot decide source meaning by itself; the read-only reviewer "
+        "independently re-audited all current direct semantic bridges."
     ),
     (
         "S1 final K is a disclosed routing union, not individually adjudicated "
         "evidence weighting and not authority for stronger claims."
     ),
     (
+        "Reviewer identity, independence, chronology, and this lead-materialized "
+        "receipt remain local attestations rather than cryptographic signatures or "
+        "trusted timestamps."
+    ),
+    (
         "Any byte change invalidates this acceptance; this exact receipt must be "
-        "bound by the successor candidate before the accepted status becomes "
-        "effective."
+        "bound by the successor candidate before the accepted status becomes effective."
     ),
 ]
 
@@ -296,6 +309,11 @@ def validate_acceptance(receipt_path: Path = DEFAULT_RECEIPT) -> dict[str, Any]:
         raise AcceptanceError("exhaustive crosswalk verifier did not return valid=true")
     if crosswalk.get("external_action_authority") is not False:
         raise AcceptanceError("crosswalk unexpectedly grants external action authority")
+    for key, expected in EXPECTED_CROSSWALK_COUNTS.items():
+        if crosswalk.get(key) != expected:
+            raise AcceptanceError(
+                f"crosswalk.{key} does not match independently accepted count"
+            )
 
     return {
         "valid": True,

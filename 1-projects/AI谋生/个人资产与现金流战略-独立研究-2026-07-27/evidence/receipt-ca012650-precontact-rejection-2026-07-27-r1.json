@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "receipt_type": "precontact_rejection",
+  "approval_id": "approval-ca012650-one-message-verification",
+  "experiment_id": "experiment-ca012650-public-record-verification",
+  "from_stage": "blocked_missing_bindings",
+  "to_stage": "rejected_precontact",
+  "recorded_at": "2026-07-27T23:43:23-07:00",
+  "exact_target": {
+    "public_building_id": "Building #CA012650",
+    "public_record_location": "Best Western Plus Marina Gateway Hotel",
+    "routing_contact_only": true
+  },
+  "exact_channel": "guestservices@bwmarinagateway.com",
+  "channel_source": "https://www.bwmarinagateway.com/contact.htm",
+  "message_binding": {
+    "path": "12-首个反证实验与对外动作候选.md",
+    "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
+  },
+  "stage_payload": {
+    "recipient_value_review_record": {
+      "path": "evidence/review-ca012650-recipient-value-2026-07-27-r1.json",
+      "sha256": "7fc4563288cc03a41e2f3748474c82845d10b68f23c308dbfb7127f3daf0c8bc"
+    },
+    "pretransition_state_snapshot": {
+      "path": "evidence/active-state-ca012650-precontact-rejection-precursor-2026-07-27.json",
+      "sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab"
+    },
+    "rejection_class": "recipient_value_and_measurement_design_failure",
+    "request_send_authorization": false,
+    "external_draft_authorized": false,
+    "external_contact_authorized": false,
+    "message_sent": false,
+    "follow_up_sent": false,
+    "recipient_or_market_response_observed": false,
+    "market_counterevidence_claimed": false,
+    "redesign_required": true
+  }
+}

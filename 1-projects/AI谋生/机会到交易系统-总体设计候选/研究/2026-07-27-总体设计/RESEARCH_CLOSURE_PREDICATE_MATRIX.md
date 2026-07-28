@@ -1,28 +1,28 @@
 # 研究闭合谓词矩阵
 
 - 状态：`RC-01–RC-23 LEAD-CANDIDATE-PASS / RC-24 INDEPENDENT-EXACT-PASS / RC-25 LEAD-CANDIDATE-PASS-AND-EXACT-CODE-INTERFACE-PASS / RC-26 PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW`
-- 评估对象：当前 C6 总体设计研究候选是否满足 `RESEARCH_PROTOCOL.md` 的闭合条件
+- 评估对象：当前 C7 总体设计研究候选是否满足 `RESEARCH_PROTOCOL.md` 的闭合条件
 - 当前权威状态：`BLOCKED`；本矩阵是 lead 的候选判定，不能自行签发 `CONDITIONALLY_READY`
 
 ## 证据身份
 
 | Evidence ID | 路径 | SHA-256 | 权限 |
 |---|---|---|---|
-| `E-PROTOCOL` | `RESEARCH_PROTOCOL.md` | `271eab463de6486156e44be27573d3f3a52635379653da866639d230276fa69e` | 当前闭合协议候选 |
+| `E-PROTOCOL` | `RESEARCH_PROTOCOL.md` | `0a1d620ba4d768d2ff0b62263d75207e5eaca79d169b0e060664920361eb265b` | 当前闭合协议候选 |
 | `E-INTERVIEW` | `01-黄仁勋访谈核查.md` | `8fca0d1a8720f62389b3f6e99a1995d71a81ebdffa538f213e5409c1d35bbea7` | 访谈种子核查；非理论地基 |
-| `E-CLAIMS` | `02-主张与证据地图.md` | `557c45cd65d8a7d2d95e28bdca94b29267e053aa94d9b6aba4d0108ae795c109` | 当前 Claim/RQ/DD 候选 |
-| `E-DESIGN` | `03-机会到交易系统-总体设计.md` | `1ec9b358bea0f6b4b7f44a47592177222795a1a5cc11f8e5ad218d67b0415fa0` | 当前总体设计候选 |
-| `E-LOG` | `04-来源与检索日志.md` | `10a28bdd250f4e9829b23c900a780c96cd1de727f2e49ccaefce802f8fdbe494` | 当前来源宇宙、检索与缺口记录 |
+| `E-CLAIMS` | `02-主张与证据地图.md` | `205dbdb6bbcbb6cb87bbae5a5a2e487402bcbe56e33e6d8cbcb760eda5d4152f` | 当前 Claim/RQ/DD 候选 |
+| `E-DESIGN` | `03-机会到交易系统-总体设计.md` | `3fadeeafb0b32d59cb5f82604d208d779bfb368c8bf3a93ae8b5cecae857994a` | 当前总体设计候选 |
+| `E-LOG` | `04-来源与检索日志.md` | `03c6c85462e9a174583aa90fd3e6f09247f9a4219b528f1428418d32bf2fc00a` | 当前来源宇宙、检索与缺口记录 |
 | `E-SSP` | `SEARCH_SATURATION_PROTOCOL.md` | `911b6353b23f180a400865a810b3d45cbfa0ea2598e1127f1e548195ef0c30c1` | frozen SSP-1.0 |
-| `E-RUN2-FINAL` | `ssp-run2/FINAL_RUN_STATUS.md` | `35ffc2e34ca69a491cc5cabe25dc55b7fbf58edde67539fe1257ab23d736d30f` | lead exact final-status object |
-| `E-CROSSWALK-HUMAN` | `RUN2_CLAIM_EVIDENCE_CROSSWALK.md` | `c035a55ff1ae5572f81c36a4a1e2b5d349439d4e560837a90e6a17c7a61cee6e` | 当前直接使用的 CE→Claim/RQ/DD bridge |
-| `E-CROSSWALK-JSONL` | `RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl` | `1e055c08a8aaf18173a8eaab670747879abb57e8cc96dcf69edc56518342f23b` | 全部最终 CE-IN 的 canonical exhaustive ledger |
-| `E-CROSSWALK-VERIFIER` | `verify_run2_crosswalk.py` | `2094a655b174c7cd1793790b22fb0024d5b84479ce49e42a38d60b2327bb3655` | 从 sealed inputs 复算 exhaustive ledger |
-| `E-CROSSWALK-TEST` | `test_run2_crosswalk.py` | `1fdfa58d6ec3382b7d86e512f5a0001a5d5d38893f667f2d51295d59b35c8e12` | crosswalk 正向/负向回归 |
-| `E-RUN2-ACCEPT` | `ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json` | `be30f6967b5872749403eef2af2c1e0cc25f99828c7ceb01aa0b744692b8a788` | exact final-status independent ACCEPT；只限 SSP 状态 |
-| `E-RUN2-ACCEPT-VERIFIER` | `verify_run2_acceptance.py` | `4132c72773c2fd4506f92030e2471692fb57d543d1180ebc9e42957fc21e4ed7` | exact path/hash、边界与 authority verifier |
-| `E-RUN2-ACCEPT-TEST` | `test_run2_acceptance.py` | `7668842912daf97ce65629220de5aab8224fed5c22ecb98262ce74fca898d1e4` | receipt/artifact/scope/authority 负向回归 |
-| `E-ENVELOPE` | `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` | `56506521de46e32483eee13c354b40d0de6e246f7e46f8f209b6eabc33ef11b9` | 条件式只读实现范围；当前不生效 |
+| `E-RUN2-FINAL` | `ssp-run2/FINAL_RUN_STATUS.md` | `5b27030ff9c13a6196ffb81a0e828de3e69ac0ee176651d3fa35fab088e1a6c3` | attempt 2 lead exact final-status object |
+| `E-CROSSWALK-HUMAN` | `RUN2_CLAIM_EVIDENCE_CROSSWALK.md` | `8c71e9b5e5b5069259e820db8e1eae490aa21822094ef2e519d815c209ba8a0a` | `23` 条当前 direct bridge 与语义降级记录 |
+| `E-CROSSWALK-JSONL` | `RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl` | `b31b67b255a6f2b797e261199c5ff8196001963e21011b07396e837ab8b0273b` | 全部 final CE-IN 的 canonical exhaustive ledger |
+| `E-CROSSWALK-VERIFIER` | `verify_run2_crosswalk.py` | `1c1dafd1f7abfa9ae1ab6c918ccf1b7089c68d9c755c53663fe5a9d823a43ae0` | sealed reconstruction 与冻结 semantic rejection sets |
+| `E-CROSSWALK-TEST` | `test_run2_crosswalk.py` | `0b58f975d46d9a17f91881f4362623fdc36716031c603f935a5abfd82e50c99d` | exhaustive、语义拒绝与相邻窄桥回归 |
+| `E-RUN2-ACCEPT` | `ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json` | `7f473fdf93a3bb70ecb463fb3f48e124ba1d4267de48f3051a5c41950d64155c` | attempt 2 exact final-status independent ACCEPT；只限 SSP 状态 |
+| `E-RUN2-ACCEPT-VERIFIER` | `verify_run2_acceptance.py` | `fa40601090c9c454fbdb62b33a62e965f072deda8be330d3387fa0736ad7d6be` | exact path/hash/count、边界与 authority verifier |
+| `E-RUN2-ACCEPT-TEST` | `test_run2_acceptance.py` | `1e41bf34e3c51294e27bb9109ed1c6ac5994cfc643becdbf643a01325d8a177d` | receipt/artifact/count/scope/authority 负向回归 |
+| `E-ENVELOPE` | `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` | `e74d5fbb0f85655c753e712c5becb2f0990b71db88c7df873fae869503207c99` | 条件式只读实现范围；当前不生效 |
 | `E-C6-SANDBOX` | `C6_SANDBOX_PROBE_REPORT.md` | `cd2af770db6881ef48df71e7acb978976309ace97711b18be0c662e35875b42d` | 历史反例、iteration B host-required evidence 与 nonclaims |
 | `E-CAPABILITY-POLICY` | `SHADOW_CAPABILITY_POLICY.json` | `8ca4d90c958ea04adf14d003226a620a4000ad805e439823b5c5cc34a7e7ebb9` | fixed declarative IR/capability/resource policy |
 | `E-SHADOW-RUNNER` | `run_shadow_acceptance.py` | `ba5bb3aeb55b14eaa8135c8367ed16295d0782a4f7813b337397998117edbc97` | opened-unlinked interpreter、runtime TCB 与 host Gate |
@@ -30,14 +30,14 @@
 | `E-LEGACY-QUARANTINE` | `../../EXTERNAL_LEGACY_QUARANTINE.md` | `c7689fffcc6feceafe489d5b13f47d4b0b943dedb45a6bce1657bc7582a2ecd3` | 外部可变旧根隔离边界 |
 | `E-LEGACY-STATUS` | `../../LEGACY_STATUS.md` | `a760ab781ebcebe3ec09cb154198e1658f69d6ef1c1d7593537921581e45d602` | 旧 runtime/Pilot 权限状态 |
 | `E-LEGACY-AUDIT` | `../../LEGACY_CODE_GAP_AUDIT.md` | `4dedeaef09f5e9e735d43020c8d5e46c7fca8b8c6b4c271fef70761fab122e9f` | 旧实现差距与禁止复用边界 |
-| `E-REVIEW-HISTORY` | `FINAL_REVIEW_HISTORY.md` | `b3ebe4cadbda33fe0361197683cd2f4f85ce02a66a4f555978b8b62003914a02` | C1–C6 拒绝、Run2 acceptance 与 iteration B exact Gate review |
-| `E-CANDIDATE-VERIFIER` | `verify_candidate_manifest.py` | `20e65581be5ab16d74fb0bdf75d025e3a9c5eb677462c51e87854c20fb2cc9c9` | closed candidate inventory、phase 与 Run2 receipt aggregate check |
+| `E-REVIEW-HISTORY` | `FINAL_REVIEW_HISTORY.md` | `d66ba239a0123dfd343b84ec95c4585dc42963ebd8256ad8c14a00baf876b6e0` | C1–C6 拒绝、两轮 semantic remediation 与 attempt 2 acceptance |
+| `E-CANDIDATE-VERIFIER` | `verify_candidate_manifest.py` | `88c16f8860811215fa4845bdd03c4f15ef4f5fcd2e8cdb85238cd4a77ee3bc69` | closed inventory、exact status/scope 与 Run2 aggregate check |
 | `E-POST-VERIFIER` | `verify_post_closure_manifest.py` | `823acd5aba8ac2949312c663acd25bd4c3de203a7c18604d9da066df2f2d45b3` | fixed-policy pre-read limits、snapshot recheck 与 exact shadow receipt bindings |
-| `E-PHASE-TEST` | `test_phase_manifests.py` | `d6ea9916c9bff14e9111d5b881dce518a35df9d9c23a9841b1e3f84d91f9bcad` | producer→consumer、零漂移、resource pre-limit、typed receipt 与 phase-boundary 回归 |
-| `E-MANIFEST-BUILDER` | `build_candidate_manifest.py` | `a1c920c223806b1f8ef5df549e0e9e0171ec8df19f2604f86f4c5ff4c06c8fae` | 显式闭集 manifest builder；不自动吸收未知文件 |
+| `E-PHASE-TEST` | `test_phase_manifests.py` | `13b5f5da3998f72740a752b2bbabdc7621dacc8437f5ca632467cf8443dd3ff8` | producer→consumer、exact candidate status/scope、零漂移、resource 与 phase-boundary 回归 |
+| `E-MANIFEST-BUILDER` | `build_candidate_manifest.py` | `41e2c4f2f00ebee53e999eb976b5f596bdf1fcac7567ffe84a6f26901404a0fb` | C7 显式闭集 manifest builder；不自动吸收未知文件 |
 | `E-FREEZE-BUILDER` | `build_freeze_report.py` | `7c797767a867e066a62428dcf2c059f14dc4e97c3276dee364669eef5e25b779` | 与 aggregate Gate 共用 exact key set 的外部 freeze-report producer |
 
-任一上列文件的字节变化都会使对应行回到 `STALE`，直到重新计算 hash 并重新审查。`E-RUN2-ACCEPT` 的 reviewer 未撰写或修改 C4/Run2 remediation，但曾审查 C3 并报告相同缺口，所以独立于 authorship、不是 blind；该 receipt 只绑定未变化的 Run2 package，不批准 C6。C6 最终 reviewer 必须检查原件、C4 interface remediation 与 C5 bytecode 自污染修复，不能把验证器通过当作独立性证明。
+任一上列文件的字节变化都会使对应行回到 `STALE`，直到重新计算 hash 并重新审查。`E-RUN2-ACCEPT` 的 reviewer 未撰写或修改 attempt 2，但审过 earlier rejected bytes，所以独立于 authorship/remediation、不是 blind；canonical receipt 是 lead 对本地审查声明的机械物化，不是 reviewer 数字签名或 trusted timestamp。该 receipt 只绑定未变化的 Run2 package，不批准 C7。C7 最终 reviewer 必须检查全部原件、C6 语义失败、attempt 1/2、Gate/interface remediation 与权限 nonclaims，不能把验证器通过当作独立性证明。
 
 ## 谓词判定
 
@@ -66,19 +66,19 @@
 | `RC-21` | DecisionExposure 与无识别不发布因果规则 | `LEAD-CANDIDATE-PASS-AS-DESIGN` | `E-DESIGN` | 尚无随机或可信准实验 |
 | `RC-22` | Outcome maturity、右删失、OwnerObjective 与 income sufficiency | `LEAD-CANDIDATE-PASS-AS-DESIGN` | `E-DESIGN` | 用户收入目标、风险窗与现实 cohort 未冻结 |
 | `RC-23` | 残余未知与变化监控明确 | `LEAD-CANDIDATE-PASS` | `E-CLAIMS,E-DESIGN,E-LOG` | 未知只能由 shadow 或经授权现实证据消除 |
-| `RC-24` | 冻结两轮逐结果筛选，无 NEW-CRITICAL/UNRESOLVED，完成 joint 与最终状态共同同意 | `INDEPENDENT-EXACT-PASS` | `E-SSP,E-RUN2-FINAL,E-CROSSWALK-JSONL,E-CROSSWALK-VERIFIER,E-CROSSWALK-TEST,E-RUN2-ACCEPT,E-RUN2-ACCEPT-VERIFIER,E-RUN2-ACCEPT-TEST` | exact reviewer ACCEPT 只证明协议内类别代码本未扩展；不证明来源正确、研究穷尽、商机或总体 C6 |
+| `RC-24` | 冻结两轮逐结果筛选，无 NEW-CRITICAL/UNRESOLVED，完成 joint 与最终状态共同同意 | `INDEPENDENT-EXACT-PASS` | `E-SSP,E-RUN2-FINAL,E-CROSSWALK-JSONL,E-CROSSWALK-VERIFIER,E-CROSSWALK-TEST,E-RUN2-ACCEPT,E-RUN2-ACCEPT-VERIFIER,E-RUN2-ACCEPT-TEST` | attempt 2 exact ACCEPT 只证明协议内类别代码本未扩展；不证明来源正确、研究穷尽、商机或总体 C7 |
 | `RC-25` | immutable candidate 与 governance/shadow 后闭合工件的 inventory/失效边界无自引用 | `LEAD-CANDIDATE-PASS / EXACT-CODE-INTERFACE-PASS` | `E-ENVELOPE,E-C6-SANDBOX,E-CAPABILITY-POLICY,E-SHADOW-RUNNER,E-SHADOW-TEST,E-LEGACY-QUARANTINE,E-REVIEW-HISTORY,E-CANDIDATE-VERIFIER,E-POST-VERIFIER,E-PHASE-TEST,E-MANIFEST-BUILDER,E-FREEZE-BUILDER` | Iteration B 的真实 host-required path、opened-unlinked binding、fixed limits、末端 re-snapshot 与 exact receipt 接口已通过只读代码/接口复审且无 Critical/Major；same-UID/admin、完整 dylib/host TCB、Darwin RSS hard limit、post-sandbox FD enumeration 与两类检测型 ceiling 仍为 nonclaims。该局部 PASS 待 RC-26 用完整 candidate 重新挑战 |
-| `RC-26` | 最终独立复核绑定完整 manifest 与每个 SHA，无承重缺口 | `PENDING` | 待生成 C6 `FINAL_CANDIDATE_MANIFEST.json`、builder-produced external freeze report 与 exact review receipt | 必须由未撰写 C6 的 independent reviewer 检查全部原件；在 PASS 与 governance closure 前权威状态保持 `BLOCKED` |
+| `RC-26` | 最终独立复核绑定完整 manifest 与每个 SHA，无承重缺口 | `PENDING` | 所需证据为 C7 exact `FINAL_CANDIDATE_MANIFEST.json`、builder-produced external freeze report 与 candidate-bound independent review receipt | 必须由未撰写 C7 的 independent reviewer 检查全部原件；只有外部 receipt 明确 PASS 且无 Critical/Major 后才可能进入 governance，当前权威状态保持 `BLOCKED` |
 
 ## 当前结论与停止规则
 
-Lead 已登记 C6 declarative iteration A 的承重拒绝项；iteration B 已按新 exact bytes 通过真实 host-required suite、phase-boundary suite 和只读代码/接口复审，RC-25 因而进入待完整候选复核的 lead/code-interface PASS。C4 全量审查确认 RC-01–RC-24 的限定语义，但因两个 governance interface Major 拒绝 RC-25/RC-26；C5 又因 post-closure Gate 自污染与 capability overaccept 失败；最初 C6 Python Gate 和 declarative iteration A 也都已按 exact bytes 失败。只有新 canonical manifest、builder-produced freeze report 与 RC-26 全量独立 PASS 才能改变总体 `BLOCKED`；局部 Gate PASS 不得迁移为总体终审。
+Lead 已登记 C6 declarative iteration A 的承重拒绝项；iteration B 已按 exact bytes 通过真实 host-required suite、phase-boundary suite 和只读代码/接口复审，RC-25 因而进入待完整候选复核的 lead/code-interface PASS。C6 exact candidate/freeze 仍因两个 Run2 semantic Major 被完整终审拒绝；attempt 1 又被两份逐条审查拒绝，attempt 2 才由两名只读 reviewer 对相同 exact bytes 接受。只有 C7 canonical manifest、builder-produced freeze report 与 RC-26 全量独立 PASS 才能改变总体 `BLOCKED`；Gate 或 Run2 局部 PASS 均不得迁移为总体终审。
 
 后续顺序固定为：
 
 1. 用显式闭集 builder 生成不自包含的 canonical `FINAL_CANDIDATE_MANIFEST.json`；
 2. 运行 crosswalk、Run2 acceptance、phase-boundary 全部验证与测试，并用 `build_freeze_report.py` 在 candidate/post-closure roots 外生成 exact-schema freeze report；
-3. 由未撰写 C6 的 independent reviewer 绑定 manifest exact hash、freeze report、全部文件、依赖、语义、权限边界和 residual unknown，给出 PASS/FAIL；
+3. 由未撰写 C7 的 independent reviewer 绑定 manifest exact hash、freeze report、全部文件、依赖、语义、权限边界和 residual unknown，给出 PASS/FAIL；
 4. 只有无 unresolved critical/major 的 PASS 后，才能在预声明 governance sibling root 写入 freeze report、review receipt 与外部 `RESEARCH_CLOSURE_DECISION`，再由 governance manifest 和 aggregate Gate 闭合；
 5. 只有 aggregate Gate 通过，才可创建另一个 sibling root，开始 `external_action_authority=false` 的本地、合成 fixture、零外部副作用 shadow MVP。
 

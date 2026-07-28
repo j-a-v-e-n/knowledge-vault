@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,6 +71,12 @@ class ActiveStateValidatorTests(unittest.TestCase):
             "claim_boundary": VALIDATOR.EXPECTED_CA_R2_CLAIM_BOUNDARY,
         }
 
+    def sender_profile_record(self) -> dict:
+        path = ROOT / VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]
+        record = VALIDATOR.loads_json_strict(path.read_text(encoding="utf-8"))
+        assert isinstance(record, dict)
+        return record
+
     def test_current_state_passes(self) -> None:
         self.assertEqual([], self.errors_for(self.state))
 
@@ -119,6 +126,583 @@ class ActiveStateValidatorTests(unittest.TestCase):
             state = copy.deepcopy(self.state)
             state["approval_queue"][0]["exact_channel"] = "replacement@example.invalid"
             self.assert_detected(state, "exact channel changed")
+
+    def test_sender_profile_observation_is_exact_content_addressed_read_only_input(
+        self,
+    ) -> None:
+        errors: list[str] = []
+        observed_at = VALIDATOR.validate_sender_profile_observation(
+            copy.deepcopy(VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING),
+            snapshot_at=datetime.fromisoformat("2026-07-27T23:21:00-07:00"),
+            errors=errors,
+        )
+        self.assertEqual([], errors)
+        self.assertEqual(
+            datetime.fromisoformat("2026-07-27T23:20:26-07:00"), observed_at
+        )
+
+        attacks = {
+            "account": (
+                "account_email",
+                "another@example.com",
+                "authenticated account differs",
+            ),
+            "operation": (
+                "connector_operation",
+                "gmail_send_message",
+                "connector operation",
+            ),
+            "read-only type confusion": (
+                "read_only",
+                1,
+                "JSON boolean true",
+            ),
+            "draft type confusion": (
+                "draft_created",
+                0,
+                "JSON boolean false",
+            ),
+            "sent": ("message_sent", True, "JSON boolean false"),
+            "proposed use": (
+                "proposed_use",
+                "authorized_sender",
+                "proposed use changed",
+            ),
+            "claim expansion": (
+                "claim_boundary",
+                "This observation authorizes sending.",
+                "claim boundary differs",
+            ),
+            "naive observed_at": (
+                "observed_at",
+                "2026-07-27T23:20:26",
+                "timestamp must include an offset",
+            ),
+            "future observed_at": (
+                "observed_at",
+                "2026-07-27T23:21:01-07:00",
+                "timestamp is in the future",
+            ),
+        }
+        with tempfile.TemporaryDirectory(
+            prefix="validator-sender-observation-", dir="/private/tmp"
+        ) as temp_dir:
+            temp_root = Path(temp_dir)
+            evidence_dir = temp_root / "evidence"
+            evidence_dir.mkdir()
+            record_path = evidence_dir / Path(
+                VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]
+            ).name
+            for label, (key, value, needle) in attacks.items():
+                with self.subTest(label=label):
+                    record = self.sender_profile_record()
+                    record[key] = value
+                    record_path.write_text(json.dumps(record), encoding="utf-8")
+                    binding = {
+                        "path": f"evidence/{record_path.name}",
+                        "sha256": hashlib.sha256(record_path.read_bytes()).hexdigest(),
+                    }
+                    attack_errors: list[str] = []
+                    with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root), mock.patch.object(
+                        VALIDATOR,
+                        "EXPECTED_CA_SENDER_PROFILE_BINDING",
+                        binding,
+                    ):
+                        VALIDATOR.validate_sender_profile_observation(
+                            binding,
+                            snapshot_at=datetime.fromisoformat(
+                                "2026-07-27T23:21:00-07:00"
+                            ),
+                            errors=attack_errors,
+                        )
+                    self.assertTrue(
+                        any(needle in error for error in attack_errors), attack_errors
+                    )
+
+            record = self.sender_profile_record()
+            record["unexpected_authority"] = True
+            record_path.write_text(json.dumps(record), encoding="utf-8")
+            binding = {
+                "path": f"evidence/{record_path.name}",
+                "sha256": hashlib.sha256(record_path.read_bytes()).hexdigest(),
+            }
+            schema_errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root), mock.patch.object(
+                VALIDATOR, "EXPECTED_CA_SENDER_PROFILE_BINDING", binding
+            ):
+                VALIDATOR.validate_sender_profile_observation(
+                    binding,
+                    snapshot_at=datetime.fromisoformat("2026-07-27T23:21:00-07:00"),
+                    errors=schema_errors,
+                )
+            self.assertTrue(any("unknown fields" in error for error in schema_errors))
+
+            record = self.sender_profile_record()
+            record["observed_at"] = "2026-07-28T06:20:26+00:00"
+            record_path.write_text(json.dumps(record), encoding="utf-8")
+            binding = {
+                "path": f"evidence/{record_path.name}",
+                "sha256": hashlib.sha256(record_path.read_bytes()).hexdigest(),
+            }
+            offset_errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root), mock.patch.object(
+                VALIDATOR, "EXPECTED_CA_SENDER_PROFILE_BINDING", binding
+            ):
+                offset_observed_at = VALIDATOR.validate_sender_profile_observation(
+                    binding,
+                    snapshot_at=datetime.fromisoformat("2026-07-27T23:21:00-07:00"),
+                    errors=offset_errors,
+                )
+            self.assertEqual([], offset_errors)
+            self.assertEqual(
+                datetime.fromisoformat("2026-07-27T23:20:26-07:00"),
+                offset_observed_at,
+            )
+
+    def test_sender_profile_freshness_uses_real_now_and_execution_boundary(
+        self,
+    ) -> None:
+        observed_at = datetime.fromisoformat("2026-07-27T23:20:26-07:00")
+        readiness_at = observed_at + timedelta(minutes=1)
+        lifecycle = {
+            "readiness_recorded_at": readiness_at,
+            "authorized_at": None,
+            "executed_at": None,
+        }
+        boundary_errors: list[str] = []
+        VALIDATOR.validate_sender_profile_window(
+            observed_at,
+            stage="request_ready",
+            validation_now=observed_at
+            + timedelta(hours=VALIDATOR.SENDER_PROFILE_MAX_AGE_HOURS),
+            lifecycle_times=lifecycle,
+            errors=boundary_errors,
+        )
+        self.assertEqual([], boundary_errors)
+
+        expired_errors: list[str] = []
+        VALIDATOR.validate_sender_profile_window(
+            observed_at,
+            stage="request_ready",
+            validation_now=observed_at
+            + timedelta(
+                hours=VALIDATOR.SENDER_PROFILE_MAX_AGE_HOURS, seconds=1
+            ),
+            lifecycle_times=lifecycle,
+            errors=expired_errors,
+        )
+        self.assertTrue(
+            any("older than the pre-send window" in error for error in expired_errors),
+            expired_errors,
+        )
+
+        refreshed_snapshot_at = observed_at + timedelta(days=7)
+        observation_errors: list[str] = []
+        still_old_observed_at = VALIDATOR.validate_sender_profile_observation(
+            copy.deepcopy(VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING),
+            snapshot_at=refreshed_snapshot_at,
+            errors=observation_errors,
+        )
+        self.assertEqual([], observation_errors)
+        refreshed_state_errors: list[str] = []
+        VALIDATOR.validate_sender_profile_window(
+            still_old_observed_at,
+            stage="request_ready",
+            validation_now=refreshed_snapshot_at,
+            lifecycle_times=lifecycle,
+            errors=refreshed_state_errors,
+        )
+        self.assertTrue(
+            any(
+                "older than the pre-send window" in error
+                for error in refreshed_state_errors
+            ),
+            refreshed_state_errors,
+        )
+
+        future_errors: list[str] = []
+        VALIDATOR.validate_sender_profile_window(
+            observed_at,
+            stage="request_ready",
+            validation_now=observed_at - timedelta(seconds=1),
+            lifecycle_times=lifecycle,
+            errors=future_errors,
+        )
+        self.assertTrue(any("observation is in the future" in error for error in future_errors))
+
+        offset_boundary_errors: list[str] = []
+        VALIDATOR.validate_sender_profile_window(
+            observed_at,
+            stage="request_ready",
+            validation_now=datetime.fromisoformat("2026-07-29T06:20:26+00:00"),
+            lifecycle_times=lifecycle,
+            errors=offset_boundary_errors,
+        )
+        self.assertEqual([], offset_boundary_errors)
+
+        execution_boundary = observed_at + timedelta(
+            hours=VALIDATOR.SENDER_PROFILE_MAX_AGE_HOURS
+        )
+        execution_lifecycle = {
+            "readiness_recorded_at": readiness_at,
+            "authorized_at": readiness_at + timedelta(minutes=1),
+            "executed_at": execution_boundary,
+        }
+        execution_errors: list[str] = []
+        VALIDATOR.validate_sender_profile_window(
+            observed_at,
+            stage="executed_once",
+            validation_now=execution_boundary + timedelta(days=30),
+            lifecycle_times=execution_lifecycle,
+            errors=execution_errors,
+        )
+        self.assertEqual([], execution_errors)
+        execution_lifecycle["executed_at"] = execution_boundary + timedelta(seconds=1)
+        late_execution_errors: list[str] = []
+        VALIDATOR.validate_sender_profile_window(
+            observed_at,
+            stage="executed_once",
+            validation_now=execution_boundary + timedelta(days=30),
+            lifecycle_times=execution_lifecycle,
+            errors=late_execution_errors,
+        )
+        self.assertTrue(
+            any(
+                "execution occurred after the sender profile window" in error
+                for error in late_execution_errors
+            ),
+            late_execution_errors,
+        )
+
+        execution_lifecycle["executed_at"] = execution_boundary
+        execution_lifecycle["readiness_recorded_at"] = observed_at - timedelta(seconds=1)
+        chronology_errors: list[str] = []
+        VALIDATOR.validate_sender_profile_window(
+            observed_at,
+            stage="executed_once",
+            validation_now=execution_boundary,
+            lifecycle_times=execution_lifecycle,
+            errors=chronology_errors,
+        )
+        self.assertTrue(
+            any("readiness_recorded_at predates" in error for error in chronology_errors),
+            chronology_errors,
+        )
+
+    def test_sender_profile_hash_and_parse_use_one_immutable_byte_read(self) -> None:
+        evidence_path = ROOT / VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]
+        exact_bytes = evidence_path.read_bytes()
+        second_read_attack = exact_bytes.replace(
+            b'"account_email": "jacao@ucsd.edu"',
+            b'"account_email": "another@example.com"',
+        )
+        read_count = 0
+
+        def adversarial_read_bytes(path: Path) -> bytes:
+            nonlocal read_count
+            read_count += 1
+            return exact_bytes if read_count == 1 else second_read_attack
+
+        errors: list[str] = []
+        with mock.patch.object(Path, "read_bytes", new=adversarial_read_bytes):
+            observed_at = VALIDATOR.validate_sender_profile_observation(
+                copy.deepcopy(VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING),
+                snapshot_at=datetime.fromisoformat("2026-07-27T23:21:00-07:00"),
+                errors=errors,
+            )
+        self.assertEqual(1, read_count)
+        self.assertEqual([], errors)
+        self.assertEqual(
+            datetime.fromisoformat("2026-07-27T23:20:26-07:00"), observed_at
+        )
+
+    def test_static_sender_profile_never_makes_send_stage_executable(self) -> None:
+        readiness_errors: list[str] = []
+        VALIDATOR.validate_sender_execution_boundary(
+            "request_ready", errors=readiness_errors
+        )
+        self.assertEqual([], readiness_errors)
+
+        for stage in (
+            "authorized_once",
+            "executed_once",
+            "observing",
+            "closed",
+        ):
+            with self.subTest(stage=stage):
+                errors: list[str] = []
+                VALIDATOR.validate_sender_execution_boundary(stage, errors=errors)
+                self.assertTrue(
+                    any(
+                        "static profile observation supports readiness only" in error
+                        and "same-session get_profile" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_sender_profile_path_hash_content_and_duplicate_attacks_are_detected(
+        self,
+    ) -> None:
+        with self.subTest("binding path"):
+            binding = copy.deepcopy(VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING)
+            binding["path"] = "evidence/another-sender-profile.json"
+            errors: list[str] = []
+            VALIDATOR.validate_sender_profile_observation(
+                binding, snapshot_at=self.now, errors=errors
+            )
+            self.assertTrue(
+                any("exact content-addressed binding changed" in error for error in errors),
+                errors,
+            )
+        with self.subTest("binding hash"):
+            binding = copy.deepcopy(VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING)
+            binding["sha256"] = "0" * 64
+            errors = []
+            VALIDATOR.validate_sender_profile_observation(
+                binding, snapshot_at=self.now, errors=errors
+            )
+            self.assertTrue(any("sha256 mismatch" in error for error in errors), errors)
+
+        with tempfile.TemporaryDirectory(
+            prefix="validator-sender-bytes-", dir="/private/tmp"
+        ) as temp_dir:
+            temp_root = Path(temp_dir)
+            evidence_dir = temp_root / "evidence"
+            evidence_dir.mkdir()
+            record_path = evidence_dir / Path(
+                VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]
+            ).name
+            raw = (ROOT / VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]).read_text(
+                encoding="utf-8"
+            )
+            record_path.write_text(
+                raw.replace('"account_email": "jacao@ucsd.edu"', '"account_email": "another@example.com"'),
+                encoding="utf-8",
+            )
+            content_errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                VALIDATOR.validate_sender_profile_observation(
+                    copy.deepcopy(VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING),
+                    snapshot_at=datetime.fromisoformat("2026-07-27T23:21:00-07:00"),
+                    errors=content_errors,
+                )
+            self.assertTrue(any("sha256 mismatch" in error for error in content_errors))
+
+            duplicate_raw = raw.replace(
+                '"account_email": "jacao@ucsd.edu"',
+                (
+                    '"account_email": "another@example.com",\n'
+                    '  "account_email": "jacao@ucsd.edu"'
+                ),
+            )
+            record_path.write_text(duplicate_raw, encoding="utf-8")
+            duplicate_binding = {
+                "path": f"evidence/{record_path.name}",
+                "sha256": hashlib.sha256(record_path.read_bytes()).hexdigest(),
+            }
+            duplicate_errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root), mock.patch.object(
+                VALIDATOR,
+                "EXPECTED_CA_SENDER_PROFILE_BINDING",
+                duplicate_binding,
+            ):
+                VALIDATOR.validate_sender_profile_observation(
+                    duplicate_binding,
+                    snapshot_at=datetime.fromisoformat("2026-07-27T23:21:00-07:00"),
+                    errors=duplicate_errors,
+                )
+            self.assertTrue(
+                any("duplicate JSON key rejected" in error for error in duplicate_errors),
+                duplicate_errors,
+            )
+
+        with tempfile.TemporaryDirectory(
+            prefix="validator-sender-symlink-", dir="/private/tmp"
+        ) as temp_dir:
+            temp_root = Path(temp_dir)
+            evidence_dir = temp_root / "evidence"
+            evidence_dir.mkdir()
+            target = evidence_dir / "real-profile.json"
+            target.write_bytes(
+                (ROOT / VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]).read_bytes()
+            )
+            link = evidence_dir / Path(
+                VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]
+            ).name
+            link.symlink_to(target)
+            symlink_errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                VALIDATOR.validate_sender_profile_observation(
+                    copy.deepcopy(VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING),
+                    snapshot_at=datetime.fromisoformat("2026-07-27T23:21:00-07:00"),
+                    errors=symlink_errors,
+                )
+            self.assertTrue(any("symlink" in error for error in symlink_errors))
+
+    def test_mutating_state_and_readiness_receipt_sender_together_still_fails(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory(
+            prefix="validator-readiness-sender-", dir="/private/tmp"
+        ) as temp_dir:
+            temp_root = Path(temp_dir)
+            evidence_dir = temp_root / "evidence"
+            evidence_dir.mkdir()
+            profile_path = evidence_dir / Path(
+                VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]
+            ).name
+            profile_path.write_bytes(
+                (ROOT / VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING["path"]).read_bytes()
+            )
+            profile_binding = copy.deepcopy(
+                VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING
+            )
+            message_binding = copy.deepcopy(
+                self.state["approval_queue"][0]["message_binding"]
+            )
+            source_binding = {"path": "evidence/source.json", "sha256": "1" * 64}
+            item = {
+                "sender_account": VALIDATOR.EXPECTED_CA_SENDER_ACCOUNT,
+                "sender_profile_record": profile_binding,
+                "observation_cutoff_at": "2026-08-03T23:30:00-07:00",
+                "message_binding": message_binding,
+                "pre_send_source_refresh": {
+                    "cec_status_record": source_binding,
+                    "organization_channel_record": source_binding,
+                },
+            }
+            receipt = {
+                "schema_version": "1.0",
+                "receipt_type": "readiness",
+                "approval_id": VALIDATOR.EXPECTED_CA_APPROVAL_ID,
+                "experiment_id": VALIDATOR.EXPECTED_CA_EXPERIMENT_ID,
+                "from_stage": "blocked_missing_bindings",
+                "to_stage": "request_ready",
+                "recorded_at": "2026-07-27T23:21:00-07:00",
+                "exact_target": copy.deepcopy(VALIDATOR.EXPECTED_CA_TARGET),
+                "exact_channel": VALIDATOR.EXPECTED_CA_CHANNEL,
+                "channel_source": VALIDATOR.EXPECTED_CA_CHANNEL_SOURCE,
+                "message_binding": message_binding,
+                "stage_payload": {
+                    "sender_account": VALIDATOR.EXPECTED_CA_SENDER_ACCOUNT,
+                    "sender_profile_record": profile_binding,
+                    "observation_cutoff_at": item["observation_cutoff_at"],
+                    "cec_status_record": source_binding,
+                    "organization_channel_record": source_binding,
+                },
+            }
+            receipt_path = evidence_dir / "readiness.json"
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+            binding = {
+                "path": "evidence/readiness.json",
+                "sha256": hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
+            }
+            valid_errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                VALIDATOR.validate_stage_receipt(
+                    binding,
+                    receipt_field="readiness_receipt",
+                    item=item,
+                    now=datetime.fromisoformat("2026-07-27T23:22:00-07:00"),
+                    errors=valid_errors,
+                )
+            self.assertEqual([], valid_errors)
+
+            item["sender_account"] = "another@example.com"
+            receipt["stage_payload"]["sender_account"] = "another@example.com"
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+            binding["sha256"] = hashlib.sha256(receipt_path.read_bytes()).hexdigest()
+            attack_errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                VALIDATOR.validate_stage_receipt(
+                    binding,
+                    receipt_field="readiness_receipt",
+                    item=item,
+                    now=datetime.fromisoformat("2026-07-27T23:22:00-07:00"),
+                    errors=attack_errors,
+                )
+            self.assertTrue(
+                any(
+                    "sender account differs from authenticated profile" in error
+                    for error in attack_errors
+                ),
+                attack_errors,
+            )
+
+            forged_profile = self.sender_profile_record()
+            forged_profile["account_email"] = "another@example.com"
+            profile_path.write_text(json.dumps(forged_profile), encoding="utf-8")
+            forged_profile_binding = {
+                "path": profile_binding["path"],
+                "sha256": hashlib.sha256(profile_path.read_bytes()).hexdigest(),
+            }
+            item["sender_profile_record"] = forged_profile_binding
+            receipt["stage_payload"]["sender_profile_record"] = forged_profile_binding
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+            binding["sha256"] = hashlib.sha256(receipt_path.read_bytes()).hexdigest()
+            triple_attack_errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                VALIDATOR.validate_stage_receipt(
+                    binding,
+                    receipt_field="readiness_receipt",
+                    item=item,
+                    now=datetime.fromisoformat("2026-07-27T23:22:00-07:00"),
+                    errors=triple_attack_errors,
+                )
+            self.assertTrue(
+                any(
+                    "exact content-addressed binding changed" in error
+                    for error in triple_attack_errors
+                ),
+                triple_attack_errors,
+            )
+            self.assertTrue(
+                any(
+                    "authenticated account differs from the exact sender" in error
+                    for error in triple_attack_errors
+                ),
+                triple_attack_errors,
+            )
+
+    def test_duplicate_sender_profile_binding_is_rejected_in_state_and_receipt_json(
+        self,
+    ) -> None:
+        binding_json = json.dumps(
+            VALIDATOR.EXPECTED_CA_SENDER_PROFILE_BINDING, separators=(",", ":")
+        )
+        raw_cases = {
+            "state": (
+                '{"approval_queue":[{"sender_profile_record":'
+                + binding_json
+                + ',"sender_profile_record":'
+                + binding_json
+                + "}]}"
+            ),
+            "readiness receipt": (
+                '{"stage_payload":{"sender_profile_record":'
+                + binding_json
+                + ',"sender_profile_record":'
+                + binding_json
+                + "}}"
+            ),
+        }
+        with tempfile.TemporaryDirectory(
+            prefix="validator-duplicate-sender-binding-", dir="/private/tmp"
+        ) as temp_dir:
+            for label, raw in raw_cases.items():
+                with self.subTest(label=label):
+                    path = Path(temp_dir) / f"{label.replace(' ', '-')}.json"
+                    path.write_text(raw, encoding="utf-8")
+                    errors: list[str] = []
+                    loaded = VALIDATOR.load_json(
+                        path, errors=errors, label=f"duplicate {label}"
+                    )
+                    self.assertIsNone(loaded)
+                    self.assertTrue(
+                        any("duplicate JSON key rejected" in error for error in errors),
+                        errors,
+                    )
 
     def test_stale_as_of_fails_closed_but_injected_fresh_now_passes(self) -> None:
         due = datetime.fromisoformat(self.state["freshness_policy"]["refresh_due_at"])
@@ -326,6 +910,22 @@ class ActiveStateValidatorTests(unittest.TestCase):
                     binding
                     for binding in bindings
                     if binding["path"] != "../09-校验活动状态.py"
+                ],
+                receipt_parent=ROOT / "evidence",
+                errors=errors,
+            )
+            self.assertTrue(
+                any("exact unique closed review candidate" in error for error in errors),
+                errors,
+            )
+        with self.subTest("sender profile observation omitted"):
+            errors = []
+            VALIDATOR.validate_ca_r2_candidate_bindings(
+                [
+                    binding
+                    for binding in bindings
+                    if binding["path"]
+                    != "gmail-sender-profile-observation-2026-07-27T2320.json"
                 ],
                 receipt_parent=ROOT / "evidence",
                 errors=errors,
