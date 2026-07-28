@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "TASK_PROJECT_RECOVERY_READ_ONLY.output.schema.json",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_class_id",
+        "input_bundle_id",
+        "qualification_status",
+        "projection"
+      ],
+      "properties": {
+        "task_class_id": {
+          "const": "TASK_PROJECT_RECOVERY_READ_ONLY"
+        },
+        "input_bundle_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "qualification_status": {
+          "const": "CANDIDATE_OUTPUT"
+        },
+        "projection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "objective_id",
+            "objective",
+            "state_id",
+            "state_status",
+            "claim_ceiling",
+            "primary_action",
+            "primary_write_action",
+            "background_read_only_ready_set",
+            "global_prohibitions",
+            "authority_boundary",
+            "workflow_status",
+            "current_decision",
+            "blockers",
+            "review_receipt_paths",
+            "model_portability",
+            "next_owner_constraint_action_id"
+          ],
+          "properties": {
+            "objective_id": {"type": "string"},
+            "objective": {"type": "string"},
+            "state_id": {"type": "string"},
+            "state_status": {"type": "string"},
+            "claim_ceiling": {"type": "string"},
+            "primary_action": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "effect_class", "owner", "write_set"],
+              "properties": {
+                "id": {"type": "string"},
+                "effect_class": {"enum": ["READ_ONLY", "WRITE"]},
+                "owner": {"type": "string"},
+                "write_set": {"type": "array", "items": {"type": "string"}}
+              }
+            },
+            "primary_write_action": {"type": ["object", "null"]},
+            "background_read_only_ready_set": {"type": "array"},
+            "global_prohibitions": {"type": "array", "items": {"type": "string"}},
+            "authority_boundary": {"type": "object"},
+            "workflow_status": {"type": "object"},
+            "current_decision": {"type": "object"},
+            "blockers": {"type": "object"},
+            "review_receipt_paths": {"type": "object"},
+            "model_portability": {"type": "object"},
+            "next_owner_constraint_action_id": {"type": "string"}
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_class_id",
+        "qualification_status",
+        "reason"
+      ],
+      "properties": {
+        "task_class_id": {
+          "const": "TASK_PROJECT_RECOVERY_READ_ONLY"
+        },
+        "qualification_status": {
+          "const": "REFUSED"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  ]
+}

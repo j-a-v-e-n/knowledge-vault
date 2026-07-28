@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Opportunity-to-Transaction Model Adapter",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "adapter_id",
+    "provider",
+    "model_identifier",
+    "runtime_surface",
+    "capabilities",
+    "boundaries",
+    "qualification"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "adapter_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_identifier": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "runtime_surface": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capabilities": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "qualification": {
+      "type": "object",
+      "required": [
+        "interactive_authoring",
+        "unattended_handoff",
+        "cross_provider_portability_verified",
+        "authority_effect"
+      ],
+      "properties": {
+        "interactive_authoring": {
+          "type": "boolean"
+        },
+        "unattended_handoff": {
+          "type": "boolean"
+        },
+        "cross_provider_portability_verified": {
+          "type": "boolean"
+        },
+        "authority_effect": {
+          "const": "NONE"
+        }
+      }
+    }
+  }
+}
+

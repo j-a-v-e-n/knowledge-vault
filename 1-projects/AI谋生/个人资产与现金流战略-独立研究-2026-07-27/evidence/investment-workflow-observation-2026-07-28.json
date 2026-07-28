@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T02:24:38-07:00",
+  "record_type": "WORKFLOW_OBSERVATION_SNAPSHOT_NOT_AUTHORITY_TRANSFER",
+  "workflow_root": "../../../../MyBrain/projects/investment-discipline-system",
+  "state": {
+    "path": "../../../../MyBrain/projects/investment-discipline-system/STATUS.md",
+    "sha256": "207b0afd0fc2adf80fb47f88eb478ec0ead731d3e6a11eaf80c3fe3376e429fc",
+    "subtree_git_object": "a62b824a15b9cbf86787d83671cdc2bd4aa16dd4",
+    "project_state_schema_version": "project-state-view/v1",
+    "phase": "design_freeze",
+    "phase_state": "blocked",
+    "next_action_id": "ACT-METHOD-RUNTIME-FOUNDATION",
+    "next_packet_id": "WP-METHOD-RUNTIME-FOUNDATION"
+  },
+  "latest_blocking_review": {
+    "review_id": "CHALLENGE-10",
+    "review_sequence": 10,
+    "evidence_path": "audits/PROJECT_GOVERNANCE_ADVERSARIAL_REVIEW_R10_2026-07-25.md",
+    "open_finding_ids": [
+      "R10-CRIT-CIRCULAR-COVERAGE",
+      "R10-CRIT-REGRESSION-BUDGET",
+      "R10-CRIT-STATE-FRESHNESS",
+      "R10-MAJOR-LIVING-REVIEW",
+      "R10-MAJOR-LOOP-FRESHNESS",
+      "R10-MAJOR-RESEARCH-STATUS",
+      "R10-MAJOR-WORK-GRAPH"
+    ]
+  },
+  "root_read_only_verification": {
+    "status_sha256_matched": true,
+    "subtree_git_object_matched": true,
+    "workflow_subtree_worktree_changes": []
+  },
+  "portfolio_interpretation": {
+    "scope": "INVESTMENT_WORKFLOW_ONLY",
+    "portfolio_activation": "BLOCKED",
+    "claim_ceiling": "PAPER_ONLY_HUMAN_FINAL_RELIABILITY_LAB_NOT_CASHFLOW_OR_PROVEN_EDGE",
+    "basis": "The workflow reports design_freeze/blocked with open Critical and Major findings; the portfolio blueprint separately preserves the user's paper-only and human-final investment boundary.",
+    "future_drift_rule": "A later workflow state is a new observation. It does not rewrite this snapshot, but it invalidates use of this snapshot for activation."
+  }
+}

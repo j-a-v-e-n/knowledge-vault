@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T02:28:57-07:00",
+  "record_type": "CROSS_TASK_READ_ONLY_OBSERVATION_NOT_AUTHORITY_TRANSFER",
+  "source_thread_id": "019fa520-5072-7b60-8216-167f431d57e7",
+  "subject": "C8_ATTEMPT_1_REPRODUCTION_AND_BACKTRACK_SIGNAL",
+  "source_thread_report": {
+    "attempt_findings_reproduced": 6,
+    "exact_hashes_still_match_workflow_state": true,
+    "critical_local_blockers": [
+      "RAW_RECEIPT_IDENTITY",
+      "CLOSED_INVENTORY",
+      "TOCTOU"
+    ],
+    "major_local_blockers": [
+      "COMPLETE_PARTIAL_ORDER",
+      "MANIFEST_BOUND_REJECT_COVERAGE"
+    ],
+    "major_upstream_route_finding": "CURRENT_RIGHTS_RECORD_SEALED_LANE_OUTPUT_AND_EXPERIMENT_SPEC_ARE_NOT_COMPATIBLE_WITH_THE_SAME_NAMED_FULL_INTERFACES_IN_THE_OVERALL_DESIGN",
+    "route_branches_for_future_workflow_decision": [
+      {
+        "id": "C8-ROUTE-FULL-PRODUCTION-INTERFACE",
+        "description": "实现完整生产接口。",
+        "status": "UNSELECTED"
+      },
+      {
+        "id": "C8-ROUTE-NARROW-SYNTHETIC-ASSERTION",
+        "description": "明确改名并收窄为 synthetic assertion。",
+        "status": "READ_ONLY_AUDIT_CURRENTLY_FAVORS_BUT_DOES_NOT_AUTHORIZE"
+      }
+    ],
+    "stall_diagnosis": "CONTINUING_FIELD_BY_FIELD_PATCHING_BEFORE_THE_ROUTE_DECISION_RISKS_A_GOVERNANCE_SELF_LOOP",
+    "current_verdict": "FAIL_NO_GO"
+  },
+  "claim_ceiling": {
+    "root_independent_reproduction": "NOT_PERFORMED_IN_THIS_PORTFOLIO_TASK",
+    "authority_effect": "NONE",
+    "still_forbidden": [
+      "C8_WRITE",
+      "FREEZE_OR_ROOT_GENERATION",
+      "SHADOW",
+      "EXTERNAL_ACTION"
+    ],
+    "next_allowed_use": "WHEN_OPPORTUNITY_WORKFLOW_WRITES_ARE_SEPARATELY_REAUTHORIZED_AND_FRESHLY_COORDINATED_USE_THIS_AS_A_BACKTRACK_INPUT_BEFORE_ANY_C8_FIELD_PATCHING"
+  }
+}

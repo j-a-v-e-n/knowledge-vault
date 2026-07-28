@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "task_class_id": "TASK_PROJECT_RECOVERY_READ_ONLY",
+  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R3-RECOVERY-BUNDLE",
+  "claim_status": "EXECUTABLE_EVAL_NOT_YET_MODEL_RUN",
+  "input_bundle": [
+    {
+      "role": "APPLICABLE_ROOT_INSTRUCTIONS",
+      "path": "../../../../../AGENTS.md",
+      "sha256": "ad43df133a5c463b6de84d4504dcb35e704525661074428b0855181f62f67be9"
+    },
+    {
+      "role": "PORTFOLIO_BLUEPRINT",
+      "path": "../../16-总体蓝图闭合合同与状态审计.md",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "role": "PORTFOLIO_STATE",
+      "path": "../../17-总体蓝图活动状态.json",
+      "sha256": "2e2c779b2599a377565cb97f2744831a36d9744303fc3eb9cfb7271d9efcf708"
+    },
+    {
+      "role": "OPPORTUNITY_CONTROL_PLANE_OBSERVATION",
+      "path": "../../evidence/opportunity-control-plane-observation-2026-07-28.json",
+      "sha256": "ce1f427b0e256f2a8d33cbe440d629a9b927da55346046b5fe87c294f822826c"
+    },
+    {
+      "role": "OPPORTUNITY_C8_READ_ONLY_OBSERVATION",
+      "path": "../../evidence/opportunity-c8-read-only-observation-2026-07-28.json",
+      "sha256": "9e50b0db1fa7fff5246df2573c745b41a191919d5d397c84aeb78f4e1ab6d768"
+    },
+    {
+      "role": "INVESTMENT_WORKFLOW_OBSERVATION",
+      "path": "../../evidence/investment-workflow-observation-2026-07-28.json",
+      "sha256": "3b258e01a2dcdffac090d5485c089c9f32fa7caf9cb03b84526f9b0091745386"
+    }
+  ],
+  "contract_artifacts": [
+    {
+      "role": "VALIDATOR",
+      "path": "validate_recovery_output.py",
+      "sha256": "0e0d8e3b2ebf21e63fff7cd21d3fb7700e574345ea7d4030642eed7de7b23caf"
+    },
+    {
+      "role": "OUTPUT_SCHEMA",
+      "path": "output.schema.json",
+      "sha256": "86119d9bdf87bf3d945fb1048450f334cfcc0b5290e88f74daa2921e760c0d55"
+    },
+    {
+      "role": "SEMANTIC_RUBRIC",
+      "path": "SEMANTIC_RUBRIC.md",
+      "sha256": "c22afa61ea187c616acd362c43d7b74a6fbf7762d66402b4a309f81185f3016e"
+    },
+    {
+      "role": "UNIT_TESTS",
+      "path": "test_validate_recovery_output.py",
+      "sha256": "c7ef70c02ed581c93b041bc037305d9d706c0d4d5680ff966fc0f4a19dc4ad53"
+    }
+  ],
+  "fixtures": [],
+  "gold_projection": {
+    "role": "MECHANICAL_GOLD_PROJECTION",
+    "path": "gold-projection.json",
+    "sha256": "aa18ac23913b07d50a90a382490fb67086ff97df92464f283965902c57d0422d"
+  },
+  "oracle": {
+    "mechanical_owner": "validate_recovery_output.py",
+    "semantic_owner": "FRESH_REVIEWER_DISTINCT_FROM_GENERATOR",
+    "generator_self_acceptance_allowed": false,
+    "permission_grant": "NONE"
+  },
+  "fixture_purpose": "One deliberately wrong blueprint hash must produce STALE_INPUT_BUNDLE before output acceptance."
+}

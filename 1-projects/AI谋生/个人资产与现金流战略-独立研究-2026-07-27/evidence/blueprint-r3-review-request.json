@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0",
+  "review_id": "PORTFOLIO-BLUEPRINT-R3-EXACT-REVIEW",
+  "review_mode": "TWO_FRESH_INDEPENDENT_READ_ONLY_LEGS",
+  "candidate_identity": {
+    "blueprint": {
+      "path": "../16-总体蓝图闭合合同与状态审计.md",
+      "sha256": "7742a08e0f216abf5c749197b74a2bd3021c2260d666f8a0a9354f85b1ef42bd"
+    },
+    "portfolio_state": {
+      "path": "../17-总体蓝图活动状态.json",
+      "sha256": "2e2c779b2599a377565cb97f2744831a36d9744303fc3eb9cfb7271d9efcf708"
+    },
+    "applicable_root_instructions": {
+      "path": "../../../../AGENTS.md",
+      "sha256": "ad43df133a5c463b6de84d4504dcb35e704525661074428b0855181f62f67be9"
+    }
+  },
+  "bound_observation_records": [
+    {
+      "path": "opportunity-control-plane-observation-2026-07-28.json",
+      "sha256": "ce1f427b0e256f2a8d33cbe440d629a9b927da55346046b5fe87c294f822826c"
+    },
+    {
+      "path": "opportunity-c8-read-only-observation-2026-07-28.json",
+      "sha256": "9e50b0db1fa7fff5246df2573c745b41a191919d5d397c84aeb78f4e1ab6d768"
+    },
+    {
+      "path": "investment-workflow-observation-2026-07-28.json",
+      "sha256": "3b258e01a2dcdffac090d5485c089c9f32fa7caf9cb03b84526f9b0091745386"
+    }
+  ],
+  "model_conformance_identity": {
+    "root": "../model-conformance/task-project-recovery-read-only",
+    "artifacts": [
+      {
+        "path": "task-class.json",
+        "sha256": "6e1702d52e083f217105312030bfafb138b9ada68585743d116279f57f1f404a"
+      },
+      {
+        "path": "validate_recovery_output.py",
+        "sha256": "0e0d8e3b2ebf21e63fff7cd21d3fb7700e574345ea7d4030642eed7de7b23caf"
+      },
+      {
+        "path": "output.schema.json",
+        "sha256": "86119d9bdf87bf3d945fb1048450f334cfcc0b5290e88f74daa2921e760c0d55"
+      },
+      {
+        "path": "SEMANTIC_RUBRIC.md",
+        "sha256": "c22afa61ea187c616acd362c43d7b74a6fbf7762d66402b4a309f81185f3016e"
+      },
+      {
+        "path": "gold-projection.json",
+        "sha256": "aa18ac23913b07d50a90a382490fb67086ff97df92464f283965902c57d0422d"
+      },
+      {
+        "path": "fixtures/valid-output.json",
+        "sha256": "4821b1c0fcd858092f38087f8bc1919da688015d8ca7bd293b17882daf040ba0"
+      },
+      {
+        "path": "fixtures/refusal-output.json",
+        "sha256": "d5f0641cd2778720e5c04ead46dc6f72918df26b74d6a68aa48525a86bf0ed41"
+      },
+      {
+        "path": "fixtures/wrong-output.json",
+        "sha256": "c7639cfa91b133b2417728368e05e5c213758bc9e2356eb9f340fb8992535885"
+      },
+      {
+        "path": "fixtures/stale-task-class.json",
+        "sha256": "bbcf175f6abf569e1cfe7f31deb36426ae8927d7ec69d56725519097c6cf420b"
+      },
+      {
+        "path": "test_validate_recovery_output.py",
+        "sha256": "c7ef70c02ed581c93b041bc037305d9d706c0d4d5680ff966fc0f4a19dc4ad53"
+      }
+    ],
+    "required_test_command": "python3 -B -m unittest -v test_validate_recovery_output.py",
+    "required_test_cwd": "../model-conformance/task-project-recovery-read-only",
+    "expected_fixture_semantics": {
+      "normal": "exit 0 / EVAL_QUALIFIED_CANDIDATE_OUTPUT",
+      "refusal": "exit 2 / NOT_QUALIFIED_REFUSAL",
+      "stale": "exit 3 / STALE_INPUT_BUNDLE",
+      "wrong_output": "exit 4 / WRONG_STATE_PROJECTION"
+    },
+    "claim_ceiling": "THE_SUITE_IS_EXECUTABLE_BUT_NO_MODEL_OR_PROVIDER_IS_QUALIFIED_BY_FIXTURES_OR_THIS_REVIEW"
+  },
+  "r2_failures_that_must_be_closed": [
+    "DYNAMIC_WORKFLOW_POINTER_MUST_BE_AN_OBSERVATION_SNAPSHOT_NOT_A_CANDIDATE_BOUND_LIVE_POINTER",
+    "REVIEW_ADMISSION_DESIGN_CLOSURE_AND_WORKFLOW_ACTIVATION_BLOCKERS_MUST_NOT_FORM_A_CYCLE",
+    "READ_ONLY_REVIEW_MUST_NOT_BE_TYPED_AS_PRIMARY_WRITE_ACTION",
+    "REVIEW_OUTPUT_MUST_HAVE_A_DURABLE_VERBATIM_RECEIPT_AND_FAIL_CLOSED_SUCCESSOR_TRANSITION",
+    "TASK_PROJECT_RECOVERY_READ_ONLY_MUST_BE_CONTENT_ADDRESSED_EXECUTABLE_AND_DETERMINISTIC_ON_NORMAL_REFUSAL_STALE_AND_WRONG_OUTPUT_CASES",
+    "THE_OLD_RESTART_CHECKPOINT_MUST_BE_EVIDENCE_ONLY_NOT_CURRENT_ACTION_AUTHORITY"
+  ],
+  "adversarial_leg": {
+    "scope": [
+      "exact identity and stale-candidate behavior",
+      "portfolio versus workflow authority and cross-task coordination",
+      "review admission versus activation blocker semantics",
+      "typed primary action and durable review receipt transition",
+      "conformance suite correctness and non-self-qualification",
+      "decision graph and concrete PB050 backtrack",
+      "C8 upstream route observation without portfolio overreach",
+      "governance complexity proportionality",
+      "owner constraints and conditional priority",
+      "all external business and investment prohibitions"
+    ],
+    "required_output": "PASS or FAIL; reviewer task identity; recomputed exact hashes; Critical/Major/Minor findings with precise paths or reproduction; commands run; confirmation of no file modifications or external action."
+  },
+  "blind_recovery_leg": {
+    "context_rule": "Use no prior chat, memory, R1/R2 reviewer answer, or unbound project summary. Read the applicable instructions, task-class manifest, and only its bound input bundle before answering.",
+    "required_answers": [
+      "objective and conditional tie-break",
+      "current state status and claim ceiling",
+      "typed primary action and primary_write_action",
+      "background read-only ready set",
+      "all global prohibitions",
+      "opportunity and investment observation scope/status/activation",
+      "current decision id, parent, adjacent branches, and backtrack target",
+      "three blocker classes",
+      "review receipt paths and successor rule",
+      "model portability status and task-class status",
+      "C8 future local route decision",
+      "next owner-constraint action after a two-leg PASS"
+    ],
+    "required_output": "PASS or FAIL for blind-recovery leg; reviewer task identity; structured recovery; exact hashes; fixture test result; Critical/Major/Minor findings; confirmation of no file modifications or external action.",
+    "qualification_boundary": "This reviewer leg tests recoverability but is not registered as a provider/model/adapter qualification run."
+  },
+  "pass_rule": "Overall R3 passes only if both fresh legs bind the exact candidate and each returns PASS with zero Critical and zero Major. Any drift, test failure, missing required answer, permission expansion, self-qualification, or nonpass leg yields FAIL.",
+  "reviewer_permissions": {
+    "read_candidate_and_bound_inputs": true,
+    "run_local_read_only_hash_and_test_commands": true,
+    "modify_any_project_file": false,
+    "contact_people_or_use_accounts": false,
+    "publish_pay_contract_or_invest": false
+  }
+}

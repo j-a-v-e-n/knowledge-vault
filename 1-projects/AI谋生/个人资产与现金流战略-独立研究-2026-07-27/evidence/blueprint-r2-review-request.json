@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "review_request_id": "PORTFOLIO-BLUEPRINT-R2-2026-07-28",
+  "review_type": "EXACT_CANDIDATE_INDEPENDENT_ADVERSARIAL_AND_BLIND_RECOVERY",
+  "candidate": {
+    "blueprint_path": "../16-总体蓝图闭合合同与状态审计.md",
+    "blueprint_sha256": "6be5dd523132fe9a803ba2328ef6ccb25dc3084e75c86e6d0a3a6c7b80c31b49",
+    "state_path": "../17-总体蓝图活动状态.json",
+    "state_sha256": "77f4cfde8d5139f68aea5fb1cc153214bc23714636615a867045f473e6378ce3"
+  },
+  "predecessor": {
+    "blueprint_r1_sha256": "e07344131325a514050a3f9bdfc8cd49fe115db22a2f01bf7edea4c3253e928f",
+    "adversarial_verdict": "FAIL",
+    "blind_recovery_verdict": "FAIL"
+  },
+  "r1_required_closures": [
+    "OBJECTIVE_CONFLICT_TIEBREAK_AND_OWNER_CONSTRAINT_BLOCKER",
+    "PORTFOLIO_VS_WORKFLOW_AUTHORITY_SCOPE_AND_SUPERSESSION",
+    "UNIQUE_PRIMARY_WRITE_ACTION_AND_EXPLICIT_READ_ONLY_READY_SET",
+    "INSTANTIATED_CURRENT_DECISION_PARENT_ADJACENT_BRANCHES_AND_BACKTRACK",
+    "CONCRETE_MODEL_TASK_CLASS_ORACLE_OWNERSHIP_AND_NOT_TESTED_STATUS",
+    "AUDIT_VS_NONDETERMINISTIC_REPLAY_CLAIM",
+    "SEPARATE_ENGAGEMENT_CONFIRMED_PROBLEM_NONBINDING_ACCEPTANCE_BINDING_COMMITMENT_PAYMENT_AND_ACCEPTANCE",
+    "PLATFORM_EXPANSION_SUPPORTED_SMALL_TEAM_PAYMENT_SPACE_CONTESTED",
+    "CASH_EVENT_VS_ECONOMIC_RESULT_SEPARATION",
+    "LOCATABLE_LANGGRAPH_PRIMARY_SOURCE"
+  ],
+  "adversarial_review_questions": [
+    "Can portfolio and workflow agents independently recover without competing for current state or permission authority?",
+    "Does the conditional objective policy honestly block actual workflow ordering until owner constraints exist?",
+    "Is every current supersession claim bound to an original path hash and superseding evidence?",
+    "Does model portability remain NOT_TESTED and is TASK_PROJECT_RECOVERY_READ_ONLY executable with an independent oracle?",
+    "Can any engagement or technical demo be semantically upgraded to demand commitment payment acceptance or profit?",
+    "Does the blueprint distinguish platform expansion evidence from the unverified hypothesis that this user can capture value?",
+    "Has remediation added a second governance loop or a mechanism with no observed failure and decision impact?"
+  ],
+  "blind_recovery_required_answers": [
+    "OBJECTIVE_AND_CONDITIONAL_TIEBREAK",
+    "CURRENT_STAGE_AND_CLAIM_CEILING",
+    "PRIMARY_WRITE_ACTION_ID",
+    "BACKGROUND_READ_ONLY_READY_SET",
+    "GLOBAL_PROHIBITIONS",
+    "OPPORTUNITY_AND_INVESTMENT_SCOPE_STATUS",
+    "CURRENT_DECISION_ID_PARENT_ADJACENT_BRANCHES_AND_BACKTRACK_TARGET",
+    "MODEL_PORTABILITY_STATUS_AND_FIRST_TASK_CLASS",
+    "NEXT_OWNER_DECISION_AFTER_REVIEW"
+  ],
+  "pass_rule": "BOTH_FRESH_REVIEWS_BIND_EXACT_HASHES_AND_REPORT_NO_CRITICAL_OR_MAJOR",
+  "reviewer_permissions": {
+    "read_candidate_and_referenced_originals": true,
+    "recompute_hashes": true,
+    "run_read_only_or_local_nonmutating_checks": true,
+    "modify_candidate": false,
+    "contact_or_publish": false,
+    "accounts_payments_contracts_or_investment": false
+  }
+}

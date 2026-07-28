@@ -1,0 +1,5 @@
+{
+  "task_class_id": "TASK_PROJECT_RECOVERY_READ_ONLY",
+  "qualification_status": "REFUSED",
+  "reason": "Fixture: model or tool cannot recover the exact input bundle."
+}

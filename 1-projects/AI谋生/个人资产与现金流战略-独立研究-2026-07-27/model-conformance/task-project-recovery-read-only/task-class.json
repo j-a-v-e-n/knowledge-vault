@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0",
+  "task_class_id": "TASK_PROJECT_RECOVERY_READ_ONLY",
+  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R3-RECOVERY-BUNDLE",
+  "claim_status": "EXECUTABLE_EVAL_NOT_YET_MODEL_RUN",
+  "input_bundle": [
+    {
+      "role": "APPLICABLE_ROOT_INSTRUCTIONS",
+      "path": "../../../../../AGENTS.md",
+      "sha256": "ad43df133a5c463b6de84d4504dcb35e704525661074428b0855181f62f67be9"
+    },
+    {
+      "role": "PORTFOLIO_BLUEPRINT",
+      "path": "../../16-总体蓝图闭合合同与状态审计.md",
+      "sha256": "7742a08e0f216abf5c749197b74a2bd3021c2260d666f8a0a9354f85b1ef42bd"
+    },
+    {
+      "role": "PORTFOLIO_STATE",
+      "path": "../../17-总体蓝图活动状态.json",
+      "sha256": "2e2c779b2599a377565cb97f2744831a36d9744303fc3eb9cfb7271d9efcf708"
+    },
+    {
+      "role": "OPPORTUNITY_CONTROL_PLANE_OBSERVATION",
+      "path": "../../evidence/opportunity-control-plane-observation-2026-07-28.json",
+      "sha256": "ce1f427b0e256f2a8d33cbe440d629a9b927da55346046b5fe87c294f822826c"
+    },
+    {
+      "role": "OPPORTUNITY_C8_READ_ONLY_OBSERVATION",
+      "path": "../../evidence/opportunity-c8-read-only-observation-2026-07-28.json",
+      "sha256": "9e50b0db1fa7fff5246df2573c745b41a191919d5d397c84aeb78f4e1ab6d768"
+    },
+    {
+      "role": "INVESTMENT_WORKFLOW_OBSERVATION",
+      "path": "../../evidence/investment-workflow-observation-2026-07-28.json",
+      "sha256": "3b258e01a2dcdffac090d5485c089c9f32fa7caf9cb03b84526f9b0091745386"
+    }
+  ],
+  "contract_artifacts": [
+    {
+      "role": "VALIDATOR",
+      "path": "validate_recovery_output.py",
+      "sha256": "0e0d8e3b2ebf21e63fff7cd21d3fb7700e574345ea7d4030642eed7de7b23caf"
+    },
+    {
+      "role": "OUTPUT_SCHEMA",
+      "path": "output.schema.json",
+      "sha256": "86119d9bdf87bf3d945fb1048450f334cfcc0b5290e88f74daa2921e760c0d55"
+    },
+    {
+      "role": "SEMANTIC_RUBRIC",
+      "path": "SEMANTIC_RUBRIC.md",
+      "sha256": "c22afa61ea187c616acd362c43d7b74a6fbf7762d66402b4a309f81185f3016e"
+    },
+    {
+      "role": "UNIT_TESTS",
+      "path": "test_validate_recovery_output.py",
+      "sha256": "c7ef70c02ed581c93b041bc037305d9d706c0d4d5680ff966fc0f4a19dc4ad53"
+    }
+  ],
+  "fixtures": [
+    {
+      "role": "NORMAL_OUTPUT_FIXTURE",
+      "path": "fixtures/valid-output.json",
+      "sha256": "4821b1c0fcd858092f38087f8bc1919da688015d8ca7bd293b17882daf040ba0",
+      "expected_exit_code": 0,
+      "expected_classification": "EVAL_QUALIFIED_CANDIDATE_OUTPUT"
+    },
+    {
+      "role": "REFUSAL_OUTPUT_FIXTURE",
+      "path": "fixtures/refusal-output.json",
+      "sha256": "d5f0641cd2778720e5c04ead46dc6f72918df26b74d6a68aa48525a86bf0ed41",
+      "expected_exit_code": 2,
+      "expected_classification": "NOT_QUALIFIED_REFUSAL"
+    },
+    {
+      "role": "WRONG_OUTPUT_FIXTURE",
+      "path": "fixtures/wrong-output.json",
+      "sha256": "c7639cfa91b133b2417728368e05e5c213758bc9e2356eb9f340fb8992535885",
+      "expected_exit_code": 4,
+      "expected_classification": "WRONG_STATE_PROJECTION"
+    },
+    {
+      "role": "STALE_INPUT_MANIFEST_FIXTURE",
+      "path": "fixtures/stale-task-class.json",
+      "sha256": "bbcf175f6abf569e1cfe7f31deb36426ae8927d7ec69d56725519097c6cf420b",
+      "expected_exit_code": 3,
+      "expected_classification": "STALE_INPUT_BUNDLE"
+    }
+  ],
+  "gold_projection": {
+    "role": "MECHANICAL_GOLD_PROJECTION",
+    "path": "gold-projection.json",
+    "sha256": "aa18ac23913b07d50a90a382490fb67086ff97df92464f283965902c57d0422d",
+    "derivation": "validate_recovery_output.derive_projection over the exact PORTFOLIO_STATE input"
+  },
+  "context_policy": {
+    "allowed": "ONLY_THE_CONTENT_ADDRESSED_INPUT_BUNDLE_AND_EXPLICIT_RUNTIME_ERRORS",
+    "old_chat_or_memory": "FORBIDDEN",
+    "truncation": "EXPLICIT_REFUSAL_OR_NONQUALIFICATION",
+    "network": "NOT_REQUIRED",
+    "filesystem": "READ_ONLY"
+  },
+  "runtime_contract": {
+    "entrypoint": "python3 -B validate_recovery_output.py --manifest task-class.json --output OUTPUT.json",
+    "required_python_package": "jsonschema with Draft 2020-12 support",
+    "tool_owner": "EXTERNAL_RUNNER",
+    "model_may_request_tools": true,
+    "model_may_expand_permissions": false
+  },
+  "oracle": {
+    "mechanical_owner": "validate_recovery_output.py",
+    "semantic_owner": "FRESH_REVIEWER_DISTINCT_FROM_GENERATOR",
+    "generator_self_acceptance_allowed": false,
+    "high_impact_field_averaging_allowed": false,
+    "permission_grant": "NONE"
+  },
+  "model_run_requirements": {
+    "fresh_session_without_prior_chat": true,
+    "required_identity_fields": [
+      "provider",
+      "provider_returned_model_identifier",
+      "adapter_version",
+      "tool_set_version",
+      "policy_version",
+      "input_bundle_id"
+    ],
+    "raw_output_must_be_preserved": true,
+    "fixture_success_counts_as_model_run": false,
+    "single_run_claim_ceiling": "ONE_MODEL_ONE_VERSION_ONE_ADAPTER_ONE_EXACT_BUNDLE_READ_ONLY_RECOVERY",
+    "cross_provider_claim_requires_second_independent_qualification": true
+  }
+}

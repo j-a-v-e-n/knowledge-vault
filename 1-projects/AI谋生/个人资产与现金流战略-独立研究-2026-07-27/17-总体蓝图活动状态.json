@@ -1,0 +1,293 @@
+{
+  "schema_version": "1.1",
+  "state_id": "PORTFOLIO-BLUEPRINT-R3-CANDIDATE",
+  "as_of": "2026-07-28T02:24:38-07:00",
+  "scope": "PORTFOLIO",
+  "status": "R3_INDEPENDENT_REVIEW_READY",
+  "claim_ceiling": "DESIGN_CANDIDATE_ONLY_NO_BUSINESS_WORKFLOW_ACTIVATION_OR_MODEL_PORTABILITY_CLAIM",
+  "blueprint_candidate": {
+    "path": "16-总体蓝图闭合合同与状态审计.md",
+    "sha256": "7742a08e0f216abf5c749197b74a2bd3021c2260d666f8a0a9354f85b1ef42bd",
+    "review_request": "evidence/blueprint-r3-review-request.json",
+    "candidate_bound_live_workflow_pointers": []
+  },
+  "predecessor_reviews": {
+    "r1": {
+      "blueprint_sha256": "e07344131325a514050a3f9bdfc8cd49fe115db22a2f01bf7edea4c3253e928f",
+      "overall_verdict": "FAIL"
+    },
+    "r2": {
+      "blueprint_sha256": "6be5dd523132fe9a803ba2328ef6ccb25dc3084e75c86e6d0a3a6c7b80c31b49",
+      "state_sha256": "77f4cfde8d5139f68aea5fb1cc153214bc23714636615a867045f473e6378ce3",
+      "review_request": "evidence/blueprint-r2-review-request.json",
+      "blind_recovery_leg": "PASS",
+      "adversarial_leg": "FAIL",
+      "overall_verdict": "FAIL",
+      "adversarial_findings": [
+        "DYNAMIC_WORKFLOW_POINTER_DRIFT_INVALIDATED_THE_EXACT_CANDIDATE",
+        "REVIEW_ADMISSION_GATE_WAS_CIRCULAR",
+        "READ_ONLY_REVIEW_WAS_MISTYPED_AS_A_WRITE_ACTION",
+        "MODEL_RECOVERY_TASK_CLASS_WAS_NOT_EXECUTABLE",
+        "SUPERSEDING_CHECKPOINT_RETAINED_CONFLICTING_ACTION_INSTRUCTIONS"
+      ],
+      "durable_review_receipts": "NOT_PERSISTED_IN_R2"
+    }
+  },
+  "objective_id": "PORTFOLIO_CONSTRAINED_ASSET_CASHFLOW_CAPABILITY_OPTIONALITY",
+  "objective": "在用户的硬约束内，把 AI 和两个工作流组织成可恢复、可否证的系统，以探索现金流、形成可控制资产、积累长期能力并保留选择权。",
+  "objective_conflict_policy": {
+    "hard_constraints_first": [
+      "EXPLICIT_USER_AUTHORITY",
+      "LEGAL_AND_SAFETY_BOUNDARIES",
+      "PAPER_ONLY_HUMAN_FINAL_INVESTMENT",
+      "USER_DEFINED_UNACCEPTABLE_LOSS_AND_RESPONSIBILITY"
+    ],
+    "feasible_branch_tiebreak": [
+      "REDUCE_LARGEST_DECISION_CRITICAL_UNKNOWN_AT_LOWEST_IRREVERSIBLE_COST",
+      "IF_CASH_URGENT_MOVE_CLOSER_TO_VERIFIED_PAYMENT",
+      "OTHERWISE_PREFER_CONTROLLABLE_ASSET_COMPOUNDING_AND_OPTION_VALUE",
+      "PREFER_REVERSIBLE_PORTABLE_AND_TRANSPARENT_PLATFORM_DEPENDENCE"
+    ],
+    "owner_constraints_status": "OPEN_BLOCKING_FOR_PORTFOLIO_PRIORITY_NOT_REVIEW_ADMISSION"
+  },
+  "authority_contract": {
+    "portfolio_owns": [
+      "CROSS_WORKFLOW_PRIORITY",
+      "PERMISSION_CEILING_FOR_ACTIONS_LAUNCHED_FROM_THIS_TASK",
+      "TYPED_PRIMARY_ACTION",
+      "BACKGROUND_READ_ONLY_READY_SET",
+      "WORKFLOW_OBSERVATION_SNAPSHOTS",
+      "PORTFOLIO_OUTCOME_UPDATE"
+    ],
+    "portfolio_does_not_own": [
+      "REMOTE_WRITE_CONTROL_OF_ANOTHER_USER_TASK",
+      "WORKFLOW_INTERNAL_CANDIDATE_OR_PASS",
+      "WORKFLOW_LOCAL_EVIDENCE_STAGE",
+      "INVESTMENT_OR_BUSINESS_RESULT"
+    ],
+    "workflow_owns": [
+      "WORKFLOW_INTERNAL_CANDIDATE",
+      "WORKFLOW_EVIDENCE_STAGE",
+      "WORKFLOW_LOCAL_PLAN_AND_DECISION_GRAPH",
+      "WORKFLOW_LOCAL_NEXT_SAFE_ACTION"
+    ],
+    "effective_permission_rule": "FOR_ACTIONS_LAUNCHED_FROM_THIS_TASK_USE_THE_INTERSECTION_OF_EXACT_USER_AUTHORITY_PORTFOLIO_CEILING_WORKFLOW_POLICY_AND_TOOL_SANDBOX_DENY_WINS",
+    "cross_task_write_rule": "REQUIRES_FRESH_WORKFLOW_REFRESH_AND_EXPLICIT_BILATERAL_COORDINATION_ACKNOWLEDGMENT_BEFORE_PORTFOLIO_ACTIVATION",
+    "fact_rule": "ORIGINAL_EVENTS_AND_OUTPUTS_CONTROL_FACTS_PROJECTIONS_CONTROL_ONLY_THEIR_DECLARED_SCOPE",
+    "observation_staleness_rule": "LATER_WORKFLOW_DRIFT_DOES_NOT_REWRITE_HISTORICAL_REVIEW_BUT_BLOCKS_ACTIVATION_UNTIL_REFRESH",
+    "candidate_staleness_rule": "ONLY_EXACT_CANDIDATE_FILES_OR_EXPLICIT_CANDIDATE_BOUND_LIVE_INPUTS_CAUSE_THIS_CANDIDATE_TO_ENTER_STALE_STATE"
+  },
+  "workflow_observations": {
+    "opportunity": {
+      "observation_record_path": "evidence/opportunity-control-plane-observation-2026-07-28.json",
+      "observation_record_sha256": "ce1f427b0e256f2a8d33cbe440d629a9b927da55346046b5fe87c294f822826c",
+      "supplemental_c8_observation_path": "evidence/opportunity-c8-read-only-observation-2026-07-28.json",
+      "supplemental_c8_observation_sha256": "9e50b0db1fa7fff5246df2573c745b41a191919d5d397c84aeb78f4e1ab6d768",
+      "observed_at": "2026-07-28T02:21:56-07:00",
+      "observed_state_path": "../机会到交易系统-项目控制面/STATE.json",
+      "observed_state_sha256": "57a09e085b464e639247429b583d1d1579342a3401fe84ee932b446ead92a317",
+      "candidate_dependency": "OBSERVATION_RECORD_ONLY_NOT_LIVE_POINTER",
+      "scope": "OPPORTUNITY_WORKFLOW_ONLY",
+      "reported_lifecycle": "CONTROL_PLANE_REMEDIATION",
+      "reported_current_decision": "D030",
+      "reported_backtrack": "D020",
+      "reported_next_action_id": "ACT-VALIDATE-CONTROL-PLANE",
+      "workflow_gates": {
+        "control_plane_accepted": false,
+        "c8_candidate_edit_allowed_now": false,
+        "c8_fresh_review_pass": false,
+        "local_shadow_allowed_now": false,
+        "reality_experiment_proposal_allowed_now": false
+      },
+      "coordination_status": "PAUSED_STABLE_OBSERVATION_REQUIRES_REFRESH_BEFORE_ACTIVATION",
+      "portfolio_activation": "BLOCKED",
+      "future_local_route_decision": "BEFORE_ANY_NEW_C8_FIELD_PATCHING_CHOOSE_FULL_PRODUCTION_INTERFACES_OR_EXPLICITLY_RENAMED_NARROW_SYNTHETIC_ASSERTION; CURRENT_READ_ONLY_OBSERVATION_FAVORS_THE_NARROW_BRANCH_WITHOUT_AUTHORIZING_IT",
+      "claim_ceiling": "WORKFLOW_INTERNAL_VERIFICATION_ONLY_NO_DEMAND_TRANSACTION_OR_EXTERNAL_ACTION_CLAIM"
+    },
+    "investment": {
+      "observation_record_path": "evidence/investment-workflow-observation-2026-07-28.json",
+      "observation_record_sha256": "3b258e01a2dcdffac090d5485c089c9f32fa7caf9cb03b84526f9b0091745386",
+      "observed_at": "2026-07-28T02:24:38-07:00",
+      "observed_state_path": "../../../MyBrain/projects/investment-discipline-system/STATUS.md",
+      "observed_state_sha256": "207b0afd0fc2adf80fb47f88eb478ec0ead731d3e6a11eaf80c3fe3376e429fc",
+      "observed_subtree_git_object": "a62b824a15b9cbf86787d83671cdc2bd4aa16dd4",
+      "candidate_dependency": "OBSERVATION_RECORD_ONLY_NOT_LIVE_POINTER",
+      "scope": "INVESTMENT_WORKFLOW_ONLY",
+      "reported_phase": "design_freeze",
+      "reported_state": "blocked",
+      "reported_next_action_id": "ACT-METHOD-RUNTIME-FOUNDATION",
+      "portfolio_activation": "BLOCKED",
+      "claim_ceiling": "PAPER_ONLY_HUMAN_FINAL_RELIABILITY_LAB_NOT_CASHFLOW_OR_PROVEN_EDGE"
+    }
+  },
+  "supersession_records": [
+    {
+      "path": "08-活动状态.json",
+      "sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
+      "authority_status": "HISTORICAL_PREDECESSOR_NOT_PORTFOLIO_CURRENT",
+      "superseding_evidence": "evidence/restart-checkpoint-after-r4-review-2026-07-28.md",
+      "superseding_evidence_sha256": "ca2257f1acfc6f7002e8cba514edba2b05e26e838bc4a695bf962f21975767e8",
+      "effect": "酒店消息保持终局拒绝方向且不得发送；live transition 尚未安全物化。"
+    },
+    {
+      "path": "15-需求优先的现实实验重设计.md",
+      "sha256": "49197881c7fb8ec9bf2a21da5e4dc6fe55bd43b4f4d8d1f1e2778281aebbd8cc",
+      "authority_status": "PARTIAL_NOT_CANDIDATE",
+      "superseding_evidence": "evidence/restart-checkpoint-after-r4-review-2026-07-28.md",
+      "superseding_evidence_sha256": "ca2257f1acfc6f7002e8cba514edba2b05e26e838bc4a695bf962f21975767e8",
+      "effect": "不得继续补写、实现或用作 current demand runtime。"
+    },
+    {
+      "path": "evidence/restart-checkpoint-after-r4-review-2026-07-28.md",
+      "sha256": "ca2257f1acfc6f7002e8cba514edba2b05e26e838bc4a695bf962f21975767e8",
+      "authority_status": "EVIDENCE_ONLY_NOT_CURRENT_ACTION_AUTHORITY",
+      "superseded_content": "LEGACY_RECOVERY_SEQUENCE_IN_THE_SAME_RECORD",
+      "effect": "只允许支持已经观察到的 predecessor/partial 事实；不得按其旧恢复顺序推进 08、15 或任何外部动作。"
+    }
+  ],
+  "blockers": {
+    "review_admission_blocking": [],
+    "design_closure_blocking": [
+      "R3_EXACT_ADVERSARIAL_AND_BLIND_RECOVERY_REVIEW"
+    ],
+    "workflow_activation_blocking": [
+      "OWNER_CASH_LOSS_RESPONSIBILITY_AND_TIME_CONSTRAINTS",
+      "SELECTED_WORKFLOW_LOCAL_GATES_AND_FRESH_BILATERAL_COORDINATION"
+    ]
+  },
+  "current_decision": {
+    "id": "PB050",
+    "parent_id": "PB040",
+    "question": "R2 因动态 workflow pointer、循环准入 Gate、动作误分类和不可执行 task class 失败后，怎样形成不会远程接管子任务且能被独立复跑的 R3？",
+    "selected": "用不可变 observation records 代替 live workflow candidate dependency，拆分三类 blocker，把本轮 review 标为 READ_ONLY，并物化 content-addressed recovery conformance suite 后提交 exact R3。",
+    "basis": [
+      "R2_ADVERSARIAL_POINTER_DRIFT_CRITICAL",
+      "R2_ADVERSARIAL_CIRCULAR_REVIEW_GATE_CRITICAL",
+      "R2_ADVERSARIAL_ACTION_TYPING_MAJOR",
+      "R2_ADVERSARIAL_NONEXECUTABLE_MODEL_TASK_CLASS_MAJOR",
+      "R2_ADVERSARIAL_CONFLICTING_CHECKPOINT_AUTHORITY_MAJOR"
+    ],
+    "adjacent_branches": [
+      {
+        "id": "PB050-A",
+        "branch": "把另一个任务的 live workflow state 冻结为 portfolio candidate dependency",
+        "status": "REJECTED_FALSE_REMOTE_AUTHORITY_AND_REPEATED_DRIFT_RISK"
+      },
+      {
+        "id": "PB050-B",
+        "branch": "保留模型 task class 为说明表，不物化 runner 与 fixtures",
+        "status": "REJECTED_NOT_INDEPENDENTLY_EXECUTABLE"
+      },
+      {
+        "id": "PB050-C",
+        "branch": "停止 portfolio control surface，只保留单 workflow-local baseline 并由人工跨项目选择",
+        "status": "REOPEN_IF_R3_STILL_FINDS_DUAL_AUTHORITY_OR_GOVERNANCE_COST_EXCEEDS_DECISION_VALUE"
+      },
+      {
+        "id": "PB050-D",
+        "branch": "先取得 owner constraints 再审设计",
+        "status": "DEFERRED_BECAUSE_CONSTRAINTS_BLOCK_RESOURCE_ORDER_NOT_REVIEW_ADMISSION"
+      }
+    ],
+    "stall_triggers": [
+      "R3_REPEATS_DUAL_AUTHORITY_OR_REVIEW_GATE_CYCLE",
+      "CONFORMANCE_ARTIFACTS_CANNOT_PRODUCE_DETERMINISTIC_NORMAL_REFUSAL_STALE_AND_WRONG_OUTPUT_RESULTS",
+      "PORTFOLIO_STATE_ADDS_FIELDS_WITHOUT_CHANGING_A_DECISION_OR_PREVENTING_A_REPRODUCED_FAILURE",
+      "REMEDIATION_REQUIRES_REWRITING_WORKFLOW_HISTORY_OR_EXPANDING_EXTERNAL_PERMISSION"
+    ],
+    "backtrack_to": "PB010"
+  },
+  "decision_ancestors": [
+    {
+      "id": "PB000",
+      "parent_id": null,
+      "selected": "在硬约束内探索现金流、可控制资产、长期能力与选择权的组合，而不是最大化文档或单一手艺。"
+    },
+    {
+      "id": "PB010",
+      "parent_id": "PB000",
+      "selected": "先建立最小 portfolio 作用域和两工作流边界，再决定是否需要共享控制面。",
+      "untried_adjacent_branch": "只运行一个 workflow-local baseline，并由人工做跨项目选择。"
+    },
+    {
+      "id": "PB040",
+      "parent_id": "PB010",
+      "selected": "物化 R2 portfolio state 并提交独立审查。",
+      "outcome": "R2_BLIND_PASS_ADVERSARIAL_FAIL"
+    }
+  ],
+  "primary_action": {
+    "id": "PB-ACT-R3-INDEPENDENT-REVIEW",
+    "effect_class": "READ_ONLY",
+    "action": "对 review request 绑定的 exact blueprint、portfolio state、observation records 与 model conformance artifacts 做 fresh adversarial review 和 blind recovery。",
+    "owner": "FRESH_INDEPENDENT_REVIEWERS",
+    "ready": true,
+    "write_set": [],
+    "success": "两份审查均绑定 exact candidate、运行要求的 conformance tests 并给出 PASS 且无 Critical/Major；否则总体保持 FAIL。",
+    "forbidden_shortcut": "作者自检、文件存在、fixture 通过、同源 evaluator、workflow verifier 或单一 review leg 均不能签发 R3 PASS。"
+  },
+  "primary_write_action": null,
+  "background_read_only_ready_set": [],
+  "review_output_contract": {
+    "transport": "FRESH_REVIEWERS_RETURN_FINAL_OUTPUT_THROUGH_ORCHESTRATOR",
+    "persistence_owner": "PRIMARY_AGENT_AFTER_BOTH_REVIEWERS_RETURN",
+    "verbatim_receipt_paths": {
+      "adversarial": "evidence/blueprint-r3-adversarial-review.md",
+      "blind_recovery": "evidence/blueprint-r3-blind-recovery-review.md"
+    },
+    "mutation_rule": "PRIMARY_AGENT_MAY_ONLY_PERSIST_REVIEWER_OUTPUT_VERBATIM_AND_MUST_NOT_REWRITE_FINDINGS",
+    "state_transition_rule": "AFTER_RECEIPT_HASHES_EXIST_RECORD_ONE_SUCCESSOR_STATE_WITH_VERDICT_DERIVED_BY_FAIL_CLOSED_RULE"
+  },
+  "queued_after_primary": [
+    {
+      "id": "PB-ACT-RECORD-R3-OUTCOME",
+      "effect_class": "WRITE",
+      "ready": false,
+      "blocked_by": "PB-ACT-R3-INDEPENDENT-REVIEW",
+      "owner": "PRIMARY_AGENT",
+      "precondition": "CURRENT_STATE_MATCHES_THE_EXACT_STATE_SHA256_IN_BLUEPRINT_R3_REVIEW_REQUEST_AND_BOTH_VERBATIM_RECEIPTS_ARE_AVAILABLE",
+      "write_set": [
+        "evidence/blueprint-r3-adversarial-review.md",
+        "evidence/blueprint-r3-blind-recovery-review.md",
+        "17-总体蓝图活动状态.json"
+      ],
+      "transition": "ANY_CRITICAL_OR_MAJOR_OR_NONPASS_LEG_YIELDS_R3_REVIEW_FAIL; ONLY_TWO_EXACT_PASS_LEGS_YIELD_R3_REVIEW_PASS_BLOCKED_OWNER_CONSTRAINT"
+    },
+    {
+      "id": "PB-ACT-OWNER-CONSTRAINT",
+      "effect_class": "USER_INPUT",
+      "ready": false,
+      "blocked_by": "PB-ACT-RECORD-R3-OUTCOME_PASS",
+      "action": "向 Javen 取得现金时限/最低要求、可承受损失、责任与不可挤占时间，以派生实际 portfolio 优先级。"
+    },
+    {
+      "id": "PB-ACT-WORKFLOW-SELECTION",
+      "effect_class": "WRITE",
+      "ready": false,
+      "blocked_by": "PB-ACT-OWNER-CONSTRAINT_AND_SELECTED_WORKFLOW_REFRESH",
+      "action": "按条件式冲突规则选择一个 workflow write proposal；仍须 fresh local gates、双边协调和适用授权，不能由本 state 自动激活。"
+    }
+  ],
+  "model_portability": {
+    "status": "NOT_TESTED",
+    "first_task_class": "TASK_PROJECT_RECOVERY_READ_ONLY",
+    "task_class_status": "EXECUTABLE_EVAL_NOT_YET_MODEL_RUN",
+    "task_class_manifest": "model-conformance/task-project-recovery-read-only/task-class.json",
+    "active_model_qualification": "NOT_GRANTED_BY_THIS_STATE",
+    "second_provider_qualification": "NOT_TESTED",
+    "claim": "接口、validator 或 fixture 通过不等于任何模型已通过；只有绑定 provider/model/adapter identity 的 fresh invocation 与独立 oracle receipt 才能升级该 task class。"
+  },
+  "permissions": {
+    "read_local_project": true,
+    "read_public_sources": true,
+    "write_blueprint_remediation": false,
+    "write_workflow_candidates": false,
+    "contact_real_people": false,
+    "apply_or_send_messages": false,
+    "publish_or_deploy": false,
+    "access_accounts_credentials_or_private_third_party_data": false,
+    "pay_or_receive_money": false,
+    "sign_contracts_or_make_delivery_commitments": false,
+    "real_or_shadow_investment": false
+  }
+}

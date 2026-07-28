@@ -1,0 +1,28 @@
+{
+  "task_class_id": "TASK_PROJECT_RECOVERY_READ_ONLY",
+  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R3-RECOVERY-BUNDLE",
+  "qualification_status": "CANDIDATE_OUTPUT",
+  "projection": {
+    "objective_id": "WRONG_OBJECTIVE",
+    "objective": "Wrong fixture",
+    "state_id": "WRONG_STATE",
+    "state_status": "WRONG_STATUS",
+    "claim_ceiling": "WRONG_CLAIM",
+    "primary_action": {
+      "id": "WRONG_ACTION",
+      "effect_class": "READ_ONLY",
+      "owner": "WRONG_OWNER",
+      "write_set": []
+    },
+    "primary_write_action": null,
+    "background_read_only_ready_set": [],
+    "global_prohibitions": [],
+    "authority_boundary": {},
+    "workflow_status": {},
+    "current_decision": {},
+    "blockers": {},
+    "review_receipt_paths": {},
+    "model_portability": {},
+    "next_owner_constraint_action_id": "WRONG_NEXT"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.1",
+  "project_id": "OPPORTUNITY_TO_TRANSACTION_SYSTEM",
+  "updated_on": "2026-07-28",
+  "lifecycle_state": "CONTROL_PLANE_REMEDIATION",
+  "north_star": "发现并验证真实需求，用 AI 构建和交付解决方案，形成自愿交易，并从结果学习以追求可持续收入。",
+  "commercial_progress": {
+    "highest_evidence_state": "NO_REAL_OPPORTUNITY_VALIDATED",
+    "transaction_evidence_present": false,
+    "repeatability_evidence_present": false,
+    "note": "当前产物属于研究、设计和执行控制，不是需求、购买、交付或交易证据。"
+  },
+  "current_exec_plan": "exec-plans/active/001-从项目控制面到只读Shadow.md",
+  "current_decision_node": "D030",
+  "backtrack": {
+    "nearest_reopenable_decision": "D020",
+    "trigger": "若本次最终修订后的 fresh review 仍发现需要扩张承重治理的 Critical，停止继续加层并回到 D020 比较更窄 baseline。"
+  },
+  "current_work_unit": {
+    "work_unit_id": "WU-CP-REMEDIATION-A",
+    "status": "IN_PROGRESS",
+    "budget_state": "FINAL_REMEDIATION_BEFORE_BACKTRACK",
+    "acceptance_change_required": "关闭已复现的状态/动作不一致、candidate 空绑定、回溯图、gold 泄露、快照漂移与 bytecode 副作用；fresh reviewer 不再发现同类 Critical。",
+    "stop_without_retry_if": "fresh review 仍要求通过新增自签 receipt 或更多治理层才能使本地控制面成为安全边界。"
+  },
+  "current_candidate": {
+    "candidate_label": "C8",
+    "candidate_path": "../机会到交易系统-C8/机会到交易系统-总体设计候选",
+    "status": "PRE-FREEZE-REVIEW-ATTEMPT-1-FAIL",
+    "review_report": "../机会到交易系统-C8/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/C8_DOMAIN_GATE_REVIEW_REPORT.md",
+    "review_verdict": "FAIL_NO_GO",
+    "review_findings": {
+      "critical": 3,
+      "major": 3,
+      "minor": 0
+    },
+    "fresh_review_pending": true,
+    "bytes_in_remediation": false,
+    "candidate_hashes": {
+      "SHADOW_CAPABILITY_POLICY.json": "31f8d776b593780a62e8283b16e1c4df6ffa5a16613cf7775607e6c528b71405",
+      "run_shadow_acceptance.py": "0f992787de9faeab03c91a0db196950881b699fea598ff2f3bf58d1159e6dad0",
+      "test_shadow_acceptance.py": "e2e0feab7462ea001a4c8ec05b7ec9ef7914bb46323e7784f111d5b83e5cb053",
+      "verify_post_closure_manifest.py": "a757cb6776196696fef6c9040fffd38ee9099530334978b5799c2a7b10f32e47",
+      "test_phase_manifests.py": "9b6e89e2bd080c4b8fe713306a3e92f4421e1f7a41ee1e5ee1276a000567feb5",
+      "verify_run2_acceptance.py": "8bf39b7f9a0a118cbc05a4bc49581372940189a4b1980e14d393bbe6d3b9bd6f",
+      "test_run2_acceptance.py": "6ab827bed1b746ad4ef32eacc416d672556808bdef186f14100ecb7cc3d4f7e6"
+    },
+    "historical_manifest_detected": {
+      "path": "../机会到交易系统-C8/机会到交易系统-总体设计候选/FINAL_CANDIDATE_MANIFEST.json",
+      "candidate_id": "OTTS-DESIGN-20260727-C7",
+      "status": "FROZEN-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW",
+      "meaning": "历史 C7 manifest；不得作为 C8 当前状态。"
+    },
+    "post_closure_roots_present": false
+  },
+  "authority": {
+    "authority_source": "USER_INSTRUCTION_AND_RUNTIME_ENFORCEMENT_ONLY",
+    "state_file_can_expand_authority": false,
+    "quality_gate_can_expand_authority": false,
+    "local": {
+      "read_local_project": true,
+      "read_public_sources": true,
+      "write_project_control_plane": true,
+      "modify_c8_candidate": true,
+      "generate_local_synthetic_fixture": true
+    },
+    "external": {
+      "contact_real_people": false,
+      "publish_publicly": false,
+      "deploy": false,
+      "access_or_create_accounts": false,
+      "pay_or_receive_money": false,
+      "sign_contracts": false,
+      "make_delivery_commitments": false
+    },
+    "note": "local=true 表示用户当前任务范围与 sandbox 允许的能力；是否现在执行由 workflow_gates 决定。任何本地文件都不能把 external false 改成真实权限。"
+  },
+  "workflow_gates": {
+    "control_plane_accepted": false,
+    "c8_candidate_edit_allowed_now": false,
+    "c8_fresh_review_pass": false,
+    "local_shadow_allowed_now": false,
+    "reality_experiment_proposal_allowed_now": false
+  },
+  "model_portability": {
+    "contract": "MODEL_ADAPTER_CONTRACT.md",
+    "adapter_record": "adapters/current-codex.json",
+    "claim_status": "CONTRACT_DESIGNED_CROSS_PROVIDER_UNVERIFIED",
+    "qualification_is_authority": false,
+    "active_runtime_may_author_interactively": true,
+    "unattended_handoff_qualified": false
+  },
+  "next_safe_action": {
+    "action_id": "ACT-VALIDATE-CONTROL-PLANE",
+    "kind": "RUN_CONTROL_PLANE_VALIDATION",
+    "actor_role": "ROOT_AND_CONTEXT_ISOLATED_REVIEWER",
+    "target": "机会到交易系统-项目控制面",
+    "required_local_authorities": [
+      "read_local_project"
+    ],
+    "required_workflow_gates": [],
+    "external_action": false,
+    "expected_observable_result": "稳定 snapshot 上机械检查通过；无 gold 的恢复测试和 fresh 对抗审查均无阻断项。",
+    "on_success_transition": "C8_MINIMUM_REMEDIATION",
+    "on_failure_transition": "BACKTRACK_TO_D020_IF_FINAL_REMEDIATION_BUDGET_EXHAUSTED"
+  },
+  "allowed_lifecycle_states": [
+    "CONTROL_PLANE_REMEDIATION",
+    "C8_MINIMUM_REMEDIATION",
+    "C8_FRESH_REVIEW",
+    "LOCAL_READ_ONLY_SHADOW",
+    "SHADOW_COMPLETE_AWAITING_REALITY_GATE"
+  ],
+  "terminal_states": [
+    "COMPLETE_OBSERVABLE_OUTCOME",
+    "BLOCKED_NEEDS_AUTHORITY",
+    "FAILED_EVIDENCE_OR_EVAL",
+    "STALE_STATE",
+    "BUDGET_STOP_REQUIRES_BACKTRACK"
+  ]
+}

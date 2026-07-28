@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Opportunity-to-Transaction Handoff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "control_plane_snapshot_sha256",
+    "adapter_id",
+    "lifecycle_state",
+    "current_decision_node",
+    "current_work_unit_id",
+    "next_action_id",
+    "unresolved_findings",
+    "authority_nonclaim"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "control_plane_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "adapter_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lifecycle_state": {
+      "type": "string",
+      "minLength": 1
+    },
+    "current_decision_node": {
+      "type": "string",
+      "minLength": 1
+    },
+    "current_work_unit_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "next_action_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "unresolved_findings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authority_nonclaim": {
+      "const": "HANDOFF_DOES_NOT_CREATE_AUTHORITY"
+    }
+  }
+}
+

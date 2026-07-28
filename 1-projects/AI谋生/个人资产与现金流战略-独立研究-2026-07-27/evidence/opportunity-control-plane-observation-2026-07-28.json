@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T02:21:56-07:00",
+  "record_type": "WORKFLOW_OBSERVATION_SNAPSHOT_NOT_AUTHORITY_TRANSFER",
+  "source_thread_id": "019fa520-5072-7b60-8216-167f431d57e7",
+  "workflow_root": "../../机会到交易系统-项目控制面",
+  "state": {
+    "path": "../../机会到交易系统-项目控制面/STATE.json",
+    "sha256": "57a09e085b464e639247429b583d1d1579342a3401fe84ee932b446ead92a317",
+    "schema_version": "1.1",
+    "lifecycle_state": "CONTROL_PLANE_REMEDIATION",
+    "current_decision_node": "D030",
+    "nearest_backtrack": "D020",
+    "next_action_id": "ACT-VALIDATE-CONTROL-PLANE",
+    "next_action_kind": "RUN_CONTROL_PLANE_VALIDATION"
+  },
+  "workflow_gates": {
+    "control_plane_accepted": false,
+    "c8_candidate_edit_allowed_now": false,
+    "c8_fresh_review_pass": false,
+    "local_shadow_allowed_now": false,
+    "reality_experiment_proposal_allowed_now": false
+  },
+  "root_read_only_verification": {
+    "verifier_command": "python3 -B verify_control_plane.py",
+    "verifier_cwd": "1-projects/AI谋生/机会到交易系统-项目控制面",
+    "valid": true,
+    "snapshot_stable": true,
+    "snapshot_sha256": "0180f144c2fbdd12cee9bf3c3095331dc57cb7651a336643ee80adaa1e6dd502",
+    "errors": [],
+    "unit_test_command": "python3 -B -m unittest -v test_verify_control_plane.py",
+    "unit_test_cwd": "1-projects/AI谋生/机会到交易系统-项目控制面",
+    "unit_test_result": "Ran 14 tests in 0.012s; OK",
+    "transient_artifacts_found_after_verification": [],
+    "git_diff_check_output": ""
+  },
+  "diagnostic_note": {
+    "first_test_attempt": "Running unittest with a file path from the repository root failed to import verify_control_plane because the project directory was not on sys.path.",
+    "resolution": "The documented project-local cwd was used; the complete suite then passed.",
+    "claim_ceiling": "This verifies the workflow control plane's internal snapshot only. It does not transfer authority to portfolio, accept the control plane, permit C8 writes, prove model portability, or authorize external action."
+  },
+  "coordination": {
+    "workflow_thread_reported_atomic_unit_complete": true,
+    "workflow_thread_reported_writes_paused": true,
+    "portfolio_activation": "BLOCKED_PENDING_FRESH_REFRESH_AND_BILATERAL_COORDINATION",
+    "future_drift_rule": "A later workflow state is a new observation. It does not rewrite this snapshot, but it invalidates use of this snapshot for activation."
+  }
+}

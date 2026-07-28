@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "adapter_id": "codex-desktop-current-interactive-task",
+  "provider": "OpenAI",
+  "model_identifier": null,
+  "runtime_surface": "Codex desktop interactive task",
+  "capabilities": {
+    "local_read": true,
+    "workspace_write_subject_to_sandbox": true,
+    "shell_subject_to_sandbox": true,
+    "subagent_context_isolation": true,
+    "structured_json_output": true
+  },
+  "boundaries": {
+    "exact_model_identifier_not_exposed": true,
+    "network_subject_to_tool_policy": true,
+    "external_actions_require_separate_tools_and_authority": true,
+    "chat_memory_is_not_project_state": true
+  },
+  "qualification": {
+    "interactive_authoring": true,
+    "unattended_handoff": false,
+    "cross_provider_portability_verified": false,
+    "authority_effect": "NONE"
+  }
+}
+

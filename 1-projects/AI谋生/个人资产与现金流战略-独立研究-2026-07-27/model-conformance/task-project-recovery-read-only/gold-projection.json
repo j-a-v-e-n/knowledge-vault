@@ -1,0 +1,95 @@
+{
+  "objective_id": "PORTFOLIO_CONSTRAINED_ASSET_CASHFLOW_CAPABILITY_OPTIONALITY",
+  "objective": "在用户的硬约束内，把 AI 和两个工作流组织成可恢复、可否证的系统，以探索现金流、形成可控制资产、积累长期能力并保留选择权。",
+  "state_id": "PORTFOLIO-BLUEPRINT-R3-CANDIDATE",
+  "state_status": "R3_INDEPENDENT_REVIEW_READY",
+  "claim_ceiling": "DESIGN_CANDIDATE_ONLY_NO_BUSINESS_WORKFLOW_ACTIVATION_OR_MODEL_PORTABILITY_CLAIM",
+  "primary_action": {
+    "id": "PB-ACT-R3-INDEPENDENT-REVIEW",
+    "effect_class": "READ_ONLY",
+    "owner": "FRESH_INDEPENDENT_REVIEWERS",
+    "write_set": []
+  },
+  "primary_write_action": null,
+  "background_read_only_ready_set": [],
+  "global_prohibitions": [
+    "access_accounts_credentials_or_private_third_party_data",
+    "apply_or_send_messages",
+    "contact_real_people",
+    "pay_or_receive_money",
+    "publish_or_deploy",
+    "real_or_shadow_investment",
+    "sign_contracts_or_make_delivery_commitments",
+    "write_blueprint_remediation",
+    "write_workflow_candidates"
+  ],
+  "authority_boundary": {
+    "candidate_bound_live_workflow_pointers": [],
+    "cross_task_write_rule": "REQUIRES_FRESH_WORKFLOW_REFRESH_AND_EXPLICIT_BILATERAL_COORDINATION_ACKNOWLEDGMENT_BEFORE_PORTFOLIO_ACTIVATION",
+    "observation_staleness_rule": "LATER_WORKFLOW_DRIFT_DOES_NOT_REWRITE_HISTORICAL_REVIEW_BUT_BLOCKS_ACTIVATION_UNTIL_REFRESH"
+  },
+  "workflow_status": {
+    "opportunity": {
+      "scope": "OPPORTUNITY_WORKFLOW_ONLY",
+      "reported_lifecycle": "CONTROL_PLANE_REMEDIATION",
+      "reported_current_decision": "D030",
+      "reported_backtrack": "D020",
+      "reported_next_action_id": "ACT-VALIDATE-CONTROL-PLANE",
+      "observed_state_sha256": "57a09e085b464e639247429b583d1d1579342a3401fe84ee932b446ead92a317",
+      "candidate_dependency": "OBSERVATION_RECORD_ONLY_NOT_LIVE_POINTER",
+      "coordination_status": "PAUSED_STABLE_OBSERVATION_REQUIRES_REFRESH_BEFORE_ACTIVATION",
+      "portfolio_activation": "BLOCKED",
+      "future_local_route_decision": "BEFORE_ANY_NEW_C8_FIELD_PATCHING_CHOOSE_FULL_PRODUCTION_INTERFACES_OR_EXPLICITLY_RENAMED_NARROW_SYNTHETIC_ASSERTION; CURRENT_READ_ONLY_OBSERVATION_FAVORS_THE_NARROW_BRANCH_WITHOUT_AUTHORIZING_IT",
+      "workflow_gates": {
+        "control_plane_accepted": false,
+        "c8_candidate_edit_allowed_now": false,
+        "c8_fresh_review_pass": false,
+        "local_shadow_allowed_now": false,
+        "reality_experiment_proposal_allowed_now": false
+      }
+    },
+    "investment": {
+      "scope": "INVESTMENT_WORKFLOW_ONLY",
+      "reported_phase": "design_freeze",
+      "reported_state": "blocked",
+      "reported_next_action_id": "ACT-METHOD-RUNTIME-FOUNDATION",
+      "observed_state_sha256": "207b0afd0fc2adf80fb47f88eb478ec0ead731d3e6a11eaf80c3fe3376e429fc",
+      "candidate_dependency": "OBSERVATION_RECORD_ONLY_NOT_LIVE_POINTER",
+      "portfolio_activation": "BLOCKED",
+      "claim_ceiling": "PAPER_ONLY_HUMAN_FINAL_RELIABILITY_LAB_NOT_CASHFLOW_OR_PROVEN_EDGE"
+    }
+  },
+  "current_decision": {
+    "id": "PB050",
+    "parent_id": "PB040",
+    "backtrack_to": "PB010",
+    "adjacent_branch_ids": [
+      "PB050-A",
+      "PB050-B",
+      "PB050-C",
+      "PB050-D"
+    ]
+  },
+  "blockers": {
+    "review_admission_blocking": [],
+    "design_closure_blocking": [
+      "R3_EXACT_ADVERSARIAL_AND_BLIND_RECOVERY_REVIEW"
+    ],
+    "workflow_activation_blocking": [
+      "OWNER_CASH_LOSS_RESPONSIBILITY_AND_TIME_CONSTRAINTS",
+      "SELECTED_WORKFLOW_LOCAL_GATES_AND_FRESH_BILATERAL_COORDINATION"
+    ]
+  },
+  "review_receipt_paths": {
+    "adversarial": "evidence/blueprint-r3-adversarial-review.md",
+    "blind_recovery": "evidence/blueprint-r3-blind-recovery-review.md"
+  },
+  "model_portability": {
+    "status": "NOT_TESTED",
+    "first_task_class": "TASK_PROJECT_RECOVERY_READ_ONLY",
+    "task_class_status": "EXECUTABLE_EVAL_NOT_YET_MODEL_RUN",
+    "active_model_qualification": "NOT_GRANTED_BY_THIS_STATE",
+    "second_provider_qualification": "NOT_TESTED"
+  },
+  "next_owner_constraint_action_id": "PB-ACT-OWNER-CONSTRAINT"
+}
