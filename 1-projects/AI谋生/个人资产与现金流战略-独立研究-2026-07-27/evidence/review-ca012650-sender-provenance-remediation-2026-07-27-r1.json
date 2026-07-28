@@ -1,0 +1,46 @@
+{
+  "schema_version": "ca012650-sender-provenance-remediation-review/1",
+  "review_id": "review-ca012650-sender-provenance-remediation-2026-07-27-r1",
+  "recorded_at": "2026-07-27T23:56:49-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/sender_provenance_attack_spec",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "PASS_NARROW_REMEDIATION_SCOPE",
+  "severity_counts": {
+    "critical": 0,
+    "major": 0
+  },
+  "candidate_bindings": [
+    {
+      "path": "../09-校验活动状态.py",
+      "sha256": "3ac3937abb0dac504080b096bf7932b5925519d8161ffe9ba9eb56964d81f6ca"
+    },
+    {
+      "path": "../tests/test_active_state_validator.py",
+      "sha256": "1d5692565a4e45f4f2ae329635b7fbe6743211709dcd31710babf5af77db09a3"
+    },
+    {
+      "path": "gmail-sender-profile-observation-2026-07-27T2320.json",
+      "sha256": "96276ab493a5cdd78a27608c28471a44347838cba5cca6bdf65ad8db9066b686"
+    }
+  ],
+  "reviewed_properties": [
+    "The sender observation path, digest, exact account, strict schema, read-only operation, no-draft, no-send, proposed use, and no-authority claim boundary are closed values.",
+    "The state and readiness receipt must bind the same canonical observation, and simultaneous state, receipt, and observation substitution is rejected.",
+    "The evidence bytes are read once and used for both SHA-256 and duplicate-key-strict JSON parsing.",
+    "The observation uses a real validation-time 24-hour freshness boundary; future, naive, stale-by-one-second, equivalent-timezone, and reordered-event attacks are rejected.",
+    "The static observation supports request-readiness only; authorized_once and later stages remain unreachable and executable remains false until a future same-session Gmail execution preflight is implemented."
+  ],
+  "reproduction_results": {
+    "sender_focused_tests": "Ran 7 tests in 0.013s / OK",
+    "full_suite": "Ran 29 tests in 4.102s / FAILED (failures=2)",
+    "full_suite_failure_scope": "Both failures are the expected old-r2 exact candidate hash and closed-set rejection after validator, tests, and sender observation changed.",
+    "generated_python_cache_found": false,
+    "git_diff_check_clean": true
+  },
+  "current_successor_accepted": false,
+  "required_next_review": "A new review identity and schema must bind the final successor validator, tests, sender observation, rejection mechanism, and predecessor continuity; old r2 cannot be reused.",
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "claim_boundary": "This PASS is limited to the sender-provenance remediation properties in the bound bytes. It is not a PASS for the full successor or live state, does not authorize request_ready, Gmail draft, sending, follow-up, account access, payment, delivery, publication, investment execution, or any external action, and does not prove the connector account at a future send instant."
+}

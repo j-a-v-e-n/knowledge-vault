@@ -1262,6 +1262,338 @@ def load_json(path: Path, *, errors: list[str], label: str) -> dict | None:
     return value
 
 
+def load_exact_bound_json(
+    binding: object,
+    *,
+    expected_binding: dict[str, str],
+    errors: list[str],
+    label: str,
+) -> tuple[Path | None, dict | None]:
+    """Load one immutable JSON record through its exact path and digest."""
+
+    if binding != expected_binding:
+        errors.append(f"{label}: exact content-addressed binding changed")
+    path = verify_bound_file(
+        binding,
+        base=RESEARCH_ROOT,
+        allowed_root=RESEARCH_ROOT,
+        errors=errors,
+        label=label,
+        closed=True,
+    )
+    if path is None:
+        return None, None
+    return path, load_json(path, errors=errors, label=label)
+
+
+def validate_ca_recipient_value_review(
+    binding: object, *, now: datetime, errors: list[str]
+) -> datetime | None:
+    """Validate the non-independent FAIL without upgrading it to authority."""
+
+    prefix = "CA012650 recipient-value review"
+    _, review = load_exact_bound_json(
+        binding,
+        expected_binding=EXPECTED_CA_RECIPIENT_VALUE_REVIEW_BINDING,
+        errors=errors,
+        label=prefix,
+    )
+    if review is None:
+        return None
+    expected_keys = {
+        "schema_version",
+        "review_id",
+        "recorded_at",
+        "recorded_by",
+        "reviewer_agent_identity",
+        "reviewer_role",
+        "independent_review",
+        "verdict",
+        "severity_counts",
+        "candidate_bindings",
+        "user_objection",
+        "major_findings",
+        "decision",
+        "external_action_status",
+        "claim_boundary",
+    }
+    exact_object(review, expected_keys, errors=errors, label=prefix)
+    expected_scalars = {
+        "schema_version": "ca012650-recipient-value-review/1",
+        "review_id": "review-ca012650-recipient-value-2026-07-27-r1",
+        "recorded_at": "2026-07-27T23:30:13-07:00",
+        "recorded_by": "/root",
+        "reviewer_agent_identity": "/root",
+        "reviewer_role": "recipient_perspective_design_review",
+        "independent_review": False,
+        "verdict": "FAIL",
+        "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+        "claim_boundary": EXPECTED_CA_RECIPIENT_VALUE_REVIEW_CLAIM_BOUNDARY,
+    }
+    for key, expected in expected_scalars.items():
+        if review.get(key) != expected:
+            errors.append(f"{prefix}: {key} changed")
+    severity = review.get("severity_counts")
+    if not exact_object(
+        severity, {"critical", "major"}, errors=errors, label=f"{prefix} severity_counts"
+    ) or severity != {"critical": 0, "major": 1}:
+        errors.append(f"{prefix}: severity must remain exactly 0 Critical and 1 Major")
+    expected_candidate_bindings = [
+        {
+            "path": "../12-首个反证实验与对外动作候选.md",
+            "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691",
+        },
+        {
+            "path": "../08-活动状态.json",
+            "sha256": EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING["sha256"],
+        },
+    ]
+    if review.get("candidate_bindings") != expected_candidate_bindings:
+        errors.append(f"{prefix}: exact historical candidate bindings changed")
+    # The old 08 literal is historical metadata, never a request to hash mutable
+    # live 08.  Its bytes are proven by the separately named frozen snapshot.
+    verify_bound_file(
+        EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING,
+        base=RESEARCH_ROOT,
+        allowed_root=RESEARCH_ROOT,
+        errors=errors,
+        label=f"{prefix} old 08 snapshot",
+        closed=True,
+    )
+    verify_bound_file(
+        {
+            "path": "12-首个反证实验与对外动作候选.md",
+            "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691",
+        },
+        base=RESEARCH_ROOT,
+        allowed_root=RESEARCH_ROOT,
+        errors=errors,
+        label=f"{prefix} message",
+        closed=True,
+    )
+    if review.get("user_objection") != (
+        "A recipient may reasonably read the message as a stranger asking about "
+        "the hotel's status and ask why the inquiry concerns them or deserves a response."
+    ):
+        errors.append(f"{prefix}: user objection changed")
+    if review.get("major_findings") != EXPECTED_CA_RECIPIENT_VALUE_MAJOR_FINDINGS:
+        errors.append(f"{prefix}: exact Major finding changed")
+    if review.get("decision") != EXPECTED_CA_RECIPIENT_VALUE_DECISION:
+        errors.append(f"{prefix}: fail-closed decision changed")
+    return validate_not_future(
+        review.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
+    )
+
+
+def validate_ca_predecessor_continuity(
+    binding: object, *, now: datetime, errors: list[str]
+) -> datetime | None:
+    """Prove r2 against frozen predecessor bytes, never successor live bytes."""
+
+    prefix = "CA012650 r2 predecessor continuity"
+    _, record = load_exact_bound_json(
+        binding,
+        expected_binding=EXPECTED_CA_PREDECESSOR_CONTINUITY_BINDING,
+        errors=errors,
+        label=prefix,
+    )
+    if record is None:
+        return None
+    expected_keys = {
+        "schema_version",
+        "record_id",
+        "recorded_at",
+        "recorded_by",
+        "predecessor_review",
+        "byte_mappings",
+        "verification",
+        "claim_boundary",
+    }
+    exact_object(record, expected_keys, errors=errors, label=prefix)
+    expected_scalars = {
+        "schema_version": "ca012650-predecessor-continuity/1",
+        "record_id": "ca012650-r2-predecessor-continuity-2026-07-27",
+        "recorded_at": "2026-07-27T23:41:04-07:00",
+        "recorded_by": "/root",
+        "claim_boundary": (
+            "This record preserves exact predecessor bytes so the historical r2 "
+            "review remains auditable after successor edits. It does not make r2 "
+            "a review of any successor, does not authorize request_ready or any "
+            "external action, and does not establish demand, payment, delivery, "
+            "profit, repeatability, or asset value."
+        ),
+    }
+    for key, expected in expected_scalars.items():
+        if record.get(key) != expected:
+            errors.append(f"{prefix}: {key} changed")
+    if record.get("predecessor_review") != {
+        "path": "review-ca012650-durable-candidate-2026-07-27-r2.json",
+        "sha256": EXPECTED_CA_HISTORICAL_R2_BINDING["sha256"],
+        "historical_verdict": "PASS",
+        "current_successor_authority": False,
+    }:
+        errors.append(f"{prefix}: predecessor review boundary changed")
+    expected_mappings = [
+        {
+            "historical_path": "../08-活动状态.json",
+            "historical_sha256": EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["08"]["sha256"],
+            "snapshot_path": Path(
+                EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["08"]["path"]
+            ).name,
+            "snapshot_sha256": EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["08"]["sha256"],
+            "byte_identical_to_git_head_at_freeze": True,
+        },
+        {
+            "historical_path": "../09-校验活动状态.py",
+            "historical_sha256": EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["09"]["sha256"],
+            "snapshot_path": Path(
+                EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["09"]["path"]
+            ).name,
+            "snapshot_sha256": EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["09"]["sha256"],
+            "byte_identical_to_git_head_at_freeze": True,
+        },
+        {
+            "historical_path": "../tests/test_active_state_validator.py",
+            "historical_sha256": EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["tests"]["sha256"],
+            "snapshot_path": Path(
+                EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["tests"]["path"]
+            ).name,
+            "snapshot_sha256": EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS["tests"]["sha256"],
+            "byte_identical_to_git_head_at_freeze": True,
+        },
+    ]
+    if record.get("byte_mappings") != expected_mappings:
+        errors.append(f"{prefix}: exact predecessor byte mappings changed")
+    if record.get("verification") != {
+        "method": "sha256_and_bytewise_cmp_against_git_head_objects",
+        "all_mappings_verified": True,
+    }:
+        errors.append(f"{prefix}: verification boundary changed")
+    for name, snapshot_binding in EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS.items():
+        verify_bound_file(
+            snapshot_binding,
+            base=RESEARCH_ROOT,
+            allowed_root=RESEARCH_ROOT,
+            errors=errors,
+            label=f"{prefix} {name} snapshot",
+            closed=True,
+        )
+    verify_bound_file(
+        EXPECTED_CA_HISTORICAL_R2_BINDING,
+        base=RESEARCH_ROOT,
+        allowed_root=RESEARCH_ROOT,
+        errors=errors,
+        label=f"{prefix} historical r2",
+        closed=True,
+    )
+    return validate_not_future(
+        record.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
+    )
+
+
+def validate_ca_historical_r2(
+    binding: object, *, now: datetime, errors: list[str]
+) -> datetime | None:
+    """Validate r2 as immutable predecessor evidence, never current authority."""
+
+    prefix = "CA012650 historical r2"
+    _, receipt = load_exact_bound_json(
+        binding,
+        expected_binding=EXPECTED_CA_HISTORICAL_R2_BINDING,
+        errors=errors,
+        label=prefix,
+    )
+    if receipt is None:
+        return None
+    exact_object(receipt, CA_R2_RECEIPT_KEYS, errors=errors, label=prefix)
+    expected = {
+        "schema_version": EXPECTED_CA_R2_SCHEMA_VERSION,
+        "review_id": EXPECTED_CA_R2_REVIEW_ID,
+        "reviewer_agent_identity": EXPECTED_CA_R2_REVIEWER_IDENTITY,
+        "reviewer_role": "independent_read_only_subagent",
+        "reviewer_modified_candidate": False,
+        "verdict": "PASS",
+        "severity_counts": EXPECTED_CA_R2_SEVERITY_COUNTS,
+        "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+        "claim_boundary": EXPECTED_CA_R2_CLAIM_BOUNDARY,
+    }
+    for key, value in expected.items():
+        if receipt.get(key) != value:
+            errors.append(f"{prefix}: {key} changed")
+    exact_string_set(
+        receipt.get("reviewed_properties"),
+        EXPECTED_CA_R2_REVIEWED_PROPERTIES,
+        errors=errors,
+        label=f"{prefix} reviewed_properties",
+    )
+    exact_string_set(
+        receipt.get("missing_external_bindings"),
+        EXPECTED_CA_R2_MISSING_EXTERNAL_BINDINGS,
+        errors=errors,
+        label=f"{prefix} missing_external_bindings",
+    )
+    return validate_not_future(
+        receipt.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
+    )
+
+
+def validate_ca_presend_readiness_fail(
+    binding: object, *, now: datetime, errors: list[str]
+) -> datetime | None:
+    prefix = "CA012650 historical presend readiness FAIL"
+    _, review = load_exact_bound_json(
+        binding,
+        expected_binding=EXPECTED_CA_PRESEND_READINESS_FAIL_BINDING,
+        errors=errors,
+        label=prefix,
+    )
+    if review is None:
+        return None
+    expected_keys = {
+        "schema_version",
+        "review_id",
+        "recorded_at",
+        "recorded_by",
+        "reviewer_agent_identity",
+        "reviewer_role",
+        "reviewer_modified_candidate",
+        "verdict",
+        "severity_counts",
+        "candidate_bindings",
+        "verified_subpremises",
+        "attack_results",
+        "major_findings",
+        "request_ready_permitted",
+        "external_action_status",
+        "claim_boundary",
+    }
+    exact_object(review, expected_keys, errors=errors, label=prefix)
+    expected = {
+        "schema_version": "ca012650-presend-readiness-review/1",
+        "review_id": "review-ca012650-presend-readiness-2026-07-27-attempt-1",
+        "recorded_by": "/root",
+        "reviewer_agent_identity": "/root/ca_gate_fix_map",
+        "reviewer_role": "independent_read_only_subagent",
+        "reviewer_modified_candidate": False,
+        "verdict": "FAIL",
+        "severity_counts": {"critical": 0, "major": 1},
+        "request_ready_permitted": False,
+        "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+        "claim_boundary": (
+            "This is a historical independent rejection of the first pre-send "
+            "readiness candidate. It authorizes no draft, contact, follow-up, quote, "
+            "account access, submission, payment, delivery, publication, investment "
+            "execution, or external action."
+        ),
+    }
+    for key, value in expected.items():
+        if review.get(key) != value:
+            errors.append(f"{prefix}: {key} changed")
+    return validate_not_future(
+        review.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
+    )
+
+
 def validate_sender_profile_observation(
     binding: object,
     *,
@@ -1384,7 +1716,7 @@ def validate_sender_profile_window(
         if event_time is not None and event_time.astimezone(timezone.utc) < observed_utc:
             errors.append(f"{prefix} {event_name} predates the sender observation")
 
-    if APPROVAL_STAGES.index(stage) >= APPROVAL_STAGES.index("executed_once"):
+    if stage in EXECUTED_OR_LATER_STAGES:
         executed_at = lifecycle_times.get("executed_at")
         if executed_at is None:
             errors.append(f"{prefix} executed stage lacks executed_at")
@@ -1401,7 +1733,7 @@ def validate_sender_profile_window(
 def validate_sender_execution_boundary(stage: str, *, errors: list[str]) -> None:
     """Keep send stages unreachable until an atomic same-session preflight exists."""
 
-    if APPROVAL_STAGES.index(stage) >= APPROVAL_STAGES.index("authorized_once"):
+    if stage in AUTHORIZED_OR_LATER_STAGES:
         errors.append(
             "CA012650 approval sender execution boundary: static profile observation "
             "supports readiness only; authorized or executed stages require an "
@@ -1846,7 +2178,9 @@ def validate_experiment(
     ):
         errors.append(f"{prefix} spec path changed")
     expected_review_result = (
-        "PASS" if ca_review_status == "passed_current_candidate" else "PENDING_FRESH_REVIEW"
+        "FAIL_PRECONTACT_RECIPIENT_VALUE"
+        if ca_review_status == "passed_precontact_rejection_successor"
+        else "PENDING_PRECONTACT_REJECTION_SUCCESSOR_REVIEW"
     )
     if current.get("internal_review_result") != expected_review_result:
         errors.append(f"{prefix} state review result does not match current receipt status")
@@ -2139,6 +2473,177 @@ def validate_ca_r2_receipt_contract(
     return recorded_at
 
 
+def ca_precontact_successor_candidate_paths() -> set[Path]:
+    return {
+        (RESEARCH_ROOT / relative_path).resolve()
+        for relative_path in EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS
+    }
+
+
+def validate_ca_precontact_successor_candidate_bindings(
+    bindings: object, *, receipt_parent: Path, errors: list[str]
+) -> dict[Path, dict]:
+    """Require the exact successor closure, with no live 08 or self binding."""
+
+    prefix = "opportunity independent reviews: CA precontact successor candidate"
+    expected_paths = ca_precontact_successor_candidate_paths()
+    expected_raw_paths = {
+        os.path.relpath(path, start=receipt_parent) for path in expected_paths
+    }
+    forbidden_paths = {
+        (RESEARCH_ROOT / "08-活动状态.json").resolve(),
+        (
+            RESEARCH_ROOT
+            / "evidence/review-ca012650-precontact-rejection-successor-2026-07-27-r1.json"
+        ).resolve(),
+    }
+    if not isinstance(bindings, list):
+        errors.append(f"{prefix}: candidate_bindings must be a list")
+        return {}
+    observed_paths: list[Path] = []
+    observed_raw_paths: list[str] = []
+    binding_by_path: dict[Path, dict] = {}
+    for index, binding in enumerate(bindings):
+        label = f"{prefix}[{index}]"
+        if not exact_object(binding, BINDING_KEYS, errors=errors, label=label):
+            continue
+        assert isinstance(binding, dict)
+        raw_path = binding.get("path")
+        if isinstance(raw_path, str):
+            observed_raw_paths.append(raw_path)
+        bound_path = verify_bound_file(
+            binding,
+            base=receipt_parent,
+            allowed_root=RESEARCH_ROOT,
+            errors=errors,
+            label=label,
+            closed=True,
+        )
+        if bound_path is None:
+            continue
+        observed_paths.append(bound_path)
+        binding_by_path[bound_path] = binding
+        if bound_path in forbidden_paths:
+            errors.append(f"{prefix}: live 08 and the review itself are forbidden")
+        relative = os.path.relpath(bound_path, start=RESEARCH_ROOT)
+        expected_digest = EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS.get(
+            relative
+        )
+        if expected_digest is not None and binding.get("sha256") != expected_digest:
+            errors.append(f"{prefix}: immutable digest changed for {relative}")
+    if len(observed_raw_paths) != len(set(observed_raw_paths)):
+        errors.append(f"{prefix}: duplicate literal binding path")
+    if len(observed_paths) != len(set(observed_paths)):
+        errors.append(f"{prefix}: duplicate resolved binding path")
+    if (
+        len(bindings) != len(expected_paths)
+        or set(observed_paths) != expected_paths
+        or set(observed_raw_paths) != expected_raw_paths
+    ):
+        errors.append(f"{prefix}: does not bind the exact unique closed successor candidate")
+    return binding_by_path
+
+
+def validate_ca_precontact_successor_receipt_contract(
+    receipt: dict, *, receipt_path: Path, now: datetime, errors: list[str]
+) -> datetime | None:
+    """Validate the new review identity and every historical boundary it relies on."""
+
+    prefix = "opportunity independent reviews: CA precontact successor receipt"
+    exact_object(receipt, CA_R2_RECEIPT_KEYS, errors=errors, label=prefix)
+    expected = {
+        "schema_version": EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION,
+        "review_id": EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID,
+        "reviewer_agent_identity": EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY,
+        "reviewer_role": "independent_read_only_subagent",
+        "reviewer_modified_candidate": False,
+        "verdict": "PASS",
+        "severity_counts": EXPECTED_CA_PRECONTACT_SUCCESSOR_SEVERITY_COUNTS,
+        "external_action_status": "REJECTED_PRECONTACT_TERMINAL_NO_AUTHORITY",
+        "claim_boundary": EXPECTED_CA_PRECONTACT_SUCCESSOR_CLAIM_BOUNDARY,
+    }
+    for key, value in expected.items():
+        if receipt.get(key) != value:
+            errors.append(f"{prefix}: {key} changed")
+    exact_string_set(
+        receipt.get("reviewed_properties"),
+        EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES,
+        errors=errors,
+        label=f"{prefix} reviewed_properties",
+    )
+    exact_string_set(
+        receipt.get("missing_external_bindings"),
+        REQUIRED_CA_MISSING_BINDINGS,
+        errors=errors,
+        label=f"{prefix} missing_external_bindings",
+    )
+    recorded_at = validate_not_future(
+        receipt.get("recorded_at"),
+        now=now,
+        errors=errors,
+        label=f"{prefix} recorded_at",
+    )
+    binding_by_path = validate_ca_precontact_successor_candidate_bindings(
+        receipt.get("candidate_bindings"),
+        receipt_parent=receipt_path.parent,
+        errors=errors,
+    )
+
+    def bound(relative: str) -> dict | None:
+        return binding_by_path.get((RESEARCH_ROOT / relative).resolve())
+
+    recipient_at = validate_ca_recipient_value_review(
+        bound(EXPECTED_CA_RECIPIENT_VALUE_REVIEW_BINDING["path"]),
+        now=now,
+        errors=errors,
+    )
+    presend_at = validate_ca_presend_readiness_fail(
+        bound(EXPECTED_CA_PRESEND_READINESS_FAIL_BINDING["path"]),
+        now=now,
+        errors=errors,
+    )
+    r2_at = validate_ca_historical_r2(
+        bound(EXPECTED_CA_HISTORICAL_R2_BINDING["path"]),
+        now=now,
+        errors=errors,
+    )
+    continuity_at = validate_ca_predecessor_continuity(
+        bound(EXPECTED_CA_PREDECESSOR_CONTINUITY_BINDING["path"]),
+        now=now,
+        errors=errors,
+    )
+    rejection_binding = bound(EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING["path"])
+    rejection_receipt = validate_precontact_rejection_receipt(
+        rejection_binding,
+        item=None,
+        now=now,
+        errors=errors,
+        validate_stage_item=False,
+    )
+    rejection_at = None
+    if rejection_receipt is not None:
+        rejection_at = parse_timestamp(
+            rejection_receipt.get("recorded_at"),
+            errors=errors,
+            label=f"{prefix} rejection receipt recorded_at",
+        )
+    for label, predecessor_at in (
+        ("historical r2", r2_at),
+        ("presend readiness FAIL", presend_at),
+        ("recipient-value FAIL", recipient_at),
+        ("continuity record", continuity_at),
+        ("rejection receipt", rejection_at),
+    ):
+        if (
+            recorded_at is not None
+            and predecessor_at is not None
+            and recorded_at.astimezone(timezone.utc)
+            <= predecessor_at.astimezone(timezone.utc)
+        ):
+            errors.append(f"{prefix}: review must be later than {label}")
+    return recorded_at
+
+
 def validate_review_receipts(
     stream: dict, *, now: datetime, errors: list[str]
 ) -> tuple[str, datetime | None]:
@@ -2146,69 +2651,51 @@ def validate_review_receipts(
     reviews = stream.get("independent_reviews")
     required_keys = {"legacy_runtime_tombstone", "ca012650_internal_candidate"}
     if not exact_object(reviews, required_keys, errors=errors, label=prefix):
-        return "pending_fresh_review", None
+        return "pending_precontact_successor_review", None
     assert isinstance(reviews, dict)
 
-    loaded: dict[str, tuple[Path, dict]] = {}
-    receipt_times: dict[str, datetime | None] = {}
-    for key in sorted(required_keys):
-        state_binding = reviews.get(key)
-        if key == "ca012650_internal_candidate" and isinstance(
-            state_binding, dict
-        ) and set(state_binding) == {"status", "receipt"}:
-            if state_binding != {"status": "pending_fresh_review", "receipt": None}:
-                errors.append(f"{prefix} CA pending review object changed")
-            continue
-        exact_object(
-            state_binding,
-            REVIEW_STATE_KEYS,
+    legacy_state = reviews.get("legacy_runtime_tombstone")
+    legacy_pair: tuple[Path, dict] | None = None
+    exact_object(
+        legacy_state,
+        REVIEW_STATE_KEYS,
+        errors=errors,
+        label=f"{prefix} legacy_runtime_tombstone state binding",
+    )
+    if isinstance(legacy_state, dict):
+        if legacy_state.get("path") != EXPECTED_REVIEW_STATE_PATHS[
+            "legacy_runtime_tombstone"
+        ]:
+            errors.append(f"{prefix} legacy_runtime_tombstone receipt path changed")
+        if legacy_state.get("verdict") != "PASS":
+            errors.append(f"{prefix} legacy_runtime_tombstone state verdict must be PASS")
+    legacy_path = verify_bound_file(
+        legacy_state,
+        base=RESEARCH_ROOT,
+        errors=errors,
+        label=f"{prefix} legacy_runtime_tombstone",
+    )
+    if legacy_path is not None:
+        legacy_receipt = load_json(
+            legacy_path,
             errors=errors,
-            label=f"{prefix} {key} state binding",
+            label=f"{prefix} legacy_runtime_tombstone receipt",
         )
-        if isinstance(state_binding, dict) and state_binding.get("path") != (
-            EXPECTED_REVIEW_STATE_PATHS[key]
-        ):
-            errors.append(f"{prefix} {key} receipt path changed")
-        receipt_path = verify_bound_file(
-            state_binding,
-            base=RESEARCH_ROOT,
-            errors=errors,
-            label=f"{prefix} {key}",
-        )
-        if not isinstance(state_binding, dict) or state_binding.get("verdict") != "PASS":
-            errors.append(f"{prefix} {key} state verdict must be PASS")
-        if receipt_path is None:
-            continue
-        receipt = load_json(receipt_path, errors=errors, label=f"{prefix} {key} receipt")
-        if receipt is None:
-            continue
-        loaded[key] = (receipt_path, receipt)
-        if receipt.get("verdict") != "PASS":
-            errors.append(f"{prefix} {key} receipt verdict must be PASS")
-        if receipt.get("reviewer_role") != "independent_read_only_subagent":
-            errors.append(f"{prefix} {key} reviewer role changed")
-        if receipt.get("reviewer_modified_candidate") is not False:
-            errors.append(f"{prefix} {key} reviewer must not modify candidate")
-        receipt_times[key] = validate_not_future(
-            receipt.get("recorded_at"),
-            now=now,
-            errors=errors,
-            label=f"{prefix} {key} recorded_at",
-        )
-
-    ca_pair = loaded.get("ca012650_internal_candidate")
-    if ca_pair is not None:
-        ca_path, ca_receipt = ca_pair
-        receipt_times["ca012650_internal_candidate"] = (
-            validate_ca_r2_receipt_contract(
-                ca_receipt,
-                receipt_path=ca_path,
+        if legacy_receipt is not None:
+            legacy_pair = (legacy_path, legacy_receipt)
+            if legacy_receipt.get("verdict") != "PASS":
+                errors.append(f"{prefix} legacy_runtime_tombstone receipt verdict must be PASS")
+            if legacy_receipt.get("reviewer_role") != "independent_read_only_subagent":
+                errors.append(f"{prefix} legacy_runtime_tombstone reviewer role changed")
+            if legacy_receipt.get("reviewer_modified_candidate") is not False:
+                errors.append(f"{prefix} legacy_runtime_tombstone reviewer must not modify candidate")
+            validate_not_future(
+                legacy_receipt.get("recorded_at"),
                 now=now,
                 errors=errors,
+                label=f"{prefix} legacy_runtime_tombstone recorded_at",
             )
-        )
 
-    legacy_pair = loaded.get("legacy_runtime_tombstone")
     if legacy_pair is not None:
         legacy_path, legacy_receipt = legacy_pair
         raw_root = legacy_receipt.get("candidate_root")
@@ -2256,12 +2743,51 @@ def validate_review_receipts(
                     observed_legacy_paths.add(bound_path)
         if observed_legacy_paths != expected_legacy_paths:
             errors.append(f"{prefix} legacy receipt does not bind exact tombstone candidate")
+
     ca_state = reviews.get("ca012650_internal_candidate")
-    if isinstance(ca_state, dict) and set(ca_state) == {"status", "receipt"}:
-        return "pending_fresh_review", None
-    return "passed_current_candidate", receipt_times.get(
-        "ca012650_internal_candidate"
+    exact_object(
+        ca_state,
+        REVIEW_STATE_KEYS,
+        errors=errors,
+        label=f"{prefix} ca012650_internal_candidate state binding",
     )
+    exact_path = False
+    if isinstance(ca_state, dict):
+        exact_path = ca_state.get("path") == EXPECTED_REVIEW_STATE_PATHS[
+            "ca012650_internal_candidate"
+        ]
+        if not exact_path:
+            errors.append(
+                f"{prefix} ca012650_internal_candidate receipt path changed; "
+                "historical r2 cannot review successor bytes"
+            )
+        if ca_state.get("verdict") != "PASS":
+            errors.append(f"{prefix} ca012650_internal_candidate state verdict must be PASS")
+    ca_path = verify_bound_file(
+        ca_state,
+        base=RESEARCH_ROOT,
+        errors=errors,
+        label=f"{prefix} ca012650_internal_candidate",
+    )
+    if not exact_path or ca_path is None:
+        return "pending_precontact_successor_review", None
+    ca_receipt = load_json(
+        ca_path,
+        errors=errors,
+        label=f"{prefix} ca012650_internal_candidate receipt",
+    )
+    if ca_receipt is None:
+        return "pending_precontact_successor_review", None
+    error_count = len(errors)
+    reviewed_at = validate_ca_precontact_successor_receipt_contract(
+        ca_receipt,
+        receipt_path=ca_path,
+        now=now,
+        errors=errors,
+    )
+    if len(errors) != error_count or reviewed_at is None:
+        return "pending_precontact_successor_review", None
+    return "passed_precontact_rejection_successor", reviewed_at
 
 
 def validate_ca_review_prose(ca_review_status: str, errors: list[str]) -> None:
@@ -2930,7 +3456,7 @@ def validate_source_refresh(
     if not exact_object(refresh, SOURCE_REFRESH_KEYS, errors=errors, label=prefix):
         return []
     assert isinstance(refresh, dict)
-    is_ready = APPROVAL_STAGES.index(stage) >= APPROVAL_STAGES.index("request_ready")
+    is_ready = stage in REQUEST_READY_OR_LATER_STAGES
     if not is_ready:
         expected = {
             "status": "not_completed",
@@ -3217,11 +3743,11 @@ def validate_lifecycle(
     if lifecycle.get("previous_stage") != expected_previous:
         errors.append(f"{prefix} illegal or skipped transition")
 
-    stage_index = APPROVAL_STAGES.index(stage)
+    required_receipts = REQUIRED_RECEIPTS_BY_STAGE[stage]
     loaded_receipts: dict[str, dict] = {}
-    for receipt_index, receipt_field in enumerate(STAGE_RECEIPTS, start=1):
+    for receipt_field in STAGE_RECEIPTS:
         binding = lifecycle.get(receipt_field)
-        if receipt_index <= stage_index:
+        if receipt_field in required_receipts:
             if not isinstance(binding, dict):
                 errors.append(f"{prefix} {stage} requires {receipt_field}")
             else:
@@ -3235,10 +3761,10 @@ def validate_lifecycle(
                 if receipt is not None:
                     loaded_receipts[receipt_field] = receipt
         elif binding is not None:
-            errors.append(f"{prefix} future receipt {receipt_field} must be null")
+            errors.append(f"{prefix} non-required receipt {receipt_field} must be null")
 
     prior_recorded: datetime | None = None
-    for receipt_field in STAGE_RECEIPTS[:stage_index]:
+    for receipt_field in RECEIPT_CHRONOLOGY_BY_STAGE[stage]:
         receipt = loaded_receipts.get(receipt_field)
         if receipt is None:
             continue
@@ -3328,7 +3854,7 @@ def validate_approval_queue(
     declared_stage = item.get("status") if isinstance(item, dict) else None
     expected_approval_keys = APPROVAL_KEYS | (
         APPROVAL_READY_PROVENANCE_KEYS
-        if declared_stage in APPROVAL_STAGES[1:]
+        if declared_stage in REQUEST_READY_OR_LATER_STAGES
         else set()
     )
     if not exact_object(
@@ -3406,8 +3932,13 @@ def validate_approval_queue(
     validate_sender_execution_boundary(stage, errors=errors)
     if item.get("claim_boundary") != EXPECTED_CA_APPROVAL_CLAIM_BOUNDARIES.get(stage):
         errors.append(f"{prefix} claim boundary differs from exact lifecycle stage")
-    if APPROVAL_STAGES.index(stage) >= APPROVAL_STAGES.index("request_ready"):
-        if ca_review_status != "passed_current_candidate" or ca_reviewed_at is None:
+    if stage in REQUEST_READY_OR_LATER_STAGES:
+        if ca_review_status == "passed_precontact_rejection_successor":
+            errors.append(
+                f"{prefix} this exact approval, experiment, and message identity was "
+                "permanently rejected pre-contact and cannot be revived or reused"
+            )
+        elif ca_review_status != "passed_current_candidate" or ca_reviewed_at is None:
             errors.append(
                 f"{prefix} request_ready requires the current exact detached PASS receipt"
             )
@@ -3429,7 +3960,7 @@ def validate_approval_queue(
             errors.append(
                 f"{prefix} {event_name} predates the completed source refresh"
             )
-    if APPROVAL_STAGES.index(stage) >= APPROVAL_STAGES.index("executed_once"):
+    if stage in EXECUTED_OR_LATER_STAGES:
         validate_execution_refresh_window(
             executed_at=lifecycle_times.get("executed_at"),
             refresh_timestamps=refresh_timestamps,

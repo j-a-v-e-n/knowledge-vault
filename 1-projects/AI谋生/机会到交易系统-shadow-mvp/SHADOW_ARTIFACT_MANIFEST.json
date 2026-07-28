@@ -1,0 +1,125 @@
+{
+  "schema_version": "otts.shadow-artifact-manifest/2",
+  "artifact_id": "OTTS-SHADOW-20260727-C7-001",
+  "artifact_kind": "READ_ONLY_SHADOW_MVP",
+  "status": "SHADOW_IMPLEMENTATION_CANDIDATE",
+  "scope": "LOCAL_ZERO_EXTERNAL_SIDE_EFFECT_SHADOW_MVP_ONLY",
+  "candidate_id": "OTTS-DESIGN-20260727-C7",
+  "parent_candidate_manifest_sha256": "6515fe17eed7537745b7094ef597321ca30956e57b3306b77570c02a8b9402fd",
+  "governance_manifest_sha256": "8e5b7fd056f7c07d466e2ead03809ab4de093d46dd52d19471aeff5fde024f1d",
+  "independent_review_receipt_sha256": "6fd76ca8bdbdba0c73264afb2ecf4df9da21dd9c690901dc7fc6c153167f9fc9",
+  "closure_decision_sha256": "3dfc477fcdc2375e4dd5b6c13e5bd0b9b303bf0949bf7ed25b538bbb631afd72",
+  "action_envelope_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+  "action_envelope_sha256": "e74d5fbb0f85655c753e712c5becb2f0990b71db88c7df873fae869503207c99",
+  "capability_policy_path": "研究/2026-07-27-总体设计/SHADOW_CAPABILITY_POLICY.json",
+  "capability_policy_sha256": "8ca4d90c958ea04adf14d003226a620a4000ad805e439823b5c5cc34a7e7ebb9",
+  "program": "program.json",
+  "acceptance_cases": [
+    {
+      "case_id": "OPPORTUNITY-1",
+      "fixture_path": "fixtures/explicit-complaint.json",
+      "expected_result_sha256": "f5e903037720b211fba66e649a6d1ff60bb360123a7a63d484f8c3112aaa421d"
+    },
+    {
+      "case_id": "OPPORTUNITY-2",
+      "fixture_path": "fixtures/latent-restaurant-signal.json",
+      "expected_result_sha256": "896b54caf6cd40367a2eb454f93d65f2393be7b919dcd208c08b46bd5959a264"
+    }
+  ],
+  "snapshot_ledger": {
+    "path": "SNAPSHOT_LEDGER.json",
+    "sha256": "f2bd7f7d74f711d072360574fef747d7caeca60938a1b44bdb79ef4b5d02794b"
+  },
+  "sbom": {
+    "path": "SBOM.json",
+    "sha256": "2a56d4011108475c114af873715fed34b94665e2aa7c1a4d8116762da0b2d0fa"
+  },
+  "capability_report": {
+    "path": "CAPABILITY_REPORT.json",
+    "sha256": "f8111ac516bef46f9d0d26635b1f046f30d5896e0e95568ee504da832918f319"
+  },
+  "acceptance_test_report": {
+    "path": "ACCEPTANCE_TEST_REPORT.json",
+    "sha256": "8c1614b2e05ca82623fa23a3f68ade9161e7c5b57af4f8cced846dedd3111933"
+  },
+  "external_action_authority": false,
+  "entries": [
+    {
+      "path": "program.json",
+      "sha256": "99fefad396954734874a21ccb27685fbea59e30a4ffafcd0b5d17cf0f3e54c0f",
+      "role": "ir-program",
+      "authority_status": "NO_EXTERNAL_AUTHORITY",
+      "depends_on": []
+    },
+    {
+      "path": "fixtures/explicit-complaint.json",
+      "sha256": "406b6dca1b0ea94f8c0c2004ea200ae2ea912084e1c1be24f392370bafd6bad0",
+      "role": "fixture",
+      "authority_status": "NO_EXTERNAL_AUTHORITY",
+      "depends_on": []
+    },
+    {
+      "path": "fixtures/latent-restaurant-signal.json",
+      "sha256": "0160b66e5fa07aaa29374ca582aeb22b53fcfa6e17beaf9083d5cdd84edbba67",
+      "role": "fixture",
+      "authority_status": "NO_EXTERNAL_AUTHORITY",
+      "depends_on": []
+    },
+    {
+      "path": "README.md",
+      "sha256": "9c4435d84f2ad700bec0dfa2db97c6f3a6510eac731f70c3fb36ea01f1529297",
+      "role": "documentation",
+      "authority_status": "NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "program.json",
+        "fixtures/explicit-complaint.json",
+        "fixtures/latent-restaurant-signal.json"
+      ]
+    },
+    {
+      "path": "SNAPSHOT_LEDGER.json",
+      "sha256": "f2bd7f7d74f711d072360574fef747d7caeca60938a1b44bdb79ef4b5d02794b",
+      "role": "snapshot-ledger",
+      "authority_status": "NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "program.json",
+        "fixtures/explicit-complaint.json",
+        "fixtures/latent-restaurant-signal.json"
+      ]
+    },
+    {
+      "path": "SBOM.json",
+      "sha256": "2a56d4011108475c114af873715fed34b94665e2aa7c1a4d8116762da0b2d0fa",
+      "role": "sbom",
+      "authority_status": "NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "program.json"
+      ]
+    },
+    {
+      "path": "CAPABILITY_REPORT.json",
+      "sha256": "f8111ac516bef46f9d0d26635b1f046f30d5896e0e95568ee504da832918f319",
+      "role": "capability-report",
+      "authority_status": "NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "program.json",
+        "SNAPSHOT_LEDGER.json",
+        "SBOM.json"
+      ]
+    },
+    {
+      "path": "ACCEPTANCE_TEST_REPORT.json",
+      "sha256": "8c1614b2e05ca82623fa23a3f68ade9161e7c5b57af4f8cced846dedd3111933",
+      "role": "acceptance-report",
+      "authority_status": "NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "program.json",
+        "fixtures/explicit-complaint.json",
+        "fixtures/latent-restaurant-signal.json",
+        "SNAPSHOT_LEDGER.json",
+        "SBOM.json",
+        "CAPABILITY_REPORT.json"
+      ]
+    }
+  ]
+}

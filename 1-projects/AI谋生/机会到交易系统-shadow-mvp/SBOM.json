@@ -1,0 +1,15 @@
+{
+  "schema_version": "otts.shadow-declarative-sbom/1",
+  "language_scope": "CANONICAL_JSON_DECLARATIVE_IR_ONLY",
+  "programs": [
+    {
+      "path": "program.json",
+      "sha256": "99fefad396954734874a21ccb27685fbea59e30a4ffafcd0b5d17cf0f3e54c0f",
+      "node_graph_digest_sha256": "195527e8e92571bde937eac450add0a49645c1dd30f89a92aa60eabbdfb88e28",
+      "node_count": 18
+    }
+  ],
+  "artifact_executable_or_native_dependency_count": 0,
+  "trusted_runtime": "FIXED_RUNNER_AND_CPYTHON_OUTSIDE_ARTIFACT_SBOM",
+  "external_action_authority": false
+}

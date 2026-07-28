@@ -1,0 +1,60 @@
+{
+  "schema_version": "otts.shadow-acceptance-test-report/3",
+  "result": "LOCAL_DETERMINISTIC_DECLARATIVE_EVALUATION_PASS",
+  "runner_sha256": "ba5bb3aeb55b14eaa8135c8367ed16295d0782a4f7813b337397998117edbc97",
+  "policy_sha256": "8ca4d90c958ea04adf14d003226a620a4000ad805e439823b5c5cc34a7e7ebb9",
+  "sbom_sha256": "2a56d4011108475c114af873715fed34b94665e2aa7c1a4d8116762da0b2d0fa",
+  "capability_report_sha256": "f8111ac516bef46f9d0d26635b1f046f30d5896e0e95568ee504da832918f319",
+  "program_sha256": "99fefad396954734874a21ccb27685fbea59e30a4ffafcd0b5d17cf0f3e54c0f",
+  "node_graph_digest_sha256": "195527e8e92571bde937eac450add0a49645c1dd30f89a92aa60eabbdfb88e28",
+  "snapshot_ledger_sha256": "f2bd7f7d74f711d072360574fef747d7caeca60938a1b44bdb79ef4b5d02794b",
+  "runtime_tcb_digest_sha256": "55a6da6329b185c04e84a5de485d3cdb43f19e88fd37307a7dcdf3a08f6caa7a",
+  "loaded_module_file_closure_digest_sha256": "d149460c7621e8b1683e257cd886854b5fdb5c8b107f6f45dcbccd94ff987a48",
+  "acceptance_output_set_digest_sha256": "4d3c05ef4d09dafa37b8c8c52ca6990b448c1e1711800fc1a447e66e11b95b96",
+  "program": "program.json",
+  "cases": [
+    {
+      "case_id": "OPPORTUNITY-1",
+      "fixture_path": "fixtures/explicit-complaint.json",
+      "fixture_sha256": "406b6dca1b0ea94f8c0c2004ea200ae2ea912084e1c1be24f392370bafd6bad0",
+      "expected_result_sha256": "f5e903037720b211fba66e649a6d1ff60bb360123a7a63d484f8c3112aaa421d",
+      "actual_result_sha256": "f5e903037720b211fba66e649a6d1ff60bb360123a7a63d484f8c3112aaa421d",
+      "result_type": "object",
+      "result_byte_length": 3868,
+      "output_inventory_digest_sha256": "feeb9ff7e03a2cdc2b834aec982558fcb397c28e1fcacd4beaf6f603ca064b77",
+      "loaded_module_file_closure_digest_sha256": "d149460c7621e8b1683e257cd886854b5fdb5c8b107f6f45dcbccd94ff987a48"
+    },
+    {
+      "case_id": "OPPORTUNITY-2",
+      "fixture_path": "fixtures/latent-restaurant-signal.json",
+      "fixture_sha256": "0160b66e5fa07aaa29374ca582aeb22b53fcfa6e17beaf9083d5cdd84edbba67",
+      "expected_result_sha256": "896b54caf6cd40367a2eb454f93d65f2393be7b919dcd208c08b46bd5959a264",
+      "actual_result_sha256": "896b54caf6cd40367a2eb454f93d65f2393be7b919dcd208c08b46bd5959a264",
+      "result_type": "object",
+      "result_byte_length": 4415,
+      "output_inventory_digest_sha256": "a397cec1a4808d3edeed5aa815573b4549f48ead4694c06c9cd763a3bed5c6b5",
+      "loaded_module_file_closure_digest_sha256": "d149460c7621e8b1683e257cd886854b5fdb5c8b107f6f45dcbccd94ff987a48"
+    }
+  ],
+  "language_level_artifact_executable_constructs": "ABSENT_BY_EXACT_SCHEMA",
+  "os_sandbox_observed_enforcement": {
+    "EXTERNAL_READ_DENIED": "OBSERVED_DENIED",
+    "EXTERNAL_WRITE_DENIED": "OBSERVED_DENIED",
+    "NETWORK_LOOPBACK_BIND_DENIED": "OBSERVED_DENIED",
+    "CHILD_PROCESS_DENIED": "OBSERVED_DENIED"
+  },
+  "sandbox_support_status": "DEPRECATED_UNSUPPORTED_DEFENSE_IN_DEPTH",
+  "exact_opened_unlinked_snapshot_execution": true,
+  "staged_target_controlled_pathname_reopen_count": 0,
+  "same_uid_concurrent_mutation_resistance_proven": false,
+  "host_level_universal_noninterference_proven": false,
+  "sandbox_inherited_fd_boundary": "PARENT_CONFIGURED_ONLY_RUNNER_OPENED_UNLINKED_READ_FDS_AND_BOUNDED_UNLINKED_STDIO_FDS; POST_SANDBOX_FD_ENUMERATION_NOT_PERFORMED",
+  "sandbox_same_runtime_reexec_residual": "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; CLOSED_IR_HAS_NO_EXEC_OPCODE",
+  "memory_boundary": "NO_HOST_RSS_LIMIT_ON_DARWIN; FIXED_STRUCTURAL_IR_BYTE_BOUNDS_ENFORCED",
+  "aggregate_deadline_enforced": true,
+  "aggregate_wall_timeout_seconds": 60,
+  "runtime_authority": false,
+  "deployment_authority": false,
+  "freeze_authority": false,
+  "external_action_authority": false
+}

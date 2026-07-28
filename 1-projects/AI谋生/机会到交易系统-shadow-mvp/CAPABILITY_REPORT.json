@@ -1,0 +1,30 @@
+{
+  "schema_version": "otts.shadow-capability-report/3",
+  "policy_id": "OTTS-SHADOW-DECLARATIVE-IR-CLOSED-2",
+  "policy_sha256": "8ca4d90c958ea04adf14d003226a620a4000ad805e439823b5c5cc34a7e7ebb9",
+  "analysis_scope": "EXACT_SNAPSHOT_CANONICAL_JSON_CLOSED_IR_SCHEMA_AND_GRAPH",
+  "programs": [
+    {
+      "path": "program.json",
+      "sha256": "99fefad396954734874a21ccb27685fbea59e30a4ffafcd0b5d17cf0f3e54c0f",
+      "node_graph_digest_sha256": "195527e8e92571bde937eac450add0a49645c1dd30f89a92aa60eabbdfb88e28",
+      "node_count": 18
+    }
+  ],
+  "sbom_sha256": "2a56d4011108475c114af873715fed34b94665e2aa7c1a4d8116762da0b2d0fa",
+  "snapshot_ledger_sha256": "f2bd7f7d74f711d072360574fef747d7caeca60938a1b44bdb79ef4b5d02794b",
+  "runtime_tcb_base_digest_sha256": "f52f7821566a4df1698038ab4265a89cd145a975548382e2d75f3da099442869",
+  "language_level_artifact_executable_constructs": "ABSENT_BY_EXACT_SCHEMA",
+  "os_sandbox_observed_enforcement": "NOT_OBSERVED_STATIC_PHASE",
+  "exact_opened_unlinked_snapshot_execution": "NOT_EXECUTED_STATIC_PHASE",
+  "same_uid_concurrent_mutation_resistance_proven": false,
+  "host_level_universal_noninterference_proven": false,
+  "sandbox_inherited_fd_boundary": "PARENT_CONFIGURED_ONLY_RUNNER_OPENED_UNLINKED_READ_FDS_AND_BOUNDED_UNLINKED_STDIO_FDS; POST_SANDBOX_FD_ENUMERATION_NOT_PERFORMED",
+  "sandbox_same_runtime_reexec_residual": "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; CLOSED_IR_HAS_NO_EXEC_OPCODE",
+  "memory_boundary": "NO_HOST_RSS_LIMIT_ON_DARWIN; FIXED_STRUCTURAL_IR_BYTE_BOUNDS_ONLY",
+  "result": "DECLARATIVE_IR_LANGUAGE_VALID",
+  "runtime_authority": false,
+  "deployment_authority": false,
+  "freeze_authority": false,
+  "external_action_authority": false
+}

@@ -18,6 +18,13 @@
     },
     "preservation_rule": "This binding preserves the historical r1 rejection. Remediation must not relabel r1 as a pass or use it as authority for an application."
   },
+  "predecessor_continuity_binding": {
+    "path": "demand-first-r1-predecessor-continuity-2026-07-27.json",
+    "sha256": "86d3fc4020fdda8f9b32507fab1af7c1d70cb702c6d7f901aad88f406daa2db2",
+    "record_id": "demand-first-r1-predecessor-continuity-2026-07-27",
+    "preserves_historical_doc_sha256": "13d4f34fc5d5b582eeda0d2ff3872fb12b06c7e1c7874c8063caae45a48ac7dd",
+    "preserves_historical_observation_sha256": "d1655c146f8720eb6c789a318f9f2feb6f1a933686e3328ca96a3f3b62faf8a5"
+  },
   "status_summary_at_independent_review": {
     "current_application_candidates": 0,
     "historical_indexed_demand_samples": [

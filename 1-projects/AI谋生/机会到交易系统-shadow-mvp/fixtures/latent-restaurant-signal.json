@@ -1,0 +1,80 @@
+{
+  "record_id": "SYNTHETIC-LATENT-001",
+  "signal_class": "LATENT_NEED_SIGNAL",
+  "sampling_plan": {
+    "plan_id": "SYNTHETIC-PLAN-LATENT-001",
+    "frozen_before_observation": true,
+    "source_universe": "SYNTHETIC_CONSTRUCTED_EXAMPLE_ONLY",
+    "selection_rule": "Single restaurant-style counterfactual inspired by the user's example; no real business was inspected."
+  },
+  "rights": {
+    "status": "SYNTHETIC_AUTHORIZED",
+    "contains_personal_data": false,
+    "account_or_login_used": false,
+    "external_retrieval_performed": false
+  },
+  "first_principles_lane": {
+    "sealed_before_observation": true,
+    "transaction_model": "A buyer may recognize value only after seeing a concrete state change; an unasked-for demo can reveal a latent preference but cannot establish demand by itself.",
+    "human_desire": "Be represented attractively and accurately while reducing uncertainty about what a digital presentation could look like.",
+    "invariants": [
+      "Absence of a request does not prove absence of a need.",
+      "Positive reaction to a demo is weaker than costly commitment and realized value."
+    ],
+    "assumptions": [
+      "The representation problem matters to the intended owner.",
+      "A static mockup can be evaluated without deployment or account access."
+    ]
+  },
+  "observation_lane": {
+    "sealed_before_cross_lane_merge": true,
+    "source_kind": "SYNTHETIC_CONSTRUCTED_SCENARIO",
+    "utterance": "A hypothetical small restaurant has no direct website request and relies on a sparse listing with inconsistent presentation.",
+    "explicit_request_present": false,
+    "behavioral_signal": "A visible presentation gap is constructed for testing latent-need reasoning, not observed in a real business.",
+    "supporting_evidence": [
+      "The scenario contains a concrete before-state that a mockup could change.",
+      "The intended owner could compare the mockup with the current representation."
+    ],
+    "counterevidence": [
+      "No real owner reaction exists.",
+      "No traffic, conversion, budget, adoption, or payment evidence exists.",
+      "The current listing may already satisfy the owner's priorities."
+    ],
+    "contamination_detected": false
+  },
+  "need_hypothesis": {
+    "status": "HYPOTHESIS_NOT_DEMAND_PROOF",
+    "candidate_buyer": "A hypothetical owner of a small local restaurant or service business.",
+    "job_to_be_done": "Evaluate a clearer owned presentation of the business before deciding whether a website is worth adopting.",
+    "statement": "Some owners who have not requested a website may still value a concrete, reversible mockup that makes the possible improvement legible.",
+    "competing_explanations": [
+      "The owner may intentionally avoid a website.",
+      "Discovery may come entirely from maps or social platforms.",
+      "Maintenance burden may outweigh presentation value.",
+      "A positive aesthetic reaction may not lead to adoption or payment."
+    ],
+    "weakest_assumption": "Seeing a tailored mockup causes an observable step toward evaluation rather than a polite reaction."
+  },
+  "experiment_draft": {
+    "status": "UNEXECUTED",
+    "requires_new_explicit_authorization": true,
+    "method": "After a new market, rights, and outreach authorization, create a non-deployed static mockup from authorized public facts and predeclare the costly response that would count as evaluation.",
+    "success_signal": "The intended owner takes the predeclared evaluation step, such as supplying corrections or requesting a bounded next-stage review.",
+    "failure_signal": "The intended owner declines, gives only a polite reaction, or takes no predeclared evaluation action.",
+    "forbidden_now": [
+      "Inspecting a real business",
+      "Contacting an owner",
+      "Publishing or deploying a website",
+      "Using an account or credential",
+      "Quoting a price",
+      "Requesting or receiving payment"
+    ]
+  },
+  "evaluation_contract": {
+    "fixture_type": "SYNTHETIC",
+    "oracle": "Exact canonical output hash and preserved distinction between latent hypothesis and demand proof.",
+    "human_baseline": "Manually copy the same synthetic record into the target schema without upgrading its evidence status.",
+    "cost_record": "No external spend; local deterministic evaluation only."
+  }
+}

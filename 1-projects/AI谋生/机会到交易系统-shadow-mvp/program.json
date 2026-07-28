@@ -1,0 +1,178 @@
+{
+  "schema_version": "otts.shadow-declarative-ir/1",
+  "program_id": "OTTS-OPPORTUNITY-RECORD-SEALER",
+  "input_type": "JSON",
+  "output_type": "JSON",
+  "nodes": [
+    {
+      "id": "input",
+      "op": "INPUT"
+    },
+    {
+      "id": "source-digest",
+      "op": "CANONICAL_SHA256",
+      "source": "input"
+    },
+    {
+      "id": "cas-digest",
+      "op": "CAS_PUT",
+      "source": "input"
+    },
+    {
+      "id": "sealed-snapshot",
+      "op": "CAS_GET",
+      "digest_ref": "cas-digest"
+    },
+    {
+      "id": "record-id",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/record_id"
+    },
+    {
+      "id": "signal-class",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/signal_class"
+    },
+    {
+      "id": "sampling-plan",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/sampling_plan"
+    },
+    {
+      "id": "rights",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/rights"
+    },
+    {
+      "id": "first-principles",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/first_principles_lane"
+    },
+    {
+      "id": "observation",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/observation_lane"
+    },
+    {
+      "id": "hypothesis",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/need_hypothesis"
+    },
+    {
+      "id": "experiment",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/experiment_draft"
+    },
+    {
+      "id": "eval-contract",
+      "op": "JSON_POINTER",
+      "source": "sealed-snapshot",
+      "pointer": "/evaluation_contract"
+    },
+    {
+      "id": "schema",
+      "op": "LITERAL",
+      "value": "otts.shadow-opportunity-record/1"
+    },
+    {
+      "id": "scope",
+      "op": "LITERAL",
+      "value": "SYNTHETIC_LOCAL_RECORD_ONLY"
+    },
+    {
+      "id": "authority",
+      "op": "LITERAL",
+      "value": {
+        "market_demand_proven": false,
+        "customer_exists_proven": false,
+        "product_authority": false,
+        "outreach_authority": false,
+        "pricing_authority": false,
+        "payment_authority": false,
+        "deployment_authority": false,
+        "external_action_authority": false
+      }
+    },
+    {
+      "id": "provenance",
+      "op": "BUILD_OBJECT",
+      "entries": [
+        {
+          "key": "record_id",
+          "ref": "record-id"
+        },
+        {
+          "key": "source_snapshot_sha256",
+          "ref": "source-digest"
+        },
+        {
+          "key": "temporary_cas_digest_sha256",
+          "ref": "cas-digest"
+        }
+      ]
+    },
+    {
+      "id": "result",
+      "op": "BUILD_OBJECT",
+      "entries": [
+        {
+          "key": "schema_version",
+          "ref": "schema"
+        },
+        {
+          "key": "scope",
+          "ref": "scope"
+        },
+        {
+          "key": "signal_class",
+          "ref": "signal-class"
+        },
+        {
+          "key": "sampling_plan",
+          "ref": "sampling-plan"
+        },
+        {
+          "key": "rights",
+          "ref": "rights"
+        },
+        {
+          "key": "first_principles_lane",
+          "ref": "first-principles"
+        },
+        {
+          "key": "observation_lane",
+          "ref": "observation"
+        },
+        {
+          "key": "need_hypothesis",
+          "ref": "hypothesis"
+        },
+        {
+          "key": "experiment_draft",
+          "ref": "experiment"
+        },
+        {
+          "key": "evaluation_contract",
+          "ref": "eval-contract"
+        },
+        {
+          "key": "provenance",
+          "ref": "provenance"
+        },
+        {
+          "key": "authority",
+          "ref": "authority"
+        }
+      ]
+    }
+  ],
+  "result_ref": "result"
+}

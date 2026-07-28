@@ -1,0 +1,77 @@
+{
+  "record_id": "SYNTHETIC-EXPLICIT-001",
+  "signal_class": "EXPLICIT_COMPLAINT",
+  "sampling_plan": {
+    "plan_id": "SYNTHETIC-PLAN-EXPLICIT-001",
+    "frozen_before_observation": true,
+    "source_universe": "SYNTHETIC_CONSTRUCTED_EXAMPLE_ONLY",
+    "selection_rule": "Single constructed record for deterministic contract testing; not a market sample."
+  },
+  "rights": {
+    "status": "SYNTHETIC_AUTHORIZED",
+    "contains_personal_data": false,
+    "account_or_login_used": false,
+    "external_retrieval_performed": false
+  },
+  "first_principles_lane": {
+    "sealed_before_observation": true,
+    "transaction_model": "A transaction requires a buyer, a costly or desired state change, a credible solution, and voluntary exchange.",
+    "human_desire": "Reduce repetitive effort and uncertainty while preserving control over a deliverable.",
+    "invariants": [
+      "A complaint is evidence of friction, not proof of willingness to pay.",
+      "A solution is valuable only if it improves the buyer's alternative after switching and adoption costs."
+    ],
+    "assumptions": [
+      "The repeated task matters enough to change behavior.",
+      "The buyer can evaluate a bounded result without exposing sensitive data."
+    ]
+  },
+  "observation_lane": {
+    "sealed_before_cross_lane_merge": true,
+    "source_kind": "SYNTHETIC_CONSTRUCTED_UTTERANCE",
+    "utterance": "I keep copying customer comments into a weekly summary and fixing the same formatting every Friday.",
+    "explicit_request_present": true,
+    "behavioral_signal": "The synthetic actor reports repeated manual work and a recurring cadence.",
+    "supporting_evidence": [
+      "Repeated task is described.",
+      "Current workaround is described."
+    ],
+    "counterevidence": [
+      "No budget is stated.",
+      "No observed purchase, search, migration, or commitment exists."
+    ],
+    "contamination_detected": false
+  },
+  "need_hypothesis": {
+    "status": "HYPOTHESIS_NOT_DEMAND_PROOF",
+    "candidate_buyer": "A person responsible for recurring customer-feedback summaries.",
+    "job_to_be_done": "Turn authorized feedback records into a consistent reviewable summary with less repetitive formatting.",
+    "statement": "Some people with this repeated workflow may value a bounded local transformation that preserves review control.",
+    "competing_explanations": [
+      "The complaint may be casual venting with no intent to change.",
+      "The task may be infrequent or too low-cost to justify switching.",
+      "A spreadsheet template may already be sufficient."
+    ],
+    "weakest_assumption": "The recurring friction is costly enough to produce observable evaluation behavior."
+  },
+  "experiment_draft": {
+    "status": "UNEXECUTED",
+    "requires_new_explicit_authorization": true,
+    "method": "After a new rights and outreach authorization, offer a local redacted sample transformation and observe whether the intended buyer supplies a sample or schedules an evaluation.",
+    "success_signal": "The intended buyer takes a predeclared costly evaluation action on an authorized sample.",
+    "failure_signal": "The intended buyer declines, does not act, or prefers the current workaround under the predeclared observation window.",
+    "forbidden_now": [
+      "Contacting any person",
+      "Reading an account or mailbox",
+      "Uploading data",
+      "Quoting a price",
+      "Requesting or receiving payment"
+    ]
+  },
+  "evaluation_contract": {
+    "fixture_type": "SYNTHETIC",
+    "oracle": "Exact canonical output hash and preserved all-authority-false boundary.",
+    "human_baseline": "Manually copy the same synthetic record into the target schema.",
+    "cost_record": "No external spend; local deterministic evaluation only."
+  }
+}

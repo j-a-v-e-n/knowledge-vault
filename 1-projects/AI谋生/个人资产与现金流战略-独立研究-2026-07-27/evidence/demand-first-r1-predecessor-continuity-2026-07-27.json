@@ -1,0 +1,35 @@
+{
+  "schema_version": "demand-first-predecessor-continuity/1",
+  "record_id": "demand-first-r1-predecessor-continuity-2026-07-27",
+  "recorded_at": "2026-07-27T23:55:59-07:00",
+  "recorded_by": "/root",
+  "predecessor_review": {
+    "path": "review-demand-first-redesign-2026-07-27-r1.json",
+    "sha256": "7c85fce22c1896c4c767cf8e5196e85021bc20db2e6535a88c29dab2658b021f",
+    "historical_verdict": "FAIL",
+    "severity_counts": {
+      "critical": 0,
+      "major": 4
+    }
+  },
+  "byte_mappings": [
+    {
+      "historical_path": "../15-需求优先的现实实验重设计.md",
+      "historical_sha256": "13d4f34fc5d5b582eeda0d2ff3872fb12b06c7e1c7874c8063caae45a48ac7dd",
+      "snapshot_path": "precursor-demand-first-redesign-15-13d4f34f.snapshot",
+      "snapshot_sha256": "13d4f34fc5d5b582eeda0d2ff3872fb12b06c7e1c7874c8063caae45a48ac7dd",
+      "preservation_method": "copied_before_edit_and_sha256_verified"
+    },
+    {
+      "historical_path": "demand-first-public-listings-observation-2026-07-27.json",
+      "historical_sha256": "d1655c146f8720eb6c789a318f9f2feb6f1a933686e3328ca96a3f3b62faf8a5",
+      "snapshot_path": "precursor-demand-first-public-listings-d1655c14.json",
+      "snapshot_sha256": "d1655c146f8720eb6c789a318f9f2feb6f1a933686e3328ca96a3f3b62faf8a5",
+      "preservation_method": "reconstructed_from_root_apply_patch_source_and_sha256_verified"
+    }
+  ],
+  "verification": {
+    "all_snapshot_hashes_match_predecessor_review_bindings": true
+  },
+  "claim_boundary": "This record preserves the exact byte identities rejected by demand-first review r1. It does not make the old candidate current, reproducible from the web, accepted, or authorized for any account, application, message, payment, contract, delivery, publication, cloud service, or model call."
+}

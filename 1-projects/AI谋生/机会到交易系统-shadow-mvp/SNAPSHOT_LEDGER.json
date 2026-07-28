@@ -1,0 +1,38 @@
+{
+  "schema_version": "otts.shadow-snapshot-ledger/2",
+  "operational_artifacts": [
+    {
+      "path": "fixtures/explicit-complaint.json",
+      "role": "fixture",
+      "byte_length": 3755,
+      "original_snapshot_sha256": "406b6dca1b0ea94f8c0c2004ea200ae2ea912084e1c1be24f392370bafd6bad0",
+      "staged_sha256": "406b6dca1b0ea94f8c0c2004ea200ae2ea912084e1c1be24f392370bafd6bad0"
+    },
+    {
+      "path": "fixtures/latent-restaurant-signal.json",
+      "role": "fixture",
+      "byte_length": 4323,
+      "original_snapshot_sha256": "0160b66e5fa07aaa29374ca582aeb22b53fcfa6e17beaf9083d5cdd84edbba67",
+      "staged_sha256": "0160b66e5fa07aaa29374ca582aeb22b53fcfa6e17beaf9083d5cdd84edbba67"
+    },
+    {
+      "path": "program.json",
+      "role": "ir-program",
+      "byte_length": 3861,
+      "original_snapshot_sha256": "99fefad396954734874a21ccb27685fbea59e30a4ffafcd0b5d17cf0f3e54c0f",
+      "staged_sha256": "99fefad396954734874a21ccb27685fbea59e30a4ffafcd0b5d17cf0f3e54c0f"
+    }
+  ],
+  "policy": {
+    "byte_length": 2574,
+    "sha256": "8ca4d90c958ea04adf14d003226a620a4000ad805e439823b5c5cc34a7e7ebb9"
+  },
+  "runner": {
+    "byte_length": 82997,
+    "sha256": "ba5bb3aeb55b14eaa8135c8367ed16295d0782a4f7813b337397998117edbc97"
+  },
+  "derived_reports_excluded_to_avoid_digest_cycle": true,
+  "execution_transport": "RUNNER_OPENED_VERIFIED_UNLINKED_READ_ONLY_FDS",
+  "same_uid_concurrent_mutation_resistance_proven": false,
+  "external_action_authority": false
+}
