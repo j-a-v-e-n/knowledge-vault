@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "recorded_at": "2026-07-28T05:53:40-07:00",
-  "updated_at": "2026-07-28T07:22:00-07:00",
+  "updated_at": "2026-07-28T07:32:17-07:00",
   "record_type": "IMMUTABLE_PROTOCOL_REVIEW_LINEAGE_AND_STALL_OBSERVATION_NOT_AUTHORITY_TRANSFER",
   "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
   "review_scope": "PROTOCOL_MECHANICS_ONLY_NO_QUERY_RESULTS",
@@ -537,6 +537,49 @@
         "The raw structured search-entry hash has no exact serialization and encoding definition; absent reproducible provider bytes, implementation must hash a closed selected-field artifact or return schema unavailable."
       ],
       "protocol_authority_ceiling_if_future_passes": "PROTOCOL_ACCEPTED_FOR_IMPLEMENTATION_ONLY"
+    },
+    {
+      "candidate": {
+        "commit": "414628970a22ae0e290230ad0ad33b747c82e3b1",
+        "root_tree": "f76729a3d0793764f8fb0ef1f89bb8f998d9dd67",
+        "parent_final_fail_commit": "1f6517968f4426bc43ea6dd0a8c4d66396b4b182",
+        "decisions_sha256": "91c78f03b10f99ae453dd9a3d69c52f867f85edb6adbfbc39b51d9bbde79b19a",
+        "active_plan_sha256": "7ff4b9c867ec50d833dc704094ce539159b8a37123ff66e22a108554698dd22e",
+        "sampling_plan_sha256": "55c2a8f43ac6225dc9922a1fae115a847d43271b4de5b1ee803d22f866faf1c1"
+      },
+      "archive_reproduction": {
+        "exact_changed_file_count": 4,
+        "exact_changed_scope_matches": true,
+        "frozen_query_count_executed": 0,
+        "frozen_query_count_unexecuted": 6,
+        "query_results_reviewed": false,
+        "git_diff_check_clean": true
+      },
+      "reviewer_identities": [
+        "/root",
+        "/root/d032_immutable_authority_review",
+        "/root/d032_sampling_contract_review"
+      ],
+      "verdict": {
+        "value": "FINAL_FAIL",
+        "critical": 0,
+        "major": 1,
+        "minor": 1,
+        "authority_effect": "NONE"
+      },
+      "accepted_direction": [
+        "D032 is a legitimate backtrack to a lower-claim read-only convenience sample rather than a reinterpretation of the v3.2 FAIL as PASS.",
+        "The six query texts, order, single-run constraint, source-page inspection, contamination quarantine and no-external-write ceiling are predeclared.",
+        "The sampling plan grants no rank, coverage, count, repeated-pattern, demand, buyer, willingness-to-pay, product, price or transaction claim."
+      ],
+      "root_causes": [
+        "The active plan simultaneously marks the six queries IN_PROGRESS and states that every query still requires an implementation successor PASS; the Decision Log also leaves the superseded D026/D027 query gate marked current, so a context-isolated executor cannot recover one safe action under the project's own STALE_STATE rule."
+      ],
+      "minor_findings": [
+        "NO_USABLE_SOURCE_FOUND does not distinguish tool unavailability, zero results, open failure, all-quarantine or a selectively inspected subset; it must be renamed and reason-bound as a scope-limited nonclaim."
+      ],
+      "required_minimal_successor": "Mark the old machine-trail query gate and D026/D027 current-action text SUPERSEDED_BY_D032, make D032 the only current action, and scope the negative label to items actually inspected; do not revive v3.3 schema work.",
+      "authority_ceiling_if_future_successor_passes": "READ_ONLY_CONVENIENCE_SAMPLE_ONLY"
     }
   ],
   "stall_decision": {
@@ -558,14 +601,17 @@
     "url_grammar_stall_triggered": true,
     "url_grammar_backtrack_node": "D027",
     "url_grammar_prohibited_next_step": "ANOTHER_PER_STRING_OR_PER_SEPARATOR_URL_GRAMMAR_PATCH",
-    "latest_reviewed_candidate": "1f6517968f4426bc43ea6dd0a8c4d66396b4b182",
-    "moving_successor_status": "INHERITANCE_SEMANTIC_REVIEWER_AND_BATCH_REMEDIATION_REQUIRED_AFTER_V3_2_FINAL_FAIL",
+    "latest_reviewed_candidate": "414628970a22ae0e290230ad0ad33b747c82e3b1",
+    "moving_successor_status": "D032_CONTROL_STATE_CONTRADICTION_REMEDIATION_REQUIRED_AFTER_FINAL_FAIL",
     "d028_protocol_verdict": "FINAL_FAIL_NO_GO",
     "d028_protocol_authority_effect": "NONE",
     "v3_1_protocol_verdict": "FINAL_FAIL_NO_GO",
     "v3_1_protocol_authority_effect": "NONE",
     "v3_2_protocol_verdict": "FINAL_FAIL_NO_GO",
-    "v3_2_protocol_authority_effect": "NONE"
+    "v3_2_protocol_authority_effect": "NONE",
+    "d032_checkpoint_verdict": "FINAL_FAIL",
+    "d032_checkpoint_authority_effect": "NONE",
+    "d032_selected_backtrack": "READ_ONLY_CONVENIENCE_SAMPLE_WITHOUT_RANK_COVERAGE_COUNT_PATTERN_OR_DEMAND_AUTHORITY"
   },
   "authority_boundary": {
     "run_search_queries_authorized": false,
