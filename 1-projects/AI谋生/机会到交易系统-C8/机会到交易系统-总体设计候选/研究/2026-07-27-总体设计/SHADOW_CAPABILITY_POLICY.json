@@ -45,6 +45,7 @@
     "input_schema": "otts.opportunity-record/1",
     "normalized_output_schema": "otts.normalized-opportunity-record/1",
     "opcode": "VALIDATE_OPPORTUNITY_RECORD",
+    "parent_candidate_typed_id_rule": "CandidateManifest:<parent_candidate_manifest_sha256>",
     "rejection_codes": [
       "ACQUISITION_AFTER_FREEZE_REQUIRED",
       "AUTHORITY_ESCALATION_FORBIDDEN",

@@ -294,6 +294,18 @@ def make_program(*, cas_roundtrip: bool = True) -> dict:
     }
 
 
+def replace_observation_source_payload(record: dict, payload: str) -> None:
+    observation = record["observation_lane"]
+    payload_sha256 = rsa.sha256_bytes(payload.encode("utf-8"))
+    observation["source_payload"] = payload
+    observation["source_payload_sha256"] = payload_sha256
+    claim = observation["observations"][0]
+    claim["source_end"] = len(payload)
+    claim["source_text"] = payload
+    claim["span_sha256"] = payload_sha256
+    observation["signal_taxonomy"]["source_payload_sha256"] = payload_sha256
+
+
 def required_semantic_cases() -> list[tuple[str, dict, str, Optional[str]]]:
     valid = make_valid_record()
     rows: list[tuple[str, dict, str, str | None]] = [
@@ -352,9 +364,12 @@ def required_semantic_cases() -> list[tuple[str, dict, str, Optional[str]]]:
         (
             "REJECT-CROSS-CANARY",
             "CROSS_LANE_CANARY_DETECTED",
-            lambda value: value["observation_lane"].update({
-                "source_payload": value["first_principles_lane"]["canary_token"]
-            }),
+            lambda value: replace_observation_source_payload(
+                value,
+                "Synthetic prefix "
+                + value["first_principles_lane"]["canary_token"]
+                + " synthetic suffix.",
+            ),
         ),
         (
             "REJECT-SIGNAL",
@@ -825,20 +840,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
             + embedded_canary["first_principles_lane"]["canary_token"]
             + " synthetic suffix."
         )
-        embedded_observation = embedded_canary["observation_lane"]
-        embedded_observation["source_payload"] = embedded_payload
-        embedded_observation["source_payload_sha256"] = rsa.sha256_bytes(
-            embedded_payload.encode("utf-8")
-        )
-        embedded_claim = embedded_observation["observations"][0]
-        embedded_claim["source_end"] = len(embedded_payload)
-        embedded_claim["source_text"] = embedded_payload
-        embedded_claim["span_sha256"] = rsa.sha256_bytes(
-            embedded_payload.encode("utf-8")
-        )
-        embedded_observation["signal_taxonomy"][
-            "source_payload_sha256"
-        ] = rsa.sha256_bytes(embedded_payload.encode("utf-8"))
+        replace_observation_source_payload(embedded_canary, embedded_payload)
         variants.append((embedded_canary, "CROSS_LANE_CANARY_DETECTED"))
         account = copy.deepcopy(valid)
         account["rights_record"]["account_or_login_used"] = True

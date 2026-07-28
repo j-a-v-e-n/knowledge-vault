@@ -100,7 +100,8 @@ POLICY_KEYS = {
 }
 DOMAIN_GATE_KEYS = {
     "gate_id", "input_schema", "normalized_output_schema", "opcode",
-    "rejection_codes", "required_acceptance_rejection_codes",
+    "parent_candidate_typed_id_rule", "rejection_codes",
+    "required_acceptance_rejection_codes",
 }
 LIMIT_KEYS = {
     "max_artifact_bytes", "max_fixture_bytes", "max_report_bytes",
@@ -438,6 +439,14 @@ def require_sha(value: Any, label: str) -> str:
     return value
 
 
+def candidate_manifest_typed_id(candidate_sha256: Any) -> str:
+    digest = require_sha(candidate_sha256, "parent candidate manifest hash")
+    typed_id = f"CandidateManifest:{digest}"
+    if not TYPED_ID_RE.fullmatch(typed_id):
+        raise CapabilityError("derived parent candidate typed ID is invalid")
+    return typed_id
+
+
 def _string_list(value: Any, label: str) -> list[str]:
     if (
         not isinstance(value, list) or
@@ -499,6 +508,9 @@ def load_policy_snapshot(snapshot: Snapshot) -> dict[str, Any]:
         "input_schema": "otts.opportunity-record/1",
         "normalized_output_schema": "otts.normalized-opportunity-record/1",
         "opcode": "VALIDATE_OPPORTUNITY_RECORD",
+        "parent_candidate_typed_id_rule": (
+            "CandidateManifest:<parent_candidate_manifest_sha256>"
+        ),
         "rejection_codes": sorted(DOMAIN_REJECTION_CODES),
         "required_acceptance_rejection_codes": sorted(
             REQUIRED_ACCEPTANCE_REJECTION_CODES
@@ -800,11 +812,15 @@ def _domain_common_record(
     return record
 
 
-def _domain_contains_scalar(value: Any, target: str) -> bool:
+def _domain_contains_scalar(
+    value: Any, target: str, *, substring: bool = False,
+) -> bool:
     stack = [value]
     while stack:
         current = stack.pop()
-        if isinstance(current, str) and target in current:
+        if isinstance(current, str) and (
+            target in current if substring else target == current
+        ):
             return True
         if isinstance(current, dict):
             stack.extend(current.keys())
@@ -844,8 +860,21 @@ def _domain_validate_parent_bindings(
 
 
 def validate_opportunity_record(
-    value: Any, expected_parent_candidate_sha256: Optional[str] = None,
+    value: Any,
+    expected_parent_candidate_sha256: str,
+    expected_parent_candidate_typed_id: str,
 ) -> dict[str, Any]:
+    expected_candidate_sha256 = require_sha(
+        expected_parent_candidate_sha256,
+        "expected parent candidate manifest hash",
+    )
+    derived_candidate_typed_id = candidate_manifest_typed_id(
+        expected_candidate_sha256
+    )
+    if expected_parent_candidate_typed_id != derived_candidate_typed_id:
+        raise CapabilityError(
+            "expected parent candidate typed ID does not match exact manifest hash"
+        )
     if not isinstance(value, dict):
         raise DomainRejection("DOMAIN_TYPE_MISMATCH")
     schema_version = value.get("schema_version")
@@ -862,15 +891,16 @@ def validate_opportunity_record(
     _domain_require_state(record["record_state"], root=True)
 
     parent_context = _domain_object(record["parent_context"], PARENT_CONTEXT_KEYS)
-    _domain_register_id(parent_context["candidate_id"], "CandidateManifest", seen_ids)
+    parent_candidate_typed_id = _domain_register_id(
+        parent_context["candidate_id"], "CandidateManifest", seen_ids
+    )
+    if parent_candidate_typed_id != expected_parent_candidate_typed_id:
+        raise DomainRejection("PARENT_BINDING_MISMATCH")
     candidate_sha256 = parent_context["candidate_sha256"]
     if not isinstance(candidate_sha256, str) or not SHA256_RE.fullmatch(candidate_sha256):
         raise DomainRejection("DOMAIN_TYPE_MISMATCH")
     _domain_require_state(parent_context["state"])
-    if (
-        expected_parent_candidate_sha256 is not None
-        and candidate_sha256 != expected_parent_candidate_sha256
-    ):
+    if candidate_sha256 != expected_candidate_sha256:
         raise DomainRejection("PARENT_HASH_MISMATCH")
 
     sampling_plan = _domain_common_record(
@@ -1015,9 +1045,13 @@ def validate_opportunity_record(
     _domain_register_id(observation_canary_id, "Canary", seen_ids)
     if (
         _domain_contains_scalar(observation_lane, first_canary_id)
-        or _domain_contains_scalar(observation_lane, first_canary_token)
+        or _domain_contains_scalar(
+            observation_lane, first_canary_token, substring=True
+        )
         or _domain_contains_scalar(first_lane, observation_canary_id)
-        or _domain_contains_scalar(first_lane, observation_canary_token)
+        or _domain_contains_scalar(
+            first_lane, observation_canary_token, substring=True
+        )
     ):
         raise DomainRejection("CROSS_LANE_CANARY_DETECTED")
 
@@ -1297,7 +1331,8 @@ def cas_get_bytes(cas_root: Path, digest: str, limits: Mapping[str, int]) -> byt
 
 def evaluate_program(
     program: dict[str, Any], fixture: Any, policy: dict[str, Any], cas_root: Path,
-    expected_parent_candidate_sha256: Optional[str] = None,
+    expected_parent_candidate_sha256: str,
+    expected_parent_candidate_typed_id: str,
 ) -> tuple[Any, int]:
     validate_program(program, policy)
     _check_json_limits(fixture, policy["limits"], "fixture")
@@ -1320,7 +1355,9 @@ def evaluate_program(
                 value = fixture
             elif op == "VALIDATE_OPPORTUNITY_RECORD":
                 value = validate_opportunity_record(
-                    evaluate(node["source"]), expected_parent_candidate_sha256
+                    evaluate(node["source"]),
+                    expected_parent_candidate_sha256,
+                    expected_parent_candidate_typed_id,
                 )
             elif op == "CAS_PUT":
                 value = cas_put_bytes(
@@ -2008,7 +2045,9 @@ def _output_inventory(root: Path, limits: Mapping[str, int]) -> list[dict[str, A
 
 
 def run_case(
-    *, shadow_root: Path, program_path: Optional[Path] = None,
+    *, shadow_root: Path, expected_parent_candidate_sha256: str,
+    expected_parent_candidate_typed_id: str,
+    program_path: Optional[Path] = None,
     fixture_path: Optional[Path] = None,
     program_snapshot: Optional[Snapshot] = None,
     fixture_snapshot: Optional[Snapshot] = None,
@@ -2017,7 +2056,6 @@ def run_case(
     runner_path: Optional[Path] = None,
     runner_snapshot: Optional[Snapshot] = None,
     aggregate_deadline: Optional[float] = None,
-    expected_parent_candidate_sha256: Optional[str] = None,
 ) -> dict[str, Any]:
     """Evaluate exact opened-and-unlinked bytes through the fixed sandboxed runner.
 
@@ -2043,10 +2081,15 @@ def run_case(
         policy_path = policy_path or Path(__file__).with_name("SHADOW_CAPABILITY_POLICY.json")
         policy_snapshot = read_once_regular(policy_path, "capability_policy", 524288)
     policy = load_policy_snapshot(policy_snapshot)
-    if expected_parent_candidate_sha256 is not None:
-        require_sha(
-            expected_parent_candidate_sha256,
-            "expected parent candidate manifest hash",
+    expected_parent_candidate_sha256 = require_sha(
+        expected_parent_candidate_sha256,
+        "expected parent candidate manifest hash",
+    )
+    if expected_parent_candidate_typed_id != candidate_manifest_typed_id(
+        expected_parent_candidate_sha256
+    ):
+        raise CapabilityError(
+            "expected parent candidate typed ID does not match exact manifest hash"
         )
     if aggregate_deadline is None:
         aggregate_deadline = (
@@ -2094,6 +2137,9 @@ def run_case(
         opened_fds.append(policy_fd)
         request = {
             "expected_parent_candidate_sha256": expected_parent_candidate_sha256,
+            "expected_parent_candidate_typed_id": (
+                expected_parent_candidate_typed_id
+            ),
             "fixture_fd": fixture_fd,
             "fixture_sha256": fixture_snapshot.sha256,
             "output_root": str(output),
@@ -2281,6 +2327,13 @@ def validate_shadow_acceptance(
         shadow.get("parent_candidate_manifest_sha256"),
         "shadow.parent_candidate_manifest_sha256",
     )
+    parent_candidate_typed_id = candidate_manifest_typed_id(
+        parent_candidate_sha256
+    )
+    if shadow.get("parent_candidate_typed_id") != parent_candidate_typed_id:
+        raise CapabilityError(
+            "shadow.parent_candidate_typed_id does not match exact manifest hash"
+        )
     case_ids: set[str] = set()
     prepared_cases: list[tuple[dict[str, Any], str, Snapshot]] = []
     expected_rejection_codes: set[str] = set()
@@ -2334,6 +2387,7 @@ def validate_shadow_acceptance(
             runner_snapshot=runner_snapshot,
             aggregate_deadline=aggregate_deadline,
             expected_parent_candidate_sha256=parent_candidate_sha256,
+            expected_parent_candidate_typed_id=parent_candidate_typed_id,
         )
         require_aggregate_time()
         expected_outcome = case["expected_outcome"]
@@ -2401,6 +2455,7 @@ def validate_shadow_acceptance(
         "runner_sha256": runner_snapshot.sha256,
         "policy_sha256": policy_snapshot.sha256,
         "parent_candidate_manifest_sha256": parent_candidate_sha256,
+        "parent_candidate_typed_id": parent_candidate_typed_id,
         "sbom_sha256": sbom_snapshot.sha256,
         "capability_report_sha256": capability_snapshot.sha256,
         "program_sha256": program_snapshot.sha256,
@@ -2456,6 +2511,7 @@ def validate_shadow_acceptance(
         "runner_sha256": runner_snapshot.sha256,
         "policy_sha256": policy_snapshot.sha256,
         "parent_candidate_manifest_sha256": parent_candidate_sha256,
+        "parent_candidate_typed_id": parent_candidate_typed_id,
         "program_sha256": program_snapshot.sha256,
         "node_graph_digest_sha256": graph["node_graph_digest_sha256"],
         "snapshot_ledger_document": snapshot_ledger,
