@@ -180,7 +180,7 @@ EXPECTED_CA_SENDER_PROFILE_CLAIM_BOUNDARY = (
 EXPECTED_REVIEW_STATE_PATHS = {
     "legacy_runtime_tombstone": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json",
     "ca012650_internal_candidate": (
-        "evidence/review-ca012650-precontact-rejection-successor-2026-07-28-r3.json"
+        "evidence/review-ca012650-precontact-rejection-successor-2026-07-28-r4.json"
     ),
 }
 EXPECTED_CA_R2_SCHEMA_VERSION = "ca012650-durable-candidate-independent-review/2"
@@ -236,19 +236,20 @@ EXPECTED_CA_R2_CLAIM_BOUNDARY = (
 )
 
 # The durable-candidate r2 PASS remains historical evidence only.  The later
-# pre-contact /2-r2 review request produced no substantive review or verdict:
-# its exact infrastructure-failure incident is bound below as non-authority.
-# This /3-r3 acceptance contract therefore uses a fresh reviewer and receipt
-# identity, and excludes both mutable 08 and the review receipt itself from its
-# candidate set, avoiding a hash cycle.
+# pre-contact /2-r2 review request produced no substantive review or verdict,
+# while /3-r3 stopped before semantic review because its delegated candidate
+# bytes drifted.  Both exact records are bound below as non-authority.  This
+# /4-r4 acceptance contract therefore uses a fresh reviewer and receipt identity,
+# and excludes both mutable 08 and the review receipt itself from its candidate
+# set, avoiding a hash cycle.
 EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION = (
-    "ca012650-precontact-rejection-successor-independent-review/3"
+    "ca012650-precontact-rejection-successor-independent-review/4"
 )
 EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID = (
-    "review-ca012650-precontact-rejection-successor-2026-07-28-r3"
+    "review-ca012650-precontact-rejection-successor-2026-07-28-r4"
 )
 EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY = (
-    "/root/ca_precontact_successor_r3_review"
+    "/root/ca_precontact_successor_r4_review"
 )
 EXPECTED_CA_PRECONTACT_SUCCESSOR_SEVERITY_COUNTS = {"critical": 0, "major": 0}
 EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES = {
@@ -260,7 +261,7 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES = {
     (
         "The attempt-1 successor FAIL is preserved as an immutable predecessor; "
         "its symlink-laundering Critical remains a rejection of the old /1 and r1 "
-        "review contract, never authority for this /3 and r3 successor."
+        "review contract, never authority for this /4 and r4 successor."
     ),
     (
         "The requested /2 and r2 successor produced no reviewer output, verdict, "
@@ -269,11 +270,18 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES = {
         "authority, nor live-state activation authority."
     ),
     (
+        "The /3 and r3 successor review stopped before semantic review because "
+        "both delegated dynamic candidate hashes drifted; its exact FAIL with one "
+        "Critical and zero Major, its unexecuted checks, and the absence of its "
+        "expected PASS receipt are preserved only as history and grant no review "
+        "or live-state activation authority for this /4 and r4 successor."
+    ),
+    (
         "The successor candidate binds the validator, adversarial tests, sender "
         "profile observation, historical reviews, pre-contact rejection review "
         "and receipt, predecessor snapshots, the r2 review-infrastructure incident, "
-        "and all referenced raw and refreshed evidence in a unique closed "
-        "content-addressed set."
+        "the r3 candidate-drift FAIL, and all referenced raw and refreshed evidence "
+        "in a unique closed content-addressed set."
     ),
     (
         "The exact message identity can transition only from "
@@ -320,8 +328,11 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_CLAIM_BOUNDARY = (
     "authorize any mutable live-state activation by itself, does not make the "
     "rejected message fit for sending. The requested /2 and r2 successor was not "
     "substantively reviewed; its infrastructure incident is neither PASS nor FAIL "
-    "and grants no review or activation authority. The historical sender-remediation "
-    "PASS remains predecessor-only and readiness-only. This review authorizes no "
+    "and grants no review or activation authority. The /3 and r3 review stopped "
+    "before semantic review because its delegated candidate bytes drifted; its "
+    "FAIL is not authority for later bytes, created no PASS receipt, and grants no "
+    "review or activation authority. The historical sender-remediation PASS remains "
+    "predecessor-only and readiness-only. This review authorizes no "
     "Gmail or external draft, "
     "contact, follow-up, quote, account access, submission, payment, delivery, "
     "publication, investment execution, or claim of recipient response, market "
@@ -361,6 +372,17 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_R2_INFRASTRUCTURE_FAILURE_BINDING = {
     ),
     "sha256": "ccf27c810fdf80c4429f874c1a128d6626905fe200280b9b0b4928e37c30d1d7",
 }
+EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_CANDIDATE_DRIFT_BINDING = {
+    "path": (
+        "evidence/"
+        "review-ca012650-precontact-successor-r3-candidate-drift-2026-07-28.json"
+    ),
+    "sha256": "c13e058342a1c9035ed6134740306413af77f0dfbdaf00c3a1ce343f5ae32a57",
+}
+EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_EXPECTED_RECEIPT_PATH = (
+    "evidence/"
+    "review-ca012650-precontact-rejection-successor-2026-07-28-r3.json"
+)
 EXPECTED_CA_PREDECESSOR_CONTINUITY_BINDING = {
     "path": "evidence/ca012650-r2-predecessor-continuity-2026-07-27.json",
     "sha256": "3bfd51fe97e29203648a0f14e1d724c1f48a77dd837bfaa5998774a3ff38c195",
@@ -470,6 +492,7 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS = {
     "evidence/review-ca012650-recipient-value-2026-07-27-r1.json": "7fc4563288cc03a41e2f3748474c82845d10b68f23c308dbfb7127f3daf0c8bc",
     "evidence/review-ca012650-precontact-rejection-successor-2026-07-28-attempt-1.json": "ee68cd328a029f3e6a954592c3a4903d78cab46c122bbd47e148fbc4f31f643e",
     "evidence/review-ca012650-precontact-successor-r2-infrastructure-failure-2026-07-28.json": "ccf27c810fdf80c4429f874c1a128d6626905fe200280b9b0b4928e37c30d1d7",
+    "evidence/review-ca012650-precontact-successor-r3-candidate-drift-2026-07-28.json": "c13e058342a1c9035ed6134740306413af77f0dfbdaf00c3a1ce343f5ae32a57",
     "evidence/receipt-ca012650-precontact-rejection-2026-07-27-r1.json": "aa53d97f35859a6548653640293ffca5df9f326e0dda00727a074e06a235c73a",
     "evidence/ca012650-r2-predecessor-continuity-2026-07-27.json": "3bfd51fe97e29203648a0f14e1d724c1f48a77dd837bfaa5998774a3ff38c195",
     "evidence/active-state-ca012650-precontact-rejection-precursor-2026-07-27.json": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
@@ -753,7 +776,7 @@ EXPECTED_OPPORTUNITY_REVIEW_FACTS = {
             "也不授权 Gmail 草稿、联系或跟进。"
         ),
         "evidence_locator": (
-            "evidence/review-ca012650-precontact-rejection-successor-2026-07-28-r3.json"
+            "evidence/review-ca012650-precontact-rejection-successor-2026-07-28-r4.json"
         ),
     },
 }
@@ -3287,6 +3310,301 @@ def validate_ca_precontact_successor_r2_infrastructure_failure(
     return recorded_at
 
 
+def validate_ca_precontact_successor_r3_candidate_drift_record(
+    review: object, *, now: datetime, errors: list[str]
+) -> datetime | None:
+    """Validate r3's exact pre-semantic-review drift FAIL as non-authority."""
+
+    prefix = "CA012650 precontact successor r3 candidate-drift FAIL"
+    if not exact_object(
+        review,
+        {
+            "schema_version",
+            "review_id",
+            "recorded_at",
+            "recorded_by",
+            "reviewer_agent_identity",
+            "reviewer_role",
+            "reviewer_modified_candidate",
+            "verdict",
+            "severity_counts",
+            "review_request_identity",
+            "candidate_drift",
+            "critical_findings",
+            "checks_completed",
+            "checks_not_executed",
+            "pass_receipt_created",
+            "live_state_activation_allowed",
+            "external_actions_observed",
+            "claim_boundary",
+        },
+        errors=errors,
+        label=prefix,
+    ):
+        if not isinstance(review, dict):
+            return None
+    assert isinstance(review, dict)
+
+    expected_scalars: dict[str, object] = {
+        "schema_version": "ca012650-precontact-successor-candidate-drift-review/1",
+        "review_id": (
+            "review-ca012650-precontact-successor-r3-candidate-drift-2026-07-28"
+        ),
+        "recorded_at": "2026-07-28T01:16:28-07:00",
+        "recorded_by": "/root",
+        "reviewer_agent_identity": "/root/ca_precontact_successor_r3_review",
+        "reviewer_role": "independent_read_only_reviewer",
+        "reviewer_modified_candidate": False,
+        "verdict": "FAIL",
+        "pass_receipt_created": False,
+        "live_state_activation_allowed": False,
+        "claim_boundary": (
+            "This exact review rejects only the drifted r3 review attempt. It does "
+            "not semantically review the later observed bytes, does not create a "
+            "PASS receipt, and does not authorize a live-state transition. It "
+            "authorizes no Gmail or external draft, contact, application, account "
+            "action, payment, delivery, publication, investment execution, or "
+            "claim of demand, willingness to pay, cash flow, profit, repeatability, "
+            "or asset value."
+        ),
+    }
+    for key, expected in expected_scalars.items():
+        actual = review.get(key)
+        if type(actual) is not type(expected) or actual != expected:
+            errors.append(f"{prefix}: {key} changed")
+
+    severity = review.get("severity_counts")
+    if exact_object(
+        severity,
+        {"critical", "major"},
+        errors=errors,
+        label=f"{prefix} severity_counts",
+    ):
+        assert isinstance(severity, dict)
+        if any(type(value) is not int for value in severity.values()):
+            errors.append(f"{prefix}: severity counts must be exact integers")
+        if severity != {"critical": 1, "major": 0}:
+            errors.append(f"{prefix}: severity_counts changed")
+
+    request_identity = review.get("review_request_identity")
+    expected_request_identity = {
+        "schema_version": (
+            "ca012650-precontact-rejection-successor-independent-review/3"
+        ),
+        "review_id": (
+            "review-ca012650-precontact-rejection-successor-2026-07-28-r3"
+        ),
+        "expected_receipt_path": Path(
+            EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_EXPECTED_RECEIPT_PATH
+        ).name,
+        "expected_candidate_binding_count": 35,
+    }
+    if exact_object(
+        request_identity,
+        set(expected_request_identity),
+        errors=errors,
+        label=f"{prefix} review_request_identity",
+    ):
+        assert isinstance(request_identity, dict)
+        for key, expected in expected_request_identity.items():
+            actual = request_identity.get(key)
+            if type(actual) is not type(expected) or actual != expected:
+                errors.append(f"{prefix}: review_request_identity.{key} changed")
+
+    expected_drift = [
+        {
+            "path": "../09-校验活动状态.py",
+            "delegated_sha256": (
+                "e938cacab8a08756fec03ea4d2a35b55a88810b154326b08fb7f435451e80ad0"
+            ),
+            "observed_sha256": (
+                "50b007a97b6a3ba6046ed5a7ad07961e9a8156492df2c63351500ea227cc476d"
+            ),
+        },
+        {
+            "path": "../tests/test_active_state_validator.py",
+            "delegated_sha256": (
+                "badeb2f3e8f478e54f47dab470236db77292d5259ebdbf8d388a4062edca88c0"
+            ),
+            "observed_sha256": (
+                "594456d5950e6016e4daf716a265b0ed41272b0d7bda5e34075f46013698ed06"
+            ),
+        },
+    ]
+    drift = review.get("candidate_drift")
+    if not isinstance(drift, list) or len(drift) != len(expected_drift):
+        errors.append(f"{prefix}: candidate_drift must be the exact delegated pair")
+    else:
+        drift_keys = {"path", "delegated_sha256", "observed_sha256"}
+        for index, expected in enumerate(expected_drift):
+            actual = drift[index]
+            if exact_object(
+                actual,
+                drift_keys,
+                errors=errors,
+                label=f"{prefix} candidate_drift[{index}]",
+            ):
+                assert isinstance(actual, dict)
+                for key, expected_value in expected.items():
+                    actual_value = actual.get(key)
+                    if (
+                        type(actual_value) is not type(expected_value)
+                        or actual_value != expected_value
+                    ):
+                        errors.append(
+                            f"{prefix}: candidate_drift[{index}].{key} changed"
+                        )
+                if actual.get("delegated_sha256") == actual.get("observed_sha256"):
+                    errors.append(
+                        f"{prefix}: candidate_drift[{index}] must preserve real drift"
+                    )
+
+    expected_findings = [
+        {
+            "id": "CA-PRECONTACT-R3-CANDIDATE-DRIFT-C1",
+            "title": (
+                "The two dynamic candidate files changed before the independent "
+                "review established the delegated exact-candidate identity"
+            ),
+            "evidence": (
+                "Both observed SHA-256 values differed from the hashes in the "
+                "review request. The reviewer therefore stopped before semantic "
+                "review and did not run the candidate tests against the disappeared "
+                "delegated bytes."
+            ),
+            "required_fix": (
+                "Stop all candidate writers, freeze a new successor identity over "
+                "the final observed bytes plus this FAIL record, verify that no "
+                "prior expected receipt exists, and assign a new independent "
+                "reviewer."
+            ),
+        }
+    ]
+    findings = review.get("critical_findings")
+    if not isinstance(findings, list) or len(findings) != 1:
+        errors.append(f"{prefix}: critical_findings must contain the exact Critical")
+    else:
+        actual = findings[0]
+        expected = expected_findings[0]
+        if exact_object(
+            actual,
+            set(expected),
+            errors=errors,
+            label=f"{prefix} critical_findings[0]",
+        ):
+            assert isinstance(actual, dict)
+            for key, expected_value in expected.items():
+                actual_value = actual.get(key)
+                if (
+                    type(actual_value) is not type(expected_value)
+                    or actual_value != expected_value
+                ):
+                    errors.append(f"{prefix}: critical_findings[0].{key} changed")
+
+    expected_completed = {
+        "live_state_sha256": EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING[
+            "sha256"
+        ],
+        "live_state_unchanged": True,
+        "expected_r3_receipt_exists": False,
+        "checked_target_files_regular_non_symlink": True,
+        "candidate_files_modified_by_reviewer": False,
+    }
+    completed = review.get("checks_completed")
+    if exact_object(
+        completed,
+        set(expected_completed),
+        errors=errors,
+        label=f"{prefix} checks_completed",
+    ):
+        assert isinstance(completed, dict)
+        for key, expected in expected_completed.items():
+            actual = completed.get(key)
+            if type(actual) is not type(expected) or actual != expected:
+                errors.append(f"{prefix}: checks_completed.{key} changed")
+
+    expected_not_executed = {
+        "unit_test_count_41": False,
+        "candidate_binding_count_35_verified": False,
+        "predecessor_and_infrastructure_event_semantics_verified": False,
+        "receipt_contract_verified": False,
+        "rejected_precontact_terminal_semantics_verified": False,
+    }
+    not_executed = review.get("checks_not_executed")
+    if exact_object(
+        not_executed,
+        set(expected_not_executed),
+        errors=errors,
+        label=f"{prefix} checks_not_executed",
+    ):
+        assert isinstance(not_executed, dict)
+        for key, expected in expected_not_executed.items():
+            actual = not_executed.get(key)
+            if type(actual) is not type(expected) or actual != expected:
+                errors.append(f"{prefix}: checks_not_executed.{key} changed")
+
+    external = review.get("external_actions_observed")
+    external_keys = {
+        "gmail_or_external_draft",
+        "contact_or_send",
+        "application_or_submission",
+        "account_action",
+        "payment_or_delivery",
+        "publication",
+        "investment_action",
+    }
+    if exact_object(
+        external,
+        external_keys,
+        errors=errors,
+        label=f"{prefix} external_actions_observed",
+    ):
+        assert isinstance(external, dict)
+        for key in external_keys:
+            if external.get(key) is not False:
+                errors.append(f"{prefix}: external action {key} must remain false")
+
+    return validate_not_future(
+        review.get("recorded_at"),
+        now=now,
+        errors=errors,
+        label=f"{prefix} recorded_at",
+    )
+
+
+def validate_ca_precontact_successor_r3_candidate_drift(
+    binding: object, *, now: datetime, errors: list[str]
+) -> datetime | None:
+    """Load r3 drift evidence and prove its expected PASS receipt stayed absent."""
+
+    prefix = "CA012650 precontact successor r3 candidate-drift FAIL"
+    _, review = load_exact_bound_json(
+        binding,
+        expected_binding=EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_CANDIDATE_DRIFT_BINDING,
+        errors=errors,
+        label=prefix,
+    )
+    if review is None:
+        return None
+    recorded_at = validate_ca_precontact_successor_r3_candidate_drift_record(
+        review,
+        now=now,
+        errors=errors,
+    )
+    r3_receipt_path = (
+        RESEARCH_ROOT / EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_EXPECTED_RECEIPT_PATH
+    )
+    try:
+        os.lstat(r3_receipt_path)
+    except FileNotFoundError:
+        pass
+    except OSError:
+        errors.append(f"{prefix}: expected r3 receipt absence cannot be verified")
+    else:
+        errors.append(f"{prefix}: expected r3 receipt must remain absent")
+    return recorded_at
+
+
 def validate_ca_precontact_successor_receipt_contract(
     receipt: dict, *, receipt_path: Path, now: datetime, errors: list[str]
 ) -> datetime | None:
@@ -3386,6 +3704,11 @@ def validate_ca_precontact_successor_receipt_contract(
             errors=errors,
         )
     )
+    r3_candidate_drift_at = validate_ca_precontact_successor_r3_candidate_drift(
+        bound(EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_CANDIDATE_DRIFT_BINDING["path"]),
+        now=now,
+        errors=errors,
+    )
     rejection_binding = bound(EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING["path"])
     rejection_receipt = validate_precontact_rejection_receipt(
         rejection_binding,
@@ -3409,6 +3732,7 @@ def validate_ca_precontact_successor_receipt_contract(
         ("continuity record", continuity_at),
         ("attempt-1 successor FAIL", attempt1_fail_at),
         ("r2 review-infrastructure incident", r2_infrastructure_failure_at),
+        ("r3 candidate-drift FAIL", r3_candidate_drift_at),
         ("rejection receipt", rejection_at),
     ):
         if (

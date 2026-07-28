@@ -83,6 +83,17 @@ class ActiveStateValidatorTests(unittest.TestCase):
         assert isinstance(record, dict)
         return record
 
+    def r3_candidate_drift_record(self) -> dict:
+        path = (
+            ROOT
+            / VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_CANDIDATE_DRIFT_BINDING[
+                "path"
+            ]
+        )
+        record = VALIDATOR.loads_json_strict(path.read_text(encoding="utf-8"))
+        assert isinstance(record, dict)
+        return record
+
     def successor_candidate_bindings(self) -> list[dict[str, str]]:
         return self.candidate_bindings_from_declarations(
             ROOT, VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS
@@ -134,7 +145,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION
             ),
             "review_id": VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID,
-            "recorded_at": "2026-07-28T01:10:00-07:00",
+            "recorded_at": "2026-07-28T01:30:00-07:00",
             "reviewer_agent_identity": (
                 VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY
             ),
@@ -167,8 +178,8 @@ class ActiveStateValidatorTests(unittest.TestCase):
             precursor_path.read_text(encoding="utf-8")
         )
         assert isinstance(state, dict)
-        state["as_of"] = "2026-07-28T01:15:00-07:00"
-        state["freshness_policy"]["refresh_due_at"] = "2026-07-31T01:15:00-07:00"
+        state["as_of"] = "2026-07-28T01:35:00-07:00"
+        state["freshness_policy"]["refresh_due_at"] = "2026-07-31T01:35:00-07:00"
         opportunity = next(
             stream
             for stream in state["workstreams"]
@@ -274,7 +285,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
     ) -> list[str]:
         """Exercise the full state path with an in-memory exact future receipt.
 
-        Mutable 08 and the review itself are intentionally excluded from the r3
+        Mutable 08 and the review itself are intentionally excluded from the r4
         candidate to avoid a hash cycle.  Until the independent reviewer writes
         the real receipt, this harness substitutes only that one absent file;
         every candidate binding and all historical evidence are still validated
@@ -333,7 +344,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
         ):
             return VALIDATOR.validate(
                 state,
-                now=now or datetime.fromisoformat("2026-07-28T01:16:00-07:00"),
+                now=now or datetime.fromisoformat("2026-07-28T01:36:00-07:00"),
             )
 
     def assert_rejected_detected(
@@ -1600,6 +1611,295 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 )
                 self.assertTrue(
                     any(needle in error for error in attack_errors), attack_errors
+                )
+
+    def test_r3_candidate_drift_fail_is_exact_non_authoritative_and_absent(
+        self,
+    ) -> None:
+        review = self.r3_candidate_drift_record()
+        now = datetime.fromisoformat("2026-07-28T01:31:00-07:00")
+        errors: list[str] = []
+        recorded_at = (
+            VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                review,
+                now=now,
+                errors=errors,
+            )
+        )
+        self.assertEqual([], errors)
+        self.assertEqual(
+            datetime.fromisoformat("2026-07-28T01:16:28-07:00"), recorded_at
+        )
+
+        scalar_attacks = {
+            "schema": (
+                "schema_version",
+                "ca012650-precontact-successor-candidate-drift-review/0",
+                "schema_version changed",
+            ),
+            "review identity": (
+                "review_id",
+                "reused-review",
+                "review_id changed",
+            ),
+            "reviewer identity": (
+                "reviewer_agent_identity",
+                "/root/not-the-r3-reviewer",
+                "reviewer_agent_identity changed",
+            ),
+            "reviewer modification invented": (
+                "reviewer_modified_candidate",
+                True,
+                "reviewer_modified_candidate changed",
+            ),
+            "FAIL upgraded": ("verdict", "PASS", "verdict changed"),
+            "PASS receipt invented": (
+                "pass_receipt_created",
+                True,
+                "pass_receipt_created changed",
+            ),
+            "activation invented": (
+                "live_state_activation_allowed",
+                True,
+                "live_state_activation_allowed changed",
+            ),
+            "claim expansion": (
+                "claim_boundary",
+                "The drifted r3 bytes were semantically reviewed and accepted.",
+                "claim_boundary changed",
+            ),
+            "historical time mutation": (
+                "recorded_at",
+                "2026-07-28T01:16:29-07:00",
+                "recorded_at changed",
+            ),
+        }
+        for label, (key, value, needle) in scalar_attacks.items():
+            with self.subTest(label=label):
+                changed = copy.deepcopy(review)
+                changed[key] = value
+                attack_errors: list[str] = []
+                VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                    changed,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(needle in error for error in attack_errors), attack_errors
+                )
+
+        with self.subTest("severity cannot be upgraded to clean PASS counts"):
+            changed = copy.deepcopy(review)
+            changed["severity_counts"] = {"critical": 0, "major": 0}
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any("severity_counts changed" in error for error in attack_errors),
+                attack_errors,
+            )
+
+        request_attacks = {
+            "old request schema": (
+                "schema_version",
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION,
+            ),
+            "old request identity": (
+                "review_id",
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID,
+            ),
+            "old expected receipt": (
+                "expected_receipt_path",
+                Path(
+                    VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+                        "ca012650_internal_candidate"
+                    ]
+                ).name,
+            ),
+            "old closure count": ("expected_candidate_binding_count", 36),
+        }
+        for label, (key, value) in request_attacks.items():
+            with self.subTest(label=label):
+                changed = copy.deepcopy(review)
+                changed["review_request_identity"][key] = value
+                attack_errors = []
+                VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                    changed,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(
+                        f"review_request_identity.{key} changed" in error
+                        for error in attack_errors
+                    ),
+                    attack_errors,
+                )
+
+        for field in ("delegated_sha256", "observed_sha256"):
+            with self.subTest(drift_hash=field):
+                changed = copy.deepcopy(review)
+                changed["candidate_drift"][0][field] = "0" * 64
+                attack_errors = []
+                VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                    changed,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(
+                        f"candidate_drift[0].{field} changed" in error
+                        for error in attack_errors
+                    ),
+                    attack_errors,
+                )
+
+        completed_attacks = {
+            "live_state_sha256": "0" * 64,
+            "live_state_unchanged": False,
+            "expected_r3_receipt_exists": True,
+            "checked_target_files_regular_non_symlink": False,
+            "candidate_files_modified_by_reviewer": True,
+        }
+        for key, value in completed_attacks.items():
+            with self.subTest(completed_check=key):
+                changed = copy.deepcopy(review)
+                changed["checks_completed"][key] = value
+                attack_errors = []
+                VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                    changed,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(
+                        f"checks_completed.{key} changed" in error
+                        for error in attack_errors
+                    ),
+                    attack_errors,
+                )
+
+        for key in review["checks_not_executed"]:
+            with self.subTest(unexecuted_check=key):
+                changed = copy.deepcopy(review)
+                changed["checks_not_executed"][key] = True
+                attack_errors = []
+                VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                    changed,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(
+                        f"checks_not_executed.{key} changed" in error
+                        for error in attack_errors
+                    ),
+                    attack_errors,
+                )
+
+        with self.subTest("external action cannot be invented"):
+            changed = copy.deepcopy(review)
+            changed["external_actions_observed"]["contact_or_send"] = True
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any(
+                    "external action contact_or_send must remain false" in error
+                    for error in attack_errors
+                ),
+                attack_errors,
+            )
+
+        with self.subTest("unknown drift review field"):
+            changed = copy.deepcopy(review)
+            changed["semantic_review_completed"] = True
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any("unknown fields" in error for error in attack_errors),
+                attack_errors,
+            )
+
+        exact_binding = copy.deepcopy(
+            VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_CANDIDATE_DRIFT_BINDING
+        )
+        wrapper_errors: list[str] = []
+        wrapper_at = VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift(
+            exact_binding,
+            now=now,
+            errors=wrapper_errors,
+        )
+        self.assertEqual([], wrapper_errors)
+        self.assertEqual(recorded_at, wrapper_at)
+
+        with self.subTest("old r3 receipt must remain absent"), (
+            tempfile.TemporaryDirectory(
+                prefix="validator-precontact-r3-drift-", dir="/private/tmp"
+            )
+        ) as temp_dir:
+            temp_root = Path(temp_dir)
+            drift_relative = Path(exact_binding["path"])
+            drift_copy = temp_root / drift_relative
+            drift_copy.parent.mkdir(parents=True, exist_ok=True)
+            drift_copy.write_bytes((ROOT / drift_relative).read_bytes())
+            old_receipt = (
+                temp_root
+                / VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_R3_EXPECTED_RECEIPT_PATH
+            )
+            old_receipt.parent.mkdir(parents=True, exist_ok=True)
+            old_receipt.write_text("{}\n", encoding="utf-8")
+            attack_errors = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift(
+                    exact_binding,
+                    now=now,
+                    errors=attack_errors,
+                )
+            self.assertTrue(
+                any(
+                    "expected r3 receipt must remain absent" in error
+                    for error in attack_errors
+                ),
+                attack_errors,
+            )
+
+        for label, binding in (
+            (
+                "drift path substitution",
+                {
+                    "path": exact_binding["path"] + ".substituted",
+                    "sha256": exact_binding["sha256"],
+                },
+            ),
+            (
+                "drift hash substitution",
+                {"path": exact_binding["path"], "sha256": "0" * 64},
+            ),
+        ):
+            with self.subTest(label=label):
+                attack_errors = []
+                VALIDATOR.validate_ca_precontact_successor_r3_candidate_drift(
+                    binding,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(
+                        "exact content-addressed binding changed" in error
+                        for error in attack_errors
+                    ),
+                    attack_errors,
                 )
 
     def test_precontact_successor_contract_is_exact_and_chronological(self) -> None:
