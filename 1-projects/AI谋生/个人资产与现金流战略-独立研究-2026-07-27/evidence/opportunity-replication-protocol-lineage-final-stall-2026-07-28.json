@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "recorded_at": "2026-07-28T05:53:40-07:00",
-  "updated_at": "2026-07-28T07:10:37-07:00",
+  "updated_at": "2026-07-28T07:22:00-07:00",
   "record_type": "IMMUTABLE_PROTOCOL_REVIEW_LINEAGE_AND_STALL_OBSERVATION_NOT_AUTHORITY_TRANSFER",
   "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
   "review_scope": "PROTOCOL_MECHANICS_ONLY_NO_QUERY_RESULTS",
@@ -490,6 +490,53 @@
       ],
       "sampling_boundary": "Query lane is metadata in v3.1, so counts become a union-of-six operator-claimed convenience sample rather than the original targeted-lane replication frame; a successor must state and bind that changed count universe without treating it as coverage or prevalence.",
       "protocol_authority_ceiling_if_future_passes": "PROTOCOL_ACCEPTED_FOR_IMPLEMENTATION_ONLY"
+    },
+    {
+      "candidate": {
+        "commit": "1f6517968f4426bc43ea6dd0a8c4d66396b4b182",
+        "root_tree": "03090456cdeb77718670aaf6ad7e298ec4d94934",
+        "parent_final_fail_commit": "509862d28712caed93e67cf35e6e632d3d30f8d7",
+        "protocol_sha256": "0bfe1973b1971c2843269c505dbc703cea14d369ec04119c5efd94b056893c43",
+        "bundle_sha256": "faef8f008b6d1a6c1575e1b6b2d09e1e42223f700b34c9a42836d10e8118ece9",
+        "historical_manifest_sha256": "ad27e5f8376599707e5c0c5568cb902072adf742f53490a6b3eb908248f40152",
+        "decisions_sha256": "ed8b8e5f4ea14c59c84fa7ba5c5e9987be2b79205315508de81412184bec9375"
+      },
+      "archive_reproduction": {
+        "exact_changed_file_count": 6,
+        "control_plane_checks": "13/13",
+        "control_plane_unit_tests": "Ran 21 tests; OK",
+        "control_plane_valid": true,
+        "control_plane_snapshot_stable": true,
+        "control_plane_snapshot_sha256": "331350a182734e9fa5015a8af2317af802457c6e7168ecc523421c320520afb6",
+        "pinned_bundle_member_hashes_match": true,
+        "historical_source_sha256_matches": true,
+        "historical_member_count": 4,
+        "historical_member_ids_urls_and_raw_hashes_match": true,
+        "bytecode_found": false,
+        "real_queries_executed_or_inspected": 0
+      },
+      "reviewer_identities": [
+        "/root",
+        "/root/first_public_observation_review",
+        "/root/public_locator_reuse_map"
+      ],
+      "verdict": {
+        "value": "FINAL_FAIL_NO_GO",
+        "critical": 0,
+        "major": 4,
+        "minor": 1,
+        "authority_effect": "NONE"
+      },
+      "root_causes": [
+        "The exact bundle omits the v3.1 capture evidence boundary, total outcome schema and terminal disposition enum that v3.2 still normatively inherits.",
+        "The semantic priority table permits one complete job plus ambiguity in the opposite job to become eligible and does not total every first-or-later author-independence enum.",
+        "The request does not bind candidate-writer thread identity or a candidate-external presented-output envelope, so the writer can satisfy reviewer-not-executor while self-issuing the semantic receipt.",
+        "The complete-batch guard allows QUERY_UNAVAILABLE and can vacuously omit an open-success row with no capture, producing an outcome without a complete six-query sample or capture bijection."
+      ],
+      "minor_findings": [
+        "The raw structured search-entry hash has no exact serialization and encoding definition; absent reproducible provider bytes, implementation must hash a closed selected-field artifact or return schema unavailable."
+      ],
+      "protocol_authority_ceiling_if_future_passes": "PROTOCOL_ACCEPTED_FOR_IMPLEMENTATION_ONLY"
     }
   ],
   "stall_decision": {
@@ -511,12 +558,14 @@
     "url_grammar_stall_triggered": true,
     "url_grammar_backtrack_node": "D027",
     "url_grammar_prohibited_next_step": "ANOTHER_PER_STRING_OR_PER_SEPARATOR_URL_GRAMMAR_PATCH",
-    "latest_reviewed_candidate": "509862d28712caed93e67cf35e6e632d3d30f8d7",
-    "moving_successor_status": "DEPENDENCY_WINDOW_AND_SEMANTIC_ACCEPTANCE_REMEDIATION_REQUIRED_AFTER_V3_1_FINAL_FAIL",
+    "latest_reviewed_candidate": "1f6517968f4426bc43ea6dd0a8c4d66396b4b182",
+    "moving_successor_status": "INHERITANCE_SEMANTIC_REVIEWER_AND_BATCH_REMEDIATION_REQUIRED_AFTER_V3_2_FINAL_FAIL",
     "d028_protocol_verdict": "FINAL_FAIL_NO_GO",
     "d028_protocol_authority_effect": "NONE",
     "v3_1_protocol_verdict": "FINAL_FAIL_NO_GO",
-    "v3_1_protocol_authority_effect": "NONE"
+    "v3_1_protocol_authority_effect": "NONE",
+    "v3_2_protocol_verdict": "FINAL_FAIL_NO_GO",
+    "v3_2_protocol_authority_effect": "NONE"
   },
   "authority_boundary": {
     "run_search_queries_authorized": false,
