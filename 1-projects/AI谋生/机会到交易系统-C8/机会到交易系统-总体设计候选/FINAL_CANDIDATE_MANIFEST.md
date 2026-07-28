@@ -1,6 +1,6 @@
 # 总体设计终审候选说明
 
-- Candidate ID：`OTTS-DESIGN-20260727-C7`
+- Candidate ID：`OTTS-DESIGN-20260727-C8`
 - 状态：`SUCCESSOR-BLOCKED-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW`
 - canonical manifest：`FINAL_CANDIDATE_MANIFEST.json`
 - 允许的最强候选结论：仅在终审通过和外部 closure decision 生效后，进入 `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` 定义的本地、零外部副作用 shadow MVP 实现
@@ -12,9 +12,9 @@ canonical JSON 逐文件绑定：
 - 研究协议、访谈核查、Claim/RQ/DD、总体设计、来源日志与 closure matrix；
 - SSP-1.0 Run2 的协议、raw responses、双方 sealed ledgers、两次 joint、S2 independent receipt、lead final-status object、完整 CE-IN JSONL、exact final-status independent acceptance receipt、两个验证器与两组负向测试；
 - 只读 Action Envelope、旧实现差距审计、外部旧根隔离记录和所有用户可能误读的历史入口警告；
-- C1–C6 的实际 `FAIL`、两次 Run2 semantic remediation 及修订要求保存在 `FINAL_REVIEW_HISTORY.md`，不能被 successor 替换静默覆盖；
+- C1–C7 的实际 `FAIL`/PASS 边界、两次 Run2 semantic remediation、C7 exact final review/governance 与 C7 Shadow `FAIL` 保存在 `FINAL_REVIEW_HISTORY.md` 和 `C7_SHADOW_FAILURE_RECORD.md`，不能被 successor 替换静默覆盖；
 - C6 pre-freeze Python Capability Gate 的两份 `FREEZE BLOCKED / NO-GO` 静态审查、被审 exact hashes 与 declarative IR 根因修订也保存在同一历史；该草案没有形成 candidate manifest 或任何 PASS；
-- shadow declarative capability policy、exact-snapshot interpreter、macOS 隔离防御增强、资源边界与对抗测试；这些只验证未来 data-only shadow 的局部机械边界，不是实现或外部授权；
+- shadow declarative capability policy、exact-snapshot interpreter、窄而闭合的 OpportunityRecord 领域验证、PASS/REJECT 双类验收、macOS 隔离防御增强、资源边界与对抗测试；这些只是未来 data-only shadow 的局部机械边界，不是实现或外部授权；
 - `C6_SANDBOX_PROBE_REPORT.md` 保存当前 host 的 exact profile、拒绝探针、same-process exec 与 inherited-FD 反例及 non-claims；它是 platform-bound evidence，不是 portable attestation；
 - 旧 raw/筛选、旧 runtime/test/Pilot 和其并发变化仍保留在外部 sibling `机会到交易系统/`，但不再进入本候选 inventory，也不成为本候选依赖或权威证据。
 
@@ -28,7 +28,7 @@ JSON manifest 不包含自己，避免自引用哈希。最终 independent revie
 - `机会到交易系统-shadow-review/` 是预声明的独立实现审查 sibling root；只在 exact shadow snapshot 已形成后创建，并要求 caller 提供 exact receipt hash。
 - 三个后闭合 root 与候选 inventory 不重叠，不属于设计快照；分别使用 canonical governance、shadow 与 shadow-review manifests，绑定完整父链并覆盖各自 root 文件。
 
-C1 曾把未来实现放在 candidate inventory 内，使正常开工反向破坏设计复验；C2 又暴露 candidate node-type、shadow 自称状态和 test bytecode 污染问题；C3 暴露不完整 CE-IN crosswalk、final-status 独立同意缺失，以及旧 runtime 并发变化会污染设计快照；C4 的研究语义通过，但 freeze report 与 final receipt 的生产/消费 schema 不一致，无法进入 governance Gate；C5 同时因文档化 post-closure 入口的 bytecode 自污染和 Capability Gate 只认 self-claim/hash 而失败。最初 C6 pre-freeze 草案仍尝试用 AST/audit hook 执行 arbitrary Python，被两份独立静态审查阻断；declarative iteration A 又因同 UID staged-path substitution、末端 snapshot、partial TCB、可放大资源策略和虚假的 host-test 绿色证明被拒绝。Iteration B 改用 data-only closed declarative IR、opened-and-unlinked descriptor、固定结构性资源上限、私有临时 digest-addressed CAS 和分层 runtime evidence，并取得真实 host-required suite 与 exact-byte 代码/接口 `PASS`、无 Critical/Major。随后形成的 C6 exact manifest/freeze 仍因 Run2 direct Claim bridge 的语义 overreach 被完整终审拒绝；attempt 1 再暴露五项过度关系，attempt 2 才由两份只读审查以 exact bytes 接受。C7 绑定该修订链，但 Gate 局部 PASS 和 Run2 acceptance 都不替代本 manifest 的完整 RC-26 review。同 UID/管理员并发抵抗、完整 dylib/host TCB 与 Darwin 进程级 memory/RSS 硬限制仍明确不声称闭合。`sandbox-exec` 只作为当前 Mac 的 deprecated/unsupported defense-in-depth，不承担跨平台证明。候选不使用 ignore glob，也不允许在 freeze 时提前创建任何 post-closure sibling root。
+C1 曾把未来实现放在 candidate inventory 内，使正常开工反向破坏设计复验；C2 又暴露 candidate node-type、shadow 自称状态和 test bytecode 污染问题；C3 暴露不完整 CE-IN crosswalk、final-status 独立同意缺失，以及旧 runtime 并发变化会污染设计快照；C4 的研究语义通过，但 freeze report 与 final receipt 的生产/消费 schema 不一致，无法进入 governance Gate；C5 同时因文档化 post-closure 入口的 bytecode 自污染和 Capability Gate 只认 self-claim/hash 而失败。最初 C6 pre-freeze 草案仍尝试用 AST/audit hook 执行 arbitrary Python，被两份独立静态审查阻断；declarative iteration A 又因同 UID staged-path substitution、末端 snapshot、partial TCB、可放大资源策略和虚假的 host-test 绿色证明被拒绝。Iteration B 改用 data-only closed declarative IR、opened-and-unlinked descriptor、固定结构性资源上限、私有临时 digest-addressed CAS 和分层 runtime evidence，并取得真实 host-required suite 与 exact-byte 代码/接口 `PASS`、无 Critical/Major。随后形成的 C6 exact manifest/freeze 仍因 Run2 direct Claim bridge 的语义 overreach 被完整终审拒绝；attempt 1 再暴露五项过度关系，attempt 2 才由两份只读审查以 exact bytes 接受。C7 完整 RC-26 review 与限定 governance 通过，但 post-closure Shadow 实现审查反证冻结 IR 无法执行 Action Envelope 的领域语义完成定义。C8 因此保留 C7 原件和拒绝快照，修订 policy/runner/verifier 和拒绝型 acceptance contract，并重新接受完整 RC-26 review。同 UID/管理员并发抵抗、完整 dylib/host TCB 与 Darwin 进程级 memory/RSS 硬限制仍明确不声称闭合。`sandbox-exec` 只作为当前 Mac 的 deprecated/unsupported defense-in-depth，不承担跨平台证明。候选不使用 ignore glob，也不允许在 freeze 时提前创建任何 post-closure sibling root。
 
 ## 机械验证
 
@@ -41,13 +41,13 @@ python3 -B 研究/2026-07-27-总体设计/verify_run2_acceptance.py
 python3 -B 研究/2026-07-27-总体设计/test_run2_acceptance.py -v
 python3 -B 研究/2026-07-27-总体设计/test_shadow_acceptance.py -v
 # 上一命令的 host positive-path 在受管 sandbox 内必须显式 SKIP，不能当作 host PASS。
-# C7 冻结前还必须在允许嵌套 sandbox-exec 的真实主机上下文单独运行：
+# C8 冻结前还必须在允许嵌套 sandbox-exec 的真实主机上下文单独运行：
 OTTS_REQUIRE_HOST_SANDBOX=1 python3 -B 研究/2026-07-27-总体设计/test_shadow_acceptance.py -v
 python3 -B 研究/2026-07-27-总体设计/test_phase_manifests.py -v
 python3 -B 研究/2026-07-27-总体设计/build_candidate_manifest.py
 python3 -B 研究/2026-07-27-总体设计/verify_candidate_manifest.py FINAL_CANDIDATE_MANIFEST.json --phase freeze
 python3 -B 研究/2026-07-27-总体设计/build_freeze_report.py FINAL_CANDIDATE_MANIFEST.json \
-  --output /private/tmp/OTTS-DESIGN-20260727-C7-FREEZE_VERIFICATION_REPORT.json
+  --output /private/tmp/OTTS-DESIGN-20260727-C8-FREEZE_VERIFICATION_REPORT.json
 ```
 
 验证器 fail closed：未知字段、路径逃逸、重复 path、active/historical 重叠、非规范 SHA-256、缺失文件、hash mismatch、未知依赖、manifest 自包含、候选期提前出现的 post-closure root 或重叠/非精确 root 都会失败。

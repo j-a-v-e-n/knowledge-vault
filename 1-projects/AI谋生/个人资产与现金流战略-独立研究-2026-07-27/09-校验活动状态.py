@@ -1357,6 +1357,8 @@ def validate_ca_recipient_value_review(
     for key, expected in expected_scalars.items():
         if review.get(key) != expected:
             errors.append(f"{prefix}: {key} changed")
+    if review.get("independent_review") is not False:
+        errors.append(f"{prefix}: independent_review must be the JSON boolean false")
     severity = review.get("severity_counts")
     if not exact_object(
         severity, {"critical", "major"}, errors=errors, label=f"{prefix} severity_counts"
@@ -1457,6 +1459,11 @@ def validate_ca_predecessor_continuity(
         "current_successor_authority": False,
     }:
         errors.append(f"{prefix}: predecessor review boundary changed")
+    predecessor_review = record.get("predecessor_review")
+    if not isinstance(predecessor_review, dict) or predecessor_review.get(
+        "current_successor_authority"
+    ) is not False:
+        errors.append(f"{prefix}: current_successor_authority must be false")
     expected_mappings = [
         {
             "historical_path": "../08-活动状态.json",
@@ -1488,11 +1495,23 @@ def validate_ca_predecessor_continuity(
     ]
     if record.get("byte_mappings") != expected_mappings:
         errors.append(f"{prefix}: exact predecessor byte mappings changed")
+    mappings = record.get("byte_mappings")
+    if isinstance(mappings, list) and any(
+        not isinstance(mapping, dict)
+        or mapping.get("byte_identical_to_git_head_at_freeze") is not True
+        for mapping in mappings
+    ):
+        errors.append(f"{prefix}: every predecessor mapping must be exactly true")
     if record.get("verification") != {
         "method": "sha256_and_bytewise_cmp_against_git_head_objects",
         "all_mappings_verified": True,
     }:
         errors.append(f"{prefix}: verification boundary changed")
+    verification = record.get("verification")
+    if not isinstance(verification, dict) or verification.get(
+        "all_mappings_verified"
+    ) is not True:
+        errors.append(f"{prefix}: all_mappings_verified must be exactly true")
     for name, snapshot_binding in EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS.items():
         verify_bound_file(
             snapshot_binding,
@@ -1613,6 +1632,10 @@ def validate_ca_presend_readiness_fail(
     for key, value in expected.items():
         if review.get(key) != value:
             errors.append(f"{prefix}: {key} changed")
+    if review.get("reviewer_modified_candidate") is not False:
+        errors.append(f"{prefix}: reviewer_modified_candidate must be exactly false")
+    if review.get("current_successor_accepted") is not False:
+        errors.append(f"{prefix}: current_successor_accepted must be exactly false")
     return validate_not_future(
         review.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
     )
@@ -2518,6 +2541,9 @@ def validate_ca_r2_candidate_bindings(
         raw_path = binding.get("path")
         if isinstance(raw_path, str):
             observed_raw_paths.append(raw_path)
+            lexical_path = Path(raw_path)
+            if lexical_path.is_absolute() or ".." in lexical_path.parts[1:]:
+                errors.append(f"{label}: path traversal or absolute path is forbidden")
         bound_path = verify_bound_file(
             binding,
             base=receipt_parent,
@@ -2674,6 +2700,9 @@ def validate_ca_precontact_successor_candidate_bindings(
         raw_path = binding.get("path")
         if isinstance(raw_path, str):
             observed_raw_paths.append(raw_path)
+            lexical_path = Path(raw_path)
+            if lexical_path.is_absolute() or ".." in lexical_path.parts[1:]:
+                errors.append(f"{label}: path traversal or absolute path is forbidden")
         bound_path = verify_bound_file(
             binding,
             base=receipt_parent,

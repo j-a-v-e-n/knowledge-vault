@@ -1278,6 +1278,463 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 errors,
             )
 
+    def test_precontact_successor_contract_is_exact_and_chronological(self) -> None:
+        review = self.successor_review()
+        review_path = ROOT / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+            "ca012650_internal_candidate"
+        ]
+        now = datetime.fromisoformat("2026-07-28T00:06:00-07:00")
+        errors: list[str] = []
+        recorded_at = VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+            review, receipt_path=review_path, now=now, errors=errors
+        )
+        self.assertEqual([], errors)
+        self.assertEqual(
+            datetime.fromisoformat("2026-07-28T00:05:00-07:00"), recorded_at
+        )
+
+        scalar_attacks = {
+            "schema": (
+                "schema_version",
+                "old-schema",
+                "schema_version changed",
+            ),
+            "review identity": (
+                "review_id",
+                "review-reused-r2",
+                "review_id changed",
+            ),
+            "reviewer": (
+                "reviewer_agent_identity",
+                "/root/not-independent",
+                "reviewer_agent_identity changed",
+            ),
+            "candidate modified": (
+                "reviewer_modified_candidate",
+                True,
+                "reviewer_modified_candidate changed",
+            ),
+            "verdict": ("verdict", "FAIL", "verdict changed"),
+            "external status": (
+                "external_action_status",
+                "AUTHORIZED",
+                "external_action_status changed",
+            ),
+            "claim expansion": (
+                "claim_boundary",
+                "Sending and market claims are authorized.",
+                "claim_boundary changed",
+            ),
+        }
+        for label, (key, value, needle) in scalar_attacks.items():
+            with self.subTest(label=label):
+                changed = copy.deepcopy(review)
+                changed[key] = value
+                attack_errors: list[str] = []
+                VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+                    changed, receipt_path=review_path, now=now, errors=attack_errors
+                )
+                self.assertTrue(
+                    any(needle in error for error in attack_errors), attack_errors
+                )
+
+        with self.subTest("review predates sender remediation"):
+            changed = copy.deepcopy(review)
+            changed["recorded_at"] = "2026-07-27T23:56:49-07:00"
+            errors = []
+            VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+                changed, receipt_path=review_path, now=now, errors=errors
+            )
+            self.assertTrue(
+                any("later than sender-remediation predecessor" in error for error in errors),
+                errors,
+            )
+
+    def test_precontact_successor_candidate_set_rejects_omission_substitution_and_paths(
+        self,
+    ) -> None:
+        receipt_parent = ROOT / "evidence"
+        bindings = self.successor_candidate_bindings()
+        attacks: dict[str, tuple[list[dict[str, str]], str]] = {}
+
+        omitted = copy.deepcopy(bindings)
+        omitted.pop()
+        attacks["omission"] = (omitted, "exact unique closed successor candidate")
+
+        duplicated = copy.deepcopy(bindings)
+        duplicated.append(copy.deepcopy(duplicated[0]))
+        attacks["duplicate"] = (duplicated, "duplicate")
+
+        wrong_hash = copy.deepcopy(bindings)
+        next(
+            binding
+            for binding in wrong_hash
+            if binding["path"]
+            == "review-ca012650-recipient-value-2026-07-27-r1.json"
+        )["sha256"] = "0" * 64
+        attacks["recipient hash"] = (wrong_hash, "sha256 mismatch")
+
+        snapshot_drift = copy.deepcopy(bindings)
+        next(
+            binding
+            for binding in snapshot_drift
+            if binding["path"] == "precursor-sender-stage-09-3ac3937a.snapshot"
+        )["sha256"] = "1" * 64
+        attacks["sender snapshot drift"] = (snapshot_drift, "sha256 mismatch")
+
+        traversal = copy.deepcopy(bindings)
+        traversal[0]["path"] = "../../outside.json"
+        attacks["path traversal"] = (traversal, "path traversal")
+
+        for label, (candidate, needle) in attacks.items():
+            with self.subTest(label=label):
+                errors: list[str] = []
+                VALIDATOR.validate_ca_precontact_successor_candidate_bindings(
+                    candidate, receipt_parent=receipt_parent, errors=errors
+                )
+                self.assertTrue(any(needle in error for error in errors), errors)
+
+    def test_recipient_fail_cannot_be_upgraded_or_misrepresented(self) -> None:
+        source = ROOT / VALIDATOR.EXPECTED_CA_RECIPIENT_VALUE_REVIEW_BINDING["path"]
+        original = VALIDATOR.loads_json_strict(source.read_text(encoding="utf-8"))
+        assert isinstance(original, dict)
+        attacks = {
+            "verdict": ("verdict", "PASS", "verdict changed"),
+            "independence": (
+                "independent_review",
+                True,
+                "independent_review changed",
+            ),
+            "counterevidence": (
+                "claim_boundary",
+                "This proves there is no demand.",
+                "claim_boundary changed",
+            ),
+        }
+        with tempfile.TemporaryDirectory(
+            prefix="validator-recipient-fail-", dir="/private/tmp"
+        ) as temp_dir:
+            temp_root = Path(temp_dir)
+            evidence = temp_root / "evidence"
+            evidence.mkdir()
+            (temp_root / "12-首个反证实验与对外动作候选.md").write_bytes(
+                (ROOT / "12-首个反证实验与对外动作候选.md").read_bytes()
+            )
+            snapshot_binding = copy.deepcopy(
+                VALIDATOR.EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING
+            )
+            snapshot_path = temp_root / snapshot_binding["path"]
+            snapshot_path.write_bytes((ROOT / snapshot_binding["path"]).read_bytes())
+            review_path = evidence / source.name
+            for label, (key, value, needle) in attacks.items():
+                with self.subTest(label=label):
+                    changed = copy.deepcopy(original)
+                    changed[key] = value
+                    review_path.write_text(
+                        json.dumps(changed, ensure_ascii=False), encoding="utf-8"
+                    )
+                    binding = {
+                        "path": f"evidence/{source.name}",
+                        "sha256": hashlib.sha256(review_path.read_bytes()).hexdigest(),
+                    }
+                    errors: list[str] = []
+                    with mock.patch.object(
+                        VALIDATOR, "RESEARCH_ROOT", temp_root
+                    ), mock.patch.object(
+                        VALIDATOR,
+                        "EXPECTED_CA_RECIPIENT_VALUE_REVIEW_BINDING",
+                        binding,
+                    ):
+                        VALIDATOR.validate_ca_recipient_value_review(
+                            binding,
+                            now=datetime.fromisoformat("2026-07-27T23:31:00-07:00"),
+                            errors=errors,
+                        )
+                    self.assertTrue(any(needle in error for error in errors), errors)
+
+    def test_rejection_receipt_closes_every_external_and_market_interpretation(
+        self,
+    ) -> None:
+        receipt_path = ROOT / VALIDATOR.EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING[
+            "path"
+        ]
+        original = VALIDATOR.loads_json_strict(receipt_path.read_text(encoding="utf-8"))
+        assert isinstance(original, dict)
+
+        def errors_for_receipt(receipt: dict) -> list[str]:
+            errors: list[str] = []
+            original_loader = VALIDATOR.load_exact_bound_json
+
+            def loader_override(binding: object, **kwargs: object) -> tuple[Path | None, dict | None]:
+                if str(kwargs.get("label", "")).startswith(
+                    "CA012650 approval precontact_rejection_receipt:"
+                ):
+                    return receipt_path, copy.deepcopy(receipt)
+                return original_loader(binding, **kwargs)
+
+            with mock.patch.object(
+                VALIDATOR, "load_exact_bound_json", side_effect=loader_override
+            ):
+                VALIDATOR.validate_precontact_rejection_receipt(
+                    copy.deepcopy(
+                        VALIDATOR.EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING
+                    ),
+                    item=None,
+                    now=datetime.fromisoformat("2026-07-27T23:44:00-07:00"),
+                    errors=errors,
+                    validate_stage_item=False,
+                )
+            return errors
+
+        boolean_attacks = {
+            "request authorization": "request_send_authorization",
+            "external draft": "external_draft_authorized",
+            "external contact": "external_contact_authorized",
+            "message sent": "message_sent",
+            "follow-up": "follow_up_sent",
+            "recipient response": "recipient_or_market_response_observed",
+            "market counterevidence": "market_counterevidence_claimed",
+        }
+        for label, key in boolean_attacks.items():
+            with self.subTest(label=label):
+                changed = copy.deepcopy(original)
+                changed["stage_payload"][key] = True
+                errors = errors_for_receipt(changed)
+                self.assertTrue(
+                    any(f"{key} must be the JSON boolean false" in error for error in errors),
+                    errors,
+                )
+
+        with self.subTest("wrong transition"):
+            changed = copy.deepcopy(original)
+            changed["to_stage"] = "request_ready"
+            self.assertTrue(
+                any("to_stage" in error for error in errors_for_receipt(changed))
+            )
+        with self.subTest("recipient review binding"):
+            changed = copy.deepcopy(original)
+            changed["stage_payload"]["recipient_value_review_record"]["sha256"] = "0" * 64
+            self.assertTrue(
+                any("recipient-value review binding changed" in error for error in errors_for_receipt(changed))
+            )
+        with self.subTest("snapshot binding"):
+            changed = copy.deepcopy(original)
+            changed["stage_payload"]["pretransition_state_snapshot"]["sha256"] = "0" * 64
+            self.assertTrue(
+                any("pretransition snapshot binding changed" in error for error in errors_for_receipt(changed))
+            )
+        with self.subTest("chronology"):
+            changed = copy.deepcopy(original)
+            changed["recorded_at"] = "2026-07-27T23:30:13-07:00"
+            self.assertTrue(
+                any("later than recipient-value review" in error for error in errors_for_receipt(changed))
+            )
+
+    def test_rejected_state_is_terminal_unbound_and_result_closed(self) -> None:
+        opportunity_index = next(
+            index
+            for index, stream in enumerate(self.rejected_state()["workstreams"])
+            if stream["id"] == "opportunity_to_transaction"
+        )
+
+        mutations = {
+            "revive request ready": (
+                lambda state: (
+                    state["approval_queue"][0].__setitem__("status", "request_ready"),
+                    state["approval_queue"][0]["lifecycle"].__setitem__(
+                        "stage", "request_ready"
+                    ),
+                ),
+                "terminal rejected_precontact",
+            ),
+            "same identity revert": (
+                lambda state: (
+                    state["approval_queue"][0].__setitem__(
+                        "status", "blocked_missing_bindings"
+                    ),
+                    state["approval_queue"][0]["lifecycle"].__setitem__(
+                        "stage", "blocked_missing_bindings"
+                    ),
+                    state["approval_queue"][0]["lifecycle"].__setitem__(
+                        "previous_stage", None
+                    ),
+                ),
+                "terminal rejected_precontact",
+            ),
+            "ready": (
+                lambda state: state["approval_queue"][0].__setitem__("ready", True),
+                "flags do not match",
+            ),
+            "executable": (
+                lambda state: state["approval_queue"][0].__setitem__(
+                    "executable", True
+                ),
+                "flags do not match",
+            ),
+            "authorized": (
+                lambda state: state["approval_queue"][0].__setitem__(
+                    "authorized", True
+                ),
+                "flags do not match",
+            ),
+            "authorization consumed": (
+                lambda state: state["approval_queue"][0].__setitem__(
+                    "authorization_consumed", True
+                ),
+                "flags do not match",
+            ),
+            "exact user authorization": (
+                lambda state: state["approval_queue"][0].__setitem__(
+                    "exact_user_authorization", True
+                ),
+                "exact user authorization must be false",
+            ),
+            "sender populated": (
+                lambda state: state["approval_queue"][0].__setitem__(
+                    "sender_account", "jacao@ucsd.edu"
+                ),
+                "sender account must be null",
+            ),
+            "cutoff populated": (
+                lambda state: state["approval_queue"][0].__setitem__(
+                    "observation_cutoff_at", "2026-08-03T23:30:00-07:00"
+                ),
+                "observation cutoff must be null",
+            ),
+            "refresh populated": (
+                lambda state: state["approval_queue"][0][
+                    "pre_send_source_refresh"
+                ].update({"status": "completed", "completed_at": state["as_of"]}),
+                "blocked stage must keep refresh wholly incomplete",
+            ),
+            "missing binding removed": (
+                lambda state: state["approval_queue"][0]["missing_bindings"].pop(),
+                "exact missing bindings changed",
+            ),
+            "readiness receipt present": (
+                lambda state: state["approval_queue"][0]["lifecycle"].__setitem__(
+                    "readiness_receipt",
+                    copy.deepcopy(
+                        VALIDATOR.EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING
+                    ),
+                ),
+                "non-required receipt readiness_receipt must be null",
+            ),
+            "result demand": (
+                lambda state: state["workstreams"][opportunity_index][
+                    "current_experiment"
+                ]["result_claims"].__setitem__("externally_validated_demand", True),
+                "result claims must remain false",
+            ),
+            "asset claim": (
+                lambda state: state["workstreams"][opportunity_index][
+                    "current_experiment"
+                ]["result_claims"].__setitem__("asset_candidate", True),
+                "result claims must remain false",
+            ),
+            "unknown deleted": (
+                lambda state: state["workstreams"][opportunity_index][
+                    "unknowns"
+                ].pop(),
+                "unknowns differ from the exact closed value",
+            ),
+            "counterevidence prose": (
+                lambda state: state["workstreams"][opportunity_index][
+                    "observed_facts"
+                ][2].__setitem__(
+                    "claim", "The recipient rejected us and market demand is absent."
+                ),
+                "observed_facts differ from exact stage rendering",
+            ),
+            "Gmail draft field": (
+                lambda state: state["approval_queue"][0].__setitem__(
+                    "gmail_draft_created", True
+                ),
+                "unknown fields",
+            ),
+        }
+        for label, (mutate, needle) in mutations.items():
+            with self.subTest(label=label):
+                state = self.rejected_state()
+                mutate(state)
+                self.assert_rejected_detected(state, needle)
+
+        for result_name in sorted(VALIDATOR.REQUIRED_FALSE_EXPERIMENT_RESULTS):
+            with self.subTest(result_claim=result_name):
+                state = self.rejected_state()
+                state["workstreams"][opportunity_index]["current_experiment"][
+                    "result_claims"
+                ][result_name] = True
+                self.assert_rejected_detected(
+                    state, "result claims must remain false"
+                )
+
+        for receipt_name in (
+            "readiness_receipt",
+            "authorization_receipt",
+            "execution_receipt",
+            "observation_receipt",
+            "closure_receipt",
+        ):
+            with self.subTest(non_required_receipt=receipt_name):
+                state = self.rejected_state()
+                state["approval_queue"][0]["lifecycle"][receipt_name] = copy.deepcopy(
+                    VALIDATOR.EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING
+                )
+                self.assert_rejected_detected(
+                    state, f"non-required receipt {receipt_name} must be null"
+                )
+
+        for flag_name in (
+            "authorized",
+            "ready",
+            "executable",
+            "authorization_consumed",
+        ):
+            with self.subTest(boolean_type_confusion=flag_name):
+                state = self.rejected_state()
+                state["approval_queue"][0][flag_name] = 1
+                self.assert_rejected_detected(state, "flags do not match")
+
+    def test_rejected_identity_target_channel_message_and_receipt_are_immutable(self) -> None:
+        mutations = {
+            "target": (
+                lambda approval: approval["exact_target"].__setitem__(
+                    "public_building_id", "Building #OTHER"
+                ),
+                "exact target changed",
+            ),
+            "channel": (
+                lambda approval: approval.__setitem__(
+                    "exact_channel", "other@example.com"
+                ),
+                "exact channel changed",
+            ),
+            "message": (
+                lambda approval: approval["message_binding"].__setitem__(
+                    "sha256", "0" * 64
+                ),
+                "sha256 mismatch",
+            ),
+            "receipt missing": (
+                lambda approval: approval["lifecycle"].__setitem__(
+                    "precontact_rejection_receipt", None
+                ),
+                "requires precontact_rejection_receipt",
+            ),
+            "receipt hash": (
+                lambda approval: approval["lifecycle"][
+                    "precontact_rejection_receipt"
+                ].__setitem__("sha256", "0" * 64),
+                "exact content-addressed binding changed",
+            ),
+        }
+        for label, (mutate, needle) in mutations.items():
+            with self.subTest(label=label):
+                state = self.rejected_state()
+                mutate(state["approval_queue"][0])
+                self.assert_rejected_detected(state, needle)
+
     def test_authority_and_result_prose_are_exact_closed_values(self) -> None:
         opportunity_index = next(
             index
@@ -1393,7 +1850,29 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 1,
             ),
         }
-        raw_cases = {"nested state authority": duplicated_state, **duplicate_receipts}
+        successor_raw = json.dumps(
+            self.successor_review(), ensure_ascii=False, indent=2
+        )
+        duplicate_successor = successor_raw.replace(
+            '"verdict": "PASS"',
+            '"verdict": "FAIL",\n  "verdict": "PASS"',
+            1,
+        )
+        rejection_raw = (
+            ROOT
+            / VALIDATOR.EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING["path"]
+        ).read_text(encoding="utf-8")
+        duplicate_rejection = rejection_raw.replace(
+            '"message_sent": false',
+            '"message_sent": true,\n    "message_sent": false',
+            1,
+        )
+        raw_cases = {
+            "nested state authority": duplicated_state,
+            **duplicate_receipts,
+            "successor duplicate verdict": duplicate_successor,
+            "rejection duplicate external action": duplicate_rejection,
+        }
         with tempfile.TemporaryDirectory(
             prefix="validator-duplicate-json-", dir="/private/tmp"
         ) as temp_dir:

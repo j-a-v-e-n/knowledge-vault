@@ -1,13 +1,15 @@
 # 只读 Shadow MVP：实现权限边界
 
 - Envelope ID：`RO-SHADOW-ENVELOPE-1.0`
-- 状态：`CANDIDATE-C7-RUN2-ATTEMPT-2-EXACT-ACCEPTED-BLOCKED-PENDING-FINAL-INDEPENDENT-REVIEW`
+- 状态：`CANDIDATE-C8-C7-SHADOW-FAIL-REMEDIATED-BLOCKED-PENDING-FINAL-INDEPENDENT-REVIEW`
 - 适用阶段：总体设计研究闭合后的第一阶段实现
 - 默认决定：任何未明确列入“允许”的能力均为 `DENY`
 
 ## 目的
 
 本边界只允许把通过 exact-hash 终审的总体设计转成一个可测试的本地**声明式** shadow。target-controlled shadow artifact 只能是 canonical data/text 与 closed IR，不能携带或运行 Python、bytecode、native code、脚本、plugin、callback、模板或其他通用代码；唯一解释器属于已冻结、被独立审查的父候选。它用于验证记录、隔离、哈希闭包、失效传播和评测语义，不用于发现或经营一个真实生意，也不构成任何市场、需求、价格、商机、交付能力或盈利结论。
+
+C7 失败 Shadow 已证明：只有 exact hash、CAS round trip 和 host sandbox 的 transport/sealer 不能满足本 Envelope。C8 的父候选必须同时冻结一个窄而闭合的 OpportunityRecord 领域 validator；它只检查 exact structured contract 与内部一致性，不从自然语言字面自称理解说话者的真实语用行为、预算或付费意愿。
 
 ## 生效条件
 
@@ -105,6 +107,8 @@ shadow artifact 与其 IR 不得表达、装载、调用、生成可执行权限
 - candidate、governance、shadow 与 shadow-review inventory 都拒绝 hardlink 与 FIFO/socket/device 等 special node；shadow manifest 的状态和 scope 是闭集，只能为 `SHADOW_IMPLEMENTATION_CANDIDATE / LOCAL_ZERO_EXTERNAL_SIDE_EFFECT_SHADOW_MVP_ONLY`，并必须逐字声明 `external_action_authority=false`。
 - manifest、program、fixture、policy 与 interpreter 必须从 `O_NOFOLLOW` 打开的同一个 regular single-link object 做一次有界 hash+copy，读取前后 `fstat` identity/size/timestamps 不一致即失败；worker 只能从 runner 预先打开、复核并 unlink 的 descriptor 读取执行所需字节，profile 由 runner 以 exact bytes 直接传入，不得再次按可变 pathname 打开。事后按原 pathname 重算不能替代该绑定；这种机制减少普通 pathname substitution，但不证明抵抗同 UID 或管理员的并发进程攻击，接受结论必须逐字保留该 non-claim。
 - IR schema/opcode 是 exact tagged union；未知/额外字段、typed ID collision、dangling/cyclic/unreachable node、错误类型、超出固定的 entries/total-input/case/node/depth/fan-out/integer/string/output/CAS/log/per-case/aggregate-time 上限均 fail closed。CAS 配额必须在写入前检查，只可 exclusive-create digest-derived object并在读回时重验 exact bytes；corruption、collision、disk/cleanup failure 不能生成 PASS。Darwin 首版没有可声称已执行的进程级 memory/RSS 硬限制；只能依赖上述固定结构性分配上限，并在回执中明确保存 OS memory boundary 未闭合。
+- OpportunityRecord 领域验证必须是 exact schema 与稳定拒绝代码的闭集；它必须机械拒绝 sampling 未冻结、任一 lane 未封存、lane ID/canary 串线、`contamination_detected=true`、rights denied/account/external retrieval、legacy schema、typed parent/hash 不一致、stale/invalid dependency 与 experiment 非 `UNEXECUTED`。不得用 fixture 自述的 `safe/sealed/authorized` 字段直接换取更强证据状态。
+- 每个 acceptance case 必须预声明 `PASS + exact result SHA-256` 或 `REJECT + exact closed domain error code`；worker 只能把领域 validator 产生的已知代码返回为预期拒绝。Schema/graph 异常、sandbox/probe failure、timeout、TCB/report 漂移或未知异常必须使整个 acceptance fail closed，不能被 expected rejection 吞掉。
 - verifier 只核验证据链，不创造审查独立性或 closure authority；只从可写 governance root 读取一个自称 `CONDITIONALLY_READY` 的文件不够，必须同时匹配调用者提供的 exact decision hash，且即使通过也没有外部行动权限。
 - phase verifier 的 synthetic 回归必须覆盖正向闭合和 fail-closed 路径；测试只能在系统临时目录创建模拟 sibling roots，不得在候选冻结前创建真实 governance/shadow root。
 
