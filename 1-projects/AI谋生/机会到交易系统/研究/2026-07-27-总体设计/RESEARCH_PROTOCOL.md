@@ -1,6 +1,6 @@
 # 机会到交易系统：研究协议
 
-状态：`CANDIDATE-UPDATED / FINAL-INDEPENDENT-REVIEW-PENDING`。在外部 closure decision 绑定完整 candidate manifest 与通过的 independent review receipt 前，权威运行状态仍为 `BLOCKED`。
+状态：`CANDIDATE-C3 / FINAL-INDEPENDENT-REVIEW-PENDING`。C1 因 candidate inventory 与未来 shadow 目录相互失效而得到 bounded independent `FAIL / MAJOR`，C2 因 candidate node-type、shadow 状态闭集和测试 bytecode 副作用得到 `FAIL / WITHDRAWN`；记录保存在 [`FINAL_REVIEW_HISTORY.md`](./FINAL_REVIEW_HISTORY.md)。在 C3 的外部 closure decision 绑定完整 candidate manifest 与通过的 independent review receipt、且 sibling governance root 自身闭合前，权威运行状态仍为 `BLOCKED`。
 
 ## 决策问题
 
@@ -112,8 +112,9 @@
 - OutcomeMaturityState 处理 cohort age、右删失、退款/续费/质保/支持尾部和迟到事件重算；OwnerObjectiveSpec 与 IncomeSufficiencyState 将收入耐久与用户目标充分性分离；
 - 残余未知点和变化监控条件明确；
 - 冻结协议 Run2 `SSP-1.0-RUN-20260727T154803-0700` 下的两轮全部查询都被逐结果筛选，没有 `NEW-CRITICAL` 或 `UNRESOLVED`，且 lead 与独立审查者完成共同裁决；
+- candidate inventory、governance 工件与 shadow implementation 使用不重叠的精确 roots：freeze 时后两者必须不存在，后闭合时各自由单独 canonical manifest 完整覆盖并绑定 exact parent，不能用 ignore glob、symlink、路径逃逸或逐文件重封把未来可变实现混入已审设计快照；
 - 最终独立复核绑定完整候选 manifest 与每个文件的 SHA-256，没有发现会改变总体架构的未处理缺口。
 
-上述条件的候选级判定、证据路径、exact hash、残余限制和最终审查待办统一记录在 [`RESEARCH_CLOSURE_PREDICATE_MATRIX.md`](./RESEARCH_CLOSURE_PREDICATE_MATRIX.md)。矩阵不能自行把状态改成 `CONDITIONALLY_READY`：其 final-review predicate 只有在 manifest 冻结后才能由独立审查满足，随后还需外部 `RESEARCH_CLOSURE_DECISION` 绑定同一 manifest 与 receipt。
+上述条件的候选级判定、证据路径、exact hash、残余限制和最终审查待办统一记录在 [`RESEARCH_CLOSURE_PREDICATE_MATRIX.md`](./RESEARCH_CLOSURE_PREDICATE_MATRIX.md)。矩阵不能自行把状态改成 `CONDITIONALLY_READY`：其 final-review predicate 只有在 manifest 冻结后才能由独立审查满足；随后 freeze report、review receipt 与外部 `RESEARCH_CLOSURE_DECISION` 必须进入预声明的 `机会到交易系统-闭合记录/` sibling root，由该 root 的 `GOVERNANCE_ARTIFACT_MANIFEST.json` 绑定同一 candidate manifest、receipt 与 decision，并在调用者提供 decision exact hash 的条件下通过 [`verify_post_closure_manifest.py`](./verify_post_closure_manifest.py) aggregate Gate。该哈希锚只证明调用对象的精确身份，不自行证明签发者身份或审查独立性。
 
-`CONDITIONALLY_READY` 只允许把通过 exact-hash 终审的设计作为**本地隔离、零外部副作用的只读 shadow MVP**及其验证方案的规格输入。这个阶段的实现只能处理合成 fixture 或已有明确授权且已本地化的只读 fixture，只能产出可追溯观察、sealed-lane 输出、需求假设、未执行的实验草案与评测记录；不得装载或暴露浏览器写入、外联、发送、发布、部署、账户、凭据、签约、报价、付款、收款、客户数据写入或生产 Harness 执行器。它也不授权把某个行业、对象、需求、价格、商机或盈利判断写成已验证事实。任何真实网络采集、具体 Pilot、外部实验或商业动作都需要在其精确 SamplingPlan、权利、身份、合规、伦理、能力与 ActionEnvelope Gate 下另行取得权限。
+`CONDITIONALLY_READY` 只允许把通过 exact-hash 终审的设计作为**本地隔离、零外部副作用的只读 shadow MVP**及其验证方案的规格输入。这个实现只能出现在另一个预声明的 sibling root `机会到交易系统-shadow-mvp/`，其 manifest 必须绑定 exact candidate、governance manifest 与 closure decision；首版可变运行数据只进入系统临时目录。这个阶段的实现只能处理合成 fixture 或已有明确授权且已本地化的只读 fixture，只能产出可追溯观察、sealed-lane 输出、需求假设、未执行的实验草案与评测记录；不得装载或暴露浏览器写入、外联、发送、发布、部署、账户、凭据、签约、报价、付款、收款、客户数据写入或生产 Harness 执行器。它也不授权把某个行业、对象、需求、价格、商机或盈利判断写成已验证事实。任何真实网络采集、具体 Pilot、外部实验或商业动作都需要在其精确 SamplingPlan、权利、身份、合规、伦理、能力与 ActionEnvelope Gate 下另行取得权限。

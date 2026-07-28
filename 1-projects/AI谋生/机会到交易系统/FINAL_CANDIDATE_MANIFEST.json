@@ -1,8 +1,33 @@
 {
-  "schema_version": "1.0",
-  "candidate_id": "OTTS-DESIGN-20260727-C1",
+  "schema_version": "1.1",
+  "candidate_id": "OTTS-DESIGN-20260727-C3",
   "status": "CANDIDATE_PENDING_MANIFEST_BOUND_INDEPENDENT_REVIEW",
-  "scope": "Research/design closure candidate only. If and only if an external closure decision binds this exact manifest to a passing independent review receipt, it may authorize local zero-external-side-effect shadow MVP implementation within READ_ONLY_SHADOW_ACTION_ENVELOPE.md; no real pilot or external commercial action.",
+  "scope": "Research/design closure candidate only. If and only if an external closure decision binds this exact manifest to a passing independent review receipt and the declared governance sibling root validates under an externally supplied exact decision hash, it may authorize a separate local zero-external-side-effect shadow MVP sibling root within READ_ONLY_SHADOW_ACTION_ENVELOPE.md; no real pilot or external commercial action.",
+  "candidate_inventory_root": ".",
+  "post_closure_artifact_roots": [
+    {
+      "root_id": "closure-governance",
+      "path_from_candidate_parent": "机会到交易系统-闭合记录",
+      "artifact_kind": "CLOSURE_GOVERNANCE",
+      "required_manifest": "GOVERNANCE_ARTIFACT_MANIFEST.json",
+      "freeze_required_state": "MUST_BE_ABSENT",
+      "post_closure_required_state": "MUST_BE_PRESENT",
+      "activation_gate": "EXACT_CANDIDATE_REVIEW_PASS",
+      "governed_by_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+      "governed_by_sha256": "429b93fe5d61cc3ad685d3b812fb562e609e2d6f2bffca3576f9389bb63e452d"
+    },
+    {
+      "root_id": "shadow-mvp",
+      "path_from_candidate_parent": "机会到交易系统-shadow-mvp",
+      "artifact_kind": "READ_ONLY_SHADOW_MVP",
+      "required_manifest": "SHADOW_ARTIFACT_MANIFEST.json",
+      "freeze_required_state": "MUST_BE_ABSENT",
+      "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
+      "activation_gate": "EXACT_CLOSURE_DECISION",
+      "governed_by_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+      "governed_by_sha256": "429b93fe5d61cc3ad685d3b812fb562e609e2d6f2bffca3576f9389bb63e452d"
+    }
+  ],
   "entries": [
     {
       "path": "DESIGN.md",
@@ -16,19 +41,23 @@
     },
     {
       "path": "FINAL_CANDIDATE_MANIFEST.md",
-      "sha256": "66f21b5b29b3b901dd5676d227e6aafc99f7913dc9ded4d56cbe9a8b8d2a0292",
+      "sha256": "3f7bb719e8666e7438ba10e75784708e339b94a38b5c7851043e3688e2a94e0f",
       "role": "human-readable-candidate-index",
       "authority_status": "active-candidate-pending-final-review",
       "depends_on": [
         "研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md",
         "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+        "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/verify_post_closure_manifest.py",
+        "研究/2026-07-27-总体设计/test_phase_manifests.py",
         "LEGACY_STATUS.md",
         "LEGACY_CODE_GAP_AUDIT.md"
       ]
     },
     {
       "path": "LEGACY_CODE_GAP_AUDIT.md",
-      "sha256": "f285baae9f2544ffa759ef1a1e7709b7c77086d5281df3afb8a02e2891cc5198",
+      "sha256": "38e773ba53218a56fcf751c5314701897b92f2d737cf9b616842a24a7b298b7f",
       "role": "active-legacy-gap-audit",
       "authority_status": "active-quarantine-control",
       "depends_on": [
@@ -38,7 +67,7 @@
     },
     {
       "path": "LEGACY_STATUS.md",
-      "sha256": "a8c89ea188d0acfc032935aa85a9fabaf22ff2ea796848c5ac7b03bb6302dbb4",
+      "sha256": "5f164012f1e5b7aab6d62eeb210a697d30ac2084442bb75bcd3a8d8f445a1ed3",
       "role": "active-legacy-authority-boundary",
       "authority_status": "active-quarantine-control",
       "depends_on": [
@@ -94,7 +123,7 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/02-主张与证据地图.md",
-      "sha256": "be80b2d24c6820ff29de405a49c08b7cf3809a20a34876b76dd4e859ee526711",
+      "sha256": "d6468544894f016e5d56c5d334296356067646cc99d7fcea6794eff50fde2751",
       "role": "active-claim-evidence-map",
       "authority_status": "active-candidate-pending-final-review",
       "depends_on": [
@@ -104,36 +133,50 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md",
-      "sha256": "b7604f9032081ccf1624021743654628534835b5fb40fa82785427911c61d55f",
+      "sha256": "7f36297dc6cb290db2d9b44626c1c116ca8264f73b5f9d1adbd02418d49d8811",
       "role": "active-system-design-candidate",
       "authority_status": "active-candidate-pending-final-review",
       "depends_on": [
         "研究/2026-07-27-总体设计/02-主张与证据地图.md",
         "研究/2026-07-27-总体设计/04-来源与检索日志.md",
         "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+        "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
         "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md"
       ]
     },
     {
       "path": "研究/2026-07-27-总体设计/04-来源与检索日志.md",
-      "sha256": "cc08035586b5bf4e66a25c68ab8be9463eec02f38a02d3cc8c0841f5a983bfa0",
+      "sha256": "8cee0019a56177ae0a387163fe0b93c660160367398bb39aa286483a9155d4ee",
       "role": "active-source-and-search-log",
       "authority_status": "active-candidate-pending-final-review",
       "depends_on": [
         "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
-        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md"
+        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md",
+        "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md"
       ]
     },
     {
-      "path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
-      "sha256": "144ab65ca437f55c99f45cf1535dc8931a67f6adedbcfd7dd85843eef19e61a3",
-      "role": "active-read-only-action-envelope",
+      "path": "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
+      "sha256": "6e735e6a6701eacb86b3146070e01ef3d3b9c3e75b324136cf73c533184d8c1a",
+      "role": "active-final-review-history",
       "authority_status": "active-candidate-pending-final-review",
       "depends_on": []
     },
     {
+      "path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+      "sha256": "429b93fe5d61cc3ad685d3b812fb562e609e2d6f2bffca3576f9389bb63e452d",
+      "role": "active-read-only-action-envelope",
+      "authority_status": "active-candidate-pending-final-review",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/verify_post_closure_manifest.py",
+        "研究/2026-07-27-总体设计/test_phase_manifests.py"
+      ]
+    },
+    {
       "path": "研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md",
-      "sha256": "08071d530ad30d6126181c4204f894ac370055002da8a355173ccffd4afcecad",
+      "sha256": "a46e9e2d315f4f9bc22ca5d3ab4ce65e6c968b9926c5270e477e1b2139abe7fb",
       "role": "active-research-closure-matrix",
       "authority_status": "active-candidate-pending-final-review",
       "depends_on": [
@@ -144,6 +187,10 @@
         "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
         "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md",
         "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+        "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/verify_post_closure_manifest.py",
+        "研究/2026-07-27-总体设计/test_phase_manifests.py",
         "LEGACY_STATUS.md",
         "LEGACY_CODE_GAP_AUDIT.md",
         "研究/2026-07-27-总体设计/ARCHITECTURE_CHALLENGE_REVIEW.md"
@@ -151,12 +198,14 @@
     },
     {
       "path": "研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md",
-      "sha256": "fbe404b3d826185236690e900b1ae5076aa19b0880162ca6b80dbbf22fdbefde",
+      "sha256": "3084ba46e01f9009fb98975b26d5b0b162b2db20fbccdca0d7864b58444e6357",
       "role": "active-research-closure-protocol",
       "authority_status": "active-candidate-pending-final-review",
       "depends_on": [
         "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md",
-        "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md"
+        "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+        "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
+        "研究/2026-07-27-总体设计/verify_post_closure_manifest.py"
       ]
     },
     {
@@ -563,11 +612,30 @@
       ]
     },
     {
+      "path": "研究/2026-07-27-总体设计/test_phase_manifests.py",
+      "sha256": "893679919f2d04a92458d92e21eacc130911be1e55684e001770eb8dd4da9916",
+      "role": "active-phase-boundary-regression-tests",
+      "authority_status": "active-candidate-pending-final-review",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/verify_post_closure_manifest.py"
+      ]
+    },
+    {
       "path": "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
-      "sha256": "949efed996a05b1781b5d1e556d174849078a112a74c88cc03678df5bc6d4923",
+      "sha256": "b75f24c1fd9a895d7fbb408f151a076cf3222362fae72bcf818f6d837c878089",
       "role": "active-manifest-verifier",
       "authority_status": "active-candidate-pending-final-review",
       "depends_on": []
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/verify_post_closure_manifest.py",
+      "sha256": "d2ed356ff8ec359dc468e8f1ac58405a359308b3e641378c69e0dff1555a31e5",
+      "role": "active-post-closure-root-verifier",
+      "authority_status": "active-candidate-pending-final-review",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py"
+      ]
     }
   ],
   "historical_exclusions": [

@@ -100,4 +100,4 @@ python3 -m unittest discover -s '1-projects/AI谋生/机会到交易系统/tests
 
 一次 shadow run 最多产出：可追溯 observations、两条 sealed lane outputs、带竞争解释的 `NeedHypothesis`、未执行的下一实验草案和绑定原件的 `EvalRun`。任一承重输入变化必须使派生物失效；旧 Pilot 或任何评测结果都不存在通往 Harness 或外部动作的代码路径。
 
-只有在研究闭合与 exact-hash 最终审查通过后，才可在全新隔离目录按 `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` 开始首版实现。本审计不授权复用旧 runtime；旧对象只能作为显式 `LEGACY_UNQUALIFIED` fixture 被新 validator 拒绝或隔离。
+只有在研究闭合与 exact-hash 最终审查通过、并且 sibling governance root 的 post-closure manifest 机械闭合后，才可在预声明且与旧项目不重叠的 `机会到交易系统-shadow-mvp/` sibling root 按 `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` 开始首版实现。本审计不授权复用旧 runtime；旧对象只能作为显式 `LEGACY_UNQUALIFIED` fixture 被新 validator 拒绝或隔离。

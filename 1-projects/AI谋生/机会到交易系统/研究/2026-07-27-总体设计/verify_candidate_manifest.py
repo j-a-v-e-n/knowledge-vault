@@ -6,7 +6,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import stat
 import sys
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -17,6 +19,8 @@ TOP_LEVEL_KEYS = {
     "candidate_id",
     "status",
     "scope",
+    "candidate_inventory_root",
+    "post_closure_artifact_roots",
     "entries",
     "historical_exclusions",
 }
@@ -28,7 +32,37 @@ ENTRY_KEYS = {
     "depends_on",
 }
 HISTORICAL_KEYS = ENTRY_KEYS | {"exclusion_reason"}
+POST_CLOSURE_ROOT_KEYS = {
+    "root_id",
+    "path_from_candidate_parent",
+    "artifact_kind",
+    "required_manifest",
+    "freeze_required_state",
+    "post_closure_required_state",
+    "activation_gate",
+    "governed_by_path",
+    "governed_by_sha256",
+}
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+PHASES = {"freeze", "post-closure"}
+POST_CLOSURE_ROOT_POLICIES = {
+    "closure-governance": {
+        "path_from_candidate_parent": "机会到交易系统-闭合记录",
+        "artifact_kind": "CLOSURE_GOVERNANCE",
+        "required_manifest": "GOVERNANCE_ARTIFACT_MANIFEST.json",
+        "freeze_required_state": "MUST_BE_ABSENT",
+        "post_closure_required_state": "MUST_BE_PRESENT",
+        "activation_gate": "EXACT_CANDIDATE_REVIEW_PASS",
+    },
+    "shadow-mvp": {
+        "path_from_candidate_parent": "机会到交易系统-shadow-mvp",
+        "artifact_kind": "READ_ONLY_SHADOW_MVP",
+        "required_manifest": "SHADOW_ARTIFACT_MANIFEST.json",
+        "freeze_required_state": "MUST_BE_ABSENT",
+        "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
+        "activation_gate": "EXACT_CLOSURE_DECISION",
+    },
+}
 
 
 class ManifestError(ValueError):
@@ -82,6 +116,102 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def validate_post_closure_root(
+    raw: Any,
+    *,
+    candidate_parent: Path,
+    candidate_root_name: str,
+    label: str,
+    phase: str,
+) -> dict[str, str | bool]:
+    if not isinstance(raw, dict):
+        raise ManifestError(f"{label}: expected object")
+    require_exact_keys(raw, POST_CLOSURE_ROOT_KEYS, label)
+    root_id = require_string(raw["root_id"], f"{label}.root_id")
+    root_name = require_string(
+        raw["path_from_candidate_parent"],
+        f"{label}.path_from_candidate_parent",
+    )
+    root_pure = PurePosixPath(root_name)
+    if root_pure.parts != (root_name,) or root_name in {".", ".."}:
+        raise ManifestError(
+            f"{label}.path_from_candidate_parent: expected one normalized sibling name"
+        )
+    if root_name == candidate_root_name:
+        raise ManifestError(f"{label}: post-closure root overlaps candidate root")
+    artifact_kind = require_string(raw["artifact_kind"], f"{label}.artifact_kind")
+    required_manifest = require_string(
+        raw["required_manifest"], f"{label}.required_manifest"
+    )
+    manifest_pure = PurePosixPath(required_manifest)
+    if manifest_pure.parts != (required_manifest,) or required_manifest in {".", ".."}:
+        raise ManifestError(f"{label}.required_manifest: expected one normalized filename")
+    freeze_required_state = require_string(
+        raw["freeze_required_state"], f"{label}.freeze_required_state"
+    )
+    post_closure_required_state = require_string(
+        raw["post_closure_required_state"],
+        f"{label}.post_closure_required_state",
+    )
+    activation_gate = require_string(raw["activation_gate"], f"{label}.activation_gate")
+    governed_by_path = require_string(
+        raw["governed_by_path"], f"{label}.governed_by_path"
+    )
+    governed_by_sha256 = require_string(
+        raw["governed_by_sha256"], f"{label}.governed_by_sha256"
+    )
+    if not SHA256_RE.fullmatch(governed_by_sha256):
+        raise ManifestError(f"{label}.governed_by_sha256: expected lowercase SHA-256")
+
+    policy = POST_CLOSURE_ROOT_POLICIES.get(root_id)
+    if policy is None:
+        raise ManifestError(f"{label}.root_id: unknown root policy")
+    declared_policy = {
+        "path_from_candidate_parent": root_name,
+        "artifact_kind": artifact_kind,
+        "required_manifest": required_manifest,
+        "freeze_required_state": freeze_required_state,
+        "post_closure_required_state": post_closure_required_state,
+        "activation_gate": activation_gate,
+    }
+    if declared_policy != policy:
+        raise ManifestError(f"{label}: declaration does not match frozen root policy")
+
+    root_path = candidate_parent / root_name
+    if root_path.is_symlink():
+        raise ManifestError(f"{label}: post-closure root must not be a symlink")
+    exists = root_path.exists()
+    if phase == "freeze" and freeze_required_state == "MUST_BE_ABSENT" and exists:
+        raise ManifestError(
+            f"{label}: post-closure root must be absent during candidate freeze: {root_name}"
+        )
+    if (
+        phase == "post-closure"
+        and post_closure_required_state == "MUST_BE_PRESENT"
+        and not exists
+    ):
+        raise ManifestError(f"{label}: required post-closure root is absent: {root_name}")
+    if phase == "post-closure" and exists:
+        if not root_path.is_dir():
+            raise ManifestError(f"{label}: post-closure root is not a directory")
+        root_manifest = root_path / required_manifest
+        if root_manifest.is_symlink() or not root_manifest.is_file():
+            raise ManifestError(
+                f"{label}: present root lacks regular required manifest: "
+                f"{root_name}/{required_manifest}"
+            )
+    return {
+        "root_id": root_id,
+        "root_name": root_name,
+        "artifact_kind": artifact_kind,
+        "required_manifest": required_manifest,
+        "activation_gate": activation_gate,
+        "governed_by_path": governed_by_path,
+        "governed_by_sha256": governed_by_sha256,
+        "present": exists,
+    }
+
+
 def validate_entry(
     raw: Any,
     *,
@@ -118,7 +248,9 @@ def validate_entry(
     return relative, dependencies
 
 
-def validate_manifest(manifest_path: Path) -> dict[str, Any]:
+def validate_manifest(manifest_path: Path, *, phase: str = "freeze") -> dict[str, Any]:
+    if phase not in PHASES:
+        raise ManifestError(f"unknown verification phase: {phase!r}")
     try:
         manifest_text = manifest_path.read_text(encoding="utf-8")
         document = json.loads(manifest_text, object_pairs_hook=reject_duplicate_keys)
@@ -130,21 +262,46 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
     canonical_text = json.dumps(document, ensure_ascii=False, indent=2) + "\n"
     if manifest_text != canonical_text:
         raise ManifestError("manifest is valid JSON but not in canonical serialized form")
-    if document["schema_version"] != "1.0":
-        raise ManifestError("manifest.schema_version must equal '1.0'")
+    if document["schema_version"] != "1.1":
+        raise ManifestError("manifest.schema_version must equal '1.1'")
     require_string(document["candidate_id"], "manifest.candidate_id")
     require_string(document["status"], "manifest.status")
     require_string(document["scope"], "manifest.scope")
+    if document["candidate_inventory_root"] != ".":
+        raise ManifestError("manifest.candidate_inventory_root must equal '.'")
     entries = document["entries"]
     exclusions = document["historical_exclusions"]
+    post_closure_roots = document["post_closure_artifact_roots"]
     if not isinstance(entries, list) or not entries:
         raise ManifestError("manifest.entries must be a non-empty list")
     if not isinstance(exclusions, list):
         raise ManifestError("manifest.historical_exclusions must be a list")
+    if not isinstance(post_closure_roots, list) or not post_closure_roots:
+        raise ManifestError("manifest.post_closure_artifact_roots must be non-empty")
 
     base = manifest_path.resolve().parent
+    candidate_parent = base.parent
     manifest_name = manifest_path.name
+    root_declarations = [
+        validate_post_closure_root(
+            raw,
+            candidate_parent=candidate_parent,
+            candidate_root_name=base.name,
+            label=f"post_closure_artifact_roots[{index}]",
+            phase=phase,
+        )
+        for index, raw in enumerate(post_closure_roots)
+    ]
+    root_ids = [str(item["root_id"]) for item in root_declarations]
+    root_names = [str(item["root_name"]) for item in root_declarations]
+    if len(root_ids) != len(set(root_ids)):
+        raise ManifestError("duplicate post-closure root_id")
+    if set(root_ids) != set(POST_CLOSURE_ROOT_POLICIES):
+        raise ManifestError("post-closure root declarations do not match policy set")
+    if len(root_names) != len(set(root_names)):
+        raise ManifestError("duplicate post-closure sibling path")
     dependencies_by_path: dict[str, list[str]] = {}
+    hashes_by_path: dict[str, str] = {}
     active_paths: set[str] = set()
     historical_paths: set[str] = set()
 
@@ -161,6 +318,7 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
             raise ManifestError("manifest must not include itself")
         active_paths.add(path)
         dependencies_by_path[path] = dependencies
+        hashes_by_path[path] = raw["sha256"]
 
     for index, raw in enumerate(exclusions):
         path, dependencies = validate_entry(
@@ -175,8 +333,20 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
             raise ManifestError("manifest must not include itself")
         historical_paths.add(path)
         dependencies_by_path[path] = dependencies
+        hashes_by_path[path] = raw["sha256"]
 
     known_paths = active_paths | historical_paths
+    for root in root_declarations:
+        governed_by_path = str(root["governed_by_path"])
+        governed_by_sha256 = str(root["governed_by_sha256"])
+        if governed_by_path not in active_paths:
+            raise ManifestError(
+                f"post-closure root {root['root_id']}: governed_by_path is not active"
+            )
+        if hashes_by_path[governed_by_path] != governed_by_sha256:
+            raise ManifestError(
+                f"post-closure root {root['root_id']}: governed_by_sha256 mismatch"
+            )
     for owner, dependencies in dependencies_by_path.items():
         for dependency in dependencies:
             if dependency not in known_paths:
@@ -201,27 +371,92 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
         visit(path, [])
 
     inventory_paths: set[str] = set()
-    for candidate in base.rglob("*"):
-        if candidate.is_symlink():
-            raise ManifestError(
-                f"unlisted or listed symlink in inventory: "
-                f"{candidate.relative_to(base).as_posix()}"
-            )
-        if not candidate.is_file() or candidate.resolve() == manifest_path.resolve():
-            continue
-        inventory_paths.add(candidate.relative_to(base).as_posix())
+    inventory_directories: set[str] = set()
+    for current, directory_names, file_names in os.walk(base, followlinks=False):
+        current_path = Path(current)
+        for name in list(directory_names):
+            candidate = current_path / name
+            relative = candidate.relative_to(base).as_posix()
+            if candidate.is_symlink():
+                raise ManifestError(f"symlink directory in candidate inventory: {relative}")
+            if not stat.S_ISDIR(candidate.stat().st_mode):
+                raise ManifestError(f"special directory node in candidate: {relative}")
+            inventory_directories.add(relative)
+        for name in file_names:
+            candidate = current_path / name
+            relative = candidate.relative_to(base).as_posix()
+            if candidate.is_symlink():
+                raise ManifestError(f"symlink file in candidate inventory: {relative}")
+            candidate_stat = candidate.stat()
+            if not stat.S_ISREG(candidate_stat.st_mode):
+                raise ManifestError(f"special file in candidate inventory: {relative}")
+            if candidate_stat.st_nlink != 1:
+                raise ManifestError(f"hardlinked file in candidate inventory: {relative}")
+            if candidate.resolve() == manifest_path.resolve():
+                continue
+            inventory_paths.add(relative)
     unlisted = sorted(inventory_paths - known_paths)
     if unlisted:
         raise ManifestError(f"unlisted project files: {unlisted}")
     listed_but_absent = sorted(known_paths - inventory_paths)
     if listed_but_absent:
         raise ManifestError(f"listed files absent from project inventory: {listed_but_absent}")
+    expected_directories: set[str] = set()
+    for relative in known_paths | {manifest_name}:
+        parent = PurePosixPath(relative).parent
+        while str(parent) not in {"", "."}:
+            expected_directories.add(parent.as_posix())
+            parent = parent.parent
+    extra_directories = sorted(inventory_directories - expected_directories)
+    if extra_directories:
+        raise ManifestError(f"unlisted candidate directories: {extra_directories}")
+
+    inventory_identity = [
+        {
+            "authority_status": raw["authority_status"],
+            "category": "active",
+            "path": raw["path"],
+            "role": raw["role"],
+            "sha256": raw["sha256"],
+        }
+        for raw in entries
+    ] + [
+        {
+            "authority_status": raw["authority_status"],
+            "category": "historical",
+            "exclusion_reason": raw["exclusion_reason"],
+            "path": raw["path"],
+            "role": raw["role"],
+            "sha256": raw["sha256"],
+        }
+        for raw in exclusions
+    ]
+    inventory_identity.sort(key=lambda item: (item["category"], item["path"]))
+    inventory_digest = hashlib.sha256(
+        json.dumps(
+            inventory_identity,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+    ).hexdigest()
 
     return {
         "candidate_id": document["candidate_id"],
         "manifest_sha256": sha256_file(manifest_path),
         "active_files": len(active_paths),
         "historical_files": len(historical_paths),
+        "candidate_inventory_digest_sha256": inventory_digest,
+        "verification_phase": phase,
+        "post_closure_roots": [
+            {
+                "root_id": item["root_id"],
+                "path_from_candidate_parent": item["root_name"],
+                "present": item["present"],
+                "state": "PRESENT" if item["present"] else "ABSENT",
+            }
+            for item in root_declarations
+        ],
         "status": document["status"],
         "scope": document["scope"],
     }
@@ -230,9 +465,10 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("manifest", type=Path)
+    parser.add_argument("--phase", choices=sorted(PHASES), default="freeze")
     args = parser.parse_args()
     try:
-        result = validate_manifest(args.manifest)
+        result = validate_manifest(args.manifest, phase=args.phase)
     except ManifestError as exc:
         print(json.dumps({"valid": False, "error": str(exc)}, ensure_ascii=False))
         return 1

@@ -1,7 +1,7 @@
 # 只读 Shadow MVP：实现权限边界
 
 - Envelope ID：`RO-SHADOW-ENVELOPE-1.0`
-- 状态：`CANDIDATE-PENDING-FINAL-INDEPENDENT-REVIEW`
+- 状态：`CANDIDATE-C3-PENDING-FINAL-INDEPENDENT-REVIEW`
 - 适用阶段：总体设计研究闭合后的第一阶段实现
 - 默认决定：任何未明确列入“允许”的能力均为 `DENY`
 
@@ -15,7 +15,8 @@
 
 - `RESEARCH_CLOSURE_DECISION` 对其绑定的 exact candidate manifest 得出仅限本边界的 `CONDITIONALLY_READY`；
 - independent final review 对同一 manifest exact hash 明确 `PASS`，且不存在未决的 critical 或 major 项；
-- 当前实现从全新隔离目录开始，不把旧 `schema 0.1`、旧餐馆 Pilot、旧状态或旧 Harness 当作当前对象；
+- governance 工件已写入候选目录的精确 sibling root `机会到交易系统-闭合记录/`，其中 canonical `GOVERNANCE_ARTIFACT_MANIFEST.json` 绑定同一候选、freeze report、review receipt 与 closure decision；aggregate Gate 还收到与 decision 字节一致的外部 expected hash，并通过候选内冻结的 post-closure verifier；
+- 当前实现从候选目录的另一个精确 sibling root `机会到交易系统-shadow-mvp/` 开始，不把旧 `schema 0.1`、旧餐馆 Pilot、旧状态或旧 Harness 当作当前对象；
 - runtime 的能力清单不包含本文件禁止的工具、连接器或执行器；
 - 输入 fixture 满足下述来源与数据条件。
 
@@ -23,7 +24,7 @@
 
 ## 允许的实现范围
 
-允许在项目内新建隔离实现目录 `shadow_mvp/`，实现并测试：
+允许在候选目录的父目录内新建且只新建预声明的隔离实现 root `机会到交易系统-shadow-mvp/`，实现并测试：
 
 - closed-schema 记录对象与规范化序列化；
 - append-only、content-addressed 的本地证据与派生物存储；
@@ -35,7 +36,16 @@
 - assurance dependency closure、staleness/invalidity propagation、恢复与机械验证；
 - synthetic、tamper、cross-lane、contamination、rights、legacy-quarantine 和 zero-side-effect 测试。
 
-允许写入的运行数据仅限 `shadow_mvp/` 自己的测试或本地 workspace。测试可以使用系统临时目录，但不得读取或修改项目范围外的用户数据。
+首版验收测试的运行数据只能写入系统临时目录；`机会到交易系统-shadow-mvp/` 本身只保存进入其 canonical manifest 的实现、fixture、测试与说明。若未来要在项目内持久化 run 数据，必须先定义独立的 append-only run root 与逐次 run manifest，不能把可变运行输出混入已接受的实现候选。测试不得读取或修改项目范围外的用户数据。
+
+## 设计快照与后闭合工件的阶段隔离
+
+- `机会到交易系统/` 是不可变的 candidate inventory root；final review 只接受它的 exact manifest hash。
+- candidate manifest 预声明 `机会到交易系统-闭合记录/` 与 `机会到交易系统-shadow-mvp/` 两个精确 sibling roots；不允许 glob、任意 ignore path、symlink 或第三个未声明 root。
+- `freeze` 验证模式要求两个 sibling roots 都不存在，防止在终审前藏入 governance 或实现文件。
+- final review PASS 后，先建立 governance root；其中 freeze report 证明终审时两个 sibling roots 都不存在，review receipt 绑定 exact candidate、freeze report、verifier 与本 Envelope，closure decision 再绑定 exact candidate、freeze report、exact receipt、exact shadow root 与本 Envelope，root manifest 完整绑定全部 governance 文件。
+- 只有 aggregate Gate 在外部 expected decision hash 下验证 governance root 后，才可建立 shadow root；`SHADOW_ARTIFACT_MANIFEST.json` 必须绑定 exact candidate manifest、governance manifest、review receipt、closure decision 与本 Envelope，并完整列出自己的全部文件和依赖。
+- frozen candidate 的任一字节变化使 RC-26、receipt、decision 和所有 downstream roots 失效；governance 变化使 shadow root 失效；shadow 实现变化只使该实现候选及其 EvalRun 失效，不反向改写已经发生的设计审查事实。
 
 ## 允许的输入
 
@@ -86,6 +96,10 @@ shadow runtime 不得装载、调用、生成可执行权限或提供间接路�
 - Eval 通过只形成待独立审查的能力候选，不能产生 Grant、现实动作或商业状态；
 - 旧 `schema 0.1` 输入只能得到 `LEGACY_UNQUALIFIED`，不能被无损升级或自动迁移；
 - runtime 和测试必须能机械证明没有被注册的外部副作用 capability。
+- candidate、governance 与 shadow 三个 inventory 必须分别闭合；通过改变路径、把文件移入未扫描目录或使用 symlink 绕过 inventory 一律拒绝。
+- 三个 inventory 都拒绝 hardlink 与 FIFO/socket/device 等 special node；shadow manifest 的状态和 scope 是闭集，只能为 `SHADOW_IMPLEMENTATION_CANDIDATE / LOCAL_ZERO_EXTERNAL_SIDE_EFFECT_SHADOW_MVP_ONLY`，并必须逐字声明 `external_action_authority=false`。
+- verifier 只核验证据链，不创造审查独立性或 closure authority；只从可写 governance root 读取一个自称 `CONDITIONALLY_READY` 的文件不够，必须同时匹配调用者提供的 exact decision hash，且即使通过也没有外部行动权限。
+- phase verifier 的 synthetic 回归必须覆盖正向闭合和 fail-closed 路径；测试只能在系统临时目录创建模拟 sibling roots，不得在候选冻结前创建真实 governance/shadow root。
 
 ## 完成定义
 
@@ -95,4 +109,4 @@ shadow runtime 不得装载、调用、生成可执行权限或提供间接路�
 
 ## 升级规则
 
-任何真实网络采集、具体 Pilot 选择、外部实验、联系人、发布、报价、账户、付款、收款、部署、客户数据或 production Harness 都超出本边界。升级必须以新的 exact action scope、来源/权利/身份/合规/伦理记录、能力评测、确定性 Gate、独立审查和用户授权为前提，不能修改本文件后追认已经发生的动作。
+任何真实网络采集、具体 Pilot 选择、外部实验、联系人、发布、报价、账户、付款、收款、部署、客户数据或 production Harness 都超出本边界。升级必须以新的 exact action scope、来源/权利/身份/合规/伦理记录、能力评测、确定性 Gate、独立审查和用户授权为前提，不能修改本文件或在 post-closure sibling root 中新增文件后追认已经发生的动作。
