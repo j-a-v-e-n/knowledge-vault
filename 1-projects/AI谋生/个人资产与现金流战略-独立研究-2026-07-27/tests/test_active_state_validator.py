@@ -72,6 +72,17 @@ class ActiveStateValidatorTests(unittest.TestCase):
         assert isinstance(record, dict)
         return record
 
+    def r2_infrastructure_failure_record(self) -> dict:
+        path = (
+            ROOT
+            / VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_R2_INFRASTRUCTURE_FAILURE_BINDING[
+                "path"
+            ]
+        )
+        record = VALIDATOR.loads_json_strict(path.read_text(encoding="utf-8"))
+        assert isinstance(record, dict)
+        return record
+
     def successor_candidate_bindings(self) -> list[dict[str, str]]:
         return self.candidate_bindings_from_declarations(
             ROOT, VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS
@@ -123,7 +134,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION
             ),
             "review_id": VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID,
-            "recorded_at": "2026-07-28T00:45:00-07:00",
+            "recorded_at": "2026-07-28T01:10:00-07:00",
             "reviewer_agent_identity": (
                 VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY
             ),
@@ -156,8 +167,8 @@ class ActiveStateValidatorTests(unittest.TestCase):
             precursor_path.read_text(encoding="utf-8")
         )
         assert isinstance(state, dict)
-        state["as_of"] = "2026-07-28T00:50:00-07:00"
-        state["freshness_policy"]["refresh_due_at"] = "2026-07-31T00:50:00-07:00"
+        state["as_of"] = "2026-07-28T01:15:00-07:00"
+        state["freshness_policy"]["refresh_due_at"] = "2026-07-31T01:15:00-07:00"
         opportunity = next(
             stream
             for stream in state["workstreams"]
@@ -322,7 +333,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
         ):
             return VALIDATOR.validate(
                 state,
-                now=now or datetime.fromisoformat("2026-07-28T00:51:00-07:00"),
+                now=now or datetime.fromisoformat("2026-07-28T01:16:00-07:00"),
             )
 
     def assert_rejected_detected(
@@ -1308,19 +1319,272 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 errors,
             )
 
+    def test_r2_review_infrastructure_incident_is_exact_and_non_authoritative(
+        self,
+    ) -> None:
+        incident = self.r2_infrastructure_failure_record()
+        now = datetime.fromisoformat("2026-07-28T01:11:00-07:00")
+        errors: list[str] = []
+        recorded_at = (
+            VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                incident,
+                now=now,
+                errors=errors,
+            )
+        )
+        self.assertEqual([], errors)
+        self.assertEqual(
+            datetime.fromisoformat("2026-07-28T01:02:41-07:00"), recorded_at
+        )
+
+        scalar_attacks = {
+            "schema": (
+                "schema_version",
+                "independent-review-infrastructure-failure/0",
+                "schema_version changed",
+            ),
+            "incident identity": (
+                "incident_id",
+                "reused-incident",
+                "incident_id changed",
+            ),
+            "attempt count": ("attempt_count", 1, "attempt_count changed"),
+            "invented PASS": (
+                "candidate_verdict",
+                "PASS",
+                "candidate_verdict changed",
+            ),
+            "invented severity": (
+                "severity_counts",
+                {"critical": 0, "major": 0},
+                "severity_counts changed",
+            ),
+            "invented receipt": (
+                "pass_receipt_created",
+                True,
+                "pass_receipt_created changed",
+            ),
+            "invented activation": (
+                "live_state_activation_allowed",
+                True,
+                "live_state_activation_allowed changed",
+            ),
+            "invented reviewed status": (
+                "status",
+                "PASS",
+                "status changed",
+            ),
+        }
+        for label, (key, value, needle) in scalar_attacks.items():
+            with self.subTest(label=label):
+                changed = copy.deepcopy(incident)
+                changed[key] = value
+                attack_errors: list[str] = []
+                VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                    changed,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(needle in error for error in attack_errors), attack_errors
+                )
+
+        with self.subTest("requested r2 identity cannot be rewritten as r3"):
+            changed = copy.deepcopy(incident)
+            changed["candidate_review_identity"]["review_id"] = (
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID
+            )
+            changed["candidate_review_identity"][
+                "requested_reviewer_agent_identity"
+            ] = VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY
+            changed["candidate_review_identity"]["expected_receipt_path"] = Path(
+                VALIDATOR.EXPECTED_REVIEW_STATE_PATHS["ca012650_internal_candidate"]
+            ).name
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any("requested r2 review_id changed" in error for error in attack_errors),
+                attack_errors,
+            )
+            self.assertTrue(
+                any(
+                    "requested r2 requested_reviewer_agent_identity changed" in error
+                    for error in attack_errors
+                ),
+                attack_errors,
+            )
+            self.assertTrue(
+                any(
+                    "requested r2 expected_receipt_path changed" in error
+                    for error in attack_errors
+                ),
+                attack_errors,
+            )
+
+        with self.subTest("exactly two refused attempts are required"):
+            changed = copy.deepcopy(incident)
+            changed["review_attempts"].pop()
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any("exactly two refusals" in error for error in attack_errors),
+                attack_errors,
+            )
+
+        attempt_attacks = {
+            "opposite outcome": (
+                "outcome",
+                "PASS",
+                "review_attempts[0].outcome changed",
+            ),
+            "invented reviewer output": (
+                "reviewer_output_produced",
+                True,
+                "review_attempts[0].reviewer_output_produced changed",
+            ),
+            "invented reviewer access": (
+                "candidate_files_read_or_modified_by_reviewer",
+                True,
+                (
+                    "review_attempts[0]."
+                    "candidate_files_read_or_modified_by_reviewer changed"
+                ),
+            ),
+        }
+        for label, (key, value, needle) in attempt_attacks.items():
+            with self.subTest(label=label):
+                changed = copy.deepcopy(incident)
+                changed["review_attempts"][0][key] = value
+                attack_errors = []
+                VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                    changed,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(needle in error for error in attack_errors), attack_errors
+                )
+
+        with self.subTest("r2 dynamic identity cannot drift"):
+            changed = copy.deepcopy(incident)
+            changed["candidate_dynamic_bindings"][0]["sha256"] = "0" * 64
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any("candidate_dynamic_bindings[0] changed" in error for error in attack_errors),
+                attack_errors,
+            )
+
+        with self.subTest("external action cannot be invented"):
+            changed = copy.deepcopy(incident)
+            changed["external_actions_observed"]["contact_or_send"] = True
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any(
+                    "external action contact_or_send must remain false" in error
+                    for error in attack_errors
+                ),
+                attack_errors,
+            )
+
+        with self.subTest("unknown event field"):
+            changed = copy.deepcopy(incident)
+            changed["review_authority"] = "PASS"
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any("unknown fields" in error for error in attack_errors),
+                attack_errors,
+            )
+
+        with self.subTest("event timestamp cannot be future"):
+            changed = copy.deepcopy(incident)
+            changed["recorded_at"] = "2026-07-28T01:12:00-07:00"
+            attack_errors = []
+            VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_record(
+                changed,
+                now=now,
+                errors=attack_errors,
+            )
+            self.assertTrue(
+                any("timestamp is in the future" in error for error in attack_errors),
+                attack_errors,
+            )
+
+        exact_binding = copy.deepcopy(
+            VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_R2_INFRASTRUCTURE_FAILURE_BINDING
+        )
+        wrapper_errors: list[str] = []
+        wrapper_at = (
+            VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_failure(
+                exact_binding,
+                now=now,
+                errors=wrapper_errors,
+            )
+        )
+        self.assertEqual([], wrapper_errors)
+        self.assertEqual(recorded_at, wrapper_at)
+
+        for label, binding, needle in (
+            (
+                "event path substitution",
+                {
+                    "path": exact_binding["path"] + ".substituted",
+                    "sha256": exact_binding["sha256"],
+                },
+                "exact content-addressed binding changed",
+            ),
+            (
+                "event hash substitution",
+                {"path": exact_binding["path"], "sha256": "0" * 64},
+                "exact content-addressed binding changed",
+            ),
+        ):
+            with self.subTest(label=label):
+                attack_errors = []
+                VALIDATOR.validate_ca_precontact_successor_r2_infrastructure_failure(
+                    binding,
+                    now=now,
+                    errors=attack_errors,
+                )
+                self.assertTrue(
+                    any(needle in error for error in attack_errors), attack_errors
+                )
+
     def test_precontact_successor_contract_is_exact_and_chronological(self) -> None:
         review = self.successor_review()
         review_path = ROOT / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
             "ca012650_internal_candidate"
         ]
-        now = datetime.fromisoformat("2026-07-28T00:46:00-07:00")
+        now = datetime.fromisoformat("2026-07-28T01:11:00-07:00")
         errors: list[str] = []
         recorded_at = VALIDATOR.validate_ca_precontact_successor_receipt_contract(
             review, receipt_path=review_path, now=now, errors=errors
         )
         self.assertEqual([], errors)
         self.assertEqual(
-            datetime.fromisoformat("2026-07-28T00:45:00-07:00"), recorded_at
+            datetime.fromisoformat("2026-07-28T01:10:00-07:00"), recorded_at
         )
 
         scalar_attacks = {
@@ -1392,11 +1656,28 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 errors,
             )
 
+        with self.subTest("review must be strictly later than r2 infrastructure event"):
+            changed = copy.deepcopy(review)
+            changed["recorded_at"] = "2026-07-28T01:02:41-07:00"
+            errors = []
+            VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+                changed, receipt_path=review_path, now=now, errors=errors
+            )
+            self.assertTrue(
+                any(
+                    "later than r2 review-infrastructure incident" in error
+                    for error in errors
+                ),
+                errors,
+            )
+
     def test_precontact_successor_candidate_set_rejects_omission_substitution_and_paths(
         self,
     ) -> None:
         receipt_parent = ROOT / "evidence"
         bindings = self.successor_candidate_bindings()
+        self.assertEqual(35, len(bindings))
+        self.assertEqual(35, len(VALIDATOR.ca_precontact_successor_candidate_paths()))
         attacks: dict[str, tuple[list[dict[str, str]], str]] = {}
 
         omitted = copy.deepcopy(bindings)
@@ -1411,6 +1692,21 @@ class ActiveStateValidatorTests(unittest.TestCase):
         ]
         attacks["old 08 snapshot omitted"] = (
             snapshot_omitted,
+            "exact unique closed successor candidate",
+        )
+
+        incident_literal = Path(
+            VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_R2_INFRASTRUCTURE_FAILURE_BINDING[
+                "path"
+            ]
+        ).name
+        incident_omitted = [
+            copy.deepcopy(binding)
+            for binding in bindings
+            if binding["path"] != incident_literal
+        ]
+        attacks["r2 infrastructure event omitted"] = (
+            incident_omitted,
             "exact unique closed successor candidate",
         )
 
@@ -1434,6 +1730,28 @@ class ActiveStateValidatorTests(unittest.TestCase):
             if binding["path"] == "precursor-sender-stage-09-3ac3937a.snapshot"
         )["sha256"] = "1" * 64
         attacks["sender snapshot drift"] = (snapshot_drift, "sha256 mismatch")
+
+        incident_hash_drift = copy.deepcopy(bindings)
+        next(
+            binding
+            for binding in incident_hash_drift
+            if binding["path"] == incident_literal
+        )["sha256"] = "2" * 64
+        attacks["r2 infrastructure event hash drift"] = (
+            incident_hash_drift,
+            "sha256 mismatch",
+        )
+
+        incident_path_drift = copy.deepcopy(bindings)
+        next(
+            binding
+            for binding in incident_path_drift
+            if binding["path"] == incident_literal
+        )["path"] = f"./{incident_literal}"
+        attacks["r2 infrastructure event path drift"] = (
+            incident_path_drift,
+            "not an exact declared receipt literal",
+        )
 
         traversal = copy.deepcopy(bindings)
         traversal[0]["path"] = "../../outside.json"
@@ -1497,7 +1815,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
                                 "ca012650_internal_candidate"
                             ]
                         ),
-                        now=datetime.fromisoformat("2026-07-28T00:46:00-07:00"),
+                        now=datetime.fromisoformat("2026-07-28T01:11:00-07:00"),
                         errors=errors,
                     )
                 self.assertTrue(
@@ -1516,7 +1834,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
         review_path = ROOT / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
             "ca012650_internal_candidate"
         ]
-        now = datetime.fromisoformat("2026-07-28T00:46:00-07:00")
+        now = datetime.fromisoformat("2026-07-28T01:11:00-07:00")
 
         with self.subTest("duplicate expected declaration"):
             review = self.successor_review()

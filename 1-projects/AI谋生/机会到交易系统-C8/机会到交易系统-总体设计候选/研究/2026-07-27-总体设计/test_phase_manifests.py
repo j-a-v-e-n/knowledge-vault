@@ -1080,6 +1080,15 @@ class PhaseManifestTests(unittest.TestCase):
         with self.assertRaisesRegex(ManifestError, "deny external"):
             self._validate(bundle, shadow_manifest)
 
+    def test_shadow_parent_candidate_typed_id_mismatch_fails(self) -> None:
+        bundle = self._create_governance()
+        shadow_manifest, _ = self._create_shadow(bundle)
+        shadow = canonical_load(shadow_manifest)
+        shadow["parent_candidate_typed_id"] = "CandidateManifest:" + "d" * 64
+        write_json(shadow_manifest, shadow)
+        with self.assertRaisesRegex(ManifestError, "parent candidate typed ID mismatch"):
+            self._validate(bundle, shadow_manifest)
+
     def test_shadow_tampered_snapshot_ledger_fails_even_if_rehashed(self) -> None:
         bundle = self._create_governance()
         shadow_manifest, _ = self._create_shadow(bundle)
@@ -1371,6 +1380,23 @@ class PhaseManifestTests(unittest.TestCase):
         with self.assertRaisesRegex(
             ManifestError, "receipt snapshot_ledger_sha256 mismatch"
         ):
+            self._validate(bundle, shadow_manifest, review_manifest, forged_hash)
+        self.assertNotEqual(receipt_hash, forged_hash)
+
+    def test_shadow_review_parent_candidate_typed_id_mismatch_fails(self) -> None:
+        bundle = self._create_governance()
+        shadow_manifest, _ = self._create_shadow(bundle)
+        review_manifest, receipt_path, receipt_hash = self._create_shadow_review(
+            bundle, shadow_manifest
+        )
+        receipt = canonical_load(receipt_path)
+        receipt["parent_candidate_typed_id"] = "CandidateManifest:" + "d" * 64
+        write_json(receipt_path, receipt)
+        forged_hash = sha256_file(receipt_path)
+        review = canonical_load(review_manifest)
+        review["independent_review_receipt"]["sha256"] = forged_hash
+        write_json(review_manifest, review)
+        with self.assertRaisesRegex(ManifestError, "parent candidate typed ID mismatch"):
             self._validate(bundle, shadow_manifest, review_manifest, forged_hash)
         self.assertNotEqual(receipt_hash, forged_hash)
 

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """Verify the exact independent acceptance of the Run2 final-status object.
 
-This is a candidate-specific verifier.  It binds the independent reviewer to
-the exact package they accepted, re-runs exhaustive crosswalk reconstruction,
-and rejects any authority claim beyond category-codebook saturation within the
-frozen protocol.  It cannot cryptographically prove reviewer identity or
-independence; that residual limit remains explicit in the receipt and must be
-reviewed again at the successor manifest-bound final Gate.
+This is a candidate-specific successor verifier.  The independent receipt is
+kept byte-for-byte unchanged and therefore still names the original C7 review
+root.  For C8, this verifier separately requires every local relocated copy to
+match the exact independently accepted hash.  It never rewrites the receipt or
+pretends the reviewer inspected the successor path.  It also re-runs exhaustive
+crosswalk reconstruction and rejects any authority claim beyond category-
+codebook saturation within the frozen protocol.  It cannot cryptographically
+prove reviewer identity or independence; that residual limit remains explicit
+in the receipt and must be reviewed again at the successor manifest-bound final
+Gate.
 """
 
 from __future__ import annotations
@@ -27,6 +31,11 @@ from verify_run2_crosswalk import CrosswalkError, validate_crosswalk  # noqa: E4
 
 
 ROOT = Path(__file__).resolve().parent
+ORIGINAL_REVIEW_ROOT = (
+    ROOT.parents[3]
+    / "机会到交易系统-总体设计候选"
+    / "研究/2026-07-27-总体设计"
+)
 DEFAULT_RECEIPT = ROOT / "ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json"
 SCHEMA_VERSION = "otts.run2-final-status-independent-acceptance/1"
 EXECUTION_ID = "SSP-1.0-RUN-20260727T154803-0700"
@@ -209,11 +218,11 @@ def validate_binding(document: dict[str, Any], key: str) -> None:
     expected_relative, expected_hash = EXPECTED_BINDINGS[key]
     expected_keys = EXECUTED_BINDING_KEYS if key in EXPECTED_EXECUTION_RESULTS else BINDING_KEYS
     binding = require_exact_keys(document[key], expected_keys, key)
-    expected_path = (ROOT / expected_relative).resolve()
-    if binding["path"] != str(expected_path):
+    reviewed_path = (ORIGINAL_REVIEW_ROOT / expected_relative).resolve()
+    if binding["path"] != str(reviewed_path):
         raise AcceptanceError(
             f"{key}.path: exact reviewed path mismatch; "
-            f"expected={expected_path}; actual={binding['path']!r}"
+            f"expected={reviewed_path}; actual={binding['path']!r}"
         )
     if not isinstance(binding["sha256"], str) or not SHA256_RE.fullmatch(
         binding["sha256"]
@@ -223,11 +232,12 @@ def validate_binding(document: dict[str, Any], key: str) -> None:
         raise AcceptanceError(
             f"{key}.sha256: receipt does not bind the independently accepted hash"
         )
-    require_regular_single_link(expected_path, key)
-    actual_hash = sha256_file(expected_path)
+    relocated_path = (ROOT / expected_relative).resolve()
+    require_regular_single_link(relocated_path, f"{key} relocated snapshot")
+    actual_hash = sha256_file(relocated_path)
     if actual_hash != expected_hash:
         raise AcceptanceError(
-            f"{key}: accepted artifact hash mismatch; "
+            f"{key}: relocated artifact hash mismatch against accepted bytes; "
             f"expected={expected_hash}; actual={actual_hash}"
         )
     if key in EXPECTED_EXECUTION_RESULTS:
@@ -324,6 +334,10 @@ def validate_acceptance(receipt_path: Path = DEFAULT_RECEIPT) -> dict[str, Any]:
         "accepted_status": document["accepted_status"],
         "final_status_sha256": document["final_status"]["sha256"],
         "crosswalk_sha256": crosswalk["crosswalk_sha256"],
+        "reviewed_original_root": str(ORIGINAL_REVIEW_ROOT.resolve()),
+        "relocated_snapshot_root": str(ROOT.resolve()),
+        "relocated_snapshot_exact_bytes": True,
+        "review_scope_rewritten_for_successor": False,
         "unresolved_critical": [],
         "unresolved_major": [],
         "candidate_closure_authority": False,

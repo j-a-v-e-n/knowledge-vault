@@ -839,6 +839,14 @@ class ShadowAcceptanceTests(unittest.TestCase):
 
     def test_typed_id_parent_hash_and_staleness_fail_closed(self) -> None:
         valid = make_valid_record()
+        with self.assertRaisesRegex(
+            rsa.CapabilityError, "typed ID does not match exact manifest hash"
+        ):
+            rsa.validate_opportunity_record(
+                valid,
+                PARENT_CANDIDATE_SHA256,
+                "CandidateManifest:" + "d" * 64,
+            )
         variants = []
         collision = copy.deepcopy(valid)
         collision["observation_lane"]["record_id"] = collision[

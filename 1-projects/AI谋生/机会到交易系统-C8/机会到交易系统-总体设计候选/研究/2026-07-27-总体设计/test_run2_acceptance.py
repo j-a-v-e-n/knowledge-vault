@@ -15,6 +15,8 @@ from verify_run2_acceptance import (  # noqa: E402
     AcceptanceError,
     DEFAULT_RECEIPT,
     EXPECTED_CROSSWALK_COUNTS,
+    ORIGINAL_REVIEW_ROOT,
+    ROOT,
     validate_acceptance,
 )
 from verify_run2_crosswalk import CrosswalkError  # noqa: E402
@@ -45,6 +47,12 @@ class Run2AcceptanceTests(unittest.TestCase):
         self.assertFalse(result["implementation_authority"])
         self.assertFalse(result["shadow_operation_authority"])
         self.assertFalse(result["external_action_authority"])
+        self.assertEqual(
+            result["reviewed_original_root"], str(ORIGINAL_REVIEW_ROOT.resolve())
+        )
+        self.assertEqual(result["relocated_snapshot_root"], str(ROOT.resolve()))
+        self.assertTrue(result["relocated_snapshot_exact_bytes"])
+        self.assertFalse(result["review_scope_rewritten_for_successor"])
 
     def test_decision_tamper_fails(self) -> None:
         document = self.changed()
@@ -96,6 +104,16 @@ class Run2AcceptanceTests(unittest.TestCase):
     def test_reviewed_path_tamper_fails(self) -> None:
         document = self.changed()
         document["protocol"]["path"] += ".other"
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_receipt(Path(temporary), document)
+            with self.assertRaisesRegex(AcceptanceError, "exact reviewed path mismatch"):
+                validate_acceptance(path)
+
+    def test_successor_path_cannot_impersonate_original_reviewed_path(self) -> None:
+        document = self.changed()
+        document["protocol"]["path"] = str(
+            (ROOT / "SEARCH_SATURATION_PROTOCOL.md").resolve()
+        )
         with tempfile.TemporaryDirectory() as temporary:
             path = self.write_receipt(Path(temporary), document)
             with self.assertRaisesRegex(AcceptanceError, "exact reviewed path mismatch"):
@@ -166,7 +184,7 @@ class Run2AcceptanceTests(unittest.TestCase):
             return real_sha256(path)
 
         with patch("verify_run2_acceptance.sha256_file", side_effect=wrong_for_final_status):
-            with self.assertRaisesRegex(AcceptanceError, "artifact hash mismatch"):
+            with self.assertRaisesRegex(AcceptanceError, "relocated artifact hash mismatch"):
                 validate_acceptance(DEFAULT_RECEIPT)
 
     def test_crosswalk_reconstruction_failure_propagates(self) -> None:
