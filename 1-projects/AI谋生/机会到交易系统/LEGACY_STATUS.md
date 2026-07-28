@@ -1,24 +1,34 @@
 # 旧原型状态
 
-状态：`HISTORICAL / NOT-AUTHORIZED-AS-CURRENT-DESIGN`
+状态：`HISTORICAL / LEGACY_UNQUALIFIED / GLOBALLY_QUARANTINED`
 
-本目录在当前总体研究完成前已经存在一版 `schema 0.1` 本地 CLI、测试和餐馆网页修复 Pilot。它们保留为历史样本，用于以后做差距审计；不能被解释为当前总体设计已经实现，也不能证明餐馆网页修复是已验证商机。
+适用范围：本项目旧 `schema/workspace 0.1` 的代码、工作区、记录、状态推导、permission 映射、CLI、测试和 Pilot 工件。
 
-当前权威研究候选位于：
+## 当前有效结论
 
-- [`研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md`](./研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md)
-- [`研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md`](./研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md)
+旧 runtime 已被整体 tombstone，而不是继续局部加固。所有保留的公开运行入口在读取或写入任何调用者文件之前，统一抛出固定错误：
 
-旧实现的逐项差距见 [`LEGACY_CODE_GAP_AUDIT.md`](./LEGACY_CODE_GAP_AUDIT.md)。
+`LEGACY_SCHEMA_WORKSPACE_0_1_QUARANTINED: legacy schema/workspace 0.1 is globally tombstoned and has no current authority`
 
-旧代码差距审计已经完成，并判定旧 runtime 不可作为新设计的实现入口。无论研究候选以后是否通过，只要旧对象没有逐项重建并重新验证，以下边界持续有效：
+该边界是无条件的：
 
-- 不从旧 Pilot 继承行业、买家、需求、价格、渠道或交易结论；
-- 不把旧测试通过当成新设计的验收证据；
-- 不继续对外展示、联系、发布、报价、收付款或部署；
-- 不删除旧材料，也不静默把它们改名成新系统证据；
-- 只有逐项映射到新记录、状态、Gate、权限和测试语义并重新验证的代码，才可能被保留。
+- 不由工作区内 marker 实现；
+- 不由 Pilot 的停止 screening 实现；
+- 不因新的 `pass` screening、复制目录、修改路径或删除 marker 而改变；
+- 不因旧记录通过结构检查而生成商业状态、权限或工件；
+- 不提供从旧对象升级成当前权威对象的自动迁移路径。
 
-若最终 closure decision 通过，第一版也只能在与本候选目录不重叠的精确 sibling root `机会到交易系统-shadow-mvp/` 内，按研究候选的 `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` 搭建；governance 记录另存于 `机会到交易系统-闭合记录/`。两个 root 都必须由各自的 post-closure manifest 绑定，且不能解除旧 CLI、旧 `make-harness` 或餐馆 Pilot 的历史状态。
+CLI 的所有旧子命令均以非零状态和相同原因退出。旧 `validate` 不再输出无范围的合格声明。旧 Python API 也执行相同拒绝，并且拒绝发生在输入检查和文件系统操作之前。
 
-已知必须重点复核的一项旧规则是：旧测试允许在出现 commitment/deposit 后生成 delivery Harness；新设计要求在不可取消订金、结果承诺或正式协议前，同一 exact offer 必须先通过独立的 `DeliveryFeasibilityGate`。旧规则不得继续作为授权依据。
+## Pilot 工件撤销
+
+餐馆网页修复样本不是活动 Pilot。原来位于活跃 `workspace/harnesses/` 下的四个文件和活跃 preview 路径下的两张旧截图已经移入 `pilot/restaurant-web-repair/quarantine/original/`；原 RUN_LOG 的精确字节也保存在该目录。每个原路径、新路径和 SHA-256 均由 [`REVOCATION_MANIFEST.json`](./pilot/restaurant-web-repair/quarantine/REVOCATION_MANIFEST.json) 绑定，并统一标记：
+
+- `authority_status = REVOKED_LEGACY_ARTIFACT`
+- `authoritative_for = []`
+
+活跃 RUN_LOG 路径只保留撤销通知，不再陈述旧验证结果、商业阶段、permission 或现行任务工件。
+
+## 不授权事项
+
+本次变更没有创建 successor runtime，也没有授权外联、展示、发布、报价、签约、收付款、部署或恢复旧 Pilot。旧材料只能作为历史反例和测试 fixture；未来系统若获授权，仍须以独立身份、独立语义和新鲜验收证据建立。

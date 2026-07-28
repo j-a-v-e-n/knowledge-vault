@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.1",
+  "record_type": "screening",
+  "id": "screening-saffrono-historical-stop",
+  "created_at": "2026-07-27",
+  "opportunity_ref": "opportunity-saffrono-public-page-repair",
+  "observation_refs": [
+    "observation-saffrono-template-residue",
+    "observation-saffrono-menu-page",
+    "observation-restaurant-owner-attribution-uncertainty"
+  ],
+  "target_liveness": "uncertain",
+  "payer_identified": false,
+  "native_feature_collision": "unknown",
+  "decision": "fail",
+  "rationale": [
+    "STOPPED: this directory is a historical, inactive pilot and is not approved for continued probing.",
+    "Target liveness has not been freshly verified.",
+    "The payer or authorized decision-maker has not been identified.",
+    "Whether the existing provider or native site tooling already covers the repair is unknown."
+  ]
+}

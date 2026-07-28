@@ -1,4 +1,6 @@
-# Offer draft — not ready to send
+# Historical Offer draft — revoked, not sendable
+
+> **HISTORICAL / REVOKED LEGACY ARTIFACT.** This text is retained only as an adversarial fixture. It is not a current Offer, current Pilot input, permission, or authority for contact, quotation, publication, delivery, payment, or any other external action.
 
 ## Proposed outcome
 
@@ -35,4 +37,3 @@ An owner-verified homepage repair that removes unrelated template content and gi
 - price, payment timing, refund terms, and tax handling;
 - ownership, access, publishing, maintenance, and support terms;
 - exact preview wording and permission to show the private Demo.
-

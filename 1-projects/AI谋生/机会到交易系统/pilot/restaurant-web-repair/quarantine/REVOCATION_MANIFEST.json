@@ -1,0 +1,67 @@
+{
+  "manifest_version": "1.0",
+  "manifest_kind": "legacy_artifact_revocation",
+  "scope": "pilot/restaurant-web-repair",
+  "path_base": "pilot/restaurant-web-repair",
+  "authority_status": "REVOKED_LEGACY_ARTIFACT",
+  "authoritative_for": [],
+  "quarantine_reason": "LEGACY_SCHEMA_WORKSPACE_0_1_QUARANTINED: legacy schema/workspace 0.1 is globally tombstoned and has no current authority",
+  "artifacts": [
+    {
+      "former_path": "workspace/harnesses/opportunity-saffrono-public-page-repair/probe-5d37e36e25ea-TASK_CONTRACT.md",
+      "new_path": "quarantine/original/workspace/harnesses/opportunity-saffrono-public-page-repair/probe-5d37e36e25ea-TASK_CONTRACT.md",
+      "sha256": "3c2229abd6a9ba52002c74570158814dc84b304a9a1f90fbc135be56df54318e",
+      "former_path_disposition": "REMOVED_FROM_ACTIVE_TREE",
+      "authority_status": "REVOKED_LEGACY_ARTIFACT",
+      "authoritative_for": []
+    },
+    {
+      "former_path": "workspace/harnesses/opportunity-saffrono-public-page-repair/probe-5d37e36e25ea-manifest.json",
+      "new_path": "quarantine/original/workspace/harnesses/opportunity-saffrono-public-page-repair/probe-5d37e36e25ea-manifest.json",
+      "sha256": "1304a486ecce792ebe15ed78442bf23cae8f8cce408f7888acb413106623e481",
+      "former_path_disposition": "REMOVED_FROM_ACTIVE_TREE",
+      "authority_status": "REVOKED_LEGACY_ARTIFACT",
+      "authoritative_for": []
+    },
+    {
+      "former_path": "workspace/harnesses/opportunity-saffrono-public-page-repair/superseded/pre-input-binding/probe-TASK_CONTRACT.md",
+      "new_path": "quarantine/original/workspace/harnesses/opportunity-saffrono-public-page-repair/superseded/pre-input-binding/probe-TASK_CONTRACT.md",
+      "sha256": "d1794df930e8b14dcc33b9460984c2c30ce765b3bbcc3f2569fe4137097417da",
+      "former_path_disposition": "REMOVED_FROM_ACTIVE_TREE",
+      "authority_status": "REVOKED_LEGACY_ARTIFACT",
+      "authoritative_for": []
+    },
+    {
+      "former_path": "workspace/harnesses/opportunity-saffrono-public-page-repair/superseded/pre-input-binding/probe-manifest.json",
+      "new_path": "quarantine/original/workspace/harnesses/opportunity-saffrono-public-page-repair/superseded/pre-input-binding/probe-manifest.json",
+      "sha256": "a34666c755f2ccad6ea1bbcdc7ba9cbc0465a1d53e7f181081dbec52e206cdeb",
+      "former_path_disposition": "REMOVED_FROM_ACTIVE_TREE",
+      "authority_status": "REVOKED_LEGACY_ARTIFACT",
+      "authoritative_for": []
+    },
+    {
+      "former_path": "artifacts/preview/screenshots/desktop.png",
+      "new_path": "quarantine/original/artifacts/preview/screenshots/desktop.png",
+      "sha256": "76e09ec013e9d5ecfc055307e0e6b0c0b44148586e6b88e9c9076ff5da4e306d",
+      "former_path_disposition": "REMOVED_FROM_ACTIVE_TREE",
+      "authority_status": "REVOKED_LEGACY_ARTIFACT",
+      "authoritative_for": []
+    },
+    {
+      "former_path": "artifacts/preview/screenshots/mobile.png",
+      "new_path": "quarantine/original/artifacts/preview/screenshots/mobile.png",
+      "sha256": "78b8a56f540e63be8583b4caccfa3031dcc2d3188163a598560ba51ab2c369e7",
+      "former_path_disposition": "REMOVED_FROM_ACTIVE_TREE",
+      "authority_status": "REVOKED_LEGACY_ARTIFACT",
+      "authoritative_for": []
+    },
+    {
+      "former_path": "artifacts/RUN_LOG.md",
+      "new_path": "quarantine/original/artifacts/RUN_LOG.md",
+      "sha256": "a3dcf1f63f814a4823c4654df2515c0be3b12010565ad689afd03fe110138757",
+      "former_path_disposition": "REPLACED_WITH_REVOCATION_NOTICE",
+      "authority_status": "REVOKED_LEGACY_ARTIFACT",
+      "authoritative_for": []
+    }
+  ]
+}

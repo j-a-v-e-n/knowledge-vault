@@ -1,103 +1,49 @@
-# 旧 CLI 与餐馆 Pilot：新设计差距审计
+# 旧 CLI 与餐馆 Pilot：差距审计结案
 
-状态：`GAP-AUDIT-COMPLETE / LEGACY-REUSE-NOT-AUTHORIZED`
+状态：`GAP-AUDIT-CLOSED-BY-GLOBAL-QUARANTINE / LEGACY-REUSE-NOT-AUTHORIZED`
 
-本审计只判断旧 `schema 0.1` 是否可以作为当前总体设计的实现起点。结论是：旧 runtime、测试与 Pilot 只能作为历史反例和迁移 fixture，不能作为新设计实现或验收证据。当前代码没有发送、发布、部署或收付款执行器；主要风险是它会生成可能被下游误读为“已验证、已授权或可交付”的状态与 Harness 工件。
+## 结论
 
-## Critical
+旧 `schema/workspace 0.1` 不能通过增量修补成为当前系统的可靠基础。它把调用者自填记录压成 candidate-wide 商业阶段和权限字符串，再生成可能被下游误读的任务工件；缺失的是对象身份、原件来源、exact-offer 绑定、独立 Gate、失效传播和提交时重验等基础语义。继续在旧模型上加筛选条件只能改变 fail-open 的位置，不能消除根因。
 
-### `LG-01` 候选级 commitment 会过早解锁 delivery Harness
+因此，本次结案动作不是声称旧模型已被修好，而是永久撤销它的运行与授权面。
 
-- 事件只绑定 `opportunity_ref`，没有绑定 counterparty、offer version、协议、订单或 probe：`src/opportunity_os.py:440`。
-- `required_input_shared`、`agreement_signed` 和 `deposit_received` 被压成候选级 `commitment`：`src/opportunity_os.py:90`。
-- `make_harness()` 只检查候选级市场阶段，不检查同一 exact offer 的 `DeliveryFeasibilityDecision`：`src/opportunity_os.py:723`。
-- 旧测试明确把 deposit 当成生成 delivery Harness 的充分条件：`tests/test_opportunity_os.py:180`。
+## 历史根因
 
-这允许 offer A/客户 A 的事件解锁同一候选下 offer B/probe B 的交付工件；退款、争议或报价变化也不会自动撤销历史最高阶段。新设计要求正式承诺与生产 Harness 前先通过 exact-offer `DeliveryFeasibilityGate`。
+| 审计项 | 旧模型的承重缺口 | 为何不能局部补丁解决 |
+|---|---|---|
+| `LG-01` | candidate-level 事件可解锁 delivery | 没有 counterparty、exact offer、agreement、order 或 feasibility decision 身份 |
+| `LG-02` | 外部证据主要依赖调用者自填来源标签 | 缺少原始回执、外部对象身份和独立验收 |
+| `LG-03` | authorization 字段直接映射为 permission | 缺少 canonical action envelope、policy decision、grant、提交时重验和执行回执 |
+| `LG-04` | 可变输入与不完整 digest 不能可靠撤销旧工件 | 缺少完整闭包、append-only 证据和机械失效传播 |
+| `LG-05` | CLI 可输出无范围合格声明或生成工件 | 文档警告和 workspace marker 都不是确定性权限门 |
+| `LG-06` | 双通道只验证引用存在 | 没有独立采样、采集 lineage、sealed output 和污染传播 |
+| `LG-07` | candidate-wide 单向阶段覆盖并存现实 | 没有按对象与窗口分离的正交状态和 blocker |
+| `LG-08` | 结构检查结果容易被误读成需求或权威成立 | 输出没有声明范围，也没有排除商业推断 |
+| `LG-09` | Pilot 输入闭包缺少负证据与失效依赖 | 文件名或局部 hash 不能证明完整 provenance |
+| `LG-10` | 来源和预览没有可迁移的权利链 | 缺少原始快照、rights record、asset BOM 和 right-to-sell Gate |
+| `LG-11` | 历史正文与工作区仍可能被当作当前状态读取 | 需要全局隔离，而不是依赖读者正确解释文档 |
 
-### `LG-02` “外部证据”只是调用者自填标签
+## 已实施的 fail-closed control
 
-- validator 只检查 `evidence_origin` 字符串；`evidence_locator` 只需非空，没有原件 hash、外部对象 ID、主体身份或回执验证：`src/opportunity_os.py:440`。
-- “不能自证”的旧测试只证明 `system_log` 标签会被拒绝；同一 JSON 改标 `external_party` 即可通过：`tests/test_opportunity_os.py:165`。
-- `offer_presented` 可由 `system_log` 推进为 `exposed`，也可被设为 probe 的成功事件：`src/opportunity_os.py:90`、`src/opportunity_os.py:413`。
+- 活跃 `src/opportunity_os.py` 与 `tests/test_opportunity_os.py` 已被有意替换为 tombstone 和对抗性验收；版本控制差异保留历史变更证据，但活动源码树中不保留可执行的旧 runtime 副本；
+- 保留的旧公开 API 只执行同一个无条件 quarantine guard；
+- guard 在访问参数、读取路径、创建目录或写文件前执行；
+- `validate_record` 与 `validate_workspace` 也被 tombstone，不保留会返回空 issue 或无范围合格结论的 inspector；
+- CLI 保留旧语法只为向既有调用者返回稳定拒绝，所有子命令均非零退出；
+- `derive_opportunity_status` 不再产生商业状态；
+- `external_permission_for_probe` 不再产生 permission；
+- `make_harness` 的两个历史 mode 均不可运行；
+- 没有 screening、路径、marker 或调用者字段能够解除隔离。
 
-因此旧系统能把自己记录的发送动作误写成实验成功，不能满足原始回执、环境终态、身份绑定与独立验收要求。
+## 对抗性验收范围
 
-### `LG-03` 旧授权字段能够制造伪授权工件
+活跃测试覆盖：直接 API、每个 CLI 子命令、两个历史工件 mode、复制到新路径、删除 marker、加入 `pass` screening、文件系统前后快照、stdout 禁止声明、撤销清单字段和每个隔离原件的 SHA-256。测试只证明 tombstone 与撤销边界生效，不证明研究闭合、新设计正确或任何商业结论。
 
-- `scoped_authorization` 只要求任意非空 `authorization_ref`：`src/opportunity_os.py:422`。
-- `human_approval_each` 与 `scoped_authorization` 被直接映射成 Harness permission 字符串：`src/opportunity_os.py:694`、`src/opportunity_os.py:796`。
+## 工件处置
 
-旧系统没有 canonical `ActionEnvelope`、确定性 `PolicyDecision`、资源原子占用、readiness/Grant、exact-hash token、提交时重验或 `ExecutionReceipt`。这些字符串不得迁移成当前权限。
+旧 Pilot 的四个任务工件已从活跃 `workspace/harnesses/` 移除；两张仍显示旧 banner 的截图也已从活跃 preview 路径移除；原 RUN_LOG 的精确字节已隔离。路径、哈希与空权威范围见 [`pilot/restaurant-web-repair/quarantine/REVOCATION_MANIFEST.json`](./pilot/restaurant-web-repair/quarantine/REVOCATION_MANIFEST.json)。活跃 RUN_LOG 仅为撤销通知。
 
-### `LG-04` 证据可原地修改，旧 Harness 不失效
+## 明确非目标
 
-- 旧测试直接修改既有 observation，并把旧、新 Harness 同时继续存在当作通过：`tests/test_opportunity_os.py:207`。
-- Harness digest 只含 opportunity、probe 及其直接 principle/observation refs，不含事件、状态版本、政策、权利、Gate、批准或 assurance 闭包：`src/opportunity_os.py:762`。
-- 同名 manifest/task contract 存在时直接返回，不重算和验证当前文件：`src/opportunity_os.py:815`。
-
-这与来源、污染、oracle、权利或闭包变化必须让下游 `STALE/INVALID` 的新设计冲突。
-
-### `LG-05` 没有机器级 legacy/BLOCKED 启动门
-
-- CLI 仍可打印无范围的 `VALID` 或生成 Harness：`src/opportunity_os.py:899`。
-- 旧 README 仍保留可复制的 `make-harness` 命令：`README.md:34`。
-
-文首历史警告能降低人工误读，但不是 fail-closed control。研究状态未闭合时，旧 runtime 不得成为当前入口。
-
-## Major
-
-| ID | 缺口 | 旧实现 | 新设计要求 |
-|---|---|---|---|
-| `LG-06` | 双通道只验证有两个引用 | `src/opportunity_os.py:349`、`:574` | SamplingPlan/Acquisition lineage、隔离 workspace、sealed outputs、canary 与 contamination propagation |
-| `LG-07` | 候选级单向阶段覆盖并存真相且不降级 | `src/opportunity_os.py:600` | 按 counterparty/offer/order/window 的正交状态、Blocker、staleness 与只读复合视图 |
-| `LG-08` | `VALID` 语义过宽 | 空 workspace 可 valid；Pilot Run Log 写 `Workspace validation: VALID` | 只能声明精确 schema/范围的验证结果，不能暗示需求、权利、Gate 或研究闭合 |
-| `LG-09` | Pilot 的 exact-input 声明缺反证依赖 | `RUN_LOG.md:5`、manifest `:5` | 完整输入闭包、负证据、原件 hash 与失效传播 |
-| `LG-10` | Pilot 来源与预览没有可迁移权利链 | observation 只有漂移 URL；preview 使用品牌和公开网页素材 | SamplingPlan、原始快照、RightsRecord、AssetBOM 与 right-to-sell Gate |
-| `LG-11` | 历史正文仍含已废弃路径 | `DESIGN.md:120`、`STATE.md:29` | 只把它们作为明确 legacy 输入，不允许 current runtime/search 读取为当前状态 |
-
-## 只能在重验证后复用的部分
-
-- 记录不得自写 `validated/status/score` 的不变量；
-- Observation 与 interpretation 分离、principle 不反向引用市场结论的意图；
-- typed reference 与重复 ID 的低层检查思路；
-- 原子临时文件替换和 content digest 的思路，但实现必须升级为规范化完整闭包、append-only、恢复与失效传播；
-- Pilot 中的 `Unknown`、`does not establish`、真实性警告和反证，可作 adversarial fixture，不可作需求事实；
-- 市场证据与生产状态分开的意图，但不能保留旧 candidate-wide monotonic enums。
-
-## 旧测试当前基线及其正确解释
-
-在当前工作区执行：
-
-```bash
-python3 -m unittest discover -s '1-projects/AI谋生/机会到交易系统/tests' -v
-```
-
-输出为 `Ran 9 tests` 与 `OK`。这只证明旧实现仍符合它自己的 `schema 0.1` 断言；其中通过的 `test_delivery_harness_is_blocked_without_commitment` 正是把 deposit 当作 delivery Harness 解锁条件的旧规则。因此旧测试全绿是迁移基线，不是新设计正确、研究闭合或可以继续 Pilot 的证据。
-
-## 最小只读 shadow MVP 迁移边界
-
-### 先切断旧授权面
-
-- `schema 0.1` 只允许显式 legacy import/quarantine；
-- 停用 `make-harness`、`external_action_policy` 和 `derive_opportunity_status` 作为当前接口；
-- 新 CLI 不输出无范围的 `VALID`、`commitment`、`paid` 或可执行 permission；
-- shadow runtime 根本不加载外联、发布、部署、支付、账户或客户写入工具。
-
-### 首批重写对象
-
-| 旧对象 | shadow MVP 替代 |
-|---|---|
-| `observation` | `ObservationSamplingPlan + AcquisitionRecord + EvidenceNode + ObservationRecord + RightsRecord` |
-| `principle` | `FirstPrinciplesMemo + SealedLaneOutput` |
-| 两个 refs | 独立 lane workspace/manifest、canary、发布回执与 `ContaminationEvent` |
-| `opportunity` | 含竞争解释、双向证据、scope 和最脆弱假设的 `NeedHypothesis` |
-| `probe` | 只生成未执行的 `ExperimentSpec` 草案，绑定 family/cohort、判据与停止条件 |
-| `event/status` | shadow 阶段不生成商业状态；用 exact-hash `EvalSpec/EvalRun` 记录模型、人工基线、oracle 与成本 |
-| `make_harness` | 明确 deferred；外部验证与 exact-offer gates 通过前不存在生产 Harness 路径 |
-
-### 最小验收终态
-
-一次 shadow run 最多产出：可追溯 observations、两条 sealed lane outputs、带竞争解释的 `NeedHypothesis`、未执行的下一实验草案和绑定原件的 `EvalRun`。任一承重输入变化必须使派生物失效；旧 Pilot 或任何评测结果都不存在通往 Harness 或外部动作的代码路径。
-
-只有在研究闭合与 exact-hash 最终审查通过、并且 sibling governance root 的 post-closure manifest 机械闭合后，才可在预声明且与旧项目不重叠的 `机会到交易系统-shadow-mvp/` sibling root 按 `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` 开始首版实现。本审计不授权复用旧 runtime；旧对象只能作为显式 `LEGACY_UNQUALIFIED` fixture 被新 validator 拒绝或隔离。
+本次结案不创建 successor runtime，不迁移旧商业状态，不恢复 Pilot，不把历史测试改写成新系统验收，也不授权任何外部动作。未来实现必须另行授权并从独立身份、独立对象模型和独立证据闭包开始。

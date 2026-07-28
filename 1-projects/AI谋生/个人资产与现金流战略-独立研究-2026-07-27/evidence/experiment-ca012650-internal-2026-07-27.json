@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "experiment-ca012650-public-record-verification",
+  "captured_at": "2026-07-27T21:15:00-07:00",
+  "status": "blocked_before_external_action",
+  "authority": {
+    "internal_research_authorized": true,
+    "external_contact_authorized": false,
+    "quote_authorized": false,
+    "account_access_authorized": false,
+    "submission_authorized": false,
+    "payment_action_authorized": false,
+    "delivery_harness_authorized": false
+  },
+  "exact_target": {
+    "public_record_location": "Best Western Plus Marina Gateway Hotel",
+    "public_building_id": "Building #CA012650",
+    "public_address": "800 Bay Marina Drive, National City",
+    "routing_contact_only": true,
+    "ownership_or_reporting_authority_established": false,
+    "allowed_future_channel": "guestservices@bwmarinagateway.com",
+    "channel_source": "https://www.bwmarinagateway.com/contact.htm",
+    "personal_contact_channel_allowed": false
+  },
+  "sender_binding": {
+    "real_name": "Javen Cao",
+    "sending_account": null,
+    "sending_account_status": "unbound",
+    "tracking_pixel_allowed": false,
+    "read_receipt_allowed": false,
+    "attachments_allowed": false,
+    "short_links_allowed": false,
+    "follow_up_allowed": false
+  },
+  "observation_cutoff_at": null,
+  "primary_unknown": "Whether the current public record corresponds to an unresolved issue and whether the organization channel can route to an owner-authorized handler; this message does not test delivery capability.",
+  "bound_inputs": [
+    {
+      "path": "cec-building-benchmarking-prescreen-2026-07-27.json",
+      "sha256": "4aae43f0415df54b34b2c97445920582566741ac588b3792c30f1444bb82ffc8",
+      "role": "source_identity_and_target_observations"
+    },
+    {
+      "path": "../11-内部诊断页-CA012650.md",
+      "sha256": "d2898855ba425874adfd54e38a5091845c6a1b1d3d9f41a9a0ca8e2ed9fcf9c7",
+      "role": "internal_diagnostic"
+    },
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "08265d686d07bafcf9ae817410e8f8d52232af20f180772d213816cfe2598f39",
+      "role": "unexecuted_experiment_and_message_draft"
+    }
+  ],
+  "gate_results": [
+    {
+      "gate": "target_liveness",
+      "result": "provisional_pass",
+      "claim_class": "observed",
+      "limit": "Public organization pages were accessible; this does not establish the exact owner or reporting agent."
+    },
+    {
+      "gate": "organization_routing_identity",
+      "result": "provisional_pass",
+      "claim_class": "observed",
+      "limit": "A public organization inbox exists only as a routing contact; ownership, reporting authority, and payment authority remain unknown."
+    },
+    {
+      "gate": "payer_identity_for_quote_or_commitment",
+      "result": "blocked",
+      "claim_class": "unknown",
+      "limit": "A public management role is not evidence of budget or authority; this blocks quoting and delivery but not one approved research verification."
+    },
+    {
+      "gate": "native_or_incumbent_collision",
+      "result": "cash_service_only",
+      "claim_class": "observed",
+      "limit": "The official platform is free and multiple consultants already sell the standard service; no product or asset claim is allowed, but one problem-verification message may still test for an exception."
+    },
+    {
+      "gate": "problem_evidence",
+      "result": "sufficient_for_low_risk_verification_only",
+      "claim_class": "inferred",
+      "limit": "The current public label and prior same-ID submission support a reasonable hypothesis, not a confirmed problem or demand."
+    },
+    {
+      "gate": "one_message_verification_probe",
+      "result": "review_pending",
+      "claim_class": "observed",
+      "limit": "The revised exact candidate still needs an independent PASS, a bound sending account, a pre-send source refresh, an exact observation cutoff, and one-message user authorization."
+    },
+    {
+      "gate": "delivery_feasibility",
+      "result": "blocked",
+      "claim_class": "unknown",
+      "limit": "No owner-controlled account, meter data, authorization, real-input dry run, or full-cost record exists."
+    },
+    {
+      "gate": "external_action",
+      "result": "blocked",
+      "claim_class": "observed",
+      "limit": "The autonomous authority envelope does not include external contact."
+    }
+  ],
+  "event_semantics_if_later_authorized": [
+    {
+      "event": "sent_or_transport_accepted",
+      "result": "EXECUTED / NON-SUCCESS"
+    },
+    {
+      "event": "owner_authorized_handler_confirms_unresolved_problem",
+      "result": "PROBLEM-SIGNAL-ONLY"
+    },
+    {
+      "event": "counterparty_requests_diagnostic_or_next_step",
+      "result": "INBOUND-INTEREST-ONLY",
+      "limit": "Does not prove payment or delivery and does not authorize an automatic reply or quote."
+    },
+    {
+      "event": "resolved_exempt_existing_provider_decline_or_no_more_contact",
+      "result": "COUNTEREVIDENCE / STOP"
+    },
+    {
+      "event": "wrong_organization_or_no_authority_to_route",
+      "result": "TARGET-ROUTING-DISCONFIRMED"
+    },
+    {
+      "event": "bounce_form_error_or_auto_reply",
+      "result": "INVALID / NO-TARGET-EVIDENCE"
+    },
+    {
+      "event": "no_human_reply_by_bound_cutoff",
+      "result": "INCONCLUSIVE / NON-SUCCESS / NO-FOLLOW-UP",
+      "limit": "Must not be interpreted as no demand."
+    }
+  ],
+  "result_claims": {
+    "externally_validated_demand": false,
+    "willingness_to_pay": false,
+    "delivery_feasible": false,
+    "profitable": false,
+    "repeatable": false,
+    "asset_candidate": false
+  }
+}

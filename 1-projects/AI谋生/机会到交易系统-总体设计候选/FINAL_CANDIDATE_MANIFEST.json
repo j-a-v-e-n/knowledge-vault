@@ -1,0 +1,705 @@
+{
+  "schema_version": "1.1",
+  "candidate_id": "OTTS-DESIGN-20260727-C4",
+  "status": "FROZEN-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW",
+  "scope": "Research and design closure candidate for a local read-only, zero-external-side-effect shadow MVP; no market, customer, product, payment, deployment, production, or external-action authority.",
+  "candidate_inventory_root": ".",
+  "post_closure_artifact_roots": [
+    {
+      "root_id": "closure-governance",
+      "path_from_candidate_parent": "机会到交易系统-闭合记录",
+      "artifact_kind": "CLOSURE_GOVERNANCE",
+      "required_manifest": "GOVERNANCE_ARTIFACT_MANIFEST.json",
+      "freeze_required_state": "MUST_BE_ABSENT",
+      "post_closure_required_state": "MUST_BE_PRESENT",
+      "activation_gate": "EXACT_CANDIDATE_REVIEW_PASS",
+      "governed_by_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+      "governed_by_sha256": "ef4daa3b537f99ef195e26e59c38c4e1e53ad14439dd308b19e55603ce650d12"
+    },
+    {
+      "root_id": "shadow-mvp",
+      "path_from_candidate_parent": "机会到交易系统-shadow-mvp",
+      "artifact_kind": "READ_ONLY_SHADOW_MVP",
+      "required_manifest": "SHADOW_ARTIFACT_MANIFEST.json",
+      "freeze_required_state": "MUST_BE_ABSENT",
+      "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
+      "activation_gate": "EXACT_CLOSURE_DECISION",
+      "governed_by_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+      "governed_by_sha256": "ef4daa3b537f99ef195e26e59c38c4e1e53ad14439dd308b19e55603ce650d12"
+    }
+  ],
+  "entries": [
+    {
+      "path": "EXTERNAL_LEGACY_QUARANTINE.md",
+      "sha256": "c7689fffcc6feceafe489d5b13f47d4b0b943dedb45a6bce1657bc7582a2ecd3",
+      "role": "boundary record for mutable external predecessor root",
+      "authority_status": "BOUNDARY_EVIDENCE_ONLY",
+      "depends_on": [
+        "LEGACY_STATUS.md",
+        "LEGACY_CODE_GAP_AUDIT.md"
+      ]
+    },
+    {
+      "path": "FINAL_CANDIDATE_MANIFEST.md",
+      "sha256": "f6457764df81ccbfb130aa1b09ef1dc6b526fdf8d3e99c6ec02845648546afd5",
+      "role": "human-readable final candidate freeze and review instructions",
+      "authority_status": "REVIEW_ROUTING_ONLY_NO_SELF_APPROVAL",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md",
+        "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+        "研究/2026-07-27-总体设计/build_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/verify_post_closure_manifest.py",
+        "研究/2026-07-27-总体设计/test_phase_manifests.py",
+        "研究/2026-07-27-总体设计/verify_run2_acceptance.py",
+        "研究/2026-07-27-总体设计/test_run2_acceptance.py"
+      ]
+    },
+    {
+      "path": "LEGACY_CODE_GAP_AUDIT.md",
+      "sha256": "4dedeaef09f5e9e735d43020c8d5e46c7fca8b8c6b4c271fef70761fab122e9f",
+      "role": "external legacy implementation gap audit",
+      "authority_status": "DIAGNOSTIC_ONLY_NO_REUSE_AUTHORITY",
+      "depends_on": [
+        "LEGACY_STATUS.md"
+      ]
+    },
+    {
+      "path": "LEGACY_STATUS.md",
+      "sha256": "332798fd0c6fb7c55d4a7e4f518dce03ca7f78c8a4f06bd8689fb13712710328",
+      "role": "external legacy authority quarantine",
+      "authority_status": "LEGACY_UNQUALIFIED_NO_REUSE_AUTHORITY",
+      "depends_on": []
+    },
+    {
+      "path": "README.md",
+      "sha256": "3c005ecd7a3ac062a578df3d0cd985c4da77bd0aa4109e9d058896384d5d708c",
+      "role": "candidate root entrypoint and authority warning",
+      "authority_status": "ENTRYPOINT_ONLY_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "FINAL_CANDIDATE_MANIFEST.md",
+        "研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md",
+        "EXTERNAL_LEGACY_QUARANTINE.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/01-黄仁勋访谈核查.md",
+      "sha256": "8fca0d1a8720f62389b3f6e99a1995d71a81ebdffa538f213e5409c1d35bbea7",
+      "role": "seed interview identity and scope check",
+      "authority_status": "SEED_ONLY_NOT_THEORETICAL_FOUNDATION",
+      "depends_on": []
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/02-主张与证据地图.md",
+      "sha256": "ccbd885d8303e3513d6ce08c2f2ce86ba63514fe17441f6f0046a1997bb4a2fa",
+      "role": "typed Claim RQ DD evidence and unknown map",
+      "authority_status": "DESIGN_EVIDENCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_INDEPENDENT_ACCEPTANCE_RECEIPT.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md",
+      "sha256": "6e427cd66edd922366bb049c8a1b8dfb19fed6e8eb9719ac602f7328d726c78c",
+      "role": "opportunity-to-transaction system design",
+      "authority_status": "DESIGN_SPECIFICATION_NO_IMPLEMENTATION_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/02-主张与证据地图.md",
+        "研究/2026-07-27-总体设计/04-来源与检索日志.md",
+        "研究/2026-07-27-总体设计/01-黄仁勋访谈核查.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/04-来源与检索日志.md",
+      "sha256": "ea728458726f7aaa4d475ada7767bca9d55925070b48da0b96e3953a428a5c66",
+      "role": "source universe retrieval log and residual gaps",
+      "authority_status": "RESEARCH_TRACE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
+      "sha256": "eea0b5322ac2618b7513ef9e54be3b4a4ee6b382e66eb0974cc00dd41d581c9c",
+      "role": "immutable predecessor rejection and remediation history",
+      "authority_status": "HISTORY_ONLY_NO_SUCCESSOR_APPROVAL",
+      "depends_on": []
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+      "sha256": "ef4daa3b537f99ef195e26e59c38c4e1e53ad14439dd308b19e55603ce650d12",
+      "role": "conditional read-only zero-side-effect shadow action envelope",
+      "authority_status": "CONDITIONAL_SCOPE_NO_CURRENT_IMPLEMENTATION_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md",
+        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md",
+      "sha256": "3b37dfa20cdc4baa31e49fdc385e9faaba119542ae39904a079b941dc15bff24",
+      "role": "research closure predicate matrix",
+      "authority_status": "LEAD_CANDIDATE_JUDGMENT_NO_SELF_APPROVAL",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/02-主张与证据地图.md",
+        "研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md",
+        "研究/2026-07-27-总体设计/04-来源与检索日志.md",
+        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md",
+        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json",
+        "研究/2026-07-27-总体设计/verify_run2_crosswalk.py",
+        "研究/2026-07-27-总体设计/test_run2_crosswalk.py",
+        "研究/2026-07-27-总体设计/verify_run2_acceptance.py",
+        "研究/2026-07-27-总体设计/test_run2_acceptance.py",
+        "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+        "EXTERNAL_LEGACY_QUARANTINE.md",
+        "研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md",
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/verify_post_closure_manifest.py",
+        "研究/2026-07-27-总体设计/test_phase_manifests.py"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/RESEARCH_PROTOCOL.md",
+      "sha256": "6fd49829f315b310519ead9e08dd58eb13a1a575502b2dcc6ce07ea064426538",
+      "role": "research closure protocol",
+      "authority_status": "CLOSURE_RULES_NO_SELF_APPROVAL",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl",
+      "sha256": "1e055c08a8aaf18173a8eaab670747879abb57e8cc96dcf69edc56518342f23b",
+      "role": "canonical exhaustive final CE-IN crosswalk",
+      "authority_status": "EXHAUSTIVE_LEDGER_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
+        "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S1.md",
+        "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S1.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S2.md",
+        "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S2.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
+      "sha256": "c035a55ff1ae5572f81c36a4a1e2b5d349439d4e560837a90e6a17c7a61cee6e",
+      "role": "human-readable direct-use CE to Claim RQ DD crosswalk",
+      "authority_status": "SYNTHESIS_MAP_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/02-主张与证据地图.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_INDEPENDENT_ACCEPTANCE_RECEIPT.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+      "sha256": "911b6353b23f180a400865a810b3d45cbfa0ea2598e1127f1e548195ef0c30c1",
+      "role": "pre-registered search saturation protocol",
+      "authority_status": "FROZEN_PROTOCOL_EVIDENCE_ONLY",
+      "depends_on": []
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/build_candidate_manifest.py",
+      "sha256": "bd4d675c5a9a97538b0268bb329e7c1e0f645af7e4d8462d6540a9aee1b16bd8",
+      "role": "explicit closed-inventory canonical manifest builder",
+      "authority_status": "MECHANICAL_GENERATION_ONLY",
+      "depends_on": []
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/EXECUTION_MANIFEST.md",
+      "sha256": "3a0a6da38c748aa51144d07d4788bf09a755cf2016fbea8c67502b7e5d6a8bba",
+      "role": "Run2 execution identity and ordering record",
+      "authority_status": "RUN_IDENTITY_EVIDENCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md",
+      "sha256": "35ffc2e34ca69a491cc5cabe25dc55b7fbf58edde67539fe1257ab23d736d30f",
+      "role": "lead Run2 final-status object",
+      "authority_status": "RUN2_CATEGORY_SATURATION_PROPOSAL_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/EXECUTION_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_RAW_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S1.md",
+        "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S1.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_RAW_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S2.md",
+        "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S2.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_INDEPENDENT_ACCEPTANCE_RECEIPT.md",
+        "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
+        "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl",
+        "研究/2026-07-27-总体设计/verify_run2_crosswalk.py",
+        "研究/2026-07-27-总体设计/test_run2_crosswalk.py"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json",
+      "sha256": "be30f6967b5872749403eef2af2c1e0cc25f99828c7ceb01aa0b744692b8a788",
+      "role": "independent exact-hash acceptance of Run2 final status",
+      "authority_status": "RUN2_CATEGORY_SATURATION_ACCEPTANCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md",
+        "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
+        "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl",
+        "研究/2026-07-27-总体设计/verify_run2_crosswalk.py",
+        "研究/2026-07-27-总体设计/test_run2_crosswalk.py",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_INDEPENDENT_ACCEPTANCE_RECEIPT.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md",
+      "sha256": "c8fb7bef800bc0a23370629fa8dfd4e19c802dea65d303f3e67eff690d00880f",
+      "role": "S1 joint adjudication",
+      "authority_status": "ROUND_ADJUDICATION_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_RAW_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S1.md",
+        "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S1.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/S1_RAW_MANIFEST.md",
+      "sha256": "4d1a650979417595b1dad69cd4466fa921b6bcb0ab0c2ac5561ddbdd5273afed",
+      "role": "S1 raw response identity manifest",
+      "authority_status": "RAW_INVENTORY_EVIDENCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/EXECUTION_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K01.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K02.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K03.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K04.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K05.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K06.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K07.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K08.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K09.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K10.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K11.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K12.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K13.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/S2_INDEPENDENT_ACCEPTANCE_RECEIPT.md",
+      "sha256": "f10b6f36810bfd5ae441d6286ddb923f379dad4447d37bcecda9485b3a33bbf1",
+      "role": "independent exact-byte acceptance of S2 joint only",
+      "authority_status": "S2_ROUND_ACCEPTANCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md",
+      "sha256": "c6b2f73f41f1669f1d4a096ebede551353f84024d6d281df091feab4a79907d3",
+      "role": "S2 joint adjudication",
+      "authority_status": "ROUND_ADJUDICATION_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_RAW_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S2.md",
+        "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S2.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/S2_RAW_MANIFEST.md",
+      "sha256": "ec9065810b1191f81b3fabc1fb81460d6459d4de21ade8494d62ce5f0b032f88",
+      "role": "S2 raw response identity manifest",
+      "authority_status": "RAW_INVENTORY_EVIDENCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/EXECUTION_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K01.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K02.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K03.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K04.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K05.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K06.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K07.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K08.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K09.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K10.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K11.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K12.md",
+        "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K13.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S1.md",
+      "sha256": "02f39fd0e57ae43712db61a93151c84ab79b31dd490a17f6b78e326c88e7dd60",
+      "role": "sealed S1 independent screening ledger",
+      "authority_status": "SCREENING_EVIDENCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/EXECUTION_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_RAW_MANIFEST.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S2.md",
+      "sha256": "325555b723d748cb9cdc3c1442df179eaeb25dd8a31380488bfe8c84db64effe",
+      "role": "sealed S2 independent screening ledger",
+      "authority_status": "SCREENING_EVIDENCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/EXECUTION_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_RAW_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S1.md",
+      "sha256": "e65fd7fc57cb6febe6614d55d509e2d74d52ecb03cb3176481e37ed5e3b4271f",
+      "role": "sealed S1 lead screening ledger",
+      "authority_status": "SCREENING_EVIDENCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/EXECUTION_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_RAW_MANIFEST.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S2.md",
+      "sha256": "9a035c413dc08c760e23cd1072db0648a2b180d3133c6baa8d2e00bef596f5d6",
+      "role": "sealed S2 lead screening ledger",
+      "authority_status": "SCREENING_EVIDENCE_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+        "研究/2026-07-27-总体设计/ssp-run2/EXECUTION_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_RAW_MANIFEST.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K01.md",
+      "sha256": "c15f1444ab6bc0a1ed405cb3db5ac23c05c8bc776d7fef68f6fed4a6f7a3da22",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K02.md",
+      "sha256": "c308b8c343a3ba3302c34cbd78bf5633c13a9f80c3febf00d428a179f4d724b0",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K03.md",
+      "sha256": "1939a6c064c52e3b4bfc01d8715d7d895f4f5c6d611c26c81afc8b3fc2b01c7e",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K04.md",
+      "sha256": "f44118236dfbfebd47e03f9d582be91ad19f387aedb1c1de46f525d2d8bfc30c",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K05.md",
+      "sha256": "3a20d6daf0683283b178c8f6c501d346770714823219c71f7c93b64f56edeabb",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K06.md",
+      "sha256": "becfb3af54e4fdf96c8cbaad221cbb1eed440399be3a29fe33c765c40074797a",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K07.md",
+      "sha256": "f3a244bd5a370906c77678db35fe4d759f9e507db0af061ff22769bea9c0c1a4",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K08.md",
+      "sha256": "45f1cd5c955598f9ab8606adc9350ef0039c9d66de20598a23bc7ba3e176d316",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K09.md",
+      "sha256": "a3ac926b3fd44e9f567113ef49b9f8bcdeda745c96f6e06a2c792332e98cc63b",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K10.md",
+      "sha256": "2279c9fd6e4822c86e3f2bf210a1265f7b493677f9f29f4fa23cc2172fee9ada",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K11.md",
+      "sha256": "5e8294b2779d8a0457460964f455f151a6f3d60f0521af4d8fbd3b80819692e9",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K12.md",
+      "sha256": "175ed4c57a3784c124b9cb0787804b835688a5767cb1e3285ae360df9e78cf8a",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S1-K13.md",
+      "sha256": "a78cb2484e748e6f3e7c49478c5b57d7f22e98bc72c0cee88cf6669b6c7c2a10",
+      "role": "S1 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K01.md",
+      "sha256": "c2bbfc0b12ea8a9479fbdddd2db49ee4f2b4b08d09dea749b6f18ff5b842001a",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K02.md",
+      "sha256": "bf16ddd721d18c4422d3e2aa96bc31dbddc95a35377753a4b267622e7a551d94",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K03.md",
+      "sha256": "6b8cdd725ff69a5660ae2bac2142e93cdd4ea4180c64b10d4e4c436b5bdac544",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K04.md",
+      "sha256": "c9f75c3ef141a5e651068c5103509ea546d7b1d97ad53e1cacb23bda4ad99dee",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K05.md",
+      "sha256": "0f76afb98d30994233bafae0f3f298e47719bbb9ca53dba8829b15488d2d4aed",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K06.md",
+      "sha256": "c219076dbbd3a6839d6fac306b7a302301314abdd9c275240cbb9b8d026e4093",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K07.md",
+      "sha256": "07f8766fb3d8bb3c253bbdbb52ee27c9d4a4290c566bd71c66b509b8e76df048",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K08.md",
+      "sha256": "da9d17d47427908e2ce41826446aad97b151ae11547bb1114aeab39f666d4974",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K09.md",
+      "sha256": "0eaf54188f07ecd3320ed14fdfdb0bb3b905f459b922f269205c64c82291018c",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K10.md",
+      "sha256": "eb080d1131fcc214403f8fa196802d7e07a0c090004492a0695835c522cc845b",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K11.md",
+      "sha256": "1af5a5e39675d57c1c865848fa0ba623ad169fbbcbf90233a05909aeb5519b69",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K12.md",
+      "sha256": "125523002d69ab3fc16136efc65ccdeff873cbee37643551c35d4f18b1c72032",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/ssp-run2/raw-search/S2-K13.md",
+      "sha256": "90d06870ca087707bbe42b520d8de823d88552afa6f2564ac84f9f0e9f22eb6b",
+      "role": "S2 frozen raw search response",
+      "authority_status": "RAW_RESEARCH_INPUT_NO_EXTERNAL_AUTHORITY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/test_phase_manifests.py",
+      "sha256": "d036e50ec537e11d7e76823de83932caa10178a33cd8adc5be03ebf4a4038c5c",
+      "role": "phase-boundary fail-closed regression tests",
+      "authority_status": "MECHANICAL_TEST_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/verify_post_closure_manifest.py",
+        "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/test_run2_acceptance.py",
+      "sha256": "7668842912daf97ce65629220de5aab8224fed5c22ecb98262ce74fca898d1e4",
+      "role": "negative and positive regression tests for Run2 acceptance",
+      "authority_status": "MECHANICAL_TEST_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/verify_run2_acceptance.py",
+        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/test_run2_crosswalk.py",
+      "sha256": "1fdfa58d6ec3382b7d86e512f5a0001a5d5d38893f667f2d51295d59b35c8e12",
+      "role": "negative and positive regression tests for exhaustive crosswalk",
+      "authority_status": "MECHANICAL_TEST_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/verify_run2_crosswalk.py",
+        "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+      "sha256": "b240946514567c6500edb30a9780b6d831b5d3b2b5d53112f782c098e66ff43c",
+      "role": "closed candidate inventory and phase verifier",
+      "authority_status": "MECHANICAL_VALIDATION_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/verify_run2_acceptance.py",
+        "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/verify_post_closure_manifest.py",
+      "sha256": "d2ed356ff8ec359dc468e8f1ac58405a359308b3e641378c69e0dff1555a31e5",
+      "role": "post-closure governance and shadow aggregate verifier",
+      "authority_status": "MECHANICAL_VALIDATION_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+        "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/verify_run2_acceptance.py",
+      "sha256": "4132c72773c2fd4506f92030e2471692fb57d543d1180ebc9e42957fc21e4ed7",
+      "role": "exact-hash Run2 final-status acceptance receipt verifier",
+      "authority_status": "MECHANICAL_VALIDATION_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json",
+        "研究/2026-07-27-总体设计/verify_run2_crosswalk.py",
+        "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl"
+      ]
+    },
+    {
+      "path": "研究/2026-07-27-总体设计/verify_run2_crosswalk.py",
+      "sha256": "2094a655b174c7cd1793790b22fb0024d5b84479ce49e42a38d60b2327bb3655",
+      "role": "independent reconstruction verifier for every final CE-IN row",
+      "authority_status": "MECHANICAL_VALIDATION_ONLY",
+      "depends_on": [
+        "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S1.md",
+        "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S1.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/ssp-run2/lead-screening/S2.md",
+        "研究/2026-07-27-总体设计/ssp-run2/independent-screening/S2.md",
+        "研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md",
+        "研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md"
+      ]
+    }
+  ],
+  "historical_exclusions": []
+}

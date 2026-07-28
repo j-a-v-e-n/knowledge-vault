@@ -1,6 +1,8 @@
 # Public-page factual audit
 
-Status: local draft; not sent or published.
+> **HISTORICAL / REVOKED LEGACY ARTIFACT.** This document is retained only as an audit fixture. It is not a current Pilot input, current factual assessment, Offer, permission, or authority for contact, publication, delivery, or any other external action.
+
+Status: `HISTORICAL / REVOKED / LEGACY_UNQUALIFIED`; the former local draft was not sent or published.
 
 Target reviewed: <https://saffronorestaurant.com/> and its public menu page, captured on 2026-07-27.
 
@@ -35,4 +37,3 @@ Remove unrelated template content and reorganize only owner-verified facts into 
 ## What this audit does not establish
 
 It does not establish lost revenue, customer conversion, owner dissatisfaction, budget, decision authority, technical access, or willingness to pay.
-

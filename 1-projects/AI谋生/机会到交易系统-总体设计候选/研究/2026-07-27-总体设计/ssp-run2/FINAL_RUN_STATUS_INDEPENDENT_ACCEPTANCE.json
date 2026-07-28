@@ -1,0 +1,61 @@
+{
+  "schema_version": "otts.run2-final-status-independent-acceptance/1",
+  "receipt_id": "otts-run2-final-status-independent-acceptance-35ffc2e34ca69a49",
+  "reviewer_id": "otts-run2-final-status-independent-reviewer-20260727-c2-boundary-inspect",
+  "independence_assertion": "I did not author or modify C4, this successor Run2 package, or the current remediation. I previously reviewed C3 and reported crosswalk/final-status defects, so this review is independent of authorship but not blind. The present review was read-only.",
+  "review_scope": "Exact current bytes of the successor Run2 package only: SSP, S1/S2 raw manifests, lead/independent ledgers, S1/S2 joint adjudications, S2 independent receipt, human and exhaustive JSONL crosswalks, verifier/tests, and FINAL_RUN_STATUS. Excludes overall C4 acceptance, factual or open-world research closure, design closure, implementation, shadow operation, and external action authority.",
+  "execution_id": "SSP-1.0-RUN-20260727T154803-0700",
+  "protocol": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/SEARCH_SATURATION_PROTOCOL.md",
+    "sha256": "911b6353b23f180a400865a810b3d45cbfa0ea2598e1127f1e548195ef0c30c1"
+  },
+  "final_status": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/ssp-run2/FINAL_RUN_STATUS.md",
+    "sha256": "35ffc2e34ca69a491cc5cabe25dc55b7fbf58edde67539fe1257ab23d736d30f"
+  },
+  "human_crosswalk": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md",
+    "sha256": "c035a55ff1ae5572f81c36a4a1e2b5d349439d4e560837a90e6a17c7a61cee6e"
+  },
+  "exhaustive_crosswalk": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl",
+    "sha256": "1e055c08a8aaf18173a8eaab670747879abb57e8cc96dcf69edc56518342f23b"
+  },
+  "verifier": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/verify_run2_crosswalk.py",
+    "sha256": "2094a655b174c7cd1793790b22fb0024d5b84479ce49e42a38d60b2327bb3655",
+    "result": "valid"
+  },
+  "test": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/test_run2_crosswalk.py",
+    "sha256": "1fdfa58d6ec3382b7d86e512f5a0001a5d5d38893f667f2d51295d59b35c8e12",
+    "result": "OK"
+  },
+  "s1_joint": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/ssp-run2/S1_JOINT_ADJUDICATION.md",
+    "sha256": "c8fb7bef800bc0a23370629fa8dfd4e19c802dea65d303f3e67eff690d00880f"
+  },
+  "s2_joint": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/ssp-run2/S2_JOINT_ADJUDICATION.md",
+    "sha256": "c6b2f73f41f1669f1d4a096ebede551353f84024d6d281df091feab4a79907d3"
+  },
+  "s2_receipt": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/机会到交易系统-总体设计候选/研究/2026-07-27-总体设计/ssp-run2/S2_INDEPENDENT_ACCEPTANCE_RECEIPT.md",
+    "sha256": "f10b6f36810bfd5ae441d6286ddb923f379dad4447d37bcecda9485b3a33bbf1"
+  },
+  "decision": "ACCEPT",
+  "accepted_status": "SATURATED-WITHIN-PROTOCOL",
+  "unresolved_critical": [],
+  "unresolved_major": [],
+  "residual_limits": [
+    "Acceptance establishes saturation only within the frozen SSP category/codebook scope; it does not establish factual truth, open-world exhaustiveness, business validation, or overall C4/design closure.",
+    "Reviewer identity, role independence, and chronology remain local attestations rather than cryptographic signatures or trusted timestamps.",
+    "The supplied verifier does not by itself validate raw-manifest bytes, the duplicate canonical graph, reviewer identity, or chronology; this read-only review independently checked those exact frozen bytes.",
+    "S1 final K is a disclosed routing union, not individually adjudicated evidence weighting and not authority for stronger claims.",
+    "Any byte change invalidates this acceptance; this exact receipt must be bound by the successor candidate before the accepted status becomes effective."
+  ],
+  "external_action_authority": false,
+  "candidate_closure_authority": false,
+  "implementation_authority": false,
+  "shadow_operation_authority": false
+}

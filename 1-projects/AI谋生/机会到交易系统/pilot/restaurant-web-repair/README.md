@@ -1,25 +1,18 @@
-# 餐馆网站修复：首次现实校准
+# 餐馆网站修复历史样本
 
-> 状态：`HISTORICAL / NOT AN ACTIVE PILOT`。本目录只保留早期本地样本；没有证明需求、买方、价格、交付可行性或交易成立，不得联系对象、发送 Demo、报价、发布或收付款。项目级说明见 [`../../LEGACY_STATUS.md`](../../LEGACY_STATUS.md)。
+> 状态：`HISTORICAL / LEGACY_UNQUALIFIED / NOT AN ACTIVE PILOT`
 
-这不是已经选定的生意，也不是对目标商家的负面结论。它只是用全新公开材料检验系统能否同时处理：
+本目录保存研究闭合前的一次本地样本。它不证明真实需求、买方身份、预算、价格、交付可行性、交易、满意度或外部行动权限，也不构成对样本对象的负面结论。
 
-- 客户明确表达的访问阻力；
-- 商家没有主动提出、但可公开观察的网站内容落差；
-- 看似是需求、实际可能是营销帖的污染信号；
-- 在没有联系、承诺或付款时保持 `hypothesis` 状态。
+旧 `schema/workspace 0.1` runtime 已被项目级全局 tombstone。目录中的停止记录或任何后来加入的 `pass` screening 都不是权限门，也不能恢复该 runtime。
 
-## 当前对象
+## 历史材料边界
 
-公开网页显示，Saffrono Lounge Bar & Grill 的首页一方面把自己描述为 Persian / Afghani 餐厅，另一方面仍含有汉堡、披萨价格和 `Lorem ipsum` 模板内容。这只能证明网页当前存在内容不一致，不能证明：
+- `artifacts/` 中的审计、Offer 草稿和静态预览仅供历史复核；不得发送、发布、部署、报价或据此联系任何对象；
+- 原四个任务工件已从活跃 `workspace/harnesses/` 移除并按原目录结构隔离；
+- 两张带旧 preview banner 的截图已从活跃路径移除并按原目录结构隔离；
+- 原 RUN_LOG 的精确字节已隔离，原路径现仅保留撤销通知；
+- [`quarantine/REVOCATION_MANIFEST.json`](./quarantine/REVOCATION_MANIFEST.json) 绑定每个原路径、新路径、SHA-256、撤销状态和空权威范围；
+- 项目级边界见 [`../../LEGACY_STATUS.md`](../../LEGACY_STATUS.md)。
 
-- 店主不知道；
-- 网页正在造成收入损失；
-- 店主有预算或愿意购买修复；
-- 我们做出的版本会更有效。
-
-## 当前 Probe
-
-先在本地制作一份不发布的事实审计和单页价值预览。它测试的不是“我们能不能做网站”，而是：具体决策者看到针对自己的预览后，是否主动要求下一步。
-
-当前 `external_action_policy` 为 `draft_only`。没有用户对具体对象、内容和 Offer 的授权，不联系商家。
+这些材料只能作为 provenance、失败模式和对抗测试 fixture。它们不是当前 Pilot、当前机会、当前任务合同或未来实现输入。

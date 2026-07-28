@@ -1,0 +1,135 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-07-27T19:28:44-07:00",
+  "workspace_commit": "ab875022b567a89769a0426f6f8b0afe46a26830",
+  "truth_policy": {
+    "old_documents_are_authority": false,
+    "ai_summary_is_evidence": false,
+    "required_claim_classes": [
+      "observed",
+      "inferred",
+      "unknown",
+      "externally_validated"
+    ]
+  },
+  "authority_envelope": {
+    "default": "deny_high_impact_or_external_actions",
+    "autonomous_scopes": [
+      "public_read_only_research",
+      "workspace_read",
+      "local_reversible_edit",
+      "local_test",
+      "paper_simulation",
+      "unpublished_draft",
+      "independent_review"
+    ],
+    "explicit_approval_required": [
+      "external_contact",
+      "public_publish_or_deploy",
+      "spend_or_purchase",
+      "receive_or_refund_payment",
+      "contract_or_legal_commitment",
+      "private_account_or_credential_use",
+      "nonpublic_third_party_data_use",
+      "new_external_integration",
+      "live_or_shadow_investment_execution",
+      "investment_risk_rule_change"
+    ],
+    "hard_boundaries": {
+      "investment_paper_only": true,
+      "investment_human_final": true,
+      "broker_connection_allowed": false,
+      "live_order_allowed": false
+    }
+  },
+  "workstreams": [
+    {
+      "id": "opportunity_to_transaction",
+      "path": "../机会到交易系统",
+      "classification": "asset_hypothesis_with_possible_cash_service",
+      "status": "active_internal",
+      "observed_facts": [
+        {
+          "claim_class": "observed",
+          "claim": "当前实现是本地证据账本、状态机和 Harness 合同生成器，没有 discovery、scheduler、model runtime、message sending 或 billing runtime。",
+          "evidence_locator": "../机会到交易系统/src/opportunity_os.py"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "当前 pilot 只有本地 prototype_created 事件，没有目标方回应、承诺、付款、复购或验收事件。",
+          "evidence_locator": "../机会到交易系统/pilot/restaurant-web-repair/workspace/events/event-local-preview-created.json"
+        },
+        {
+          "claim_class": "inferred",
+          "claim": "公开页面中的停业线索足以让当前 Saffrono 目标未通过 target-liveness 预筛，但第三方目录本身不是官方终局证明。",
+          "evidence_locator": "../机会到交易系统/pilot/restaurant-web-repair/artifacts/RUN_LOG.md"
+        }
+      ],
+      "unknowns": [
+        "哪个可触达且仍活跃的目标存在近期、目标特定的重复问题",
+        "谁拥有问题、拥有决定权并可能付款",
+        "在现有平台原生功能之后仍剩下什么付款理由",
+        "是否存在真实付款、复购和正向全成本"
+      ],
+      "next_action": {
+        "description": "补上 target-liveness、付款者、大厂原生功能碰撞、证据身份和当前 standing 的确定性门禁；把现有 pilot 保留为停止样本。",
+        "scope": "local_reversible_edit",
+        "external_effect": false,
+        "destructive": false
+      },
+      "stop_conditions": [
+        "目标不再活跃或无法核实",
+        "核心付款理由可被现有平台原生开关消除",
+        "无法识别付款者或授权角色",
+        "只有内部 Demo 而无新的现实证据"
+      ]
+    },
+    {
+      "id": "investment_discipline",
+      "path": "../../../MyBrain/projects/investment-discipline-system",
+      "classification": "paper_only_research_and_discipline_system",
+      "status": "blocked_internal",
+      "observed_facts": [
+        {
+          "claim_class": "observed",
+          "claim": "当前 workspace checkout 的 no-live-scope verifier 返回 pass；该检查不证明操作系统网络隔离、投资建议安全或未来版本安全。",
+          "evidence_locator": "../../../MyBrain/projects/investment-discipline-system/scripts/verify_no_live_scope.py"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "最近运行记录同时存在 outcome_recorded/blocked 与 active/active、terminal_completion=null，因而不能称仍在运行、已恢复或已完成。",
+          "evidence_locator": "../../../MyBrain/projects/investment-discipline-system/.work_packets/runtime-operations"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "最新定位的隔离候选工作树已出现未提交测试修改，不能作为 immutable exact candidate 接管。",
+          "evidence_locator": "/private/tmp/ids-current-audit.9SoJ4g/repo/MyBrain/projects/investment-discipline-system"
+        }
+      ],
+      "unknowns": [
+        "committed candidate 的目标测试是否全部通过",
+        "candidate 是否关闭此前语义漏洞而没有引入新的绕过路径",
+        "能否从 committed identity 重新物化一个干净且可独立审查的候选"
+      ],
+      "next_action": {
+        "description": "只读比较 main 与 committed candidate，运行候选自带的 targeted tests 和 no-live-scope 检查；不运行恢复或启动脚本。",
+        "scope": "local_test",
+        "external_effect": false,
+        "destructive": false
+      },
+      "stop_conditions": [
+        "候选身份不精确或工作树不干净",
+        "目标测试失败或关键覆盖不可用",
+        "独立反方审查发现可绕过的权限、证据或恢复语义",
+        "任何动作会越过 paper-only 或 human-final"
+      ],
+      "safety_boundary": {
+        "paper_only": true,
+        "human_final": true,
+        "live_trading": false,
+        "broker_integration": false
+      }
+    }
+  ],
+  "approval_queue": []
+}
