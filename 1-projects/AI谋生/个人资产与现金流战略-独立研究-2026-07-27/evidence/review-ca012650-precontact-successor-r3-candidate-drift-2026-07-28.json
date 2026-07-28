@@ -1,0 +1,66 @@
+{
+  "schema_version": "ca012650-precontact-successor-candidate-drift-review/1",
+  "review_id": "review-ca012650-precontact-successor-r3-candidate-drift-2026-07-28",
+  "recorded_at": "2026-07-28T01:16:28-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/ca_precontact_successor_r3_review",
+  "reviewer_role": "independent_read_only_reviewer",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 1,
+    "major": 0
+  },
+  "review_request_identity": {
+    "schema_version": "ca012650-precontact-rejection-successor-independent-review/3",
+    "review_id": "review-ca012650-precontact-rejection-successor-2026-07-28-r3",
+    "expected_receipt_path": "review-ca012650-precontact-rejection-successor-2026-07-28-r3.json",
+    "expected_candidate_binding_count": 35
+  },
+  "candidate_drift": [
+    {
+      "path": "../09-校验活动状态.py",
+      "delegated_sha256": "e938cacab8a08756fec03ea4d2a35b55a88810b154326b08fb7f435451e80ad0",
+      "observed_sha256": "50b007a97b6a3ba6046ed5a7ad07961e9a8156492df2c63351500ea227cc476d"
+    },
+    {
+      "path": "../tests/test_active_state_validator.py",
+      "delegated_sha256": "badeb2f3e8f478e54f47dab470236db77292d5259ebdbf8d388a4062edca88c0",
+      "observed_sha256": "594456d5950e6016e4daf716a265b0ed41272b0d7bda5e34075f46013698ed06"
+    }
+  ],
+  "critical_findings": [
+    {
+      "id": "CA-PRECONTACT-R3-CANDIDATE-DRIFT-C1",
+      "title": "The two dynamic candidate files changed before the independent review established the delegated exact-candidate identity",
+      "evidence": "Both observed SHA-256 values differed from the hashes in the review request. The reviewer therefore stopped before semantic review and did not run the candidate tests against the disappeared delegated bytes.",
+      "required_fix": "Stop all candidate writers, freeze a new successor identity over the final observed bytes plus this FAIL record, verify that no prior expected receipt exists, and assign a new independent reviewer."
+    }
+  ],
+  "checks_completed": {
+    "live_state_sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
+    "live_state_unchanged": true,
+    "expected_r3_receipt_exists": false,
+    "checked_target_files_regular_non_symlink": true,
+    "candidate_files_modified_by_reviewer": false
+  },
+  "checks_not_executed": {
+    "unit_test_count_41": false,
+    "candidate_binding_count_35_verified": false,
+    "predecessor_and_infrastructure_event_semantics_verified": false,
+    "receipt_contract_verified": false,
+    "rejected_precontact_terminal_semantics_verified": false
+  },
+  "pass_receipt_created": false,
+  "live_state_activation_allowed": false,
+  "external_actions_observed": {
+    "gmail_or_external_draft": false,
+    "contact_or_send": false,
+    "application_or_submission": false,
+    "account_action": false,
+    "payment_or_delivery": false,
+    "publication": false,
+    "investment_action": false
+  },
+  "claim_boundary": "This exact review rejects only the drifted r3 review attempt. It does not semantically review the later observed bytes, does not create a PASS receipt, and does not authorize a live-state transition. It authorizes no Gmail or external draft, contact, application, account action, payment, delivery, publication, investment execution, or claim of demand, willingness to pay, cash flow, profit, repeatability, or asset value."
+}
