@@ -1,0 +1,103 @@
+{
+  "schema_version": "otts.shadow-capability-policy/3",
+  "policy_id": "OTTS-SHADOW-DECLARATIVE-IR-CLOSED-2",
+  "language_scope": "CANONICAL_JSON_DECLARATIVE_IR_ONLY",
+  "artifact_suffixes": [
+    ".json"
+  ],
+  "fixture_suffixes": [
+    ".json"
+  ],
+  "document_suffixes": [
+    ".json",
+    ".md",
+    ".txt"
+  ],
+  "forbidden_artifact_suffixes": [
+    ".app",
+    ".bat",
+    ".bin",
+    ".class",
+    ".com",
+    ".command",
+    ".dll",
+    ".dylib",
+    ".exe",
+    ".jar",
+    ".o",
+    ".pyd",
+    ".py",
+    ".pyc",
+    ".ps1",
+    ".sh",
+    ".so",
+    ".wasm",
+    ".whl"
+  ],
+  "opcodes": [
+    "BUILD_OBJECT",
+    "CANONICAL_SHA256",
+    "CAS_GET",
+    "CAS_PUT",
+    "INPUT",
+    "JSON_POINTER",
+    "LITERAL"
+  ],
+  "limits": {
+    "max_artifact_bytes": 262144,
+    "max_fixture_bytes": 262144,
+    "max_report_bytes": 524288,
+    "max_manifest_entries": 256,
+    "max_total_input_bytes": 4194304,
+    "max_acceptance_cases": 32,
+    "max_json_depth": 32,
+    "max_json_values": 4096,
+    "max_string_bytes": 16384,
+    "max_integer_abs": 9007199254740991,
+    "max_nodes": 256,
+    "max_build_object_entries": 256,
+    "max_steps": 512,
+    "max_structural_value_bytes_total": 8388608,
+    "max_output_bytes": 262144,
+    "max_output_files": 64,
+    "max_output_total_bytes": 1048576,
+    "max_cas_files": 64,
+    "max_cas_total_bytes": 1048576,
+    "max_stdout_bytes": 65536,
+    "max_stderr_bytes": 65536,
+    "wall_timeout_seconds": 8,
+    "aggregate_wall_timeout_seconds": 60,
+    "cpu_seconds": 3,
+    "max_open_files": 64,
+    "max_processes": 2000,
+    "max_file_bytes": 1048576
+  },
+  "sandbox": {
+    "implementation": "/usr/bin/sandbox-exec",
+    "profile_model": "DENY_DEFAULT_OPENED_UNLINKED_INPUT_FDS_PRIVATE_TEMP_WRITE",
+    "support_status": "DEPRECATED_UNSUPPORTED_DEFENSE_IN_DEPTH",
+    "required_probes": [
+      "CHILD_PROCESS_DENIED",
+      "EXTERNAL_READ_DENIED",
+      "EXTERNAL_WRITE_DENIED",
+      "NETWORK_LOOPBACK_BIND_DENIED"
+    ],
+    "failure_mode": "FAIL_CLOSED_NO_PASS"
+  },
+  "capabilities": {
+    "arbitrary_artifact_code_execution": false,
+    "connectors": false,
+    "credential_or_environment_secret_access": false,
+    "dynamic_dispatch_from_data": false,
+    "external_action_authority": false,
+    "filesystem_path_or_uri_from_data": false,
+    "legacy_root_read": false,
+    "module_loading_from_artifact": false,
+    "native_or_compiled_artifact": false,
+    "network": false,
+    "non_temporary_write": false,
+    "project_external_read": false,
+    "subprocess": false
+  },
+  "external_action_authority": false
+}

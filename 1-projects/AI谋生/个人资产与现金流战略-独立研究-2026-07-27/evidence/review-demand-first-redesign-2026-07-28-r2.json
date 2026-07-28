@@ -1,0 +1,112 @@
+{
+  "schema_version": "demand-first-redesign-independent-review/2",
+  "review_id": "review-demand-first-redesign-2026-07-28-r2",
+  "recorded_at": "2026-07-28T00:07:42-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/demand_redesign_r2_review",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 0,
+    "major": 2
+  },
+  "candidate_bindings": [
+    {
+      "path": "../15-需求优先的现实实验重设计.md",
+      "sha256": "6935983e99337aede31b897624b95aad3bf992b156b227a1f1a377529916a915",
+      "git_blob_oid": "2935a26abf22fddee69d08b5d537b4a63dfd4901"
+    },
+    {
+      "path": "demand-first-public-listings-observation-2026-07-27.json",
+      "sha256": "61f91e67f16ab004a3944635831c76c4de556b7a35d182bc35f08b7c640dcae5",
+      "git_blob_oid": "713a09011c8213202337f41b6054f45094b7e3a9"
+    }
+  ],
+  "candidate_git_identity": {
+    "commit": "2e857c983959521c537143aac2f70e79fd5f38f3",
+    "tree": "f3309074be9d6aecddd62e0ff1efbc51828c8712"
+  },
+  "predecessor_bindings": [
+    {
+      "path": "review-demand-first-redesign-2026-07-27-r1.json",
+      "sha256": "7c85fce22c1896c4c767cf8e5196e85021bc20db2e6535a88c29dab2658b021f"
+    },
+    {
+      "path": "demand-first-r1-predecessor-continuity-2026-07-27.json",
+      "sha256": "86d3fc4020fdda8f9b32507fab1af7c1d70cb702c6d7f901aad88f406daa2db2"
+    },
+    {
+      "path": "precursor-demand-first-redesign-15-13d4f34f.snapshot",
+      "sha256": "13d4f34fc5d5b582eeda0d2ff3872fb12b06c7e1c7874c8063caae45a48ac7dd"
+    },
+    {
+      "path": "precursor-demand-first-public-listings-d1655c14.json",
+      "sha256": "d1655c146f8720eb6c789a318f9f2feb6f1a933686e3328ca96a3f3b62faf8a5"
+    }
+  ],
+  "major_findings": [
+    {
+      "id": "DEMAND-FIRST-R2-M1",
+      "title": "HarborLift expected outputs are not closed under deterministic evaluation",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:102",
+        "../15-需求优先的现实实验重设计.md:123",
+        "../15-需求优先的现实实验重设计.md:177",
+        "../15-需求优先的现实实验重设计.md:189",
+        "../15-需求优先的现实实验重设计.md:202"
+      ],
+      "evidence": [
+        "risk_flags, allowed_action, and prohibited_claims are expected fields, but the failure taxonomy and thresholds do not mechanically require risk_flags exact-set or allowed_action exact-value matching.",
+        "prohibited_claims has no closed claim-class enum.",
+        "customer_reply route compatibility and phrase or semantic matching are promised for a future candidate rather than frozen in the reviewed candidate."
+      ],
+      "reproduction": "For dev-extension-unverified-identity, keep intent, route, and required_policy_codes correct, set risk_flags to an empty list and allowed_action to ESCALATE_ONLY, and emit a non-promising generic reply. The reviewed contract contains no deterministic failure and threshold combination that necessarily prevents LOCAL_SYNTHETIC_GAP_TEST_PASS.",
+      "required_fix": "Freeze a closed prohibited-claim enum and content-addressed deterministic matcher, add F-RISK and F-ACTION, and define mechanical pass requirements for every expected field and customer_reply constraint."
+    },
+    {
+      "id": "DEMAND-FIRST-R2-M2",
+      "title": "Contract and delivery gates do not close current evidence, expiry, authorization, and off-platform paths",
+      "exact_locations": [
+        "../15-需求优先的现实实验重设计.md:259",
+        "../15-需求优先的现实实验重设计.md:270",
+        "../15-需求优先的现实实验重设计.md:278",
+        "../15-需求优先的现实实验重设计.md:292"
+      ],
+      "evidence": [
+        "Gate B and Gate C lack per-source raw or screenshot hashes, requested and final URLs, current status, capture time, independent replay receipt, and a computable maximum evidence age.",
+        "Gate B and Gate C exact user authorizations have no expiry.",
+        "Gate B omits off_platform_contact=false and off_platform_delivery=false, allowing an unsafe contract acceptance before Gate C can stop delivery.",
+        "Gate A asks for an exact future realized foreign-exchange or withdrawal impact that may not be knowable at application time."
+      ],
+      "required_fix": "Bind content-addressed current evidence, explicit maximum age and independent replay at each gate; require unexpired exact authorization; close all off-platform contact, contract, delivery, and payment predicates before acceptance; use decision-time fee values, rules, or conservative caps and defer realized exchange checks to a future payout gate."
+    }
+  ],
+  "r1_finding_status": {
+    "DEMAND-FIRST-R1-M1": "CLOSED",
+    "DEMAND-FIRST-R1-M2": "PARTIALLY_CLOSED_BY_DEMAND-FIRST-R2-M1",
+    "DEMAND-FIRST-R1-M3": "CLOSED",
+    "DEMAND-FIRST-R1-M4": "PARTIALLY_CLOSED_BY_DEMAND-FIRST-R2-M2"
+  },
+  "web_recheck_boundary": {
+    "performed_read_only_by_reviewer": true,
+    "persisted_as_durable_source_capture": false,
+    "claim": "The reviewer reported that official CEC, Langfuse, and Upwork safety and payment pages supported the stated boundaries, while listing pages remained historical, unavailable, noncandidate, or missing content-addressed current evidence. These session observations are not durable listing or payment evidence."
+  },
+  "mechanical_checks": {
+    "strict_json_and_duplicate_key_checks_passed_for_bound_json_records": true,
+    "predecessor_snapshots_byte_equal_to_r1_candidate_bindings": true,
+    "historical_r1_verdict_preserved": true,
+    "candidate_hashes_recomputed_after_review": true
+  },
+  "external_actions_observed": {
+    "account_login": false,
+    "application": false,
+    "message": false,
+    "connects_or_spend": false,
+    "payment": false,
+    "cloud_service": false,
+    "remote_model_call": false
+  },
+  "claim_boundary": "This exact independent review rejects the bound redesign candidate. It does not establish current demand, job availability, customer safety, payment likelihood, delivery feasibility, profit, repeatability, or asset value and authorizes no login, application, message, Connects use, contract, private-data access, delivery, payment, cloud service, model call, publication, or other external action."
+}

@@ -296,12 +296,19 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES = {
         "a later state binding to this receipt and a separate post-transition "
         "verification."
     ),
+    (
+        "The sender-provenance remediation PASS is preserved only as a historical "
+        "readiness-only predecessor against its exact snapshots; it does not review "
+        "the rejection-stage successor and grants no send or execution authority."
+    ),
 }
 EXPECTED_CA_PRECONTACT_SUCCESSOR_CLAIM_BOUNDARY = (
     "This detached receipt records a read-only review of the exact pre-contact "
     "rejection successor bytes and transition contract. It does not review or "
     "authorize any mutable live-state activation by itself, does not make the "
-    "rejected message fit for sending, and authorizes no Gmail or external draft, "
+    "rejected message fit for sending. The historical sender-remediation PASS "
+    "remains predecessor-only and readiness-only. This review authorizes no Gmail "
+    "or external draft, "
     "contact, follow-up, quote, account access, submission, payment, delivery, "
     "publication, investment execution, or claim of recipient response, market "
     "counterevidence, demand, willingness to pay, delivery feasibility, profit, "
@@ -337,6 +344,20 @@ EXPECTED_CA_HISTORICAL_R2_BINDING = {
 EXPECTED_CA_PRESEND_READINESS_FAIL_BINDING = {
     "path": "evidence/review-ca012650-presend-readiness-2026-07-27-attempt-1.json",
     "sha256": "bd87bf413704dbd2920cf88161228c2f7ab459f981adfce66d78db9936499494",
+}
+EXPECTED_CA_SENDER_REMEDIATION_REVIEW_BINDING = {
+    "path": "evidence/review-ca012650-sender-provenance-remediation-2026-07-27-r1.json",
+    "sha256": "19e4d6bbd2b333e225642ea9502480da50d2011253ee66bc1bd913d0a3d118b0",
+}
+EXPECTED_CA_SENDER_STAGE_SNAPSHOT_BINDINGS = {
+    "09": {
+        "path": "evidence/precursor-sender-stage-09-3ac3937a.snapshot",
+        "sha256": "3ac3937abb0dac504080b096bf7932b5925519d8161ffe9ba9eb56964d81f6ca",
+    },
+    "tests": {
+        "path": "evidence/precursor-sender-stage-test_active_state_validator-1d569256.snapshot",
+        "sha256": "1d5692565a4e45f4f2ae329635b7fbe6743211709dcd31710babf5af77db09a3",
+    },
 }
 EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS = {
     "08": EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING,
@@ -417,12 +438,15 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS = {
     "evidence/review-ca012650-detached-gate-2026-07-27-attempt-2.json": "e2a2eedc3f84f6390f32983913c887500d842959324ce0e76e6ac50bd1ec7d69",
     "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json": "70b7e8e44d1095452fd26209eb43e65630bff4441a466db00e29fa7ef5790e07",
     "evidence/review-ca012650-presend-readiness-2026-07-27-attempt-1.json": "bd87bf413704dbd2920cf88161228c2f7ab459f981adfce66d78db9936499494",
+    "evidence/review-ca012650-sender-provenance-remediation-2026-07-27-r1.json": "19e4d6bbd2b333e225642ea9502480da50d2011253ee66bc1bd913d0a3d118b0",
     "evidence/review-ca012650-recipient-value-2026-07-27-r1.json": "7fc4563288cc03a41e2f3748474c82845d10b68f23c308dbfb7127f3daf0c8bc",
     "evidence/receipt-ca012650-precontact-rejection-2026-07-27-r1.json": "aa53d97f35859a6548653640293ffca5df9f326e0dda00727a074e06a235c73a",
     "evidence/ca012650-r2-predecessor-continuity-2026-07-27.json": "3bfd51fe97e29203648a0f14e1d724c1f48a77dd837bfaa5998774a3ff38c195",
     "evidence/active-state-ca012650-precontact-rejection-precursor-2026-07-27.json": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
     "evidence/precursor-r2-09-校验活动状态-584d02cd.snapshot": "584d02cd8e5bf3541f594bf53944fa12a524ea17873381e999f3d779285d194c",
     "evidence/precursor-r2-test_active_state_validator-244d22b1.snapshot": "244d22b14fa8670ee3b63c52bf5937b8a999b12bc24fc8df94edd567c86435ae",
+    "evidence/precursor-sender-stage-09-3ac3937a.snapshot": "3ac3937abb0dac504080b096bf7932b5925519d8161ffe9ba9eb56964d81f6ca",
+    "evidence/precursor-sender-stage-test_active_state_validator-1d569256.snapshot": "1d5692565a4e45f4f2ae329635b7fbe6743211709dcd31710babf5af77db09a3",
     "evidence/refresh-ca012650-cec-status-2026-07-27T2317.json": "0076adc9de1bd4d5c0709814da4654027a27038b66015ce9487412061529d6a2",
     "evidence/refresh-ca012650-organization-channel-2026-07-27T2317.json": "9e88da895e7f4739f1d59bb6c3fe3d72f103d2d865a0c7cf2f1c7a5915a6095a",
     "evidence/raw/CoveredBuildingsExport-pre-send-2026-07-27T2317.csv": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75",
@@ -1594,6 +1618,145 @@ def validate_ca_presend_readiness_fail(
     )
 
 
+def validate_ca_sender_remediation_predecessor(
+    binding: object, *, now: datetime, errors: list[str]
+) -> datetime | None:
+    """Keep the sender PASS narrow, historical, and readiness-only."""
+
+    prefix = "CA012650 historical sender-provenance remediation"
+    _, review = load_exact_bound_json(
+        binding,
+        expected_binding=EXPECTED_CA_SENDER_REMEDIATION_REVIEW_BINDING,
+        errors=errors,
+        label=prefix,
+    )
+    if review is None:
+        return None
+    expected_keys = {
+        "schema_version",
+        "review_id",
+        "recorded_at",
+        "recorded_by",
+        "reviewer_agent_identity",
+        "reviewer_role",
+        "reviewer_modified_candidate",
+        "verdict",
+        "severity_counts",
+        "candidate_bindings",
+        "reviewed_properties",
+        "reproduction_results",
+        "current_successor_accepted",
+        "required_next_review",
+        "external_action_status",
+        "claim_boundary",
+    }
+    exact_object(review, expected_keys, errors=errors, label=prefix)
+    expected = {
+        "schema_version": "ca012650-sender-provenance-remediation-review/1",
+        "review_id": "review-ca012650-sender-provenance-remediation-2026-07-27-r1",
+        "recorded_at": "2026-07-27T23:56:49-07:00",
+        "recorded_by": "/root",
+        "reviewer_agent_identity": "/root/sender_provenance_attack_spec",
+        "reviewer_role": "independent_read_only_subagent",
+        "reviewer_modified_candidate": False,
+        "verdict": "PASS_NARROW_REMEDIATION_SCOPE",
+        "severity_counts": {"critical": 0, "major": 0},
+        "current_successor_accepted": False,
+        "required_next_review": (
+            "A new review identity and schema must bind the final successor validator, "
+            "tests, sender observation, rejection mechanism, and predecessor continuity; "
+            "old r2 cannot be reused."
+        ),
+        "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+        "claim_boundary": (
+            "This PASS is limited to the sender-provenance remediation properties in "
+            "the bound bytes. It is not a PASS for the full successor or live state, "
+            "does not authorize request_ready, Gmail draft, sending, follow-up, account "
+            "access, payment, delivery, publication, investment execution, or any "
+            "external action, and does not prove the connector account at a future "
+            "send instant."
+        ),
+    }
+    for key, value in expected.items():
+        if review.get(key) != value:
+            errors.append(f"{prefix}: {key} changed")
+    expected_candidate_bindings = [
+        {
+            "path": "../09-校验活动状态.py",
+            "sha256": EXPECTED_CA_SENDER_STAGE_SNAPSHOT_BINDINGS["09"]["sha256"],
+        },
+        {
+            "path": "../tests/test_active_state_validator.py",
+            "sha256": EXPECTED_CA_SENDER_STAGE_SNAPSHOT_BINDINGS["tests"]["sha256"],
+        },
+        {
+            "path": "gmail-sender-profile-observation-2026-07-27T2320.json",
+            "sha256": EXPECTED_CA_SENDER_PROFILE_BINDING["sha256"],
+        },
+    ]
+    if review.get("candidate_bindings") != expected_candidate_bindings:
+        errors.append(f"{prefix}: exact historical candidate bindings changed")
+    expected_properties = {
+        (
+            "The sender observation path, digest, exact account, strict schema, "
+            "read-only operation, no-draft, no-send, proposed use, and no-authority "
+            "claim boundary are closed values."
+        ),
+        (
+            "The state and readiness receipt must bind the same canonical observation, "
+            "and simultaneous state, receipt, and observation substitution is rejected."
+        ),
+        (
+            "The evidence bytes are read once and used for both SHA-256 and "
+            "duplicate-key-strict JSON parsing."
+        ),
+        (
+            "The observation uses a real validation-time 24-hour freshness boundary; "
+            "future, naive, stale-by-one-second, equivalent-timezone, and reordered-event "
+            "attacks are rejected."
+        ),
+        (
+            "The static observation supports request-readiness only; authorized_once "
+            "and later stages remain unreachable and executable remains false until a "
+            "future same-session Gmail execution preflight is implemented."
+        ),
+    }
+    exact_string_set(
+        review.get("reviewed_properties"),
+        expected_properties,
+        errors=errors,
+        label=f"{prefix} reviewed_properties",
+    )
+    if review.get("reproduction_results") != {
+        "sender_focused_tests": "Ran 7 tests in 0.013s / OK",
+        "full_suite": "Ran 29 tests in 4.102s / FAILED (failures=2)",
+        "full_suite_failure_scope": (
+            "Both failures are the expected old-r2 exact candidate hash and closed-set "
+            "rejection after validator, tests, and sender observation changed."
+        ),
+        "generated_python_cache_found": False,
+        "git_diff_check_clean": True,
+    }:
+        errors.append(f"{prefix}: reproduction result changed")
+    for name, snapshot_binding in EXPECTED_CA_SENDER_STAGE_SNAPSHOT_BINDINGS.items():
+        verify_bound_file(
+            snapshot_binding,
+            base=RESEARCH_ROOT,
+            allowed_root=RESEARCH_ROOT,
+            errors=errors,
+            label=f"{prefix} {name} snapshot",
+            closed=True,
+        )
+    validate_sender_profile_observation(
+        EXPECTED_CA_SENDER_PROFILE_BINDING,
+        snapshot_at=now,
+        errors=errors,
+    )
+    return validate_not_future(
+        review.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
+    )
+
+
 def validate_sender_profile_observation(
     binding: object,
     *,
@@ -2602,6 +2765,11 @@ def validate_ca_precontact_successor_receipt_contract(
         now=now,
         errors=errors,
     )
+    sender_at = validate_ca_sender_remediation_predecessor(
+        bound(EXPECTED_CA_SENDER_REMEDIATION_REVIEW_BINDING["path"]),
+        now=now,
+        errors=errors,
+    )
     r2_at = validate_ca_historical_r2(
         bound(EXPECTED_CA_HISTORICAL_R2_BINDING["path"]),
         now=now,
@@ -2630,6 +2798,7 @@ def validate_ca_precontact_successor_receipt_contract(
     for label, predecessor_at in (
         ("historical r2", r2_at),
         ("presend readiness FAIL", presend_at),
+        ("sender-remediation predecessor", sender_at),
         ("recipient-value FAIL", recipient_at),
         ("continuity record", continuity_at),
         ("rejection receipt", rejection_at),
@@ -3532,6 +3701,135 @@ def validate_execution_refresh_window(
             )
 
 
+def validate_precontact_rejection_receipt(
+    binding: object,
+    *,
+    item: dict | None,
+    now: datetime,
+    errors: list[str],
+    validate_stage_item: bool = True,
+) -> dict | None:
+    """Validate the one terminal branch without conferring external progress."""
+
+    prefix = "CA012650 approval precontact_rejection_receipt:"
+    receipt_path, receipt = load_exact_bound_json(
+        binding,
+        expected_binding=EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING,
+        errors=errors,
+        label=prefix,
+    )
+    if receipt_path is None or receipt is None:
+        return None
+    if not exact_object(receipt, RECEIPT_ROOT_KEYS, errors=errors, label=prefix):
+        return None
+    expected_values = {
+        "schema_version": "1.0",
+        "receipt_type": "precontact_rejection",
+        "approval_id": EXPECTED_CA_APPROVAL_ID,
+        "experiment_id": EXPECTED_CA_EXPERIMENT_ID,
+        "from_stage": "blocked_missing_bindings",
+        "to_stage": "rejected_precontact",
+        "exact_target": EXPECTED_CA_TARGET,
+        "exact_channel": EXPECTED_CA_CHANNEL,
+        "channel_source": EXPECTED_CA_CHANNEL_SOURCE,
+        "message_binding": {
+            "path": "12-首个反证实验与对外动作候选.md",
+            "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691",
+        },
+    }
+    for key, value in expected_values.items():
+        if receipt.get(key) != value:
+            errors.append(f"{prefix} {key} does not bind the exact rejected identity")
+    if receipt.get("recorded_at") != "2026-07-27T23:43:23-07:00":
+        errors.append(f"{prefix} recorded_at changed")
+    recorded_at = validate_not_future(
+        receipt.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
+    )
+    if validate_stage_item:
+        if item is None:
+            errors.append(f"{prefix} approval item is required for live lifecycle validation")
+        else:
+            for key in (
+                "experiment_id",
+                "exact_target",
+                "exact_channel",
+                "channel_source",
+                "message_binding",
+            ):
+                receipt_key = "approval_id" if key == "id" else key
+                if receipt.get(receipt_key) != item.get(key):
+                    errors.append(f"{prefix} {key} differs from live approval")
+    payload = receipt.get("stage_payload")
+    payload_keys = {
+        "recipient_value_review_record",
+        "pretransition_state_snapshot",
+        "rejection_class",
+        "request_send_authorization",
+        "external_draft_authorized",
+        "external_contact_authorized",
+        "message_sent",
+        "follow_up_sent",
+        "recipient_or_market_response_observed",
+        "market_counterevidence_claimed",
+        "redesign_required",
+    }
+    if not exact_object(payload, payload_keys, errors=errors, label=f"{prefix} stage_payload"):
+        return receipt
+    assert isinstance(payload, dict)
+    if payload.get("recipient_value_review_record") != EXPECTED_CA_RECIPIENT_VALUE_REVIEW_BINDING:
+        errors.append(f"{prefix} recipient-value review binding changed")
+    if payload.get("pretransition_state_snapshot") != (
+        EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING
+    ):
+        errors.append(f"{prefix} pretransition snapshot binding changed")
+    if payload.get("rejection_class") != (
+        "recipient_value_and_measurement_design_failure"
+    ):
+        errors.append(f"{prefix} rejection class changed")
+    for key in (
+        "request_send_authorization",
+        "external_draft_authorized",
+        "external_contact_authorized",
+        "message_sent",
+        "follow_up_sent",
+        "recipient_or_market_response_observed",
+        "market_counterevidence_claimed",
+    ):
+        if payload.get(key) is not False:
+            errors.append(f"{prefix} {key} must be the JSON boolean false")
+    if payload.get("redesign_required") is not True:
+        errors.append(f"{prefix} redesign_required must be the JSON boolean true")
+    recipient_at = validate_ca_recipient_value_review(
+        payload.get("recipient_value_review_record"), now=now, errors=errors
+    )
+    snapshot_path, snapshot = load_exact_bound_json(
+        payload.get("pretransition_state_snapshot"),
+        expected_binding=EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING,
+        errors=errors,
+        label=f"{prefix} pretransition snapshot",
+    )
+    del snapshot_path
+    snapshot_at = None
+    if snapshot is not None:
+        if snapshot.get("schema_version") != EXPECTED_SCHEMA_VERSION:
+            errors.append(f"{prefix} predecessor state schema changed")
+        snapshot_at = parse_timestamp(
+            snapshot.get("as_of"), errors=errors, label=f"{prefix} predecessor as_of"
+        )
+    for label, predecessor_at in (
+        ("recipient-value review", recipient_at),
+        ("pretransition snapshot", snapshot_at),
+    ):
+        if (
+            recorded_at is not None
+            and predecessor_at is not None
+            and recorded_at.astimezone(timezone.utc)
+            <= predecessor_at.astimezone(timezone.utc)
+        ):
+            errors.append(f"{prefix} rejection receipt must be later than {label}")
+    return receipt
+
+
 def validate_stage_receipt(
     binding: object,
     *,
@@ -3541,6 +3839,13 @@ def validate_stage_receipt(
     errors: list[str],
 ) -> dict | None:
     prefix = f"CA012650 approval {receipt_field}:"
+    if receipt_field == "precontact_rejection_receipt":
+        return validate_precontact_rejection_receipt(
+            binding,
+            item=item,
+            now=now,
+            errors=errors,
+        )
     receipt_path = verify_bound_file(
         binding,
         base=RESEARCH_ROOT,
@@ -3932,13 +4237,23 @@ def validate_approval_queue(
     validate_sender_execution_boundary(stage, errors=errors)
     if item.get("claim_boundary") != EXPECTED_CA_APPROVAL_CLAIM_BOUNDARIES.get(stage):
         errors.append(f"{prefix} claim boundary differs from exact lifecycle stage")
-    if stage in REQUEST_READY_OR_LATER_STAGES:
-        if ca_review_status == "passed_precontact_rejection_successor":
+    if stage == "rejected_precontact":
+        if (
+            ca_review_status != "passed_precontact_rejection_successor"
+            or ca_reviewed_at is None
+        ):
             errors.append(
-                f"{prefix} this exact approval, experiment, and message identity was "
-                "permanently rejected pre-contact and cannot be revived or reused"
+                f"{prefix} rejected_precontact requires the exact new successor "
+                "detached PASS receipt"
             )
-        elif ca_review_status != "passed_current_candidate" or ca_reviewed_at is None:
+    elif ca_review_status == "passed_precontact_rejection_successor":
+        errors.append(
+            f"{prefix} this exact approval, experiment, and message identity is "
+            "terminal rejected_precontact and cannot revert, revive, or be reused; "
+            "a redesign requires a new identity"
+        )
+    if stage in REQUEST_READY_OR_LATER_STAGES:
+        if ca_review_status != "passed_current_candidate" or ca_reviewed_at is None:
             errors.append(
                 f"{prefix} request_ready requires the current exact detached PASS receipt"
             )
@@ -3978,15 +4293,15 @@ def validate_approval_queue(
             errors.append(f"{prefix} missing_bindings contains duplicates")
         missing_set = set(missing)
 
-    if stage == "blocked_missing_bindings":
+    if stage in {"blocked_missing_bindings", "rejected_precontact"}:
         if missing_set != REQUIRED_CA_MISSING_BINDINGS:
             errors.append(f"{prefix} exact missing bindings changed")
         if item.get("sender_account") is not None:
-            errors.append(f"{prefix} blocked sender account must be null")
+            errors.append(f"{prefix} non-ready sender account must be null")
         if item.get("observation_cutoff_at") is not None:
-            errors.append(f"{prefix} blocked observation cutoff must be null")
+            errors.append(f"{prefix} non-ready observation cutoff must be null")
         if item.get("exact_user_authorization") is not False:
-            errors.append(f"{prefix} blocked exact user authorization must be false")
+            errors.append(f"{prefix} non-ready exact user authorization must be false")
         expected_flags = (False, False, False, False)
     else:
         if missing_set:
@@ -4035,7 +4350,7 @@ def validate_approval_queue(
         item.get("executable"),
         item.get("authorization_consumed"),
     )
-    if actual_flags != expected_flags:
+    if any(actual is not expected for actual, expected in zip(actual_flags, expected_flags)):
         errors.append(
             f"{prefix} flags do not match lifecycle stage; external stages default unreachable"
         )
