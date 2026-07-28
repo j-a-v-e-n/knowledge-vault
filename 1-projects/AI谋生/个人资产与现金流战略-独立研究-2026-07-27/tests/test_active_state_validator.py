@@ -77,8 +77,272 @@ class ActiveStateValidatorTests(unittest.TestCase):
         assert isinstance(record, dict)
         return record
 
-    def test_current_state_passes(self) -> None:
-        self.assertEqual([], self.errors_for(self.state))
+    def successor_candidate_bindings(self) -> list[dict[str, str]]:
+        receipt_parent = ROOT / "evidence"
+        return [
+            {
+                "path": os.path.relpath(path, start=receipt_parent),
+                "sha256": VALIDATOR.sha256_file(path),
+            }
+            for path in sorted(VALIDATOR.ca_precontact_successor_candidate_paths())
+        ]
+
+    def successor_review(self) -> dict:
+        return {
+            "schema_version": (
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION
+            ),
+            "review_id": VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID,
+            "recorded_at": "2026-07-28T00:05:00-07:00",
+            "reviewer_agent_identity": (
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY
+            ),
+            "reviewer_role": "independent_read_only_subagent",
+            "reviewer_modified_candidate": False,
+            "verdict": "PASS",
+            "severity_counts": copy.deepcopy(
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_SEVERITY_COUNTS
+            ),
+            "candidate_bindings": self.successor_candidate_bindings(),
+            "reviewed_properties": sorted(
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES
+            ),
+            "external_action_status": "REJECTED_PRECONTACT_TERMINAL_NO_AUTHORITY",
+            "missing_external_bindings": sorted(
+                VALIDATOR.REQUIRED_CA_MISSING_BINDINGS
+            ),
+            "claim_boundary": (
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_CLAIM_BOUNDARY
+            ),
+        }
+
+    def rejected_state(self, review: dict | None = None) -> dict:
+        review = copy.deepcopy(review or self.successor_review())
+        precursor_path = (
+            ROOT
+            / VALIDATOR.EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING["path"]
+        )
+        state = VALIDATOR.loads_json_strict(
+            precursor_path.read_text(encoding="utf-8")
+        )
+        assert isinstance(state, dict)
+        state["as_of"] = "2026-07-28T00:10:00-07:00"
+        state["freshness_policy"]["refresh_due_at"] = "2026-07-31T00:10:00-07:00"
+        opportunity = next(
+            stream
+            for stream in state["workstreams"]
+            if stream["id"] == "opportunity_to_transaction"
+        )
+        review_raw = json.dumps(
+            review, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+        opportunity["independent_reviews"]["ca012650_internal_candidate"] = {
+            "path": VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+                "ca012650_internal_candidate"
+            ],
+            "sha256": hashlib.sha256(review_raw).hexdigest(),
+            "verdict": "PASS",
+        }
+        opportunity["status"] = "active_internal"
+        opportunity["observed_facts"] = [
+            copy.deepcopy(VALIDATOR.EXPECTED_OPPORTUNITY_FIRST_FACT),
+            copy.deepcopy(
+                VALIDATOR.EXPECTED_OPPORTUNITY_REVIEW_FACTS[
+                    "passed_precontact_rejection_successor"
+                ]
+            ),
+            {
+                "claim_class": "observed",
+                "claim": VALIDATOR.EXPECTED_OPPORTUNITY_STAGE_FACT_CLAIMS[
+                    "rejected_precontact"
+                ],
+                "evidence_locator": (
+                    VALIDATOR.EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING[
+                        "path"
+                    ]
+                ),
+            },
+        ]
+        opportunity["unknowns"] = copy.deepcopy(
+            VALIDATOR.EXPECTED_OPPORTUNITY_UNKNOWNS
+        )
+        opportunity["next_action"] = copy.deepcopy(
+            VALIDATOR.EXPECTED_OPPORTUNITY_ACTIONS["rejected_precontact"]
+        )
+        opportunity["stop_conditions"] = copy.deepcopy(
+            VALIDATOR.EXPECTED_OPPORTUNITY_STOP_CONDITIONS
+        )
+        current = opportunity["current_experiment"]
+        current["internal_review_result"] = "FAIL_PRECONTACT_RECIPIENT_VALUE"
+        current["internal_review_scope"] = (
+            VALIDATOR.EXPECTED_CA_INTERNAL_REVIEW_SCOPES[
+                "passed_precontact_rejection_successor"
+            ]
+        )
+        current["external_action_status"] = "rejected_precontact"
+        current["external_contact_authorized"] = False
+        current["result_claims"] = {
+            key: False for key in VALIDATOR.REQUIRED_FALSE_EXPERIMENT_RESULTS
+        }
+        approval = state["approval_queue"][0]
+        approval.update(
+            {
+                "status": "rejected_precontact",
+                "authorized": False,
+                "ready": False,
+                "executable": False,
+                "authorization_consumed": False,
+                "sender_account": None,
+                "observation_cutoff_at": None,
+                "pre_send_source_refresh": {
+                    "status": "not_completed",
+                    "completed_at": None,
+                    "cec_status_record": None,
+                    "organization_channel_record": None,
+                },
+                "exact_user_authorization": False,
+                "missing_bindings": sorted(
+                    VALIDATOR.REQUIRED_CA_MISSING_BINDINGS
+                ),
+                "lifecycle": {
+                    "stage": "rejected_precontact",
+                    "previous_stage": "blocked_missing_bindings",
+                    "precontact_rejection_receipt": copy.deepcopy(
+                        VALIDATOR.EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING
+                    ),
+                    "readiness_receipt": None,
+                    "authorization_receipt": None,
+                    "execution_receipt": None,
+                    "observation_receipt": None,
+                    "closure_receipt": None,
+                },
+                "claim_boundary": (
+                    VALIDATOR.EXPECTED_CA_PRECONTACT_REJECTION_APPROVAL_CLAIM_BOUNDARY
+                ),
+            }
+        )
+        approval.pop("sender_profile_record", None)
+        return state
+
+    def errors_for_rejected_fixture(
+        self,
+        state: dict,
+        *,
+        review: dict | None = None,
+        now: datetime | None = None,
+    ) -> list[str]:
+        """Exercise the full state path with an in-memory exact future receipt.
+
+        Mutable 08 and the review itself are intentionally excluded from the r3
+        candidate to avoid a hash cycle.  Until the independent reviewer writes
+        the real receipt, this harness substitutes only that one absent file;
+        every candidate binding and all historical evidence are still validated
+        by production code against real bytes.
+        """
+
+        review = copy.deepcopy(review or self.successor_review())
+        review_path = ROOT / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+            "ca012650_internal_candidate"
+        ]
+        review_raw = json.dumps(
+            review, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+        review_sha = hashlib.sha256(review_raw).hexdigest()
+        original_verify = VALIDATOR.verify_bound_file
+        original_load = VALIDATOR.load_json
+        original_locator = VALIDATOR.validate_evidence_locator
+
+        def verify_override(binding: object, **kwargs: object) -> Path | None:
+            label = str(kwargs.get("label", ""))
+            if label == (
+                "opportunity independent reviews: "
+                "ca012650_internal_candidate"
+            ):
+                errors = kwargs["errors"]
+                assert isinstance(errors, list)
+                if not isinstance(binding, dict) or binding.get("path") != (
+                    VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+                        "ca012650_internal_candidate"
+                    ]
+                ):
+                    errors.append(f"{label}: synthetic review path changed")
+                elif binding.get("sha256") != review_sha:
+                    errors.append(f"{label}: sha256 mismatch")
+                return review_path
+            return original_verify(binding, **kwargs)
+
+        def load_override(path: Path, **kwargs: object) -> dict | None:
+            if path == review_path:
+                return copy.deepcopy(review)
+            return original_load(path, **kwargs)
+
+        def locator_override(locator: object, **kwargs: object) -> None:
+            if locator == VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+                "ca012650_internal_candidate"
+            ]:
+                return
+            original_locator(locator, **kwargs)
+
+        with mock.patch.object(
+            VALIDATOR, "verify_bound_file", side_effect=verify_override
+        ), mock.patch.object(
+            VALIDATOR, "load_json", side_effect=load_override
+        ), mock.patch.object(
+            VALIDATOR, "validate_evidence_locator", side_effect=locator_override
+        ):
+            return VALIDATOR.validate(
+                state,
+                now=now or datetime.fromisoformat("2026-07-28T00:11:00-07:00"),
+            )
+
+    def assert_rejected_detected(
+        self, state: dict, needle: str, *, review: dict | None = None
+    ) -> None:
+        errors = self.errors_for_rejected_fixture(state, review=review)
+        self.assertTrue(
+            any(needle in error for error in errors),
+            msg=f"expected {needle!r}; errors were: {errors}",
+        )
+
+    def test_live_state_is_exact_successor_or_fails_closed_as_predecessor(self) -> None:
+        errors = self.errors_for(self.state)
+        current_review = next(
+            stream
+            for stream in self.state["workstreams"]
+            if stream["id"] == "opportunity_to_transaction"
+        )["independent_reviews"]["ca012650_internal_candidate"]
+        if current_review.get("path") == VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+            "ca012650_internal_candidate"
+        ]:
+            self.assertEqual([], errors)
+        else:
+            self.assertTrue(
+                any(
+                    "historical r2 cannot review successor bytes" in error
+                    for error in errors
+                ),
+                errors,
+            )
+
+    def test_exact_synthetic_successor_and_rejected_state_pass(self) -> None:
+        review = self.successor_review()
+        state = self.rejected_state(review)
+        self.assertEqual([], self.errors_for_rejected_fixture(state, review=review))
+
+    def test_predecessor_snapshot_cannot_pass_as_current_successor(self) -> None:
+        path = ROOT / VALIDATOR.EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING[
+            "path"
+        ]
+        precursor = VALIDATOR.loads_json_strict(path.read_text(encoding="utf-8"))
+        assert isinstance(precursor, dict)
+        errors = VALIDATOR.validate(
+            precursor,
+            now=datetime.fromisoformat("2026-07-27T22:15:56-07:00"),
+        )
+        self.assertTrue(
+            any("historical r2 cannot review successor bytes" in error for error in errors),
+            errors,
+        )
 
     def test_closed_schema_rejects_unknown_and_missing_fields(self) -> None:
         with self.subTest("unknown top-level"):
@@ -711,7 +975,11 @@ class ActiveStateValidatorTests(unittest.TestCase):
             "active state is stale",
             now=due + timedelta(seconds=1),
         )
-        self.assertEqual([], self.errors_for(self.state, now=self.now))
+        fresh_errors = self.errors_for(self.state, now=self.now)
+        self.assertFalse(
+            any("active state is stale" in error for error in fresh_errors),
+            fresh_errors,
+        )
 
     def test_nonexistent_semicolon_evidence_locator_is_detected(self) -> None:
         state = copy.deepcopy(self.state)
@@ -1085,9 +1353,9 @@ class ActiveStateValidatorTests(unittest.TestCase):
         )
         for label, mutate, needle in mutations:
             with self.subTest(label):
-                state = copy.deepcopy(self.state)
+                state = self.rejected_state()
                 mutate(state)
-                self.assert_detected(state, needle)
+                self.assert_rejected_detected(state, needle)
 
     def test_raw_json_duplicate_keys_are_rejected_recursively(self) -> None:
         state_raw = STATE_PATH.read_text(encoding="utf-8")
@@ -1169,13 +1437,13 @@ class ActiveStateValidatorTests(unittest.TestCase):
         self.assert_detected(state, "sha256 mismatch")
 
     def test_illegal_lifecycle_transition_is_detected(self) -> None:
-        state = copy.deepcopy(self.state)
+        state = self.rejected_state()
         approval = state["approval_queue"][0]
         approval["status"] = "authorized_once"
         approval["lifecycle"]["stage"] = "authorized_once"
         approval["lifecycle"]["previous_stage"] = "blocked_missing_bindings"
-        self.assert_detected(state, "illegal or skipped transition")
-        self.assert_detected(state, "requires readiness_receipt")
+        self.assert_rejected_detected(state, "illegal or skipped transition")
+        self.assert_rejected_detected(state, "requires readiness_receipt")
 
 
 if __name__ == "__main__":

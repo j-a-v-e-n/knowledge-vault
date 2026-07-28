@@ -1,10 +1,19 @@
-# 机会到交易系统：不可变总体设计候选
+# 机会到交易系统：C8 successor 总体设计候选
 
-状态：`DESIGN-ONLY / RUN2-ATTEMPT-2-EXACT-ACCEPTED / C7-BLOCKED-PENDING-MANIFEST-BOUND-FINAL-REVIEW`
+状态：`DESIGN-ONLY / C7-DESIGN-CLOSED / C7-SHADOW-FAIL / C8-BLOCKED-PENDING-EXACT-FREEZE-AND-FINAL-REVIEW`
 
-本目录只承载“机会到交易系统”的研究与总体设计候选，不是 runtime，不包含真实市场、客户、外联、销售、付款、部署或生产 Harness 能力。
+本目录只承载“机会到交易系统”的 C8 successor 研究与总体设计候选，不是 runtime，不包含真实市场、客户、外联、销售、付款、部署或 production Harness 能力。
 
-它与旧目录 [`../机会到交易系统/`](../机会到交易系统/) 分开，原因不是把旧工作删除，而是旧 `schema 0.1` CLI、测试和餐馆 Pilot 仍可能由其他任务修改；把那些可变字节继续放进设计候选 inventory，会让一次无关实现改动使设计终审身份失效。旧目录因此保持 `LEGACY_UNQUALIFIED`，既不被当前候选复用，也不被当前候选回滚。
+C7 原件、限定治理链和失败 Shadow 均保持原样：
+
+- [C7 设计候选](../../机会到交易系统-总体设计候选/)
+- [C7 治理闭合记录](../../机会到交易系统-闭合记录/)
+- [C7 失败 Shadow 快照](../../机会到交易系统-shadow-mvp/)
+- [外部旧实现根](../../机会到交易系统/)
+
+C7 的 exact design review 本身通过，且 governance Gate 正确只授权本地零外部副作用 Shadow。但第一份 Shadow 的独立实现审查发现：C7 closed IR 只是安全的 transport/sealer，不能机械验证领域 record、两条 lane 隔离、contamination、rights、legacy、staleness 和未执行实验状态。因此该 Shadow 保持 `PRESENT_SNAPSHOT_OBSERVED_UNREVIEWED`，没有 shadow-review receipt/root，不得追认 PASS。
+
+C8 的根因修订是：在仍然不能表达网络、账户、脚本或任意代码的 closed IR 中，加入窄而闭合的 OpportunityRecord 领域验证器；验收协议同时绑定“应当 PASS 的 exact output”与“应当 REJECT 的 exact error code”，使污染、权利变化、旧 schema、失效父节点和已执行实验不再依赖 fixture 自述。
 
 当前阅读顺序：
 
@@ -13,10 +22,8 @@
 3. [`研究/2026-07-27-总体设计/02-主张与证据地图.md`](./研究/2026-07-27-总体设计/02-主张与证据地图.md)
 4. [`研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md`](./研究/2026-07-27-总体设计/03-机会到交易系统-总体设计.md)
 5. [`研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md`](./研究/2026-07-27-总体设计/RUN2_CLAIM_EVIDENCE_CROSSWALK.md)
-6. [`研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md`](./研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md)
-7. [`研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md`](./研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md)
-8. [`研究/2026-07-27-总体设计/C6_SANDBOX_PROBE_REPORT.md`](./研究/2026-07-27-总体设计/C6_SANDBOX_PROBE_REPORT.md)
+6. [`研究/2026-07-27-总体设计/C7_SHADOW_FAILURE_RECORD.md`](./研究/2026-07-27-总体设计/C7_SHADOW_FAILURE_RECORD.md)
+7. [`研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md`](./研究/2026-07-27-总体设计/RESEARCH_CLOSURE_PREDICATE_MATRIX.md)
+8. [`研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md`](./研究/2026-07-27-总体设计/FINAL_REVIEW_HISTORY.md)
 
-Run2 remediation attempt 2 已取得两份绑定 exact bytes 的独立接受，但它只关闭冻结协议内的类别代码本谓词。C6 exact candidate/freeze 的完整终审因两条 load-bearing 语义桥错误而 `FAIL`；其后的 attempt 1 又被逐条审查拒绝，全部失败身份与修订保留在审查历史中。Declarative Gate iteration B 的真实 host-required suite 与 exact-byte 代码/接口复审仍通过且无 Critical/Major，但该局部 PASS 不能替代 C7 manifest/freeze 与 RC-26 独立终审；总体仍为 `BLOCKED-PENDING-C7-MANIFEST-BOUND-INDEPENDENT-REVIEW`，没有 governance 或 shadow authority。
-
-后续 shadow 不再运行 target-controlled Python。它只允许 canonical data/text 与 exact closed declarative IR；唯一解释器固定在设计候选中，并对 read-once snapshot、私有临时 CAS、资源上限和当前主机的隔离探针出具分层证据。只有 exact C7 manifest 的机械冻结、全量 manifest-bound independent review 和后闭合 governance chain 均通过后，才允许依次创建 `机会到交易系统-shadow-mvp/` 与独立的 `机会到交易系统-shadow-review/`。即使全部通过，也只接受本地合成 fixture 的声明式能力候选，全部现实行动权限仍为 false。
+只有 C8 exact manifest/freeze、全量 manifest-bound independent review 与新 governance chain 均通过后，才可在本 C8 container 内创建新的 `机会到交易系统-shadow-mvp/` 和 `机会到交易系统-shadow-review/`。即使最终通过，也只接受本地合成 fixture 的声明式能力候选，全部现实行动权限仍为 false。

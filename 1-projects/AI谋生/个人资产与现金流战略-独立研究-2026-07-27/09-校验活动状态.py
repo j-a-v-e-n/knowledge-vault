@@ -2753,7 +2753,10 @@ def validate_ca_precontact_successor_receipt_contract(
     )
 
     def bound(relative: str) -> dict | None:
-        return binding_by_path.get((RESEARCH_ROOT / relative).resolve())
+        candidate = binding_by_path.get((RESEARCH_ROOT / relative).resolve())
+        if not isinstance(candidate, dict):
+            return None
+        return {"path": relative, "sha256": candidate.get("sha256")}
 
     recipient_at = validate_ca_recipient_value_review(
         bound(EXPECTED_CA_RECIPIENT_VALUE_REVIEW_BINDING["path"]),

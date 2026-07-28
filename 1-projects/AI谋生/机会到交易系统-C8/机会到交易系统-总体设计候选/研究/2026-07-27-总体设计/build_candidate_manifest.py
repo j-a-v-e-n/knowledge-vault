@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the canonical C7 candidate manifest from an explicit closed inventory.
+"""Build the canonical C8 candidate manifest from an explicit closed inventory.
 
 The builder is intentionally not a discovery tool.  Every admissible path,
 role, authority status and dependency is declared below.  An unexpected file,
@@ -91,6 +91,7 @@ CAPABILITY_POLICY = f"{RESEARCH}/SHADOW_CAPABILITY_POLICY.json"
 SHADOW_ACCEPTANCE_RUNNER = f"{RESEARCH}/run_shadow_acceptance.py"
 SHADOW_ACCEPTANCE_TEST = f"{RESEARCH}/test_shadow_acceptance.py"
 SANDBOX_PROBE_REPORT = f"{RESEARCH}/C6_SANDBOX_PROBE_REPORT.md"
+C7_SHADOW_FAILURE = f"{RESEARCH}/C7_SHADOW_FAILURE_RECORD.md"
 
 
 SPECS: dict[str, dict[str, Any]] = {
@@ -125,6 +126,12 @@ SPECS: dict[str, dict[str, Any]] = {
     f"{RESEARCH}/FINAL_REVIEW_HISTORY.md": spec(
         "immutable predecessor rejection and remediation history",
         "HISTORY_ONLY_NO_SUCCESSOR_APPROVAL",
+        C7_SHADOW_FAILURE,
+    ),
+    C7_SHADOW_FAILURE: spec(
+        "exact C7 post-closure shadow rejection and successor repair boundary",
+        "HISTORY_ONLY_NO_SUCCESSOR_APPROVAL",
+        ENVELOPE,
     ),
     f"{RESEARCH}/verify_run2_crosswalk.py": spec(
         "independent reconstruction verifier for every final CE-IN row",

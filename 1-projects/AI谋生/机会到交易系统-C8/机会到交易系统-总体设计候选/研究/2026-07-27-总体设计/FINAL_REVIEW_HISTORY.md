@@ -283,3 +283,30 @@ Minor：`RESEARCH_CLOSURE_PREDICATE_MATRIX.md` 仍用“manifest/freeze 待生�
 两名 reviewer 均未参与 attempt 2 的修订、未修改文件、未创建 receipt/root；两者都审过 earlier rejected bytes，因此独立于 authorship/remediation，但不是 blind。Reviewer A 重新审查全部 `23` 条 direct rows、三条 no-direct identity、sealed inputs 与 final-status bindings；Reviewer B 重查前轮全部拒绝项、相邻有效窄桥、拒绝集和负向路径。两份审查都明确接受 `S2-K06/R05 → TF-04` 的形式模型窄桥，并确认全部已否决 identity/Claim 关系没有回流。
 
 本 acceptance 只允许在 SSP-1.0 声明的 scope、engine、frozen queries、visible results 与 review rules 内表述两轮未产生扩展 `K01`–`K13` 的新关键类别。它不接受来源真值、开放世界穷尽、总体设计、candidate closure、实现、shadow、Pilot、商机、盈利或外部动作。Canonical receipt 是 lead 对 reviewer 本地声明的机械物化，不是 reviewer 数字签名或 trusted timestamp；任何绑定字节变化都使其失效。只有 C7 manifest 精确绑定 receipt 且通过完整 RC-26 review 后，该限定状态才可作为 candidate evidence 使用。
+
+## `OTTS-DESIGN-20260727-C7` exact final review PASS 与限定治理闭合
+
+- Candidate manifest SHA-256：`6515fe17eed7537745b7094ef597321ca30956e57b3306b77570c02a8b9402fd`
+- Inventory digest：`975f18b605b10c73329de1e5f6491e1b39f5f78edea2f55b8018590c9240b5b6`
+- External freeze report SHA-256：`47cf8fb0faf0e5df4f5c600dc45806944d85bd0bc7fab8a1c258ac49a7eb95c1`
+- Full reviewer：`/root/independent_review/fresh_c2_final_review`；`PASS / Critical 0 / Major 0 / Minor 0`
+- Supplemental reviewer：`/root/declarative_gate_code_review`；`SUPPLEMENTAL PASS / Critical 0 / Major 0 / Minor 1`
+- Full reviewer 在真实 host context 亲自重跑强制 sandbox suite：`Ran 18 tests in 2.603s / OK / 0 skip`
+- Governance review receipt SHA-256：`6fd76ca8bdbdba0c73264afb2ecf4df9da21dd9c690901dc7fc6c153167f9fc9`
+- Closure decision SHA-256：`3dfc477fcdc2375e4dd5b6c13e5bd0b9b303bf0949bf7ed25b538bbb631afd72`
+- Governance manifest SHA-256：`8e5b7fd056f7c07d466e2ead03809ab4de093d46dd52d19471aeff5fde024f1d`
+
+Full reviewer 以 exact manifest/freeze 检查 RC-01–RC-26、全部 active originals、Run2 semantic remediation、Gate/interface、legacy quarantine 和权限 nonclaims，未修改文件，未自行创建 receipt/root。Supplemental Minor 只是 Run2 receipt residual 仍沿用历史字样 `overall C4/design closure`；exact C7 scope 与全部 authority=false 绑定阻止它扩张权限。
+
+Lead 在收到实际 full PASS 后才物化 governance root。Aggregate Gate 在 caller-supplied exact decision hash 下返回 `valid=true / closure_chain_valid=true / governance_root_valid=true / shadow_state=ABSENT_AUTHORIZED`，同时 capability/runtime/deployment/freeze/external-action authority 全为 false。这只允许开始本地零外部副作用 Shadow，不接受任何实现或现实商业结论。
+
+## C7 post-closure Shadow v1 exact implementation review FAIL
+
+- Shadow manifest SHA-256：`571d5fbe5e7cae7acea8ff2041c1e650d1569fb93720981a64e650a207ff6c63`
+- Reviewer：`/root/declarative_gate_code_review`；只读，未参与该 Shadow 实现
+- Verdict：`FAIL / NO-GO / Critical 0 / Major 4 / Minor 0`
+- Exact inventory：`8` listed / `8` actual；canonical JSON、hash/DAG、sandbox、CAS、snapshot、SBOM 与 reports 机械通过
+- Aggregate state：`PRESENT_SNAPSHOT_OBSERVED_UNREVIEWED`；`shadow_generation_valid=false`；`local_shadow_candidate_accepted=false`
+- Shadow-review receipt/root：未生成
+
+四个 Major 的原件、对抗复现和修复边界记于 `C7_SHADOW_FAILURE_RECORD.md`。根因不是主机 sandbox 失效，而是 C7 closed IR 只是 transport/sealer：它不能机械验证领域 record、lane isolation、contamination、rights、legacy、staleness 或 experiment state，也没有拒绝型 acceptance cases。因此 C7 exact candidate、governance 和失败 Shadow 保持原样；修复必须进入 C8 successor 并重新走 freeze/review/governance，不得热修 C7 或追认 PASS。
