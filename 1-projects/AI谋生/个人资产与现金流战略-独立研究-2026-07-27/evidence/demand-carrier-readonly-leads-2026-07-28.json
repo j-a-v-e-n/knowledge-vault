@@ -116,6 +116,35 @@
         "No raw page bytes or full screenshot are persisted."
       ],
       "application_ready": false
+    },
+    {
+      "lead_id": "meridial-college-student-network-general",
+      "source_url": "https://www.meridial.ai/students",
+      "supporting_faq_url": "https://www.meridial.ai/faq",
+      "supporting_process_url": "https://www.meridial.ai/what-to-expect",
+      "public_page_observations": {
+        "audience": "College students & recent grads",
+        "advertised_work": "Evaluate search results for a large-scale AI project.",
+        "stated_pay_range": "from $15 to $20/hour",
+        "relationship": "independent contractor",
+        "stated_hour_commitment": "There are no minimum or maximum hour requirements.",
+        "stated_process": [
+          "Express Interest",
+          "Aptitude Verification",
+          "Workflow Evaluation",
+          "Profile Activation"
+        ],
+        "identity_verification_required": true,
+        "project_invitation_can_be_accepted_or_declined": true
+      },
+      "why_it_is_a_demand_carrier": "The official platform page expressly targets students and recent graduates with paid AI-evaluation work, while the official FAQ states that fees are disclosed per invitation.",
+      "unverified_or_blocking": [
+        "The official FAQ says joining the network does not guarantee project engagements and that availability varies with client demand, specialization, and language needs.",
+        "There is no exact current project, client, assigned-hours promise, final fee, contract, or payment schedule bound to this general network page.",
+        "Expressing interest, creating a profile, identity verification, and accepting privacy or contractor terms are external account and personal-data actions that are not authorized.",
+        "No raw page bytes or full screenshot are persisted."
+      ],
+      "application_ready": false
     }
   ],
   "privacy_and_account_risk_observation": {

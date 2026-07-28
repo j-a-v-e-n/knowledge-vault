@@ -1,0 +1,120 @@
+{
+  "schema_version": "investment-current-state-read-only-audit/1",
+  "audit_id": "investment-current-state-audit-2026-07-28",
+  "captured_at": "2026-07-28T00:24:12-07:00",
+  "recorded_by": "/root",
+  "read_only_mapper_identity": "/root/investment_current_state_map",
+  "mapper_modified_files": false,
+  "scope": "Current filesystem and Git identity audit only. No recovery, integration, runtime start, live or shadow action, broker or account access, credential use, risk-rule change, or investment decision was performed or authorized.",
+  "authoritative_project": {
+    "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/MyBrain/projects/investment-discipline-system",
+    "path_kind": "ordinary_directory_inside_vault_git_root",
+    "git_root": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库",
+    "branch": "codex/investment-assurance-r7",
+    "captured_vault_head": "dc9a41989825b7324774f82a0977c5a221fedc9b",
+    "captured_vault_tree": "11f37dd9e7e31dccf9ec4f8f53c2654cdb571d5e",
+    "project_subtree": "a62b824a15b9cbf86787d83671cdc2bd4aa16dd4",
+    "baseline_commit": "d8c108f81f84f4c5be99fe09902ace161bda5745",
+    "baseline_project_subtree": "a62b824a15b9cbf86787d83671cdc2bd4aa16dd4",
+    "project_subtree_matches_baseline": true,
+    "project_path_worktree_clean": true,
+    "vault_outside_project_has_parallel_changes": true,
+    "remote_ref_freshness": "NOT_REFRESHED_NETWORK_READ_NOT_PERFORMED"
+  },
+  "authoritative_state": {
+    "source_path": "../../../MyBrain/projects/investment-discipline-system/STATUS.md",
+    "next_action": "ACT-METHOD-RUNTIME-FOUNDATION",
+    "next_packet": "WP-METHOD-RUNTIME-FOUNDATION",
+    "phase": "design_freeze",
+    "state": "blocked",
+    "blocking_gate_ids": [
+      "GATE-DESIGN-FREEZE-OPEN-FINDINGS",
+      "GATE-DESIGN-FREEZE-AUTHORITY-MISSING"
+    ],
+    "review_h_path": "../../../MyBrain/projects/investment-discipline-system/audits/execution_loop_v2/EXECUTION_LOOP_V2_REVIEW_H_2026-07-26.md",
+    "review_h_verdict": "BLOCKED",
+    "review_h_claim_limit": "Foundation acceptance, design freeze, project completion, product quality, usability, strategy edge, and investment effectiveness are not established."
+  },
+  "persisted_fed7_candidate": {
+    "source_audit_path": "investment-candidate-audit-2026-07-27.json",
+    "source_audit_sha256": "9e3de7267dfe1b90fd0d331fe0d0b4bc5e956b29d002401a16e6097e2c747e09",
+    "commit": "fed7d6694dc1b47490848b83e3ff0b56e04a3f39",
+    "tree": "2da5f0af186345da05738f971cb8afbdb6dac8db",
+    "parent": "d8c108f81f84f4c5be99fe09902ace161bda5745",
+    "project_subtree": "77edce348cb622fe40d598902ac898c981514808",
+    "overall_acceptance": "blocked_internal",
+    "full_suite_log_path": "investment-fed7-full-governance-suite-2026-07-27.log",
+    "full_suite_log_sha256": "02332c7c1cae91ead41df9d00976048c7e697b5bc9ddabe92413a143046a8c16",
+    "verbatim_full_suite_summary": [
+      "Ran 532 tests in 862.542s",
+      "FAILED (failures=40, errors=2)"
+    ],
+    "root_cause_review_path": "review-investment-fed7-root-causes-2026-07-27.json",
+    "root_cause_review_sha256": "c5ccf9a10b4c993f052a984a6f1c03e2c18a742e178b8e8d174ac8cd55c65d1f",
+    "persisted_suite_review_path": "review-investment-fed7-persisted-suite-2026-07-27.json",
+    "persisted_suite_review_sha256": "505b4b0baf6b55ba0eedd6980d8ae1090a88975cb5ef2e47945f0694eb7e7956",
+    "current_authoritative_project_is_fed7": false
+  },
+  "b19_candidate": {
+    "path": "/private/tmp/ids-recovery-r4-gate.dXPtYP/repo",
+    "branch": "codex/thin-foundation-recovery-r4-candidate",
+    "commit": "b19ab03c6e6e30e54d6da5571733f981dfe7896a",
+    "tree": "b438a08d8b6630ca7a39b3fdf054b7fded6b583e",
+    "parent": "d8c108f81f84f4c5be99fe09902ace161bda5745",
+    "project_subtree": "d2d385ed394e3534b97837f5ce3d2875854e3e29",
+    "relationship_to_fed7": "SIBLING_DIRECT_CHILD_OF_SAME_BASELINE_NOT_DESCENDANT",
+    "verdict": "no_go_open_critical_or_major",
+    "integrated_into_authoritative_project": false,
+    "durable_no_go_snapshot_path": "investment-b19-no-go-summary-c5ac07c4.snapshot",
+    "durable_no_go_snapshot_sha256": "c5ac07c4ee16d2e5c19954fb1d20a9985dd17a0f38be7831c7fde9dcdecdfd52",
+    "open_surfaces": [
+      "Historical predecessor bytes are not independently anchored to frozen baseline Git objects.",
+      "Completed operation and transaction archives are optional or incompletely cross-bound, allowing deletion or semantic mutation to remain valid.",
+      "Production-entrypoint negative tests do not cover coherent archive-plus-manifest rewriting, archive deletion, and unchecked archived semantic fields."
+    ]
+  },
+  "r5_work_in_progress": {
+    "path": "/private/tmp/ids-recovery-r4-review.BYwzIK/repo",
+    "branch": "codex/thin-foundation-recovery-r5-work",
+    "head": "b19ab03c6e6e30e54d6da5571733f981dfe7896a",
+    "head_tree": "b438a08d8b6630ca7a39b3fdf054b7fded6b583e",
+    "head_project_subtree": "d2d385ed394e3534b97837f5ce3d2875854e3e29",
+    "new_r5_candidate_identity_exists": false,
+    "worktree_dirty": true,
+    "active_parallel_owner": true,
+    "do_not_edit_clean_commit_or_duplicate": true,
+    "checkpoint_ref": "refs/ids/runtime-archive-checkpoints/v1",
+    "checkpoint_ref_present_at_capture": false,
+    "durable_pre_review_contract_artifact_path": "investment-r5-remediation-acceptance-d5a835d2.b64",
+    "durable_pre_review_contract_artifact_sha256": "592ff9ba4facfd5c20cabec286064b2469d934345f02c2277ffec8a692026dfc",
+    "durable_pre_review_contract_encoding": "base64_with_surrounding_ascii_whitespace_stripped_before_strict_decode",
+    "durable_pre_review_contract_decoded_sha256": "d5a835d27338ccc2e20bb812575bfeada9fde1017d294c4213fccd305de2ecbc",
+    "current_evidence_location_limit": "The in-progress code and full review records remain in a dirty temporary worktree and are not authoritative or accepted. Only the two exact source snapshots named above were persisted into this project."
+  },
+  "next_meaningful_local_sequence": [
+    "Let the existing R5 owner finish the fixed remediation; do not concurrently edit or clean that worktree.",
+    "Preserve b19 NO-GO and R5 pre-review evidence before producing a new candidate identity.",
+    "Freeze completed R5 as a new commit, tree, and project subtree; b19 cannot stand in for R5.",
+    "Prove the external content-addressed archive-checkpoint chain and compare-and-swap behavior required by the pre-review contract.",
+    "Use a faithful clean clone to run production verifiers and the complete serial governance suite while preserving full raw output.",
+    "Require a fresh candidate-bound independent review before any integration into the authoritative project."
+  ],
+  "result_claims": {
+    "authoritative_project_recovered": false,
+    "r5_candidate_frozen": false,
+    "runtime_active": false,
+    "shadow_active": false,
+    "live_active": false,
+    "broker_or_account_connected": false,
+    "investment_return_established": false,
+    "integration_authorized": false
+  },
+  "safety_boundary": {
+    "paper_only": true,
+    "human_final": true,
+    "live_or_shadow_execution_authorized": false,
+    "broker_account_credential_or_funds_use_authorized": false,
+    "investment_risk_rule_change_authorized": false
+  },
+  "claim_boundary": "This record establishes only the current blocked identities and the existence of an in-progress isolated R5 remediation. It does not establish recovery, acceptance, runtime operation, product completion, investment safety, strategy edge, returns, or authority for integration, shadow/live execution, broker or account use, credentials, funds, or risk-rule changes."
+}

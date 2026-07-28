@@ -81,7 +81,8 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 IDENTIFIER_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
 TYPED_ID_RE = re.compile(
     r"^(CandidateManifest|OpportunityRecord|ObservationSamplingPlan|"
-    r"AcquisitionRecord|RightsRecord|SealedLaneOutput|Lane|Canary|"
+    r"SamplingPlanFreezeReceipt|AcquisitionRecord|RightsRecord|"
+    r"SealedLaneOutput|Lane|LaneEpoch|Canary|ObservationClaim|"
     r"ContaminationEvent|NeedHypothesis|ExperimentSpec|EvalSpec):"
     r"[a-z0-9][a-z0-9._-]{0,63}$"
 )
@@ -192,6 +193,7 @@ DOMAIN_REJECTION_CODES = frozenset({
     "LEGACY_SCHEMA_QUARANTINED",
     "OBSERVATION_EVIDENCE_CLASSIFICATION_INVALID",
     "OBSERVATION_NOT_PRESEALED",
+    "OBSERVATION_SOURCE_BINDING_MISMATCH",
     "PARENT_BINDING_MISMATCH",
     "PARENT_DANGLING",
     "PARENT_HASH_MISMATCH",
@@ -647,26 +649,571 @@ def validate_program(program: dict[str, Any], policy: dict[str, Any]) -> dict[st
     }
 
 
-def _pointer(value: Any, pointer: str) -> Any:
-    current = value
-    if pointer == "":
-        return current
-    for raw in pointer.split("/")[1:]:
-        token = raw.replace("~1", "/").replace("~0", "~")
+OPPORTUNITY_RECORD_KEYS = {
+    "schema_version", "record_type", "record_id", "record_state",
+    "parent_context", "sampling_plan", "sampling_freeze_receipt",
+    "acquisition_record", "rights_record", "first_principles_lane",
+    "observation_lane", "contamination_event", "need_hypothesis",
+    "experiment_spec", "eval_spec", "authority",
+}
+PARENT_CONTEXT_KEYS = {"candidate_id", "candidate_sha256", "state"}
+PARENT_BINDING_KEYS = {"parent_id", "parent_sha256", "required_state"}
+COMMON_RECORD_KEYS = {
+    "schema_version", "record_type", "record_id", "state", "parent_bindings",
+}
+SAMPLING_PLAN_KEYS = COMMON_RECORD_KEYS | {
+    "sampling_purpose", "frozen_before_observation", "plan_sequence",
+    "source_universe", "selection_rule", "inclusion_rule", "exclusion_rule",
+    "negative_sample_rule", "stopping_rule",
+}
+SAMPLING_FREEZE_KEYS = COMMON_RECORD_KEYS | {
+    "status", "sequence", "plan_sha256",
+}
+ACQUISITION_KEYS = COMMON_RECORD_KEYS | {
+    "sequence", "mode", "observed_after_sampling_freeze",
+    "account_or_login_used", "external_retrieval_performed",
+}
+RIGHTS_KEYS = COMMON_RECORD_KEYS | {
+    "status", "contains_personal_data", "account_or_login_used",
+    "external_retrieval_performed",
+}
+FIRST_PRINCIPLES_LANE_KEYS = COMMON_RECORD_KEYS | {
+    "lane_id", "lane_epoch_id", "lane_role", "seal_sequence",
+    "sealed_before_observation", "canary_id", "canary_token",
+    "contamination_detected", "content_classification", "principles",
+    "assumptions",
+}
+OBSERVATION_LANE_KEYS = COMMON_RECORD_KEYS | {
+    "lane_id", "lane_epoch_id", "lane_role", "seal_sequence",
+    "sealed_before_cross_lane_merge", "canary_id", "canary_token",
+    "contamination_detected", "source_kind", "source_payload",
+    "source_payload_sha256", "evidence_classification", "observations",
+    "signal_taxonomy",
+}
+OBSERVATION_CLAIM_KEYS = {
+    "claim_id", "source_start", "source_end", "source_text", "span_sha256",
+    "evidence_class",
+}
+SIGNAL_TAXONOMY_KEYS = {
+    "schema_version", "primary_class", "explicit_request_status",
+    "behavior_observation_status", "extraction_basis",
+    "extraction_uncertainty", "natural_language_inference_performed",
+    "source_payload_sha256", "source_span_ids",
+}
+CONTAMINATION_EVENT_KEYS = COMMON_RECORD_KEYS | {
+    "status", "detected", "detected_canary_ids", "assessment_sequence",
+}
+NEED_HYPOTHESIS_KEYS = COMMON_RECORD_KEYS | {
+    "status", "merge_sequence", "candidate_buyer_class", "job_to_be_done",
+    "statement", "competing_explanations", "applicability_scope",
+    "weakest_assumption", "supporting_observation_claim_ids",
+}
+EXPERIMENT_SPEC_KEYS = COMMON_RECORD_KEYS | {
+    "status", "requires_new_explicit_authorization", "draft_method",
+    "success_signal", "failure_signal", "forbidden_capabilities",
+    "external_action_authority",
+}
+EVAL_SPEC_KEYS = COMMON_RECORD_KEYS | {
+    "status", "fixture_type", "oracle_kind", "model_binding_sha256",
+    "harness_binding_sha256", "human_baseline", "cost_record",
+    "external_action_authority",
+}
+AUTHORITY_KEYS = {
+    "market_authority", "customer_authority", "demand_proof",
+    "pricing_authority", "payment_authority", "deployment_authority",
+    "external_action_authority",
+}
+
+
+def _domain_object(value: Any, keys: set[str]) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    if set(value) != keys:
+        raise DomainRejection("DOMAIN_SCHEMA_KEY_MISMATCH")
+    return value
+
+
+def _domain_string(value: Any) -> str:
+    if not isinstance(value, str) or not value:
+        raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    return value
+
+
+def _domain_positive_int(value: Any) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+        raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    return value
+
+
+def _domain_string_list(
+    value: Any, *, allow_empty: bool = False,
+) -> list[str]:
+    if (
+        not isinstance(value, list)
+        or (not allow_empty and not value)
+        or any(not isinstance(item, str) or not item for item in value)
+        or len(value) != len(set(value))
+    ):
+        raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    return value
+
+
+def _domain_typed_id_syntax(value: Any, expected_type: str) -> str:
+    if not isinstance(value, str) or not TYPED_ID_RE.fullmatch(value):
+        raise DomainRejection("TYPED_ID_INVALID")
+    if value.split(":", 1)[0] != expected_type:
+        raise DomainRejection("TYPED_ID_TYPE_MISMATCH")
+    return value
+
+
+def _domain_register_id(
+    value: Any, expected_type: str, seen: set[str],
+) -> str:
+    typed_id = _domain_typed_id_syntax(value, expected_type)
+    if typed_id in seen:
+        raise DomainRejection("TYPED_ID_COLLISION")
+    seen.add(typed_id)
+    return typed_id
+
+
+def _domain_require_state(value: Any, *, root: bool = False) -> None:
+    if value == "CURRENT":
+        return
+    if value == "STALE":
+        raise DomainRejection("DOMAIN_RECORD_STALE" if root else "PARENT_STALE")
+    if value == "INVALID":
+        raise DomainRejection("DOMAIN_RECORD_INVALID" if root else "PARENT_INVALID")
+    raise DomainRejection("DOMAIN_RECORD_INVALID")
+
+
+def _domain_common_record(
+    value: Any, *, keys: set[str], schema: str, record_type: str,
+    seen: set[str],
+) -> dict[str, Any]:
+    record = _domain_object(value, keys)
+    if record["schema_version"] != schema or record["record_type"] != record_type:
+        raise DomainRejection("DOMAIN_SCHEMA_MISMATCH")
+    _domain_register_id(record["record_id"], record_type, seen)
+    _domain_require_state(record["state"])
+    if not isinstance(record["parent_bindings"], list):
+        raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    return record
+
+
+def _domain_contains_scalar(value: Any, target: str) -> bool:
+    stack = [value]
+    while stack:
+        current = stack.pop()
+        if current == target:
+            return True
         if isinstance(current, dict):
-            if token not in current:
-                raise CapabilityError(f"JSON_POINTER missing object key {token!r}")
-            current = current[token]
+            stack.extend(current.keys())
+            stack.extend(current.values())
         elif isinstance(current, list):
-            if not re.fullmatch(r"0|[1-9][0-9]*", token):
-                raise CapabilityError("JSON_POINTER list index invalid")
-            index = int(token)
-            if index >= len(current):
-                raise CapabilityError("JSON_POINTER list index out of range")
-            current = current[index]
-        else:
-            raise CapabilityError("JSON_POINTER traverses scalar")
-    return current
+            stack.extend(current)
+    return False
+
+
+def _domain_validate_parent_bindings(
+    child: dict[str, Any], expected_parents: list[dict[str, Any]],
+    all_records: Mapping[str, dict[str, Any]],
+) -> None:
+    bindings = child["parent_bindings"]
+    expected_ids = [parent["record_id"] for parent in expected_parents]
+    if len(bindings) != len(expected_ids):
+        raise DomainRejection("PARENT_BINDING_MISMATCH")
+    actual_ids: list[str] = []
+    for binding in bindings:
+        row = _domain_object(binding, PARENT_BINDING_KEYS)
+        parent_id = _domain_string(row["parent_id"])
+        if parent_id not in all_records:
+            raise DomainRejection("PARENT_DANGLING")
+        actual_ids.append(parent_id)
+        if row["required_state"] != "CURRENT":
+            raise DomainRejection("PARENT_BINDING_MISMATCH")
+        parent = all_records[parent_id]
+        _domain_require_state(parent["state"])
+        if (
+            not isinstance(row["parent_sha256"], str)
+            or not SHA256_RE.fullmatch(row["parent_sha256"])
+            or row["parent_sha256"] != sha256_json(parent)
+        ):
+            raise DomainRejection("PARENT_HASH_MISMATCH")
+    if actual_ids != expected_ids or len(actual_ids) != len(set(actual_ids)):
+        raise DomainRejection("PARENT_BINDING_MISMATCH")
+
+
+def validate_opportunity_record(
+    value: Any, expected_parent_candidate_sha256: Optional[str] = None,
+) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    schema_version = value.get("schema_version")
+    if schema_version in {"0.1", "otts.opportunity-record/0.1"}:
+        raise DomainRejection("LEGACY_SCHEMA_QUARANTINED")
+    record = _domain_object(value, OPPORTUNITY_RECORD_KEYS)
+    if (
+        record["schema_version"] != "otts.opportunity-record/1"
+        or record["record_type"] != "OpportunityRecord"
+    ):
+        raise DomainRejection("DOMAIN_SCHEMA_MISMATCH")
+    seen_ids: set[str] = set()
+    _domain_register_id(record["record_id"], "OpportunityRecord", seen_ids)
+    _domain_require_state(record["record_state"], root=True)
+
+    parent_context = _domain_object(record["parent_context"], PARENT_CONTEXT_KEYS)
+    _domain_register_id(parent_context["candidate_id"], "CandidateManifest", seen_ids)
+    candidate_sha256 = parent_context["candidate_sha256"]
+    if not isinstance(candidate_sha256, str) or not SHA256_RE.fullmatch(candidate_sha256):
+        raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    _domain_require_state(parent_context["state"])
+    if (
+        expected_parent_candidate_sha256 is not None
+        and candidate_sha256 != expected_parent_candidate_sha256
+    ):
+        raise DomainRejection("PARENT_HASH_MISMATCH")
+
+    sampling_plan = _domain_common_record(
+        record["sampling_plan"], keys=SAMPLING_PLAN_KEYS,
+        schema="otts.observation-sampling-plan/1",
+        record_type="ObservationSamplingPlan", seen=seen_ids,
+    )
+    sampling_freeze = _domain_common_record(
+        record["sampling_freeze_receipt"], keys=SAMPLING_FREEZE_KEYS,
+        schema="otts.sampling-plan-freeze-receipt/1",
+        record_type="SamplingPlanFreezeReceipt", seen=seen_ids,
+    )
+    acquisition = _domain_common_record(
+        record["acquisition_record"], keys=ACQUISITION_KEYS,
+        schema="otts.acquisition-record/1", record_type="AcquisitionRecord",
+        seen=seen_ids,
+    )
+    rights = _domain_common_record(
+        record["rights_record"], keys=RIGHTS_KEYS,
+        schema="otts.rights-record/1", record_type="RightsRecord",
+        seen=seen_ids,
+    )
+    first_lane = _domain_common_record(
+        record["first_principles_lane"], keys=FIRST_PRINCIPLES_LANE_KEYS,
+        schema="otts.sealed-lane-output/1", record_type="SealedLaneOutput",
+        seen=seen_ids,
+    )
+    observation_lane = _domain_common_record(
+        record["observation_lane"], keys=OBSERVATION_LANE_KEYS,
+        schema="otts.sealed-lane-output/1", record_type="SealedLaneOutput",
+        seen=seen_ids,
+    )
+    contamination = _domain_common_record(
+        record["contamination_event"], keys=CONTAMINATION_EVENT_KEYS,
+        schema="otts.contamination-event/1", record_type="ContaminationEvent",
+        seen=seen_ids,
+    )
+    hypothesis = _domain_common_record(
+        record["need_hypothesis"], keys=NEED_HYPOTHESIS_KEYS,
+        schema="otts.need-hypothesis/1", record_type="NeedHypothesis",
+        seen=seen_ids,
+    )
+    experiment = _domain_common_record(
+        record["experiment_spec"], keys=EXPERIMENT_SPEC_KEYS,
+        schema="otts.experiment-spec/1", record_type="ExperimentSpec",
+        seen=seen_ids,
+    )
+    eval_spec = _domain_common_record(
+        record["eval_spec"], keys=EVAL_SPEC_KEYS,
+        schema="otts.eval-spec/1", record_type="EvalSpec", seen=seen_ids,
+    )
+
+    if sampling_plan["sampling_purpose"] not in {
+        "DISCOVERY_UNCONDITIONED", "HYPOTHESIS_CONDITIONED", "CONFIRMATORY",
+    }:
+        raise DomainRejection("DOMAIN_RECORD_INVALID")
+    for key in (
+        "source_universe", "selection_rule", "inclusion_rule", "exclusion_rule",
+        "negative_sample_rule", "stopping_rule",
+    ):
+        _domain_string(sampling_plan[key])
+    plan_sequence = _domain_positive_int(sampling_plan["plan_sequence"])
+    if sampling_plan["frozen_before_observation"] is not True:
+        raise DomainRejection("SAMPLING_PLAN_NOT_FROZEN")
+    freeze_sequence = _domain_positive_int(sampling_freeze["sequence"])
+    if (
+        sampling_freeze["status"] != "FROZEN"
+        or sampling_freeze["plan_sha256"] != sha256_json(sampling_plan)
+        or freeze_sequence <= plan_sequence
+    ):
+        raise DomainRejection("SAMPLING_PLAN_NOT_FROZEN")
+    acquisition_sequence = _domain_positive_int(acquisition["sequence"])
+    if (
+        acquisition["mode"] != "SYNTHETIC_LOCAL_FIXTURE"
+        or acquisition["observed_after_sampling_freeze"] is not True
+        or acquisition_sequence <= freeze_sequence
+    ):
+        raise DomainRejection("ACQUISITION_AFTER_FREEZE_REQUIRED")
+    if acquisition["account_or_login_used"] is not False:
+        raise DomainRejection("RIGHTS_ACCOUNT_ACCESS_FORBIDDEN")
+    if acquisition["external_retrieval_performed"] is not False:
+        raise DomainRejection("RIGHTS_EXTERNAL_RETRIEVAL_FORBIDDEN")
+
+    if rights["status"] != "SYNTHETIC_AUTHORIZED":
+        raise DomainRejection("RIGHTS_NOT_AUTHORIZED")
+    if rights["contains_personal_data"] is not False:
+        raise DomainRejection("RIGHTS_PERSONAL_DATA_FORBIDDEN")
+    if rights["account_or_login_used"] is not False:
+        raise DomainRejection("RIGHTS_ACCOUNT_ACCESS_FORBIDDEN")
+    if rights["external_retrieval_performed"] is not False:
+        raise DomainRejection("RIGHTS_EXTERNAL_RETRIEVAL_FORBIDDEN")
+
+    if first_lane["lane_role"] != "FIRST_PRINCIPLES":
+        raise DomainRejection("DOMAIN_RECORD_INVALID")
+    if first_lane["sealed_before_observation"] is not True:
+        raise DomainRejection("FIRST_PRINCIPLES_NOT_PRESEALED")
+    if (
+        first_lane["content_classification"]
+        != "GENERAL_PRINCIPLES_ONLY_HUMAN_ASSERTED_UNVERIFIED"
+    ):
+        raise DomainRejection("FIRST_PRINCIPLES_CONTENT_CLASSIFICATION_INVALID")
+    _domain_string_list(first_lane["principles"])
+    _domain_string_list(first_lane["assumptions"])
+    if observation_lane["lane_role"] != "OBSERVATION":
+        raise DomainRejection("DOMAIN_RECORD_INVALID")
+    if observation_lane["sealed_before_cross_lane_merge"] is not True:
+        raise DomainRejection("OBSERVATION_NOT_PRESEALED")
+    if observation_lane["source_kind"] != "SYNTHETIC_CONSTRUCTED_TEXT":
+        raise DomainRejection("OBSERVATION_EVIDENCE_CLASSIFICATION_INVALID")
+    if (
+        observation_lane["evidence_classification"]
+        != "DIRECT_SOURCE_SPANS_ONLY_SEMANTICS_UNVERIFIED"
+    ):
+        raise DomainRejection("OBSERVATION_EVIDENCE_CLASSIFICATION_INVALID")
+
+    first_lane_id = _domain_register_id(first_lane["lane_id"], "Lane", seen_ids)
+    observation_lane_id = _domain_register_id(
+        observation_lane["lane_id"], "Lane", seen_ids
+    )
+    if first_lane_id == observation_lane_id:
+        raise DomainRejection("LANE_ID_COLLISION")
+    first_epoch = _domain_typed_id_syntax(first_lane["lane_epoch_id"], "LaneEpoch")
+    observation_epoch = _domain_typed_id_syntax(
+        observation_lane["lane_epoch_id"], "LaneEpoch"
+    )
+    if first_epoch != observation_epoch:
+        raise DomainRejection("DOMAIN_RECORD_INVALID")
+    first_canary_id = _domain_register_id(first_lane["canary_id"], "Canary", seen_ids)
+    observation_canary_id = _domain_register_id(
+        observation_lane["canary_id"], "Canary", seen_ids
+    )
+    first_canary_token = _domain_string(first_lane["canary_token"])
+    observation_canary_token = _domain_string(observation_lane["canary_token"])
+    if (
+        first_canary_id == observation_canary_id
+        or first_canary_token == observation_canary_token
+    ):
+        raise DomainRejection("CANARY_ID_COLLISION")
+    if (
+        _domain_contains_scalar(observation_lane, first_canary_id)
+        or _domain_contains_scalar(observation_lane, first_canary_token)
+        or _domain_contains_scalar(first_lane, observation_canary_id)
+        or _domain_contains_scalar(first_lane, observation_canary_token)
+    ):
+        raise DomainRejection("CROSS_LANE_CANARY_DETECTED")
+
+    source_payload = _domain_string(observation_lane["source_payload"])
+    source_payload_sha256 = sha256_bytes(source_payload.encode("utf-8"))
+    if observation_lane["source_payload_sha256"] != source_payload_sha256:
+        raise DomainRejection("OBSERVATION_SOURCE_BINDING_MISMATCH")
+    observations = observation_lane["observations"]
+    if not isinstance(observations, list) or not observations:
+        raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    observation_claim_ids: list[str] = []
+    for claim in observations:
+        row = _domain_object(claim, OBSERVATION_CLAIM_KEYS)
+        claim_id = _domain_register_id(row["claim_id"], "ObservationClaim", seen_ids)
+        start = row["source_start"]
+        end = row["source_end"]
+        if (
+            not isinstance(start, int) or isinstance(start, bool)
+            or not isinstance(end, int) or isinstance(end, bool)
+            or start < 0 or end <= start or end > len(source_payload)
+        ):
+            raise DomainRejection("OBSERVATION_SOURCE_BINDING_MISMATCH")
+        source_text = source_payload[start:end]
+        if (
+            row["evidence_class"] != "DIRECT_SOURCE_SPAN"
+            or row["source_text"] != source_text
+            or row["span_sha256"] != sha256_bytes(source_text.encode("utf-8"))
+        ):
+            raise DomainRejection("OBSERVATION_SOURCE_BINDING_MISMATCH")
+        observation_claim_ids.append(claim_id)
+
+    taxonomy = _domain_object(
+        observation_lane["signal_taxonomy"], SIGNAL_TAXONOMY_KEYS
+    )
+    if taxonomy["schema_version"] != "otts.structured-signal-taxonomy/1":
+        raise DomainRejection("DOMAIN_SCHEMA_MISMATCH")
+    if (
+        taxonomy["extraction_basis"] != "SOURCE_SPAN_BOUND_HUMAN_LABEL"
+        or taxonomy["extraction_uncertainty"] != "UNVERIFIED_SEMANTIC_LABEL"
+        or taxonomy["natural_language_inference_performed"] is not False
+    ):
+        raise DomainRejection("SIGNAL_EXTRACTION_UNCERTAINTY_MISSING")
+    if (
+        taxonomy["source_payload_sha256"] != source_payload_sha256
+        or _domain_string_list(taxonomy["source_span_ids"]) != observation_claim_ids
+    ):
+        raise DomainRejection("OBSERVATION_SOURCE_BINDING_MISMATCH")
+    primary_class = taxonomy["primary_class"]
+    request_classes = {
+        "EXPLICIT_HELP_REQUEST", "EXPLICIT_PRICE_INQUIRY",
+        "EXPLICIT_PROCUREMENT_REQUEST",
+    }
+    non_request_classes = {
+        "EXPLICIT_COMPLAINT", "BEHAVIORAL_TRACE",
+        "WORKAROUND_OR_SELF_BUILT_ARTIFACT", "SOLUTION_EVOKED_RESPONSE",
+        "NO_DIRECT_SIGNAL",
+    }
+    if primary_class in request_classes:
+        expected_request_status = "HUMAN_ASSERTED_UNVERIFIED"
+    elif primary_class in non_request_classes:
+        expected_request_status = "NOT_ESTABLISHED"
+    else:
+        raise DomainRejection("SIGNAL_TAXONOMY_INCONSISTENT")
+    if (
+        taxonomy["explicit_request_status"] != expected_request_status
+        or taxonomy["behavior_observation_status"]
+        != "SYNTHETIC_NOT_REAL_WORLD"
+    ):
+        raise DomainRejection("SIGNAL_TAXONOMY_INCONSISTENT")
+
+    if (
+        first_lane["contamination_detected"] is not False
+        or observation_lane["contamination_detected"] is not False
+        or contamination["detected"] is not False
+        or contamination["status"] != "CLEAR"
+    ):
+        raise DomainRejection("CONTAMINATION_DETECTED")
+    detected_canaries = _domain_string_list(
+        contamination["detected_canary_ids"], allow_empty=True
+    )
+    if detected_canaries:
+        raise DomainRejection("CROSS_LANE_CANARY_DETECTED")
+
+    first_seal_sequence = _domain_positive_int(first_lane["seal_sequence"])
+    observation_seal_sequence = _domain_positive_int(
+        observation_lane["seal_sequence"]
+    )
+    assessment_sequence = _domain_positive_int(contamination["assessment_sequence"])
+    merge_sequence = _domain_positive_int(hypothesis["merge_sequence"])
+    if first_seal_sequence >= merge_sequence:
+        raise DomainRejection("FIRST_PRINCIPLES_NOT_PRESEALED")
+    if observation_seal_sequence >= merge_sequence:
+        raise DomainRejection("OBSERVATION_NOT_PRESEALED")
+    if assessment_sequence >= merge_sequence:
+        raise DomainRejection("CONTAMINATION_DETECTED")
+
+    if hypothesis["status"] != "HYPOTHESIS_NOT_DEMAND_PROOF":
+        raise DomainRejection("AUTHORITY_ESCALATION_FORBIDDEN")
+    for key in (
+        "candidate_buyer_class", "job_to_be_done", "statement",
+        "applicability_scope", "weakest_assumption",
+    ):
+        _domain_string(hypothesis[key])
+    _domain_string_list(hypothesis["competing_explanations"])
+    if (
+        _domain_string_list(hypothesis["supporting_observation_claim_ids"])
+        != observation_claim_ids
+    ):
+        raise DomainRejection("PARENT_BINDING_MISMATCH")
+
+    if experiment["status"] != "UNEXECUTED":
+        raise DomainRejection("EXPERIMENT_EXECUTION_FORBIDDEN")
+    if experiment["requires_new_explicit_authorization"] is not True:
+        raise DomainRejection("EXPERIMENT_AUTHORIZATION_REQUIRED")
+    if experiment["external_action_authority"] is not False:
+        raise DomainRejection("AUTHORITY_ESCALATION_FORBIDDEN")
+    for key in ("draft_method", "success_signal", "failure_signal"):
+        _domain_string(experiment[key])
+    if _domain_string_list(experiment["forbidden_capabilities"]) != [
+        "ACCOUNT_ACCESS", "CONTACT", "DEPLOYMENT", "EXTERNAL_RETRIEVAL",
+        "PAYMENT", "PRICING",
+    ]:
+        raise DomainRejection("AUTHORITY_ESCALATION_FORBIDDEN")
+
+    if eval_spec["status"] != "NOT_RUN":
+        raise DomainRejection("EVAL_EXECUTION_FORBIDDEN")
+    if (
+        eval_spec["fixture_type"] != "SYNTHETIC"
+        or eval_spec["oracle_kind"]
+        != "EXACT_RESULT_HASH_OR_STABLE_REJECTION_CODE"
+        or eval_spec["external_action_authority"] is not False
+    ):
+        raise DomainRejection("AUTHORITY_ESCALATION_FORBIDDEN")
+    for key in ("model_binding_sha256", "harness_binding_sha256"):
+        if not isinstance(eval_spec[key], str) or not SHA256_RE.fullmatch(eval_spec[key]):
+            raise DomainRejection("DOMAIN_TYPE_MISMATCH")
+    _domain_string(eval_spec["human_baseline"])
+    _domain_string(eval_spec["cost_record"])
+
+    authority = _domain_object(record["authority"], AUTHORITY_KEYS)
+    if any(value is not False for value in authority.values()):
+        raise DomainRejection("AUTHORITY_ESCALATION_FORBIDDEN")
+
+    all_records = {
+        item["record_id"]: item for item in (
+            sampling_plan, sampling_freeze, acquisition, rights, first_lane,
+            observation_lane, contamination, hypothesis, experiment, eval_spec,
+        )
+    }
+    _domain_validate_parent_bindings(sampling_plan, [], all_records)
+    _domain_validate_parent_bindings(sampling_freeze, [sampling_plan], all_records)
+    _domain_validate_parent_bindings(
+        acquisition, [sampling_plan, sampling_freeze], all_records
+    )
+    _domain_validate_parent_bindings(rights, [acquisition], all_records)
+    _domain_validate_parent_bindings(
+        first_lane, [sampling_plan, sampling_freeze], all_records
+    )
+    _domain_validate_parent_bindings(
+        observation_lane, [acquisition, rights], all_records
+    )
+    _domain_validate_parent_bindings(
+        contamination, [first_lane, observation_lane], all_records
+    )
+    _domain_validate_parent_bindings(
+        hypothesis, [rights, first_lane, observation_lane, contamination],
+        all_records,
+    )
+    _domain_validate_parent_bindings(
+        experiment, [rights, hypothesis], all_records
+    )
+    _domain_validate_parent_bindings(
+        eval_spec, [experiment, hypothesis], all_records
+    )
+
+    normalized_record = json.loads(canonical_bytes(record).decode("utf-8"))
+    return {
+        "schema_version": "otts.normalized-opportunity-record/1",
+        "gate_id": "OTTS-OPPORTUNITY-SEMANTIC-GATE-1",
+        "source_record_sha256": sha256_json(record),
+        "derived_record_status": "CURRENT",
+        "record": normalized_record,
+        "semantic_boundary": {
+            "structured_contract_valid": True,
+            "natural_language_speech_act_inferred": False,
+            "semantic_truth_of_human_labels_proven": False,
+            "demand_proven": False,
+            "market_validated": False,
+            "customer_exists_proven": False,
+            "price_validated": False,
+            "revenue_proven": False,
+        },
+        "authority": {
+            "capability_authority": False,
+            "runtime_authority": False,
+            "deployment_authority": False,
+            "freeze_authority": False,
+            "external_action_authority": False,
+        },
+    }
 
 
 def _cas_path(cas_root: Path, digest: str) -> Path:
@@ -743,6 +1290,7 @@ def cas_get_bytes(cas_root: Path, digest: str, limits: Mapping[str, int]) -> byt
 
 def evaluate_program(
     program: dict[str, Any], fixture: Any, policy: dict[str, Any], cas_root: Path,
+    expected_parent_candidate_sha256: Optional[str] = None,
 ) -> tuple[Any, int]:
     validate_program(program, policy)
     _check_json_limits(fixture, policy["limits"], "fixture")
@@ -760,30 +1308,31 @@ def evaluate_program(
             raise CapabilityError("program step limit exceeded")
         node = by_id[node_id]
         op = node["op"]
-        if op == "INPUT":
-            value = fixture
-        elif op == "LITERAL":
-            value = node["value"]
-        elif op == "JSON_POINTER":
-            value = _pointer(evaluate(node["source"]), node["pointer"])
-        elif op == "BUILD_OBJECT":
-            value = {entry["key"]: evaluate(entry["ref"]) for entry in node["entries"]}
-        elif op == "CANONICAL_SHA256":
-            value = sha256_bytes(canonical_bytes(evaluate(node["source"])))
-        elif op == "CAS_PUT":
-            value = cas_put_bytes(
-                cas_root, canonical_bytes(evaluate(node["source"])), policy["limits"]
-            )
-        elif op == "CAS_GET":
-            digest = evaluate(node["digest_ref"])
-            if not isinstance(digest, str):
-                raise CapabilityError("CAS_GET digest_ref must evaluate to string")
-            data = cas_get_bytes(cas_root, digest, policy["limits"])
-            value = _json_from_bytes(data, "CAS object")
-            if canonical_bytes(value) != data:
-                raise CapabilityError("CAS object is not canonical compact JSON")
-        else:  # Exact validation makes this unreachable; no data-driven dispatch.
-            raise CapabilityError("validated opcode invariant violated")
+        try:
+            if op == "INPUT":
+                value = fixture
+            elif op == "VALIDATE_OPPORTUNITY_RECORD":
+                value = validate_opportunity_record(
+                    evaluate(node["source"]), expected_parent_candidate_sha256
+                )
+            elif op == "CAS_PUT":
+                value = cas_put_bytes(
+                    cas_root, canonical_bytes(evaluate(node["source"])),
+                    policy["limits"],
+                )
+            elif op == "CAS_GET":
+                digest = evaluate(node["digest_ref"])
+                if not isinstance(digest, str):
+                    raise CapabilityError("CAS_GET digest_ref must evaluate to string")
+                data = cas_get_bytes(cas_root, digest, policy["limits"])
+                value = _json_from_bytes(data, "CAS object")
+                if canonical_bytes(value) != data:
+                    raise CapabilityError("CAS object is not canonical compact JSON")
+            else:  # Exact validation makes this unreachable; no data-driven dispatch.
+                raise CapabilityError("validated opcode invariant violated")
+        except DomainRejection as exc:
+            exc.steps = steps
+            raise
         _check_json_limits(value, policy["limits"], f"node {node_id} output")
         value_size = len(canonical_bytes(value))
         if value_size > policy["limits"]["max_output_bytes"]:

@@ -2,7 +2,7 @@
 
 状态：`HISTORICAL / NOT-AUTHORIZED-AS-CURRENT-DESIGN`
 
-外部 sibling 目录 [`../机会到交易系统/`](../机会到交易系统/) 在当前总体研究完成前已经存在一版 `schema 0.1` 本地 CLI、测试和餐馆网页修复 Pilot。它们保留为历史样本，用于以后做差距审计；不能被解释为当前总体设计已经实现，也不能证明餐馆网页修复是已验证商机。当前不可变设计候选不包含这些可变字节，隔离记录见 [`EXTERNAL_LEGACY_QUARANTINE.md`](./EXTERNAL_LEGACY_QUARANTINE.md)。
+外部旧实现目录 [`../../机会到交易系统/`](../../机会到交易系统/) 在当前总体研究完成前已经存在一版 `schema 0.1` 本地 CLI、测试和餐馆网页修复 Pilot。它们保留为历史样本，用于以后做差距审计；不能被解释为当前总体设计已经实现，也不能证明餐馆网页修复是已验证商机。当前 C8 设计候选不包含这些可变字节，也不修改或吸收已封存的 C7 候选；隔离记录见 [`EXTERNAL_LEGACY_QUARANTINE.md`](./EXTERNAL_LEGACY_QUARANTINE.md)。
 
 当前权威研究候选位于：
 
