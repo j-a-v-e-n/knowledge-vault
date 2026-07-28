@@ -1,0 +1,56 @@
+{
+  "schema_version": "independent-review-infrastructure-failure/1",
+  "incident_id": "review-ca012650-precontact-successor-r2-infrastructure-failure-2026-07-28",
+  "recorded_at": "2026-07-28T01:02:41-07:00",
+  "recorded_by": "/root",
+  "candidate_review_identity": {
+    "schema_version": "ca012650-precontact-rejection-successor-independent-review/2",
+    "review_id": "review-ca012650-precontact-rejection-successor-2026-07-28-r2",
+    "requested_reviewer_agent_identity": "/root/ca_precontact_successor_r2_review",
+    "expected_receipt_path": "review-ca012650-precontact-rejection-successor-2026-07-28-r2.json"
+  },
+  "candidate_dynamic_bindings": [
+    {
+      "path": "../09-校验活动状态.py",
+      "sha256": "0f2cb49e72bff9134bc80d784cc9397d6999844be04277114b9f7cc4ec85e1c7"
+    },
+    {
+      "path": "../tests/test_active_state_validator.py",
+      "sha256": "c72bddc87a920075004745bec34e89c55deef83311668703687a074e9a785a56"
+    }
+  ],
+  "review_attempts": [
+    {
+      "attempt": 1,
+      "outcome": "REVIEW_INFRASTRUCTURE_REFUSED_REQUEST",
+      "reviewer_output_produced": false,
+      "candidate_files_read_or_modified_by_reviewer": false,
+      "error_text": "This content was flagged for possible cybersecurity risk. If this seems wrong, try rephrasing your request."
+    },
+    {
+      "attempt": 2,
+      "outcome": "REVIEW_INFRASTRUCTURE_REFUSED_REQUEST",
+      "reviewer_output_produced": false,
+      "candidate_files_read_or_modified_by_reviewer": false,
+      "error_text": "This content was flagged for possible cybersecurity risk. If this seems wrong, try rephrasing your request."
+    }
+  ],
+  "attempt_count": 2,
+  "candidate_verdict": null,
+  "severity_counts": null,
+  "pass_receipt_created": false,
+  "live_state_activation_allowed": false,
+  "status": "UNREVIEWED_REVIEW_INFRASTRUCTURE_UNAVAILABLE",
+  "next_trigger": "Create a new successor review identity with a different independent reviewer, keep the exact local-integrity scope, and obtain a read-only verdict before any live-state transition.",
+  "external_actions_observed": {
+    "gmail_or_external_draft": false,
+    "contact_or_send": false,
+    "follow_up": false,
+    "application_or_submission": false,
+    "account_action": false,
+    "payment_or_delivery": false,
+    "publication": false,
+    "investment_action": false
+  },
+  "claim_boundary": "This incident records two review-infrastructure refusals, not a substantive review of the candidate. It is neither PASS nor FAIL and has no Critical or Major count. It creates no review authority, does not activate mutable live state, and authorizes no Gmail or external draft, contact, follow-up, application, account action, payment, delivery, publication, investment execution, or market claim."
+}

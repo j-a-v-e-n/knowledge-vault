@@ -716,8 +716,12 @@ class PhaseManifestTests(unittest.TestCase):
             "EXTERNAL_WRITE_DENIED": "OBSERVED_DENIED",
             "NETWORK_LOOPBACK_BIND_DENIED": "OBSERVED_DENIED",
         }
+        parent_candidate_typed_id = rsa.candidate_manifest_typed_id(
+            self.candidate_hash
+        )
         for case_id, record, expected_outcome, expected_code in required_semantic_cases():
             record["parent_context"]["candidate_sha256"] = self.candidate_hash
+            record["parent_context"]["candidate_id"] = parent_candidate_typed_id
             fixture = self.shadow_root / "fixtures" / f"{case_id.lower()}.json"
             write_json(fixture, record)
             fixture_relative = fixture.relative_to(self.shadow_root).as_posix()
@@ -733,6 +737,7 @@ class PhaseManifestTests(unittest.TestCase):
                         policy,
                         cas_root,
                         self.candidate_hash,
+                        parent_candidate_typed_id,
                     )
                     actual_outcome = "PASS"
                     result_bytes = rsa.canonical_bytes(result_document)
@@ -806,6 +811,7 @@ class PhaseManifestTests(unittest.TestCase):
             "scope": "LOCAL_ZERO_EXTERNAL_SIDE_EFFECT_SHADOW_MVP_ONLY",
             "candidate_id": "SYNTHETIC-C6",
             "parent_candidate_manifest_sha256": self.candidate_hash,
+            "parent_candidate_typed_id": parent_candidate_typed_id,
             "governance_manifest_sha256": sha256_file(Path(bundle["governance_path"])),
             "independent_review_receipt_sha256": sha256_file(Path(bundle["review_path"])),
             "closure_decision_sha256": str(bundle["decision_hash"]),
@@ -916,6 +922,7 @@ class PhaseManifestTests(unittest.TestCase):
             "runner_sha256": sha256_file(self.runner_fixture),
             "policy_sha256": sha256_file(self.policy_fixture),
             "parent_candidate_manifest_sha256": self.candidate_hash,
+            "parent_candidate_typed_id": parent_candidate_typed_id,
             "sbom_sha256": sha256_file(sbom_path),
             "capability_report_sha256": sha256_file(capability_path),
             "program_sha256": sha256_file(program_path),
@@ -1197,6 +1204,9 @@ class PhaseManifestTests(unittest.TestCase):
             ],
             "candidate_id": "SYNTHETIC-C6",
             "parent_candidate_manifest_sha256": self.candidate_hash,
+            "parent_candidate_typed_id": acceptance_report[
+                "parent_candidate_typed_id"
+            ],
             "governance_manifest_sha256": sha256_file(Path(bundle["governance_path"])),
             "closure_decision_sha256": str(bundle["decision_hash"]),
             "shadow_manifest_sha256": sha256_file(shadow_manifest),

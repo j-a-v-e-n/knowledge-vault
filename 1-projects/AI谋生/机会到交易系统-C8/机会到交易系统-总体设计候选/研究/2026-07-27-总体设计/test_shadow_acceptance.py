@@ -21,6 +21,9 @@ HERE = Path(__file__).resolve().parent
 POLICY = HERE / "SHADOW_CAPABILITY_POLICY.json"
 RUNNER = HERE / "run_shadow_acceptance.py"
 PARENT_CANDIDATE_SHA256 = "c" * 64
+PARENT_CANDIDATE_TYPED_ID = rsa.candidate_manifest_typed_id(
+    PARENT_CANDIDATE_SHA256
+)
 
 
 def write_bytes(path: Path, data: bytes) -> None:
@@ -241,7 +244,7 @@ def make_valid_record(source_payload: Optional[str] = None) -> dict:
         "record_id": "OpportunityRecord:synthetic-001",
         "record_state": "CURRENT",
         "parent_context": {
-            "candidate_id": "CandidateManifest:synthetic-c8",
+            "candidate_id": PARENT_CANDIDATE_TYPED_ID,
             "candidate_sha256": PARENT_CANDIDATE_SHA256,
             "state": "CURRENT",
         },
@@ -265,6 +268,32 @@ def make_valid_record(source_payload: Optional[str] = None) -> dict:
             "external_action_authority": False,
         },
     }
+
+
+def refresh_parent_bindings(record: dict) -> None:
+    sampling = record["sampling_plan"]
+    freeze = record["sampling_freeze_receipt"]
+    acquisition = record["acquisition_record"]
+    rights = record["rights_record"]
+    first_lane = record["first_principles_lane"]
+    observation = record["observation_lane"]
+    contamination = record["contamination_event"]
+    hypothesis = record["need_hypothesis"]
+    experiment = record["experiment_spec"]
+    eval_spec = record["eval_spec"]
+    sampling["parent_bindings"] = []
+    freeze["parent_bindings"] = parent_bindings(sampling)
+    freeze["plan_sha256"] = rsa.sha256_json(sampling)
+    acquisition["parent_bindings"] = parent_bindings(sampling, freeze)
+    rights["parent_bindings"] = parent_bindings(acquisition)
+    first_lane["parent_bindings"] = parent_bindings(sampling, freeze)
+    observation["parent_bindings"] = parent_bindings(acquisition, rights)
+    contamination["parent_bindings"] = parent_bindings(first_lane, observation)
+    hypothesis["parent_bindings"] = parent_bindings(
+        rights, first_lane, observation, contamination
+    )
+    experiment["parent_bindings"] = parent_bindings(rights, hypothesis)
+    eval_spec["parent_bindings"] = parent_bindings(experiment, hypothesis)
 
 
 def make_program(*, cas_roundtrip: bool = True) -> dict:
@@ -403,7 +432,9 @@ class ShadowAcceptanceTests(unittest.TestCase):
             RUNNER, "runner", 2 * 1024 * 1024
         )
         self.valid_output = rsa.validate_opportunity_record(
-            self.fixture, PARENT_CANDIDATE_SHA256
+            self.fixture,
+            PARENT_CANDIDATE_SHA256,
+            PARENT_CANDIDATE_TYPED_ID,
         )
 
     def tearDown(self) -> None:
@@ -446,6 +477,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
                     self.policy,
                     cas,
                     PARENT_CANDIDATE_SHA256,
+                    PARENT_CANDIDATE_TYPED_ID,
                 )
                 result_bytes = rsa.canonical_bytes(result)
                 outcome = "PASS"
@@ -506,6 +538,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
     def base_shadow(self) -> dict:
         return {
             "parent_candidate_manifest_sha256": PARENT_CANDIDATE_SHA256,
+            "parent_candidate_typed_id": PARENT_CANDIDATE_TYPED_ID,
             "capability_policy_sha256": self.policy_snapshot.sha256,
             "program": "program.json",
             "acceptance_cases": [{
@@ -558,7 +591,9 @@ class ShadowAcceptanceTests(unittest.TestCase):
             }
             if outcome == "PASS":
                 normalized = rsa.validate_opportunity_record(
-                    record, PARENT_CANDIDATE_SHA256
+                    record,
+                    PARENT_CANDIDATE_SHA256,
+                    PARENT_CANDIDATE_TYPED_ID,
                 )
                 case["expected_result_sha256"] = rsa.sha256_json(normalized)
             else:
@@ -644,6 +679,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
             "runner_sha256": self.runner_snapshot.sha256,
             "policy_sha256": self.policy_snapshot.sha256,
             "parent_candidate_manifest_sha256": PARENT_CANDIDATE_SHA256,
+            "parent_candidate_typed_id": PARENT_CANDIDATE_TYPED_ID,
             "sbom_sha256": self.snapshot(sbom_path).sha256,
             "capability_report_sha256": self.snapshot(capability_path).sha256,
             "program_sha256": self.snapshot(self.program_path).sha256,
@@ -716,7 +752,11 @@ class ShadowAcceptanceTests(unittest.TestCase):
 
     def assert_domain_reject(self, record: dict, code: str) -> None:
         with self.assertRaises(rsa.DomainRejection) as raised:
-            rsa.validate_opportunity_record(record, PARENT_CANDIDATE_SHA256)
+            rsa.validate_opportunity_record(
+                record,
+                PARENT_CANDIDATE_SHA256,
+                PARENT_CANDIDATE_TYPED_ID,
+            )
         self.assertEqual(raised.exception.code, code)
 
     def test_valid_gate_returns_normalized_record_and_preserves_nonclaims(self) -> None:
@@ -727,6 +767,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
                 self.policy,
                 Path(temporary),
                 PARENT_CANDIDATE_SHA256,
+                PARENT_CANDIDATE_TYPED_ID,
             )
         self.assertEqual(steps, 4)
         self.assertEqual(result["schema_version"], "otts.normalized-opportunity-record/1")
@@ -750,7 +791,11 @@ class ShadowAcceptanceTests(unittest.TestCase):
     def test_c7_seven_reproduced_unsafe_variants_reject_with_stable_codes(self) -> None:
         valid = make_valid_record()
         self.assertEqual(
-            rsa.validate_opportunity_record(valid, PARENT_CANDIDATE_SHA256)[
+            rsa.validate_opportunity_record(
+                valid,
+                PARENT_CANDIDATE_SHA256,
+                PARENT_CANDIDATE_TYPED_ID,
+            )[
                 "derived_record_status"
             ],
             "CURRENT",
@@ -803,6 +848,11 @@ class ShadowAcceptanceTests(unittest.TestCase):
         wrong_type = copy.deepcopy(valid)
         wrong_type["rights_record"]["record_id"] = "AcquisitionRecord:rights-001"
         variants.append((wrong_type, "TYPED_ID_TYPE_MISMATCH"))
+        wrong_candidate_id = copy.deepcopy(valid)
+        wrong_candidate_id["parent_context"][
+            "candidate_id"
+        ] = "CandidateManifest:" + "d" * 64
+        variants.append((wrong_candidate_id, "PARENT_BINDING_MISMATCH"))
         dangling = copy.deepcopy(valid)
         dangling["rights_record"]["parent_bindings"][0][
             "parent_id"
@@ -823,6 +873,29 @@ class ShadowAcceptanceTests(unittest.TestCase):
 
     def test_lane_canary_rights_and_authority_variants_fail_closed(self) -> None:
         valid = make_valid_record()
+        prefix_neighbor = copy.deepcopy(valid)
+        prefix_neighbor["observation_lane"]["canary_id"] = (
+            prefix_neighbor["first_principles_lane"]["canary_id"] + "-long"
+        )
+        refresh_parent_bindings(prefix_neighbor)
+        rsa.validate_opportunity_record(
+            prefix_neighbor,
+            PARENT_CANDIDATE_SHA256,
+            PARENT_CANDIDATE_TYPED_ID,
+        )
+        overlapping_token_neighbor = copy.deepcopy(valid)
+        overlapping_token_neighbor["first_principles_lane"][
+            "canary_token"
+        ] = "token"
+        overlapping_token_neighbor["observation_lane"][
+            "canary_token"
+        ] = "other-token"
+        refresh_parent_bindings(overlapping_token_neighbor)
+        rsa.validate_opportunity_record(
+            overlapping_token_neighbor,
+            PARENT_CANDIDATE_SHA256,
+            PARENT_CANDIDATE_TYPED_ID,
+        )
         variants = []
         lane_collision = copy.deepcopy(valid)
         lane_collision["observation_lane"]["lane_id"] = lane_collision[
@@ -1192,7 +1265,11 @@ class ShadowAcceptanceTests(unittest.TestCase):
             "PYTHON_CALLBACK"
         )
         record = make_valid_record(payload)
-        result = rsa.validate_opportunity_record(record, PARENT_CANDIDATE_SHA256)
+        result = rsa.validate_opportunity_record(
+            record,
+            PARENT_CANDIDATE_SHA256,
+            PARENT_CANDIDATE_TYPED_ID,
+        )
         self.assertEqual(result["record"]["observation_lane"]["source_payload"], payload)
 
     def test_read_once_detects_opened_object_mutation(self) -> None:
@@ -1263,6 +1340,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
             rsa.evaluate_program(
                 self.program, self.fixture, policy, Path(temporary),
                 PARENT_CANDIDATE_SHA256,
+                PARENT_CANDIDATE_TYPED_ID,
             )
         policy = copy.deepcopy(self.policy)
         policy["limits"]["max_output_bytes"] = 4
@@ -1272,6 +1350,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
             rsa.evaluate_program(
                 self.program, self.fixture, policy, Path(temporary),
                 PARENT_CANDIDATE_SHA256,
+                PARENT_CANDIDATE_TYPED_ID,
             )
         output = self.root / "quota-output"
         output.mkdir()
@@ -1292,6 +1371,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
             policy_path=POLICY,
             runner_path=RUNNER,
             expected_parent_candidate_sha256=PARENT_CANDIDATE_SHA256,
+            expected_parent_candidate_typed_id=PARENT_CANDIDATE_TYPED_ID,
         )
         self.assertEqual(passed["outcome"], "PASS")
         self.assertTrue(all(
@@ -1308,6 +1388,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
             policy_path=POLICY,
             runner_path=RUNNER,
             expected_parent_candidate_sha256=PARENT_CANDIDATE_SHA256,
+            expected_parent_candidate_typed_id=PARENT_CANDIDATE_TYPED_ID,
         )
         self.assertEqual(rejected["outcome"], "REJECT")
         self.assertEqual(rejected["rejection_code"], "SAMPLING_PLAN_NOT_FROZEN")
@@ -1326,6 +1407,7 @@ class ShadowAcceptanceTests(unittest.TestCase):
                 policy_path=POLICY,
                 runner_path=RUNNER,
                 expected_parent_candidate_sha256=PARENT_CANDIDATE_SHA256,
+                expected_parent_candidate_typed_id=PARENT_CANDIDATE_TYPED_ID,
             )
 
     def test_bounded_output_and_wall_timeout_kill_process_group(self) -> None:

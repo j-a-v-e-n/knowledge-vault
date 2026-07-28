@@ -823,7 +823,6 @@ def _domain_contains_scalar(
         ):
             return True
         if isinstance(current, dict):
-            stack.extend(current.keys())
             stack.extend(current.values())
         elif isinstance(current, list):
             stack.extend(current)
@@ -1043,14 +1042,23 @@ def validate_opportunity_record(
         raise DomainRejection("CANARY_ID_COLLISION")
     _domain_register_id(first_canary_id, "Canary", seen_ids)
     _domain_register_id(observation_canary_id, "Canary", seen_ids)
+    first_lane_content = {
+        "principles": first_lane["principles"],
+        "assumptions": first_lane["assumptions"],
+    }
+    observation_lane_content = {
+        "source_payload": observation_lane["source_payload"],
+        "observations": observation_lane["observations"],
+        "signal_taxonomy": observation_lane["signal_taxonomy"],
+    }
     if (
-        _domain_contains_scalar(observation_lane, first_canary_id)
+        _domain_contains_scalar(observation_lane_content, first_canary_id)
         or _domain_contains_scalar(
-            observation_lane, first_canary_token, substring=True
+            observation_lane_content, first_canary_token, substring=True
         )
-        or _domain_contains_scalar(first_lane, observation_canary_id)
+        or _domain_contains_scalar(first_lane_content, observation_canary_id)
         or _domain_contains_scalar(
-            first_lane, observation_canary_token, substring=True
+            first_lane_content, observation_canary_token, substring=True
         )
     ):
         raise DomainRejection("CROSS_LANE_CANARY_DETECTED")
@@ -2597,17 +2605,23 @@ def _worker(request_fd: int) -> int:
         request_snapshot = _snapshot_inherited_fd(request_fd, "worker request", 65536)
         request = canonical_load_snapshot(request_snapshot, "worker request")
         require_exact_keys(request, {
-            "expected_parent_candidate_sha256", "fixture_fd", "fixture_sha256",
+            "expected_parent_candidate_sha256",
+            "expected_parent_candidate_typed_id", "fixture_fd", "fixture_sha256",
             "output_root", "policy_fd", "policy_sha256", "program_fd",
             "program_sha256",
         }, "worker request")
-        expected_parent_candidate_sha256 = request[
-            "expected_parent_candidate_sha256"
+        expected_parent_candidate_sha256 = require_sha(
+            request["expected_parent_candidate_sha256"],
+            "worker expected parent candidate manifest hash",
+        )
+        expected_parent_candidate_typed_id = request[
+            "expected_parent_candidate_typed_id"
         ]
-        if expected_parent_candidate_sha256 is not None:
-            require_sha(
-                expected_parent_candidate_sha256,
-                "worker expected parent candidate manifest hash",
+        if expected_parent_candidate_typed_id != candidate_manifest_typed_id(
+            expected_parent_candidate_sha256
+        ):
+            raise CapabilityError(
+                "worker parent candidate typed ID does not match exact manifest hash"
             )
         inherited = [request["policy_fd"], request["program_fd"], request["fixture_fd"]]
         if len(set(inherited + [request_fd])) != 4:
@@ -2644,6 +2658,7 @@ def _worker(request_fd: int) -> int:
             result, steps = evaluate_program(
                 program, fixture, policy, cas_root,
                 expected_parent_candidate_sha256,
+                expected_parent_candidate_typed_id,
             )
             result_bytes = canonical_bytes(result)
             outcome = "PASS"

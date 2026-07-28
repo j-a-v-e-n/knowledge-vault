@@ -27,6 +27,7 @@ from run_shadow_acceptance import (  # noqa: E402
     DOMAIN_REJECTION_CODES,
     REQUIRED_ACCEPTANCE_REJECTION_CODES,
     Snapshot,
+    candidate_manifest_typed_id,
     canonical_load_snapshot,
     load_policy_snapshot,
     read_once_member,
@@ -111,6 +112,7 @@ SHADOW_MANIFEST_KEYS = {
     "scope",
     "candidate_id",
     "parent_candidate_manifest_sha256",
+    "parent_candidate_typed_id",
     "governance_manifest_sha256",
     "independent_review_receipt_sha256",
     "closure_decision_sha256",
@@ -167,6 +169,7 @@ SHADOW_REVIEW_RECEIPT_KEYS = {
     "residual_limits",
     "candidate_id",
     "parent_candidate_manifest_sha256",
+    "parent_candidate_typed_id",
     "governance_manifest_sha256",
     "closure_decision_sha256",
     "shadow_manifest_sha256",
@@ -694,11 +697,17 @@ def validate_shadow(
         raise ManifestError("shadow manifest must deny external action authority")
     if shadow["candidate_id"] != governance_chain["candidate_id"]:
         raise ManifestError("shadow candidate_id mismatch")
-    if require_sha(
+    parent_candidate_manifest_sha256 = require_sha(
         shadow["parent_candidate_manifest_sha256"],
         "shadow.parent_candidate_manifest_sha256",
-    ) != governance_chain["candidate_hash"]:
+    )
+    if parent_candidate_manifest_sha256 != governance_chain["candidate_hash"]:
         raise ManifestError("shadow parent candidate hash mismatch")
+    expected_parent_candidate_typed_id = candidate_manifest_typed_id(
+        parent_candidate_manifest_sha256
+    )
+    if shadow["parent_candidate_typed_id"] != expected_parent_candidate_typed_id:
+        raise ManifestError("shadow parent candidate typed ID mismatch")
     if require_sha(
         shadow["governance_manifest_sha256"],
         "shadow.governance_manifest_sha256",
@@ -924,6 +933,11 @@ def validate_shadow(
         sorted(DOMAIN_REJECTION_CODES)
     ):
         raise ManifestError("shadow domain rejection code set binding mismatch")
+    if (
+        acceptance["parent_candidate_typed_id"]
+        != expected_parent_candidate_typed_id
+    ):
+        raise ManifestError("shadow acceptance parent candidate typed ID mismatch")
     if acceptance["exact_opened_unlinked_snapshot_execution"] is not True:
         raise ManifestError("shadow acceptance did not use opened-and-unlinked snapshots")
     reopen_count = acceptance["staged_target_controlled_pathname_reopen_count"]
@@ -1098,6 +1112,10 @@ def validate_shadow_review(
     require_string_list(receipt["residual_limits"], "shadow_review.residual_limits")
     if receipt["candidate_id"] != governance_chain["candidate_id"]:
         raise ManifestError("shadow receipt candidate_id mismatch")
+    if receipt["parent_candidate_typed_id"] != shadow_result[
+        "shadow_mechanical_acceptance"
+    ]["parent_candidate_typed_id"]:
+        raise ManifestError("shadow receipt parent candidate typed ID mismatch")
     expected_hashes = {
         "parent_candidate_manifest_sha256": governance_chain["candidate_hash"],
         "governance_manifest_sha256": governance_chain["governance_manifest_hash"],

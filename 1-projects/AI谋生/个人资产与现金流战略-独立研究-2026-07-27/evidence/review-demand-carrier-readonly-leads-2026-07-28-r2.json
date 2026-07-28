@@ -1,0 +1,62 @@
+{
+  "schema_version": "demand-carrier-readonly-leads-independent-review/1",
+  "review_id": "review-demand-carrier-readonly-leads-2026-07-28-r2",
+  "reviewed_at": "2026-07-28T01:03:22-0700",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/demand_leads_r2_review",
+  "reviewer_role": "independent_read_only_reviewer",
+  "reviewer_modified_candidate": false,
+  "verdict": "PASS",
+  "severity_counts": {
+    "critical": 0,
+    "major": 0
+  },
+  "candidate_binding": {
+    "path": "demand-carrier-readonly-leads-2026-07-28.json",
+    "sha256": "eef6bdcbff766cf3b20e2eb694c68541eb8c6858ad35b886f761e2d5a568295a",
+    "size_bytes": 28448
+  },
+  "predecessor_review_binding": {
+    "path": "review-demand-carrier-readonly-leads-2026-07-28-r1.json",
+    "sha256": "b1bca6a5a87d509216a1c1293bb28d10f38bfa7a6c66b8d010e58ba1550d3acb",
+    "verdict": "FAIL",
+    "severity_counts": {
+      "critical": 0,
+      "major": 3
+    }
+  },
+  "reviewed_properties": [
+    "The candidate is strict duplicate-free JSON with six unique lead identities and closed lead, source-authority, current-status, cash-compensation, and demand-carrier enums.",
+    "The mechanical counts recompute exactly from the lead array; the talent network is excluded from listing, demand-carrier, and cash-flow counts, and equity-only and compensation-unstated listings are excluded from cash-flow candidates.",
+    "The predecessor FAIL identity, exact candidate bytes, zero-Critical three-Major severity, and all three pending-remediation findings remain bound without being rewritten as historical PASS.",
+    "Canonical official and corroborating platform identities, listing IDs, field conflicts, and source authority are explicit; official fields take precedence and WRTH remains platform-verified only.",
+    "The application-time Invisible policy and contractor-time Meridial policy remain separate locators, including requested and final URLs, displayed dates, retention statements, and the indefinite security exception.",
+    "All locator and privacy observations remain LOCATOR_ONLY_NOT_GATE_EVIDENCE because no durable raw page or full screenshot hash and no fresh independent replay receipt exist.",
+    "Every application-ready flag remains false, the ready count remains zero, and every login, account, form, application, message, policy, contract, private-data, payment, publication, and investment action remains unauthorized."
+  ],
+  "mechanical_counts_recomputed": {
+    "total_lead_count": 6,
+    "current_listing_locator_count": 5,
+    "current_demand_carrier_locator_count": 5,
+    "current_paid_listing_locator_count": 3,
+    "current_cashflow_candidate_locator_count": 3,
+    "excluded_from_current_cashflow_candidate_count": 3,
+    "gate_evidence_qualified_current_cashflow_candidate_count": 0,
+    "application_ready_false_count": 6,
+    "application_ready_true_count": 0
+  },
+  "non_blocking_observation": "The Invisible policy page also renders an older Last updated and Last reviewed label near the footer. The candidate records the primary page date and does not upgrade the page to Gate evidence; any future durable capture must preserve both labels and their ambiguity.",
+  "external_actions_observed_within_review_scope": {
+    "login": false,
+    "form_entry": false,
+    "account_creation": false,
+    "application": false,
+    "email_or_message": false,
+    "privacy_or_contract_acceptance": false,
+    "private_data_submission": false,
+    "payment_or_receipt": false,
+    "publication": false,
+    "investment_action": false
+  },
+  "claim_boundary": "This independent read-only review accepts only the internal consistency, predecessor remediation, current public-locator accuracy, classifications, mechanical counts, privacy-policy locators, and fail-closed authority fields of the exact candidate SHA-256 eef6bdcbff766cf3b20e2eb694c68541eb8c6858ad35b886f761e2d5a568295a. It does not convert any locator into durable Gate evidence, application readiness, user fit, work authorization, project availability, assigned hours, final pay, payment reliability, contract safety, demand validation, stable cash flow, profit, repeatability, or asset value. It authorizes no login, account creation, form entry, application, email, message, privacy acceptance, contract acceptance, private-data submission, payment, receipt, publication, or investment action."
+}
