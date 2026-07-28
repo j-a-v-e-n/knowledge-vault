@@ -1,0 +1,24 @@
+{
+  "schema_version": "otts.candidate-freeze-report/1",
+  "candidate_id": "OTTS-DESIGN-20260727-C7",
+  "parent_candidate_manifest_sha256": "6515fe17eed7537745b7094ef597321ca30956e57b3306b77570c02a8b9402fd",
+  "verifier_path": "研究/2026-07-27-总体设计/verify_candidate_manifest.py",
+  "verifier_sha256": "88c16f8860811215fa4845bdd03c4f15ef4f5fcd2e8cdb85238cd4a77ee3bc69",
+  "mode": "freeze",
+  "result": "PASS",
+  "candidate_inventory_digest_sha256": "975f18b605b10c73329de1e5f6491e1b39f5f78edea2f55b8018590c9240b5b6",
+  "post_closure_root_states": [
+    {
+      "root_id": "closure-governance",
+      "state": "ABSENT"
+    },
+    {
+      "root_id": "shadow-mvp",
+      "state": "ABSENT"
+    },
+    {
+      "root_id": "shadow-review",
+      "state": "ABSENT"
+    }
+  ]
+}

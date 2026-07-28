@@ -1,87 +1,212 @@
 {
-  "schema_version": "demand-first-public-listings-observation/1",
+  "schema_version": "demand-first-public-listings-observation/2",
   "observation_id": "demand-first-public-listings-observation-2026-07-27",
   "observed_at": "2026-07-27T23:35:23-07:00",
   "observed_by": "/root",
   "capture_method": "public_web_search_and_open",
   "authenticated_account_used": false,
   "raw_page_bytes_persisted": false,
+  "independent_review_binding": {
+    "path": "review-demand-first-redesign-2026-07-27-r1.json",
+    "sha256": "7c85fce22c1896c4c767cf8e5196e85021bc20db2e6535a88c29dab2658b021f",
+    "review_id": "review-demand-first-redesign-2026-07-27-r1",
+    "reviewer_agent_identity": "/root/demand_first_redesign_review",
+    "verdict": "FAIL",
+    "severity_counts": {
+      "critical": 0,
+      "major": 4
+    },
+    "preservation_rule": "This binding preserves the historical r1 rejection. Remediation must not relabel r1 as a pass or use it as authority for an application."
+  },
+  "status_summary_at_independent_review": {
+    "current_application_candidates": 0,
+    "historical_indexed_demand_samples": [
+      "upwork-nyc-benchmarking-specialist",
+      "upwork-langfuse-llm-evals",
+      "upwork-ai-saas-qa",
+      "kittle-portfolio-management-intern"
+    ],
+    "directly_open_but_blocked_non_candidate": [
+      "upwork-data-cleaning-excel-sheets"
+    ],
+    "reference_only_non_listings": [
+      "cec-benchmarking-faq",
+      "langfuse-evaluation-core-concepts"
+    ]
+  },
   "sources": [
     {
       "id": "cec-benchmarking-faq",
       "source_class": "official_program_page",
       "url": "https://www.energy.ca.gov/programs-and-topics/programs/building-energy-benchmarking-program/building-energy-benchmarking",
+      "status_at_independent_review": "official_reference_only_not_an_application_listing_status_not_separately_challenged_by_r1",
       "observations": [
         "The CEC says reporting is free, Portfolio Manager is free, and an owner may hire a consultant.",
         "The CEC provides its own helpdesk and tells recipients who are unsure about company delinquency correspondence to verify it with the official hotline.",
         "Anyone preparing or submitting a report must be authorized by the building owner."
-      ]
+      ],
+      "reproducibility": {
+        "raw_page_bytes_persisted": false,
+        "screenshot_persisted": false,
+        "final_url_persisted": false,
+        "http_status_persisted": false,
+        "content_sha256_persisted": false,
+        "independent_review_final_destination_observation": null,
+        "limitation": "r1 did not separately bind a replay of this reference page. It is not a marketplace opportunity and cannot support an application."
+      },
+      "current_application_eligibility": "not_applicable_reference_only"
     },
     {
       "id": "upwork-nyc-benchmarking-specialist",
-      "source_class": "buyer_posted_marketplace_listing",
+      "source_class": "historical_indexed_buyer_listing",
       "url": "https://www.upwork.com/freelance-jobs/apply/NYC-Local-Law-Energy-Benchmarking-Specialist-Portfolio-Manager-Experience-Required_~022003840278048439186/",
-      "page_reported_observations": [
-        "The listing asks for recurring hands-on ENERGY STAR Portfolio Manager and NYC benchmarking execution.",
-        "The listing says general Portfolio Manager experience without NYC exposure is usually insufficient.",
-        "The listing describes a long-term role and asks applicants to report prior NYC submissions and the number of buildings they have handled."
-      ]
+      "status_at_independent_review": "historical_indexed_demand_sample_not_current_listing",
+      "historical_page_reported_observations": [
+        "The indexed listing asked for recurring hands-on ENERGY STAR Portfolio Manager and NYC benchmarking execution.",
+        "The indexed listing said general Portfolio Manager experience without NYC exposure was usually insufficient.",
+        "The indexed listing described a long-term role and asked applicants to report prior NYC submissions and the number of buildings they had handled."
+      ],
+      "reproducibility": {
+        "raw_page_bytes_persisted": false,
+        "screenshot_persisted": false,
+        "final_url_persisted": false,
+        "http_status_persisted": false,
+        "content_sha256_persisted": false,
+        "independent_review_final_destination_observation": "The exact listing URL redirected to the general Upwork jobs page.",
+        "limitation": "The historical requirements cannot be reproduced from a content-addressed listing capture."
+      },
+      "current_application_eligibility": "blocked_historical_only"
     },
     {
       "id": "upwork-langfuse-llm-evals",
-      "source_class": "buyer_posted_marketplace_listing",
+      "source_class": "historical_indexed_buyer_listing",
       "url": "https://www.upwork.com/freelance-jobs/apply/Set-LangFuse-and-help-with-LLM-evals_~022005041009324646164/",
-      "page_reported_observations": [
-        "The listing asks for a Langfuse evaluation system that replays real chatbot interactions against prompt versions, measures accuracy, and catches regressions.",
-        "The reported stack is Node.js, TypeScript, and Postgres.",
-        "The page reports an hourly range of $30.00-$70.00, a 3-6 month duration, an Expert experience level, 10 to 15 proposals, and 1 interview."
-      ]
+      "status_at_independent_review": "historical_indexed_demand_sample_not_current_listing",
+      "historical_page_reported_observations": [
+        "The indexed listing asked for a Langfuse evaluation system that replays real chatbot interactions against prompt versions, measures accuracy, and catches regressions.",
+        "The indexed listing reported a Node.js, TypeScript, and Postgres stack.",
+        "The indexed page reported an hourly range, duration, experience level, proposal count, and interview count; none of those fields is treated as current because no raw capture was preserved."
+      ],
+      "reproducibility": {
+        "raw_page_bytes_persisted": false,
+        "screenshot_persisted": false,
+        "final_url_persisted": false,
+        "http_status_persisted": false,
+        "content_sha256_persisted": false,
+        "independent_review_final_destination_observation": "The exact listing URL redirected to an Upwork machine-learning category page.",
+        "limitation": "The historical requirements cannot be reproduced from a content-addressed listing capture."
+      },
+      "current_application_eligibility": "blocked_historical_only"
     },
     {
       "id": "langfuse-evaluation-core-concepts",
       "source_class": "official_product_documentation",
       "url": "https://langfuse.com/docs/evaluation/core-concepts",
+      "status_at_independent_review": "official_product_reference_only_not_an_application_listing",
       "observations": [
         "Langfuse distinguishes offline datasets and experiments from online trace evaluation and monitoring.",
         "Its documented evaluation methods include deterministic code evaluators, LLM-as-a-judge, human annotation, and API or SDK scores.",
         "Production traces can be added back into evaluation datasets to preserve discovered edge cases as regression cases."
-      ]
+      ],
+      "reproducibility": {
+        "raw_page_bytes_persisted": false,
+        "screenshot_persisted": false,
+        "final_url_persisted": false,
+        "http_status_persisted": false,
+        "content_sha256_persisted": false,
+        "independent_review_final_destination_observation": "r1 used the official feature surface as counterevidence to a generic product demo but did not bind a raw replay artifact.",
+        "limitation": "This is product documentation, not buyer demand or a current listing."
+      },
+      "current_application_eligibility": "not_applicable_reference_only"
     },
     {
       "id": "upwork-data-cleaning-excel-sheets",
-      "source_class": "buyer_posted_marketplace_listing",
+      "source_class": "buyer_posted_marketplace_listing_seen_directly_at_review",
       "url": "https://www.upwork.com/freelance-jobs/apply/Data-Cleaning-Specialist-Needed-for-Excel-and-Google-Sheets-Cleanup_~022080590091373829052/",
+      "status_at_independent_review": "directly_open_during_r1_but_blocked_non_candidate",
       "page_reported_observations": [
-        "The listing asks for duplicate removal, format and field standardization, missing-value handling, validation, and a clean spreadsheet.",
-        "The page reports a $30.00 fixed price, an Intermediate experience level, 20 to 50 proposals, and 2 interviews.",
-        "The listing requires all communication, work submission, and payment to remain inside Upwork."
-      ]
+        "The page asked for duplicate removal, format and field standardization, missing-value handling, validation, and a clean spreadsheet.",
+        "The page reported a fixed price, experience level, proposal count, and interview count.",
+        "The listing required communication, work submission, and payment to remain inside Upwork.",
+        "The client appeared newly joined at the review time."
+      ],
+      "client_risk_fields_at_independent_review": {
+        "payment_method_verified": null,
+        "total_spend": null,
+        "hires": null,
+        "hire_rate": null,
+        "unknown_interpretation": "These fields were not established by the preserved evidence. Unknown is not proof of fraud, but it deterministically blocks application candidacy."
+      },
+      "reproducibility": {
+        "raw_page_bytes_persisted": false,
+        "screenshot_persisted": false,
+        "final_url_persisted": false,
+        "http_status_persisted": false,
+        "content_sha256_persisted": false,
+        "independent_review_final_destination_observation": "The listing page was directly open during r1 review.",
+        "limitation": "Direct visibility without a raw or screenshot, final URL, status, capture time, and content hash is insufficient for a current application candidate."
+      },
+      "current_application_eligibility": "blocked_missing_current_capture_and_client_risk_bindings"
     },
     {
       "id": "upwork-ai-saas-qa",
-      "source_class": "buyer_posted_marketplace_listing",
+      "source_class": "historical_indexed_buyer_listing",
       "url": "https://www.upwork.com/freelance-jobs/apply/Engineer-for-SaaS-Platform_~022011838145296429887/",
-      "page_reported_observations": [
-        "The listing asks for test plans, edge cases, bug reproduction, AI workflow validation, concurrency testing, and clear repro reports for a real-time AI SaaS product.",
-        "The page reports an hourly range of $15.00-$25.00, a duration longer than 6 months, an Expert experience level, 20 to 50 proposals, and 20 interviews."
-      ]
+      "status_at_independent_review": "historical_indexed_demand_sample_job_no_longer_available",
+      "historical_page_reported_observations": [
+        "The indexed listing asked for test plans, edge cases, bug reproduction, AI workflow validation, concurrency testing, and clear repro reports for an AI SaaS product.",
+        "The indexed page reported an hourly range, duration, experience level, proposal count, and interview count; none of those fields is treated as current."
+      ],
+      "reproducibility": {
+        "raw_page_bytes_persisted": false,
+        "screenshot_persisted": false,
+        "final_url_persisted": false,
+        "http_status_persisted": false,
+        "content_sha256_persisted": false,
+        "independent_review_final_destination_observation": "The exact page displayed that the job was no longer available.",
+        "limitation": "A closed listing cannot be promoted into a current application candidate."
+      },
+      "current_application_eligibility": "blocked_closed_historical_only"
     },
     {
       "id": "kittle-portfolio-management-intern",
-      "source_class": "employer_job_listing",
+      "source_class": "historical_indexed_employer_listing",
       "url": "https://www.linkedin.com/jobs/view/portfolio-management-intern-fall-2026-semester-at-kittle-property-group-4436508763",
-      "page_reported_observations": [
-        "The listing includes ENERGY STAR Portfolio Manager data entry, utility-data collection, validation, and portfolio work.",
-        "The page reports $15.00/hour, 20 to 25 hours per week, Fall 2026, and an onsite location in Indianapolis, Indiana.",
-        "The qualifications accept a currently enrolled university student but the location makes this listing a poor current fit for a UCSD student."
-      ]
+      "status_at_independent_review": "historical_indexed_demand_sample_current_status_not_independently_reproduced",
+      "historical_page_reported_observations": [
+        "The indexed listing included ENERGY STAR Portfolio Manager data entry, utility-data collection, validation, and portfolio work.",
+        "The indexed page reported compensation, weekly hours, a semester, and an onsite location; none of those fields is treated as current.",
+        "The indexed qualifications accepted a currently enrolled university student, while the indexed location made it a poor fit for a UCSD student."
+      ],
+      "reproducibility": {
+        "raw_page_bytes_persisted": false,
+        "screenshot_persisted": false,
+        "final_url_persisted": false,
+        "http_status_persisted": false,
+        "content_sha256_persisted": false,
+        "independent_review_final_destination_observation": null,
+        "limitation": "r1 did not independently bind the page's current destination or status."
+      },
+      "current_application_eligibility": "blocked_historical_only_and_fit_mismatch"
     }
   ],
+  "future_current_listing_promotion_rule": {
+    "decision": "fail_closed",
+    "required_for_each_exact_listing": [
+      "A source-specific raw response artifact or full-page screenshot is persisted.",
+      "The requested URL and observed final URL are both persisted.",
+      "The observed current-status marker and capture time with timezone are persisted.",
+      "Every persisted raw or screenshot artifact has a SHA-256 binding.",
+      "An immediate independent replay confirms the same exact destination, listing identity, and open status.",
+      "The exact requirements, price type, activity fields, client risk fields, and platform costs needed by the application-risk gate are non-null and source-bound."
+    ],
+    "unknown_or_missing_result": "BLOCKED_NOT_A_CURRENT_APPLICATION_CANDIDATE"
+  },
   "inferences": [
-    "Buyer-posted listings remove the basic ambiguity about why a response concerns the recipient, but they do not prove that the listing is trustworthy, still open, fairly priced, or likely to hire this user.",
-    "The Langfuse listing is direct evidence that at least one buyer publicly requested customer-specific LLM evaluation and regression work; it is not evidence of a broad market size or this user's present qualification.",
-    "The NYC benchmarking listing shows recurring procedural demand but also exposes a hard experience gate that the user cannot truthfully claim to satisfy from the present evidence.",
-    "Low-ticket data cleaning work may test transaction mechanics sooner, but the observed price and competition make it weak evidence for an attractive long-term asset."
+    "Historically indexed buyer listings can show that a buyer once described a requested result, but they do not prove that a current opportunity exists.",
+    "The historical Langfuse sample is suitable only as a frozen capability-gap specification; it is not a present job or proof of this user's qualification.",
+    "The historical NYC benchmarking sample shows a past procedural-demand pattern and a hard experience requirement, not a current application target.",
+    "The directly opened data-cleaning page was still blocked because client payment and hiring history were unknown and no reproducible current capture was bound."
   ],
   "external_actions": {
     "account_accessed": false,
@@ -90,5 +215,5 @@
     "message_sent": false,
     "payment_or_connects_spent": false
   },
-  "claim_boundary": "This observation records what public pages displayed at the observation time. Raw response bytes were not persisted, pages can change or disappear, and marketplace listings can be stale, misleading, unfilled, or fraudulent. It proves neither hiring, payment, user fit, market size, nor permission to access an account, apply, message, publish, spend, contract, or deliver."
+  "claim_boundary": "This record preserves historical public-page observations and the r1 rejection. It contains zero current application candidates. A historical index observation, a redirect, a directly opened but uncaptured page, or a closed page proves neither current availability, hiring, payment, user fit, market size, nor permission to access an account, apply, message, publish, spend, contract, or deliver."
 }

@@ -1,0 +1,17 @@
+{
+  "schema_version": "otts.research-closure-decision/1",
+  "decision_id": "OTTS-DESIGN-20260727-C7-RESEARCH-CLOSURE-1",
+  "candidate_id": "OTTS-DESIGN-20260727-C7",
+  "parent_candidate_manifest_sha256": "6515fe17eed7537745b7094ef597321ca30956e57b3306b77570c02a8b9402fd",
+  "freeze_report_sha256": "47cf8fb0faf0e5df4f5c600dc45806944d85bd0bc7fab8a1c258ac49a7eb95c1",
+  "independent_review_receipt_sha256": "6fd76ca8bdbdba0c73264afb2ecf4df9da21dd9c690901dc7fc6c153167f9fc9",
+  "decision": "CONDITIONALLY_READY",
+  "authorized_root_id": "shadow-mvp",
+  "authorized_root_path": "机会到交易系统-shadow-mvp",
+  "authorized_envelope_id": "RO-SHADOW-ENVELOPE-1.0",
+  "authorized_envelope_sha256": "e74d5fbb0f85655c753e712c5becb2f0990b71db88c7df873fae869503207c99",
+  "authority_scope": "LOCAL_ZERO_EXTERNAL_SIDE_EFFECT_SHADOW_MVP_ONLY",
+  "issuer_id": "/root",
+  "unresolved_conditions": [],
+  "external_action_authority": false
+}

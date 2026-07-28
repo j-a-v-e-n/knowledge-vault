@@ -180,7 +180,7 @@ EXPECTED_CA_SENDER_PROFILE_CLAIM_BOUNDARY = (
 EXPECTED_REVIEW_STATE_PATHS = {
     "legacy_runtime_tombstone": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json",
     "ca012650_internal_candidate": (
-        "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json"
+        "evidence/review-ca012650-precontact-rejection-successor-2026-07-27-r1.json"
     ),
 }
 EXPECTED_CA_R2_SCHEMA_VERSION = "ca012650-durable-candidate-independent-review/2"
@@ -234,6 +234,121 @@ EXPECTED_CA_R2_CLAIM_BOUNDARY = (
     "or any claim of demand, willingness to pay, delivery feasibility, profit, "
     "repeatability, or asset value."
 )
+
+# The r2 PASS remains historical evidence only.  It reviewed predecessor bytes
+# that are now preserved in three immutable snapshots; it is deliberately not
+# accepted as review authority for the successor validator, tests, or live
+# state.  The current acceptance contract therefore uses a new review identity
+# and excludes both mutable 08 and the review receipt itself from its candidate
+# set, avoiding a hash cycle.
+EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION = (
+    "ca012650-precontact-rejection-successor-independent-review/1"
+)
+EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID = (
+    "review-ca012650-precontact-rejection-successor-2026-07-27-r1"
+)
+EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY = (
+    "/root/ca_precontact_successor_review"
+)
+EXPECTED_CA_PRECONTACT_SUCCESSOR_SEVERITY_COUNTS = {"critical": 0, "major": 0}
+EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES = {
+    (
+        "The historical r2 PASS is preserved only as a predecessor by "
+        "byte-identical snapshots and a strict continuity record; it is not "
+        "treated as review authority for successor bytes."
+    ),
+    (
+        "The successor candidate binds the validator, adversarial tests, sender "
+        "profile observation, historical reviews, pre-contact rejection review "
+        "and receipt, predecessor snapshots, and all referenced raw and refreshed "
+        "evidence in a unique closed content-addressed set."
+    ),
+    (
+        "The exact message identity can transition only from "
+        "blocked_missing_bindings to rejected_precontact, is terminal, and "
+        "cannot be revived or reused for request_ready or any later external stage."
+    ),
+    (
+        "The recipient-value review remains a non-independent FAIL with zero "
+        "Critical and one Major; it cannot be upgraded to PASS or interpreted "
+        "as recipient or market counterevidence."
+    ),
+    (
+        "The rejected state leaves sender, cutoff, pre-send refresh, and exact "
+        "user authorization unbound; all authority and result flags remain false, "
+        "only the rejection receipt is present, and no Gmail or external draft, "
+        "send, or follow-up is authorized."
+    ),
+    (
+        "The sender profile observation gate remains strict, content-addressed, "
+        "single-read, and fresh only for request-readiness; authorized_once and "
+        "later execution remain unreachable without a future same-session "
+        "execution preflight."
+    ),
+    (
+        "All stage-dependent facts, actions, unknowns, result claims, and claim "
+        "boundaries are exact closed values, and opposite-semantics, duplicate-key, "
+        "path, symlink, time-order, and receipt-substitution attacks fail."
+    ),
+    (
+        "This successor review covers the bound code, tests, evidence, and "
+        "transition contract but not the mutable live state; activation requires "
+        "a later state binding to this receipt and a separate post-transition "
+        "verification."
+    ),
+}
+EXPECTED_CA_PRECONTACT_SUCCESSOR_CLAIM_BOUNDARY = (
+    "This detached receipt records a read-only review of the exact pre-contact "
+    "rejection successor bytes and transition contract. It does not review or "
+    "authorize any mutable live-state activation by itself, does not make the "
+    "rejected message fit for sending, and authorizes no Gmail or external draft, "
+    "contact, follow-up, quote, account access, submission, payment, delivery, "
+    "publication, investment execution, or claim of recipient response, market "
+    "counterevidence, demand, willingness to pay, delivery feasibility, profit, "
+    "repeatability, or asset value."
+)
+EXPECTED_CA_PRECONTACT_REJECTION_APPROVAL_CLAIM_BOUNDARY = (
+    "Pre-contact rejection proves only that the bound local message candidate is "
+    "not fit for this demand experiment. No Gmail or external draft, contact, "
+    "follow-up, or other external action is authorized; no recipient or market "
+    "response was observed. It does not prove absence of a problem, demand, "
+    "willingness to pay, delivery feasibility, profit, repeatability, or asset value."
+)
+EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING = {
+    "path": "evidence/receipt-ca012650-precontact-rejection-2026-07-27-r1.json",
+    "sha256": "aa53d97f35859a6548653640293ffca5df9f326e0dda00727a074e06a235c73a",
+}
+EXPECTED_CA_RECIPIENT_VALUE_REVIEW_BINDING = {
+    "path": "evidence/review-ca012650-recipient-value-2026-07-27-r1.json",
+    "sha256": "7fc4563288cc03a41e2f3748474c82845d10b68f23c308dbfb7127f3daf0c8bc",
+}
+EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING = {
+    "path": "evidence/active-state-ca012650-precontact-rejection-precursor-2026-07-27.json",
+    "sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
+}
+EXPECTED_CA_PREDECESSOR_CONTINUITY_BINDING = {
+    "path": "evidence/ca012650-r2-predecessor-continuity-2026-07-27.json",
+    "sha256": "3bfd51fe97e29203648a0f14e1d724c1f48a77dd837bfaa5998774a3ff38c195",
+}
+EXPECTED_CA_HISTORICAL_R2_BINDING = {
+    "path": "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json",
+    "sha256": "70b7e8e44d1095452fd26209eb43e65630bff4441a466db00e29fa7ef5790e07",
+}
+EXPECTED_CA_PRESEND_READINESS_FAIL_BINDING = {
+    "path": "evidence/review-ca012650-presend-readiness-2026-07-27-attempt-1.json",
+    "sha256": "bd87bf413704dbd2920cf88161228c2f7ab459f981adfce66d78db9936499494",
+}
+EXPECTED_CA_PREDECESSOR_SNAPSHOT_BINDINGS = {
+    "08": EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING,
+    "09": {
+        "path": "evidence/precursor-r2-09-校验活动状态-584d02cd.snapshot",
+        "sha256": "584d02cd8e5bf3541f594bf53944fa12a524ea17873381e999f3d779285d194c",
+    },
+    "tests": {
+        "path": "evidence/precursor-r2-test_active_state_validator-244d22b1.snapshot",
+        "sha256": "244d22b14fa8670ee3b63c52bf5937b8a999b12bc24fc8df94edd567c86435ae",
+    },
+}
 CA_R2_RECEIPT_KEYS = {
     "schema_version",
     "review_id",
@@ -283,17 +398,107 @@ EXPECTED_CA_R2_HISTORICAL_REJECTIONS = {
         "review_id": "review-ca012650-detached-gate-2026-07-27-attempt-2",
     },
 }
-EXPECTED_CA_INTERNAL_REVIEW_SCOPES = {
-    "pending_fresh_review": (
-        "The prior review was invalidated by durable raw-source and reproduction "
-        "bindings; the exact current package awaits fresh independent review and "
-        "authorizes no external action."
+EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS = {
+    "03-否决门与反方审查.md": "aeac11438eb06fdcd33b435a9522121983014740c32928d2ea62954a1dda22fd",
+    "07-自主运行协议.md": "6993acf3eaea61d9209882796b089bdf0147c97a0893dd84049bcbab7eae3d8a",
+    "10-现实候选预筛与首个反证实验.md": "3cb39b9c7d84cf018bb728a3041b6f91d4d58a7be89a2ea979e616ec21dc380a",
+    "11-内部诊断页-CA012650.md": "84d40ee6d2548e2f4de9034740aa8e9244f38f9c9aacc793a961c5dd78a8dce7",
+    "12-首个反证实验与对外动作候选.md": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691",
+    "README.md": "56a73c9f1aedbc02a66a2d357f4c65816fb5bd01943de4dce29e1ffef82fbc3f",
+    "evidence/cec-building-benchmarking-prescreen-2026-07-27.json": "02650ec4bb4244643d7f04042c2bd122f69b096268c9a725d20c8b8c5d15a7be",
+    "evidence/experiment-ca012650-internal-2026-07-27.json": "f16b463f4259e1032a672b41dc42eda41b51d1a4fe600cae350c71b62181feda",
+    "evidence/gmail-sender-profile-observation-2026-07-27T2320.json": "96276ab493a5cdd78a27608c28471a44347838cba5cca6bdf65ad8db9066b686",
+    "evidence/reproduce_cec_prescreen.py": "814ad0dd926404370a14f1ef557eca881c9717dfadbf0b78826adb621410e9db",
+    "evidence/cec-building-benchmarking-reproduction-2026-07-27.json": "d711cd145207961d85e57e6be8f97972283678820de32323a47f596ef8ef4dc2",
+    "evidence/raw/CoveredBuildingsExport-2026-07-27.csv": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75",
+    "evidence/raw/2024_Download_ADA-2026-07-27.xlsx": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00",
+    "evidence/review-ca012650-durable-evidence-2026-07-27-r1.json": "6b122f068b46b5a3ba93aab03d17f0772be75913251ea8b69989cd4275c5fcaf",
+    "evidence/review-ca012650-detached-gate-2026-07-27-attempt-1.json": "b1c723efb84d469e5a010a1b2b9087648502e85fc95294cf41a35348eb2704f0",
+    "evidence/review-ca012650-detached-gate-2026-07-27-attempt-2.json": "e2a2eedc3f84f6390f32983913c887500d842959324ce0e76e6ac50bd1ec7d69",
+    "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json": "70b7e8e44d1095452fd26209eb43e65630bff4441a466db00e29fa7ef5790e07",
+    "evidence/review-ca012650-presend-readiness-2026-07-27-attempt-1.json": "bd87bf413704dbd2920cf88161228c2f7ab459f981adfce66d78db9936499494",
+    "evidence/review-ca012650-recipient-value-2026-07-27-r1.json": "7fc4563288cc03a41e2f3748474c82845d10b68f23c308dbfb7127f3daf0c8bc",
+    "evidence/receipt-ca012650-precontact-rejection-2026-07-27-r1.json": "aa53d97f35859a6548653640293ffca5df9f326e0dda00727a074e06a235c73a",
+    "evidence/ca012650-r2-predecessor-continuity-2026-07-27.json": "3bfd51fe97e29203648a0f14e1d724c1f48a77dd837bfaa5998774a3ff38c195",
+    "evidence/active-state-ca012650-precontact-rejection-precursor-2026-07-27.json": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
+    "evidence/precursor-r2-09-校验活动状态-584d02cd.snapshot": "584d02cd8e5bf3541f594bf53944fa12a524ea17873381e999f3d779285d194c",
+    "evidence/precursor-r2-test_active_state_validator-244d22b1.snapshot": "244d22b14fa8670ee3b63c52bf5937b8a999b12bc24fc8df94edd567c86435ae",
+    "evidence/refresh-ca012650-cec-status-2026-07-27T2317.json": "0076adc9de1bd4d5c0709814da4654027a27038b66015ce9487412061529d6a2",
+    "evidence/refresh-ca012650-organization-channel-2026-07-27T2317.json": "9e88da895e7f4739f1d59bb6c3fe3d72f103d2d865a0c7cf2f1c7a5915a6095a",
+    "evidence/raw/CoveredBuildingsExport-pre-send-2026-07-27T2317.csv": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75",
+    "evidence/raw/bwmarinagateway-contact-pre-send-2026-07-27T2317.html": "5751bd861a96a5d3a93e8527603e5dd49febf076065b3a1fc682d03ed8736663",
+}
+EXPECTED_CA_PRECONTACT_SUCCESSOR_DYNAMIC_PATHS = {
+    "09-校验活动状态.py",
+    "tests/test_active_state_validator.py",
+}
+EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS = (
+    set(EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS)
+    | EXPECTED_CA_PRECONTACT_SUCCESSOR_DYNAMIC_PATHS
+)
+EXPECTED_CA_RECIPIENT_VALUE_REVIEW_CLAIM_BOUNDARY = (
+    "This review rejects only the bound message and its ability to measure demand. "
+    "It does not prove that the public record is wrong, that the organization has "
+    "no unresolved problem, or that the broader market has no demand. It authorizes "
+    "no draft, contact, follow-up, quote, account access, payment, delivery, "
+    "publication, investment execution, or external action."
+)
+EXPECTED_CA_RECIPIENT_VALUE_DECISION = {
+    "request_send_authorization": False,
+    "enter_request_ready": False,
+    "send_message": False,
+    "follow_up": False,
+    "next_local_action": (
+        "Preserve this candidate as a rejected pre-contact experiment and redesign "
+        "around clear recipient value, a legitimate responsible role, and outcomes "
+        "that discriminate the main hypothesis."
     ),
-    "passed_current_candidate": (
-        "The exact detached receipt passed only the current internal candidate "
-        "closure; it does not validate demand, payment, delivery, profit, "
-        "repeatability, asset value, current source freshness, or any external "
-        "authorization."
+}
+EXPECTED_CA_RECIPIENT_VALUE_MAJOR_FINDINGS = [
+    {
+        "id": "CA-RECIPIENT-VALUE-M1",
+        "title": (
+            "The message asks for recipient effort without establishing recipient "
+            "relevance or immediate value"
+        ),
+        "evidence": [
+            "The message frames the contact as the sender's independent research question.",
+            "The message explicitly says it is not offering a service.",
+            (
+                "The message asks the public routing mailbox to confirm resolution "
+                "status or identify an owner-authorized handler."
+            ),
+            (
+                "The public routing mailbox is not proven to be authorized to "
+                "discuss the owner's reporting record."
+            ),
+        ],
+        "measurement_confounders": [
+            "wrong organizational route",
+            "lack of recipient incentive",
+            "low sender trust",
+            "perceived phishing, regulatory, complaint, or sales risk",
+            "sensitivity of discussing an owner reporting record",
+            "absence of a real problem",
+        ],
+        "consequence": (
+            "A non-response cannot distinguish absence of demand from routing, "
+            "trust, relevance, or incentive failure, so this message is a weak "
+            "demand experiment."
+        ),
+    }
+]
+EXPECTED_CA_INTERNAL_REVIEW_SCOPES = {
+    "pending_precontact_successor_review": (
+        "The historical r2 PASS applies only to preserved predecessor bytes; the "
+        "pre-contact rejection successor awaits its own exact detached review and "
+        "authorizes no live-state activation or external action."
+    ),
+    "passed_precontact_rejection_successor": (
+        "The exact detached successor review validates only the local pre-contact "
+        "rejection mechanism and terminal-state contract; it does not make the "
+        "rejected message fit for sending, authorize activation or any external "
+        "action, or establish a recipient or market result."
     ),
 }
 EXPECTED_CA_REFRESH_CLAIM_BOUNDARIES = {
@@ -340,6 +545,7 @@ EXPECTED_CA_APPROVAL_CLAIM_BOUNDARIES = {
         "does not by itself establish demand, payment, delivery feasibility, profit, "
         "repeatability, or asset value, and it authorizes no further action."
     ),
+    "rejected_precontact": EXPECTED_CA_PRECONTACT_REJECTION_APPROVAL_CLAIM_BOUNDARY,
 }
 EXPECTED_STATIC_WORKSTREAM_SEMANTICS = {
     "long_term_capability_strategy": {
@@ -472,27 +678,29 @@ EXPECTED_OPPORTUNITY_FIRST_FACT = {
     "evidence_locator": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json",
 }
 EXPECTED_OPPORTUNITY_REVIEW_FACTS = {
-    "pending_fresh_review": {
+    "pending_precontact_successor_review": {
         "claim_class": "observed",
         "claim": (
-            "CA012650 内部实验包新增了持久公开源字节、确定性转换脚本与复现记录；"
-            "这使旧独立复审失效，当前精确候选正在等待新的独立复审，任何发送仍未获授权。"
+            "CA012650 原消息已被收件人价值审查判为 FAIL，但旧 r2 PASS "
+            "只对保存的 predecessor 字节有效；当前拒绝终态机制尚缺"
+            "新 identity 的独立复审，不得激活也不得发送。"
         ),
         "evidence_locator": (
-            "evidence/experiment-ca012650-internal-2026-07-27.json; "
-            "evidence/cec-building-benchmarking-reproduction-2026-07-27.json"
+            "evidence/review-ca012650-recipient-value-2026-07-27-r1.json; "
+            "evidence/ca012650-r2-predecessor-continuity-2026-07-27.json"
         ),
     },
-    "passed_current_candidate": {
+    "passed_precontact_rejection_successor": {
         "claim_class": "observed",
         "claim": (
-            "CA012650 内部实验包的持久公开源字节、确定性转换脚本、复现"
-            "记录、校验器与对抗测试已由当前精确 detached receipt 独立复核为 PASS；"
-            "该 PASS 只支持内部候选闭包，不证明需求、付款、交付、利润、复购或资产价值，"
-            "也不授权任何发送。"
+            "CA012650 拒绝 successor 的精确代码、测试、历史字节和收据链"
+            "已由新 identity 的 detached receipt 独立复核为 PASS；该 PASS 只证明"
+            "发送前拒绝机制与终态边界，不把原消息变成可发送候选，"
+            "不证明收件人反应、市场反证、需求、付款、交付、利润、复购或资产价值，"
+            "也不授权 Gmail 草稿、联系或跟进。"
         ),
         "evidence_locator": (
-            "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json"
+            "evidence/review-ca012650-precontact-rejection-successor-2026-07-27-r1.json"
         ),
     },
 }
@@ -521,6 +729,11 @@ EXPECTED_OPPORTUNITY_STAGE_FACT_CLAIMS = {
         "观察已由 closure receipt 关闭；未发送跟进，结果只能按允许的 outcome "
         "class 解释，本 schema 中所有需求、付款、交付、利润、复购和资产声明仍为 false。"
     ),
+    "rejected_precontact": (
+        "原消息已在发送前因收件人价值与测量设计缺陷被拒绝；未创建 Gmail "
+        "或外部草稿，未联系、发送或跟进，也未观察到收件人或市场反应。"
+        "该 approval、experiment 与 message identity 为永久终态，重新设计必须使用新 identity。"
+    ),
 }
 EXPECTED_OPPORTUNITY_STAGE_RECEIPT_FIELDS = {
     "request_ready": "readiness_receipt",
@@ -528,6 +741,7 @@ EXPECTED_OPPORTUNITY_STAGE_RECEIPT_FIELDS = {
     "executed_once": "execution_receipt",
     "observing": "observation_receipt",
     "closed": "closure_receipt",
+    "rejected_precontact": "precontact_rejection_receipt",
 }
 EXPECTED_OPPORTUNITY_UNKNOWNS = [
     "当前公开状态是否对应目标组织尚未解决的问题",
@@ -588,6 +802,16 @@ EXPECTED_OPPORTUNITY_ACTIONS = {
         "external_effect": False,
         "destructive": False,
     },
+    "rejected_precontact": {
+        "description": (
+            "保持不创建 Gmail/外部草稿、不发送且不跟进；只在本地保留"
+            "该发送前拒绝样本，并围绕明确收件人价值、合法责任角色和可区分"
+            "主假设的结果重新设计一个新 identity 的候选。"
+        ),
+        "scope": "unpublished_draft",
+        "external_effect": False,
+        "destructive": False,
+    },
 }
 EXPECTED_DURABLE_REPRODUCTION = {
     "raw/CoveredBuildingsExport-2026-07-27.csv": {
@@ -608,7 +832,7 @@ EXPECTED_REPRODUCTION_RECORD = {
     "sha256": "d711cd145207961d85e57e6be8f97972283678820de32323a47f596ef8ef4dc2",
 }
 
-APPROVAL_STAGES = (
+EXTERNAL_PROGRESS_STAGES = (
     "blocked_missing_bindings",
     "request_ready",
     "authorized_once",
@@ -616,8 +840,13 @@ APPROVAL_STAGES = (
     "observing",
     "closed",
 )
+APPROVAL_STAGES = frozenset({*EXTERNAL_PROGRESS_STAGES, "rejected_precontact"})
+REQUEST_READY_OR_LATER_STAGES = frozenset(EXTERNAL_PROGRESS_STAGES[1:])
+AUTHORIZED_OR_LATER_STAGES = frozenset(EXTERNAL_PROGRESS_STAGES[2:])
+EXECUTED_OR_LATER_STAGES = frozenset(EXTERNAL_PROGRESS_STAGES[3:])
 PREVIOUS_APPROVAL_STAGE = {
     "blocked_missing_bindings": None,
+    "rejected_precontact": "blocked_missing_bindings",
     "request_ready": "blocked_missing_bindings",
     "authorized_once": "request_ready",
     "executed_once": "authorized_once",
@@ -625,6 +854,7 @@ PREVIOUS_APPROVAL_STAGE = {
     "closed": "observing",
 }
 STAGE_RECEIPTS = (
+    "precontact_rejection_receipt",
     "readiness_receipt",
     "authorization_receipt",
     "execution_receipt",
@@ -632,14 +862,69 @@ STAGE_RECEIPTS = (
     "closure_receipt",
 )
 RECEIPT_STAGE_PAIRS = {
+    "precontact_rejection_receipt": (
+        "blocked_missing_bindings",
+        "rejected_precontact",
+    ),
     "readiness_receipt": ("blocked_missing_bindings", "request_ready"),
     "authorization_receipt": ("request_ready", "authorized_once"),
     "execution_receipt": ("authorized_once", "executed_once"),
     "observation_receipt": ("executed_once", "observing"),
     "closure_receipt": ("observing", "closed"),
 }
+REQUIRED_RECEIPTS_BY_STAGE = {
+    "blocked_missing_bindings": frozenset(),
+    "rejected_precontact": frozenset({"precontact_rejection_receipt"}),
+    "request_ready": frozenset({"readiness_receipt"}),
+    "authorized_once": frozenset({"readiness_receipt", "authorization_receipt"}),
+    "executed_once": frozenset(
+        {"readiness_receipt", "authorization_receipt", "execution_receipt"}
+    ),
+    "observing": frozenset(
+        {
+            "readiness_receipt",
+            "authorization_receipt",
+            "execution_receipt",
+            "observation_receipt",
+        }
+    ),
+    "closed": frozenset(
+        {
+            "readiness_receipt",
+            "authorization_receipt",
+            "execution_receipt",
+            "observation_receipt",
+            "closure_receipt",
+        }
+    ),
+}
+RECEIPT_CHRONOLOGY_BY_STAGE = {
+    "blocked_missing_bindings": (),
+    "rejected_precontact": ("precontact_rejection_receipt",),
+    "request_ready": ("readiness_receipt",),
+    "authorized_once": ("readiness_receipt", "authorization_receipt"),
+    "executed_once": (
+        "readiness_receipt",
+        "authorization_receipt",
+        "execution_receipt",
+    ),
+    "observing": (
+        "readiness_receipt",
+        "authorization_receipt",
+        "execution_receipt",
+        "observation_receipt",
+    ),
+    "closed": (
+        "readiness_receipt",
+        "authorization_receipt",
+        "execution_receipt",
+        "observation_receipt",
+        "closure_receipt",
+    ),
+}
 EXPERIMENT_ACTION_STATUS_BY_STAGE = {
     "blocked_missing_bindings": "blocked",
+    "rejected_precontact": "rejected_precontact",
     "request_ready": "pending_authorization",
     "authorized_once": "authorized_once",
     "executed_once": "executed_once",
@@ -648,6 +933,7 @@ EXPERIMENT_ACTION_STATUS_BY_STAGE = {
 }
 OPPORTUNITY_STATUS_BY_STAGE = {
     "blocked_missing_bindings": "blocked_external",
+    "rejected_precontact": "active_internal",
     "request_ready": "blocked_external",
     "authorized_once": "blocked_external",
     "executed_once": "observation_only",

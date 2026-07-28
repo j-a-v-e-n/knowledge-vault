@@ -1,0 +1,27 @@
+{
+  "schema_version": "otts.final-independent-review-receipt/1",
+  "receipt_id": "OTTS-DESIGN-20260727-C7-FULL-REVIEW-PASS-1",
+  "candidate_id": "OTTS-DESIGN-20260727-C7",
+  "parent_candidate_manifest_sha256": "6515fe17eed7537745b7094ef597321ca30956e57b3306b77570c02a8b9402fd",
+  "freeze_report_sha256": "47cf8fb0faf0e5df4f5c600dc45806944d85bd0bc7fab8a1c258ac49a7eb95c1",
+  "verifier_sha256": "88c16f8860811215fa4845bdd03c4f15ef4f5fcd2e8cdb85238cd4a77ee3bc69",
+  "reviewer_id": "/root/independent_review/fresh_c2_final_review",
+  "independence_assertion": "Read-only independent challenger, separate from candidate authorship and remediation; previously reviewed the Run2 evidence crosswalk but did not author or modify it; inspected the exact frozen originals; made no file changes and created no receipt or downstream root.",
+  "review_scope": "FULL_CANDIDATE_MANIFEST_AND_ALL_ACTIVE_HISTORICAL_DEPENDENCIES",
+  "verdict": "PASS",
+  "unresolved_critical": [],
+  "unresolved_major": [],
+  "residual_limits": [
+    "Resistance to hostile same-UID or administrator mutation is not proven.",
+    "Complete dynamic-library and host trusted-computing-base closure is not proven.",
+    "Darwin process-level RSS hard limiting is not established; fixed structural allocation bounds remain the enforced memory boundary.",
+    "The worker does not perform post-sandbox file-descriptor enumeration; the receipt can attest only to the parent-configured descriptor set.",
+    "Named stdout/stderr ceilings and cumulative structural-value ceilings include post-read detection layers under wider fixed hard bounds.",
+    "sandbox-exec is deprecated and unsupported defense in depth; it does not establish portable or host-level universal noninterference.",
+    "Commercial, customer, legal, platform, economic, and profitability facts remain unknown; this review proves no market demand or transaction.",
+    "A supplemental read-only reviewer found that the frozen Run2 receipt still uses the stale label 'overall C4/design closure'; exact C7 scope and all-authority-false bindings prevent authority expansion."
+  ],
+  "action_envelope_path": "研究/2026-07-27-总体设计/READ_ONLY_SHADOW_ACTION_ENVELOPE.md",
+  "action_envelope_sha256": "e74d5fbb0f85655c753e712c5becb2f0990b71db88c7df873fae869503207c99",
+  "external_action_authority": false
+}

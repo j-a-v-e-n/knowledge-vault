@@ -1,0 +1,18 @@
+{
+  "schema_version": "otts.post-closure-governance-manifest/1",
+  "artifact_kind": "CLOSURE_GOVERNANCE",
+  "candidate_id": "OTTS-DESIGN-20260727-C7",
+  "parent_candidate_manifest_sha256": "6515fe17eed7537745b7094ef597321ca30956e57b3306b77570c02a8b9402fd",
+  "freeze_report": {
+    "path": "FREEZE_VERIFICATION_REPORT.json",
+    "sha256": "47cf8fb0faf0e5df4f5c600dc45806944d85bd0bc7fab8a1c258ac49a7eb95c1"
+  },
+  "independent_review_receipt": {
+    "path": "FINAL_INDEPENDENT_REVIEW_RECEIPT.json",
+    "sha256": "6fd76ca8bdbdba0c73264afb2ecf4df9da21dd9c690901dc7fc6c153167f9fc9"
+  },
+  "closure_decision": {
+    "path": "RESEARCH_CLOSURE_DECISION.json",
+    "sha256": "3dfc477fcdc2375e4dd5b6c13e5bd0b9b303bf0949bf7ed25b538bbb631afd72"
+  }
+}
