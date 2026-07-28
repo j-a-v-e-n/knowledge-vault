@@ -1,0 +1,181 @@
+{
+  "schema_version": "ca012650-precontact-rejection-successor-independent-review/4",
+  "review_id": "review-ca012650-precontact-rejection-successor-2026-07-28-r4",
+  "recorded_at": "2026-07-28T01:35:04-07:00",
+  "reviewer_agent_identity": "/root/ca_precontact_successor_r4_review",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "PASS",
+  "severity_counts": {
+    "critical": 0,
+    "major": 0
+  },
+  "candidate_bindings": [
+    {
+      "path": "../03-否决门与反方审查.md",
+      "sha256": "aeac11438eb06fdcd33b435a9522121983014740c32928d2ea62954a1dda22fd"
+    },
+    {
+      "path": "../07-自主运行协议.md",
+      "sha256": "6993acf3eaea61d9209882796b089bdf0147c97a0893dd84049bcbab7eae3d8a"
+    },
+    {
+      "path": "../10-现实候选预筛与首个反证实验.md",
+      "sha256": "3cb39b9c7d84cf018bb728a3041b6f91d4d58a7be89a2ea979e616ec21dc380a"
+    },
+    {
+      "path": "../11-内部诊断页-CA012650.md",
+      "sha256": "84d40ee6d2548e2f4de9034740aa8e9244f38f9c9aacc793a961c5dd78a8dce7"
+    },
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
+    },
+    {
+      "path": "../README.md",
+      "sha256": "56a73c9f1aedbc02a66a2d357f4c65816fb5bd01943de4dce29e1ffef82fbc3f"
+    },
+    {
+      "path": "cec-building-benchmarking-prescreen-2026-07-27.json",
+      "sha256": "02650ec4bb4244643d7f04042c2bd122f69b096268c9a725d20c8b8c5d15a7be"
+    },
+    {
+      "path": "experiment-ca012650-internal-2026-07-27.json",
+      "sha256": "f16b463f4259e1032a672b41dc42eda41b51d1a4fe600cae350c71b62181feda"
+    },
+    {
+      "path": "gmail-sender-profile-observation-2026-07-27T2320.json",
+      "sha256": "96276ab493a5cdd78a27608c28471a44347838cba5cca6bdf65ad8db9066b686"
+    },
+    {
+      "path": "reproduce_cec_prescreen.py",
+      "sha256": "814ad0dd926404370a14f1ef557eca881c9717dfadbf0b78826adb621410e9db"
+    },
+    {
+      "path": "cec-building-benchmarking-reproduction-2026-07-27.json",
+      "sha256": "d711cd145207961d85e57e6be8f97972283678820de32323a47f596ef8ef4dc2"
+    },
+    {
+      "path": "raw/CoveredBuildingsExport-2026-07-27.csv",
+      "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75"
+    },
+    {
+      "path": "raw/2024_Download_ADA-2026-07-27.xlsx",
+      "sha256": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00"
+    },
+    {
+      "path": "review-ca012650-durable-evidence-2026-07-27-r1.json",
+      "sha256": "6b122f068b46b5a3ba93aab03d17f0772be75913251ea8b69989cd4275c5fcaf"
+    },
+    {
+      "path": "review-ca012650-detached-gate-2026-07-27-attempt-1.json",
+      "sha256": "b1c723efb84d469e5a010a1b2b9087648502e85fc95294cf41a35348eb2704f0"
+    },
+    {
+      "path": "review-ca012650-detached-gate-2026-07-27-attempt-2.json",
+      "sha256": "e2a2eedc3f84f6390f32983913c887500d842959324ce0e76e6ac50bd1ec7d69"
+    },
+    {
+      "path": "review-ca012650-durable-candidate-2026-07-27-r2.json",
+      "sha256": "70b7e8e44d1095452fd26209eb43e65630bff4441a466db00e29fa7ef5790e07"
+    },
+    {
+      "path": "review-ca012650-presend-readiness-2026-07-27-attempt-1.json",
+      "sha256": "bd87bf413704dbd2920cf88161228c2f7ab459f981adfce66d78db9936499494"
+    },
+    {
+      "path": "review-ca012650-sender-provenance-remediation-2026-07-27-r1.json",
+      "sha256": "19e4d6bbd2b333e225642ea9502480da50d2011253ee66bc1bd913d0a3d118b0"
+    },
+    {
+      "path": "review-ca012650-recipient-value-2026-07-27-r1.json",
+      "sha256": "7fc4563288cc03a41e2f3748474c82845d10b68f23c308dbfb7127f3daf0c8bc"
+    },
+    {
+      "path": "review-ca012650-precontact-rejection-successor-2026-07-28-attempt-1.json",
+      "sha256": "ee68cd328a029f3e6a954592c3a4903d78cab46c122bbd47e148fbc4f31f643e"
+    },
+    {
+      "path": "review-ca012650-precontact-successor-r2-infrastructure-failure-2026-07-28.json",
+      "sha256": "ccf27c810fdf80c4429f874c1a128d6626905fe200280b9b0b4928e37c30d1d7"
+    },
+    {
+      "path": "review-ca012650-precontact-successor-r3-candidate-drift-2026-07-28.json",
+      "sha256": "c13e058342a1c9035ed6134740306413af77f0dfbdaf00c3a1ce343f5ae32a57"
+    },
+    {
+      "path": "receipt-ca012650-precontact-rejection-2026-07-27-r1.json",
+      "sha256": "aa53d97f35859a6548653640293ffca5df9f326e0dda00727a074e06a235c73a"
+    },
+    {
+      "path": "ca012650-r2-predecessor-continuity-2026-07-27.json",
+      "sha256": "3bfd51fe97e29203648a0f14e1d724c1f48a77dd837bfaa5998774a3ff38c195"
+    },
+    {
+      "path": "active-state-ca012650-precontact-rejection-precursor-2026-07-27.json",
+      "sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab"
+    },
+    {
+      "path": "precursor-r2-09-校验活动状态-584d02cd.snapshot",
+      "sha256": "584d02cd8e5bf3541f594bf53944fa12a524ea17873381e999f3d779285d194c"
+    },
+    {
+      "path": "precursor-r2-test_active_state_validator-244d22b1.snapshot",
+      "sha256": "244d22b14fa8670ee3b63c52bf5937b8a999b12bc24fc8df94edd567c86435ae"
+    },
+    {
+      "path": "precursor-sender-stage-09-3ac3937a.snapshot",
+      "sha256": "3ac3937abb0dac504080b096bf7932b5925519d8161ffe9ba9eb56964d81f6ca"
+    },
+    {
+      "path": "precursor-sender-stage-test_active_state_validator-1d569256.snapshot",
+      "sha256": "1d5692565a4e45f4f2ae329635b7fbe6743211709dcd31710babf5af77db09a3"
+    },
+    {
+      "path": "refresh-ca012650-cec-status-2026-07-27T2317.json",
+      "sha256": "0076adc9de1bd4d5c0709814da4654027a27038b66015ce9487412061529d6a2"
+    },
+    {
+      "path": "refresh-ca012650-organization-channel-2026-07-27T2317.json",
+      "sha256": "9e88da895e7f4739f1d59bb6c3fe3d72f103d2d865a0c7cf2f1c7a5915a6095a"
+    },
+    {
+      "path": "raw/CoveredBuildingsExport-pre-send-2026-07-27T2317.csv",
+      "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75"
+    },
+    {
+      "path": "raw/bwmarinagateway-contact-pre-send-2026-07-27T2317.html",
+      "sha256": "5751bd861a96a5d3a93e8527603e5dd49febf076065b3a1fc682d03ed8736663"
+    },
+    {
+      "path": "../09-校验活动状态.py",
+      "sha256": "d77dc8c523b54efed5f9f54efada6b5bef98f6f830e4768e538d54c091a47a41"
+    },
+    {
+      "path": "../tests/test_active_state_validator.py",
+      "sha256": "bb67000748c3b103569b184730bc123dc0ac87f1424bd04279a8f75075299c25"
+    }
+  ],
+  "reviewed_properties": [
+    "All stage-dependent facts, actions, unknowns, result claims, and claim boundaries are exact closed values, and opposite-semantics, duplicate-key, path, symlink, time-order, and receipt-substitution attacks fail.",
+    "The /3 and r3 successor review stopped before semantic review because both delegated dynamic candidate hashes drifted; its exact FAIL with one Critical and zero Major, its unexecuted checks, and the absence of its expected PASS receipt are preserved only as history and grant no review or live-state activation authority for this /4 and r4 successor.",
+    "The attempt-1 successor FAIL is preserved as an immutable predecessor; its symlink-laundering Critical remains a rejection of the old /1 and r1 review contract, never authority for this /4 and r4 successor.",
+    "The exact message identity can transition only from blocked_missing_bindings to rejected_precontact, is terminal, and cannot be revived or reused for request_ready or any later external stage.",
+    "The historical r2 PASS is preserved only as a predecessor by byte-identical snapshots and a strict continuity record; it is not treated as review authority for successor bytes.",
+    "The recipient-value review remains a non-independent FAIL with zero Critical and one Major; it cannot be upgraded to PASS or interpreted as recipient or market counterevidence.",
+    "The rejected state leaves sender, cutoff, pre-send refresh, and exact user authorization unbound; all authority and result flags remain false, only the rejection receipt is present, and no Gmail or external draft, send, or follow-up is authorized.",
+    "The requested /2 and r2 successor produced no reviewer output, verdict, severity count, or receipt after two review-infrastructure refusals; the exact incident is bound only as history and is neither PASS, FAIL, review authority, nor live-state activation authority.",
+    "The sender profile observation gate remains strict, content-addressed, single-read, and fresh only for request-readiness; authorized_once and later execution remain unreachable without a future same-session execution preflight.",
+    "The sender-provenance remediation PASS is preserved only as a historical readiness-only predecessor against its exact snapshots; it does not review the rejection-stage successor and grants no send or execution authority.",
+    "The successor candidate binds the validator, adversarial tests, sender profile observation, historical reviews, pre-contact rejection review and receipt, predecessor snapshots, the r2 review-infrastructure incident, the r3 candidate-drift FAIL, and all referenced raw and refreshed evidence in a unique closed content-addressed set.",
+    "This successor review covers the bound code, tests, evidence, and transition contract but not the mutable live state; activation requires a later state binding to this receipt and a separate post-transition verification."
+  ],
+  "external_action_status": "REJECTED_PRECONTACT_TERMINAL_NO_AUTHORITY",
+  "missing_external_bindings": [
+    "exact_user_authorization",
+    "observation_cutoff_at",
+    "pre_send_source_refresh",
+    "sender_account"
+  ],
+  "claim_boundary": "This detached receipt records a read-only review of the exact pre-contact rejection successor bytes and transition contract. It does not review or authorize any mutable live-state activation by itself, does not make the rejected message fit for sending. The requested /2 and r2 successor was not substantively reviewed; its infrastructure incident is neither PASS nor FAIL and grants no review or activation authority. The /3 and r3 review stopped before semantic review because its delegated candidate bytes drifted; its FAIL is not authority for later bytes, created no PASS receipt, and grants no review or activation authority. The historical sender-remediation PASS remains predecessor-only and readiness-only. This review authorizes no Gmail or external draft, contact, follow-up, quote, account access, submission, payment, delivery, publication, investment execution, or claim of recipient response, market counterevidence, demand, willingness to pay, delivery feasibility, profit, repeatability, or asset value."
+}
