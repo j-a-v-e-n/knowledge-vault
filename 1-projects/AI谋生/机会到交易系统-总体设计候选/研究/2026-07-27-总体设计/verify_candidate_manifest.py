@@ -81,7 +81,13 @@ POST_CLOSURE_ROOT_POLICIES = {
     },
 }
 REAL_CANDIDATE_ROOT_NAME = "机会到交易系统-总体设计候选"
-REAL_CANDIDATE_ID = "OTTS-DESIGN-20260727-C6"
+REAL_CANDIDATE_ID = "OTTS-DESIGN-20260727-C7"
+EXPECTED_CANDIDATE_STATUS = "FROZEN-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW"
+EXPECTED_CANDIDATE_SCOPE = (
+    "Research and design closure candidate for a local read-only, "
+    "zero-external-side-effect shadow MVP; no market, customer, product, "
+    "payment, deployment, production, or external-action authority."
+)
 REAL_CANDIDATE_ROOT = Path(__file__).resolve().parents[2]
 RUN2_ACCEPTANCE_PATH = (
     "研究/2026-07-27-总体设计/ssp-run2/"
@@ -298,8 +304,14 @@ def validate_manifest(manifest_path: Path, *, phase: str = "freeze") -> dict[str
     if document["schema_version"] != "1.1":
         raise ManifestError("manifest.schema_version must equal '1.1'")
     require_string(document["candidate_id"], "manifest.candidate_id")
-    require_string(document["status"], "manifest.status")
-    require_string(document["scope"], "manifest.scope")
+    if document["status"] != EXPECTED_CANDIDATE_STATUS:
+        raise ManifestError(
+            "manifest.status must equal the frozen no-authority candidate status"
+        )
+    if document["scope"] != EXPECTED_CANDIDATE_SCOPE:
+        raise ManifestError(
+            "manifest.scope must equal the frozen local no-external-authority scope"
+        )
     if document["candidate_inventory_root"] != ".":
         raise ManifestError("manifest.candidate_inventory_root must equal '.'")
     entries = document["entries"]

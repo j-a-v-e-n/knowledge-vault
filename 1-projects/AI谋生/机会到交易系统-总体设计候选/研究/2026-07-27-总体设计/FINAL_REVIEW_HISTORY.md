@@ -216,3 +216,33 @@ Reviewer 同时确认 closed opcode 没有 import/eval/shell/subprocess/connecto
 - hostile same-UID/admin race-and-restore、完整 dylib/host TCB、Darwin 进程级 RSS 隔离、跨平台隔离、runner 无 bug、保密性和 host-level universal noninterference 均未证明。
 
 该 PASS 只关闭上述五个 exact files 的 Gate 代码/接口拒绝项，不是 RC-26、freeze、deployment、runtime 或外部行动授权。下一步仍须把全部候选字节封装成新的 C6 manifest/freeze，并接受另一轮完整 manifest-bound independent review；本节 PASS 不得迁移成总体终审 PASS。
+
+## `OTTS-DESIGN-20260727-C6` withdrawn after exact final review
+
+- Candidate manifest SHA-256：`68ed50299468c7e1e2f5a886e9199f1e60dad9e371329b40d721cb0a62aaa38d`
+- Inventory digest：`f2a631c5759c2409a5a8a7e746a0e7c13fb1b0057c3f65c8b8418a2a30ec95c0`
+- External freeze report SHA-256：`51917e3c663cbf4472617ee235872d6a10f9e93f4fd0cf0773398f343c1449cb`
+- Reviewer ID：`codex-independent-final-reviewer-c6-20260727-fresh-a`
+- 审查范围：全部 `67` 个 active entries、依赖 DAG、全部 `26` 个 raw originals、Run2 Claim→Evidence 语义、declarative Gate、post-closure schema、三个 sibling roots 与 RC-01–RC-26
+- 裁决：`FAIL`；`0` Critical、`2` Major、`1` Minor
+- RC 结果：`RC-02`、`RC-05` 失败，因而 `RC-26` 失败；总体继续 `BLOCKED`
+- 文件修改：reviewer 只读；三个 post-closure sibling roots 均不存在；未生成 receipt
+
+### 两个独立 Major
+
+1. `S2-K03/R16/turn163academia15` 的原件与 joint 只承载 rival firms、acquihire 与 talent allocation 的形式模型，lead 还把它识别为 customer-acquisition 词义误命中；它没有 AI 降本、卖方利润或价值捕获命题，却被 human/JSONL crosswalk 提升为 `SS-01` 的 direct-load-bearing support。
+2. `S2-K06/R06/turn166search4` 只承载 compositional consumer choice、效用成分与相似商品未必为 substitutes 的条件性理论；它没有 AI 降本、卖方利润或价值捕获结论，却被同时提升为 `TF-04,SS-01` 的 direct-load-bearing support。
+
+机械 verifier、crosswalk tests、Run2 acceptance tests、managed/host Gate suites、phase suite、manifest/freeze inventory 与 DAG 均通过，但它们只能证明 identity/hash/reconstruction/schema，不能自行判断上述语义桥成立。因为两条边被显式标为 load-bearing，机械 PASS 不能覆盖语义 FAIL。
+
+Minor：`RESEARCH_CLOSURE_PREDICATE_MATRIX.md` 仍用“manifest/freeze 待生成”的瞬时措辞；supplemental exact-candidate assurance 另指出 candidate verifier 对顶层 `status/scope` 只要求非空。当前 exact manifest 的值本身安全，但 successor 必须冻结闭集常量并加入过度声明负向测试。
+
+### 后续修订边界
+
+- 上述 exact manifest/freeze 永久作为失败历史，不得签发 governance receipt，也不得迁移到后续候选；
+- 两条来源保留 final CE-IN 与类别/方法线索，但降为 `NO_DIRECT_LOAD_BEARING_USE`，Claim/DD 为空；
+- 同一语义原则也把 `S2-K06/R05/turn166search3` 对 `SS-01` 的桥删除，只保留其形式模型对 `TF-04` 中 quality-WTP/price 比较机制的窄支持；
+- verifier 必须以独立于计数的拒绝集和负向回归阻止已否决 identity/claim 重新晋级；
+- 修订后的 human/JSONL crosswalk、verifier、tests 与 `FINAL_RUN_STATUS.md` 必须形成新 exact bytes，并取得新的独立 Run2 acceptance；
+- closure matrix 的阶段措辞与 candidate 顶层 `status/scope` 必须改为 forward-stable、exact closed values；
+- 只有重建全候选 manifest/freeze 并由 fresh full reviewer 给出无 Critical/Major 的 PASS 后，才可创建 governance root。当前没有 implementation、shadow operation、deployment 或 external-action authority。

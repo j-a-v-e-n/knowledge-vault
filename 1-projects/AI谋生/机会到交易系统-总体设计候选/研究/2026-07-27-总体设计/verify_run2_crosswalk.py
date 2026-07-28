@@ -58,7 +58,26 @@ K_TO_RQ = {
 
 EXPECTED_STAGE_UNIVERSE = {"S1": 432, "S2": 345}
 EXPECTED_FINAL_CE_IN = {"S1": 131, "S2": 141}
-EXPECTED_DIRECT_MAPPINGS = {"S1": 18, "S2": 8}
+EXPECTED_DIRECT_MAPPINGS = {"S1": 18, "S2": 6}
+
+# These identities remain admitted CE-IN candidates, but the exact C6 semantic
+# review established that they do not directly support the current Claim/DD
+# graph.  Keeping the rejection separate from the count prevents a future edit
+# from silently re-promoting one identity while demoting another.
+SEMANTICALLY_REJECTED_DIRECT_IDENTITIES = {
+    "S2-K03/R16/turn163academia15",
+    "S2-K06/R06/turn166search4",
+}
+
+# The same review exposed a broader bridge error: none of these returned
+# propositions contains AI cost reduction, seller profit, or value-capture
+# semantics sufficient for SS-01.  R05 may retain only its narrow TF-04 model
+# bridge; the other two identities may not be direct mappings at all.
+SEMANTICALLY_REJECTED_CLAIM_BINDINGS = {
+    "S2-K03/R16/turn163academia15": {"SS-01"},
+    "S2-K06/R05/turn166search3": {"SS-01"},
+    "S2-K06/R06/turn166search4": {"SS-01"},
+}
 
 
 def sha256_text(value: str) -> str:
@@ -463,6 +482,24 @@ def final_rows(root: Path) -> tuple[list[dict[str, Any]], dict[str, int]]:
     )
     s2_specific_scopes = parse_s2_scope_constraints(run / "S2_JOINT_ADJUDICATION.md")
     direct = parse_direct_mappings(root / "RUN2_CLAIM_EVIDENCE_CROSSWALK.md")
+
+    rejected_identities = sorted(
+        SEMANTICALLY_REJECTED_DIRECT_IDENTITIES.intersection(direct)
+    )
+    if rejected_identities:
+        raise CrosswalkError(
+            "semantically rejected identities cannot be direct mappings: "
+            f"{rejected_identities}"
+        )
+    for identity, rejected_claims in SEMANTICALLY_REJECTED_CLAIM_BINDINGS.items():
+        mapping = direct.get(identity)
+        if not mapping:
+            continue
+        overlap = sorted(rejected_claims.intersection(mapping["claim_ids"]))
+        if overlap:
+            raise CrosswalkError(
+                f"semantically rejected claim bridge for {identity}: {overlap}"
+            )
 
     rows: list[dict[str, Any]] = []
     stage_counts = {"S1": 0, "S2": 0}

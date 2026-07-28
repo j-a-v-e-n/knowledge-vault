@@ -5,7 +5,7 @@
 - S1 joint SHA-256：`c8fb7bef800bc0a23370629fa8dfd4e19c802dea65d303f3e67eff690d00880f`
 - S2 joint 已独立接受 SHA-256：`c6b2f73f41f1669f1d4a096ebede551353f84024d6d281df091feab4a79907d3`
 
-本文件中的两张人工表只列出被当前 Claim/DD 图直接使用的 Run2 CE-IN；完整逐条桥接位于 [`RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl`](./RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl)。JSONL 由 [`verify_run2_crosswalk.py`](./verify_run2_crosswalk.py) 从两份 lead/independent sealed ledgers 和 S1/S2 joint 重新构造，逐条绑定双方 claim、scope、CE、K 路由与裁决来源。它覆盖最终 `272` 条 CE-IN：其中本文件直接映射 `26` 条，其余 `246` 条显式标记为 `NO_DIRECT_LOAD_BEARING_USE`，不能静默增加当前 Claim/DD 的证据权重。
+本文件中的两张人工表只列出被当前 Claim/DD 图直接使用的 Run2 CE-IN；完整逐条桥接位于 [`RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl`](./RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl)。JSONL 由 [`verify_run2_crosswalk.py`](./verify_run2_crosswalk.py) 从两份 lead/independent sealed ledgers 和 S1/S2 joint 重新构造，逐条绑定双方 claim、scope、CE、K 路由与裁决来源。它覆盖最终 `272` 条 CE-IN：其中本文件直接映射 `24` 条，其余 `248` 条显式标记为 `NO_DIRECT_LOAD_BEARING_USE`，不能静默增加当前 Claim/DD 的证据权重。
 
 这个分层修复了旧 crosswalk 只枚举 joint disagreement-side inclusion、漏掉 agreement-side inclusion 的缺口。CE-IN 只表示该返回在绑定范围内可以进入 claim-evidence 候选；它不表示本设计实际使用了该来源，也不把类别饱和改写成来源内容正确，更不把 CE-IN 改写成具体商机、需求、价格、交付能力或盈利事实。
 
@@ -50,13 +50,20 @@ S1 joint 只裁决为普通 `INCLUDE`，没有权威子型，所以下表写作 
 | Identity | 显示摘要 | 严格范围 / CE | Claim / RQ 关系 | DD | 残余未知 |
 |---|---|---|---|---|---|
 | `S2/K03/R10/turn163search8` | Nicira 回顾中，客户兴趣没有自动转化为预算和组织采购能力 | 单一创业团队回顾、无对照；不估计普遍频率；`CE-IN/CASE-MECHANISM` | `RQ1`；案例范围内支持 `EF-01`；反对“兴趣等于采购就绪” | `DD-01,DD-16,DD-19` | 频率、因果与跨组织适用性未知 |
-| `S2/K03/R16/turn163academia15` | 模型中 rival firms 可收购并整合 orthogonal-market startup | 只承载 rival firms、acquihire 与 talent allocation 的形式模型；不是客户获取或市场需求经验效应；`CE-IN/PRIMARY-METHOD` | `RQ1`；形式机制范围内支持 `SS-01`；不支持 buyer-reach effectiveness | `DD-05` | 模型条件的现实满足、方向与市场效应未知 |
 | `S2/K05/R07/turn165search6` | IBM 文档称 Abandoned Products report 可用于发起 abandonment recovery campaigns | 只承载 IBM 文档内容与发布者自述；不证明 recovery 导致购买；`CE-IN/DOCUMENTATION` | `RQ3`；只限制 `EF-06`，不支持结果主张 | `DD-03,DD-06` | abandonment 原因、恢复因果效果与购买率未知 |
-| `S2/K06/R05/turn166search3` | 可见模型以 quality-WTP 分布和简单购买规则研究 customer surplus/profit | 只承载模型、假设与条件；需全文核验；不作经验 WTP 或效果量外推；`CE-IN/PRIMARY-METHOD` | `RQ1,RQ5`；只在模型内支持 `TF-04,SS-01` | `DD-05` | 分布假设、经验 WTP、竞争反应与效果量未知 |
-| `S2/K06/R06/turn166search4` | compositional-choice 理论说明相似价格、质量或功能不必然意味着实际 substitutes | 只承载形式理论及成立条件；不作普遍经验替代效应；`CE-IN/PRIMARY-METHOD` | `RQ1,RQ5`；条件性支持 `TF-04,SS-01` | `DD-05` | 承重价值成分、实际替代弹性与成立条件未知 |
+| `S2/K06/R05/turn166search3` | 可见模型以 quality-WTP 分布和简单购买规则研究 customer surplus/profit | 只承载模型、假设与条件；需全文核验；不作经验 WTP、AI 降本、卖方利润、价值捕获或效果量外推；`CE-IN/PRIMARY-METHOD` | `RQ5`；只在模型内为 `TF-04` 的买方 quality-WTP/price 比较机制提供窄支持 | `DD-05` | 分布假设、经验 WTP、竞争反应与效果量未知 |
 | `S2/K07/R17/turn167academia16` | Bayesian truth-discovery 方法分别建模 source false-positive/false-negative quality | 只承载算法及所述 data-integration 数据集；不作开放世界需求发现准确率；`CE-IN/PRIMARY-METHOD` | `RQ3,RQ4`；支持 `SS-04` 下的候选来源质量机制，限制自动 truth inference | `DD-04,DD-10` | 敌对网页、商业需求与分布漂移上的准确率未知 |
 | `S2/K09/R26/turn169search25` | 原论文提供 multi-agent failure benchmark/taxonomy，并讨论 verification、communication、uncertainty 与 memory/state | 只限论文 benchmark/taxonomy；不作开放世界生产可靠性、恢复或安全保证；普通 `INCLUDE`；`S2-K09/R03` 为 duplicate | `RQ6,RQ7`；支持 `EF-09,SS-08`；反对“多 Agent 必然更强” | `DD-08,DD-10,DD-13` | benchmark 迁移、生产失败率与控制净效果未知 |
 | `S2/K10/R22/turn170search21` | Microsoft 文档描述 access control、data protection、auditability、admin consent、managed identity 与 least privilege | 只承载产品文档所述 controls/configuration；不证明实现正确或安全有效；`CE-IN/DOCUMENTATION` | `RQ8`；作为 documented mechanism 支持 `SS-09`，不支持 effectiveness | `DD-09,DD-20` | 配置执行、攻击抵抗、其他平台与法律适用未知 |
+
+## S2 终审后的语义降级记录
+
+| Identity | 仍保留的 CE / 类别价值 | 当前 Claim/DD 关系 | 降级理由 |
+|---|---|---|---|
+| `S2/K03/R16/turn163academia15` | `CE-IN/PRIMARY-METHOD`；只保留 rival firms、acquihire 与 talent allocation 的形式模型及 `K06` 路由 | `NO_DIRECT_LOAD_BEARING_USE`；Claim/DD 为空 | 原件与 joint 没有 AI 降本、卖方利润或价值捕获命题，不能桥到 `SS-01`；lead 还曾按 customer-acquisition 词义误命中判为 out-of-scope |
+| `S2/K06/R06/turn166search4` | `CE-IN/PRIMARY-METHOD`；只保留 compositional choice 及相似商品未必为 substitutes 的条件性理论线索 | `NO_DIRECT_LOAD_BEARING_USE`；Claim/DD 为空 | 该线索不足以承担 `SS-01`，而对更宽 `TF-04` 也只覆盖局部效用构成；当前图已有更直接的感知价值/切换成本来源，因此保守不计承重权重 |
+
+`S2/K06/R05/turn166search3` 仍留在直接表中，但已把 `SS-01` 删除，只保留其可见模型对 `TF-04` 中 quality-WTP/price 比较机制的窄桥。上述三条 `SS-01` 禁止关系由 verifier 的冻结语义拒绝集和负向测试机械执行；任何未来重新提升都必须提出新的逐字 Claim、来源语义桥和独立审查，不能只改表格或计数。
 
 ## S2 K04 强制 non-claim
 

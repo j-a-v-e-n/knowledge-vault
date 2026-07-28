@@ -23,6 +23,8 @@ from build_freeze_report import (  # noqa: E402
     write_freeze_report,
 )
 from verify_candidate_manifest import (
+    EXPECTED_CANDIDATE_SCOPE,
+    EXPECTED_CANDIDATE_STATUS,
     REAL_CANDIDATE_ID,
     REAL_CANDIDATE_ROOT_NAME,
     REQUIRED_RUN2_ACCEPTANCE_PATHS,
@@ -95,8 +97,8 @@ class PhaseManifestTests(unittest.TestCase):
         candidate_document = {
             "schema_version": "1.1",
             "candidate_id": "SYNTHETIC-C6",
-            "status": "SYNTHETIC-TEST-ONLY",
-            "scope": "Synthetic verifier test only; no authority.",
+            "status": EXPECTED_CANDIDATE_STATUS,
+            "scope": EXPECTED_CANDIDATE_SCOPE,
             "candidate_inventory_root": ".",
             "post_closure_artifact_roots": [
                 {
@@ -176,6 +178,20 @@ class PhaseManifestTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
+
+    def test_candidate_status_overclaim_fails(self) -> None:
+        document = canonical_load(self.candidate_manifest)
+        document["status"] = "PRODUCTION_AUTHORIZED"
+        write_json(self.candidate_manifest, document)
+        with self.assertRaisesRegex(ManifestError, "manifest.status must equal"):
+            validate_manifest(self.candidate_manifest, phase="freeze")
+
+    def test_candidate_scope_overclaim_fails(self) -> None:
+        document = canonical_load(self.candidate_manifest)
+        document["scope"] = "MARKET_PAYMENT_DEPLOYMENT_AND_EXTERNAL_ACTION_AUTHORIZED"
+        write_json(self.candidate_manifest, document)
+        with self.assertRaisesRegex(ManifestError, "manifest.scope must equal"):
+            validate_manifest(self.candidate_manifest, phase="freeze")
 
     def _create_governance(self) -> dict[str, Path | str]:
         freeze = build_freeze_report(self.candidate_manifest)

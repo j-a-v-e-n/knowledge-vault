@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the canonical C6 candidate manifest from an explicit closed inventory.
+"""Build the canonical C7 candidate manifest from an explicit closed inventory.
 
 The builder is intentionally not a discovery tool.  Every admissible path,
 role, authority status and dependency is declared below.  An unexpected file,
@@ -18,6 +18,12 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 sys.dont_write_bytecode = True
+
+from verify_candidate_manifest import (  # noqa: E402
+    EXPECTED_CANDIDATE_SCOPE,
+    EXPECTED_CANDIDATE_STATUS,
+    REAL_CANDIDATE_ID,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -206,6 +212,7 @@ SPECS: dict[str, dict[str, Any]] = {
     BUILDER: spec(
         "explicit closed-inventory canonical manifest builder",
         "MECHANICAL_GENERATION_ONLY",
+        CANDIDATE_VERIFIER,
     ),
 }
 
@@ -520,13 +527,9 @@ def build() -> dict[str, Any]:
         )
     return {
         "schema_version": "1.1",
-        "candidate_id": "OTTS-DESIGN-20260727-C6",
-        "status": "FROZEN-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW",
-        "scope": (
-            "Research and design closure candidate for a local read-only, "
-            "zero-external-side-effect shadow MVP; no market, customer, product, "
-            "payment, deployment, production, or external-action authority."
-        ),
+        "candidate_id": REAL_CANDIDATE_ID,
+        "status": EXPECTED_CANDIDATE_STATUS,
+        "scope": EXPECTED_CANDIDATE_SCOPE,
         "candidate_inventory_root": ".",
         "post_closure_artifact_roots": [
             {
