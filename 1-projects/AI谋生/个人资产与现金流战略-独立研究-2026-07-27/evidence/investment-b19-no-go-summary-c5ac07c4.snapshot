@@ -1,0 +1,18 @@
+# Foundation successor recovery candidate `b19ab03` — NO-GO
+
+- Candidate commit: `b19ab03c6e6e30e54d6da5571733f981dfe7896a`
+- Candidate tree: `b438a08d8b6630ca7a39b3fdf054b7fded6b583e`
+- Sole parent: `d8c108f81f84f4c5be99fe09902ace161bda5745`
+- Differential reviewer: `019fa702-aef6-76b0-86f1-536746bc268b`
+- Replacement assurance reviewer: `019fa712-af17-7e30-84e1-69042f7ba024`
+- Initial assurance reviewer attempt: `019fa702-af92-7e90-ac5e-993f6e1f6f95` (platform content-classification error; no verdict)
+- Verdict: `no_go_open_critical_or_major`
+- Prompt files are normalized prompt-plus-ID summaries; the platform task is the byte-level message record. Output JSON files preserve the returned reviewer objects.
+
+Open findings converged on three required remediation surfaces:
+
+1. Production work-graph/project-state verification used manifest-relative snapshot consistency without independently anchoring historical predecessor bytes to the frozen baseline Git objects.
+2. Completed operation and transaction archives were optional and incompletely cross-bound, so deletion or semantic mutation could remain `valid`.
+3. Production-entrypoint negative tests did not exercise coherent archive-plus-manifest rewriting, archive deletion, or unchecked archived semantic fields.
+
+The candidate was not integrated. Its positive evidence remains useful: the direct-parent/write-set identity was exact, local consistency granted no aliases/waivers/reviewer authentication, graph routing was direct, and prior check/use, completed-target, cleanup, and hidden-index findings were closed for the inspected paths.
