@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T09:11:29-07:00",
+  "record_type": "IMMUTABLE_D035_MANUAL_V1_1_FINAL_PASS_FIXED_FIVE_PUBLIC_READ_ONLY_DRAFT_CAPTURE_ONLY",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "candidate": {
+    "commit": "297dca9ade9301a18737ede6396213c9e414f16b",
+    "root_tree": "daea3756cf1b45ec03706a081683eb5913933937",
+    "parent": "96ce25a7ebebc587509e9211e5a3f774af6de2aa",
+    "exact_changed_file_count": 1,
+    "protocol_git_blob": "8c957277a6aa6edc9f230f81d37ba7ccf538c9c1",
+    "protocol_sha256": "0883a557316d636ae4344e640f6d3468076b822d441b6d2f6a3d0a4a9c0a8a01",
+    "fixture_source_commit": "77958750b41f45a56781e11982069f0f2cb0ac57",
+    "fixture_sha256": "dec2733082a43ba207b45291a4f756b5f7b286008ad1da304a14577b1629cd41"
+  },
+  "independent_reviews": [
+    {
+      "reviewer": "/root/d035_manual_protocol_review",
+      "verdict": "FINAL_PASS",
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "authority_effect": "FIXED_FIVE_PUBLIC_READ_ONLY_OPENS_AND_UNREVIEWED_DRAFT_CAPTURE_ONLY"
+    },
+    {
+      "reviewer": "/root/d035_backtrack_challenge",
+      "verdict": "FINAL_PASS",
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "authority_effect": "DESIGN_REVIEW_PASS_ONLY"
+    }
+  ],
+  "closed_predecessor_major": [
+    "Every page draft is frozen before review by exact Git commit, root tree, repo-relative path, blob object, file SHA-256 and record ID.",
+    "A plain review note binds the exact draft and fixture, writer and reviewer thread identities, explicit reviewer nonparticipation, timestamp, source URL and anchor, page state, predicate and excerpt or hash conclusions, plus PASS or FAIL.",
+    "Unverifiable independence is FAIL, and the executor cannot manufacture independence by choosing a new label.",
+    "Review notes are immutable and cannot modify their drafts.",
+    "Any FAIL, contradictory review or unverifiable independence yields no observation; latest-wins, PASS-wins and majority selection are forbidden.",
+    "Conflict resolution requires a new immutable draft successor and fresh review while preserving prior history."
+  ],
+  "scope_nonregression": [
+    "No machine validator, negative DSL, receipt DSL, manifest or self-hash was introduced.",
+    "The scope remains the exact five public pages and fixed fixture order.",
+    "Source-only capture, conservative page states and other-participant zero propagation remain unchanged.",
+    "No cross-page count, ranking, aggregation, repeated signal or commercial inference is allowed."
+  ],
+  "authorized_next_action": {
+    "action": "OPEN_EXACT_FIXED_FIVE_PUBLIC_PAGES_READ_ONLY_AND_WRITE_FIVE_UNREVIEWED_DRAFTS",
+    "search_allowed": false,
+    "new_source_or_link_expansion_allowed": false,
+    "login_comment_contact_or_external_write_allowed": false,
+    "draft_batch_must_be_frozen": true,
+    "review_note_or_observation_generation_allowed_in_same_step": false,
+    "authority_effect": "FIXED_FIVE_PUBLIC_READ_ONLY_OPENS_AND_UNREVIEWED_DRAFT_CAPTURE_ONLY"
+  },
+  "current_nonclaims": {
+    "page_run_completed_at_record_time": false,
+    "reviewed_observation_exists": false,
+    "repeated_signal": false,
+    "demand_validated": false,
+    "buyer_or_willingness_to_pay_validated": false,
+    "product_selected": false,
+    "external_contact_publication_account_payment_contract_or_delivery_authorized": false,
+    "c8_or_shadow_authorized": false,
+    "commercial_authority": false
+  }
+}

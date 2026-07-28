@@ -54,6 +54,10 @@ D034 的 no-information 回溯 successor `fbedb67631a357fc8f204ebea1e1423b060b16
 
 root-authority successor `affcb1653c24d7f02954155444a31e22313b16eb` 已实质关闭该常量漏洞，但两名 reviewer 的合并结论仍为 `FINAL FAIL C0/M1/m1`：选择性负例清单被协议误当成完整机器验收 oracle；协议另有一个字段路径写错。Git exact commit/tree 已封住 manifest self 与四个 payload，不再追加递归 self-hash。按 stall/backtrack，当前不做 v2.2 alias/DSL 补丁，改为冻结最小人工只读协议：每页只生成 `UNREVIEWED_DRAFT / authority_effect=NONE`，再由独立 reviewer 打开原页核对；页面仍未运行。精确证据见 `evidence/opportunity-trade-proximity-v2-1-review-and-backtrack-2026-07-28.json`。
 
+D035 manual protocol `96ce25a7ebebc587509e9211e5a3f774af6de2aa` 已证明路线确实简化，但两名 reviewer 均给出 `FINAL FAIL C0/M1/m0`：fresh review 没有绑定 exact immutable draft identity，也没有可审计的 reviewer independence，draft 可在 PASS 后改变或由 executor 自接纳。当前只做一个 plain-review-note 窄 successor，用 Git commit/tree/path/blob 绑定 draft；不重建 verifier 或 receipt DSL。页面继续零运行。精确证据见 `evidence/opportunity-d035-manual-protocol-final-fail-2026-07-28.json`。
+
+manual v1.1 successor `297dca9ade9301a18737ede6396213c9e414f16b` 已获两份 `FINAL PASS C0/M0/m0`。当前唯一放行动作是按 fixture 固定顺序只读打开五个 exact public pages、写五份 `UNREVIEWED_DRAFT` 并冻结 batch；PASS 不产生 observation，独立原页复核仍是下一阶段。无搜索、登录、联系、发布、C8、Shadow 或商业权限。精确证据见 `evidence/opportunity-d035-manual-v1-1-final-pass-2026-07-28.json`。
+
 历史 CA012650 precontact 分支没有取得发送账户、观察截止、完整且语义绑定的发送前来源刷新或用户对精确消息的单次授权，因此从未发送、报价或追访，也不是当前机会线 next action。当前机会线只处理 D032 状态矛盾的窄 successor 与后续原页忠实度/污染审查；不从 live 搜索草稿推导 repeated signal、需求、产品或外部权限。
 
 投研纪律系统保持 paper-only、human-final。最后一次 portfolio-bound 状态仍为 `design_freeze / blocked`；owner 正在处理 moving implementation，但尚未发布新的 immutable checkpoint，因此 portfolio 不称恢复、运行、完成或收益来源。

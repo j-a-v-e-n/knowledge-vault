@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T09:08:06-07:00",
+  "record_type": "IMMUTABLE_D035_MANUAL_PROTOCOL_FINAL_FAIL_DRAFT_REVIEW_IDENTITY_NOT_PAGE_RUN_AUTHORITY",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "candidate": {
+    "commit": "96ce25a7ebebc587509e9211e5a3f774af6de2aa",
+    "root_tree": "f459a031382b58ac6a98b6924891edfd6963fcaa",
+    "parent": "de19eecda69f260aa614da3df8150c6a8641621d",
+    "exact_changed_file_count": 2,
+    "decisions_sha256": "e01df5427600c3cc905dba0c00acf5476bced8e9e6c31dac3e3077803aef7a29",
+    "manual_protocol_sha256": "b2d518d7df05d861e46f221f98ac3eb59442dd41405fdfa27527de40d0951284",
+    "fixture_source_commit": "77958750b41f45a56781e11982069f0f2cb0ac57",
+    "fixture_sha256": "dec2733082a43ba207b45291a4f756b5f7b286008ad1da304a14577b1629cd41",
+    "page_run": false,
+    "draft_result_or_observation_exists": false
+  },
+  "independent_reviews": [
+    {
+      "reviewer": "/root/d035_manual_protocol_review",
+      "verdict": "FINAL_FAIL",
+      "critical": 0,
+      "major": 1,
+      "minor": 0,
+      "authority_effect": "NONE"
+    },
+    {
+      "reviewer": "/root/d035_backtrack_challenge",
+      "verdict": "FINAL_FAIL",
+      "critical": 0,
+      "major": 1,
+      "minor": 0,
+      "authority_effect": "NONE"
+    }
+  ],
+  "shared_major_finding": {
+    "root_cause": "FRESH_REVIEW_NOT_BOUND_TO_IMMUTABLE_DRAFT_IDENTITY_OR_AUDITABLE_INDEPENDENCE",
+    "minimal_reproduction": [
+      "The operator creates draft A.",
+      "A reviewer reopens the source and passes draft A.",
+      "The operator changes the predicate or excerpt to draft B.",
+      "The protocol contains no immutable identity binding that prevents draft B from inheriting draft A's pass."
+    ],
+    "authority_risk": "The executor can also write a reviewed conclusion without leaving evidence that the reviewer was independent.",
+    "bounded_closure_without_receipt_dsl": [
+      "Freeze each page draft as an exact Git commit, tree, path and blob or SHA-256 identity.",
+      "Use one plain human-readable review note bound to the record ID and exact draft identity.",
+      "Record reviewer or thread identity and an explicit declaration that the reviewer did not participate in writing the draft.",
+      "Bind the fixture identity, page state, predicate, excerpt and hash conclusions plus PASS or FAIL.",
+      "Any FAIL or contradictory review leaves that page with no observation and authority NONE; there is no latest-wins or PASS-wins rule.",
+      "Resolution requires a new immutable draft and a fresh independent review while preserving prior history."
+    ]
+  },
+  "passed_bounded_checks": [
+    "The route is a real simplification with no machine validator, negative DSL, self-manifest, model pass, count, rank, score or aggregation.",
+    "The exact five-page fixture, source URLs, lanes, roles, anchors, hashes and nine predicate identifiers are recoverable.",
+    "Other participants, quotes, vendor or promotional material and inferred profile context have zero propagation.",
+    "Missing, duplicate, partial, ambiguous, drifted or unavailable pages do not produce observations.",
+    "Time cost, current money cost, volume, buyer intent and seller-price language remain distinct.",
+    "No cross-page repeated-signal, demand, buyer, willingness-to-pay, product or transaction conclusion is permitted.",
+    "NO_INFORMATION returns to D020 and does not reactivate model qualification."
+  ],
+  "current_boundary": {
+    "protocol_accepted": false,
+    "page_run_authorized": false,
+    "draft_capture_authorized": false,
+    "observation_accepted": false,
+    "external_action_or_contact_authorized": false,
+    "publication_account_payment_contract_or_delivery_authorized": false,
+    "c8_or_shadow_authorized": false,
+    "commercial_authority": false
+  }
+}
