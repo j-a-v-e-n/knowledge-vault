@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T04:40:17-07:00",
+  "record_type": "IMMUTABLE_WORKFLOW_REVIEW_OBSERVATION_NOT_AUTHORITY_TRANSFER",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "reviewer_identity": "/root/d022_final_successor_review",
+  "candidate": {
+    "commit": "bf8969418faa77898ff3c0ad12a98394b863ad40",
+    "root_tree": "bbe2e3d06bce1a70917421041b2567e2012812c6",
+    "parent": "faf2ec7e9e7b4a8de729da08eceea8192f3c9c39",
+    "files": {
+      "README.md": "47c3b2d187943eb30a9829a4a8dba5db85634e3f6f41160c120759e20572c7ef",
+      "fixtures/valid_synthetic.json": "8e2fd991eeb713b1e8df8811eea7142e3474c29b059a22e8805b24d5feae596d",
+      "test_verify_observation.py": "022f3aa3c0f0891de4c4f16cefe0c58b9635653c97ca1b17d7c6222889340b85",
+      "verify_observation.py": "a44a384204dd79ae4c40387aded8f656bd04aa7ea901098edc061785140df50f"
+    }
+  },
+  "immutable_reproduction": {
+    "baseline_valid": true,
+    "highest_evidence_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "external_authority": false,
+    "unit_test_result": "Ran 13 tests; OK",
+    "bytecode_found": false
+  },
+  "independent_adversarial_matrix": {
+    "attacks": 58,
+    "expected_rejections": 58,
+    "unexpected_accepts": 0,
+    "crashes": 0
+  },
+  "portfolio_reproduction_matrix": {
+    "cases": 96,
+    "expected_results": 96,
+    "mismatches": 0,
+    "crashes": 0
+  },
+  "verdict": {
+    "value": "FINAL_PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "authority_effect": "NONE",
+    "receipt": "NONE"
+  },
+  "closed_findings": [
+    "SYNTHETIC_PUBLIC_PROVENANCE_CONTRADICTION",
+    "UNHASHABLE_ENUM_VALUE_CRASH",
+    "SEMANTICALLY_EMPTY_SYNTHETIC_LOCATOR_FALSE_ACCEPT"
+  ],
+  "acceptance_scope": "EXACT_SYNTHETIC_STRUCTURAL_BASELINE_ONLY",
+  "bounded_nonclaims": [
+    "No real URL, host, private-loopback, timestamp, source existence, or public provenance validation was reviewed.",
+    "Independent freezing of priors and process ordering was not reviewed.",
+    "No real public material, demand, purchase intent, delivery, transaction, or asset evidence was created."
+  ],
+  "authority_boundary": {
+    "real_public_input_fixture_authorized": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_or_contract_authorized": false,
+    "demand_or_commercial_claim_authorized": false
+  }
+}
