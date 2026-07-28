@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T04:35:04-07:00",
+  "record_type": "IMMUTABLE_WORKFLOW_REVIEW_OBSERVATION_NOT_AUTHORITY_TRANSFER",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "reviewer_identity": "/root/d022_successor_review",
+  "candidate": {
+    "commit": "faf2ec7e9e7b4a8de729da08eceea8192f3c9c39",
+    "root_tree": "aef8a04a4775f1f3cb2439ae03c531d69864380a",
+    "parent": "a1cb1a7699acd8eff59d4eaf0dfad9fb5edb4bc9",
+    "files": {
+      "README.md": "47c3b2d187943eb30a9829a4a8dba5db85634e3f6f41160c120759e20572c7ef",
+      "fixtures/valid_synthetic.json": "8e2fd991eeb713b1e8df8811eea7142e3474c29b059a22e8805b24d5feae596d",
+      "test_verify_observation.py": "7939f7a04a6dc62ec688ae8a0369a30992e69c5f0d7e72761abde87b463e3c6e",
+      "verify_observation.py": "7896586f5d3da09221ba6dceb59055c665bd19db9079f5894db979cd9bd728bd"
+    }
+  },
+  "immutable_reproduction": {
+    "baseline_valid": true,
+    "highest_evidence_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "external_authority": false,
+    "unit_test_result": "Ran 12 tests; OK",
+    "bytecode_found": false
+  },
+  "adversarial_matrix": {
+    "attacks": 86,
+    "correctly_rejected": 83,
+    "false_accepts": 3,
+    "crashes": 0
+  },
+  "verdict": {
+    "value": "FINAL_FAIL",
+    "critical": 0,
+    "major": 1,
+    "minor": 0,
+    "authority_effect": "NONE"
+  },
+  "predecessor_findings": {
+    "synthetic_public_provenance_contradiction": "CLOSED",
+    "unhashable_enum_value_crash": "CLOSED"
+  },
+  "finding": {
+    "severity": "MAJOR",
+    "id": "SEMANTICALLY_EMPTY_SYNTHETIC_LOCATOR_FALSE_ACCEPT",
+    "minimal_attacks": [
+      "source_locator=fixture://",
+      "source_locator=fixture://   ",
+      "source_locator=fixture:///"
+    ],
+    "observed_result": "valid=true with no errors",
+    "root_cause": "The verifier checks only locator.startswith('fixture://') and does not require a nonempty opaque fixture target after the scheme.",
+    "effect": "A source locator that is semantically missing still passes the current synthetic traceability contract.",
+    "minimal_remediation": "Require at least one non-whitespace, non-slash character after the exact fixture:// scheme and add full result_for regressions for all three attacks while preserving the valid locator positive case."
+  },
+  "bounded_nonclaims": [
+    "No real URL, host, private-loopback, timestamp, source existence, or public provenance validation was required in this synthetic-only review.",
+    "Independent freezing of priors and process ordering remain future real-input requirements, not this finding."
+  ],
+  "authority_boundary": {
+    "real_public_input_fixture_authorized": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_or_contract_authorized": false,
+    "demand_or_commercial_claim_authorized": false
+  }
+}

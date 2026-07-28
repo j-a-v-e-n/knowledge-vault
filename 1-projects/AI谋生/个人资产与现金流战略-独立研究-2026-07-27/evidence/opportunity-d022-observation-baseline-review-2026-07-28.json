@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T04:27:07-07:00",
+  "record_type": "IMMUTABLE_WORKFLOW_REVIEW_OBSERVATION_NOT_AUTHORITY_TRANSFER",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "reviewer_identity": "/root/d022_observation_review",
+  "candidate": {
+    "commit": "a1cb1a7699acd8eff59d4eaf0dfad9fb5edb4bc9",
+    "root_tree": "2001a4f24e1bb0e977e35c3e2c22d41ea30dfd89",
+    "files": {
+      "README.md": "a30491a4d50b7088eda4c8e12c45a43d929337755df87d56fa86bf6ccb6b8577",
+      "fixtures/valid_synthetic.json": "3138baeca2aec7e508060b9e938b92c9f3c2fb3b00497530b7912be54b6d070b",
+      "test_verify_observation.py": "f478872af4cbcd64c3aae9a2cf7f62312c9afa5a8209be9344584cdb2b924103",
+      "verify_observation.py": "0012173fc26d3e16baf64019ded778711e7bb16ec9b1a4df15f44db97db5ece1"
+    }
+  },
+  "immutable_reproduction": {
+    "baseline_valid": true,
+    "highest_evidence_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "external_authority": false,
+    "unit_test_result": "Ran 9 tests; OK",
+    "bytecode_found": false
+  },
+  "verdict": {
+    "value": "FINAL_FAIL",
+    "critical": 0,
+    "major": 1,
+    "minor": 1,
+    "authority_effect": "NONE"
+  },
+  "findings": [
+    {
+      "severity": "MAJOR",
+      "id": "SYNTHETIC_PUBLIC_PROVENANCE_CONTRADICTION",
+      "reproduction": "The fixture identifies itself as synthetic in case_id, observation_id, and excerpt while source_url is https://example.com/public-post and rights_basis is PUBLIC_READ_ONLY_QUOTATION. The closed schema has no synthetic source or rights mode, yet returns valid=true.",
+      "effect": "A fabricated structural fixture is represented as a real public quotation. This is a current representation error, not merely absent future process proof.",
+      "minimal_remediation": [
+        "Add a closed source_kind with SYNTHETIC_FIXTURE for the current fixture.",
+        "Require rights_basis=SYNTHETIC_TEST_DATA and a fixture-local locator or null in synthetic mode.",
+        "Reject synthetic/public cross-mode combinations and add missing, unknown, and cross-mode full-verifier regressions.",
+        "Enable PUBLIC_READ_ONLY_QUOTATION only in a separately reviewed real-input successor."
+      ]
+    },
+    {
+      "severity": "MINOR",
+      "id": "UNHASHABLE_ENUM_VALUE_CRASH",
+      "reproduction": [
+        "statement_type=[] raises TypeError",
+        "confidence={} raises TypeError"
+      ],
+      "effect": "The verifier fails closed with an uncaught availability error; it does not produce false acceptance or authority elevation.",
+      "minimal_remediation": "Require an exact string type before enum membership and add full result_for regressions that return valid=false for list and object values."
+    }
+  ],
+  "bounded_nonblockers_for_this_review": [
+    "The lane_order values represent 1, 2, 3 but do not prove temporal execution order.",
+    "The priors are represented but not independently frozen before observation capture.",
+    "A scheme-only https:// URL, a loopback URL, and captured_at=not-a-time currently pass; host, timestamp, and provenance proof belong to the separately reviewed real-public-input gate."
+  ],
+  "authority_boundary": {
+    "real_public_input_fixture_authorized": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_or_contract_authorized": false,
+    "demand_or_commercial_claim_authorized": false
+  }
+}

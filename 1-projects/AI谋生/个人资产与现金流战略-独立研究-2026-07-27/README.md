@@ -1,6 +1,6 @@
 # AI 时代个人资产与现金流战略：独立研究包
 
-状态：战略主线已重新收束。Portfolio control surface 在 R4 pre-admission 复核中再次出现 oracle/治理阻断，已按 PB060 stall 规则回到 PB010 的 workflow-local baseline；当前导航是 `18-PB010最小组合基线.md`。外部结论来自本轮从零检索；旧文档和 memory 只用于定位，不作为事实证据。网络观点、内部代码或 AI 自评都不算市场验证。
+状态：战略主线已重新收束。Portfolio control surface 在 R4 pre-admission 复核中再次出现 oracle/治理阻断，已按 PB060 stall 规则回到 PB010 的 workflow-local baseline；当前导航是 `18-PB010最小组合基线.md`，最新同口径刷新记录是 `19-PB010两工作流只读刷新与排序输入.md`。外部结论来自本轮从零检索；旧文档和 memory 只用于定位，不作为事实证据。网络观点、内部代码或 AI 自评都不算市场验证。
 
 ## 当前答案
 
@@ -41,11 +41,12 @@
 - `14-Agent-Harness与垂直适配独立复核.md`：对英伟达/LangChain 访谈、模型与 Harness 边界、垂直适配顺序的从零复核。
 - `16-总体蓝图闭合合同与状态审计.md`、`17-总体蓝图活动状态.json`：冻结的 R4 失败候选与历史状态，不再签发 current action。
 - `18-PB010最小组合基线.md`：当前 portfolio 导航；只保留 workflow-local 状态、只读比较和人工跨项目选择。
+- `19-PB010两工作流只读刷新与排序输入.md`：两条 workflow 的 fresh read-only 状态、同口径比较、当前可逆排序与仍缺 owner 输入。
 - `evidence/`：本轮公开数据下载身份、原始行摘录、交叉检查和明确的主张边界。
 
 ## 当前下一步
 
-先执行 `18-PB010最小组合基线.md` 的只读 workflow-local refresh：等待机会线发布回溯后的 immutable snapshot，并 fresh dump 投研纪律当前状态。完成同口径比较前，不启动 R4、portfolio model qualification 或任何 workflow 写入。
+`18-PB010最小组合基线.md` 要求的只读 workflow-local refresh 已记录在 `19-PB010两工作流只读刷新与排序输入.md`。当前等待机会线 synthetic successor 的 fresh immutable verdict，以及投研线 strict restore-only design 的独立架构 verdict；不启动 R4、portfolio model qualification 或任何跨 workflow 写入。
 
 机会实验只推进到权限允许的位置：CA012650 内部研究包已因持久证据升级而变成新候选；文档与实验本身不宣告 PASS，状态 marker 固定为 `REVIEW-STATUS-DETERMINED-BY-EXACT-DETACHED-RECEIPT`，当前复核状态只由活动状态绑定的精确字节 detached receipt 派生。发送账户、观察截止、完整且语义绑定的发送前来源刷新、以及用户对精确消息的单次授权仍未绑定，所以不发送、不报价、不追访。
 
