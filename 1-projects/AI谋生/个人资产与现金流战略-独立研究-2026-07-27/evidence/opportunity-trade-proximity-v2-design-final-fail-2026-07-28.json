@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T08:49:07-07:00",
+  "record_type": "IMMUTABLE_TRADE_PROXIMITY_V2_DESIGN_FINAL_FAIL_NOT_PAGE_RUN_OR_COMMERCIAL_AUTHORITY",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "design_candidate": {
+    "commit": "77958750b41f45a56781e11982069f0f2cb0ac57",
+    "root_tree": "fe157f04c5c32b7b2989f50f551ffc5384882d70",
+    "parent": "fbedb67631a357fc8f204ebea1e1423b060b165a",
+    "exact_added_file_count": 4,
+    "protocol_sha256": "5be03d697ab7b3bc80a8639cb8f389d623ca202f4c38eb41baa450770fe1a0be",
+    "fixture_sha256": "dec2733082a43ba207b45291a4f756b5f7b286008ad1da304a14577b1629cd41",
+    "result_contract_sha256": "dccfbf453969bc7fae4005fc55fc07ba41ea79a580b88ec3a0e3e7e0992ff82b",
+    "design_manifest_sha256": "e23e51ca43ad4cc33820b1790dfe02f8b149ecaebc850e84b05fb98a02f4f45a"
+  },
+  "separate_recovery_pointer": {
+    "commit": "fd5e5e3ae577b8b21939906d777c80871c5d65bb",
+    "root_tree": "b7aa4df6090683c3583ef5912a71f64f1dec0704",
+    "reviewed_as_design_authority": false
+  },
+  "review": {
+    "reviewer": "/root/trade_proximity_v2_review",
+    "verdict": "FINAL_FAIL",
+    "critical": 0,
+    "major": 1,
+    "minor": 0,
+    "authority_effect": "NONE",
+    "closed_v1_roots": [
+      "SPEAKER_OWNERSHIP",
+      "PREDICATE_ONTOLOGY"
+    ],
+    "remaining_major": {
+      "root_cause": "OUTPUT_LEVEL_CLAIM_CEILING_AND_AUTHORITY_CONSTANTS_NOT_NORMATIVELY_BOUND",
+      "minimal_reproduction": {
+        "claim_ceiling": "DEMAND_WTP_BUYER_PATTERN_PAGE_EXECUTION_VERIFIED",
+        "authority": {
+          "external_actions": true,
+          "evidence_upgrade": true,
+          "c8": true,
+          "shadow": true,
+          "product_selection": true
+        }
+      },
+      "why_accepted_by_current_contract": "The result root constrains the identity and claim-ceiling fields only as strings and authority only as an object. The intended constants are adjacent metadata rather than exact result constraints, and the nested authority object has no closed exact-false schema.",
+      "bounded_closure": [
+        "Bind schema_version, experiment_id, fixture_sha256 and claim_ceiling to exact constants.",
+        "Define authority with exact closed keys, exact JSON boolean types and every value fixed to false.",
+        "Reject altered constants, extra authority keys, numeric boolean aliases and any true authority value."
+      ]
+    },
+    "passed_bounded_checks": [
+      "Only the fully visible source-authored statement container containing the exact anchor can drive predicates.",
+      "Other participants, quotes and vendor or promotional material have zero predicate propagation.",
+      "Uncertain ownership, duplicate anchor occurrence and partial visibility cannot PRESENT.",
+      "Independent same-problem actors remain NOT_TESTED.",
+      "Time cost, current money cost, volume, source-speaker transaction intent and vendor price are distinct.",
+      "Only CAPTURED_SOURCE_MATCH can PRESENT.",
+      "The fixture has exactly five unique record IDs and nine unique predicate IDs with reproducing anchor hashes.",
+      "No search, page open, login, contact or external write occurred during review."
+    ]
+  },
+  "current_boundary": {
+    "design_accepted": false,
+    "five_page_read_only_run_authorized": false,
+    "experiment_result_exists": false,
+    "external_action_authorized": false,
+    "evidence_upgrade_authorized": false,
+    "repeated_signal_or_pattern_claim_authorized": false,
+    "demand_buyer_or_willingness_to_pay_validated": false,
+    "product_selection_authorized": false,
+    "c8_or_shadow_authorized": false,
+    "commercial_authority": false
+  }
+}
