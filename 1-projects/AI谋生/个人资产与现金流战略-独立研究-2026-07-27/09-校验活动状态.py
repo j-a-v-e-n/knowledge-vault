@@ -2532,41 +2532,169 @@ def validate_experiment(
     return experiment, spec_path
 
 
-def ca_r2_candidate_paths() -> set[Path]:
-    return {
-        (RESEARCH_ROOT / relative_path).resolve()
-        for relative_path in EXPECTED_CA_R2_CANDIDATE_PATHS
-    }
+def _inspect_candidate_declarations(
+    declarations: tuple[str, ...],
+    *,
+    receipt_parent: Path,
+    expected_static_bindings: dict[str, str],
+    errors: list[str],
+    prefix: str,
+) -> tuple[list[str], dict[str, dict[str, object]]]:
+    """Inspect lexical declarations before any set conversion or resolution.
+
+    A receipt literal is a function of the declared root-relative string, not of
+    its resolved target.  Keeping those two identities separate prevents a
+    symlink from silently replacing one required candidate with another.
+    """
+
+    declaration_list = list(declarations)
+    if any(not isinstance(value, str) for value in declaration_list):
+        errors.append(f"{prefix}: candidate declarations must be strings")
+        return [], {}
+    if len(declaration_list) != len(set(declaration_list)):
+        errors.append(f"{prefix}: duplicate candidate declaration")
+
+    declaration_records: list[tuple[str, str, Path]] = []
+    expected_literals: list[str] = []
+    for index, relative in enumerate(declaration_list):
+        label = f"{prefix} declaration[{index}]"
+        relative_path = Path(relative)
+        if (
+            not relative
+            or relative_path.is_absolute()
+            or any(part in {"", ".", ".."} for part in relative_path.parts)
+        ):
+            errors.append(f"{label}: must be a canonical root-relative path")
+            continue
+        lexical = RESEARCH_ROOT / relative_path
+        receipt_literal = os.path.relpath(lexical, start=receipt_parent)
+        expected_literals.append(receipt_literal)
+        declaration_records.append((relative, receipt_literal, lexical))
+
+    if len(expected_literals) != len(set(expected_literals)):
+        errors.append(f"{prefix}: duplicate derived receipt literal")
+
+    specs_by_literal: dict[str, dict[str, object]] = {}
+    identities: dict[tuple[int, int], str] = {}
+    for relative, receipt_literal, lexical in declaration_records:
+        label = f"{prefix} declaration {relative!r}"
+        if _has_symlink_component(lexical):
+            errors.append(f"{label}: symlink components are forbidden")
+            continue
+        try:
+            lexical_stat = os.lstat(lexical)
+        except OSError:
+            errors.append(f"{label}: declared path cannot be inspected")
+            continue
+        if stat.S_ISLNK(lexical_stat.st_mode) or not stat.S_ISREG(
+            lexical_stat.st_mode
+        ):
+            errors.append(f"{label}: declared path is not a regular non-symlink file")
+            continue
+        try:
+            resolved = lexical.resolve(strict=True)
+            allowed_root = RESEARCH_ROOT.resolve(strict=True)
+        except (OSError, RuntimeError):
+            errors.append(f"{label}: declared path does not resolve")
+            continue
+        if not _inside(resolved, allowed_root):
+            errors.append(f"{label}: declared path escapes the research root")
+            continue
+        try:
+            final_stat = os.lstat(resolved)
+        except OSError:
+            errors.append(f"{label}: final object cannot be inspected")
+            continue
+        if stat.S_ISLNK(final_stat.st_mode) or not stat.S_ISREG(final_stat.st_mode):
+            errors.append(f"{label}: final object is not a regular non-symlink file")
+            continue
+        identity = (final_stat.st_dev, final_stat.st_ino)
+        prior = identities.get(identity)
+        if prior is not None:
+            errors.append(
+                f"{prefix}: duplicate declared file identity for {prior!r} and "
+                f"{relative!r}"
+            )
+            continue
+        identities[identity] = relative
+        specs_by_literal[receipt_literal] = {
+            "relative": relative,
+            "resolved": resolved,
+            "identity": identity,
+            "expected_static_digest": expected_static_bindings.get(relative),
+        }
+    return expected_literals, specs_by_literal
 
 
-def validate_ca_r2_candidate_bindings(
-    bindings: object, *, receipt_parent: Path, errors: list[str]
-) -> dict[Path, dict]:
-    """Require a unique, canonical, closed candidate binding set."""
+def _candidate_paths_from_declarations(
+    declarations: tuple[str, ...],
+    *,
+    expected_static_bindings: dict[str, str],
+    prefix: str,
+) -> tuple[Path, ...]:
+    errors: list[str] = []
+    expected_literals, specs = _inspect_candidate_declarations(
+        declarations,
+        receipt_parent=RESEARCH_ROOT / "evidence",
+        expected_static_bindings=expected_static_bindings,
+        errors=errors,
+        prefix=prefix,
+    )
+    if errors or len(specs) != len(expected_literals):
+        raise ValueError("; ".join(errors) or f"{prefix}: incomplete declarations")
+    return tuple(
+        specs[literal]["resolved"]  # type: ignore[misc]
+        for literal in expected_literals
+    )
 
-    prefix = "opportunity independent reviews: CA r2 candidate"
-    expected_paths = ca_r2_candidate_paths()
-    expected_raw_paths = {
-        os.path.relpath(path, start=receipt_parent) for path in expected_paths
-    }
+
+def _validate_declared_candidate_bindings(
+    bindings: object,
+    *,
+    declarations: tuple[str, ...],
+    receipt_parent: Path,
+    expected_static_bindings: dict[str, str],
+    forbidden_literals: set[str],
+    errors: list[str],
+    prefix: str,
+    closure_label: str,
+) -> dict[str, dict]:
+    expected_literals, specs_by_literal = _inspect_candidate_declarations(
+        declarations,
+        receipt_parent=receipt_parent,
+        expected_static_bindings=expected_static_bindings,
+        errors=errors,
+        prefix=prefix,
+    )
+    # Set conversion is intentionally delayed until duplicate declarations and
+    # duplicate derived literals have already been detected above.
+    expected_literal_set = set(expected_literals)
     if not isinstance(bindings, list):
         errors.append(f"{prefix}: candidate_bindings must be a list")
         return {}
 
-    observed_paths: list[Path] = []
-    observed_raw_paths: list[str] = []
-    binding_by_path: dict[Path, dict] = {}
+    observed_literals: list[str] = []
+    observed_identities: list[tuple[int, int]] = []
+    binding_by_declaration: dict[str, dict] = {}
     for index, binding in enumerate(bindings):
         label = f"{prefix}[{index}]"
         if not exact_object(binding, BINDING_KEYS, errors=errors, label=label):
             continue
         assert isinstance(binding, dict)
         raw_path = binding.get("path")
-        if isinstance(raw_path, str):
-            observed_raw_paths.append(raw_path)
-            lexical_path = Path(raw_path)
-            if lexical_path.is_absolute() or ".." in lexical_path.parts[1:]:
-                errors.append(f"{label}: path traversal or absolute path is forbidden")
+        if not isinstance(raw_path, str):
+            continue
+        observed_literals.append(raw_path)
+        lexical_receipt_path = Path(raw_path)
+        if lexical_receipt_path.is_absolute() or ".." in lexical_receipt_path.parts[1:]:
+            errors.append(f"{label}: path traversal or absolute path is forbidden")
+        if raw_path in forbidden_literals:
+            errors.append(f"{prefix}: live 08 and the review itself are forbidden")
+        spec = specs_by_literal.get(raw_path)
+        if raw_path not in expected_literal_set or spec is None:
+            errors.append(f"{label}: path is not an exact declared receipt literal")
+            continue
+
         bound_path = verify_bound_file(
             binding,
             base=receipt_parent,
@@ -2575,21 +2703,72 @@ def validate_ca_r2_candidate_bindings(
             label=label,
             closed=True,
         )
-        if bound_path is not None:
-            observed_paths.append(bound_path)
-            binding_by_path[bound_path] = binding
+        if bound_path is None:
+            continue
+        expected_path = spec["resolved"]
+        if bound_path != expected_path:
+            errors.append(f"{label}: resolved path differs from declared file identity")
+            continue
+        try:
+            final_stat = os.lstat(bound_path)
+        except OSError:
+            errors.append(f"{label}: bound final object cannot be inspected")
+            continue
+        identity = (final_stat.st_dev, final_stat.st_ino)
+        if (
+            stat.S_ISLNK(final_stat.st_mode)
+            or not stat.S_ISREG(final_stat.st_mode)
+            or identity != spec["identity"]
+        ):
+            errors.append(f"{label}: bound object is not the declared regular file")
+            continue
+        observed_identities.append(identity)
+        relative = spec["relative"]
+        assert isinstance(relative, str)
+        expected_digest = spec["expected_static_digest"]
+        if expected_digest is not None and binding.get("sha256") != expected_digest:
+            errors.append(f"{prefix}: immutable digest changed for {relative}")
+            continue
+        binding_by_declaration[relative] = binding
 
-    if len(observed_raw_paths) != len(set(observed_raw_paths)):
+    if len(observed_literals) != len(set(observed_literals)):
         errors.append(f"{prefix}: duplicate literal binding path")
-    if len(observed_paths) != len(set(observed_paths)):
+    if len(observed_identities) != len(set(observed_identities)):
         errors.append(f"{prefix}: duplicate resolved binding path")
     if (
-        len(bindings) != len(expected_paths)
-        or set(observed_paths) != expected_paths
-        or set(observed_raw_paths) != expected_raw_paths
+        len(bindings) != len(declarations)
+        or len(observed_literals) != len(expected_literals)
+        or set(observed_literals) != expected_literal_set
+        or len(binding_by_declaration) != len(declarations)
     ):
-        errors.append(f"{prefix}: does not bind the exact unique closed review candidate")
-    return binding_by_path
+        errors.append(f"{prefix}: {closure_label}")
+    return binding_by_declaration
+
+
+def ca_r2_candidate_paths() -> tuple[Path, ...]:
+    return _candidate_paths_from_declarations(
+        EXPECTED_CA_R2_CANDIDATE_PATHS,
+        expected_static_bindings={},
+        prefix="opportunity independent reviews: CA r2 candidate",
+    )
+
+
+def validate_ca_r2_candidate_bindings(
+    bindings: object, *, receipt_parent: Path, errors: list[str]
+) -> dict[str, dict]:
+    """Require a unique, canonical, closed candidate binding set."""
+
+    prefix = "opportunity independent reviews: CA r2 candidate"
+    return _validate_declared_candidate_bindings(
+        bindings,
+        declarations=EXPECTED_CA_R2_CANDIDATE_PATHS,
+        receipt_parent=receipt_parent,
+        expected_static_bindings={},
+        forbidden_literals=set(),
+        errors=errors,
+        prefix=prefix,
+        closure_label="does not bind the exact unique closed review candidate",
+    )
 
 
 def validate_ca_r2_receipt_contract(
@@ -2653,8 +2832,8 @@ def validate_ca_r2_receipt_contract(
     )
 
     for relative_path, expected in EXPECTED_CA_R2_HISTORICAL_REJECTIONS.items():
-        historical_path = (RESEARCH_ROOT / relative_path).resolve()
-        historical_binding = binding_by_path.get(historical_path)
+        historical_path = RESEARCH_ROOT / relative_path
+        historical_binding = binding_by_path.get(relative_path)
         if not isinstance(historical_binding, dict) or historical_binding.get(
             "sha256"
         ) != expected["sha256"]:
@@ -2685,78 +2864,158 @@ def validate_ca_r2_receipt_contract(
     return recorded_at
 
 
-def ca_precontact_successor_candidate_paths() -> set[Path]:
-    return {
-        (RESEARCH_ROOT / relative_path).resolve()
-        for relative_path in EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS
-    }
+def ca_precontact_successor_candidate_paths() -> tuple[Path, ...]:
+    return _candidate_paths_from_declarations(
+        EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS,
+        expected_static_bindings=EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS,
+        prefix="opportunity independent reviews: CA precontact successor candidate",
+    )
 
 
 def validate_ca_precontact_successor_candidate_bindings(
     bindings: object, *, receipt_parent: Path, errors: list[str]
-) -> dict[Path, dict]:
+) -> dict[str, dict]:
     """Require the exact successor closure, with no live 08 or self binding."""
 
     prefix = "opportunity independent reviews: CA precontact successor candidate"
-    expected_paths = ca_precontact_successor_candidate_paths()
-    expected_raw_paths = {
-        os.path.relpath(path, start=receipt_parent) for path in expected_paths
+    current_review_literal = os.path.relpath(
+        RESEARCH_ROOT
+        / EXPECTED_REVIEW_STATE_PATHS["ca012650_internal_candidate"],
+        start=receipt_parent,
+    )
+    live_state_literal = os.path.relpath(
+        RESEARCH_ROOT / "08-活动状态.json", start=receipt_parent
+    )
+    return _validate_declared_candidate_bindings(
+        bindings,
+        declarations=EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS,
+        receipt_parent=receipt_parent,
+        expected_static_bindings=EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS,
+        forbidden_literals={live_state_literal, current_review_literal},
+        errors=errors,
+        prefix=prefix,
+        closure_label="does not bind the exact unique closed successor candidate",
+    )
+
+
+def validate_ca_precontact_successor_attempt1_fail(
+    binding: object, *, now: datetime, errors: list[str]
+) -> datetime | None:
+    """Bind the exact rejected /1 candidate as history, never as authority."""
+
+    prefix = "CA012650 precontact successor attempt-1 FAIL"
+    _, review = load_exact_bound_json(
+        binding,
+        expected_binding=EXPECTED_CA_PRECONTACT_SUCCESSOR_ATTEMPT1_FAIL_BINDING,
+        errors=errors,
+        label=prefix,
+    )
+    if review is None:
+        return None
+    exact_object(
+        review,
+        {
+            "schema_version",
+            "review_id",
+            "recorded_at",
+            "recorded_by",
+            "reviewer_agent_identity",
+            "reviewer_role",
+            "reviewer_modified_candidate",
+            "verdict",
+            "severity_counts",
+            "rejected_pass_contract",
+            "candidate_bindings",
+            "critical_findings",
+            "mechanical_checks",
+            "external_actions_observed_within_review_scope",
+            "claim_boundary",
+        },
+        errors=errors,
+        label=prefix,
+    )
+    expected_scalars = {
+        "schema_version": (
+            "ca012650-precontact-rejection-successor-independent-review-fail/1"
+        ),
+        "review_id": (
+            "review-ca012650-precontact-rejection-successor-2026-07-28-attempt-1"
+        ),
+        "recorded_by": "/root",
+        "reviewer_agent_identity": "/root/ca_precontact_successor_review",
+        "reviewer_role": "independent_read_only_subagent",
+        "reviewer_modified_candidate": False,
+        "verdict": "FAIL",
+        "severity_counts": {"critical": 1, "major": 0},
     }
-    forbidden_paths = {
-        (RESEARCH_ROOT / "08-活动状态.json").resolve(),
-        (
-            RESEARCH_ROOT
-            / "evidence/review-ca012650-precontact-rejection-successor-2026-07-27-r1.json"
-        ).resolve(),
-    }
-    if not isinstance(bindings, list):
-        errors.append(f"{prefix}: candidate_bindings must be a list")
-        return {}
-    observed_paths: list[Path] = []
-    observed_raw_paths: list[str] = []
-    binding_by_path: dict[Path, dict] = {}
-    for index, binding in enumerate(bindings):
-        label = f"{prefix}[{index}]"
-        if not exact_object(binding, BINDING_KEYS, errors=errors, label=label):
-            continue
-        assert isinstance(binding, dict)
-        raw_path = binding.get("path")
-        if isinstance(raw_path, str):
-            observed_raw_paths.append(raw_path)
-            lexical_path = Path(raw_path)
-            if lexical_path.is_absolute() or ".." in lexical_path.parts[1:]:
-                errors.append(f"{label}: path traversal or absolute path is forbidden")
-        bound_path = verify_bound_file(
-            binding,
-            base=receipt_parent,
-            allowed_root=RESEARCH_ROOT,
-            errors=errors,
-            label=label,
-            closed=True,
-        )
-        if bound_path is None:
-            continue
-        observed_paths.append(bound_path)
-        binding_by_path[bound_path] = binding
-        if bound_path in forbidden_paths:
-            errors.append(f"{prefix}: live 08 and the review itself are forbidden")
-        relative = os.path.relpath(bound_path, start=RESEARCH_ROOT)
-        expected_digest = EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS.get(
-            relative
-        )
-        if expected_digest is not None and binding.get("sha256") != expected_digest:
-            errors.append(f"{prefix}: immutable digest changed for {relative}")
-    if len(observed_raw_paths) != len(set(observed_raw_paths)):
-        errors.append(f"{prefix}: duplicate literal binding path")
-    if len(observed_paths) != len(set(observed_paths)):
-        errors.append(f"{prefix}: duplicate resolved binding path")
-    if (
-        len(bindings) != len(expected_paths)
-        or set(observed_paths) != expected_paths
-        or set(observed_raw_paths) != expected_raw_paths
+    for key, expected in expected_scalars.items():
+        if review.get(key) != expected:
+            errors.append(f"{prefix}: {key} changed")
+    rejected_contract = review.get("rejected_pass_contract")
+    if not exact_object(
+        rejected_contract,
+        {
+            "schema_version",
+            "review_id",
+            "expected_severity_counts",
+            "receipt_created",
+            "live_state_activation_allowed",
+        },
+        errors=errors,
+        label=f"{prefix} rejected_pass_contract",
     ):
-        errors.append(f"{prefix}: does not bind the exact unique closed successor candidate")
-    return binding_by_path
+        rejected_contract = None
+    if isinstance(rejected_contract, dict) and rejected_contract != {
+        "schema_version": "ca012650-precontact-rejection-successor-independent-review/1",
+        "review_id": "review-ca012650-precontact-rejection-successor-2026-07-27-r1",
+        "expected_severity_counts": {"critical": 0, "major": 0},
+        "receipt_created": False,
+        "live_state_activation_allowed": False,
+    }:
+        errors.append(f"{prefix}: rejected /1 and r1 PASS contract changed")
+    findings = review.get("critical_findings")
+    if (
+        not isinstance(findings, list)
+        or len(findings) != 1
+        or not isinstance(findings[0], dict)
+        or findings[0].get("id") != "CA-PRECONTACT-SUCCESSOR-C1"
+        or findings[0].get("root_cause")
+        != (
+            "ca_precontact_successor_candidate_paths resolves each declared path "
+            "before forming the expected set. Expected receipt literals and immutable "
+            "digest lookup are then derived from substituted targets, so the original "
+            "lexical declaration and its symlink topology are no longer observable."
+        )
+    ):
+        errors.append(f"{prefix}: exact symlink-laundering Critical changed")
+    predecessor_bindings = review.get("candidate_bindings")
+    old_dynamic = {
+        "../09-校验活动状态.py": (
+            "c001967b3b6d5af5280d7f53d37bca197855d362715678f6fce26679c4764ee5"
+        ),
+        "../tests/test_active_state_validator.py": (
+            "d831ca2481842aa67a92c313664fa4344ee43fa26b129f1ace1934737877c3d9"
+        ),
+    }
+    if not isinstance(predecessor_bindings, list):
+        errors.append(f"{prefix}: candidate_bindings must remain a list")
+    else:
+        predecessor_by_literal = {
+            item.get("path"): item.get("sha256")
+            for item in predecessor_bindings
+            if isinstance(item, dict)
+        }
+        if any(
+            predecessor_by_literal.get(path) != digest
+            for path, digest in old_dynamic.items()
+        ):
+            errors.append(f"{prefix}: rejected predecessor candidate identity changed")
+    return validate_not_future(
+        review.get("recorded_at"),
+        now=now,
+        errors=errors,
+        label=f"{prefix} recorded_at",
+    )
 
 
 def validate_ca_precontact_successor_receipt_contract(
@@ -2805,14 +3064,14 @@ def validate_ca_precontact_successor_receipt_contract(
         errors=errors,
         label=f"{prefix} recorded_at",
     )
-    binding_by_path = validate_ca_precontact_successor_candidate_bindings(
+    binding_by_declaration = validate_ca_precontact_successor_candidate_bindings(
         receipt.get("candidate_bindings"),
         receipt_parent=receipt_path.parent,
         errors=errors,
     )
 
     def bound(relative: str) -> dict | None:
-        candidate = binding_by_path.get((RESEARCH_ROOT / relative).resolve())
+        candidate = binding_by_declaration.get(relative)
         if not isinstance(candidate, dict):
             return None
         return {"path": relative, "sha256": candidate.get("sha256")}
@@ -2842,6 +3101,11 @@ def validate_ca_precontact_successor_receipt_contract(
         now=now,
         errors=errors,
     )
+    attempt1_fail_at = validate_ca_precontact_successor_attempt1_fail(
+        bound(EXPECTED_CA_PRECONTACT_SUCCESSOR_ATTEMPT1_FAIL_BINDING["path"]),
+        now=now,
+        errors=errors,
+    )
     rejection_binding = bound(EXPECTED_CA_PRECONTACT_REJECTION_RECEIPT_BINDING["path"])
     rejection_receipt = validate_precontact_rejection_receipt(
         rejection_binding,
@@ -2863,6 +3127,7 @@ def validate_ca_precontact_successor_receipt_contract(
         ("sender-remediation predecessor", sender_at),
         ("recipient-value FAIL", recipient_at),
         ("continuity record", continuity_at),
+        ("attempt-1 successor FAIL", attempt1_fail_at),
         ("rejection receipt", rejection_at),
     ):
         if (

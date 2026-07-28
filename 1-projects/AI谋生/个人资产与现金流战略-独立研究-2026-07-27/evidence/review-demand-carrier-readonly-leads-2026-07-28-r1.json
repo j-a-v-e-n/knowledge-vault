@@ -1,0 +1,147 @@
+{
+  "schema_version": "demand-carrier-readonly-leads-independent-review/1",
+  "review_id": "review-demand-carrier-readonly-leads-2026-07-28-r1",
+  "recorded_at": "2026-07-28T00:49:21-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/demand_leads_current_review",
+  "reviewer_role": "independent_read_only_reviewer",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 0,
+    "major": 3
+  },
+  "candidate_binding": {
+    "path": "demand-carrier-readonly-leads-2026-07-28.json",
+    "sha256": "89c9bec4a9f353686579b9860cbded2050200948a96f1f508d0111b566603a3a",
+    "git_blob_oid": "fecd6d745d447ebbafa7568f14b64d76e8bc36e0"
+  },
+  "candidate_git_identity": {
+    "commit": "0eb6f2cdbe2473b9c0c777b740a9d146f82cedf8",
+    "tree": "4140e21dfa111547ce78e9a55cae0481f816c28c"
+  },
+  "major_findings": [
+    {
+      "id": "DEMAND-LEADS-R1-M1",
+      "title": "Heterogeneous opportunity types lack a closed classification and a talent network is mislabeled as a demand carrier",
+      "exact_locations": [
+        "demand-carrier-readonly-leads-2026-07-28.json:13",
+        "demand-carrier-readonly-leads-2026-07-28.json:14",
+        "demand-carrier-readonly-leads-2026-07-28.json:121",
+        "demand-carrier-readonly-leads-2026-07-28.json:148",
+        "demand-carrier-readonly-leads-2026-07-28.json:179",
+        "demand-carrier-readonly-leads-2026-07-28.json:187"
+      ],
+      "evidence": [
+        "The single leads array mixes paid freelance listings, a general talent network, an equity-only-displayed internship, and a full-time role with undisclosed compensation.",
+        "The Meridial student network record itself lacks an exact current project, client, assigned hours, and final fee, while the official FAQ says joining the network does not guarantee project invitations."
+      ],
+      "official_sources": [
+        "https://www.meridial.ai/students",
+        "https://www.meridial.ai/faq"
+      ],
+      "required_fix": "Add closed lead_class, source_authority, current_status, cash_compensation_status, and demand_carrier_status enums. Exclude talent networks from paid-current-listing and confirmed-demand-carrier counts."
+    },
+    {
+      "id": "DEMAND-LEADS-R1-M2",
+      "title": "Available official sources are not canonical identities, allowing location and experience requirements to drift",
+      "exact_locations": [
+        "demand-carrier-readonly-leads-2026-07-28.json:59",
+        "demand-carrier-readonly-leads-2026-07-28.json:76",
+        "demand-carrier-readonly-leads-2026-07-28.json:101",
+        "demand-carrier-readonly-leads-2026-07-28.json:118"
+      ],
+      "evidence": [
+        "The AI QA record uses a United States-limited Wellfound mirror, while the current official Greenhouse listing reports World Wide - Remote and has a distinct listing ID.",
+        "The Alivo record uses a Wellfound two-year requirement, while the employer career page states 2–5+ years and routes applications through email.",
+        "The WRTH record was verified only on its platform listing and therefore cannot be upgraded to employer-official-source status."
+      ],
+      "official_or_platform_sources": [
+        "https://job-boards.greenhouse.io/agency/jobs/4676601101",
+        "https://www.alivo.ai/career/manual-qa-engineer",
+        "https://wellfound.com/jobs/4065253-engineering-product-qa-testing-intern"
+      ],
+      "required_fix": "Store canonical_official_url, corroborating_platform_url, source-specific listing IDs, and explicit conflicting_fields. Prefer official source fields and never let a platform mirror silently overwrite them."
+    },
+    {
+      "id": "DEMAND-LEADS-R1-M3",
+      "title": "The privacy-policy chain is not bound to the policy reached from the current application path and omits an indefinite-retention exception",
+      "exact_locations": [
+        "demand-carrier-readonly-leads-2026-07-28.json:150",
+        "demand-carrier-readonly-leads-2026-07-28.json:162"
+      ],
+      "evidence": [
+        "The current Greenhouse application privacy link reaches Invisible's general privacy policy with a March 25th 2026 last-update label, while the record compares the March 2nd 2026 Meridial contractor policy with an older marketplace URL and does not bind the application-link requested and final URLs.",
+        "The Meridial policy states that data related to account bans, fraud investigations, or security incidents may be retained indefinitely; the candidate summary does not expose that exception."
+      ],
+      "official_sources": [
+        "https://invisibletech.ai/privacy-policy",
+        "https://www.meridial.ai/meridial-privacy-policy"
+      ],
+      "required_fix": "Separate application-time and contractor-platform policy identities; bind requested URL, final URL, displayed effective or update date, and a durable raw artifact or full screenshot hash before using either policy in an application Gate. Record the indefinite-retention exception and keep screen or biometric monitoring retention unknown when not stated."
+    }
+  ],
+  "reviewed_reality_classification": [
+    {
+      "lead_id": "meridial-investment-specialist-ai-trainer",
+      "classification": "PAID_FREELANCE_LISTING",
+      "source": "https://job-boards.greenhouse.io/agency/jobs/4784904101"
+    },
+    {
+      "lead_id": "meridial-english-language-specialist",
+      "classification": "PAID_FREELANCE_LISTING",
+      "source": "https://job-boards.greenhouse.io/agency/jobs/4738026101"
+    },
+    {
+      "lead_id": "invisible-ai-qa-trainer",
+      "classification": "PAID_FREELANCE_LISTING",
+      "source": "https://job-boards.greenhouse.io/agency/jobs/4676601101"
+    },
+    {
+      "lead_id": "wrth-qa-testing-intern",
+      "classification": "EQUITY_ONLY_DISPLAYED_PLATFORM_LISTING",
+      "source": "https://wellfound.com/jobs/4065253-engineering-product-qa-testing-intern"
+    },
+    {
+      "lead_id": "alivo-manual-qa-engineer",
+      "classification": "FULL_TIME_EMPLOYMENT_COMPENSATION_UNSTATED",
+      "source": "https://www.alivo.ai/career/manual-qa-engineer"
+    },
+    {
+      "lead_id": "meridial-college-student-network-general",
+      "classification": "TALENT_NETWORK_NO_GUARANTEED_PROJECT",
+      "source": "https://www.meridial.ai/students"
+    }
+  ],
+  "checks_that_passed": {
+    "strict_json": true,
+    "duplicate_keys_absent": true,
+    "unique_lead_count": 6,
+    "unique_url_count": 6,
+    "all_application_ready_false": true,
+    "current_application_ready_count": 0,
+    "blocked_not_authorized_is_conservative": true,
+    "durability_gaps_disclosed": true,
+    "anecdotal_counterevidence_not_upgraded_to_company_verdict": true
+  },
+  "application_gate_missing_inputs": [
+    "durable raw page or full screenshot, final URL, content hash, and fresh independent replay",
+    "user-specific eligibility, resume fit, and work authorization",
+    "account requirement, platform terms, and exact personal-data fields",
+    "assessment count, estimated time, compensation, pass threshold, and exit cost",
+    "actual project, client, hours, final rate, payment cycle, and payment channel",
+    "SOW, NDA, intellectual property, confidentiality, termination, dispute, tax, and contract entity",
+    "exact user authorization for the exact action"
+  ],
+  "external_actions_observed_within_review_scope": {
+    "login": false,
+    "form_entry": false,
+    "account_creation": false,
+    "application": false,
+    "message_or_email": false,
+    "contract": false,
+    "private_data_submission": false,
+    "payment_or_spend": false
+  },
+  "claim_boundary": "This independent read-only review rejects the exact locator record because its classifications, canonical source identities, and privacy-policy chain are not closed. It preserves current_application_ready_count=0 and BLOCKED_NOT_AUTHORIZED. It does not prove application eligibility, project availability, client demand, assigned hours, final pay, payment reliability, work authorization, contract safety, stable cash flow, profit, repeatability, or asset value and authorizes no login, account creation, form entry, application, message, email, contract, private-data submission, payment, publication, or investment action."
+}

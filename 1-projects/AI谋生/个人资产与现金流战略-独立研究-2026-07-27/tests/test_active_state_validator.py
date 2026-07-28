@@ -39,14 +39,9 @@ class ActiveStateValidatorTests(unittest.TestCase):
         )
 
     def ca_r2_bindings(self) -> list[dict[str, str]]:
-        receipt_parent = ROOT / "evidence"
-        return [
-            {
-                "path": os.path.relpath(path, start=receipt_parent),
-                "sha256": VALIDATOR.sha256_file(path),
-            }
-            for path in sorted(VALIDATOR.ca_r2_candidate_paths())
-        ]
+        return self.candidate_bindings_from_declarations(
+            ROOT, VALIDATOR.EXPECTED_CA_R2_CANDIDATE_PATHS
+        )
 
     def ca_r2_receipt(self) -> dict:
         return {
@@ -78,14 +73,49 @@ class ActiveStateValidatorTests(unittest.TestCase):
         return record
 
     def successor_candidate_bindings(self) -> list[dict[str, str]]:
-        receipt_parent = ROOT / "evidence"
+        return self.candidate_bindings_from_declarations(
+            ROOT, VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS
+        )
+
+    def candidate_bindings_from_declarations(
+        self, root: Path, declarations: tuple[str, ...]
+    ) -> list[dict[str, str]]:
+        receipt_parent = root / "evidence"
+        return [
+            {
+                "path": os.path.relpath(root / relative, start=receipt_parent),
+                "sha256": VALIDATOR.sha256_file(root / relative),
+            }
+            for relative in declarations
+        ]
+
+    def legacy_resolved_candidate_bindings(
+        self, root: Path, declarations: tuple[str, ...]
+    ) -> list[dict[str, str]]:
+        """Reproduce the rejected oracle that discarded lexical declarations."""
+
+        receipt_parent = root / "evidence"
+        resolved_paths = {(root / relative).resolve() for relative in declarations}
         return [
             {
                 "path": os.path.relpath(path, start=receipt_parent),
                 "sha256": VALIDATOR.sha256_file(path),
             }
-            for path in sorted(VALIDATOR.ca_precontact_successor_candidate_paths())
+            for path in sorted(resolved_paths)
         ]
+
+    def copy_candidate_declarations(
+        self,
+        destination_root: Path,
+        declarations: tuple[str, ...],
+        *,
+        extras: tuple[str, ...] = (),
+    ) -> None:
+        for relative in declarations + extras:
+            source = ROOT / relative
+            destination = destination_root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(source.read_bytes())
 
     def successor_review(self) -> dict:
         return {
@@ -93,7 +123,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
                 VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION
             ),
             "review_id": VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID,
-            "recorded_at": "2026-07-28T00:05:00-07:00",
+            "recorded_at": "2026-07-28T00:45:00-07:00",
             "reviewer_agent_identity": (
                 VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY
             ),
@@ -292,7 +322,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
         ):
             return VALIDATOR.validate(
                 state,
-                now=now or datetime.fromisoformat("2026-07-28T00:11:00-07:00"),
+                now=now or datetime.fromisoformat("2026-07-28T00:46:00-07:00"),
             )
 
     def assert_rejected_detected(
@@ -1283,14 +1313,14 @@ class ActiveStateValidatorTests(unittest.TestCase):
         review_path = ROOT / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
             "ca012650_internal_candidate"
         ]
-        now = datetime.fromisoformat("2026-07-28T00:06:00-07:00")
+        now = datetime.fromisoformat("2026-07-28T00:46:00-07:00")
         errors: list[str] = []
         recorded_at = VALIDATOR.validate_ca_precontact_successor_receipt_contract(
             review, receipt_path=review_path, now=now, errors=errors
         )
         self.assertEqual([], errors)
         self.assertEqual(
-            datetime.fromisoformat("2026-07-28T00:05:00-07:00"), recorded_at
+            datetime.fromisoformat("2026-07-28T00:45:00-07:00"), recorded_at
         )
 
         scalar_attacks = {
@@ -1347,6 +1377,18 @@ class ActiveStateValidatorTests(unittest.TestCase):
             )
             self.assertTrue(
                 any("later than sender-remediation predecessor" in error for error in errors),
+                errors,
+            )
+
+        with self.subTest("review predates attempt-1 successor FAIL"):
+            changed = copy.deepcopy(review)
+            changed["recorded_at"] = "2026-07-28T00:39:15-07:00"
+            errors = []
+            VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+                changed, receipt_path=review_path, now=now, errors=errors
+            )
+            self.assertTrue(
+                any("later than attempt-1 successor FAIL" in error for error in errors),
                 errors,
             )
 
@@ -1413,6 +1455,158 @@ class ActiveStateValidatorTests(unittest.TestCase):
                     candidate, receipt_parent=receipt_parent, errors=errors
                 )
                 self.assertTrue(any(needle in error for error in errors), errors)
+
+    def test_precontact_successor_full_contract_rejects_symlink_laundering(
+        self,
+    ) -> None:
+        declarations = VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS
+        variants = {
+            "required to required collapse": (
+                "03-否决门与反方审查.md",
+                "07-自主运行协议.md",
+                (),
+            ),
+            "required to out-of-set substitution": (
+                "03-否决门与反方审查.md",
+                "15-需求优先的现实实验重设计.md",
+                ("15-需求优先的现实实验重设计.md",),
+            ),
+        }
+        for label, (source_relative, target_relative, extras) in variants.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory(
+                prefix="validator-precontact-symlink-", dir="/private/tmp"
+            ) as temp_dir:
+                temp_root = Path(temp_dir)
+                self.copy_candidate_declarations(
+                    temp_root, declarations, extras=extras
+                )
+                source = temp_root / source_relative
+                source.unlink()
+                source.symlink_to(temp_root / target_relative)
+                review = self.successor_review()
+                review["candidate_bindings"] = self.legacy_resolved_candidate_bindings(
+                    temp_root, declarations
+                )
+                errors: list[str] = []
+                with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                    VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+                        review,
+                        receipt_path=(
+                            temp_root
+                            / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+                                "ca012650_internal_candidate"
+                            ]
+                        ),
+                        now=datetime.fromisoformat("2026-07-28T00:46:00-07:00"),
+                        errors=errors,
+                    )
+                self.assertTrue(
+                    any("symlink components are forbidden" in error for error in errors),
+                    errors,
+                )
+                self.assertTrue(
+                    any(
+                        "exact unique closed successor candidate" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_precontact_successor_declarations_and_literals_are_closed(self) -> None:
+        review_path = ROOT / VALIDATOR.EXPECTED_REVIEW_STATE_PATHS[
+            "ca012650_internal_candidate"
+        ]
+        now = datetime.fromisoformat("2026-07-28T00:46:00-07:00")
+
+        with self.subTest("duplicate expected declaration"):
+            review = self.successor_review()
+            duplicated = (
+                VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS
+                + (
+                    VALIDATOR.EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS[0],
+                )
+            )
+            errors: list[str] = []
+            with mock.patch.object(
+                VALIDATOR,
+                "EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS",
+                duplicated,
+            ):
+                VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+                    review, receipt_path=review_path, now=now, errors=errors
+                )
+            self.assertTrue(
+                any("duplicate candidate declaration" in error for error in errors),
+                errors,
+            )
+
+        with self.subTest("equivalent but non-literal receipt path"):
+            review = self.successor_review()
+            binding = next(
+                item
+                for item in review["candidate_bindings"]
+                if item["path"] == "../03-否决门与反方审查.md"
+            )
+            binding["path"] = "../evidence/../03-否决门与反方审查.md"
+            errors = []
+            VALIDATOR.validate_ca_precontact_successor_receipt_contract(
+                review, receipt_path=review_path, now=now, errors=errors
+            )
+            self.assertTrue(
+                any(
+                    "not an exact declared receipt literal" in error for error in errors
+                ),
+                errors,
+            )
+
+    def test_r2_predecessor_full_contract_rejects_declaration_laundering(self) -> None:
+        declarations = VALIDATOR.EXPECTED_CA_R2_CANDIDATE_PATHS
+        with tempfile.TemporaryDirectory(
+            prefix="validator-r2-symlink-", dir="/private/tmp"
+        ) as temp_dir:
+            temp_root = Path(temp_dir)
+            self.copy_candidate_declarations(temp_root, declarations)
+            source = temp_root / "03-否决门与反方审查.md"
+            source.unlink()
+            source.symlink_to(temp_root / "07-自主运行协议.md")
+            receipt = self.ca_r2_receipt()
+            receipt["candidate_bindings"] = self.legacy_resolved_candidate_bindings(
+                temp_root, declarations
+            )
+            errors: list[str] = []
+            with mock.patch.object(VALIDATOR, "RESEARCH_ROOT", temp_root):
+                VALIDATOR.validate_ca_r2_receipt_contract(
+                    receipt,
+                    receipt_path=temp_root / "evidence/historical-r2.json",
+                    now=datetime.fromisoformat("2026-07-27T22:00:00-07:00"),
+                    errors=errors,
+                )
+            self.assertTrue(
+                any("symlink components are forbidden" in error for error in errors),
+                errors,
+            )
+            self.assertTrue(
+                any("exact unique closed review candidate" in error for error in errors),
+                errors,
+            )
+
+        with self.subTest("duplicate predecessor declaration"):
+            receipt = self.ca_r2_receipt()
+            duplicated = declarations + (declarations[0],)
+            errors = []
+            with mock.patch.object(
+                VALIDATOR, "EXPECTED_CA_R2_CANDIDATE_PATHS", duplicated
+            ):
+                VALIDATOR.validate_ca_r2_receipt_contract(
+                    receipt,
+                    receipt_path=ROOT / "evidence/historical-r2.json",
+                    now=datetime.fromisoformat("2026-07-27T22:00:00-07:00"),
+                    errors=errors,
+                )
+            self.assertTrue(
+                any("duplicate candidate declaration" in error for error in errors),
+                errors,
+            )
 
     def test_recipient_fail_cannot_be_upgraded_or_misrepresented(self) -> None:
         source = ROOT / VALIDATOR.EXPECTED_CA_RECIPIENT_VALUE_REVIEW_BINDING["path"]

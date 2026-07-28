@@ -41,6 +41,7 @@ from verify_post_closure_manifest import (
     validate_aggregate,
 )
 import run_shadow_acceptance as rsa
+from test_shadow_acceptance import make_program, required_semantic_cases
 from verify_run2_acceptance import AcceptanceError
 
 
@@ -295,13 +296,19 @@ class PhaseManifestTests(unittest.TestCase):
 
         if shadow is None:
             return validate()
-        patch_arguments = (
-            {"side_effect": case_side_effect}
-            if case_side_effect is not None
-            else {"return_value": self.shadow_case_response}
-        )
+        patch_arguments = {
+            "side_effect": (
+                case_side_effect
+                if case_side_effect is not None
+                else self._mapped_shadow_case_response
+            )
+        }
         with patch("run_shadow_acceptance.run_case", **patch_arguments):
             return validate()
+
+    def _mapped_shadow_case_response(self, **kwargs) -> dict:
+        fixture_snapshot = kwargs["fixture_snapshot"]
+        return self.shadow_case_responses_by_fixture_sha[fixture_snapshot.sha256]
 
     def test_freeze_requires_all_three_sibling_roots_absent(self) -> None:
         for root in (
@@ -663,34 +670,8 @@ class PhaseManifestTests(unittest.TestCase):
     ) -> tuple[Path, Path]:
         self.shadow_root.mkdir()
         program_path = self.shadow_root / "program.json"
-        fixture = self.shadow_root / "fixtures" / "case.json"
-        program = {
-            "schema_version": "otts.shadow-declarative-ir/1",
-            "program_id": "SYNTHETIC-SAFE-IR",
-            "input_type": "JSON",
-            "output_type": "JSON",
-            "nodes": [
-                {"id": "input", "op": "INPUT"},
-                {
-                    "id": "value",
-                    "op": "JSON_POINTER",
-                    "source": "input",
-                    "pointer": "/value",
-                },
-                {
-                    "id": "result",
-                    "op": "BUILD_OBJECT",
-                    "entries": [{"key": "value", "ref": "value"}],
-                },
-            ],
-            "result_ref": "result",
-        }
-        fixture_document = {"value": "synthetic fixture"}
-        result_document = {"value": "synthetic fixture"}
+        program = make_program()
         write_json(program_path, program)
-        write_json(fixture, fixture_document)
-        expected_result_hash = rsa.sha256_bytes(rsa.canonical_bytes(result_document))
-        result_bytes = rsa.canonical_bytes(result_document)
         policy_snapshot = rsa.read_once_regular(
             self.policy_fixture, "synthetic policy", 524288
         )
@@ -699,6 +680,11 @@ class PhaseManifestTests(unittest.TestCase):
         )
         policy = rsa.load_policy_snapshot(policy_snapshot)
         graph = rsa.validate_program(program, policy)
+        fixture_rows = []
+        acceptance_cases = []
+        fixture_entries = []
+        case_responses = {}
+        case_result_sources = []
         synthetic_module_path = (
             rsa.TRUSTED_PYTHON_HOME / "lib/python3.9/hashlib.py"
         )
@@ -724,22 +710,96 @@ class PhaseManifestTests(unittest.TestCase):
             ),
             "full_dynamic_library_and_host_runtime_closure_proven": False,
         }
-        self.shadow_case_response = {
-            "result_sha256": expected_result_hash,
-            "result_type": rsa.json_type_name(result_document),
-            "result_byte_length": len(result_bytes),
-            "output_inventory_digest_sha256": rsa.sha256_json([]),
-            "sandbox_observed_enforcement": {
-                "CHILD_PROCESS_DENIED": "OBSERVED_DENIED",
-                "EXTERNAL_READ_DENIED": "OBSERVED_DENIED",
-                "EXTERNAL_WRITE_DENIED": "OBSERVED_DENIED",
-                "NETWORK_LOOPBACK_BIND_DENIED": "OBSERVED_DENIED",
-            },
-            "runtime_observation": synthetic_runtime_observation,
+        sandbox_observation = {
+            "CHILD_PROCESS_DENIED": "OBSERVED_DENIED",
+            "EXTERNAL_READ_DENIED": "OBSERVED_DENIED",
+            "EXTERNAL_WRITE_DENIED": "OBSERVED_DENIED",
+            "NETWORK_LOOPBACK_BIND_DENIED": "OBSERVED_DENIED",
         }
+        for case_id, record, expected_outcome, expected_code in required_semantic_cases():
+            record["parent_context"]["candidate_sha256"] = self.candidate_hash
+            fixture = self.shadow_root / "fixtures" / f"{case_id.lower()}.json"
+            write_json(fixture, record)
+            fixture_relative = fixture.relative_to(self.shadow_root).as_posix()
+            fixture_sha256 = sha256_file(fixture)
+            with tempfile.TemporaryDirectory(prefix="otts-phase-cas-") as temporary:
+                output_root = Path(temporary)
+                cas_root = output_root / "cas"
+                cas_root.mkdir()
+                try:
+                    result_document, steps = rsa.evaluate_program(
+                        program,
+                        record,
+                        policy,
+                        cas_root,
+                        self.candidate_hash,
+                    )
+                    actual_outcome = "PASS"
+                    result_bytes = rsa.canonical_bytes(result_document)
+                    result_sha256 = rsa.sha256_bytes(result_bytes)
+                    result_type = rsa.json_type_name(result_document)
+                    result_byte_length = len(result_bytes)
+                    rejection_code = None
+                except rsa.DomainRejection as rejection:
+                    actual_outcome = "REJECT"
+                    result_sha256 = None
+                    result_type = None
+                    result_byte_length = None
+                    rejection_code = rejection.code
+                    steps = rejection.steps
+                output_inventory_digest_sha256 = rsa.sha256_json(
+                    rsa._output_inventory(output_root, policy["limits"])
+                )
+            self.assertEqual(actual_outcome, expected_outcome)
+            self.assertEqual(rejection_code, expected_code)
+            if expected_outcome == "PASS":
+                acceptance_case = {
+                    "case_id": case_id,
+                    "fixture_path": fixture_relative,
+                    "expected_outcome": "PASS",
+                    "expected_result_sha256": result_sha256,
+                }
+            else:
+                acceptance_case = {
+                    "case_id": case_id,
+                    "fixture_path": fixture_relative,
+                    "expected_outcome": "REJECT",
+                    "expected_rejection_code": expected_code,
+                }
+            response = {
+                "ok": True,
+                "outcome": actual_outcome,
+                "result_sha256": result_sha256,
+                "result_type": result_type,
+                "result_byte_length": result_byte_length,
+                "rejection_code": rejection_code,
+                "steps": steps,
+                "output_inventory_digest_sha256": output_inventory_digest_sha256,
+                "sandbox_observed_enforcement": sandbox_observation,
+                "runtime_observation": synthetic_runtime_observation,
+            }
+            fixture_rows.append((fixture, fixture_relative, fixture_sha256))
+            acceptance_cases.append(acceptance_case)
+            fixture_entries.append({
+                "path": fixture_relative,
+                "sha256": fixture_sha256,
+                "role": "fixture",
+                "authority_status": "NO_EXTERNAL_AUTHORITY",
+                "depends_on": [],
+            })
+            case_responses[fixture_sha256] = response
+            case_result_sources.append(
+                (acceptance_case, fixture_sha256, response)
+            )
+        self.shadow_case_responses_by_fixture_sha = case_responses
+        self.shadow_case_response = next(
+            response
+            for response in case_responses.values()
+            if response["outcome"] == "PASS"
+        )
         shadow_manifest = self.shadow_root / "SHADOW_ARTIFACT_MANIFEST.json"
         shadow = {
-            "schema_version": "otts.shadow-artifact-manifest/2",
+            "schema_version": "otts.shadow-artifact-manifest/3",
             "artifact_id": "SYNTHETIC-SHADOW",
             "artifact_kind": "READ_ONLY_SHADOW_MVP",
             "status": "SHADOW_IMPLEMENTATION_CANDIDATE",
@@ -754,13 +814,7 @@ class PhaseManifestTests(unittest.TestCase):
             "capability_policy_path": CAPABILITY_POLICY_PATH,
             "capability_policy_sha256": sha256_file(self.policy_fixture),
             "program": program_path.name,
-            "acceptance_cases": [
-                {
-                    "case_id": "SAFE-1",
-                    "fixture_path": "fixtures/case.json",
-                    "expected_result_sha256": expected_result_hash,
-                }
-            ],
+            "acceptance_cases": acceptance_cases,
             "snapshot_ledger": {
                 "path": "SNAPSHOT_LEDGER.json",
                 "sha256": "0" * 64,
@@ -783,13 +837,7 @@ class PhaseManifestTests(unittest.TestCase):
                     "authority_status": "NO_EXTERNAL_AUTHORITY",
                     "depends_on": [],
                 },
-                {
-                    "path": "fixtures/case.json",
-                    "sha256": sha256_file(fixture),
-                    "role": "fixture",
-                    "authority_status": "NO_EXTERNAL_AUTHORITY",
-                    "depends_on": [],
-                }
+                *fixture_entries,
             ],
         }
         sbom, capability, initial_entries = rsa.build_static_reports(
@@ -813,7 +861,10 @@ class PhaseManifestTests(unittest.TestCase):
                 "sha256": sha256_file(snapshot_ledger_path),
                 "role": "snapshot-ledger",
                 "authority_status": "NO_EXTERNAL_AUTHORITY",
-                "depends_on": [program_path.name, fixture.relative_to(self.shadow_root).as_posix()],
+                "depends_on": [
+                    program_path.name,
+                    *[relative for _, relative, _ in fixture_rows],
+                ],
             }
         )
         shadow["snapshot_ledger"]["sha256"] = sha256_file(snapshot_ledger_path)
@@ -822,16 +873,31 @@ class PhaseManifestTests(unittest.TestCase):
         capability["sbom_sha256"] = sha256_file(sbom_path)
         capability_path = self.shadow_root / "CAPABILITY_REPORT.json"
         write_json(capability_path, capability)
-        case_results = [
-            {
-                "case_id": "SAFE-1",
-                "fixture_path": fixture.relative_to(self.shadow_root).as_posix(),
-                "fixture_sha256": sha256_file(fixture),
-                "expected_result_sha256": expected_result_hash,
-                "actual_result_sha256": expected_result_hash,
-                "result_type": self.shadow_case_response["result_type"],
-                "result_byte_length": self.shadow_case_response["result_byte_length"],
-                "output_inventory_digest_sha256": self.shadow_case_response[
+        case_results = []
+        for acceptance_case, fixture_sha256, response in case_result_sources:
+            expected_outcome = acceptance_case["expected_outcome"]
+            case_results.append({
+                "case_id": acceptance_case["case_id"],
+                "fixture_path": acceptance_case["fixture_path"],
+                "fixture_sha256": fixture_sha256,
+                "expected_outcome": expected_outcome,
+                "actual_outcome": response["outcome"],
+                "expected_result_sha256": (
+                    acceptance_case["expected_result_sha256"]
+                    if expected_outcome == "PASS"
+                    else None
+                ),
+                "actual_result_sha256": response["result_sha256"],
+                "expected_rejection_code": (
+                    acceptance_case["expected_rejection_code"]
+                    if expected_outcome == "REJECT"
+                    else None
+                ),
+                "actual_rejection_code": response["rejection_code"],
+                "result_type": response["result_type"],
+                "result_byte_length": response["result_byte_length"],
+                "steps": response["steps"],
+                "output_inventory_digest_sha256": response[
                     "output_inventory_digest_sha256"
                 ],
                 "loaded_module_file_closure_digest_sha256": (
@@ -839,17 +905,17 @@ class PhaseManifestTests(unittest.TestCase):
                         "loaded_module_file_closure_digest_sha256"
                     ]
                 ),
-            }
-        ]
+            })
         runtime_tcb = rsa.runtime_tcb_document(runner_snapshot)
         runtime_tcb["loaded_python_module_file_closure"] = (
             synthetic_runtime_observation
         )
         test_report = {
-            "schema_version": "otts.shadow-acceptance-test-report/3",
-            "result": "LOCAL_DETERMINISTIC_DECLARATIVE_EVALUATION_PASS",
+            "schema_version": "otts.shadow-acceptance-test-report/4",
+            "result": "LOCAL_DETERMINISTIC_DOMAIN_GATE_ACCEPTANCE_PASS",
             "runner_sha256": sha256_file(self.runner_fixture),
             "policy_sha256": sha256_file(self.policy_fixture),
+            "parent_candidate_manifest_sha256": self.candidate_hash,
             "sbom_sha256": sha256_file(sbom_path),
             "capability_report_sha256": sha256_file(capability_path),
             "program_sha256": sha256_file(program_path),
@@ -862,12 +928,23 @@ class PhaseManifestTests(unittest.TestCase):
                 ]
             ),
             "acceptance_output_set_digest_sha256": rsa.sha256_json(case_results),
+            "domain_gate_id": policy["domain_gate"]["gate_id"],
+            "domain_rejection_code_set_sha256": rsa.sha256_json(
+                sorted(rsa.DOMAIN_REJECTION_CODES)
+            ),
+            "required_acceptance_rejection_codes": sorted(
+                rsa.REQUIRED_ACCEPTANCE_REJECTION_CODES
+            ),
+            "pass_case_count": sum(
+                case["expected_outcome"] == "PASS" for case in acceptance_cases
+            ),
+            "reject_case_count": sum(
+                case["expected_outcome"] == "REJECT" for case in acceptance_cases
+            ),
             "program": program_path.name,
             "cases": case_results,
             "language_level_artifact_executable_constructs": "ABSENT_BY_EXACT_SCHEMA",
-            "os_sandbox_observed_enforcement": self.shadow_case_response[
-                "sandbox_observed_enforcement"
-            ],
+            "os_sandbox_observed_enforcement": sandbox_observation,
             "sandbox_support_status": "DEPRECATED_UNSUPPORTED_DEFENSE_IN_DEPTH",
             "exact_opened_unlinked_snapshot_execution": True,
             "staged_target_controlled_pathname_reopen_count": 0,
@@ -880,12 +957,16 @@ class PhaseManifestTests(unittest.TestCase):
             ),
             "sandbox_same_runtime_reexec_residual": (
                 "EXACT_RUNTIME_PROCESS_EXEC_IS_ALLOWED_FOR_INITIAL_LAUNCH; "
-                "CLOSED_IR_HAS_NO_EXEC_OPCODE"
+                "CLOSED_DOMAIN_IR_HAS_NO_EXEC_OPCODE"
             ),
             "memory_boundary": (
                 "NO_HOST_RSS_LIMIT_ON_DARWIN; "
                 "FIXED_STRUCTURAL_IR_BYTE_BOUNDS_ENFORCED"
             ),
+            "natural_language_speech_act_inference_proven": False,
+            "semantic_truth_of_human_labels_proven": False,
+            "real_world_temporal_order_proven": False,
+            "actual_lane_generation_isolation_proven": False,
             "aggregate_deadline_enforced": True,
             "aggregate_wall_timeout_seconds": policy["limits"][
                 "aggregate_wall_timeout_seconds"
