@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T07:46:09-07:00",
+  "record_type": "IMMUTABLE_D032_DRAFT_GATE_AND_SOURCE_FIDELITY_REVIEW_NOT_DEMAND_AUTHORITY",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "candidate": {
+    "commit": "ee0703127dd26eab0005ce4e1fa2e69965de5504",
+    "root_tree": "d6351c8467e5c2f01f7390f36848dde189168eb4",
+    "parent": "978245169e7b2970fc2993b4f3d151e47dd1d42c",
+    "reviewed_fail_ancestor": "414628970a22ae0e290230ad0ad33b747c82e3b1",
+    "notebook_sha256": "f0a56aaad336404233e5ce171ee48b5fee65aa9e6df4526b6075c3f9f5863adb",
+    "active_plan_sha256": "fa493a48685da2396657abe0884e6f4719315bfcab47629f3295a7d8e2a2acad",
+    "readme_sha256": "843df66896f95a999120555c34a52c1b8de85b85c74f796ad16dc2e03fc5945a",
+    "exact_changed_file_count_from_parent": 3
+  },
+  "preserved_predecessor_history": {
+    "d032_query_checkpoint": {
+      "commit": "414628970a22ae0e290230ad0ad33b747c82e3b1",
+      "verdict": "FINAL_FAIL",
+      "critical": 0,
+      "major": 1,
+      "minor": 1,
+      "authority_effect": "NONE"
+    },
+    "control_and_notebook_candidate": {
+      "commit": "978245169e7b2970fc2993b4f3d151e47dd1d42c",
+      "control_scope_verdict": "FINAL_PASS",
+      "control_scope_critical": 0,
+      "control_scope_major": 0,
+      "control_scope_minor": 0,
+      "control_scope_authority_effect": "CONTROL_STATE_ACCEPTED_FOR_DRAFT_OBSERVATION_AND_QUARANTINE_REVIEW",
+      "notebook_ceiling_verdict": "FINAL_FAIL",
+      "notebook_ceiling_critical": 0,
+      "notebook_ceiling_major": 1,
+      "notebook_ceiling_minor": 0,
+      "notebook_ceiling_authority_effect": "NONE"
+    }
+  },
+  "draft_gate_review": {
+    "verdict": "FINAL_PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "authority_effect": "DRAFT_GATE_ACCEPTED_FOR_SOURCE_FIDELITY_REVIEW",
+    "reviewer": "/root/d032_draft_gate_successor_review",
+    "accepted_boundary": [
+      "The detached notebook is prominently marked UNREVIEWED_DRAFT_CAPTURE and authority_effect=NONE.",
+      "Query execution, URLs, excerpts, context, contamination and J1 or J2 mapping remain operator assertions until independent source review.",
+      "Fact-like headings and the former current-conclusions section are conditional candidate propositions.",
+      "No observation, pattern, demand, product, commercial or external authority is granted by the draft gate."
+    ]
+  },
+  "source_fidelity_review": {
+    "verdict": "FINAL_PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 1,
+    "authority_effect": "OBSERVATION_CANDIDATES_AND_QUARANTINE_ONLY",
+    "reviewers": [
+      "/root",
+      "/root/d032_j1_source_fidelity",
+      "/root/d032_j2_source_fidelity"
+    ],
+    "review_method": "READ_ONLY_PUBLIC_PERMALINK_OPEN_NO_LOGIN_NO_COMMENT_NO_CONTACT_NO_PUBLICATION",
+    "query_execution_proof": false,
+    "search_rank_or_coverage_proof": false,
+    "per_source": [
+      {
+        "candidate_id": "C-J1-01",
+        "url": "https://community.hubspot.com/t/reporting-on-sales-first-response-time-in-hubspot/31154",
+        "verdict": "PASS",
+        "excerpt_word_count": 13,
+        "accepted_claim": "The page supports a first-response reporting record being overwritten by later activity or a repeated demo request.",
+        "prohibited_expansion": "It does not prove a missed lead, loss magnitude, buyer or willingness to pay."
+      },
+      {
+        "candidate_id": "C-J1-02",
+        "url": "https://www.reddit.com/r/sweatystartup/comments/1s82nf3/having_trouble_converting_leads_to_booked_jobs/",
+        "verdict": "PASS",
+        "excerpt_word_count": 20,
+        "accepted_claim": "The page supports a quote-to-booking friction report.",
+        "prohibited_expansion": "Response time, follow-up, lead quality, trust and price remain competing explanations."
+      },
+      {
+        "candidate_id": "C-J2-01",
+        "url": "https://www.reddit.com/r/sales/comments/12ptpc9/thoughts_on_research_personalisation/",
+        "verdict": "PASS",
+        "excerpt_word_count": 25,
+        "accepted_claim": "The page supports a prospect-research depth, outreach-time and relevance tradeoff.",
+        "prohibited_expansion": "It does not establish causal reply or sales improvement."
+      },
+      {
+        "candidate_id": "C-J2-02",
+        "url": "https://www.reddit.com/r/sales/comments/1v6l43l/are_cold_emails_dead/",
+        "verdict": "PASS_WITH_MINOR",
+        "excerpt_word_count": 16,
+        "accepted_claim": "The original poster is asking whether per-prospect research is worth the cost at volume and is correctly treated as a learning-stage question.",
+        "minor_finding": "The notebook renders the source title with one question mark while the current page title has two."
+      },
+      {
+        "candidate_id": "C-J2-03",
+        "url": "https://www.reddit.com/r/AgencyGrowthHacks/comments/1pgx3bq/i_need_intelligence_on_my_prospects/",
+        "verdict": "PASS",
+        "excerpt_word_count": 24,
+        "accepted_claim": "The page supports a request for lost-deal and competitor intelligence.",
+        "prohibited_expansion": "It remains an off-lane J2-adjacent seed and cannot be merged with personalized-outreach research."
+      }
+    ],
+    "quarantine_findings": [
+      "The two new r/smallbusiness posts remain conservatively quarantined because pain-point solicitation or post-purpose contamination cannot be ruled out from the public context.",
+      "The prior manual-follow-up post remains quarantined because its operator story turns into a broad pain-point solicitation.",
+      "The HubSpot Prospecting Agent page is a vendor release and performance claim, not natural user-demand evidence.",
+      "Items with no permalink or an open failure remain operator quarantine notes and are not accepted as source facts or negative evidence."
+    ]
+  },
+  "current_evidence_ceiling": {
+    "highest_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "repeated_signal": false,
+    "demand_validated": false,
+    "buyer_identified": false,
+    "willingness_to_pay_validated": false,
+    "product_selected": false,
+    "price_validated": false,
+    "market_size_validated": false,
+    "query_execution_or_coverage_proven": false
+  },
+  "authority_boundary": {
+    "observation_candidates_and_quarantine_accepted": true,
+    "semantic_evaluation_design_allowed": true,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_contract_or_delivery_authorized": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "commercial_authority": false
+  }
+}
