@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "recorded_at": "2026-07-28T05:53:40-07:00",
-  "updated_at": "2026-07-28T06:19:40-07:00",
+  "updated_at": "2026-07-28T06:31:12-07:00",
   "record_type": "IMMUTABLE_PROTOCOL_REVIEW_LINEAGE_AND_STALL_OBSERVATION_NOT_AUTHORITY_TRANSFER",
   "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
   "review_scope": "PROTOCOL_MECHANICS_ONLY_NO_QUERY_RESULTS",
@@ -185,6 +185,67 @@
         "counted_in_trail_verdict": false,
         "independently_blocks_query_execution_until_closed": true
       }
+    },
+    {
+      "candidate": {
+        "commit": "426c3e18a22d8f610f4d35e6fe7d53668d2ea3cc",
+        "root_tree": "6949b65562f8e6d640c19831c0d0701dc362f370",
+        "parent_final_fail_commit": "0ae297bf124d50c7d662e2152cdb87a9408848aa",
+        "protocol_sha256": "4e39ce0674dd87988cebdfeda1ba215536ec225517e36765ff308f0d4e370c08",
+        "contract_sha256": "73251a475711a1cfec176618c4502d31508d5a0ab7f964c2dbee0dd602dc8b48",
+        "gate_fixture_sha256": "6e9f668a399fac311537b27eb636d3635c3b75adf5b453e96d16b20317771518",
+        "verifier_sha256": "854dc02792ce5a4e58908933d99baed50a4294deea413273726591250b03f9f3",
+        "tests_sha256": "072e96ff553c83e461274b120a804a49921baf1f133d63b8fbb1cdaeb8d55cef",
+        "decisions_sha256": "eaba1198871ec5a92ad1cfb8450f04951f1a051d8184bc1345856526f2a956ea"
+      },
+      "archive_reproduction": {
+        "exact_changed_file_count": 5,
+        "git_diff_check_passed": true,
+        "trail_unit_tests": "Ran 19 tests; OK",
+        "control_plane_checks": "13/13",
+        "control_plane_unit_tests": "Ran 21 tests; OK",
+        "control_plane_valid": true,
+        "control_plane_snapshot_stable": true,
+        "control_plane_snapshot_sha256": "47b86fc0c18c8c861c26047a6a201b7431bb4380efad4e3f7e137369689b5d59",
+        "bytecode_found": false
+      },
+      "reviewer_identities": [
+        "/root",
+        "/root/first_public_observation_review",
+        "/root/public_gate_successor_final"
+      ],
+      "verdict": {
+        "value": "FINAL_FAIL_NO_GO",
+        "critical": 0,
+        "major": 1,
+        "minor": 0,
+        "authority_effect": "NONE"
+      },
+      "root_cause": "The execution URL helper treats urlsplit().hostname as a complete validator but does not enforce strict host characters or percent-encoding semantics and does not parse the port; malformed hosts, invalid ports, and percent-encoded .invalid hosts can pass the full entry.",
+      "minimal_false_accepts_for_each_of_returned_url_and_canonical_permalink": [
+        "https://fixture%2einvalid/x",
+        "https://fixture.invalid%2e/x",
+        "https:// /x",
+        "https://public.vendor.dev:abc/x",
+        "https://public.vendor.dev:70000/x"
+      ],
+      "root_matrix": {
+        "full_entry_cases": 107,
+        "matched_expectations": 97,
+        "false_accepts": 10,
+        "crashes": 0,
+        "false_accept_root_causes": 1
+      },
+      "closed_predecessor_roots": [
+        "Terminal-dot .invalid, hostless, file, relative and credential URL cases now reject.",
+        "Both execution timestamps require exact zero-padded UTC grammar and calendar validity.",
+        "D027-A now uses verifier-supported REJECTED and the full control plane accepts it.",
+        "Protocol binding, lane, first-stop, mode, author, derived summary, unknown-key and scalar-type predecessor attacks remain closed."
+      ],
+      "bounded_follow_up_not_scored_or_declared_passed": [
+        "Exact canonical-permalink serialization.",
+        "Historical and in-run duplicate identity enforcement."
+      ]
     }
   ],
   "stall_decision": {
@@ -200,7 +261,9 @@
     ],
     "first_closed_contract_candidate": "FINAL_FAIL_NO_GO",
     "schema_root_successor": "FINAL_FAIL_NO_GO",
-    "moving_successor_status": "NO_REVIEWED_SUCCESSOR_AFTER_0AE297"
+    "url_and_timestamp_successor": "FINAL_FAIL_NO_GO",
+    "latest_reviewed_candidate": "426c3e18a22d8f610f4d35e6fe7d53668d2ea3cc",
+    "moving_successor_status": "NO_REVIEWED_PASS_AFTER_426C3E_FINAL_FAIL"
   },
   "authority_boundary": {
     "run_search_queries_authorized": false,
