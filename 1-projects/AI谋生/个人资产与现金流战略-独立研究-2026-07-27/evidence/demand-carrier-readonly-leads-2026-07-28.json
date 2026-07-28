@@ -119,15 +119,33 @@
     }
   ],
   "privacy_and_account_risk_observation": {
-    "source_url": "https://www.invisible.co/privacy-policy/?slug=marketplaces",
-    "official_page_status": "Public official policy page observed, but the page displays Effective Date July 13th 2021 and Last updated 10/4/2021.",
+    "primary_source_url": "https://www.meridial.ai/meridial-privacy-policy",
+    "older_source_url": "https://www.invisible.co/privacy-policy/?slug=marketplaces",
+    "official_page_status": "The Meridial contractor privacy policy is the more specific and newer public source and displays Effective Date March 2nd 2026. The older Invisible marketplace policy displays Effective Date July 13th 2021 and Last updated 10/4/2021 and is retained only as historical context.",
     "observed_categories": [
-      "The policy describes collection of account, education, employment, reference, CV, identity-validation, taxpayer, payment, communication, and project information.",
-      "It describes optional project work software that can collect textual work descriptions, keystrokes, mouse clicks, screenshots, and webcam pictures, and says declining may prevent project work.",
-      "It says client privacy practices are separate and interaction with a client is at the agent's risk.",
-      "It describes international data transfers and sharing with service providers, clients, business partners, and affiliates."
+      "The current policy describes collection of account, residence, education, employment, reference, CV, taxpayer, government-ID, payment, communication, project, and task information.",
+      "Identity verification may include selfies, government-ID images, video or audio, and facial measurements that may be biometric or sensitive data.",
+      "Upon notice, task monitoring may include screen recording, webcam presence verification, and eye-tracking analysis; monitoring is described as a condition of platform access.",
+      "Information shared with clients can include contact details, qualifications, work product, screen recordings, and biometric monitoring data where required by a client agreement.",
+      "Integrity and identity-verification records may be retained for up to three years following the last interaction, or as needed for legal obligations.",
+      "Client-specific tools and privacy practices may be controlled separately by the client."
     ],
-    "decision_effect": "Before any application or contractor acceptance, the exact current privacy policy, terms, monitoring scope, client identity, work authorization, tax, payment, and data-processing consequences require user review and exact authorization."
+    "decision_effect": "Before any application, identity verification, assessment, account creation, or contractor acceptance, the exact current privacy policy, terms, requested personal-data fields, monitoring scope, client identity, work authorization, tax, payment, retention, and deletion consequences require user review and exact authorization."
+  },
+  "non_authoritative_experience_counterevidence": {
+    "sources": [
+      "https://www.trustpilot.com/review/www.meridial.ai",
+      "https://www.reddit.com/r/AiTraining_Annotation/comments/1uvcc53/my_experience_with_invisible_technologies/",
+      "https://www.reddit.com/r/AiTraining_Annotation/comments/1sfn1n4/my_experience_with_meridial_expert/",
+      "https://www.bbb.org/us/ca/san-francisco/profile/artificial-intelligence/invisible-technologies-1116-956142/complaints"
+    ],
+    "observed_mix": [
+      "Some self-reported applicants describe spending multiple hours on assessments, unclear scoring, stalled verification, weak support, or no project assignment.",
+      "Some self-reported contractors describe paid training time, successful payment, and useful projects, while other comments describe patchy project availability or rates below alternatives.",
+      "A BBB complaint describes a fraudulent-check and equipment-purchase recruitment scam using the company name; that report does not prove the official Greenhouse or Meridial process caused it and may reflect impersonation."
+    ],
+    "evidence_limit": "These reports are anecdotal, self-selected, and not independently verified. They establish plausible failure modes, not their frequency and not a verdict that the official opportunity is legitimate or illegitimate.",
+    "decision_effect": "Any future packet must use only official domains, prohibit checks, equipment purchases, deposits, fees, or off-platform payment, predefine an unpaid-assessment time cap, and require exact contract and payment terms before work begins."
   },
   "cross_lead_inference": {
     "claim_class": "inferred",

@@ -1,7 +1,7 @@
 {
-  "schema_version": "otts.shadow-capability-policy/3",
-  "policy_id": "OTTS-SHADOW-DECLARATIVE-IR-CLOSED-2",
-  "language_scope": "CANONICAL_JSON_DECLARATIVE_IR_ONLY",
+  "schema_version": "otts.shadow-capability-policy/4",
+  "policy_id": "OTTS-SHADOW-OPPORTUNITY-SEMANTIC-GATE-CLOSED-1",
+  "language_scope": "CANONICAL_JSON_CLOSED_OPPORTUNITY_SEMANTIC_GATE_ONLY",
   "artifact_suffixes": [
     ".json"
   ],
@@ -35,14 +35,64 @@
     ".whl"
   ],
   "opcodes": [
-    "BUILD_OBJECT",
-    "CANONICAL_SHA256",
     "CAS_GET",
     "CAS_PUT",
     "INPUT",
-    "JSON_POINTER",
-    "LITERAL"
+    "VALIDATE_OPPORTUNITY_RECORD"
   ],
+  "domain_gate": {
+    "gate_id": "OTTS-OPPORTUNITY-SEMANTIC-GATE-1",
+    "input_schema": "otts.opportunity-record/1",
+    "normalized_output_schema": "otts.normalized-opportunity-record/1",
+    "opcode": "VALIDATE_OPPORTUNITY_RECORD",
+    "rejection_codes": [
+      "ACQUISITION_AFTER_FREEZE_REQUIRED",
+      "AUTHORITY_ESCALATION_FORBIDDEN",
+      "CANARY_ID_COLLISION",
+      "CONTAMINATION_DETECTED",
+      "CROSS_LANE_CANARY_DETECTED",
+      "DOMAIN_RECORD_INVALID",
+      "DOMAIN_RECORD_STALE",
+      "DOMAIN_SCHEMA_KEY_MISMATCH",
+      "DOMAIN_SCHEMA_MISMATCH",
+      "DOMAIN_TYPE_MISMATCH",
+      "EVAL_EXECUTION_FORBIDDEN",
+      "EXPERIMENT_AUTHORIZATION_REQUIRED",
+      "EXPERIMENT_EXECUTION_FORBIDDEN",
+      "FIRST_PRINCIPLES_CONTENT_CLASSIFICATION_INVALID",
+      "FIRST_PRINCIPLES_NOT_PRESEALED",
+      "LANE_ID_COLLISION",
+      "LEGACY_SCHEMA_QUARANTINED",
+      "OBSERVATION_EVIDENCE_CLASSIFICATION_INVALID",
+      "OBSERVATION_NOT_PRESEALED",
+      "PARENT_BINDING_MISMATCH",
+      "PARENT_DANGLING",
+      "PARENT_HASH_MISMATCH",
+      "PARENT_INVALID",
+      "PARENT_STALE",
+      "RIGHTS_ACCOUNT_ACCESS_FORBIDDEN",
+      "RIGHTS_EXTERNAL_RETRIEVAL_FORBIDDEN",
+      "RIGHTS_NOT_AUTHORIZED",
+      "RIGHTS_PERSONAL_DATA_FORBIDDEN",
+      "SAMPLING_PLAN_NOT_FROZEN",
+      "SIGNAL_EXTRACTION_UNCERTAINTY_MISSING",
+      "SIGNAL_TAXONOMY_INCONSISTENT",
+      "TYPED_ID_COLLISION",
+      "TYPED_ID_INVALID",
+      "TYPED_ID_TYPE_MISMATCH"
+    ],
+    "required_acceptance_rejection_codes": [
+      "CONTAMINATION_DETECTED",
+      "CROSS_LANE_CANARY_DETECTED",
+      "EXPERIMENT_EXECUTION_FORBIDDEN",
+      "FIRST_PRINCIPLES_NOT_PRESEALED",
+      "LEGACY_SCHEMA_QUARANTINED",
+      "OBSERVATION_NOT_PRESEALED",
+      "RIGHTS_NOT_AUTHORIZED",
+      "SAMPLING_PLAN_NOT_FROZEN",
+      "SIGNAL_TAXONOMY_INCONSISTENT"
+    ]
+  },
   "limits": {
     "max_artifact_bytes": 262144,
     "max_fixture_bytes": 262144,

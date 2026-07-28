@@ -79,6 +79,12 @@ SANDBOX_PROFILE_TEMPLATE = """(version 1)
 """
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 IDENTIFIER_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
+TYPED_ID_RE = re.compile(
+    r"^(CandidateManifest|OpportunityRecord|ObservationSamplingPlan|"
+    r"AcquisitionRecord|RightsRecord|SealedLaneOutput|Lane|Canary|"
+    r"ContaminationEvent|NeedHypothesis|ExperimentSpec|EvalSpec):"
+    r"[a-z0-9][a-z0-9._-]{0,63}$"
+)
 FORBIDDEN_ARTIFACT_SUFFIXES = {
     ".app", ".bat", ".bin", ".class", ".com", ".command", ".dll",
     ".dylib", ".exe", ".jar", ".o", ".ps1", ".pyd", ".py", ".pyc",
@@ -88,8 +94,12 @@ FORBIDDEN_ARTIFACT_SUFFIXES = {
 POLICY_KEYS = {
     "schema_version", "policy_id", "language_scope", "artifact_suffixes",
     "fixture_suffixes", "document_suffixes", "forbidden_artifact_suffixes",
-    "opcodes", "limits", "sandbox", "capabilities",
+    "opcodes", "domain_gate", "limits", "sandbox", "capabilities",
     "external_action_authority",
+}
+DOMAIN_GATE_KEYS = {
+    "gate_id", "input_schema", "normalized_output_schema", "opcode",
+    "rejection_codes", "required_acceptance_rejection_codes",
 }
 LIMIT_KEYS = {
     "max_artifact_bytes", "max_fixture_bytes", "max_report_bytes",
@@ -145,25 +155,83 @@ CAPABILITY_KEYS = {
     "project_external_read", "subprocess",
 }
 PROGRAM_KEYS = {
-    "schema_version", "program_id", "input_type", "output_type", "nodes",
-    "result_ref",
+    "schema_version", "program_id", "gate_id", "input_type", "output_type",
+    "nodes", "result_ref",
 }
 NODE_KEYS = {
     "INPUT": {"id", "op"},
-    "LITERAL": {"id", "op", "value"},
-    "JSON_POINTER": {"id", "op", "source", "pointer"},
-    "BUILD_OBJECT": {"id", "op", "entries"},
-    "CANONICAL_SHA256": {"id", "op", "source"},
+    "VALIDATE_OPPORTUNITY_RECORD": {"id", "op", "source"},
     "CAS_PUT": {"id", "op", "source"},
     "CAS_GET": {"id", "op", "digest_ref"},
 }
-OBJECT_ENTRY_KEYS = {"key", "ref"}
-CASE_KEYS = {"case_id", "fixture_path", "expected_result_sha256"}
+PASS_CASE_KEYS = {
+    "case_id", "fixture_path", "expected_outcome", "expected_result_sha256",
+}
+REJECT_CASE_KEYS = {
+    "case_id", "fixture_path", "expected_outcome", "expected_rejection_code",
+}
 FILE_REF_KEYS = {"path", "sha256"}
+
+DOMAIN_REJECTION_CODES = frozenset({
+    "ACQUISITION_AFTER_FREEZE_REQUIRED",
+    "AUTHORITY_ESCALATION_FORBIDDEN",
+    "CANARY_ID_COLLISION",
+    "CONTAMINATION_DETECTED",
+    "CROSS_LANE_CANARY_DETECTED",
+    "DOMAIN_RECORD_INVALID",
+    "DOMAIN_RECORD_STALE",
+    "DOMAIN_SCHEMA_KEY_MISMATCH",
+    "DOMAIN_SCHEMA_MISMATCH",
+    "DOMAIN_TYPE_MISMATCH",
+    "EVAL_EXECUTION_FORBIDDEN",
+    "EXPERIMENT_AUTHORIZATION_REQUIRED",
+    "EXPERIMENT_EXECUTION_FORBIDDEN",
+    "FIRST_PRINCIPLES_CONTENT_CLASSIFICATION_INVALID",
+    "FIRST_PRINCIPLES_NOT_PRESEALED",
+    "LANE_ID_COLLISION",
+    "LEGACY_SCHEMA_QUARANTINED",
+    "OBSERVATION_EVIDENCE_CLASSIFICATION_INVALID",
+    "OBSERVATION_NOT_PRESEALED",
+    "PARENT_BINDING_MISMATCH",
+    "PARENT_DANGLING",
+    "PARENT_HASH_MISMATCH",
+    "PARENT_INVALID",
+    "PARENT_STALE",
+    "RIGHTS_ACCOUNT_ACCESS_FORBIDDEN",
+    "RIGHTS_EXTERNAL_RETRIEVAL_FORBIDDEN",
+    "RIGHTS_NOT_AUTHORIZED",
+    "RIGHTS_PERSONAL_DATA_FORBIDDEN",
+    "SAMPLING_PLAN_NOT_FROZEN",
+    "SIGNAL_EXTRACTION_UNCERTAINTY_MISSING",
+    "SIGNAL_TAXONOMY_INCONSISTENT",
+    "TYPED_ID_COLLISION",
+    "TYPED_ID_INVALID",
+    "TYPED_ID_TYPE_MISMATCH",
+})
+REQUIRED_ACCEPTANCE_REJECTION_CODES = frozenset({
+    "CONTAMINATION_DETECTED",
+    "CROSS_LANE_CANARY_DETECTED",
+    "EXPERIMENT_EXECUTION_FORBIDDEN",
+    "FIRST_PRINCIPLES_NOT_PRESEALED",
+    "LEGACY_SCHEMA_QUARANTINED",
+    "OBSERVATION_NOT_PRESEALED",
+    "RIGHTS_NOT_AUTHORIZED",
+    "SAMPLING_PLAN_NOT_FROZEN",
+    "SIGNAL_TAXONOMY_INCONSISTENT",
+})
 
 
 class CapabilityError(ValueError):
     pass
+
+
+class DomainRejection(ValueError):
+    def __init__(self, code: str):
+        if code not in DOMAIN_REJECTION_CODES:
+            raise CapabilityError("internal domain rejection code is outside closed set")
+        super().__init__(code)
+        self.code = code
+        self.steps = 0
 
 
 @dataclass(frozen=True)
@@ -414,10 +482,28 @@ def load_policy_snapshot(snapshot: Snapshot) -> dict[str, Any]:
     _require_snapshot_integrity(snapshot, "capability_policy", 524288)
     policy = canonical_load_snapshot(snapshot, "capability_policy")
     require_exact_keys(policy, POLICY_KEYS, "capability_policy")
-    if policy["schema_version"] != "otts.shadow-capability-policy/3":
+    if policy["schema_version"] != "otts.shadow-capability-policy/4":
         raise CapabilityError("capability policy schema mismatch")
-    if policy["language_scope"] != "CANONICAL_JSON_DECLARATIVE_IR_ONLY":
-        raise CapabilityError("capability policy must require closed declarative JSON IR")
+    if policy["policy_id"] != "OTTS-SHADOW-OPPORTUNITY-SEMANTIC-GATE-CLOSED-1":
+        raise CapabilityError("capability policy ID mismatch")
+    if (
+        policy["language_scope"]
+        != "CANONICAL_JSON_CLOSED_OPPORTUNITY_SEMANTIC_GATE_ONLY"
+    ):
+        raise CapabilityError("capability policy must require the closed domain Gate")
+    require_exact_keys(policy["domain_gate"], DOMAIN_GATE_KEYS, "policy.domain_gate")
+    expected_domain_gate = {
+        "gate_id": "OTTS-OPPORTUNITY-SEMANTIC-GATE-1",
+        "input_schema": "otts.opportunity-record/1",
+        "normalized_output_schema": "otts.normalized-opportunity-record/1",
+        "opcode": "VALIDATE_OPPORTUNITY_RECORD",
+        "rejection_codes": sorted(DOMAIN_REJECTION_CODES),
+        "required_acceptance_rejection_codes": sorted(
+            REQUIRED_ACCEPTANCE_REJECTION_CODES
+        ),
+    }
+    if policy["domain_gate"] != expected_domain_gate:
+        raise CapabilityError("policy domain Gate contract differs from runner closed contract")
     require_exact_keys(policy["limits"], LIMIT_KEYS, "policy.limits")
     for key, value in policy["limits"].items():
         if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
@@ -461,23 +547,26 @@ def load_policy(policy_path: Path) -> dict[str, Any]:
 
 def _node_refs(node: dict[str, Any]) -> list[str]:
     op = node["op"]
-    if op in {"JSON_POINTER", "CANONICAL_SHA256", "CAS_PUT"}:
+    if op in {"VALIDATE_OPPORTUNITY_RECORD", "CAS_PUT"}:
         return [node["source"]]
     if op == "CAS_GET":
         return [node["digest_ref"]]
-    if op == "BUILD_OBJECT":
-        return [entry["ref"] for entry in node["entries"]]
     return []
 
 
 def validate_program(program: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
     require_exact_keys(program, PROGRAM_KEYS, "program")
-    if program["schema_version"] != "otts.shadow-declarative-ir/1":
+    if program["schema_version"] != "otts.shadow-declarative-ir/2":
         raise CapabilityError("program schema mismatch")
     if not isinstance(program["program_id"], str) or not IDENTIFIER_RE.fullmatch(program["program_id"]):
         raise CapabilityError("program.program_id invalid")
-    if program["input_type"] != "JSON" or program["output_type"] != "JSON":
-        raise CapabilityError("program input_type/output_type must be JSON")
+    if program["gate_id"] != "OTTS-OPPORTUNITY-SEMANTIC-GATE-1":
+        raise CapabilityError("program.gate_id mismatch")
+    if (
+        program["input_type"] != "OPPORTUNITY_RECORD"
+        or program["output_type"] != "NORMALIZED_OPPORTUNITY_RECORD"
+    ):
+        raise CapabilityError("program input/output types must bind the domain Gate")
     nodes = program["nodes"]
     if not isinstance(nodes, list) or not nodes or len(nodes) > policy["limits"]["max_nodes"]:
         raise CapabilityError("program.nodes count invalid or over limit")
@@ -499,29 +588,6 @@ def validate_program(program: dict[str, Any], policy: dict[str, Any]) -> dict[st
         by_id[node_id] = node
         if op == "INPUT":
             input_count += 1
-        elif op == "LITERAL":
-            _check_json_limits(node["value"], policy["limits"], f"{label}.value")
-        elif op == "JSON_POINTER":
-            pointer = node["pointer"]
-            if not isinstance(pointer, str) or (pointer and not pointer.startswith("/")):
-                raise CapabilityError(f"{label}.pointer: invalid JSON Pointer")
-            for token in pointer.split("/")[1:]:
-                if re.search(r"~(?:[^01]|$)", token):
-                    raise CapabilityError(f"{label}.pointer: invalid escape")
-        elif op == "BUILD_OBJECT":
-            entries = node["entries"]
-            if not isinstance(entries, list) or len(entries) > policy["limits"]["max_build_object_entries"]:
-                raise CapabilityError(f"{label}.entries: expected bounded list")
-            keys: set[str] = set()
-            for entry_index, entry in enumerate(entries):
-                entry_label = f"{label}.entries[{entry_index}]"
-                require_exact_keys(entry, OBJECT_ENTRY_KEYS, entry_label)
-                key = entry["key"]
-                if not isinstance(key, str) or not key or len(key.encode("utf-8")) > policy["limits"]["max_string_bytes"]:
-                    raise CapabilityError(f"{entry_label}.key invalid")
-                if key in keys:
-                    raise CapabilityError(f"{label}: duplicate BUILD_OBJECT key")
-                keys.add(key)
         for ref in _node_refs(node):
             if not isinstance(ref, str) or not IDENTIFIER_RE.fullmatch(ref):
                 raise CapabilityError(f"{label}: invalid reference")
@@ -552,6 +618,27 @@ def validate_program(program: dict[str, Any], policy: dict[str, Any]) -> dict[st
     unreachable = sorted(set(by_id) - reached)
     if unreachable:
         raise CapabilityError(f"program has unreachable nodes: {unreachable}")
+    inputs = [node for node in nodes if node["op"] == "INPUT"]
+    validators = [
+        node for node in nodes if node["op"] == "VALIDATE_OPPORTUNITY_RECORD"
+    ]
+    cas_puts = [node for node in nodes if node["op"] == "CAS_PUT"]
+    cas_gets = [node for node in nodes if node["op"] == "CAS_GET"]
+    if len(validators) != 1 or validators[0]["source"] != inputs[0]["id"]:
+        raise CapabilityError("program must validate the sole INPUT exactly once")
+    validator_id = validators[0]["id"]
+    if result_ref == validator_id:
+        if len(nodes) != 2 or cas_puts or cas_gets:
+            raise CapabilityError("direct domain Gate program must contain exactly two nodes")
+    else:
+        if len(nodes) != 4 or len(cas_puts) != 1 or len(cas_gets) != 1:
+            raise CapabilityError("domain Gate may only add one exact CAS round trip")
+        if cas_puts[0]["source"] != validator_id:
+            raise CapabilityError("CAS_PUT must consume the normalized domain record")
+        if cas_gets[0]["digest_ref"] != cas_puts[0]["id"]:
+            raise CapabilityError("CAS_GET must consume the Gate CAS digest")
+        if result_ref != cas_gets[0]["id"]:
+            raise CapabilityError("program result must be the normalized CAS round trip")
     return {
         "node_graph_digest_sha256": sha256_json(
             {"nodes": nodes, "result_ref": result_ref}

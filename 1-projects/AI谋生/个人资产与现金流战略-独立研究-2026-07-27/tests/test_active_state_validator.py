@@ -1361,6 +1361,17 @@ class ActiveStateValidatorTests(unittest.TestCase):
         omitted.pop()
         attacks["omission"] = (omitted, "exact unique closed successor candidate")
 
+        snapshot_omitted = [
+            copy.deepcopy(binding)
+            for binding in bindings
+            if binding["path"]
+            != "active-state-ca012650-precontact-rejection-precursor-2026-07-27.json"
+        ]
+        attacks["old 08 snapshot omitted"] = (
+            snapshot_omitted,
+            "exact unique closed successor candidate",
+        )
+
         duplicated = copy.deepcopy(bindings)
         duplicated.append(copy.deepcopy(duplicated[0]))
         attacks["duplicate"] = (duplicated, "duplicate")
@@ -1385,6 +1396,15 @@ class ActiveStateValidatorTests(unittest.TestCase):
         traversal = copy.deepcopy(bindings)
         traversal[0]["path"] = "../../outside.json"
         attacks["path traversal"] = (traversal, "path traversal")
+
+        live_state = copy.deepcopy(bindings)
+        live_state.append(
+            {
+                "path": "../08-活动状态.json",
+                "sha256": VALIDATOR.sha256_file(ROOT / "08-活动状态.json"),
+            }
+        )
+        attacks["live 08"] = (live_state, "live 08 and the review itself are forbidden")
 
         for label, (candidate, needle) in attacks.items():
             with self.subTest(label=label):
@@ -1703,6 +1723,12 @@ class ActiveStateValidatorTests(unittest.TestCase):
                     "public_building_id", "Building #OTHER"
                 ),
                 "exact target changed",
+            ),
+            "target boolean type": (
+                lambda approval: approval["exact_target"].__setitem__(
+                    "routing_contact_only", 1
+                ),
+                "routing_contact_only must be the JSON boolean true",
             ),
             "channel": (
                 lambda approval: approval.__setitem__(

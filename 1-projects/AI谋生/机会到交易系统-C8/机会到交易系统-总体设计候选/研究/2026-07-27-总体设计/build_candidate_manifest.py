@@ -122,6 +122,7 @@ SPECS: dict[str, dict[str, Any]] = {
         "research closure protocol",
         "CLOSURE_RULES_NO_SELF_APPROVAL",
         P,
+        C7_SHADOW_FAILURE,
     ),
     f"{RESEARCH}/FINAL_REVIEW_HISTORY.md": spec(
         "immutable predecessor rejection and remediation history",
@@ -131,7 +132,6 @@ SPECS: dict[str, dict[str, Any]] = {
     C7_SHADOW_FAILURE: spec(
         "exact C7 post-closure shadow rejection and successor repair boundary",
         "HISTORY_ONLY_NO_SUCCESSOR_APPROVAL",
-        ENVELOPE,
     ),
     f"{RESEARCH}/verify_run2_crosswalk.py": spec(
         "independent reconstruction verifier for every final CE-IN row",
@@ -315,6 +315,7 @@ SPECS.update(
             S1_JOINT,
             S2_JOINT,
             S2_RECEIPT,
+            C7_SHADOW_FAILURE,
         ),
         HUMAN_CROSSWALK: spec(
             "human-readable direct-use CE to Claim RQ DD crosswalk",
@@ -372,6 +373,7 @@ SPECS.update(
             "RESEARCH_TRACE_ONLY",
             RP,
             FINAL_STATUS_RECEIPT,
+            C7_SHADOW_FAILURE,
         ),
         DESIGN: spec(
             "opportunity-to-transaction system design",
@@ -380,6 +382,7 @@ SPECS.update(
             CLAIMS,
             LOG,
             f"{RESEARCH}/01-黄仁勋访谈核查.md",
+            C7_SHADOW_FAILURE,
         ),
         ENVELOPE: spec(
             "conditional read-only zero-side-effect shadow action envelope",
@@ -387,6 +390,7 @@ SPECS.update(
             RP,
             DESIGN,
             FINAL_STATUS_RECEIPT,
+            C7_SHADOW_FAILURE,
         ),
         MATRIX: spec(
             "research closure predicate matrix",

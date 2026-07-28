@@ -1563,6 +1563,13 @@ def validate_ca_historical_r2(
     for key, value in expected.items():
         if receipt.get(key) != value:
             errors.append(f"{prefix}: {key} changed")
+    if receipt.get("reviewer_modified_candidate") is not False:
+        errors.append(f"{prefix}: reviewer_modified_candidate must be exactly false")
+    severity = receipt.get("severity_counts")
+    if not isinstance(severity, dict) or any(
+        type(value) is not int for value in severity.values()
+    ):
+        errors.append(f"{prefix}: severity counts must be exact integers")
     exact_string_set(
         receipt.get("reviewed_properties"),
         EXPECTED_CA_R2_REVIEWED_PROPERTIES,
@@ -1634,8 +1641,8 @@ def validate_ca_presend_readiness_fail(
             errors.append(f"{prefix}: {key} changed")
     if review.get("reviewer_modified_candidate") is not False:
         errors.append(f"{prefix}: reviewer_modified_candidate must be exactly false")
-    if review.get("current_successor_accepted") is not False:
-        errors.append(f"{prefix}: current_successor_accepted must be exactly false")
+    if review.get("request_ready_permitted") is not False:
+        errors.append(f"{prefix}: request_ready_permitted must be exactly false")
     return validate_not_future(
         review.get("recorded_at"), now=now, errors=errors, label=f"{prefix} recorded_at"
     )
@@ -1703,6 +1710,10 @@ def validate_ca_sender_remediation_predecessor(
     for key, value in expected.items():
         if review.get(key) != value:
             errors.append(f"{prefix}: {key} changed")
+    if review.get("reviewer_modified_candidate") is not False:
+        errors.append(f"{prefix}: reviewer_modified_candidate must be exactly false")
+    if review.get("current_successor_accepted") is not False:
+        errors.append(f"{prefix}: current_successor_accepted must be exactly false")
     expected_candidate_bindings = [
         {
             "path": "../09-校验活动状态.py",
@@ -2757,6 +2768,13 @@ def validate_ca_precontact_successor_receipt_contract(
     for key, value in expected.items():
         if receipt.get(key) != value:
             errors.append(f"{prefix}: {key} changed")
+    if receipt.get("reviewer_modified_candidate") is not False:
+        errors.append(f"{prefix}: reviewer_modified_candidate must be exactly false")
+    successor_severity = receipt.get("severity_counts")
+    if not isinstance(successor_severity, dict) or any(
+        type(value) is not int for value in successor_severity.values()
+    ):
+        errors.append(f"{prefix}: severity counts must be exact integers")
     exact_string_set(
         receipt.get("reviewed_properties"),
         EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES,
@@ -4216,6 +4234,10 @@ def validate_approval_queue(
     if exact_object(target, APPROVAL_TARGET_KEYS, errors=errors, label=f"{prefix} target"):
         if target != EXPECTED_CA_TARGET:
             errors.append(f"{prefix} exact target changed")
+        if isinstance(target, dict) and target.get("routing_contact_only") is not True:
+            errors.append(
+                f"{prefix} routing_contact_only must be the JSON boolean true"
+            )
     if item.get("exact_channel") != EXPECTED_CA_CHANNEL:
         errors.append(f"{prefix} exact channel changed")
     if item.get("channel_source") != EXPECTED_CA_CHANNEL_SOURCE:
