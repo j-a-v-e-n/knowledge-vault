@@ -1,7 +1,7 @@
 # 只读 Shadow MVP：实现权限边界
 
 - Envelope ID：`RO-SHADOW-ENVELOPE-1.0`
-- 状态：`CANDIDATE-C4-PREFREEZE-RUN2-EXACT-ACCEPTED-PENDING-FINAL-INDEPENDENT-REVIEW`
+- 状态：`CANDIDATE-C5-RUN2-EXACT-ACCEPTED-BLOCKED-PENDING-FINAL-INDEPENDENT-REVIEW`
 - 适用阶段：总体设计研究闭合后的第一阶段实现
 - 默认决定：任何未明确列入“允许”的能力均为 `DENY`
 
@@ -44,7 +44,7 @@
 - 外部旧根 `机会到交易系统/` 是可变的 `LEGACY_UNQUALIFIED` sibling，不属于 candidate/governance/shadow inventory；其变化不能污染候选，也不能被候选 PASS 追认为当前实现。
 - candidate manifest 预声明 `机会到交易系统-闭合记录/` 与 `机会到交易系统-shadow-mvp/` 两个精确 sibling roots；不允许 glob、任意 ignore path、symlink 或第三个未声明 root。
 - `freeze` 验证模式要求两个 sibling roots 都不存在，防止在终审前藏入 governance 或实现文件。
-- final review PASS 后，先建立 governance root；其中 freeze report 证明终审时两个 sibling roots 都不存在，review receipt 绑定 exact candidate、freeze report、verifier 与本 Envelope，closure decision 再绑定 exact candidate、freeze report、exact receipt、exact shadow root 与本 Envelope，root manifest 完整绑定全部 governance 文件。
+- final review PASS 后，先建立 governance root；其中 freeze report 必须由候选内 `build_freeze_report.py` 按 aggregate Gate 的同一 exact key set 生成并证明终审时两个 sibling roots 都不存在，review receipt 绑定 exact candidate、freeze report、verifier 与本 Envelope并明确 `external_action_authority=false`，closure decision 再绑定 exact candidate、freeze report、exact receipt、exact shadow root 与本 Envelope，root manifest 完整绑定全部 governance 文件。
 - 只有 aggregate Gate 在外部 expected decision hash 下验证 governance root 后，才可建立 shadow root；`SHADOW_ARTIFACT_MANIFEST.json` 必须绑定 exact candidate manifest、governance manifest、review receipt、closure decision 与本 Envelope，并完整列出自己的全部文件和依赖。
 - frozen candidate 的任一字节变化使 RC-26、receipt、decision 和所有 downstream roots 失效；governance 变化使 shadow root 失效；shadow 实现变化只使该实现候选及其 EvalRun 失效，不反向改写已经发生的设计审查事实。
 

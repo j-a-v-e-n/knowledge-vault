@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "review_id": "review-legacy-opportunity-runtime-global-tombstone",
+  "recorded_at": "2026-07-27T20:38:26-07:00",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "PASS",
+  "candidate_root": "../../机会到交易系统",
+  "candidate_bindings": [
+    {
+      "path": "src/opportunity_os.py",
+      "sha256": "b33e234d361b0230eebd706ece02e25f266834fc9117aea0b102728cb2fa47fe"
+    },
+    {
+      "path": "tests/test_opportunity_os.py",
+      "sha256": "df25a4716145a5817c8261d5c45b8814c4cc673589612036c49fd54ffbaf9e4a"
+    },
+    {
+      "path": "pilot/restaurant-web-repair/quarantine/REVOCATION_MANIFEST.json",
+      "sha256": "f9b7fcc14730c4a762032dc00f77b16c31995635345adf26d946e9848a9fe131"
+    },
+    {
+      "path": "README.md",
+      "sha256": "9d87ced438ff9e9e9677408b4e85e178dfc622db13e2b67c5b48005674393f82"
+    },
+    {
+      "path": "LEGACY_STATUS.md",
+      "sha256": "beebe7381e30eb775baba30047bf33b04776710d97bc789b37f214a874612eb9"
+    },
+    {
+      "path": "LEGACY_CODE_GAP_AUDIT.md",
+      "sha256": "cca46c16a8899cb8df10ac85cc41c9398d254a4641608dcc87fccb523b804d63"
+    }
+  ],
+  "independent_review_result": "No remaining in-scope bypass or contradictory authority claim was found in the exact candidate.",
+  "root_recheck": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v",
+    "verbatim_summary": [
+      "Ran 6 tests in 0.669s",
+      "OK"
+    ],
+    "help_command_result": "ERROR LEGACY_SCHEMA_WORKSPACE_0_1_QUARANTINED: legacy schema/workspace 0.1 is globally tombstoned and has no current authority",
+    "git_diff_check": "pass"
+  },
+  "claim_boundary": "PASS proves only that the exact legacy schema/workspace 0.1 candidate is mechanically quarantined and its retained APIs and CLI refuse authority. It does not prove a successor runtime, market demand, transaction state, or autonomous operation."
+}

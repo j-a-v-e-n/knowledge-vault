@@ -1,6 +1,6 @@
 # 机会到交易系统：研究协议
 
-状态：`CANDIDATE-C4-PREFREEZE / RUN2-EXACT-ACCEPTED / BLOCKED`。C1 因 candidate inventory 与未来 shadow 目录相互失效而得到 `FAIL / MAJOR`，C2 因 candidate node-type、shadow 状态闭集和测试 bytecode 副作用得到 `FAIL / WITHDRAWN`，C3 因 Run2 crosswalk 漏项、final-status independent acceptance 缺失及可变旧根污染得到 `FAIL / MAJOR`；记录保存在 [`FINAL_REVIEW_HISTORY.md`](./FINAL_REVIEW_HISTORY.md)。C4 已完成完整 CE-IN crosswalk及同一 exact Run2 final-status 的明确独立接受；只有 successor manifest review、外部 closure decision 与 sibling governance root 继续全部闭合后，才可能改变总体 `BLOCKED`。
+状态：`CANDIDATE-C5 / RUN2-EXACT-ACCEPTED / BLOCKED-PENDING-FINAL-REVIEW`。C1–C4 的阶段、自污染、Run2、旧根与 governance schema 失败均记录在 [`FINAL_REVIEW_HISTORY.md`](./FINAL_REVIEW_HISTORY.md)。C5 保留完整 CE-IN crosswalk及同一 exact Run2 final-status 的明确独立接受，并统一 freeze-report/final-receipt 的 producer/consumer schema；只有 successor manifest review、外部 closure decision 与 sibling governance root 继续全部闭合后，才可能改变总体 `BLOCKED`。
 
 ## 决策问题
 
@@ -84,7 +84,7 @@
 
 ## 研究闭合条件
 
-检索类别饱和只按冻结的 [SEARCH_SATURATION_PROTOCOL.md](./SEARCH_SATURATION_PROTOCOL.md) 执行。协议文件本身保持冻结时的 `NOT_RUN`，动态执行状态位于 Run2 外部工件；Run2 已完成两轮执行、joint 与完整 crosswalk，[`FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json`](./ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json) 已对同一 [`FINAL_RUN_STATUS.md`](./ssp-run2/FINAL_RUN_STATUS.md) exact bytes 明确 `ACCEPT`。因此 `SATURATED-WITHIN-PROTOCOL` 现只关闭类别代码本谓词，不追认历史检索，不替代主张证据、架构审查、现实外部有效性或 C4 final review。
+检索类别饱和只按冻结的 [SEARCH_SATURATION_PROTOCOL.md](./SEARCH_SATURATION_PROTOCOL.md) 执行。协议文件本身保持冻结时的 `NOT_RUN`，动态执行状态位于 Run2 外部工件；Run2 已完成两轮执行、joint 与完整 crosswalk，[`FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json`](./ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json) 已对同一 [`FINAL_RUN_STATUS.md`](./ssp-run2/FINAL_RUN_STATUS.md) exact bytes 明确 `ACCEPT`。因此 `SATURATED-WITHIN-PROTOCOL` 现只关闭类别代码本谓词，不追认历史检索，不替代主张证据、架构审查、现实外部有效性或 C5 final review。
 
 只有同时满足以下条件，状态才能从 `BLOCKED` 变为 `CONDITIONALLY_READY`：
 

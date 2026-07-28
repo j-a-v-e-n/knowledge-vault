@@ -67,6 +67,7 @@ REVIEW_RECEIPT_KEYS = {
     "residual_limits",
     "action_envelope_path",
     "action_envelope_sha256",
+    "external_action_authority",
 }
 CLOSURE_DECISION_KEYS = {
     "schema_version",
@@ -401,6 +402,8 @@ def validate_governance_chain(
     require_empty_list(review["unresolved_critical"], "review.unresolved_critical")
     require_empty_list(review["unresolved_major"], "review.unresolved_major")
     require_string_list(review["residual_limits"], "review.residual_limits")
+    if review["external_action_authority"] is not False:
+        raise ManifestError("review receipt must deny external action authority")
     if review["action_envelope_path"] != ACTION_ENVELOPE_PATH:
         raise ManifestError("review action envelope path mismatch")
     if require_sha(

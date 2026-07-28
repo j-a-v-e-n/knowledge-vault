@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "source_title": "Jensen Huang: Why companies need open agent systems",
+  "source_url": "https://www.youtube.com/watch?v=Yy3JH6dDugc",
+  "retrieved_at": "2026-07-27T20:26:26-07:00",
+  "retrieval_method": "yt-dlp --skip-download --write-subs --write-auto-subs --sub-langs en --sub-format vtt",
+  "track_language": "en",
+  "downloaded_bytes": 41245,
+  "sha256": "12e388613ac675e3525808573a74bb61edcf1f75cad6aee3a8fbaa010ffe5fae",
+  "local_full_caption_retained": false,
+  "retention_reason": "Only source identity and derived timestamp notes are retained; the full third-party caption text is not copied into the project.",
+  "claim_boundary": {
+    "supports": [
+      "The exact public interview and English caption track were independently retrieved in this run.",
+      "Timestamped paraphrases can be checked against the source and this byte identity."
+    ],
+    "does_not_support": [
+      "The caption is an edited verbatim transcript.",
+      "The speakers' predictions are independently proven.",
+      "The vendor benchmark generalizes beyond its disclosed task suite.",
+      "Any specific vertical has demand, payment, delivery, or asset evidence."
+    ]
+  }
+}

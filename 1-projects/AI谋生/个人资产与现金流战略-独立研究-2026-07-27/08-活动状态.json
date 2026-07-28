@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
-  "as_of": "2026-07-27T19:28:44-07:00",
-  "workspace_commit": "ab875022b567a89769a0426f6f8b0afe46a26830",
+  "as_of": "2026-07-27T20:41:19-07:00",
+  "state_scope": "Current durable state for the independent personal-asset and cash-flow research root; legacy documents are locators or evidence subjects, never authority.",
   "truth_policy": {
     "old_documents_are_authority": false,
     "ai_summary_is_evidence": false,
@@ -44,44 +44,132 @@
   },
   "workstreams": [
     {
-      "id": "opportunity_to_transaction",
-      "path": "../机会到交易系统",
-      "classification": "asset_hypothesis_with_possible_cash_service",
+      "id": "long_term_capability_strategy",
+      "path": ".",
+      "classification": "strategic_capability_portfolio",
       "status": "active_internal",
       "observed_facts": [
         {
           "claim_class": "observed",
-          "claim": "当前实现是本地证据账本、状态机和 Harness 合同生成器，没有 discovery、scheduler、model runtime、message sending 或 billing runtime。",
-          "evidence_locator": "../机会到交易系统/src/opportunity_os.py"
-        },
-        {
-          "claim_class": "observed",
-          "claim": "当前 pilot 只有本地 prototype_created 事件，没有目标方回应、承诺、付款、复购或验收事件。",
-          "evidence_locator": "../机会到交易系统/pilot/restaurant-web-repair/workspace/events/event-local-preview-created.json"
+          "claim": "本项目原始问题是数周到数年应长期学习与积累什么；Agent、Harness、投研系统和单个市场 Probe 都是载体，不是北极星。",
+          "evidence_locator": "00-项目北极星与三层结构.md"
         },
         {
           "claim_class": "inferred",
-          "claim": "公开页面中的停业线索足以让当前 Saffrono 目标未通过 target-liveness 预筛，但第三方目录本身不是官方终局证明。",
-          "evidence_locator": "../机会到交易系统/pilot/restaurant-web-repair/artifacts/RUN_LOG.md"
+          "claim": "当前一手来源支持把可靠自主系统作为技术主轴，把需求、交易和结果验证作为商业主轴；通用 Agent/Harness 机制值得深学，但通用框架本身正在被平台化。",
+          "evidence_locator": "13-长期能力投资地图与训练路线.md; 14-Agent-Harness与垂直适配独立复核.md"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "本轮已独立获取并绑定黄仁勋与 LangChain 公开访谈的英文字幕身份；访谈同时强调足够强的模型、Harness、领域信息、工具与后续 post-training，而不是模型任意互换。",
+          "evidence_locator": "evidence/jensen-open-agent-interview-caption-identity-2026-07-27.json"
+        }
+      ],
+      "strategy_artifacts": [
+        {
+          "path": "00-项目北极星与三层结构.md",
+          "sha256": "e5b3c82a10fa74c2186e1252916e065677798693b4e86d8bce9e15f8ae057c16"
+        },
+        {
+          "path": "13-长期能力投资地图与训练路线.md",
+          "sha256": "feca14ed29d06c3cdec930f19c00355ab006f51121565e10515a8b9a9d471ea1"
+        },
+        {
+          "path": "14-Agent-Harness与垂直适配独立复核.md",
+          "sha256": "637b06f94ba7736dad87e18aa367e83cf5017101dfdba133d65e0e207e546e45"
+        },
+        {
+          "path": "evidence/jensen-open-agent-interview-caption-identity-2026-07-27.json",
+          "sha256": "c467711ced77fabf2d770e90b3325e59aa3edc43dd22a4abab7b29aec080266e"
         }
       ],
       "unknowns": [
-        "哪个可触达且仍活跃的目标存在近期、目标特定的重复问题",
-        "谁拥有问题、拥有决定权并可能付款",
-        "在现有平台原生功能之后仍剩下什么付款理由",
-        "是否存在真实付款、复购和正向全成本"
+        "哪个具体领域能让 Javen 合法取得真实工作流、设备、数据和责任人反馈",
+        "跨模型与跨 Harness 的改进能否在未见案例和环境变化下稳定成立",
+        "可靠自主系统与 EE/ML/Controls 的组合能否形成现实结果、交易或长期接入"
       ],
       "next_action": {
-        "description": "补上 target-liveness、付款者、大厂原生功能碰撞、证据身份和当前 standing 的确定性门禁；把现有 pilot 保留为停止样本。",
-        "scope": "local_reversible_edit",
+        "description": "设计一个有外部验收的跨模型、跨 Harness 失败归因实验，并寻找一个经授权的 EE/ML/Controls 现实接口；不把完成课程或背框架 API 当作验收。",
+        "scope": "unpublished_draft",
         "external_effect": false,
         "destructive": false
       },
       "stop_conditions": [
-        "目标不再活跃或无法核实",
-        "核心付款理由可被现有平台原生开关消除",
-        "无法识别付款者或授权角色",
-        "只有内部 Demo 而无新的现实证据"
+        "学习产物只在看过的内部样本或公开 benchmark 上有效",
+        "托管平台以更低全成本提供同等通用能力而项目仍重复造轮子",
+        "长期无法取得真实领域接口、授权数据或责任人反馈",
+        "所谓资产仍完全依赖 Javen 逐项判断与交付"
+      ]
+    },
+    {
+      "id": "opportunity_to_transaction",
+      "path": ".",
+      "classification": "problem_discovery_experiment_with_unproven_cash_and_asset_hypotheses",
+      "status": "blocked_external",
+      "observed_facts": [
+        {
+          "claim_class": "observed",
+          "claim": "旧 schema/workspace 0.1 已全局 tombstone；保留 API 与 CLI 均 fail closed，根测试输出 Ran 6 tests 与 OK，独立复审结论为 PASS。这个 PASS 只证明旧运行时被隔离，不证明存在新的可运行系统。",
+          "evidence_locator": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "CA012650 当前内部实验包的精确输入绑定已匹配，独立复审结论为 PASS；该 PASS 只认可内部研究设计，不授权发送、报价、账户访问、提交、付款动作或交付。",
+          "evidence_locator": "evidence/review-ca012650-internal-2026-07-27.json"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "发送账户、观察截止时间、发送前公开源刷新和精确用户授权均未绑定，external_contact_authorized 为 false。",
+          "evidence_locator": "evidence/experiment-ca012650-internal-2026-07-27.json"
+        }
+      ],
+      "unknowns": [
+        "当前公开状态是否对应目标组织尚未解决的问题",
+        "公开组织邮箱能否把问题路由给拥有授权的人",
+        "是否存在真实需求或付款意愿",
+        "是否能够准确交付并形成正向利润",
+        "是否会复购以及能否沉淀为可重复资产"
+      ],
+      "independent_reviews": {
+        "legacy_runtime_tombstone": {
+          "path": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json",
+          "sha256": "416fadef2832825793118b05346abb745c7e55456a0c1e60e36d67a858cc9aee",
+          "verdict": "PASS"
+        },
+        "ca012650_internal_candidate": {
+          "path": "evidence/review-ca012650-internal-2026-07-27.json",
+          "sha256": "0c9cb0bbb055435f7df8878f252f4dfbe221d88416b0addf216f6f29d4c7eb3d",
+          "verdict": "PASS"
+        }
+      },
+      "current_experiment": {
+        "experiment_id": "experiment-ca012650-public-record-verification",
+        "spec_path": "evidence/experiment-ca012650-internal-2026-07-27.json",
+        "spec_sha256": "bf1cf7e9161961672c0a174896aa7300bf266cb0440744db8fe8ef1491264368",
+        "internal_review_result": "PASS",
+        "internal_review_scope": "Exact current internal package only; no external action, demand, payment, delivery, profit, repeatability, or asset claim.",
+        "external_action_status": "blocked",
+        "external_contact_authorized": false,
+        "result_claims": {
+          "externally_validated_demand": false,
+          "willingness_to_pay": false,
+          "delivery_feasible": false,
+          "profitable": false,
+          "repeatable": false,
+          "asset_candidate": false
+        }
+      },
+      "next_action": {
+        "description": "保持不发送；只有在精确发送账户、精确观察截止、临发送公开源刷新和用户对精确消息的授权全部绑定后，才可重新进入发送前校验。",
+        "scope": "unpublished_draft",
+        "external_effect": false,
+        "destructive": false
+      },
+      "stop_conditions": [
+        "发送前公开源显示记录已经解决、豁免或目标错误",
+        "目标组织要求停止联系或路由身份被反证",
+        "任何必需绑定仍为空或用户未精确授权",
+        "动作扩大为报价、交付、付款、账户访问或自动跟进"
       ]
     },
     {
@@ -92,35 +180,45 @@
       "observed_facts": [
         {
           "claim_class": "observed",
-          "claim": "当前 workspace checkout 的 no-live-scope verifier 返回 pass；该检查不证明操作系统网络隔离、投资建议安全或未来版本安全。",
-          "evidence_locator": "../../../MyBrain/projects/investment-discipline-system/scripts/verify_no_live_scope.py"
+          "claim": "精确干净候选绑定为 commit fed7d6694dc1b47490848b83e3ff0b56e04a3f39、tree 2da5f0af186345da05738f971cb8afbdb6dac8db、parent d8c108f81f84f4c5be99fe09902ace161bda5745。",
+          "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
         },
         {
           "claim_class": "observed",
-          "claim": "最近运行记录同时存在 outcome_recorded/blocked 与 active/active、terminal_completion=null，因而不能称仍在运行、已恢复或已完成。",
-          "evidence_locator": "../../../MyBrain/projects/investment-discipline-system/.work_packets/runtime-operations"
+          "claim": "完整治理测试输出 Ran 532 tests in 1319.315s 与 FAILED (failures=40, errors=2)，因此候选未通过整体接纳。",
+          "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
         },
         {
           "claim_class": "observed",
-          "claim": "最新定位的隔离候选工作树已出现未提交测试修改，不能作为 immutable exact candidate 接管。",
-          "evidence_locator": "/private/tmp/ids-current-audit.9SoJ4g/repo/MyBrain/projects/investment-discipline-system"
+          "claim": "目标 no-live 测试输出 Ran 18 tests in 7.518s 与 OK，点时 no-live verifier 也 pass；这只支持狭窄的 no-live 检查，不证明系统恢复、运行、完整、安全或收益。",
+          "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
+        },
+        {
+          "claim_class": "observed",
+          "claim": "foundation recovery 因 candidate snapshot/review envelope tag 失败，execution loop 失败，derive state fail closed。",
+          "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
         }
       ],
+      "candidate_audit": {
+        "path": "evidence/investment-candidate-audit-2026-07-27.json",
+        "sha256": "69550f2e378824cbe38664b72aeece6d72a5a92298455a2c8bbd9c31e178a688",
+        "overall_acceptance": "blocked_internal"
+      },
       "unknowns": [
-        "committed candidate 的目标测试是否全部通过",
-        "candidate 是否关闭此前语义漏洞而没有引入新的绕过路径",
-        "能否从 committed identity 重新物化一个干净且可独立审查的候选"
+        "完整治理测试中的失败与错误分别对应哪些生产接纳缺口",
+        "candidate snapshot 与 review envelope tag 缺口的最小根因修复是什么",
+        "修复后 exact candidate 是否能通过新的独立审查和全部必需接纳检查"
       ],
       "next_action": {
-        "description": "只读比较 main 与 committed candidate，运行候选自带的 targeted tests 和 no-live-scope 检查；不运行恢复或启动脚本。",
+        "description": "只在隔离候选上分类完整治理测试的失败与错误并追到根因；不运行恢复、启动、live 或 shadow 脚本。",
         "scope": "local_test",
         "external_effect": false,
         "destructive": false
       },
       "stop_conditions": [
-        "候选身份不精确或工作树不干净",
-        "目标测试失败或关键覆盖不可用",
-        "独立反方审查发现可绕过的权限、证据或恢复语义",
+        "候选 commit、tree 或 parent 身份变化",
+        "工作树不再干净或验证结果无法绑定到精确候选",
+        "任何整体接纳检查仍失败或关键覆盖不可用",
         "任何动作会越过 paper-only 或 human-final"
       ],
       "safety_boundary": {
@@ -131,5 +229,40 @@
       }
     }
   ],
-  "approval_queue": []
+  "approval_queue": [
+    {
+      "id": "approval-ca012650-one-message-verification",
+      "action": "external_contact",
+      "experiment_id": "experiment-ca012650-public-record-verification",
+      "status": "blocked_missing_bindings",
+      "external_effect": true,
+      "authorized": false,
+      "ready": false,
+      "executable": false,
+      "exact_target": {
+        "public_building_id": "Building #CA012650",
+        "public_record_location": "Best Western Plus Marina Gateway Hotel",
+        "routing_contact_only": true
+      },
+      "exact_channel": "guestservices@bwmarinagateway.com",
+      "channel_source": "https://www.bwmarinagateway.com/contact.htm",
+      "message_binding": {
+        "path": "12-首个反证实验与对外动作候选.md",
+        "sha256": "c0dab2ed8a3de155a0feb72c11bad47b4dd226f35a3881cd0d5200cd67add9a1"
+      },
+      "sender_account": null,
+      "observation_cutoff_at": null,
+      "pre_send_source_refresh": {
+        "status": "not_completed"
+      },
+      "exact_user_authorization": false,
+      "missing_bindings": [
+        "sender_account",
+        "observation_cutoff_at",
+        "pre_send_source_refresh",
+        "exact_user_authorization"
+      ],
+      "claim_boundary": "Internal review PASS does not authorize sending and does not establish demand, payment, delivery, profit, repeatability, or an asset."
+    }
+  ]
 }

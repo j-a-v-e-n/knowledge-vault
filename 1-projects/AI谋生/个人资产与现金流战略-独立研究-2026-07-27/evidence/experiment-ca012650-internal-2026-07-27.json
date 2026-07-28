@@ -1,7 +1,8 @@
 {
   "schema_version": "1.0",
   "experiment_id": "experiment-ca012650-public-record-verification",
-  "captured_at": "2026-07-27T21:15:00-07:00",
+  "captured_at": "2026-07-27T20:19:35-07:00",
+  "internal_review_recorded_at": "2026-07-27T20:38:26-07:00",
   "status": "blocked_before_external_action",
   "authority": {
     "internal_research_authorized": true,
@@ -42,12 +43,12 @@
     },
     {
       "path": "../11-内部诊断页-CA012650.md",
-      "sha256": "d2898855ba425874adfd54e38a5091845c6a1b1d3d9f41a9a0ca8e2ed9fcf9c7",
+      "sha256": "7604d35448d8212cab89d1d865d656972847acec73624db250b3de7d81313b8e",
       "role": "internal_diagnostic"
     },
     {
       "path": "../12-首个反证实验与对外动作候选.md",
-      "sha256": "08265d686d07bafcf9ae817410e8f8d52232af20f180772d213816cfe2598f39",
+      "sha256": "c0dab2ed8a3de155a0feb72c11bad47b4dd226f35a3881cd0d5200cd67add9a1",
       "role": "unexecuted_experiment_and_message_draft"
     }
   ],
@@ -84,9 +85,9 @@
     },
     {
       "gate": "one_message_verification_probe",
-      "result": "review_pending",
+      "result": "independent_internal_pass",
       "claim_class": "observed",
-      "limit": "The revised exact candidate still needs an independent PASS, a bound sending account, a pre-send source refresh, an exact observation cutoff, and one-message user authorization."
+      "limit": "Independent review passed the current internal package only. Exact sending still requires a bound sending account, a pre-send source refresh, an exact observation cutoff, and one-message user authorization."
     },
     {
       "gate": "delivery_feasibility",

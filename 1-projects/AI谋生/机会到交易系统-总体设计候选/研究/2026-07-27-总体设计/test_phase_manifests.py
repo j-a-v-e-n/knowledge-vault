@@ -13,6 +13,12 @@ from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 
+from build_freeze_report import (  # noqa: E402
+    FREEZE_REPORT_KEYS as BUILDER_FREEZE_REPORT_KEYS,
+    FreezeReportError,
+    build_freeze_report,
+    write_freeze_report,
+)
 from verify_candidate_manifest import (
     REAL_CANDIDATE_ID,
     REAL_CANDIDATE_ROOT_NAME,
@@ -24,6 +30,7 @@ from verify_candidate_manifest import (
 from verify_post_closure_manifest import (
     ACTION_ENVELOPE_PATH,
     CANDIDATE_VERIFIER_PATH,
+    FREEZE_REPORT_KEYS as GATE_FREEZE_REPORT_KEYS,
     validate_aggregate,
 )
 from verify_run2_acceptance import AcceptanceError
@@ -109,28 +116,13 @@ class PhaseManifestTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def _create_governance(self) -> dict[str, Path | str]:
+        freeze = build_freeze_report(self.candidate_manifest)
         self.governance_root.mkdir()
         freeze_path = self.governance_root / "FREEZE_VERIFICATION_REPORT.json"
         review_path = self.governance_root / "FINAL_INDEPENDENT_REVIEW_RECEIPT.json"
         decision_path = self.governance_root / "RESEARCH_CLOSURE_DECISION.json"
         governance_path = self.governance_root / "GOVERNANCE_ARTIFACT_MANIFEST.json"
 
-        freeze = {
-            "schema_version": "otts.candidate-freeze-report/1",
-            "candidate_id": "SYNTHETIC-C2",
-            "parent_candidate_manifest_sha256": self.candidate_hash,
-            "verifier_path": CANDIDATE_VERIFIER_PATH,
-            "verifier_sha256": self.verifier_hash,
-            "mode": "freeze",
-            "result": "PASS",
-            "candidate_inventory_digest_sha256": self.freeze_result[
-                "candidate_inventory_digest_sha256"
-            ],
-            "post_closure_root_states": [
-                {"root_id": "closure-governance", "state": "ABSENT"},
-                {"root_id": "shadow-mvp", "state": "ABSENT"},
-            ],
-        }
         write_json(freeze_path, freeze)
         freeze_hash = sha256_file(freeze_path)
 
@@ -152,6 +144,7 @@ class PhaseManifestTests(unittest.TestCase):
             "residual_limits": ["Synthetic fixture only."],
             "action_envelope_path": ACTION_ENVELOPE_PATH,
             "action_envelope_sha256": self.envelope_hash,
+            "external_action_authority": False,
         }
         write_json(review_path, review)
         review_hash = sha256_file(review_path)
@@ -291,6 +284,31 @@ class PhaseManifestTests(unittest.TestCase):
             with self.assertRaisesRegex(ManifestError, "Run2 exact acceptance is invalid"):
                 validate_manifest(manifest, phase="freeze")
 
+    def test_freeze_report_builder_matches_aggregate_exact_schema(self) -> None:
+        self.assertEqual(BUILDER_FREEZE_REPORT_KEYS, GATE_FREEZE_REPORT_KEYS)
+        report = build_freeze_report(self.candidate_manifest)
+        self.assertEqual(set(report), GATE_FREEZE_REPORT_KEYS)
+        self.assertEqual(report["verifier_path"], CANDIDATE_VERIFIER_PATH)
+        self.assertEqual(
+            report["post_closure_root_states"],
+            [
+                {"root_id": "closure-governance", "state": "ABSENT"},
+                {"root_id": "shadow-mvp", "state": "ABSENT"},
+            ],
+        )
+
+    def test_freeze_report_writer_rejects_candidate_and_post_closure_roots(self) -> None:
+        forbidden = (
+            self.candidate / "report.json",
+            self.parent / "机会到交易系统-闭合记录/FREEZE_VERIFICATION_REPORT.json",
+            self.parent / "机会到交易系统-shadow-mvp/FREEZE_VERIFICATION_REPORT.json",
+        )
+        for output in forbidden:
+            with self.subTest(output=output):
+                with self.assertRaises(FreezeReportError):
+                    write_freeze_report(self.candidate_manifest, output)
+                self.assertFalse(output.exists())
+
     def test_valid_governance_with_absent_shadow_is_not_implementation_valid(self) -> None:
         bundle = self._create_governance()
         result = self._validate(bundle)
@@ -343,6 +361,36 @@ class PhaseManifestTests(unittest.TestCase):
         with self.assertRaisesRegex(ManifestError, "unresolved_major"):
             self._validate(bundle)
 
+    def test_review_receipt_external_authority_fails_even_if_rehashed(self) -> None:
+        bundle = self._create_governance()
+        review_path = Path(bundle["review_path"])
+        review = canonical_load(review_path)
+        review["external_action_authority"] = True
+        write_json(review_path, review)
+        self._rehash_governance_after_review_change(bundle)
+        with self.assertRaisesRegex(ManifestError, "deny external action authority"):
+            self._validate(bundle)
+
+    def test_freeze_report_extra_key_fails_even_if_chain_rehashed(self) -> None:
+        bundle = self._create_governance()
+        freeze_path = self.governance_root / "FREEZE_VERIFICATION_REPORT.json"
+        freeze = canonical_load(freeze_path)
+        freeze["active_files"] = 2
+        write_json(freeze_path, freeze)
+        self._rehash_governance_after_freeze_change(bundle)
+        with self.assertRaisesRegex(ManifestError, "freeze_report: key mismatch"):
+            self._validate(bundle)
+
+    def test_freeze_report_absolute_verifier_path_fails_when_rehashed(self) -> None:
+        bundle = self._create_governance()
+        freeze_path = self.governance_root / "FREEZE_VERIFICATION_REPORT.json"
+        freeze = canonical_load(freeze_path)
+        freeze["verifier_path"] = str(self.verifier_fixture.resolve())
+        write_json(freeze_path, freeze)
+        self._rehash_governance_after_freeze_change(bundle)
+        with self.assertRaisesRegex(ManifestError, "verifier_path mismatch"):
+            self._validate(bundle)
+
     def _rehash_governance_after_review_change(
         self,
         bundle: dict[str, Path | str],
@@ -356,6 +404,31 @@ class PhaseManifestTests(unittest.TestCase):
         write_json(decision_path, decision)
         decision_hash = sha256_file(decision_path)
         governance = canonical_load(governance_path)
+        governance["independent_review_receipt"]["sha256"] = review_hash
+        governance["closure_decision"]["sha256"] = decision_hash
+        write_json(governance_path, governance)
+        bundle["decision_hash"] = decision_hash
+
+    def _rehash_governance_after_freeze_change(
+        self,
+        bundle: dict[str, Path | str],
+    ) -> None:
+        freeze_path = self.governance_root / "FREEZE_VERIFICATION_REPORT.json"
+        review_path = Path(bundle["review_path"])
+        decision_path = Path(bundle["decision_path"])
+        governance_path = Path(bundle["governance_path"])
+        freeze_hash = sha256_file(freeze_path)
+        review = canonical_load(review_path)
+        review["freeze_report_sha256"] = freeze_hash
+        write_json(review_path, review)
+        review_hash = sha256_file(review_path)
+        decision = canonical_load(decision_path)
+        decision["freeze_report_sha256"] = freeze_hash
+        decision["independent_review_receipt_sha256"] = review_hash
+        write_json(decision_path, decision)
+        decision_hash = sha256_file(decision_path)
+        governance = canonical_load(governance_path)
+        governance["freeze_report"]["sha256"] = freeze_hash
         governance["independent_review_receipt"]["sha256"] = review_hash
         governance["closure_decision"]["sha256"] = decision_hash
         write_json(governance_path, governance)

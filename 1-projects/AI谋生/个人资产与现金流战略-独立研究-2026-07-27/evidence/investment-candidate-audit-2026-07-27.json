@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "captured_at": "2026-07-27T20:27:19-07:00",
+  "scope": "Read-only acceptance audit of one exact clean investment-discipline candidate. No recovery, runtime start, live action, shadow action, or investment decision was authorized.",
+  "candidate_identity": {
+    "commit": "fed7d6694dc1b47490848b83e3ff0b56e04a3f39",
+    "tree": "2da5f0af186345da05738f971cb8afbdb6dac8db",
+    "parent": "d8c108f81f84f4c5be99fe09902ace161bda5745",
+    "clean_clone_path": "/private/tmp/ids-fed7-audit.kowOr4/repo"
+  },
+  "observed_checks": [
+    {
+      "check": "full_governance_suite",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s governance_tests -v",
+      "verbatim_summary": [
+        "Ran 532 tests in 1319.315s",
+        "FAILED (failures=40, errors=2)"
+      ],
+      "acceptance": "fail"
+    },
+    {
+      "check": "targeted_no_live_suite",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest governance_tests.test_no_live_scope -v",
+      "verbatim_summary": [
+        "Ran 18 tests in 7.518s",
+        "OK"
+      ],
+      "acceptance": "pass_with_narrow_claim_boundary"
+    },
+    {
+      "check": "no_live_scope_verifier",
+      "command": "python3 scripts/verify_no_live_scope.py --json",
+      "verbatim_summary": [
+        "pass"
+      ],
+      "acceptance": "pass_with_narrow_claim_boundary",
+      "claim_limit": "This point-in-time verifier does not establish operating-system network isolation, future-version safety, recovery acceptance, runtime correctness, or investment performance."
+    },
+    {
+      "check": "foundation_recovery_verifier",
+      "command": "python3 scripts/verify_foundation_recovery.py --json",
+      "verbatim_summary": [
+        "fail",
+        "candidate snapshot/review envelope tag"
+      ],
+      "acceptance": "fail"
+    },
+    {
+      "check": "execution_loop_v2_verifier",
+      "command": "python3 scripts/verify_execution_loop_v2.py --json",
+      "verbatim_summary": [
+        "fail"
+      ],
+      "acceptance": "fail"
+    },
+    {
+      "check": "derived_project_state",
+      "command": "python3 scripts/derive_project_state.py check",
+      "verbatim_summary": [
+        "fail closed"
+      ],
+      "acceptance": "fail"
+    }
+  ],
+  "overall_acceptance": "blocked_internal",
+  "result_claims": {
+    "candidate_accepted": false,
+    "recovery_complete": false,
+    "runtime_active": false,
+    "investment_system_complete": false,
+    "investment_return_established": false,
+    "live_or_shadow_action_authorized": false
+  },
+  "claim_boundary": {
+    "supports": [
+      "The exact clean candidate identity was bound for this audit.",
+      "The targeted no-live suite and point-in-time no-live verifier passed within their narrow scopes.",
+      "The full governance suite and multiple production acceptance checks did not pass."
+    ],
+    "does_not_support": [
+      "Recovery, runtime operation, completion, safety outside the checked scope, or investment returns.",
+      "Any live or shadow investment action, broker connection, risk-rule change, or human-final decision bypass."
+    ]
+  }
+}

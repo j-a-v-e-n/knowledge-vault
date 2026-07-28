@@ -82,3 +82,28 @@
 - 机械桥：`verify_run2_acceptance.py` 绑定该 reviewer 给出的 exact paths/hashes、空 critical/major、权限全 false，并重新执行 exhaustive crosswalk verifier；相应负向测试拒绝 receipt、artifact、scope 与 authority 篡改。
 
 该 acceptance 完成 C3 的第三项修复，但不替代 C4 canonical manifest、freeze report 和另一轮全量 RC-01—RC-26 independent review。
+
+## `OTTS-DESIGN-20260727-C4`
+
+- Candidate manifest SHA-256：`9e0c88170429083d3042c8ad429e18c6b1fe8fc795a0e5331e58f255961f28fe`
+- External freeze report SHA-256：`88f51399359779b28e771e3473445caefc1a3dafb0358c1ebbfbd65aaa3f57a1`
+- Reviewer ID：`codex-independent-reviewer-c4-20260727`
+- 审查范围：完整 manifest、全部 `62` 个 active files、依赖 DAG、Run2、RC-01–RC-26、legacy quarantine、phase boundary 与权限边界
+- 裁决：`FAIL`；`0` Critical、`2` Major、`1` Minor
+- RC 结果：RC-01–RC-23 在声明的研究/设计范围内通过；RC-24 exact Run2 链通过；RC-25/RC-26 失败
+- 文件修改：reviewer 只读；两个 post-closure sibling roots 均不存在
+
+### 拒绝项
+
+1. **Exact freeze report 不能进入 frozen aggregate Gate。** C4 external report 含 Gate closed schema 不允许的额外字段并使用绝对 `verifier_path`；复制 exact bytes 会被拒绝，投影/改写又会改变 review 绑定的 hash。
+2. **终审 receipt 契约与 frozen receipt schema 冲突。** 终审要求 receipt 明确 `external_action_authority=false`，但 C4 `REVIEW_RECEIPT_KEYS` 没有该字段并拒绝 extra key；满足 review contract 的 exact receipt 无法进入 governance root。
+
+Minor：human manifest、closure matrix、frozen pre-acceptance crosswalk 和 Envelope 的可读状态比 canonical JSON/外部 receipt 保守，可能误导人工恢复，但没有放宽权限。Crosswalk 作为 Run2 exact acceptance 的输入不能就地改写；当前状态必须由其外部 acceptance receipt 和 successor 状态入口解释。
+
+### C5 根因修复
+
+- 新增 `build_freeze_report.py`，直接调用 candidate verifier，并只生成 aggregate Gate 接受的 exact key set、相对 verifier path 与两个 sibling root `ABSENT` 证明；拒绝写入 candidate inventory或覆盖不同报告；
+- phase tests 不再手写另一个 freeze schema，而是调用同一 builder 生成实际治理输入；新增 extra-key、绝对 verifier path 和整条 hash 链重算后的拒绝回归；
+- `REVIEW_RECEIPT_KEYS` 正式加入 `external_action_authority`，aggregate Gate 要求其逐字为 `false`；测试证明即使重算后续 receipt/decision/governance hashes，改成 `true` 仍 fail closed；
+- 人类可读 successor 状态改用不依赖“冻结前/后”瞬时切换的 `BLOCKED-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW`；frozen Run2 crosswalk 的旧 header 只作为 pre-acceptance 输入状态，由 exact acceptance receipt 覆盖当前有效状态；
+- C4 exact receipt 不得迁移复用。C5 必须产生新 manifest、新 freeze report，并重新接受完整 RC-01–RC-26 independent review。

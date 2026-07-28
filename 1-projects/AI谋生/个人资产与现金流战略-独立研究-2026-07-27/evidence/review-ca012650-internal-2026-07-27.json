@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "review_id": "review-ca012650-internal-current-byte-candidate",
+  "recorded_at": "2026-07-27T20:38:26-07:00",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "PASS",
+  "candidate_bindings": [
+    {
+      "path": "../03-否决门与反方审查.md",
+      "sha256": "aeac11438eb06fdcd33b435a9522121983014740c32928d2ea62954a1dda22fd"
+    },
+    {
+      "path": "../07-自主运行协议.md",
+      "sha256": "6993acf3eaea61d9209882796b089bdf0147c97a0893dd84049bcbab7eae3d8a"
+    },
+    {
+      "path": "../10-现实候选预筛与首个反证实验.md",
+      "sha256": "3cb39b9c7d84cf018bb728a3041b6f91d4d58a7be89a2ea979e616ec21dc380a"
+    },
+    {
+      "path": "cec-building-benchmarking-prescreen-2026-07-27.json",
+      "sha256": "4aae43f0415df54b34b2c97445920582566741ac588b3792c30f1444bb82ffc8"
+    },
+    {
+      "path": "../11-内部诊断页-CA012650.md",
+      "sha256": "7604d35448d8212cab89d1d865d656972847acec73624db250b3de7d81313b8e"
+    },
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "c0dab2ed8a3de155a0feb72c11bad47b4dd226f35a3881cd0d5200cd67add9a1"
+    },
+    {
+      "path": "experiment-ca012650-internal-2026-07-27.json",
+      "sha256": "bf1cf7e9161961672c0a174896aa7300bf266cb0440744db8fe8ef1491264368"
+    }
+  ],
+  "reviewed_properties": [
+    "Risk-tiered discovery, quote, delivery, and asset gates are internally consistent.",
+    "Target-specific incumbent coverage is a probe stop; general market alternatives with target coverage unknown do not pre-prove the problem away.",
+    "The primary unknown is limited to unresolved-problem status and owner-authorized routing.",
+    "Result semantics do not treat sending, transport acceptance, silence, bounce, or auto-reply as demand success.",
+    "All demand, payment, delivery, profit, repeatability, and asset claims remain false.",
+    "The recorded experiment timestamp is not in the future and its bound input hashes match."
+  ],
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "missing_external_bindings": [
+    "sending_account",
+    "observation_cutoff_at",
+    "pre_send_source_refresh",
+    "exact_one_message_user_authorization"
+  ],
+  "claim_boundary": "This receipt records an independent read-only review of the exact internal bytes. It does not authorize contact, follow-up, quoting, account access, submission, payment, or delivery, and it is not an external third-party attestation of demand."
+}

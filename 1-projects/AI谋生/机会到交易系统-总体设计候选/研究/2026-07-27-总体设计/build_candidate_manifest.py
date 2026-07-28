@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the canonical C4 candidate manifest from an explicit closed inventory.
+"""Build the canonical C5 candidate manifest from an explicit closed inventory.
 
 The builder is intentionally not a discovery tool.  Every admissible path,
 role, authority status and dependency is declared below.  An unexpected file,
@@ -80,6 +80,7 @@ CANDIDATE_VERIFIER = f"{RESEARCH}/verify_candidate_manifest.py"
 POST_VERIFIER = f"{RESEARCH}/verify_post_closure_manifest.py"
 PHASE_TEST = f"{RESEARCH}/test_phase_manifests.py"
 BUILDER = f"{RESEARCH}/build_candidate_manifest.py"
+FREEZE_BUILDER = f"{RESEARCH}/build_freeze_report.py"
 
 
 SPECS: dict[str, dict[str, Any]] = {
@@ -162,7 +163,13 @@ SPECS: dict[str, dict[str, Any]] = {
         "MECHANICAL_TEST_ONLY",
         CANDIDATE_VERIFIER,
         POST_VERIFIER,
+        FREEZE_BUILDER,
         ENVELOPE,
+    ),
+    FREEZE_BUILDER: spec(
+        "exact-schema external freeze report builder",
+        "MECHANICAL_GENERATION_ONLY",
+        CANDIDATE_VERIFIER,
     ),
     BUILDER: spec(
         "explicit closed-inventory canonical manifest builder",
@@ -354,6 +361,7 @@ SPECS.update(
             CANDIDATE_VERIFIER,
             POST_VERIFIER,
             PHASE_TEST,
+            FREEZE_BUILDER,
         ),
         "FINAL_CANDIDATE_MANIFEST.md": spec(
             "human-readable final candidate freeze and review instructions",
@@ -364,6 +372,7 @@ SPECS.update(
             CANDIDATE_VERIFIER,
             POST_VERIFIER,
             PHASE_TEST,
+            FREEZE_BUILDER,
             ACCEPTANCE_VERIFIER,
             ACCEPTANCE_TEST,
         ),
@@ -471,7 +480,7 @@ def build() -> dict[str, Any]:
         )
     return {
         "schema_version": "1.1",
-        "candidate_id": "OTTS-DESIGN-20260727-C4",
+        "candidate_id": "OTTS-DESIGN-20260727-C5",
         "status": "FROZEN-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW",
         "scope": (
             "Research and design closure candidate for a local read-only, "
