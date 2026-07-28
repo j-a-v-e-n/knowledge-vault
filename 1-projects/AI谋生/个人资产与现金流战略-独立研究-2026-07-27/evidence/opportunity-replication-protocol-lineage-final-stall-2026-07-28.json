@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "recorded_at": "2026-07-28T05:53:40-07:00",
-  "updated_at": "2026-07-28T06:04:12-07:00",
+  "updated_at": "2026-07-28T06:19:40-07:00",
   "record_type": "IMMUTABLE_PROTOCOL_REVIEW_LINEAGE_AND_STALL_OBSERVATION_NOT_AUTHORITY_TRANSFER",
   "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
   "review_scope": "PROTOCOL_MECHANICS_ONLY_NO_QUERY_RESULTS",
@@ -137,6 +137,54 @@
         "false_accepts": 3,
         "crashes": 0
       }
+    },
+    {
+      "candidate": {
+        "commit": "0ae297bf124d50c7d662e2152cdb87a9408848aa",
+        "root_tree": "0e5153ae0d96c77ceed73d087415148b8611bb0f",
+        "parent_final_fail_commit": "cc14d48f0edcd187ff925595a47b84a3cf33a54e",
+        "protocol_sha256": "4e39ce0674dd87988cebdfeda1ba215536ec225517e36765ff308f0d4e370c08",
+        "contract_sha256": "73251a475711a1cfec176618c4502d31508d5a0ab7f964c2dbee0dd602dc8b48",
+        "gate_fixture_sha256": "6e9f668a399fac311537b27eb636d3635c3b75adf5b453e96d16b20317771518",
+        "verifier_sha256": "fbde6f03f024a11279bc526be18d62ecc4c1ed4a56eaee1a6e7c26e01ef80389",
+        "tests_sha256": "32d11ca3cc281016594009b51760705d768678456f2e44cf5c6eeffdc9cf0742"
+      },
+      "archive_reproduction": {
+        "exact_changed_file_count": 7,
+        "git_diff_check_passed": true,
+        "shipped_unit_tests": "Ran 16 tests; OK",
+        "bytecode_found": false,
+        "predecessor_major_count_closed": 4
+      },
+      "verdict": {
+        "value": "FINAL_FAIL_NO_GO",
+        "critical": 0,
+        "major": 2,
+        "minor": 0,
+        "authority_effect": "NONE"
+      },
+      "root_causes": [
+        "The execution-mode URL check does not require absolute HTTPS/nonempty host or normalize a terminal DNS dot, so fixture.invalid., hostless and non-HTTPS forms can pass in returned_url or canonical_permalink.",
+        "datetime.strptime accepts non-zero-padded UTC strings such as 2026-7-28T2:0:0Z despite the exact timestamp contract."
+      ],
+      "root_matrix": {
+        "full_entry_cases": 83,
+        "expected_positives": 2,
+        "correct_rejections": 78,
+        "false_accepts": 3,
+        "false_accept_root_causes": 2,
+        "crashes": 0,
+        "contract_binding_attacks_rejected": "3/3",
+        "extra_cli_protocol_argument_exit_code": 2
+      },
+      "inherited_out_of_scope_disclosure": {
+        "control_plane_verifier_valid": false,
+        "snapshot_stable": true,
+        "snapshot_sha256": "b334ae869b0482ea9496353a83fdf7b11d3e01f2f06a0547e3083f4aba5b265a",
+        "only_error": "decision_graph: D027 alternative D027-A invalid state",
+        "counted_in_trail_verdict": false,
+        "independently_blocks_query_execution_until_closed": true
+      }
     }
   ],
   "stall_decision": {
@@ -151,7 +199,8 @@
       "QUERY_UNAVAILABLE"
     ],
     "first_closed_contract_candidate": "FINAL_FAIL_NO_GO",
-    "moving_successor_status": "NO_REVIEWED_SUCCESSOR_AFTER_CC14D48"
+    "schema_root_successor": "FINAL_FAIL_NO_GO",
+    "moving_successor_status": "NO_REVIEWED_SUCCESSOR_AFTER_0AE297"
   },
   "authority_boundary": {
     "run_search_queries_authorized": false,
