@@ -1,20 +1,91 @@
 {
-  "schema_version": "demand-carrier-readonly-leads/1",
-  "observation_id": "demand-carrier-readonly-leads-2026-07-28",
+  "schema_version": "demand-carrier-readonly-leads/2",
+  "record_class": "LOCATOR_ONLY_NOT_GATE_EVIDENCE",
+  "observation_id": "demand-carrier-readonly-leads-2026-07-28-r2",
   "observed_at": "2026-07-28T00:17:34-07:00",
+  "r2_amended_at": "2026-07-28T00:52:42-07:00",
   "observer": "/root",
   "method": "Public, read-only web search and direct page opening without login, application, form entry, message, payment, or account access.",
+  "predecessor_and_review_binding": {
+    "predecessor_path": "demand-carrier-readonly-leads-2026-07-28.json",
+    "predecessor_schema_version": "demand-carrier-readonly-leads/1",
+    "predecessor_sha256": "89c9bec4a9f353686579b9860cbded2050200948a96f1f508d0111b566603a3a",
+    "independent_review_path": "review-demand-carrier-readonly-leads-2026-07-28-r1.json",
+    "independent_review_sha256": "b1bca6a5a87d509216a1c1293bb28d10f38bfa7a6c66b8d010e58ba1550d3acb",
+    "independent_review_id": "review-demand-carrier-readonly-leads-2026-07-28-r1",
+    "independent_review_verdict": "FAIL",
+    "independent_review_severity_counts": {
+      "critical": 0,
+      "major": 3
+    },
+    "remediation_status": [
+      {
+        "finding_id": "DEMAND-LEADS-R1-M1",
+        "status": "REMEDIATED_IN_R2_PENDING_NEW_INDEPENDENT_REVIEW"
+      },
+      {
+        "finding_id": "DEMAND-LEADS-R1-M2",
+        "status": "REMEDIATED_IN_R2_PENDING_NEW_INDEPENDENT_REVIEW"
+      },
+      {
+        "finding_id": "DEMAND-LEADS-R1-M3",
+        "status": "REMEDIATED_IN_R2_PENDING_NEW_INDEPENDENT_REVIEW"
+      }
+    ]
+  },
+  "closed_enums": {
+    "lead_class": [
+      "PAID_FREELANCE_LISTING",
+      "EQUITY_ONLY_DISPLAYED_PLATFORM_LISTING",
+      "FULL_TIME_EMPLOYMENT_COMPENSATION_UNSTATED",
+      "TALENT_NETWORK_NO_GUARANTEED_PROJECT"
+    ],
+    "source_authority": [
+      "PLATFORM_OPERATOR_OFFICIAL",
+      "EMPLOYER_OFFICIAL_WITH_PLATFORM_CORROBORATION",
+      "PLATFORM_VERIFIED_ONLY"
+    ],
+    "current_status": [
+      "PUBLIC_LISTING_LOCATOR_OBSERVED",
+      "PUBLIC_TALENT_NETWORK_LOCATOR_OBSERVED"
+    ],
+    "cash_compensation_status": [
+      "HOURLY_RANGE_STATED",
+      "FIXED_HOURLY_RATE_STATED",
+      "EQUITY_ONLY_DISPLAYED_NO_CASH_STATED",
+      "CASH_COMPENSATION_UNSTATED",
+      "NETWORK_ADVERTISED_RANGE_NOT_BOUND_TO_CURRENT_PROJECT"
+    ],
+    "demand_carrier_status": [
+      "CURRENT_PAID_LISTING_DEMAND_SIGNAL_LOCATOR_ONLY",
+      "EQUITY_ONLY_LISTING_EXCLUDED_FROM_CASHFLOW_CANDIDATES",
+      "COMPENSATION_UNSTATED_LISTING_EXCLUDED_FROM_CASHFLOW_CANDIDATES",
+      "TALENT_NETWORK_NOT_A_CURRENT_DEMAND_CARRIER"
+    ]
+  },
   "durability": {
     "raw_response_or_full_screenshot_persisted": false,
     "content_hash_available": false,
     "independent_immediate_replay_receipt_available": false,
-    "gate_use": "LOCATOR_ONLY_NOT_CURRENT_APPLICATION_EVIDENCE"
+    "gate_use": "LOCATOR_ONLY_NOT_GATE_EVIDENCE"
   },
   "selection_question": "Does a public page identify a real demand carrier, responsible role, requested work, and stated transaction signal, rather than merely naming an organization that is the subject of a public record?",
   "leads": [
     {
-      "lead_id": "meridial-investment-specialist-4784904101",
-      "source_url": "https://job-boards.greenhouse.io/agency/jobs/4784904101",
+      "lead_id": "meridial-investment-specialist-ai-trainer",
+      "lead_class": "PAID_FREELANCE_LISTING",
+      "source_authority": "PLATFORM_OPERATOR_OFFICIAL",
+      "current_status": "PUBLIC_LISTING_LOCATOR_OBSERVED",
+      "cash_compensation_status": "HOURLY_RANGE_STATED",
+      "demand_carrier_status": "CURRENT_PAID_LISTING_DEMAND_SIGNAL_LOCATOR_ONLY",
+      "canonical_official_url": "https://job-boards.greenhouse.io/agency/jobs/4784904101",
+      "corroborating_platform_url": null,
+      "source_specific_listing_ids": {
+        "greenhouse_job_id": "4784904101",
+        "wellfound_job_id": null,
+        "official_page_slug": null
+      },
+      "conflicting_fields": [],
       "public_page_observations": {
         "title": "Investment Specialist – Freelance AI Trainer Project",
         "location": "World Wide - Remote",
@@ -35,8 +106,20 @@
       "application_ready": false
     },
     {
-      "lead_id": "meridial-english-language-specialist-4738026101",
-      "source_url": "https://job-boards.greenhouse.io/agency/jobs/4738026101",
+      "lead_id": "meridial-english-language-specialist",
+      "lead_class": "PAID_FREELANCE_LISTING",
+      "source_authority": "PLATFORM_OPERATOR_OFFICIAL",
+      "current_status": "PUBLIC_LISTING_LOCATOR_OBSERVED",
+      "cash_compensation_status": "FIXED_HOURLY_RATE_STATED",
+      "demand_carrier_status": "CURRENT_PAID_LISTING_DEMAND_SIGNAL_LOCATOR_ONLY",
+      "canonical_official_url": "https://job-boards.greenhouse.io/agency/jobs/4738026101",
+      "corroborating_platform_url": null,
+      "source_specific_listing_ids": {
+        "greenhouse_job_id": "4738026101",
+        "wellfound_job_id": null,
+        "official_page_slug": null
+      },
+      "conflicting_fields": [],
       "public_page_observations": {
         "title": "English Language Specialist (US Only) - Freelance AI Trainer Project",
         "workplace_type": "Remote US Only",
@@ -56,11 +139,30 @@
       "application_ready": false
     },
     {
-      "lead_id": "invisible-ai-qa-trainer-3471040",
-      "source_url": "https://wellfound.com/jobs/3471040-ai-qa-trainer-llm-evaluation-freelance-project",
+      "lead_id": "invisible-ai-qa-trainer",
+      "lead_class": "PAID_FREELANCE_LISTING",
+      "source_authority": "PLATFORM_OPERATOR_OFFICIAL",
+      "current_status": "PUBLIC_LISTING_LOCATOR_OBSERVED",
+      "cash_compensation_status": "HOURLY_RANGE_STATED",
+      "demand_carrier_status": "CURRENT_PAID_LISTING_DEMAND_SIGNAL_LOCATOR_ONLY",
+      "canonical_official_url": "https://job-boards.greenhouse.io/agency/jobs/4676601101",
+      "corroborating_platform_url": "https://wellfound.com/jobs/3471040-ai-qa-trainer-llm-evaluation-freelance-project",
+      "source_specific_listing_ids": {
+        "greenhouse_job_id": "4676601101",
+        "wellfound_job_id": "3471040",
+        "official_page_slug": null
+      },
+      "conflicting_fields": [
+        {
+          "field": "location",
+          "canonical_official_value": "World Wide - Remote",
+          "corroborating_platform_value": "Remote (United States)",
+          "resolution": "USE_CANONICAL_OFFICIAL_VALUE"
+        }
+      ],
       "public_page_observations": {
         "title": "AI QA Trainer - LLM Evaluation - Freelance Project",
-        "location": "Remote (United States)",
+        "location": "World Wide - Remote",
         "employment_type": "Contract",
         "seniority_level": "Mid-Senior Level",
         "stated_pay_range": "$6-to- $65 per hour",
@@ -76,8 +178,20 @@
       "application_ready": false
     },
     {
-      "lead_id": "wrth-engineering-product-qa-intern-4065253",
-      "source_url": "https://wellfound.com/jobs/4065253-engineering-product-qa-testing-intern",
+      "lead_id": "wrth-qa-testing-intern",
+      "lead_class": "EQUITY_ONLY_DISPLAYED_PLATFORM_LISTING",
+      "source_authority": "PLATFORM_VERIFIED_ONLY",
+      "current_status": "PUBLIC_LISTING_LOCATOR_OBSERVED",
+      "cash_compensation_status": "EQUITY_ONLY_DISPLAYED_NO_CASH_STATED",
+      "demand_carrier_status": "EQUITY_ONLY_LISTING_EXCLUDED_FROM_CASHFLOW_CANDIDATES",
+      "canonical_official_url": null,
+      "corroborating_platform_url": "https://wellfound.com/jobs/4065253-engineering-product-qa-testing-intern",
+      "source_specific_listing_ids": {
+        "greenhouse_job_id": null,
+        "wellfound_job_id": "4065253",
+        "official_page_slug": null
+      },
+      "conflicting_fields": [],
       "public_page_observations": {
         "title": "Engineering / Product QA & Testing Intern",
         "location": "Remote (United States)",
@@ -98,14 +212,49 @@
       "application_ready": false
     },
     {
-      "lead_id": "alivo-manual-qa-engineer-4287600",
-      "source_url": "https://wellfound.com/jobs/4287600-manual-qa-engineer",
+      "lead_id": "alivo-manual-qa-engineer",
+      "lead_class": "FULL_TIME_EMPLOYMENT_COMPENSATION_UNSTATED",
+      "source_authority": "EMPLOYER_OFFICIAL_WITH_PLATFORM_CORROBORATION",
+      "current_status": "PUBLIC_LISTING_LOCATOR_OBSERVED",
+      "cash_compensation_status": "CASH_COMPENSATION_UNSTATED",
+      "demand_carrier_status": "COMPENSATION_UNSTATED_LISTING_EXCLUDED_FROM_CASHFLOW_CANDIDATES",
+      "canonical_official_url": "https://www.alivo.ai/career/manual-qa-engineer",
+      "corroborating_platform_url": "https://wellfound.com/jobs/4287600-manual-qa-engineer",
+      "source_specific_listing_ids": {
+        "greenhouse_job_id": null,
+        "wellfound_job_id": "4287600",
+        "official_page_slug": "manual-qa-engineer"
+      },
+      "conflicting_fields": [
+        {
+          "field": "experience",
+          "canonical_official_value": "2–5+ years of QA, software testing, product operations, or similar experience",
+          "corroborating_platform_value": "2 years of exp",
+          "resolution": "USE_CANONICAL_OFFICIAL_VALUE"
+        },
+        {
+          "field": "application_route",
+          "canonical_official_value": "Email your resume to contact@alivo.ai to apply.",
+          "corroborating_platform_value": "Platform Apply Now control",
+          "resolution": "USE_CANONICAL_OFFICIAL_VALUE_AND_REMAIN_BLOCKED_NOT_AUTHORIZED"
+        }
+      ],
       "public_page_observations": {
         "title": "Manual QA Engineer",
         "location": "Remote (United States)",
-        "experience": "2 years of exp",
+        "experience": "2–5+ years of QA, software testing, product operations, or similar experience",
         "employment_type": "Full Time",
         "application_button_visible": true,
+        "canonical_application_route": "Email your resume to contact@alivo.ai to apply.",
+        "field_authority": {
+          "title": "canonical_official_url",
+          "experience": "canonical_official_url",
+          "requested_work": "canonical_official_url",
+          "canonical_application_route": "canonical_official_url",
+          "location": "corroborating_platform_url",
+          "employment_type": "corroborating_platform_url",
+          "application_button_visible": "corroborating_platform_url"
+        },
         "requested_work": "Own manual and exploratory testing, evaluate AI phone and chat conversations, build evaluation sets and rubrics, red-team failures, and file reproducible bug reports."
       },
       "why_it_is_a_demand_carrier": "The page states a concrete company workflow and directly requests the human-plus-AI evaluation capabilities this project is testing.",
@@ -119,7 +268,19 @@
     },
     {
       "lead_id": "meridial-college-student-network-general",
-      "source_url": "https://www.meridial.ai/students",
+      "lead_class": "TALENT_NETWORK_NO_GUARANTEED_PROJECT",
+      "source_authority": "PLATFORM_OPERATOR_OFFICIAL",
+      "current_status": "PUBLIC_TALENT_NETWORK_LOCATOR_OBSERVED",
+      "cash_compensation_status": "NETWORK_ADVERTISED_RANGE_NOT_BOUND_TO_CURRENT_PROJECT",
+      "demand_carrier_status": "TALENT_NETWORK_NOT_A_CURRENT_DEMAND_CARRIER",
+      "canonical_official_url": "https://www.meridial.ai/students",
+      "corroborating_platform_url": null,
+      "source_specific_listing_ids": {
+        "greenhouse_job_id": null,
+        "wellfound_job_id": null,
+        "official_page_slug": "students"
+      },
+      "conflicting_fields": [],
       "supporting_faq_url": "https://www.meridial.ai/faq",
       "supporting_process_url": "https://www.meridial.ai/what-to-expect",
       "public_page_observations": {
@@ -137,7 +298,7 @@
         "identity_verification_required": true,
         "project_invitation_can_be_accepted_or_declined": true
       },
-      "why_it_is_a_demand_carrier": "The official platform page expressly targets students and recent graduates with paid AI-evaluation work, while the official FAQ states that fees are disclosed per invitation.",
+      "classification_rationale": "This is an official talent-network marketing page, not a current project listing. The official FAQ says network admission does not guarantee a project invitation, so the advertised range is not a current paid listing or current demand carrier.",
       "unverified_or_blocking": [
         "The official FAQ says joining the network does not guarantee project engagements and that availability varies with client demand, specialization, and language needs.",
         "There is no exact current project, client, assigned-hours promise, final fee, contract, or payment schedule bound to this general network page.",
@@ -147,19 +308,63 @@
       "application_ready": false
     }
   ],
-  "privacy_and_account_risk_observation": {
-    "primary_source_url": "https://www.meridial.ai/meridial-privacy-policy",
-    "older_source_url": "https://www.invisible.co/privacy-policy/?slug=marketplaces",
-    "official_page_status": "The Meridial contractor privacy policy is the more specific and newer public source and displays Effective Date March 2nd 2026. The older Invisible marketplace policy displays Effective Date July 13th 2021 and Last updated 10/4/2021 and is retained only as historical context.",
-    "observed_categories": [
-      "The current policy describes collection of account, residence, education, employment, reference, CV, taxpayer, government-ID, payment, communication, project, and task information.",
-      "Identity verification may include selfies, government-ID images, video or audio, and facial measurements that may be biometric or sensitive data.",
-      "Upon notice, task monitoring may include screen recording, webcam presence verification, and eye-tracking analysis; monitoring is described as a condition of platform access.",
-      "Information shared with clients can include contact details, qualifications, work product, screen recordings, and biometric monitoring data where required by a client agreement.",
-      "Integrity and identity-verification records may be retained for up to three years following the last interaction, or as needed for legal obligations.",
-      "Client-specific tools and privacy practices may be controlled separately by the client."
+  "privacy_policy_chain": {
+    "gate_evidence_status": "LOCATOR_ONLY_NOT_GATE_EVIDENCE",
+    "application_time_invisible_policy": {
+      "policy_identity": "INVISIBLE_GENERAL_APPLICATION_PRIVACY_POLICY",
+      "application_path_example": "https://job-boards.greenhouse.io/agency/jobs/4676601101",
+      "requested_url": "https://www.invisible.co/privacy-policy",
+      "final_url": "https://invisibletech.ai/privacy-policy",
+      "displayed_date_label": "Last Update",
+      "displayed_date": "March 25th 2026",
+      "scope_observation": "The Greenhouse application footer links to this general Invisible privacy policy; this locator does not prove every listing or later contractor task uses only this policy.",
+      "retention_observations": {
+        "general_rule": "Personal information is retained for as long as the Services are used or as necessary for the stated purposes, disputes, defenses, audits, legitimate business purposes, agreements, and applicable law.",
+        "screen_recording_retention": "UNKNOWN_NOT_SPECIFICALLY_STATED_IN_APPLICATION_TIME_POLICY",
+        "biometric_monitoring_retention": "UNKNOWN_NOT_SPECIFICALLY_STATED_IN_APPLICATION_TIME_POLICY",
+        "fixed_maximum_retention": "UNKNOWN_NOT_STATED"
+      },
+      "durability": {
+        "raw_response_or_full_screenshot_persisted": false,
+        "content_hash_available": false,
+        "independent_immediate_replay_receipt_available": false,
+        "evidence_class": "LOCATOR_ONLY_NOT_GATE_EVIDENCE"
+      }
+    },
+    "contractor_time_meridial_policy": {
+      "policy_identity": "MERIDIAL_CONTRACTOR_PRIVACY_POLICY",
+      "requested_url": "https://www.meridial.ai/meridial-privacy-policy",
+      "final_url": "https://www.meridial.ai/meridial-privacy-policy",
+      "displayed_date_label": "Effective Date",
+      "displayed_date": "March 2nd 2026",
+      "scope_observation": "The page states that it applies to contractors who access or use Meridial contributor services; it is not treated as a substitute for the application-time policy or any client-specific policy.",
+      "observed_categories": [
+        "The policy describes collection of account, residence, education, employment, reference, CV, taxpayer, government-ID, payment, communication, project, and task information.",
+        "Identity verification may include selfies, government-ID images, video or audio, and facial measurements that may be biometric or sensitive data.",
+        "Task monitoring may include full-screen recording, facial geometry, eye tracking, and presence detection when indicated.",
+        "Information shared with clients can include contact details, qualifications, work product, screen recordings, and biometric monitoring data where required by a client agreement.",
+        "Client-specific tools and privacy practices may be controlled separately by the client."
+      ],
+      "retention_observations": {
+        "integrity_and_identity_verification_records": "Up to three years following the last interaction with the Services, or as necessary to comply with legal obligations.",
+        "security_exception": "Data associated with account bans, investigations into fraudulent or non-compliant activities, or security incidents may be retained indefinitely.",
+        "screen_recording_retention": "Fourteen days following Task completion; recordings may be retained longer if relevant to an ongoing investigation, dispute, or legal matter.",
+        "biometric_monitoring_retention": "Fourteen (14) days following Task completion; it may be retained longer for an ongoing investigation into fraudulent or non-compliant activities, but in no event longer than one (1) year after the purpose for collection has been satisfied.",
+        "client_specific_tool_retention": "UNKNOWN_UNTIL_CLIENT_AND_CLIENT_POLICY_ARE_IDENTIFIED"
+      },
+      "durability": {
+        "raw_response_or_full_screenshot_persisted": false,
+        "content_hash_available": false,
+        "independent_immediate_replay_receipt_available": false,
+        "evidence_class": "LOCATOR_ONLY_NOT_GATE_EVIDENCE"
+      }
+    },
+    "unresolved_policy_chain_questions": [
+      "Whether a selected listing remains open and routes to the same requested and final privacy-policy URLs at decision time is unknown.",
+      "Whether an accepted contractor task invokes additional client policies, monitoring tools, or retention periods is unknown.",
+      "Screen-recording and biometric-monitoring retention under the application-time Invisible policy remain unknown because no specific durations were stated in that policy."
     ],
-    "decision_effect": "Before any application, identity verification, assessment, account creation, or contractor acceptance, the exact current privacy policy, terms, requested personal-data fields, monitoring scope, client identity, work authorization, tax, payment, retention, and deletion consequences require user review and exact authorization."
+    "decision_effect": "Before any application, identity verification, assessment, account creation, or contractor acceptance, preserve a durable raw artifact or full screenshot with requested URL, final URL, content hash, and fresh independent replay; then obtain user review and exact authorization for the policy, terms, requested personal-data fields, monitoring scope, client identity, work authorization, tax, payment, retention, and deletion consequences."
   },
   "non_authoritative_experience_counterevidence": {
     "sources": [
@@ -178,13 +383,73 @@
   },
   "cross_lead_inference": {
     "claim_class": "inferred",
-    "claim": "Public pages provide direct evidence that organizations request evaluation, QA, adversarial testing, failure taxonomies, reproducible traces, and structured feedback. They do not establish that this user will be selected, paid at any particular rate, assigned hours, or permitted to work under the relevant terms.",
+    "claim": "The locator pages show five public listings that request evaluation or QA work and one separate talent-network page. Only three listings state present cash compensation; the equity-only, compensation-unstated, and talent-network records are excluded from current cash-flow candidates. None is durable Gate evidence, and none establishes that this user will be selected, paid at any particular rate, assigned hours, or permitted to work under the relevant terms.",
     "portfolio_implication": "A small content-addressed local evaluation artifact can be assessed as portfolio evidence against explicit job requirements, but passing it is neither demand validation nor application authorization."
+  },
+  "mechanical_counts": {
+    "total_lead_count": 6,
+    "lead_class_counts": {
+      "PAID_FREELANCE_LISTING": 3,
+      "EQUITY_ONLY_DISPLAYED_PLATFORM_LISTING": 1,
+      "FULL_TIME_EMPLOYMENT_COMPENSATION_UNSTATED": 1,
+      "TALENT_NETWORK_NO_GUARANTEED_PROJECT": 1
+    },
+    "source_authority_counts": {
+      "PLATFORM_OPERATOR_OFFICIAL": 4,
+      "EMPLOYER_OFFICIAL_WITH_PLATFORM_CORROBORATION": 1,
+      "PLATFORM_VERIFIED_ONLY": 1
+    },
+    "current_status_counts": {
+      "PUBLIC_LISTING_LOCATOR_OBSERVED": 5,
+      "PUBLIC_TALENT_NETWORK_LOCATOR_OBSERVED": 1
+    },
+    "cash_compensation_status_counts": {
+      "HOURLY_RANGE_STATED": 2,
+      "FIXED_HOURLY_RATE_STATED": 1,
+      "EQUITY_ONLY_DISPLAYED_NO_CASH_STATED": 1,
+      "CASH_COMPENSATION_UNSTATED": 1,
+      "NETWORK_ADVERTISED_RANGE_NOT_BOUND_TO_CURRENT_PROJECT": 1
+    },
+    "demand_carrier_status_counts": {
+      "CURRENT_PAID_LISTING_DEMAND_SIGNAL_LOCATOR_ONLY": 3,
+      "EQUITY_ONLY_LISTING_EXCLUDED_FROM_CASHFLOW_CANDIDATES": 1,
+      "COMPENSATION_UNSTATED_LISTING_EXCLUDED_FROM_CASHFLOW_CANDIDATES": 1,
+      "TALENT_NETWORK_NOT_A_CURRENT_DEMAND_CARRIER": 1
+    },
+    "current_listing_locator_count": 5,
+    "current_demand_carrier_locator_count": 5,
+    "current_paid_listing_locator_count": 3,
+    "current_cashflow_candidate_locator_count": 3,
+    "excluded_from_current_cashflow_candidate_count": 3,
+    "gate_evidence_qualified_current_cashflow_candidate_count": 0,
+    "application_ready_false_count": 6,
+    "application_ready_true_count": 0,
+    "derivation": {
+      "current_listing_locator_count": "Count leads with current_status=PUBLIC_LISTING_LOCATOR_OBSERVED.",
+      "current_demand_carrier_locator_count": "Count public-listing locators and exclude lead_class=TALENT_NETWORK_NO_GUARANTEED_PROJECT.",
+      "current_paid_listing_locator_count": "Count leads with lead_class=PAID_FREELANCE_LISTING.",
+      "current_cashflow_candidate_locator_count": "Count leads with demand_carrier_status=CURRENT_PAID_LISTING_DEMAND_SIGNAL_LOCATOR_ONLY.",
+      "excluded_from_current_cashflow_candidate_count": "Count talent-network, equity-only, and compensation-unstated lead classes.",
+      "gate_evidence_qualified_current_cashflow_candidate_count": "All lead observations have record_class=LOCATOR_ONLY_NOT_GATE_EVIDENCE.",
+      "application_ready_counts": "Count exact boolean application_ready values across all leads."
+    }
   },
   "current_decision": {
     "application_ready_count": 0,
     "external_action_status": "BLOCKED_NOT_AUTHORIZED",
     "next_local_only_action": "Preserve exact public source bytes or full screenshots for one selected lead, independently recheck freshness, perform fit and privacy gap analysis, and prepare an exact application-risk packet without entering a form or contacting anyone."
+  },
+  "external_action_authorization": {
+    "login": "NOT_AUTHORIZED",
+    "account_creation": "NOT_AUTHORIZED",
+    "form_entry": "NOT_AUTHORIZED",
+    "application_submission": "NOT_AUTHORIZED",
+    "email_or_message": "NOT_AUTHORIZED",
+    "privacy_acceptance": "NOT_AUTHORIZED",
+    "contract_acceptance": "NOT_AUTHORIZED",
+    "private_data_submission": "NOT_AUTHORIZED",
+    "payment_or_receipt": "NOT_AUTHORIZED",
+    "publication": "NOT_AUTHORIZED"
   },
   "external_actions_observed": {
     "login": false,
@@ -194,7 +459,9 @@
     "email_or_message": false,
     "privacy_acceptance": false,
     "contract_acceptance": false,
-    "payment_or_receipt": false
+    "private_data_submission": false,
+    "payment_or_receipt": false,
+    "publication": false
   },
-  "claim_boundary": "This locator record shows public demand signals and risks only. It is not a raw capture, current application Gate receipt, fit proof, work-authorization determination, offer, contract, payment proof, demand validation for a new product, or authorization for any external action."
+  "claim_boundary": "This r2 locator record remediates the predecessor review's classification, canonical-source, and privacy-chain findings but remains pending a new independent review. It shows public listing and talent-network locators plus risks only. It is not a raw capture, current application Gate receipt, fit proof, work-authorization determination, offer, contract, payment proof, demand validation for a new product, stable cash-flow proof, or authorization for login, account creation, form entry, application, email, message, privacy acceptance, contract, private-data submission, payment, receipt, publication, or investment action."
 }

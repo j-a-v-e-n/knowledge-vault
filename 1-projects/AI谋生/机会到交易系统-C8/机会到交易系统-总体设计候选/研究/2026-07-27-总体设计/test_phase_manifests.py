@@ -1117,7 +1117,7 @@ class PhaseManifestTests(unittest.TestCase):
 
         def mutate_after_snapshot(**_kwargs):
             write_text(program_path, "same-name replacement after snapshot\n")
-            return self.shadow_case_response
+            return self._mapped_shadow_case_response(**_kwargs)
 
         with self.assertRaisesRegex(ManifestError, "snapshot changed"):
             self._validate(
@@ -1132,7 +1132,7 @@ class PhaseManifestTests(unittest.TestCase):
 
         def mutate_candidate_after_snapshot(**_kwargs):
             write_text(self.envelope, "candidate drift after governance snapshot\n")
-            return self.shadow_case_response
+            return self._mapped_shadow_case_response(**_kwargs)
 
         with self.assertRaisesRegex(ManifestError, "hash mismatch"):
             self._validate(
@@ -1181,12 +1181,13 @@ class PhaseManifestTests(unittest.TestCase):
             self.shadow_review_root / "SHADOW_INDEPENDENT_REVIEW_RECEIPT.json"
         )
         receipt = {
-            "schema_version": "otts.shadow-independent-review-receipt/1",
+            "schema_version": "otts.shadow-independent-review-receipt/2",
             "receipt_id": "SYNTHETIC-SHADOW-REVIEW",
             "reviewer_id": "synthetic-independent-shadow-reviewer",
             "independence_assertion": "Synthetic independent test fixture only.",
             "review_scope": (
-                "EXACT_DECLARATIVE_SHADOW_MANIFEST_POLICY_SNAPSHOT_RUNTIME_AND_OUTPUTS"
+                "EXACT_CLOSED_DOMAIN_GATE_SHADOW_MANIFEST_POLICY_SNAPSHOT_"
+                "RUNTIME_AND_OUTCOMES"
             ),
             "verdict": "PASS",
             "unresolved_critical": [],
@@ -1220,8 +1221,13 @@ class PhaseManifestTests(unittest.TestCase):
             "acceptance_output_set_digest_sha256": acceptance_report[
                 "acceptance_output_set_digest_sha256"
             ],
+            "domain_rejection_code_set_sha256": acceptance_report[
+                "domain_rejection_code_set_sha256"
+            ],
             "sandbox_support_status": "DEPRECATED_UNSUPPORTED_DEFENSE_IN_DEPTH",
             "artifact_external_action_capability_absent": True,
+            "domain_semantic_gate_accepted": True,
+            "rejection_protocol_bound": True,
             "exact_opened_unlinked_snapshot_execution": True,
             "staged_target_controlled_pathname_reopen_count": 0,
             "same_uid_concurrent_mutation_resistance_proven": False,
@@ -1231,7 +1237,11 @@ class PhaseManifestTests(unittest.TestCase):
                 "aggregate_wall_timeout_seconds"
             ],
             "host_level_universal_noninterference_proven": False,
-            "local_declarative_shadow_candidate_accepted": True,
+            "natural_language_speech_act_inference_proven": False,
+            "semantic_truth_of_human_labels_proven": False,
+            "real_world_temporal_order_proven": False,
+            "actual_lane_generation_isolation_proven": False,
+            "local_domain_gate_shadow_candidate_accepted": True,
             "capability_authority": False,
             "runtime_authority": False,
             "deployment_authority": False,
@@ -1244,7 +1254,7 @@ class PhaseManifestTests(unittest.TestCase):
         write_json(
             review_manifest,
             {
-                "schema_version": "otts.shadow-review-manifest/1",
+                "schema_version": "otts.shadow-review-manifest/2",
                 "artifact_kind": "SHADOW_INDEPENDENT_REVIEW",
                 "candidate_id": "SYNTHETIC-C6",
                 "parent_candidate_manifest_sha256": self.candidate_hash,
@@ -1271,6 +1281,13 @@ class PhaseManifestTests(unittest.TestCase):
         )
         self.assertFalse(result["shadow_generation_valid"])
         self.assertFalse(result["local_shadow_candidate_accepted"])
+        self.assertTrue(result["domain_gate_mechanical_acceptance_observed"])
+        self.assertFalse(result["domain_semantic_gate_accepted"])
+        self.assertFalse(result["rejection_protocol_bound"])
+        self.assertFalse(result["natural_language_speech_act_inference_proven"])
+        self.assertFalse(result["semantic_truth_of_human_labels_proven"])
+        self.assertFalse(result["real_world_temporal_order_proven"])
+        self.assertFalse(result["actual_lane_generation_isolation_proven"])
         self.assertFalse(result["capability_authority"])
         self.assertFalse(result["runtime_authority"])
         self.assertFalse(result["external_action_authority"])
@@ -1294,9 +1311,16 @@ class PhaseManifestTests(unittest.TestCase):
         )
         self.assertEqual(
             result["shadow_state"],
-            "PRESENT_ACCEPTED_LOCAL_DECLARATIVE_SHADOW_CANDIDATE",
+            "PRESENT_ACCEPTED_LOCAL_DOMAIN_GATE_SHADOW_CANDIDATE",
         )
         self.assertTrue(result["local_shadow_candidate_accepted"])
+        self.assertTrue(result["domain_gate_mechanical_acceptance_observed"])
+        self.assertTrue(result["domain_semantic_gate_accepted"])
+        self.assertTrue(result["rejection_protocol_bound"])
+        self.assertFalse(result["natural_language_speech_act_inference_proven"])
+        self.assertFalse(result["semantic_truth_of_human_labels_proven"])
+        self.assertFalse(result["real_world_temporal_order_proven"])
+        self.assertFalse(result["actual_lane_generation_isolation_proven"])
         self.assertFalse(result["capability_authority"])
         self.assertFalse(result["runtime_authority"])
         self.assertFalse(result["external_action_authority"])

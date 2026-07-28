@@ -156,8 +156,8 @@ class ActiveStateValidatorTests(unittest.TestCase):
             precursor_path.read_text(encoding="utf-8")
         )
         assert isinstance(state, dict)
-        state["as_of"] = "2026-07-28T00:10:00-07:00"
-        state["freshness_policy"]["refresh_due_at"] = "2026-07-31T00:10:00-07:00"
+        state["as_of"] = "2026-07-28T00:50:00-07:00"
+        state["freshness_policy"]["refresh_due_at"] = "2026-07-31T00:50:00-07:00"
         opportunity = next(
             stream
             for stream in state["workstreams"]
@@ -322,7 +322,7 @@ class ActiveStateValidatorTests(unittest.TestCase):
         ):
             return VALIDATOR.validate(
                 state,
-                now=now or datetime.fromisoformat("2026-07-28T00:46:00-07:00"),
+                now=now or datetime.fromisoformat("2026-07-28T00:51:00-07:00"),
             )
 
     def assert_rejected_detected(

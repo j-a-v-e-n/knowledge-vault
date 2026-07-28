@@ -819,6 +819,27 @@ class ShadowAcceptanceTests(unittest.TestCase):
             "first_principles_lane"
         ]["canary_token"]
         variants.append((canary_collision, "CANARY_ID_COLLISION"))
+        embedded_canary = copy.deepcopy(valid)
+        embedded_payload = (
+            "Synthetic prefix "
+            + embedded_canary["first_principles_lane"]["canary_token"]
+            + " synthetic suffix."
+        )
+        embedded_observation = embedded_canary["observation_lane"]
+        embedded_observation["source_payload"] = embedded_payload
+        embedded_observation["source_payload_sha256"] = rsa.sha256_bytes(
+            embedded_payload.encode("utf-8")
+        )
+        embedded_claim = embedded_observation["observations"][0]
+        embedded_claim["source_end"] = len(embedded_payload)
+        embedded_claim["source_text"] = embedded_payload
+        embedded_claim["span_sha256"] = rsa.sha256_bytes(
+            embedded_payload.encode("utf-8")
+        )
+        embedded_observation["signal_taxonomy"][
+            "source_payload_sha256"
+        ] = rsa.sha256_bytes(embedded_payload.encode("utf-8"))
+        variants.append((embedded_canary, "CROSS_LANE_CANARY_DETECTED"))
         account = copy.deepcopy(valid)
         account["rights_record"]["account_or_login_used"] = True
         variants.append((account, "RIGHTS_ACCOUNT_ACCESS_FORBIDDEN"))

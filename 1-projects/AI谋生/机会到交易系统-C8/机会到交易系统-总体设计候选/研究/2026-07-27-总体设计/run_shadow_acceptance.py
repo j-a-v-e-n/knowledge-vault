@@ -804,7 +804,7 @@ def _domain_contains_scalar(value: Any, target: str) -> bool:
     stack = [value]
     while stack:
         current = stack.pop()
-        if current == target:
+        if isinstance(current, str) and target in current:
             return True
         if isinstance(current, dict):
             stack.extend(current.keys())
