@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T04:55:49-07:00",
+  "record_type": "IMMUTABLE_WORKFLOW_REVIEW_OBSERVATION_NOT_AUTHORITY_TRANSFER",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "reviewer_identity": "/root/public_gate_full_review",
+  "candidate": {
+    "commit": "7c99d2ab310d71c61bdf00c4aab68cc07b2e398b",
+    "parent_prior_freeze_commit": "8c9f9c8398dcf034e20817145683266e6c63e3cb",
+    "root_tree": "b42b956e1ae85e00934f5db1117ee0cbf92cf7fd",
+    "files": {
+      "README.md": "c703b1501dee8e07d01963dfab0beb56c359f069e87aafc0f47e125beb394ba6",
+      "priors/FIRST_PRINCIPLES_PRIORS.json": "18be33a4a607e14465ed95a729679c2b500f6b597f31ec5e489a72223a0e457e",
+      "fixtures/valid_gate_test.json": "fda289cc57b6351ae7dd0e458a493083fed49478443820af45e9b3c39999a6bd",
+      "test_verify_public_input.py": "4fe0bfe40fea0cab1e0383d8c2b8791f1a35c9f1ee19b4cfa89af2c04572e08c",
+      "verify_public_input.py": "5f57a1a4e263ad4983cb9c5ff81090f90acea274bfd8b5e0062aea9296342420"
+    }
+  },
+  "temporal_prior_binding": {
+    "prior_exists_in_parent": true,
+    "parent_and_candidate_prior_bytes_identical": true,
+    "prior_sha256": "18be33a4a607e14465ed95a729679c2b500f6b597f31ec5e489a72223a0e457e",
+    "prior_plus_case_hash_double_tamper_rejected": true
+  },
+  "immutable_reproduction": {
+    "valid": true,
+    "record_mode": "GATE_TEST_FIXTURE",
+    "evidence_effect": "NONE",
+    "highest_evidence_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "external_authority": false,
+    "unit_test_result": "Ran 12 tests; OK",
+    "bytecode_found": false
+  },
+  "independent_adversarial_matrix": {
+    "cases": 399,
+    "expected_rejections": 381,
+    "false_accepts": 18,
+    "crashes": 0,
+    "separate_cli_exit_status_attack_reproduced": true
+  },
+  "verdict": {
+    "value": "FINAL_FAIL",
+    "critical": 0,
+    "major": 3,
+    "minor": 0,
+    "authority_effect": "NONE"
+  },
+  "findings": [
+    {
+      "severity": "MAJOR",
+      "id": "PUBLIC_HOST_CLASSIFIER_FALSE_ACCEPTS_NONPUBLIC_LOCATORS",
+      "examples": [
+        "https://224.0.0.1/p",
+        "https://[ff02::1]/p",
+        "https://[fec0::1]/p",
+        "https://127.1/p",
+        "https://0177.0.0.1/p",
+        "https://0x7f.0.0.1/p",
+        "https://www.example.com/p",
+        "https://foo.onion/p",
+        "https://host.home.arpa/p"
+      ],
+      "observed_effect": "Full-entry PUBLIC_OBSERVATION probes returned valid=true and evidence_effect=OBSERVATION_ONLY for 17 intended-invalid host vectors.",
+      "root_cause": "is_global is not a global-unicast predicate; legacy numeric IPv4 falls through into the DNS-label branch; reserved subtrees, special-use namespaces, and total hostname length are incompletely checked.",
+      "minimal_remediation": "Define a closed offline public-locator policy with explicit global-unicast checks, legacy-numeric rejection, reserved subtree and special-use rejection, and a 253-character host limit; add exact pure-helper and full-entry regressions without DNS or network access."
+    },
+    {
+      "severity": "MAJOR",
+      "id": "INVALID_CLI_RESULT_EXITS_ZERO",
+      "minimal_reproduction": "python3 -B verify_public_input.py README.md priors/FIRST_PRINCIPLES_PRIORS.json prints valid=false but exits 0.",
+      "root_cause": "The CLI prints the result but never maps result.valid to process status.",
+      "minimal_remediation": "Print one computed result, exit 0 only when valid=true, exit nonzero otherwise, and add subprocess tests for both outcomes."
+    },
+    {
+      "severity": "MAJOR",
+      "id": "RFC3339_HOUR_24_FALSE_ACCEPT",
+      "minimal_reproduction": "captured_at=2026-07-28T24:00:00Z returns valid=true.",
+      "root_cause": "datetime.fromisoformat accepts and normalizes hour 24 while the claimed RFC3339 profile permits hours 00 through 23.",
+      "minimal_remediation": "Enforce component ranges explicitly or use an exact parser that rejects hour 24, and add the exact full-entry regression."
+    }
+  ],
+  "persisted_positive_public_fixture_assessment": {
+    "present": false,
+    "classification": "DECLARED_STAGED_NONCLAIM_NOT_ADDITIONAL_DEFECT",
+    "rule": "Do not fabricate a public quotation. Test the pure public URL and profile helpers before Gate acceptance; after a corrected Gate receives fresh PASS, capture one genuine read-only public record in a new exact successor and review that record separately."
+  },
+  "authority_boundary": {
+    "first_real_public_record_admitted": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_or_contract_authorized": false,
+    "demand_or_commercial_claim_authorized": false
+  }
+}
