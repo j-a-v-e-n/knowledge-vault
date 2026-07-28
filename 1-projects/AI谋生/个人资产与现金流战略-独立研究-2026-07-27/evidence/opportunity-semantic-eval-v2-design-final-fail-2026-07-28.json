@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T07:58:09-07:00",
+  "record_type": "IMMUTABLE_SEMANTIC_EVAL_V2_DESIGN_REVIEW_NOT_MODEL_OR_COMMERCIAL_AUTHORITY",
+  "source_thread_id": "019fa83a-762b-7522-a373-ba0acd2c8927",
+  "candidate": {
+    "commit": "addfe09a4dd511f3ff43d6085645098e9555ff9e",
+    "root_tree": "b7537a0323d5cb23a2f047d7f59f5b0992963a45",
+    "parent": "204d63e55cfb0d9b9d9f757ad383c11be3997a52",
+    "v2_readme_sha256": "c4f1250f2a14ac1c852cc7655dd40d7f9a5e47bd342c8c9297448c1ff26e6d0a",
+    "j1_task_sha256": "01a1b32864cf7dd9b87d2f1bc2edcbe3f60de7df84890fcd16a45477122e348d",
+    "j1_fixture_sha256": "f382311a30d260eba309df3b5894c47bcd4893ebc394509a04a267edf6294bdf",
+    "j2_task_sha256": "f40cabc6a80e2e840074c5494ce735e702b7884bb7610b877f958de38b140666",
+    "j2_fixture_sha256": "abde6aa2ebd9b3c1f410941f54686eaf33710fdb88a5186d3dd2a3484d6bdb9a",
+    "source_notebook_commit": "ee0703127dd26eab0005ce4e1fa2e69965de5504",
+    "source_notebook_sha256": "f0a56aaad336404233e5ce171ee48b5fee65aa9e6df4526b6075c3f9f5863adb"
+  },
+  "independent_reviews": [
+    {
+      "reviewer": "/root/semantic_v2_recovery_review",
+      "verdict": "FINAL_FAIL",
+      "critical": 0,
+      "major": 1,
+      "minor": 0,
+      "authority_effect": "NONE"
+    },
+    {
+      "reviewer": "/root/semantic_v2_design_review",
+      "verdict": "FINAL_FAIL",
+      "critical": 0,
+      "major": 1,
+      "minor": 1,
+      "authority_effect": "NONE"
+    }
+  ],
+  "merged_verdict": {
+    "verdict": "FINAL_FAIL",
+    "critical": 0,
+    "major": 2,
+    "minor": 1,
+    "authority_effect": "NONE"
+  },
+  "findings": [
+    {
+      "severity": "MAJOR",
+      "root_cause": "CURRENT_POINTER_CONFLICT",
+      "finding": "The root README and active plan still recover semantic-eval-v1 as the current prototype while the v2 README declares v1 unaccepted and v2 the new design candidate. The project's own recovery rule therefore yields STALE_STATE.",
+      "minimal_remediation": "Atomically update the root README and active plan so v1 is historical and unaccepted, v2 is the sole exact candidate, and J1 and J2 verdicts cannot propagate or aggregate."
+    },
+    {
+      "severity": "MAJOR",
+      "root_cause": "PREIMPLEMENTATION_ORACLE_NOT_FROZEN",
+      "finding": "The two tasks enumerate allowed field values but do not freeze a unique expected row, cross-field truth table or lane-specific verdict. Multiple and contradictory outputs can satisfy the current schema, so a future verifier could choose its own answer after implementation.",
+      "minimal_remediation": "Before any verifier or adapter run, freeze separate evaluator-only J1 and J2 oracle objects with complete row gold, TASK, fixture and oracle hashes, legal field combinations and independent lane verdict contracts. The adapter under test must not read gold."
+    },
+    {
+      "severity": "MINOR",
+      "root_cause": "CURATED_CONTEXT_LIMITS_CONSTRUCT",
+      "finding": "Fixture context already supplies direct, adjacent or off-lane interpretations, so a future pass can establish only exact-context conformance, not independent interpretation of public sources.",
+      "minimal_remediation": "Name the construct EXACT_CONTEXT_CONFORMANCE and mark public-source interpretation NOT_TESTED; otherwise remove adjudicative context and freeze a different source-interpretation evaluation."
+    }
+  ],
+  "accepted_boundaries": [
+    "J1 and J2 fixtures, record IDs, task schemas and prohibited claims are structurally separated.",
+    "The fixtures preserve the difference between J1 competing causes and J2 learning-stage or off-lane material.",
+    "No candidate count, repeated signal, demand, buyer, product or action claim is accepted.",
+    "No verifier, model run or implementation was accepted or authorized."
+  ],
+  "current_evidence_ceiling": {
+    "highest_state": "OPPORTUNITY_HYPOTHESIS_UNVALIDATED",
+    "semantic_eval_design_accepted": false,
+    "model_qualified": false,
+    "source_interpretation_tested": false,
+    "repeated_signal": false,
+    "demand_validated": false,
+    "buyer_identified": false,
+    "willingness_to_pay_validated": false,
+    "product_selected": false
+  },
+  "authority_boundary": {
+    "design_successor_allowed": true,
+    "implementation_authorized": false,
+    "model_run_authorized": false,
+    "external_contact_authorized": false,
+    "publication_authorized": false,
+    "account_action_authorized": false,
+    "payment_contract_or_delivery_authorized": false,
+    "c8_authorized": false,
+    "shadow_authorized": false,
+    "commercial_authority": false
+  }
+}
