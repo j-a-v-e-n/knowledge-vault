@@ -1,6 +1,6 @@
 # 机会到交易系统：研究协议
 
-状态：`BLOCKED`，尚未满足进入最终设计的研究闭合条件。
+状态：`CANDIDATE-UPDATED / FINAL-INDEPENDENT-REVIEW-PENDING`。在外部 closure decision 绑定完整 candidate manifest 与通过的 independent review receipt 前，权威运行状态仍为 `BLOCKED`。
 
 ## 决策问题
 
@@ -84,7 +84,7 @@
 
 ## 研究闭合条件
 
-未来检索类别饱和只按冻结的 [SEARCH_SATURATION_PROTOCOL.md](./SEARCH_SATURATION_PROTOCOL.md) 执行。它不追认历史检索；协议 hash、原始返回、逐结果筛选、lead/独立审查初始编码与共同裁决缺一即为未完成。
+检索类别饱和只按冻结的 [SEARCH_SATURATION_PROTOCOL.md](./SEARCH_SATURATION_PROTOCOL.md) 执行。协议文件本身保持冻结时的 `NOT_RUN`，动态执行状态位于 Run2 外部工件；有效 Run2 已取得 [`SATURATED-WITHIN-PROTOCOL`](./ssp-run2/FINAL_RUN_STATUS.md)。它不追认历史检索，且只关闭类别代码本谓词，不替代主张证据、架构审查或现实外部有效性。
 
 只有同时满足以下条件，状态才能从 `BLOCKED` 变为 `CONDITIONALLY_READY`：
 
@@ -111,7 +111,9 @@
 - DecisionExposureRecord 记录 eligible actions、选择政策/概率或理由、处理前身份/信任/关系条件和观察窗；没有随机或可信准实验识别时不发布因果学习规则；
 - OutcomeMaturityState 处理 cohort age、右删失、退款/续费/质保/支持尾部和迟到事件重算；OwnerObjectiveSpec 与 IncomeSufficiencyState 将收入耐久与用户目标充分性分离；
 - 残余未知点和变化监控条件明确；
-- 冻结协议下的两轮全部查询都被逐结果筛选，没有 `NEW-CRITICAL` 或 `UNRESOLVED`，且 lead 与独立审查者完成共同裁决；
+- 冻结协议 Run2 `SSP-1.0-RUN-20260727T154803-0700` 下的两轮全部查询都被逐结果筛选，没有 `NEW-CRITICAL` 或 `UNRESOLVED`，且 lead 与独立审查者完成共同裁决；
 - 最终独立复核绑定完整候选 manifest 与每个文件的 SHA-256，没有发现会改变总体架构的未处理缺口。
 
-`CONDITIONALLY_READY` 只允许形成设计与影子验证方案，不授权真实联系、发布、承诺、付款、收款或部署。
+上述条件的候选级判定、证据路径、exact hash、残余限制和最终审查待办统一记录在 [`RESEARCH_CLOSURE_PREDICATE_MATRIX.md`](./RESEARCH_CLOSURE_PREDICATE_MATRIX.md)。矩阵不能自行把状态改成 `CONDITIONALLY_READY`：其 final-review predicate 只有在 manifest 冻结后才能由独立审查满足，随后还需外部 `RESEARCH_CLOSURE_DECISION` 绑定同一 manifest 与 receipt。
+
+`CONDITIONALLY_READY` 只允许把通过 exact-hash 终审的设计作为**本地隔离、零外部副作用的只读 shadow MVP**及其验证方案的规格输入。这个阶段的实现只能处理合成 fixture 或已有明确授权且已本地化的只读 fixture，只能产出可追溯观察、sealed-lane 输出、需求假设、未执行的实验草案与评测记录；不得装载或暴露浏览器写入、外联、发送、发布、部署、账户、凭据、签约、报价、付款、收款、客户数据写入或生产 Harness 执行器。它也不授权把某个行业、对象、需求、价格、商机或盈利判断写成已验证事实。任何真实网络采集、具体 Pilot、外部实验或商业动作都需要在其精确 SamplingPlan、权利、身份、合规、伦理、能力与 ActionEnvelope Gate 下另行取得权限。

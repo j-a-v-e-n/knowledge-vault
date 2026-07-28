@@ -1,13 +1,13 @@
 # SSP-1.0 第二次执行身份清单
 
 - 执行 ID：`SSP-1.0-RUN-20260727T154803-0700`
-- 执行状态：`S2-BOTH-INITIAL-CODINGS-SEALED / S2-JOINT-ADJUDICATION-AUTHORIZED`
+- 执行状态：`RUN-COMPLETE / FINAL-RUN-STATUS-AUTHORIZED`
 - 协议版本：`SSP-1.0`
 - 协议相对路径：`../SEARCH_SATURATION_PROTOCOL.md`
 - 协议 SHA-256：`911b6353b23f180a400865a810b3d45cbfa0ea2598e1127f1e548195ef0c30c1`
 - 执行开始时间：`2026-07-27T15:48:03-0700`
 - 指定引擎：`Codex web search`
-- 当前允许动作：`S2` 第二次共同裁决；双方初始编码已分别封存，现在允许比较
+- 当前允许动作：生成绑定本清单最终 hash 的独立 `FINAL_RUN_STATUS.md`；不得再修改协议、raw、双方初始账本或 S1/S2 joint
 - 饱和裁决：`NOT_ESTABLISHED`
 
 本运行不复用或追认第一次失效运行的任何 S1/S2 响应、筛选或裁决。旧材料可以作为运行外设计背景，但不得进入本运行的返回结果宇宙。
@@ -34,7 +34,19 @@
 - independent S2 单方结论：`NEW-CRITICAL=0 / NC-PROVISIONAL=0 / UNRESOLVED=0`
 - 当前饱和裁决：`NOT_ESTABLISHED`
 
-S2 原始响应与双方全部 `345` 条初始编码已经封存。双方在封存前均声明未读取或探测对方 S2 文件；现在才允许打开对方账本，比较每一条 CATEGORY-DISCOVERY、CLAIM-EVIDENCE、K mapping 和 NC 判断并形成第二次共同裁决。
+S2 原始响应与双方全部 `345` 条初始编码已经封存。双方在封存前均声明未读取或探测对方 S2 文件；随后才打开对方账本，比较每一条 CATEGORY-DISCOVERY、CLAIM-EVIDENCE、K mapping 和 NC 判断并形成第二次共同裁决。
+
+## S2 共同裁决与独立验收
+
+- S2 共同裁决：`S2_JOINT_ADJUDICATION.md`
+- S2 共同裁决 SHA-256：`c6b2f73f41f1669f1d4a096ebede551353f84024d6d281df091feab4a79907d3`
+- 独立验收记录：`S2_INDEPENDENT_ACCEPTANCE_RECEIPT.md`
+- 独立验收记录 SHA-256：`f10b6f36810bfd5ae441d6286ddb923f379dad4447d37bcecda9485b3a33bbf1`
+- independent 对上述 S2 joint exact hash 的决定：`ACCEPT`
+- S2 共同结论：`NEW-CRITICAL=0 / NEW-NONCRITICAL=0 / UNRESOLVED=0`
+- S2 K04 证据边界：没有可进入 claim-evidence 的结果；只能保留 discovery mechanism，不能证明 interview、waitlist、LOI、deposit 或 paid pilot 的普遍预测效度、排序、阈值或跨市场有效性
+
+independent 的接受只完成 S2 joint Gate，不自行宣布饱和或研究闭合。本清单先记录完整运行输入与裁决身份；随后生成的 `FINAL_RUN_STATUS.md` 必须绑定本文件修改完成后的 exact hash，逐项执行协议第 9 节。为避免哈希循环，本文件不反向写入 `FINAL_RUN_STATUS.md` 的 hash。
 
 ## S2 清单纠正记录
 

@@ -1,6 +1,6 @@
 # 旧 CLI 与餐馆 Pilot：新设计差距审计
 
-状态：`PRELIMINARY-GAP-AUDIT / MIGRATION-NOT-AUTHORIZED`
+状态：`GAP-AUDIT-COMPLETE / LEGACY-REUSE-NOT-AUTHORIZED`
 
 本审计只判断旧 `schema 0.1` 是否可以作为当前总体设计的实现起点。结论是：旧 runtime、测试与 Pilot 只能作为历史反例和迁移 fixture，不能作为新设计实现或验收证据。当前代码没有发送、发布、部署或收付款执行器；主要风险是它会生成可能被下游误读为“已验证、已授权或可交付”的状态与 Harness 工件。
 
@@ -100,4 +100,4 @@ python3 -m unittest discover -s '1-projects/AI谋生/机会到交易系统/tests
 
 一次 shadow run 最多产出：可追溯 observations、两条 sealed lane outputs、带竞争解释的 `NeedHypothesis`、未执行的下一实验草案和绑定原件的 `EvalRun`。任一承重输入变化必须使派生物失效；旧 Pilot 或任何评测结果都不存在通往 Harness 或外部动作的代码路径。
 
-该迁移只有在研究闭合与 exact-hash 最终审查通过后才可开始。本文件不授权实施。
+只有在研究闭合与 exact-hash 最终审查通过后，才可在全新隔离目录按 `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` 开始首版实现。本审计不授权复用旧 runtime；旧对象只能作为显式 `LEGACY_UNQUALIFIED` fixture 被新 validator 拒绝或隔离。
