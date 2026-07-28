@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T09:21:05-07:00",
+  "record_type": "MOVING_INVESTMENT_R5_READONLY_CHECKPOINT_NOT_IMMUTABLE_CANDIDATE_OR_PASS",
+  "source_thread_id": "019f83f2-e416-7883-bc44-63190cd9e356",
+  "paper_only_human_final": true,
+  "verified_subsuite_reports": {
+    "execution_recorder_full_serial": {
+      "tests": 156,
+      "passed": 156,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 2751.795,
+      "claim_ceiling": "DIRECT_ENTRY_ATOMIC_TRANSACTION_AND_ATTACK_MATRIX_ONLY"
+    },
+    "execution_loop_cross_module": {
+      "tests": 41,
+      "passed": 41,
+      "seconds": 45.977,
+      "claim_ceiling": "EXECUTION_LOOP_CROSS_MODULE_ONLY"
+    },
+    "foundation_recovery": {
+      "declared_tests": 33,
+      "failures": 3,
+      "overall_pass": false,
+      "reported_failure_roots": [
+        "The successor packet contract had expanded while the candidate baseline ledger still bound the earlier packet contract.",
+        "Later pre-review, tool-error and genesis candidate evidence existed but was absent from the transition exact write set.",
+        "The archive anchor reference was absent in the independent main worktree."
+      ]
+    }
+  },
+  "candidate_migration": {
+    "independent_main_worktree_created": true,
+    "tracked_diff_migrated": true,
+    "old_source_worktree_preserved": true,
+    "old_s1_ledger_rewrite_rejected": true,
+    "append_only_current_observation_not_completed": true
+  },
+  "r5_design": {
+    "moving_design_sha256": "58aa43dd5431d3aaea8b9e0338130c0135bbac1c36be70ccd950970850bfd475",
+    "immutable_commit_or_tree_exists": false,
+    "implementation_started": false,
+    "declared_direction": [
+      "Production recovery must be restore-only because ordinary clone state cannot prove a project is genuinely new.",
+      "Canonical authority should be raw Git objects fixed by type and object ID, not nondeterministic bundle pack bytes.",
+      "A new SHA-256 repository and exact reference semantics still require independent design challenge before implementation."
+    ]
+  },
+  "author_found_critical": {
+    "root_cause": "EPHEMERAL_RECOVERY_REPOSITORY_IS_TREATED_AS_DURABLE_ORIGIN_AUTHORITY",
+    "evidence": "The current historical commit exists only in the temporary recovery repository, while the knowledge-base main repository does not contain it.",
+    "effect": "If the temporary directory disappears, the purported restore-only design cannot locate the original history it claims to preserve.",
+    "current_r5_verdict": "INTERNAL_NO_GO",
+    "persisted_into_candidate": false
+  },
+  "write_limit": {
+    "codex_usage_limit_reached": true,
+    "candidate_write_attempt_declined": true,
+    "bypass_attempted": false,
+    "read_only_reviews_may_continue": true
+  },
+  "required_next_steps": [
+    "Collect the two already-running read-only R5 challenges.",
+    "After the external write limit clears, persist the author Critical and revise or backtrack the origin-authority design.",
+    "Freeze an exact immutable commit, tree and closed inventory before implementation review.",
+    "Re-run foundation recovery and the full governance suite after any accepted implementation.",
+    "Obtain fresh independent immutable-candidate review before any status or execution transition."
+  ],
+  "current_boundary": {
+    "foundation_accepted": false,
+    "r5_design_accepted": false,
+    "immutable_candidate_exists": false,
+    "system_recovered_or_running": false,
+    "shadow_or_real_investment_authorized": false,
+    "broker_funds_provider_account_or_credentials_authorized": false,
+    "risk_rule_change_authorized": false,
+    "commercial_or_return_claim": false
+  }
+}

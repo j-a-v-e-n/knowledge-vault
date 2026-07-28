@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-07-28T09:31:32-07:00",
+  "record_type": "INDEPENDENT_READONLY_R5_REJECTION_AND_ARCHITECTURE_BACKTRACK",
+  "source_workflow": "investment-discipline-system",
+  "paper_only_human_final": true,
+  "fixed_subject": {
+    "design_sha256": "58aa43dd5431d3aaea8b9e0338130c0135bbac1c36be70ccd950970850bfd475",
+    "restore_search_sha256": "d29b1671109b270ae8efa9894dba4b5b9c3ef7938663ea9f0e97d7629d065143",
+    "temporary_source_commit": "b19ab03c6e6e30e54d6da5571733f981dfe7896a",
+    "temporary_source_tree": "b438a08d8b6630ca7a39b3fdf054b7fded6b583e",
+    "immutable_commit_or_tree_for_r5_design_exists": false
+  },
+  "independent_reviews": [
+    {
+      "reviewer_task": "/root/investment_r5_exact_review",
+      "mode": "READ_ONLY_FIXED_BYTES_AND_LOCAL_OBJECT_EXISTENCE",
+      "verdict": "REJECT_REVISE",
+      "critical": 1,
+      "major": 3,
+      "minor": 1,
+      "authority_effect": "NONE",
+      "findings": [
+        "The only exact origin and audit history are temporary, while R5 deliberately excludes that old audit history from the projected restore closure.",
+        "The proposed external cutover broadens the recorded transition authority beyond its exact write set.",
+        "Restore-only enforcement relies on a search snapshot that is not bound into C0, K or E and was already stale relative to the current durable repository HEAD.",
+        "Crash recovery relies on operation manifests whose exact schema, identity and publication topology are unspecified.",
+        "Excluded private metadata can still reveal paths, object IDs, hashes and sizes."
+      ]
+    },
+    {
+      "reviewer_task": "/root/investment_architecture_backtrack",
+      "mode": "READ_ONLY_FIRST_PRINCIPLES_ROUTE_COMPARISON",
+      "verdict": "BACKTRACK_TO_STANDARD_GIT",
+      "critical": 2,
+      "major": 3,
+      "minor": 1,
+      "authority_effect": "READ_ONLY_RECOMMENDATION_ONLY",
+      "findings": [
+        "R5 hashes a non-durable root; loss of the temporary repositories removes the only verified source object and design bytes.",
+        "Custom refs, raw objects and additional namespaces do not create an independent trust or failure domain under the same local write capability.",
+        "The proof surface is disproportionate to the current personal single-machine threat model.",
+        "Custom refs make ordinary clone and recovery less reliable.",
+        "Source provenance, backup, runtime genesis, admission and activation are unnecessarily coupled."
+      ]
+    }
+  ],
+  "root_adjudication": {
+    "r5_current_verdict": "REJECT_REVISE_NO_GO",
+    "selected_route": "BACKTRACK_TO_STANDARD_GIT",
+    "why": "The current objective is tamper-evident and recoverable paper-only audit history for one person on one machine. R5 adds custom refs, raw-object construction, a second object format and multiple state machines without adding a genuinely independent retained authority or failure domain.",
+    "rejected_route": "CONTINUE_PATCHING_R5_PROJECTION_OR_GENESIS_MECHANICS",
+    "authority_effect": "DESIGN_BACKTRACK_DECISION_ONLY"
+  },
+  "next_design_candidate": {
+    "name": "STANDARD_GIT_AUDIT_BASELINE_V1",
+    "stage": "DESIGN_ONLY",
+    "required_properties": [
+      "Use an exact standard Git source commit and tree located in a durable repository.",
+      "Use ordinary branches and tags; do not introduce custom refs, hand-built raw Git objects, a new Git object format or a custom genesis protocol.",
+      "Bind only project identity, source commit and tree, ledger tail and count, an excluded/private-artifact manifest, and a backup-set identity.",
+      "Define a fresh-clone restore test plus restoration of separately retained private or ignored artifacts.",
+      "Predeclare corruption, rollback, missing-tag, stale-backup, missing-private-artifact and ledger-rewrite negative cases.",
+      "State that guarantees are tamper-evident relative to an independently retained copy, not immutable against the same administrator capability.",
+      "If whole-vault privacy is shown to block the ordinary durable repository route, compare a project-only repository using ordinary Git before adding custom object machinery."
+    ]
+  },
+  "current_boundary": {
+    "r5_implementation_authorized": false,
+    "local_candidate_file_write_authorized": false,
+    "repository_ref_tag_commit_or_remote_write_authorized": false,
+    "backup_or_external_storage_write_authorized": false,
+    "system_recovered_running_or_complete": false,
+    "shadow_or_real_investment_authorized": false,
+    "broker_funds_provider_account_credentials_or_risk_rule_change_authorized": false,
+    "commercial_or_return_claim": false
+  }
+}
