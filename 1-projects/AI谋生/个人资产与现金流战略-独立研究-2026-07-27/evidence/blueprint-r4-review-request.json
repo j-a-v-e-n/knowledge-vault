@@ -1,0 +1,287 @@
+{
+  "schema_version": "R4_REVIEW_ATTEMPT_REQUEST_V1",
+  "attempt_id": "PORTFOLIO-BLUEPRINT-R4-ATTEMPT-1",
+  "serialization": "UTF8_JSON_INDENT_2_TRAILING_LF",
+  "extracted_serialization": "UTF8_JSON_SORT_KEYS_TRUE_COMPACT_TRAILING_LF",
+  "stage_order": [
+    "BLIND_GENERATION",
+    "CONFORMANCE_REVIEW",
+    "ADVERSARIAL_REVIEW",
+    "SUCCESSOR"
+  ],
+  "pass_rule": "CANDIDATE_AND_CONFORMANCE_PASS_AND_ADVERSARIAL_PASS_WITH_ZERO_CRITICAL_AND_ZERO_MAJOR",
+  "exact_identity": {
+    "blueprint": {
+      "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/16-总体蓝图闭合合同与状态审计.md",
+      "sha256": "376452a9cd3d0df95682cb30e93edc1aad4ae6152ef2f1e3d1632926964b5027",
+      "byte_length": 52783,
+      "serialization": "RAW_BYTES"
+    },
+    "state": {
+      "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/17-总体蓝图活动状态.json",
+      "sha256": "986370d2ed09f352961a3986971c017e7c96f6d21b996ac3c47a26cb552df19a",
+      "byte_length": 24548,
+      "serialization": "RAW_BYTES"
+    },
+    "applicable_instructions": {
+      "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/AGENTS.md",
+      "sha256": "ad43df133a5c463b6de84d4504dcb35e704525661074428b0855181f62f67be9",
+      "byte_length": 562,
+      "serialization": "RAW_BYTES"
+    },
+    "blind_request": {
+      "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/evidence/blueprint-r4-blind-request.json",
+      "sha256": "7a40d6e2f7144def6048e44908d1e67138f4f86dfe60d555454ebdf46b941795",
+      "byte_length": 12427,
+      "serialization": "RAW_BYTES"
+    },
+    "task_class": {
+      "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/task-class.json",
+      "sha256": "bab25bb732cade713a031b06ce4e3946baa1d7c514bcd00af1ae5e5945b60ee5",
+      "byte_length": 5724,
+      "serialization": "RAW_BYTES"
+    },
+    "input_bundle": {
+      "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/task-class.json",
+      "sha256": "bab25bb732cade713a031b06ce4e3946baa1d7c514bcd00af1ae5e5945b60ee5",
+      "byte_length": 5724,
+      "serialization": "RAW_BYTES"
+    }
+  },
+  "protocol_artifacts": [
+    {
+      "role": "R4_ATTEMPT_VERIFIER",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/review-protocol/verify_r4_review_attempt.py",
+        "sha256": "066a8d70f81a0f5279adbc71fe48724f1c79a16a0be2a276ba61c8cd4a936ed7",
+        "byte_length": 47941,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "R4_ATTEMPT_VERIFIER_TESTS",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/review-protocol/test_verify_r4_review_attempt.py",
+        "sha256": "50f9160bee419abe4b305098cfd84a5704f2462ece48446d4078942cef5b84ec",
+        "byte_length": 34556,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_VALIDATOR",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/validate_recovery_output.py",
+        "sha256": "a3ec64907dfe29154265993957994e03f3cea7626bd6660a72b8a2a5aeafb5e2",
+        "byte_length": 27554,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_OUTPUT_SCHEMA",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/output.schema.json",
+        "sha256": "50a87f82715c0b1bb5e5ac18e182947dcb80b81314b8dbdada2d81b6fcb64bae",
+        "byte_length": 8466,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_SEMANTIC_RUBRIC",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/SEMANTIC_RUBRIC.md",
+        "sha256": "789d04cb195683473fb872a9f300a89b94aa1420516b546af721d0decd8c7a1f",
+        "byte_length": 4011,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_UNIT_TESTS",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/test_validate_recovery_output.py",
+        "sha256": "dd93006bb4fcea6d5b3992885959e02bf60439568acd449de769726be9226aa7",
+        "byte_length": 15877,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_GOLD_PROJECTION",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/gold-projection.json",
+        "sha256": "d02efbd5b8e4cdfe4cc9c01b83ca3a65ba4124c22d00494503362603b39f8a78",
+        "byte_length": 8874,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_VALID_OUTPUT_FIXTURE",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/fixtures/valid-output.json",
+        "sha256": "394e66cd636dfeeac0d2b6bac7b850a30b297ad9e3387b4bfdf36e28dbd8a263",
+        "byte_length": 9387,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_REFUSAL_OUTPUT_FIXTURE",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/fixtures/refusal-output.json",
+        "sha256": "d5f0641cd2778720e5c04ead46dc6f72918df26b74d6a68aa48525a86bf0ed41",
+        "byte_length": 171,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_WRONG_OUTPUT_FIXTURE",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/fixtures/wrong-output.json",
+        "sha256": "bb3589d13ff10f1eee0be3dff50b5ee26eab8107913ed0892596727fef97e59b",
+        "byte_length": 9343,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_WRONG_TIEBREAK_DESCRIPTOR",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/fixtures/wrong-tiebreak-output.json",
+        "sha256": "9022cf0dd3128ae468055d9d2decd2f114b05a005e50b73aa4de698a962cb905",
+        "byte_length": 292,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_WRONG_SUCCESSOR_DESCRIPTOR",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/fixtures/wrong-successor-output.json",
+        "sha256": "30cf98a27abe7d89ce63eb133ea3c0e4a78fd66c369fc4d0c1b8193b9c198992",
+        "byte_length": 293,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "CONFORMANCE_STALE_MANIFEST",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/stale-task-class.json",
+        "sha256": "7b66b8f2503720b1526de372d428c9a5523da3625c2da1f02e7208ad0792f56f",
+        "byte_length": 2754,
+        "serialization": "RAW_BYTES"
+      }
+    }
+  ],
+  "historical_evidence": [
+    {
+      "role": "R3_REVIEW_REQUEST",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/evidence/blueprint-r3-review-request.json",
+        "sha256": "41192daea965f4e2c3f94af603879eaa2a1f9719a6b695de8b9695f9c7375d2e",
+        "byte_length": 6612,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "R3_ADVERSARIAL_RECEIPT",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/evidence/blueprint-r3-adversarial-review.md",
+        "sha256": "a7b381a93213295ced9413e970cba5245c80a9933befd0c32bd8a9e0a7c52d11",
+        "byte_length": 8869,
+        "serialization": "RAW_BYTES"
+      }
+    },
+    {
+      "role": "R3_BLIND_RECEIPT",
+      "artifact": {
+        "path": "/Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/evidence/blueprint-r3-blind-recovery-review.md",
+        "sha256": "a912f0a43295de36457c20712a50f15acec913dae549aac08c0739694d410e15",
+        "byte_length": 12668,
+        "serialization": "RAW_BYTES"
+      }
+    }
+  ],
+  "review_scope": [
+    "Bind the exact blueprint, state, root instructions, blind request, task-class manifest and published workflow observations without reading a mutable opportunity live root.",
+    "Reproduce closure of every R3 Critical or Major and preserve both R3 FAIL receipts without erasure or reinterpretation.",
+    "Verify published-snapshot single-writer isolation, one-way dependency, released live write freeze and non-retroactive handling of later live drift.",
+    "Verify the executable recovery task class covers conditional tie-break, full receipt transition, successor rule, evidence timeline and a real single-mismatch stale fixture.",
+    "Verify append-only blind, conformance and adversarial checkpoints plus exact artifact, request and predecessor binding.",
+    "Verify the successor only changes closed review-transition fields and cannot alter objective, observations, decisions, permissions or workflow activation.",
+    "Verify model and adapter qualification grants no authority and model portability remains NOT_TESTED without provider-bound evidence.",
+    "Verify governance remains proportional to observed failures and R4 repeated governance or recovery Major triggers the declared PB010 backtrack assessment."
+  ],
+  "required_commands": [
+    "python3 -B -m unittest -v test_validate_recovery_output.py",
+    "python3 -B /Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/validate_recovery_output.py --manifest /Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/task-class.json --output /private/tmp/portfolio-r4-attempt1-extracted-output.json",
+    "python3 -B /Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/validate_recovery_output.py --manifest /Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/stale-task-class.json --output /Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/fixtures/valid-output.json",
+    "python3 -B -m unittest -v test_verify_r4_review_attempt.py",
+    "git diff --check -- ."
+  ],
+  "reviewer_identities": {
+    "blind": "/root/r4_blind_attempt1",
+    "conformance": "/root/r4_conformance_attempt1",
+    "adversarial": "/root/r4_adversarial_attempt1"
+  },
+  "reviewer_permissions": {
+    "read_bound_local_artifacts": true,
+    "run_required_local_commands": true,
+    "modify_project_files": false,
+    "external_actions": false,
+    "grant_authority": false
+  },
+  "validator": {
+    "command": "python3 -B /Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/validate_recovery_output.py --manifest /Users/javencao/Library/CloudStorage/GoogleDrive-jacao@ucsd.edu/My Drive/知识库/1-projects/AI谋生/个人资产与现金流战略-独立研究-2026-07-27/model-conformance/task-project-recovery-read-only/task-class.json --output /private/tmp/portfolio-r4-attempt1-extracted-output.json",
+    "pass_result": {
+      "exit_code": 0,
+      "classification": "EVAL_QUALIFIED_CANDIDATE_OUTPUT"
+    }
+  },
+  "successor_contract": {
+    "required_portfolio_state_fields": [
+      "predecessor_state_sha256",
+      "state_id",
+      "status",
+      "claim_ceiling",
+      "review_outcome",
+      "permissions",
+      "primary_action",
+      "next_action",
+      "workflow_activation"
+    ],
+    "status_mapping": {
+      "PASS": "R4_REVIEW_PASS_BLOCKED_OWNER_CONSTRAINT",
+      "FAIL": "R4_REVIEW_FAIL"
+    },
+    "mutable_predecessor_fields": [
+      "as_of",
+      "state_id",
+      "status",
+      "claim_ceiling",
+      "primary_action",
+      "blockers"
+    ],
+    "state_id_mapping": {
+      "PASS": "PORTFOLIO-BLUEPRINT-R4-REVIEWED-PASS",
+      "FAIL": "PORTFOLIO-BLUEPRINT-R4-REVIEWED-FAIL"
+    },
+    "claim_ceiling_mapping": {
+      "PASS": "R4_REVIEW_PASS_ONLY_NO_BUSINESS_WORKFLOW_ACTIVATION_OR_MODEL_PORTABILITY_CLAIM",
+      "FAIL": "R4_REVIEW_FAIL_NO_BUSINESS_WORKFLOW_ACTIVATION_OR_MODEL_PORTABILITY_CLAIM"
+    },
+    "action_mapping": {
+      "PASS": {
+        "id": "PB-ACT-OWNER-CONSTRAINT",
+        "effect_class": "USER_INPUT",
+        "owner": "JAVEN"
+      },
+      "FAIL": {
+        "id": "PB-ACT-R4-FAIL-BACKTRACK-ASSESSMENT",
+        "effect_class": "READ_ONLY",
+        "owner": "PRIMARY_AGENT"
+      }
+    },
+    "design_closure_blocking_mapping": {
+      "PASS": [],
+      "FAIL": [
+        "R4_REVIEW_FAIL_REQUIRES_PB060_C_BACKTRACK_ASSESSMENT"
+      ]
+    },
+    "blocked_workflow_activation_value": "BLOCKED"
+  }
+}

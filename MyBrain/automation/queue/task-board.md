@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-07-27 03:17 by daemon dawn-shift [审批 0 条待执行（⏳ 列无 [x] 勾选，4 条 [ ] 未勾选待 Javen）；ai-watch ✅ 写了 4 条（⚡ Claude Opus 5 正式发布 7/24 登顶 AA Intelligence Index 61 / Agentic 55.3 / $5·$25——回打 7/25 报告里"Opus 5"当时标未证实传闻；🔍 Meta Muse Spark 1.1 自带 subagent+MCP 编排、Tencent Hy-Embodied-VLM-1.0 开源具身导航 VLM Apache2.0、具身模型井喷 AGIBOT GO-2/BAAI/Qwen-Robot；💡 Hy-Embodied 当 ECE148 navigation baseline+简历 keyword / Opus 5 分层用法呼应 task-013·019；2 search+2 fetch，避开上次 GPT-5.6/Cerebras/Grok4.5/Agents-A1）；email-triage ❌ Gmail MCP 不可用（连续第 10 次，同 6/22、7/1、7/11、7/12、7/21、7/22、7/23、7/25、7/26 → task-011e 待 Javen 主对话验证）；看板扫描：待启动 + 进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/npm/web/.claude 或 @javen 决策 或 需主对话交互），无新可推进任务。⚠️ 看板多数 task deadline 已过 2+ 月（5/8~5/15），强烈建议 Javen 做一次归账清理]
-上一次：2026-07-26 03:03 by daemon dawn-shift [ai-watch ✅ 4 条（GPT-5.6 三档+Cerebras ⚡、Grok 4.5 🔍、Agents-A1 🔍、Gemini 3.5 Pro 传闻⚠️）；email-triage ❌ Gmail MCP 第 9 次不可用；看板无新可推进任务]
+**最后更新**：2026-07-28 03:02 by daemon dawn-shift [审批 0 条待执行（⏳ 列无 [x] 勾选，4 条 [ ] 未勾选待 Javen）；ai-watch ✅ 写了 4 条（⚡ 美团 LongCat-2.0 1.6T MoE 全程中国 ASIC 训练零 NVIDIA·SWE-bench Pro 59.5·$0.038/M；🔍 Mistral Robostral Navigate 8B 具身导航 R2R-CE SOTA·Mistral 首进具身、ABot-M0 VLA 基础模型 6M 轨迹+action manifold learning、Cohere Transcribe Arabic 2B Apache2.0 ASR；💡 ABot-M0 流形学习↔Javen Controls track 简历切入点 / Robostral 又一 ECE148 nav baseline；2 search+2 fetch，避开 7/24~27 Opus 5/Hy-Embodied/GPT-5.6/Grok4.5/Agents-A1；⚠️ 弃报未证实的 GLM-5.2/DeepSeek V4/Qwen3.6——ThursdAI 未确认）；email-triage ❌ Gmail MCP 不可用（连续第 11 次，ToolSearch 找不到 mcp__*_Gmail__* → task-011e 待 Javen 主对话验证）；看板扫描：待启动 + 进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/npm/web/.claude 或 @javen 决策 或 需主对话交互），无新可推进任务。⚠️ 看板多数 task deadline 已过 2+ 月（5/8~5/15），强烈建议 Javen 做一次归账清理]
+上一次：2026-07-27 03:17 by daemon dawn-shift [ai-watch ✅ 4 条（Opus 5 正式发布 ⚡、Meta Muse Spark 1.1、Tencent Hy-Embodied-VLM、具身模型井喷 🔍）；email-triage ❌ Gmail MCP 第 10 次不可用；看板无新可推进任务]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：

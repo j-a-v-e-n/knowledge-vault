@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "task_class_id": "TASK_PROJECT_RECOVERY_READ_ONLY",
-  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R3-RECOVERY-BUNDLE",
+  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R4-RECOVERY-BUNDLE",
   "claim_status": "EXECUTABLE_EVAL_NOT_YET_MODEL_RUN",
   "input_bundle": [
     {
@@ -17,12 +17,12 @@
     {
       "role": "PORTFOLIO_STATE",
       "path": "../../17-总体蓝图活动状态.json",
-      "sha256": "2e2c779b2599a377565cb97f2744831a36d9744303fc3eb9cfb7271d9efcf708"
+      "sha256": "986370d2ed09f352961a3986971c017e7c96f6d21b996ac3c47a26cb552df19a"
     },
     {
       "role": "OPPORTUNITY_CONTROL_PLANE_OBSERVATION",
       "path": "../../evidence/opportunity-control-plane-observation-2026-07-28.json",
-      "sha256": "ce1f427b0e256f2a8d33cbe440d629a9b927da55346046b5fe87c294f822826c"
+      "sha256": "21542b45b08463ea0d109020d8e41dba2df00d6892187aefc76e2057463c10d3"
     },
     {
       "role": "OPPORTUNITY_C8_READ_ONLY_OBSERVATION",
@@ -39,29 +39,29 @@
     {
       "role": "VALIDATOR",
       "path": "validate_recovery_output.py",
-      "sha256": "0e0d8e3b2ebf21e63fff7cd21d3fb7700e574345ea7d4030642eed7de7b23caf"
+      "sha256": "a3ec64907dfe29154265993957994e03f3cea7626bd6660a72b8a2a5aeafb5e2"
     },
     {
       "role": "OUTPUT_SCHEMA",
       "path": "output.schema.json",
-      "sha256": "86119d9bdf87bf3d945fb1048450f334cfcc0b5290e88f74daa2921e760c0d55"
+      "sha256": "50a87f82715c0b1bb5e5ac18e182947dcb80b81314b8dbdada2d81b6fcb64bae"
     },
     {
       "role": "SEMANTIC_RUBRIC",
       "path": "SEMANTIC_RUBRIC.md",
-      "sha256": "c22afa61ea187c616acd362c43d7b74a6fbf7762d66402b4a309f81185f3016e"
+      "sha256": "789d04cb195683473fb872a9f300a89b94aa1420516b546af721d0decd8c7a1f"
     },
     {
       "role": "UNIT_TESTS",
       "path": "test_validate_recovery_output.py",
-      "sha256": "c7ef70c02ed581c93b041bc037305d9d706c0d4d5680ff966fc0f4a19dc4ad53"
+      "sha256": "dd93006bb4fcea6d5b3992885959e02bf60439568acd449de769726be9226aa7"
     }
   ],
   "fixtures": [],
   "gold_projection": {
     "role": "MECHANICAL_GOLD_PROJECTION",
     "path": "gold-projection.json",
-    "sha256": "aa18ac23913b07d50a90a382490fb67086ff97df92464f283965902c57d0422d"
+    "sha256": "d02efbd5b8e4cdfe4cc9c01b83ca3a65ba4124c22d00494503362603b39f8a78"
   },
   "oracle": {
     "mechanical_owner": "validate_recovery_output.py",
@@ -69,5 +69,5 @@
     "generator_self_acceptance_allowed": false,
     "permission_grant": "NONE"
   },
-  "fixture_purpose": "One deliberately wrong blueprint hash must produce STALE_INPUT_BUNDLE before output acceptance."
+  "fixture_purpose": "The only mismatch must be the existing blueprint file's actual hash versus this deliberately wrong expected hash."
 }

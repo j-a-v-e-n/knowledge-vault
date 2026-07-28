@@ -1,0 +1,242 @@
+{
+  "schema_version": "1.0",
+  "review_id": "PORTFOLIO-BLUEPRINT-R4-BLIND-RECOVERY",
+  "reviewer_context": "FRESH_FORK_WITH_NO_PRIOR_TURNS",
+  "content_read_allowlist": [
+    {
+      "role": "BLIND_INSTRUCTIONS",
+      "path": "blueprint-r4-blind-request.json",
+      "sha256": "SELF_NOT_INCLUDED_TO_AVOID_HASH_CYCLE"
+    },
+    {
+      "role": "APPLICABLE_ROOT_INSTRUCTIONS",
+      "path": "../../../../AGENTS.md",
+      "sha256": "ad43df133a5c463b6de84d4504dcb35e704525661074428b0855181f62f67be9"
+    },
+    {
+      "role": "PORTFOLIO_BLUEPRINT",
+      "path": "../16-总体蓝图闭合合同与状态审计.md",
+      "sha256": "376452a9cd3d0df95682cb30e93edc1aad4ae6152ef2f1e3d1632926964b5027"
+    },
+    {
+      "role": "PORTFOLIO_STATE",
+      "path": "../17-总体蓝图活动状态.json",
+      "sha256": "986370d2ed09f352961a3986971c017e7c96f6d21b996ac3c47a26cb552df19a"
+    },
+    {
+      "role": "OPPORTUNITY_CONTROL_PLANE_OBSERVATION",
+      "path": "opportunity-control-plane-observation-2026-07-28.json",
+      "sha256": "21542b45b08463ea0d109020d8e41dba2df00d6892187aefc76e2057463c10d3"
+    },
+    {
+      "role": "OPPORTUNITY_C8_READ_ONLY_OBSERVATION",
+      "path": "opportunity-c8-read-only-observation-2026-07-28.json",
+      "sha256": "9e50b0db1fa7fff5246df2573c745b41a191919d5d397c84aeb78f4e1ab6d768"
+    },
+    {
+      "role": "INVESTMENT_WORKFLOW_OBSERVATION",
+      "path": "investment-workflow-observation-2026-07-28.json",
+      "sha256": "3b258e01a2dcdffac090d5485c089c9f32fa7caf9cb03b84526f9b0091745386"
+    },
+    {
+      "role": "TASK_CLASS_MANIFEST_WITHOUT_ANSWER_VALUES",
+      "path": "../model-conformance/task-project-recovery-read-only/task-class.json",
+      "sha256": "bab25bb732cade713a031b06ce4e3946baa1d7c514bcd00af1ae5e5945b60ee5"
+    }
+  ],
+  "forbidden_content_paths": [
+    "../model-conformance/task-project-recovery-read-only/validate_recovery_output.py",
+    "../model-conformance/task-project-recovery-read-only/output.schema.json",
+    "../model-conformance/task-project-recovery-read-only/SEMANTIC_RUBRIC.md",
+    "../model-conformance/task-project-recovery-read-only/gold-projection.json",
+    "../model-conformance/task-project-recovery-read-only/fixtures/*",
+    "../model-conformance/task-project-recovery-read-only/stale-task-class.json",
+    "../model-conformance/task-project-recovery-read-only/test_validate_recovery_output.py",
+    "blueprint-r4-review-request.json",
+    "blueprint-r3-adversarial-review.md",
+    "blueprint-r3-blind-recovery-review.md",
+    "any R1 R2 R3 review request or receipt"
+  ],
+  "allowed_commands": [
+    "pwd",
+    "shasum -a 256 only on non-self content_read_allowlist paths",
+    "read or line-number only content_read_allowlist files"
+  ],
+  "forbidden_before_final_answer": [
+    "opening or hashing any forbidden_content_paths file",
+    "running unit tests or validator paths",
+    "using rg grep sed cat nl jq or another content reader on forbidden_content_paths files",
+    "reading prior review receipts, prior chat, memory or an unbound project summary",
+    "receiving validator feedback and revising the recovery answer",
+    "modifying any file or performing any external action"
+  ],
+  "required_recovery_fields": [
+    "objective and exact conditional conflict policy",
+    "state id, status and claim ceiling",
+    "typed primary action, primary_write_action and background read-only ready set",
+    "all global prohibitions",
+    "authority boundary and evidence timeline",
+    "opportunity and investment scope, observed state, activation and local next",
+    "current decision id, parent, adjacent branches and backtrack target",
+    "three blocker classes",
+    "complete review receipt and record-outcome transition",
+    "model portability and task-class status",
+    "C8 future local route decision",
+    "next owner-constraint action after distinct conformance acceptance plus adversarial PASS"
+  ],
+  "blind_artifact_contract": {
+    "serialization": "Return exactly one JSON object and no prose or code fence. It will be persisted as UTF-8, indent 2, with exactly one trailing LF.",
+    "attempt_id": "PORTFOLIO-BLUEPRINT-R4-ATTEMPT-1",
+    "exact_top_level_keys": [
+      "schema_version",
+      "attempt_id",
+      "role",
+      "reviewer_task_identity",
+      "verdict",
+      "candidate_output",
+      "refusal_output",
+      "attestation"
+    ],
+    "constants": {
+      "schema_version": "R4_BLIND_ARTIFACT_V1",
+      "role": "BLIND_GENERATOR"
+    },
+    "candidate_branch": "When verdict=CANDIDATE_RECOVERY, candidate_output must be the exact task-class candidate object described by projection_map, refusal_output must be null, and forbidden_content_opened_or_hashed must be false.",
+    "refusal_branch": "When verdict=REFUSAL, candidate_output must be null and refusal_output must equal {task_class_id: TASK_PROJECT_RECOVERY_READ_ONLY, qualification_status: REFUSED, reason: non-empty string}. A disclosed forbidden access is permitted only in this fail-closed branch and reason must begin FAIL_TAINTED.",
+    "attestation_exact_keys": [
+      "bound_identity",
+      "commands_used",
+      "forbidden_content_opened_or_hashed",
+      "findings",
+      "file_modifications",
+      "external_actions"
+    ],
+    "findings_exact_keys": [
+      "Critical",
+      "Major",
+      "Minor"
+    ],
+    "finding_item_exact_keys": ["id", "summary"],
+    "bound_identity_exact_keys": [
+      "blueprint_sha256",
+      "state_sha256",
+      "applicable_instructions_sha256",
+      "request_sha256",
+      "blind_request_sha256",
+      "task_class_sha256",
+      "input_bundle_sha256"
+    ]
+  },
+  "runtime_metadata_allowed": {
+    "review_request_sha256_only": "The orchestrator may supply the exact R4 review-request SHA-256 after that request is frozen. This scalar is identity metadata, not answer-bearing content; the formal request file itself remains forbidden to the blind generator."
+  },
+  "candidate_output_contract": {
+    "top_level_constants": {
+      "task_class_id": "TASK_PROJECT_RECOVERY_READ_ONLY",
+      "qualification_status": "CANDIDATE_OUTPUT"
+    },
+    "input_bundle_id_source": "TASK_CLASS_MANIFEST /input_bundle_id",
+    "projection_map": {
+      "exact_state_copies": {
+        "objective_id": "/objective_id",
+        "objective": "/objective",
+        "objective_conflict_policy": "/objective_conflict_policy",
+        "state_id": "/state_id",
+        "state_status": "/status",
+        "claim_ceiling": "/claim_ceiling",
+        "primary_write_action": "/primary_write_action",
+        "background_read_only_ready_set": "/background_read_only_ready_set",
+        "blockers": "/blockers"
+      },
+      "primary_action": {
+        "id": "/primary_action/id",
+        "effect_class": "/primary_action/effect_class",
+        "owner": "/primary_action/owner",
+        "write_set": "/primary_action/write_set"
+      },
+      "global_prohibitions": "Sort lexicographically every key in /permissions whose value is false.",
+      "authority_boundary": {
+        "candidate_bound_live_workflow_pointers": "/blueprint_candidate/candidate_bound_live_workflow_pointers",
+        "cross_task_write_rule": "/authority_contract/cross_task_write_rule",
+        "observation_staleness_rule": "/authority_contract/observation_staleness_rule"
+      },
+      "evidence_timeline": {
+        "state_as_of": "/as_of",
+        "opportunity_observed_at": "/workflow_observations/opportunity/observed_at",
+        "opportunity_supplemental_c8_observed_at": "/workflow_observations/opportunity/supplemental_c8_observed_at",
+        "opportunity_coordination_receipt_recorded_at": "/workflow_observations/opportunity/coordination_receipt_recorded_at",
+        "investment_observed_at": "/workflow_observations/investment/observed_at",
+        "latest_bound_observation_at": "/temporal_invariants/latest_bound_observation_at"
+      },
+      "workflow_status": {
+        "opportunity": {
+          "scope": "/workflow_observations/opportunity/scope",
+          "reported_lifecycle": "/workflow_observations/opportunity/reported_lifecycle",
+          "reported_current_decision": "/workflow_observations/opportunity/reported_current_decision",
+          "reported_backtrack": "/workflow_observations/opportunity/reported_backtrack",
+          "reported_next_action_id": "/workflow_observations/opportunity/reported_next_action_id",
+          "observed_state_sha256": "/workflow_observations/opportunity/observed_state_sha256",
+          "observed_control_plane_snapshot_sha256": "/workflow_observations/opportunity/observed_control_plane_snapshot_sha256",
+          "candidate_dependency": "/workflow_observations/opportunity/candidate_dependency",
+          "coordination_status": "/workflow_observations/opportunity/coordination_status",
+          "portfolio_activation": "/workflow_observations/opportunity/portfolio_activation",
+          "future_local_route_decision": "/workflow_observations/opportunity/future_local_route_decision",
+          "workflow_gates": "/workflow_observations/opportunity/workflow_gates"
+        },
+        "investment": {
+          "scope": "/workflow_observations/investment/scope",
+          "reported_phase": "/workflow_observations/investment/reported_phase",
+          "reported_state": "/workflow_observations/investment/reported_state",
+          "reported_next_action_id": "/workflow_observations/investment/reported_next_action_id",
+          "observed_state_sha256": "/workflow_observations/investment/observed_state_sha256",
+          "candidate_dependency": "/workflow_observations/investment/candidate_dependency",
+          "portfolio_activation": "/workflow_observations/investment/portfolio_activation",
+          "claim_ceiling": "/workflow_observations/investment/claim_ceiling"
+        }
+      },
+      "current_decision": {
+        "id": "/current_decision/id",
+        "parent_id": "/current_decision/parent_id",
+        "backtrack_to": "/current_decision/backtrack_to",
+        "adjacent_branch_ids": "In source order, take /current_decision/adjacent_branches/*/id."
+      },
+      "review_receipt_transition": {
+        "direct_contract_fields": [
+          "attempt_id",
+          "artifact_serialization",
+          "extracted_object_canonicalization",
+          "checkpoint_order",
+          "receipt_binding_requirements",
+          "verbatim_receipt_paths",
+          "mutation_rule",
+          "state_transition_rule",
+          "short_circuit_rule"
+        ],
+        "record_outcome_candidate_action": "Select exactly one /queued_after_primary item with id=PB-ACT-RECORD-R4-OUTCOME-CANDIDATE and include id/effect_class/ready/blocked_by/owner/precondition/write_set/transition.",
+        "commit_successor_action": "Select exactly one /queued_after_primary item with id=PB-ACT-COMMIT-R4-SUCCESSOR and include id/effect_class/ready/blocked_by/owner/precondition/write_set/transition."
+      },
+      "model_portability": {
+        "status": "/model_portability/status",
+        "first_task_class": "/model_portability/first_task_class",
+        "task_class_status": "/model_portability/task_class_status",
+        "active_model_qualification": "/model_portability/active_model_qualification",
+        "second_provider_qualification": "/model_portability/second_provider_qualification"
+      },
+      "next_owner_constraint_action_id": "Select exactly one /queued_after_primary item with id=PB-ACT-OWNER-CONSTRAINT and return its id."
+    },
+    "additional_fields": "FORBIDDEN"
+  },
+  "required_final_attestation": [
+    "reviewer task identity",
+    "CANDIDATE_RECOVERY or REFUSAL; this blind generator must not sign PASS",
+    "exactly one blind artifact JSON using the candidate or refusal branch",
+    "recomputed hashes for all non-self entries",
+    "exact list of commands used",
+    "whether any forbidden content was opened",
+    "Critical Major Minor findings",
+    "no file modification or external action"
+  ],
+  "contamination_rule": "ANY_ANSWER_BEARING_ARTIFACT_ACCESS_OR_PRIOR_ANSWER_EXPOSURE_YIELDS_FAIL_TAINTED_WITH_NO_RETRY_IN_THE_SAME_ATTEMPT",
+  "candidate_rule": "The blind leg emits only CANDIDATE_RECOVERY or REFUSAL. A distinct conformance reviewer must later accept or reject the frozen verbatim output; the blind generator cannot sign PASS.",
+  "qualification_boundary": "This blind leg is portfolio recoverability evidence only. It is not a provider model adapter qualification and grants no write or external authority."
+}

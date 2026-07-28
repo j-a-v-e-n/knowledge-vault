@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "task_class_id": "TASK_PROJECT_RECOVERY_READ_ONLY",
-  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R3-RECOVERY-BUNDLE",
+  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R4-RECOVERY-BUNDLE",
   "claim_status": "EXECUTABLE_EVAL_NOT_YET_MODEL_RUN",
   "input_bundle": [
     {
@@ -12,17 +12,17 @@
     {
       "role": "PORTFOLIO_BLUEPRINT",
       "path": "../../16-总体蓝图闭合合同与状态审计.md",
-      "sha256": "7742a08e0f216abf5c749197b74a2bd3021c2260d666f8a0a9354f85b1ef42bd"
+      "sha256": "376452a9cd3d0df95682cb30e93edc1aad4ae6152ef2f1e3d1632926964b5027"
     },
     {
       "role": "PORTFOLIO_STATE",
       "path": "../../17-总体蓝图活动状态.json",
-      "sha256": "2e2c779b2599a377565cb97f2744831a36d9744303fc3eb9cfb7271d9efcf708"
+      "sha256": "986370d2ed09f352961a3986971c017e7c96f6d21b996ac3c47a26cb552df19a"
     },
     {
       "role": "OPPORTUNITY_CONTROL_PLANE_OBSERVATION",
       "path": "../../evidence/opportunity-control-plane-observation-2026-07-28.json",
-      "sha256": "ce1f427b0e256f2a8d33cbe440d629a9b927da55346046b5fe87c294f822826c"
+      "sha256": "21542b45b08463ea0d109020d8e41dba2df00d6892187aefc76e2057463c10d3"
     },
     {
       "role": "OPPORTUNITY_C8_READ_ONLY_OBSERVATION",
@@ -39,29 +39,29 @@
     {
       "role": "VALIDATOR",
       "path": "validate_recovery_output.py",
-      "sha256": "0e0d8e3b2ebf21e63fff7cd21d3fb7700e574345ea7d4030642eed7de7b23caf"
+      "sha256": "a3ec64907dfe29154265993957994e03f3cea7626bd6660a72b8a2a5aeafb5e2"
     },
     {
       "role": "OUTPUT_SCHEMA",
       "path": "output.schema.json",
-      "sha256": "86119d9bdf87bf3d945fb1048450f334cfcc0b5290e88f74daa2921e760c0d55"
+      "sha256": "50a87f82715c0b1bb5e5ac18e182947dcb80b81314b8dbdada2d81b6fcb64bae"
     },
     {
       "role": "SEMANTIC_RUBRIC",
       "path": "SEMANTIC_RUBRIC.md",
-      "sha256": "c22afa61ea187c616acd362c43d7b74a6fbf7762d66402b4a309f81185f3016e"
+      "sha256": "789d04cb195683473fb872a9f300a89b94aa1420516b546af721d0decd8c7a1f"
     },
     {
       "role": "UNIT_TESTS",
       "path": "test_validate_recovery_output.py",
-      "sha256": "c7ef70c02ed581c93b041bc037305d9d706c0d4d5680ff966fc0f4a19dc4ad53"
+      "sha256": "dd93006bb4fcea6d5b3992885959e02bf60439568acd449de769726be9226aa7"
     }
   ],
   "fixtures": [
     {
       "role": "NORMAL_OUTPUT_FIXTURE",
       "path": "fixtures/valid-output.json",
-      "sha256": "4821b1c0fcd858092f38087f8bc1919da688015d8ca7bd293b17882daf040ba0",
+      "sha256": "394e66cd636dfeeac0d2b6bac7b850a30b297ad9e3387b4bfdf36e28dbd8a263",
       "expected_exit_code": 0,
       "expected_classification": "EVAL_QUALIFIED_CANDIDATE_OUTPUT"
     },
@@ -75,14 +75,30 @@
     {
       "role": "WRONG_OUTPUT_FIXTURE",
       "path": "fixtures/wrong-output.json",
-      "sha256": "c7639cfa91b133b2417728368e05e5c213758bc9e2356eb9f340fb8992535885",
+      "sha256": "bb3589d13ff10f1eee0be3dff50b5ee26eab8107913ed0892596727fef97e59b",
+      "expected_exit_code": 4,
+      "expected_classification": "WRONG_STATE_PROJECTION"
+    },
+    {
+      "role": "WRONG_TIEBREAK_MUTATION_FIXTURE",
+      "path": "fixtures/wrong-tiebreak-output.json",
+      "sha256": "9022cf0dd3128ae468055d9d2decd2f114b05a005e50b73aa4de698a962cb905",
+      "execution_mode": "MATERIALIZE_DESCRIPTOR_THEN_VALIDATE_OUTPUT",
+      "expected_exit_code": 4,
+      "expected_classification": "WRONG_STATE_PROJECTION"
+    },
+    {
+      "role": "WRONG_SUCCESSOR_MUTATION_FIXTURE",
+      "path": "fixtures/wrong-successor-output.json",
+      "sha256": "30cf98a27abe7d89ce63eb133ea3c0e4a78fd66c369fc4d0c1b8193b9c198992",
+      "execution_mode": "MATERIALIZE_DESCRIPTOR_THEN_VALIDATE_OUTPUT",
       "expected_exit_code": 4,
       "expected_classification": "WRONG_STATE_PROJECTION"
     },
     {
       "role": "STALE_INPUT_MANIFEST_FIXTURE",
-      "path": "fixtures/stale-task-class.json",
-      "sha256": "bbcf175f6abf569e1cfe7f31deb36426ae8927d7ec69d56725519097c6cf420b",
+      "path": "stale-task-class.json",
+      "sha256": "7b66b8f2503720b1526de372d428c9a5523da3625c2da1f02e7208ad0792f56f",
       "expected_exit_code": 3,
       "expected_classification": "STALE_INPUT_BUNDLE"
     }
@@ -90,7 +106,7 @@
   "gold_projection": {
     "role": "MECHANICAL_GOLD_PROJECTION",
     "path": "gold-projection.json",
-    "sha256": "aa18ac23913b07d50a90a382490fb67086ff97df92464f283965902c57d0422d",
+    "sha256": "d02efbd5b8e4cdfe4cc9c01b83ca3a65ba4124c22d00494503362603b39f8a78",
     "derivation": "validate_recovery_output.derive_projection over the exact PORTFOLIO_STATE input"
   },
   "context_policy": {

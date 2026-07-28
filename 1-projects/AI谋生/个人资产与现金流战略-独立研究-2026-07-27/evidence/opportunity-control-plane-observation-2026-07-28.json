@@ -43,6 +43,21 @@
     "workflow_thread_reported_atomic_unit_complete": true,
     "workflow_thread_reported_writes_paused": true,
     "portfolio_activation": "BLOCKED_PENDING_FRESH_REFRESH_AND_BILATERAL_COORDINATION",
-    "future_drift_rule": "A later workflow state is a new observation. It does not rewrite this snapshot, but it invalidates use of this snapshot for activation."
+    "future_drift_rule": "A later workflow state is a new observation. It does not rewrite this snapshot, but it invalidates use of this snapshot for activation.",
+    "published_review_binding": {
+      "control_plane_snapshot_sha256": "0180f144c2fbdd12cee9bf3c3095331dc57cb7651a336643ee80adaa1e6dd502",
+      "state_sha256": "57a09e085b464e639247429b583d1d1579342a3401fe84ee932b446ead92a317"
+    },
+    "post_publication_isolation_receipt": {
+      "recorded_at": "2026-07-28T03:19:01-07:00",
+      "single_writer": "OPPORTUNITY_SOURCE_TASK_OWNS_OPPORTUNITY_CONTROL_PLANE_AND_C8",
+      "portfolio_write_scope": "PORTFOLIO_16_17_AND_OWN_REVIEW_EVIDENCE_ONLY",
+      "dependency_direction": "PORTFOLIO_TO_PUBLISHED_OPPORTUNITY_SNAPSHOT_ONLY",
+      "live_write_freeze_released": true,
+      "live_root_monitoring": false,
+      "later_live_change_effect": "NEW_UNREVIEWED_VERSION_NOT_RETROACTIVE_FAILURE_OF_THIS_SNAPSHOT",
+      "future_review_handshake": "SHORT_PUBLICATION_WINDOW_WITH_CLOSED_INVENTORY_AND_HASHES_THEN_REVIEWER_READS_THE_PUBLISHED_SNAPSHOT",
+      "authority_effect": "NONE_FOR_C8_SHADOW_EXTERNAL_ACTION_ACCOUNTS_PUBLICATION_PAYMENT_OR_CONTRACTS"
+    }
   }
 }

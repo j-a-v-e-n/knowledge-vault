@@ -1,0 +1,8 @@
+{
+  "fixture_type": "OUTPUT_MUTATION_DESCRIPTOR",
+  "base_output": "valid-output.json",
+  "json_pointer": "/projection/review_receipt_transition/state_transition_rule",
+  "replacement": "WRONG_SUCCESSOR_RULE",
+  "expected_exit_code": 4,
+  "expected_classification": "WRONG_STATE_PROJECTION"
+}

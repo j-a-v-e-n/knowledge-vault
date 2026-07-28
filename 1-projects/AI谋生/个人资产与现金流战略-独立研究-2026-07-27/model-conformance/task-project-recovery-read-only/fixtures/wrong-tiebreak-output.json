@@ -1,0 +1,8 @@
+{
+  "fixture_type": "OUTPUT_MUTATION_DESCRIPTOR",
+  "base_output": "valid-output.json",
+  "json_pointer": "/projection/objective_conflict_policy/feasible_branch_tiebreak/0",
+  "replacement": "WRONG_TIEBREAK",
+  "expected_exit_code": 4,
+  "expected_classification": "WRONG_STATE_PROJECTION"
+}

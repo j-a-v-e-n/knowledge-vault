@@ -28,6 +28,7 @@
           "required": [
             "objective_id",
             "objective",
+            "objective_conflict_policy",
             "state_id",
             "state_status",
             "claim_ceiling",
@@ -36,16 +37,27 @@
             "background_read_only_ready_set",
             "global_prohibitions",
             "authority_boundary",
+            "evidence_timeline",
             "workflow_status",
             "current_decision",
             "blockers",
-            "review_receipt_paths",
+            "review_receipt_transition",
             "model_portability",
             "next_owner_constraint_action_id"
           ],
           "properties": {
             "objective_id": {"type": "string"},
             "objective": {"type": "string"},
+            "objective_conflict_policy": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["hard_constraints_first", "feasible_branch_tiebreak", "owner_constraints_status"],
+              "properties": {
+                "hard_constraints_first": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+                "feasible_branch_tiebreak": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+                "owner_constraints_status": {"type": "string"}
+              }
+            },
             "state_id": {"type": "string"},
             "state_status": {"type": "string"},
             "claim_ceiling": {"type": "string"},
@@ -64,10 +76,123 @@
             "background_read_only_ready_set": {"type": "array"},
             "global_prohibitions": {"type": "array", "items": {"type": "string"}},
             "authority_boundary": {"type": "object"},
+            "evidence_timeline": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state_as_of",
+                "opportunity_observed_at",
+                "opportunity_supplemental_c8_observed_at",
+                "opportunity_coordination_receipt_recorded_at",
+                "investment_observed_at",
+                "latest_bound_observation_at"
+              ],
+              "properties": {
+                "state_as_of": {"type": "string"},
+                "opportunity_observed_at": {"type": "string"},
+                "opportunity_supplemental_c8_observed_at": {"type": "string"},
+                "opportunity_coordination_receipt_recorded_at": {"type": "string"},
+                "investment_observed_at": {"type": "string"},
+                "latest_bound_observation_at": {"type": "string"}
+              }
+            },
             "workflow_status": {"type": "object"},
             "current_decision": {"type": "object"},
             "blockers": {"type": "object"},
-            "review_receipt_paths": {"type": "object"},
+            "review_receipt_transition": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "attempt_id",
+                "artifact_serialization",
+                "extracted_object_canonicalization",
+                "checkpoint_order",
+                "receipt_binding_requirements",
+                "verbatim_receipt_paths",
+                "mutation_rule",
+                "state_transition_rule",
+                "short_circuit_rule",
+                "record_outcome_candidate_action",
+                "commit_successor_action"
+              ],
+              "properties": {
+                "attempt_id": {"type": "string"},
+                "artifact_serialization": {"type": "string"},
+                "extracted_object_canonicalization": {"type": "string"},
+                "checkpoint_order": {
+                  "type": "array",
+                  "items": {"type": "string"},
+                  "minItems": 1
+                },
+                "receipt_binding_requirements": {
+                  "type": "array",
+                  "items": {"type": "string"},
+                  "minItems": 1
+                },
+                "verbatim_receipt_paths": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["blind_candidate", "conformance_review", "adversarial_review", "outcome_candidate"],
+                  "properties": {
+                    "blind_candidate": {"type": "string"},
+                    "conformance_review": {"type": "string"},
+                    "adversarial_review": {"type": "string"},
+                    "outcome_candidate": {"type": "string"}
+                  }
+                },
+                "mutation_rule": {"type": "string"},
+                "state_transition_rule": {"type": "string"},
+                "short_circuit_rule": {"type": "string"},
+                "record_outcome_candidate_action": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "effect_class",
+                    "ready",
+                    "blocked_by",
+                    "owner",
+                    "precondition",
+                    "write_set",
+                    "transition"
+                  ],
+                  "properties": {
+                    "id": {"type": "string"},
+                    "effect_class": {"const": "WRITE"},
+                    "ready": {"type": "boolean"},
+                    "blocked_by": {"type": "string"},
+                    "owner": {"type": "string"},
+                    "precondition": {"type": "string"},
+                    "write_set": {"type": "array", "items": {"type": "string"}},
+                    "transition": {"type": "string"}
+                  }
+                },
+                "commit_successor_action": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "effect_class",
+                    "ready",
+                    "blocked_by",
+                    "owner",
+                    "precondition",
+                    "write_set",
+                    "transition"
+                  ],
+                  "properties": {
+                    "id": {"type": "string"},
+                    "effect_class": {"const": "WRITE"},
+                    "ready": {"type": "boolean"},
+                    "blocked_by": {"type": "string"},
+                    "owner": {"type": "string"},
+                    "precondition": {"type": "string"},
+                    "write_set": {"type": "array", "items": {"type": "string"}},
+                    "transition": {"type": "string"}
+                  }
+                }
+              }
+            },
             "model_portability": {"type": "object"},
             "next_owner_constraint_action_id": {"type": "string"}
           }

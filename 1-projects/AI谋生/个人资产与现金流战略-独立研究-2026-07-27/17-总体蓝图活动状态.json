@@ -1,14 +1,14 @@
 {
   "schema_version": "1.1",
-  "state_id": "PORTFOLIO-BLUEPRINT-R3-CANDIDATE",
-  "as_of": "2026-07-28T02:24:38-07:00",
+  "state_id": "PORTFOLIO-BLUEPRINT-R4-CANDIDATE",
+  "as_of": "2026-07-28T03:21:04-07:00",
   "scope": "PORTFOLIO",
-  "status": "R3_INDEPENDENT_REVIEW_READY",
+  "status": "R4_INDEPENDENT_REVIEW_READY",
   "claim_ceiling": "DESIGN_CANDIDATE_ONLY_NO_BUSINESS_WORKFLOW_ACTIVATION_OR_MODEL_PORTABILITY_CLAIM",
   "blueprint_candidate": {
     "path": "16-总体蓝图闭合合同与状态审计.md",
-    "sha256": "7742a08e0f216abf5c749197b74a2bd3021c2260d666f8a0a9354f85b1ef42bd",
-    "review_request": "evidence/blueprint-r3-review-request.json",
+    "sha256": "376452a9cd3d0df95682cb30e93edc1aad4ae6152ef2f1e3d1632926964b5027",
+    "review_request": "evidence/blueprint-r4-review-request.json",
     "candidate_bound_live_workflow_pointers": []
   },
   "predecessor_reviews": {
@@ -31,6 +31,25 @@
         "SUPERSEDING_CHECKPOINT_RETAINED_CONFLICTING_ACTION_INSTRUCTIONS"
       ],
       "durable_review_receipts": "NOT_PERSISTED_IN_R2"
+    },
+    "r3": {
+      "blueprint_sha256": "7742a08e0f216abf5c749197b74a2bd3021c2260d666f8a0a9354f85b1ef42bd",
+      "state_sha256": "2e2c779b2599a377565cb97f2744831a36d9744303fc3eb9cfb7271d9efcf708",
+      "review_request": "evidence/blueprint-r3-review-request.json",
+      "review_request_sha256": "41192daea965f4e2c3f94af603879eaa2a1f9719a6b695de8b9695f9c7375d2e",
+      "adversarial_receipt": "evidence/blueprint-r3-adversarial-review.md",
+      "adversarial_receipt_sha256": "a7b381a93213295ced9413e970cba5245c80a9933befd0c32bd8a9e0a7c52d11",
+      "adversarial_leg": "FAIL",
+      "blind_recovery_receipt": "evidence/blueprint-r3-blind-recovery-review.md",
+      "blind_recovery_receipt_sha256": "a912f0a43295de36457c20712a50f15acec913dae549aac08c0739694d410e15",
+      "blind_recovery_leg": "FAIL_TAINTED",
+      "overall_verdict": "FAIL",
+      "findings": [
+        "RECOVERY_ORACLE_OMITS_CONDITIONAL_TIEBREAK_AND_SUCCESSOR_RULE",
+        "STALE_FIXTURE_PASSES_FROM_WRONG_RELATIVE_PATHS_AND_MISSING_FILES",
+        "STATE_AS_OF_PRECEDES_BOUND_C8_SUPPLEMENTAL_OBSERVATION",
+        "BLIND_REVIEW_TRANSCRIPT_CONTAMINATED_BY_ANSWER_BEARING_GOLD"
+      ]
     }
   },
   "objective_id": "PORTFOLIO_CONSTRAINED_ASSET_CASHFLOW_CAPABILITY_OPTIONALITY",
@@ -57,6 +76,7 @@
       "TYPED_PRIMARY_ACTION",
       "BACKGROUND_READ_ONLY_READY_SET",
       "WORKFLOW_OBSERVATION_SNAPSHOTS",
+      "EXACT_REVIEW_CHECKPOINTS_FOR_THIS_PORTFOLIO_CANDIDATE",
       "PORTFOLIO_OUTCOME_UPDATE"
     ],
     "portfolio_does_not_own": [
@@ -72,7 +92,7 @@
       "WORKFLOW_LOCAL_NEXT_SAFE_ACTION"
     ],
     "effective_permission_rule": "FOR_ACTIONS_LAUNCHED_FROM_THIS_TASK_USE_THE_INTERSECTION_OF_EXACT_USER_AUTHORITY_PORTFOLIO_CEILING_WORKFLOW_POLICY_AND_TOOL_SANDBOX_DENY_WINS",
-    "cross_task_write_rule": "REQUIRES_FRESH_WORKFLOW_REFRESH_AND_EXPLICIT_BILATERAL_COORDINATION_ACKNOWLEDGMENT_BEFORE_PORTFOLIO_ACTIVATION",
+    "cross_task_write_rule": "REQUIRES_FRESH_PUBLISHED_WORKFLOW_SNAPSHOT_AND_EXPLICIT_BILATERAL_COORDINATION_ACKNOWLEDGMENT_BEFORE_PORTFOLIO_ACTIVATION; PORTFOLIO_REVIEW_NEVER_REQUIRES_A_WHOLE_REVIEW_CYCLE_FREEZE_OF_THE_LIVE_WORKFLOW",
     "fact_rule": "ORIGINAL_EVENTS_AND_OUTPUTS_CONTROL_FACTS_PROJECTIONS_CONTROL_ONLY_THEIR_DECLARED_SCOPE",
     "observation_staleness_rule": "LATER_WORKFLOW_DRIFT_DOES_NOT_REWRITE_HISTORICAL_REVIEW_BUT_BLOCKS_ACTIVATION_UNTIL_REFRESH",
     "candidate_staleness_rule": "ONLY_EXACT_CANDIDATE_FILES_OR_EXPLICIT_CANDIDATE_BOUND_LIVE_INPUTS_CAUSE_THIS_CANDIDATE_TO_ENTER_STALE_STATE"
@@ -80,12 +100,15 @@
   "workflow_observations": {
     "opportunity": {
       "observation_record_path": "evidence/opportunity-control-plane-observation-2026-07-28.json",
-      "observation_record_sha256": "ce1f427b0e256f2a8d33cbe440d629a9b927da55346046b5fe87c294f822826c",
+      "observation_record_sha256": "21542b45b08463ea0d109020d8e41dba2df00d6892187aefc76e2057463c10d3",
       "supplemental_c8_observation_path": "evidence/opportunity-c8-read-only-observation-2026-07-28.json",
       "supplemental_c8_observation_sha256": "9e50b0db1fa7fff5246df2573c745b41a191919d5d397c84aeb78f4e1ab6d768",
+      "supplemental_c8_observed_at": "2026-07-28T02:28:57-07:00",
+      "coordination_receipt_recorded_at": "2026-07-28T03:19:01-07:00",
       "observed_at": "2026-07-28T02:21:56-07:00",
       "observed_state_path": "../机会到交易系统-项目控制面/STATE.json",
       "observed_state_sha256": "57a09e085b464e639247429b583d1d1579342a3401fe84ee932b446ead92a317",
+      "observed_control_plane_snapshot_sha256": "0180f144c2fbdd12cee9bf3c3095331dc57cb7651a336643ee80adaa1e6dd502",
       "candidate_dependency": "OBSERVATION_RECORD_ONLY_NOT_LIVE_POINTER",
       "scope": "OPPORTUNITY_WORKFLOW_ONLY",
       "reported_lifecycle": "CONTROL_PLANE_REMEDIATION",
@@ -99,7 +122,7 @@
         "local_shadow_allowed_now": false,
         "reality_experiment_proposal_allowed_now": false
       },
-      "coordination_status": "PAUSED_STABLE_OBSERVATION_REQUIRES_REFRESH_BEFORE_ACTIVATION",
+      "coordination_status": "PUBLISHED_SNAPSHOT_BOUND_WRITE_FREEZE_RELEASED_NO_LIVE_MONITORING_REQUIRES_NEW_HANDSHAKE_BEFORE_ACTIVATION",
       "portfolio_activation": "BLOCKED",
       "future_local_route_decision": "BEFORE_ANY_NEW_C8_FIELD_PATCHING_CHOOSE_FULL_PRODUCTION_INTERFACES_OR_EXPLICITLY_RENAMED_NARROW_SYNTHETIC_ASSERTION; CURRENT_READ_ONLY_OBSERVATION_FAVORS_THE_NARROW_BRANCH_WITHOUT_AUTHORIZING_IT",
       "claim_ceiling": "WORKFLOW_INTERNAL_VERIFICATION_ONLY_NO_DEMAND_TRANSACTION_OR_EXTERNAL_ACTION_CLAIM"
@@ -119,6 +142,16 @@
       "portfolio_activation": "BLOCKED",
       "claim_ceiling": "PAPER_ONLY_HUMAN_FINAL_RELIABILITY_LAB_NOT_CASHFLOW_OR_PROVEN_EDGE"
     }
+  },
+  "temporal_invariants": {
+    "state_as_of_gte_all_bound_observations": true,
+    "latest_bound_observation_at": "2026-07-28T03:19:01-07:00",
+    "checked_fields": [
+      "workflow_observations.opportunity.observed_at",
+      "workflow_observations.opportunity.supplemental_c8_observed_at",
+      "workflow_observations.opportunity.coordination_receipt_recorded_at",
+      "workflow_observations.investment.observed_at"
+    ]
   },
   "supersession_records": [
     {
@@ -148,7 +181,7 @@
   "blockers": {
     "review_admission_blocking": [],
     "design_closure_blocking": [
-      "R3_EXACT_ADVERSARIAL_AND_BLIND_RECOVERY_REVIEW"
+      "R4_APPEND_ONLY_BLIND_CHECKPOINT_BOUND_CONFORMANCE_AND_ADVERSARIAL_RECEIPTS_AND_VERIFIED_SUCCESSOR"
     ],
     "workflow_activation_blocking": [
       "OWNER_CASH_LOSS_RESPONSIBILITY_AND_TIME_CONSTRAINTS",
@@ -156,44 +189,43 @@
     ]
   },
   "current_decision": {
-    "id": "PB050",
-    "parent_id": "PB040",
-    "question": "R2 因动态 workflow pointer、循环准入 Gate、动作误分类和不可执行 task class 失败后，怎样形成不会远程接管子任务且能被独立复跑的 R3？",
-    "selected": "用不可变 observation records 代替 live workflow candidate dependency，拆分三类 blocker，把本轮 review 标为 READ_ONLY，并物化 content-addressed recovery conformance suite 后提交 exact R3。",
+    "id": "PB060",
+    "parent_id": "PB050",
+    "question": "R3 的权威拓扑通过审查，但 recovery oracle、stale fixture、时间顺序和 blind protocol 失败；应局部修复还是退回 PB010 放弃 portfolio control surface？",
+    "selected": "先做一个受限 R4：只补齐被点名的决策字段、真实单点 stale mismatch、时间不变量与不接触 answer-bearing artifacts 的 blind protocol；若 fresh R4 再出现同类治理/恢复 Major，则重开 PB050-C 并回退 PB010。",
     "basis": [
-      "R2_ADVERSARIAL_POINTER_DRIFT_CRITICAL",
-      "R2_ADVERSARIAL_CIRCULAR_REVIEW_GATE_CRITICAL",
-      "R2_ADVERSARIAL_ACTION_TYPING_MAJOR",
-      "R2_ADVERSARIAL_NONEXECUTABLE_MODEL_TASK_CLASS_MAJOR",
-      "R2_ADVERSARIAL_CONFLICTING_CHECKPOINT_AUTHORITY_MAJOR"
+      "R3_ADVERSARIAL_FOUND_THREE_MAJOR_AND_NO_CRITICAL",
+      "R3_BLIND_FOUND_ONE_TEMPORAL_MAJOR_AND_SELF_REJECTED_CONTAMINATED_PROCEDURE",
+      "R3_CHECKS_PASSED_AUTHORITY_BLOCKER_ACTION_TYPING_BACKTRACK_AND_PROHIBITIONS",
+      "R3_FINDINGS_ARE_REPRODUCIBLE_WITHOUT_WORKFLOW_OR_EXTERNAL_SCOPE_EXPANSION"
     ],
     "adjacent_branches": [
       {
-        "id": "PB050-A",
-        "branch": "把另一个任务的 live workflow state 冻结为 portfolio candidate dependency",
-        "status": "REJECTED_FALSE_REMOTE_AUTHORITY_AND_REPEATED_DRIFT_RISK"
+        "id": "PB060-A",
+        "branch": "仅修时间戳后重审，忽略 oracle 和 stale 假阳性",
+        "status": "REJECTED_INCOMPLETE_REMEDIATION"
       },
       {
-        "id": "PB050-B",
-        "branch": "保留模型 task class 为说明表，不物化 runner 与 fixtures",
-        "status": "REJECTED_NOT_INDEPENDENTLY_EXECUTABLE"
+        "id": "PB060-B",
+        "branch": "换一个 reviewer 静默覆盖 tainted blind FAIL，不记录 attempt-1",
+        "status": "REJECTED_REVIEW_HISTORY_ERASURE"
       },
       {
-        "id": "PB050-C",
+        "id": "PB060-C",
         "branch": "停止 portfolio control surface，只保留单 workflow-local baseline 并由人工跨项目选择",
-        "status": "REOPEN_IF_R3_STILL_FINDS_DUAL_AUTHORITY_OR_GOVERNANCE_COST_EXCEEDS_DECISION_VALUE"
+        "status": "REOPEN_IF_R4_REPEATS_ORACLE_GOVERNANCE_OR_RECOVERY_MAJOR"
       },
       {
-        "id": "PB050-D",
-        "branch": "先取得 owner constraints 再审设计",
-        "status": "DEFERRED_BECAUSE_CONSTRAINTS_BLOCK_RESOURCE_ORDER_NOT_REVIEW_ADMISSION"
+        "id": "PB060-D",
+        "branch": "扩大为通用模型评测平台后再审",
+        "status": "REJECTED_SCOPE_EXPANSION"
       }
     ],
     "stall_triggers": [
-      "R3_REPEATS_DUAL_AUTHORITY_OR_REVIEW_GATE_CYCLE",
-      "CONFORMANCE_ARTIFACTS_CANNOT_PRODUCE_DETERMINISTIC_NORMAL_REFUSAL_STALE_AND_WRONG_OUTPUT_RESULTS",
-      "PORTFOLIO_STATE_ADDS_FIELDS_WITHOUT_CHANGING_A_DECISION_OR_PREVENTING_A_REPRODUCED_FAILURE",
-      "REMEDIATION_REQUIRES_REWRITING_WORKFLOW_HISTORY_OR_EXPANDING_EXTERNAL_PERMISSION"
+      "R4_REPEATS_MISSING_DECISION_FIELDS_OR_FALSE_POSITIVE_STALE_TEST",
+      "R4_BLIND_PROTOCOL_AGAIN_EXPOSES_ANSWER_BEARING_ARTIFACTS_BEFORE_RECOVERY_COMMITMENT",
+      "R4_ADDS_GOVERNANCE_NOT_TIED_TO_AN_R3_FINDING",
+      "R4_REQUIRES_WORKFLOW_WRITE_OR_EXTERNAL_PERMISSION"
     ],
     "backtrack_to": "PB010"
   },
@@ -214,50 +246,174 @@
       "parent_id": "PB010",
       "selected": "物化 R2 portfolio state 并提交独立审查。",
       "outcome": "R2_BLIND_PASS_ADVERSARIAL_FAIL"
+    },
+    {
+      "id": "PB050",
+      "parent_id": "PB040",
+      "selected": "用 observation snapshots、三类 blocker、typed read-only review 和 executable conformance suite 形成 R3。",
+      "outcome": "R3_BOTH_LEGS_FAIL_WITH_LOCALIZED_REMEDIATION_FINDINGS"
     }
   ],
   "primary_action": {
-    "id": "PB-ACT-R3-INDEPENDENT-REVIEW",
+    "id": "PB-ACT-R4-BLIND-GENERATION",
     "effect_class": "READ_ONLY",
-    "action": "对 review request 绑定的 exact blueprint、portfolio state、observation records 与 model conformance artifacts 做 fresh adversarial review 和 blind recovery。",
-    "owner": "FRESH_INDEPENDENT_REVIEWERS",
+    "action": "由不接触 answer-bearing artifacts 的 fresh blind generator 对 exact input bundle 生成 CANDIDATE_RECOVERY 或 REFUSAL；它不签发 PASS。",
+    "owner": "FRESH_BLIND_GENERATOR",
     "ready": true,
     "write_set": [],
-    "success": "两份审查均绑定 exact candidate、运行要求的 conformance tests 并给出 PASS 且无 Critical/Major；否则总体保持 FAIL。",
-    "forbidden_shortcut": "作者自检、文件存在、fixture 通过、同源 evaluator、workflow verifier 或单一 review leg 均不能签发 R3 PASS。"
+    "success": "Blind generator returns one protocol-compliant CANDIDATE_RECOVERY or REFUSAL without forbidden access; the exact returned bytes then enter the append-only checkpoint chain.",
+    "forbidden_shortcut": "Blind generator 不得签发 PASS；不得把 R3 suite 绿灯、换 reviewer、手工答案正确、tainted transcript、fixture 或单一 stage 当作 R4 PASS。"
   },
   "primary_write_action": null,
   "background_read_only_ready_set": [],
   "review_output_contract": {
+    "attempt_id": "PORTFOLIO-BLUEPRINT-R4-ATTEMPT-1",
     "transport": "FRESH_REVIEWERS_RETURN_FINAL_OUTPUT_THROUGH_ORCHESTRATOR",
-    "persistence_owner": "PRIMARY_AGENT_AFTER_BOTH_REVIEWERS_RETURN",
+    "persistence_owner": "PRIMARY_AGENT_PERSISTS_EACH_RETURNED_STAGE_VERBATIM_AS_AN_APPEND_ONLY_CHECKPOINT_BEFORE_STARTING_THE_NEXT_STAGE",
+    "artifact_serialization": "UTF8_JSON_INDENT_2_TRAILING_LF",
+    "extracted_object_canonicalization": "UTF8_JSON_SORT_KEYS_TRUE_COMPACT_TRAILING_LF",
+    "attempt_verifier": "review-protocol/verify_r4_review_attempt.py",
     "verbatim_receipt_paths": {
-      "adversarial": "evidence/blueprint-r3-adversarial-review.md",
-      "blind_recovery": "evidence/blueprint-r3-blind-recovery-review.md"
+      "blind_candidate": "evidence/blueprint-r4-blind-recovery-candidate.json",
+      "conformance_review": "evidence/blueprint-r4-conformance-review.json",
+      "adversarial_review": "evidence/blueprint-r4-adversarial-review.json",
+      "outcome_candidate": "evidence/blueprint-r4-outcome-candidate.json"
     },
-    "mutation_rule": "PRIMARY_AGENT_MAY_ONLY_PERSIST_REVIEWER_OUTPUT_VERBATIM_AND_MUST_NOT_REWRITE_FINDINGS",
-    "state_transition_rule": "AFTER_RECEIPT_HASHES_EXIST_RECORD_ONE_SUCCESSOR_STATE_WITH_VERDICT_DERIVED_BY_FAIL_CLOSED_RULE"
+    "checkpoint_order": [
+      "BLIND_GENERATION",
+      "CONFORMANCE_REVIEW",
+      "ADVERSARIAL_REVIEW",
+      "SUCCESSOR"
+    ],
+    "receipt_binding_requirements": [
+      "CONFORMANCE_BINDS_BLIND_FILE_SHA256_BYTE_LENGTH_RAW_SERIALIZATION_EXTRACTED_OBJECT_SHA256_INPUT_BUNDLE_STATE_AND_REVIEW_REQUEST",
+      "ADVERSARIAL_BINDS_BLIND_SHA256_CONFORMANCE_RECEIPT_SHA256_EXACT_BLUEPRINT_STATE_AND_REVIEW_REQUEST",
+      "OUTCOME_CANDIDATE_RECOMPUTES_ALL_AVAILABLE_ARTIFACT_HASHES_AND_DERIVES_VERDICT_WITHOUT_FILENAME_INFERENCE",
+      "SUCCESSOR_COMMIT_REQUIRES_ATTEMPT_VERIFIER_ACCEPTANCE_OF_EXACT_TEMP_SUCCESSOR_BYTES",
+      "SUCCESSOR_RETAINS_ALL_PREDECESSOR_VALUES_EXCEPT_THE_CLOSED_REVIEW_TRANSITION_FIELDS_AND_NEVER_EXPANDS_PERMISSIONS_OR_ACTIVATES_A_WORKFLOW"
+    ],
+    "mutation_rule": "PRIMARY_AGENT_MAY_ONLY_PERSIST_REVIEWER_OUTPUT_VERBATIM_AND_MUST_NOT_REWRITE_FINDINGS; OUTCOME_CANDIDATE_AND_SUCCESSOR_ARE_MECHANICALLY_DERIVED",
+    "state_transition_rule": "ANY_BLIND_REFUSAL_OR_CONTAMINATION_OR_CONFORMANCE_NONPASS_OR_ADVERSARIAL_NONPASS_OR_ANY_CRITICAL_OR_MAJOR_YIELDS_R4_REVIEW_FAIL_AND_ONLY_A_READ_ONLY_BACKTRACK_ASSESSMENT; ONLY_DISTINCT_CONFORMANCE_ACCEPTANCE_OF_THE_FROZEN_BLIND_CANDIDATE_PLUS_ADVERSARIAL_PASS_YIELDS_R4_REVIEW_PASS_BLOCKED_OWNER_CONSTRAINT; BOTH_BRANCHES_KEEP_WORKFLOW_ACTIVATION_BLOCKED",
+    "short_circuit_rule": "BLIND_REFUSAL_OR_TAINT_SHORT_CIRCUITS_TO_FAIL_WITHOUT_CONFORMANCE_OR_ADVERSARIAL; CONFORMANCE_NONPASS_SHORT_CIRCUITS_TO_FAIL_WITHOUT_ADVERSARIAL; MISSING_OR_INVALID_CHECKPOINT_NEVER_PASSES_AND_REMAINS_RESUMABLE_OR_FAILS_ON_AN_EXPLICIT_TOOL_ERROR_RECEIPT",
+    "blind_recovery_protocol": {
+      "allowed_content_reads": [
+        "evidence/blueprint-r4-blind-request.json",
+        "AGENTS.md",
+        "model-conformance/task-project-recovery-read-only/task-class.json",
+        "TASK_CLASS_INPUT_BUNDLE_FILES_ONLY"
+      ],
+      "forbidden_content_and_hash_reads": [
+        "validate_recovery_output.py",
+        "output.schema.json",
+        "SEMANTIC_RUBRIC.md",
+        "gold-projection.json",
+        "fixtures/*",
+        "test_validate_recovery_output.py",
+        "R1_R2_R3_REVIEW_REQUESTS_OR_RECEIPTS"
+      ],
+      "blind_output_role": "CANDIDATE_RECOVERY_NOT_A_PASS_VERDICT",
+      "test_execution_owner": "DISTINCT_CONFORMANCE_REVIEWER_ONLY",
+      "transport_freeze": "ORCHESTRATOR_CAPTURES_THE_EXACT_BLIND_FINAL_JSON_AS_UTF8_JSON_INDENT_2_TRAILING_LF; PRIMARY_AGENT_IMMEDIATELY_PERSISTS_THOSE_SAME_BYTES_APPEND_ONLY_AND_RECOMPUTES_SHA256_AND_BYTE_LENGTH_BEFORE_ANY_CONFORMANCE_OR_GOLD_FEEDBACK",
+      "staged_order": [
+        "BLIND_GENERATOR_RETURNS_CANDIDATE_RECOVERY_OR_REFUSAL",
+        "PRIMARY_AGENT_PERSISTS_EXACT_BLIND_BYTES_APPEND_ONLY_WITHOUT_GOLD_FEEDBACK",
+        "DISTINCT_CONFORMANCE_REVIEWER_VALIDATES_THE_PERSISTED_OUTPUT_AND_FULL_SUITE_THEN_ITS_EXACT_RECEIPT_IS_PERSISTED",
+        "IF_CONFORMANCE_PASS_A_SEPARATE_ADVERSARIAL_REVIEWER_BINDS_THE_PRIOR_RECEIPT_AND_REVIEWS_THE_EXACT_R4_CANDIDATE_THEN_ITS_EXACT_RECEIPT_IS_PERSISTED",
+        "PRIMARY_AGENT_MATERIALIZES_AND_VERIFIES_THE_FAIL_CLOSED_OUTCOME_CANDIDATE",
+        "PRIMARY_AGENT_COMMITS_THE_EXACT_VERIFIED_SUCCESSOR_BYTES"
+      ],
+      "forbidden_before_final_recovery": "OPENING_OR_HASHING_ANY_ANSWER_BEARING_ARTIFACT_OR_RUNNING_A_COMMAND_THAT_ECHOES_EXPECTED_PROJECTION",
+      "contamination_result": "FAIL_TAINTED_NO_RETRY_WITHIN_SAME_REVIEW_ATTEMPT",
+      "self_acceptance": "FORBIDDEN_BLIND_GENERATOR_CANNOT_SIGN_PASS"
+    }
   },
   "queued_after_primary": [
     {
-      "id": "PB-ACT-RECORD-R3-OUTCOME",
+      "id": "PB-ACT-PERSIST-R4-BLIND-CHECKPOINT",
       "effect_class": "WRITE",
       "ready": false,
-      "blocked_by": "PB-ACT-R3-INDEPENDENT-REVIEW",
+      "blocked_by": "PB-ACT-R4-BLIND-GENERATION",
       "owner": "PRIMARY_AGENT",
-      "precondition": "CURRENT_STATE_MATCHES_THE_EXACT_STATE_SHA256_IN_BLUEPRINT_R3_REVIEW_REQUEST_AND_BOTH_VERBATIM_RECEIPTS_ARE_AVAILABLE",
+      "precondition": "CURRENT_STATE_MATCHES_THE_EXACT_STATE_SHA256_IN_BLUEPRINT_R4_REVIEW_REQUEST_AND_ONE_PROTOCOL_COMPLIANT_BLIND_FINAL_JSON_IS_AVAILABLE",
       "write_set": [
-        "evidence/blueprint-r3-adversarial-review.md",
-        "evidence/blueprint-r3-blind-recovery-review.md",
+        "evidence/blueprint-r4-blind-recovery-candidate.json"
+      ],
+      "transition": "CANDIDATE_RECOVERY_ADVANCES_TO_PB_ACT_R4_CONFORMANCE_REVIEW; REFUSAL_OR_TAINT_ADVANCES_TO_PB_ACT_RECORD_R4_OUTCOME_CANDIDATE_FAIL"
+    },
+    {
+      "id": "PB-ACT-R4-CONFORMANCE-REVIEW",
+      "effect_class": "READ_ONLY",
+      "ready": false,
+      "blocked_by": "VALID_PERSISTED_R4_BLIND_CANDIDATE_CHECKPOINT",
+      "owner": "FRESH_DISTINCT_CONFORMANCE_REVIEWER",
+      "precondition": "BLIND_CHECKPOINT_HASH_BYTE_LENGTH_SERIALIZATION_AND_ATTESTATION_HAVE_BEEN_RECOMPUTED_WITHOUT_GOLD_FEEDBACK",
+      "write_set": [],
+      "transition": "REVIEWER_FINAL_OUTPUT_MUST_BE_PERSISTED_VERBATIM_BY_PB_ACT_PERSIST_R4_CONFORMANCE_CHECKPOINT"
+    },
+    {
+      "id": "PB-ACT-PERSIST-R4-CONFORMANCE-CHECKPOINT",
+      "effect_class": "WRITE",
+      "ready": false,
+      "blocked_by": "PB-ACT-R4-CONFORMANCE-REVIEW",
+      "owner": "PRIMARY_AGENT",
+      "precondition": "ONE_PROTOCOL_COMPLIANT_CONFORMANCE_RECEIPT_BINDING_THE_EXACT_BLIND_CHECKPOINT_IS_AVAILABLE",
+      "write_set": [
+        "evidence/blueprint-r4-conformance-review.json"
+      ],
+      "transition": "PASS_WITH_ZERO_CRITICAL_MAJOR_ADVANCES_TO_PB_ACT_R4_ADVERSARIAL_REVIEW; ANY_NONPASS_OR_CRITICAL_MAJOR_ADVANCES_TO_PB_ACT_RECORD_R4_OUTCOME_CANDIDATE_FAIL"
+    },
+    {
+      "id": "PB-ACT-R4-ADVERSARIAL-REVIEW",
+      "effect_class": "READ_ONLY",
+      "ready": false,
+      "blocked_by": "VALID_PERSISTED_R4_CONFORMANCE_PASS_CHECKPOINT",
+      "owner": "FRESH_SEPARATE_ADVERSARIAL_REVIEWER",
+      "precondition": "EXACT_BLUEPRINT_STATE_REVIEW_REQUEST_BLIND_SHA256_AND_CONFORMANCE_RECEIPT_SHA256_ARE_BOUND",
+      "write_set": [],
+      "transition": "REVIEWER_FINAL_OUTPUT_MUST_BE_PERSISTED_VERBATIM_BY_PB_ACT_PERSIST_R4_ADVERSARIAL_CHECKPOINT"
+    },
+    {
+      "id": "PB-ACT-PERSIST-R4-ADVERSARIAL-CHECKPOINT",
+      "effect_class": "WRITE",
+      "ready": false,
+      "blocked_by": "PB-ACT-R4-ADVERSARIAL-REVIEW",
+      "owner": "PRIMARY_AGENT",
+      "precondition": "ONE_PROTOCOL_COMPLIANT_ADVERSARIAL_RECEIPT_BINDING_THE_EXACT_PRIOR_CHECKPOINTS_IS_AVAILABLE",
+      "write_set": [
+        "evidence/blueprint-r4-adversarial-review.json"
+      ],
+      "transition": "ADVANCE_TO_PB_ACT_RECORD_R4_OUTCOME_CANDIDATE_WITH_VERDICT_DERIVED_FAIL_CLOSED"
+    },
+    {
+      "id": "PB-ACT-RECORD-R4-OUTCOME-CANDIDATE",
+      "effect_class": "WRITE",
+      "ready": false,
+      "blocked_by": "VALID_CHECKPOINT_CHAIN_OR_EXPLICIT_SHORT_CIRCUIT_FAIL",
+      "owner": "PRIMARY_AGENT_DETERMINISTIC_DERIVATION",
+      "precondition": "CURRENT_STATE_MATCHES_THE_EXACT_STATE_SHA256_IN_BLUEPRINT_R4_REVIEW_REQUEST_AND_ALL_AVAILABLE_CHECKPOINT_HASHES_BYTE_LENGTHS_IDENTITIES_AND_VERDICTS_HAVE_BEEN_RECOMPUTED",
+      "write_set": [
+        "evidence/blueprint-r4-outcome-candidate.json"
+      ],
+      "transition": "ATTEMPT_VERIFIER_MUST_ACCEPT_THE_OUTCOME_CANDIDATE_AND_EXACT_TEMP_SUCCESSOR_BEFORE_COMMIT"
+    },
+    {
+      "id": "PB-ACT-COMMIT-R4-SUCCESSOR",
+      "effect_class": "WRITE",
+      "ready": false,
+      "blocked_by": "VALID_VERIFIED_R4_OUTCOME_CANDIDATE_AND_TEMP_SUCCESSOR",
+      "owner": "PRIMARY_AGENT_EXACT_BYTE_COMMIT",
+      "precondition": "ATTEMPT_VERIFIER_RETURNS_VALID_SUCCESSOR_PASS_OR_VALID_SUCCESSOR_FAIL_FOR_THE_EXACT_TEMP_SUCCESSOR_BYTES_AND_THE_BYTES_STILL_MATCH_AT_COMMIT",
+      "write_set": [
         "17-总体蓝图活动状态.json"
       ],
-      "transition": "ANY_CRITICAL_OR_MAJOR_OR_NONPASS_LEG_YIELDS_R3_REVIEW_FAIL; ONLY_TWO_EXACT_PASS_LEGS_YIELD_R3_REVIEW_PASS_BLOCKED_OWNER_CONSTRAINT"
+      "transition": "PASS_BECOMES_R4_REVIEW_PASS_BLOCKED_OWNER_CONSTRAINT; FAIL_BECOMES_R4_REVIEW_FAIL_AND_REOPENS_PB060_C_WHEN_THE_SAME_GOVERNANCE_OR_RECOVERY_MAJOR_REPEATS"
     },
     {
       "id": "PB-ACT-OWNER-CONSTRAINT",
       "effect_class": "USER_INPUT",
+      "owner": "JAVEN",
       "ready": false,
-      "blocked_by": "PB-ACT-RECORD-R3-OUTCOME_PASS",
+      "blocked_by": "PB-ACT-COMMIT-R4-SUCCESSOR_PASS",
       "action": "向 Javen 取得现金时限/最低要求、可承受损失、责任与不可挤占时间，以派生实际 portfolio 优先级。"
     },
     {
@@ -280,6 +436,8 @@
   "permissions": {
     "read_local_project": true,
     "read_public_sources": true,
+    "write_exact_review_checkpoints": true,
+    "write_verified_portfolio_successor": true,
     "write_blueprint_remediation": false,
     "write_workflow_candidates": false,
     "contact_real_people": false,

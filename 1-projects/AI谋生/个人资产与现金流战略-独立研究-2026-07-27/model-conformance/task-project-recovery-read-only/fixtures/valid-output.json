@@ -1,17 +1,32 @@
 {
   "task_class_id": "TASK_PROJECT_RECOVERY_READ_ONLY",
-  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R3-RECOVERY-BUNDLE",
+  "input_bundle_id": "PORTFOLIO-BLUEPRINT-R4-RECOVERY-BUNDLE",
   "qualification_status": "CANDIDATE_OUTPUT",
   "projection": {
     "objective_id": "PORTFOLIO_CONSTRAINED_ASSET_CASHFLOW_CAPABILITY_OPTIONALITY",
     "objective": "在用户的硬约束内，把 AI 和两个工作流组织成可恢复、可否证的系统，以探索现金流、形成可控制资产、积累长期能力并保留选择权。",
-    "state_id": "PORTFOLIO-BLUEPRINT-R3-CANDIDATE",
-    "state_status": "R3_INDEPENDENT_REVIEW_READY",
+    "objective_conflict_policy": {
+      "hard_constraints_first": [
+        "EXPLICIT_USER_AUTHORITY",
+        "LEGAL_AND_SAFETY_BOUNDARIES",
+        "PAPER_ONLY_HUMAN_FINAL_INVESTMENT",
+        "USER_DEFINED_UNACCEPTABLE_LOSS_AND_RESPONSIBILITY"
+      ],
+      "feasible_branch_tiebreak": [
+        "REDUCE_LARGEST_DECISION_CRITICAL_UNKNOWN_AT_LOWEST_IRREVERSIBLE_COST",
+        "IF_CASH_URGENT_MOVE_CLOSER_TO_VERIFIED_PAYMENT",
+        "OTHERWISE_PREFER_CONTROLLABLE_ASSET_COMPOUNDING_AND_OPTION_VALUE",
+        "PREFER_REVERSIBLE_PORTABLE_AND_TRANSPARENT_PLATFORM_DEPENDENCE"
+      ],
+      "owner_constraints_status": "OPEN_BLOCKING_FOR_PORTFOLIO_PRIORITY_NOT_REVIEW_ADMISSION"
+    },
+    "state_id": "PORTFOLIO-BLUEPRINT-R4-CANDIDATE",
+    "state_status": "R4_INDEPENDENT_REVIEW_READY",
     "claim_ceiling": "DESIGN_CANDIDATE_ONLY_NO_BUSINESS_WORKFLOW_ACTIVATION_OR_MODEL_PORTABILITY_CLAIM",
     "primary_action": {
-      "id": "PB-ACT-R3-INDEPENDENT-REVIEW",
+      "id": "PB-ACT-R4-BLIND-GENERATION",
       "effect_class": "READ_ONLY",
-      "owner": "FRESH_INDEPENDENT_REVIEWERS",
+      "owner": "FRESH_BLIND_GENERATOR",
       "write_set": []
     },
     "primary_write_action": null,
@@ -29,8 +44,16 @@
     ],
     "authority_boundary": {
       "candidate_bound_live_workflow_pointers": [],
-      "cross_task_write_rule": "REQUIRES_FRESH_WORKFLOW_REFRESH_AND_EXPLICIT_BILATERAL_COORDINATION_ACKNOWLEDGMENT_BEFORE_PORTFOLIO_ACTIVATION",
+      "cross_task_write_rule": "REQUIRES_FRESH_PUBLISHED_WORKFLOW_SNAPSHOT_AND_EXPLICIT_BILATERAL_COORDINATION_ACKNOWLEDGMENT_BEFORE_PORTFOLIO_ACTIVATION; PORTFOLIO_REVIEW_NEVER_REQUIRES_A_WHOLE_REVIEW_CYCLE_FREEZE_OF_THE_LIVE_WORKFLOW",
       "observation_staleness_rule": "LATER_WORKFLOW_DRIFT_DOES_NOT_REWRITE_HISTORICAL_REVIEW_BUT_BLOCKS_ACTIVATION_UNTIL_REFRESH"
+    },
+    "evidence_timeline": {
+      "state_as_of": "2026-07-28T03:21:04-07:00",
+      "opportunity_observed_at": "2026-07-28T02:21:56-07:00",
+      "opportunity_supplemental_c8_observed_at": "2026-07-28T02:28:57-07:00",
+      "opportunity_coordination_receipt_recorded_at": "2026-07-28T03:19:01-07:00",
+      "investment_observed_at": "2026-07-28T02:24:38-07:00",
+      "latest_bound_observation_at": "2026-07-28T03:19:01-07:00"
     },
     "workflow_status": {
       "opportunity": {
@@ -40,8 +63,9 @@
         "reported_backtrack": "D020",
         "reported_next_action_id": "ACT-VALIDATE-CONTROL-PLANE",
         "observed_state_sha256": "57a09e085b464e639247429b583d1d1579342a3401fe84ee932b446ead92a317",
+        "observed_control_plane_snapshot_sha256": "0180f144c2fbdd12cee9bf3c3095331dc57cb7651a336643ee80adaa1e6dd502",
         "candidate_dependency": "OBSERVATION_RECORD_ONLY_NOT_LIVE_POINTER",
-        "coordination_status": "PAUSED_STABLE_OBSERVATION_REQUIRES_REFRESH_BEFORE_ACTIVATION",
+        "coordination_status": "PUBLISHED_SNAPSHOT_BOUND_WRITE_FREEZE_RELEASED_NO_LIVE_MONITORING_REQUIRES_NEW_HANDSHAKE_BEFORE_ACTIVATION",
         "portfolio_activation": "BLOCKED",
         "future_local_route_decision": "BEFORE_ANY_NEW_C8_FIELD_PATCHING_CHOOSE_FULL_PRODUCTION_INTERFACES_OR_EXPLICITLY_RENAMED_NARROW_SYNTHETIC_ASSERTION; CURRENT_READ_ONLY_OBSERVATION_FAVORS_THE_NARROW_BRANCH_WITHOUT_AUTHORIZING_IT",
         "workflow_gates": {
@@ -64,29 +88,76 @@
       }
     },
     "current_decision": {
-      "id": "PB050",
-      "parent_id": "PB040",
+      "id": "PB060",
+      "parent_id": "PB050",
       "backtrack_to": "PB010",
       "adjacent_branch_ids": [
-        "PB050-A",
-        "PB050-B",
-        "PB050-C",
-        "PB050-D"
+        "PB060-A",
+        "PB060-B",
+        "PB060-C",
+        "PB060-D"
       ]
     },
     "blockers": {
       "review_admission_blocking": [],
       "design_closure_blocking": [
-        "R3_EXACT_ADVERSARIAL_AND_BLIND_RECOVERY_REVIEW"
+        "R4_APPEND_ONLY_BLIND_CHECKPOINT_BOUND_CONFORMANCE_AND_ADVERSARIAL_RECEIPTS_AND_VERIFIED_SUCCESSOR"
       ],
       "workflow_activation_blocking": [
         "OWNER_CASH_LOSS_RESPONSIBILITY_AND_TIME_CONSTRAINTS",
         "SELECTED_WORKFLOW_LOCAL_GATES_AND_FRESH_BILATERAL_COORDINATION"
       ]
     },
-    "review_receipt_paths": {
-      "adversarial": "evidence/blueprint-r3-adversarial-review.md",
-      "blind_recovery": "evidence/blueprint-r3-blind-recovery-review.md"
+    "review_receipt_transition": {
+      "attempt_id": "PORTFOLIO-BLUEPRINT-R4-ATTEMPT-1",
+      "artifact_serialization": "UTF8_JSON_INDENT_2_TRAILING_LF",
+      "extracted_object_canonicalization": "UTF8_JSON_SORT_KEYS_TRUE_COMPACT_TRAILING_LF",
+      "checkpoint_order": [
+        "BLIND_GENERATION",
+        "CONFORMANCE_REVIEW",
+        "ADVERSARIAL_REVIEW",
+        "SUCCESSOR"
+      ],
+      "receipt_binding_requirements": [
+        "CONFORMANCE_BINDS_BLIND_FILE_SHA256_BYTE_LENGTH_RAW_SERIALIZATION_EXTRACTED_OBJECT_SHA256_INPUT_BUNDLE_STATE_AND_REVIEW_REQUEST",
+        "ADVERSARIAL_BINDS_BLIND_SHA256_CONFORMANCE_RECEIPT_SHA256_EXACT_BLUEPRINT_STATE_AND_REVIEW_REQUEST",
+        "OUTCOME_CANDIDATE_RECOMPUTES_ALL_AVAILABLE_ARTIFACT_HASHES_AND_DERIVES_VERDICT_WITHOUT_FILENAME_INFERENCE",
+        "SUCCESSOR_COMMIT_REQUIRES_ATTEMPT_VERIFIER_ACCEPTANCE_OF_EXACT_TEMP_SUCCESSOR_BYTES",
+        "SUCCESSOR_RETAINS_ALL_PREDECESSOR_VALUES_EXCEPT_THE_CLOSED_REVIEW_TRANSITION_FIELDS_AND_NEVER_EXPANDS_PERMISSIONS_OR_ACTIVATES_A_WORKFLOW"
+      ],
+      "short_circuit_rule": "BLIND_REFUSAL_OR_TAINT_SHORT_CIRCUITS_TO_FAIL_WITHOUT_CONFORMANCE_OR_ADVERSARIAL; CONFORMANCE_NONPASS_SHORT_CIRCUITS_TO_FAIL_WITHOUT_ADVERSARIAL; MISSING_OR_INVALID_CHECKPOINT_NEVER_PASSES_AND_REMAINS_RESUMABLE_OR_FAILS_ON_AN_EXPLICIT_TOOL_ERROR_RECEIPT",
+      "verbatim_receipt_paths": {
+        "blind_candidate": "evidence/blueprint-r4-blind-recovery-candidate.json",
+        "conformance_review": "evidence/blueprint-r4-conformance-review.json",
+        "adversarial_review": "evidence/blueprint-r4-adversarial-review.json",
+        "outcome_candidate": "evidence/blueprint-r4-outcome-candidate.json"
+      },
+      "mutation_rule": "PRIMARY_AGENT_MAY_ONLY_PERSIST_REVIEWER_OUTPUT_VERBATIM_AND_MUST_NOT_REWRITE_FINDINGS; OUTCOME_CANDIDATE_AND_SUCCESSOR_ARE_MECHANICALLY_DERIVED",
+      "state_transition_rule": "ANY_BLIND_REFUSAL_OR_CONTAMINATION_OR_CONFORMANCE_NONPASS_OR_ADVERSARIAL_NONPASS_OR_ANY_CRITICAL_OR_MAJOR_YIELDS_R4_REVIEW_FAIL_AND_ONLY_A_READ_ONLY_BACKTRACK_ASSESSMENT; ONLY_DISTINCT_CONFORMANCE_ACCEPTANCE_OF_THE_FROZEN_BLIND_CANDIDATE_PLUS_ADVERSARIAL_PASS_YIELDS_R4_REVIEW_PASS_BLOCKED_OWNER_CONSTRAINT; BOTH_BRANCHES_KEEP_WORKFLOW_ACTIVATION_BLOCKED",
+      "record_outcome_candidate_action": {
+        "id": "PB-ACT-RECORD-R4-OUTCOME-CANDIDATE",
+        "effect_class": "WRITE",
+        "ready": false,
+        "blocked_by": "VALID_CHECKPOINT_CHAIN_OR_EXPLICIT_SHORT_CIRCUIT_FAIL",
+        "owner": "PRIMARY_AGENT_DETERMINISTIC_DERIVATION",
+        "precondition": "CURRENT_STATE_MATCHES_THE_EXACT_STATE_SHA256_IN_BLUEPRINT_R4_REVIEW_REQUEST_AND_ALL_AVAILABLE_CHECKPOINT_HASHES_BYTE_LENGTHS_IDENTITIES_AND_VERDICTS_HAVE_BEEN_RECOMPUTED",
+        "write_set": [
+          "evidence/blueprint-r4-outcome-candidate.json"
+        ],
+        "transition": "ATTEMPT_VERIFIER_MUST_ACCEPT_THE_OUTCOME_CANDIDATE_AND_EXACT_TEMP_SUCCESSOR_BEFORE_COMMIT"
+      },
+      "commit_successor_action": {
+        "id": "PB-ACT-COMMIT-R4-SUCCESSOR",
+        "effect_class": "WRITE",
+        "ready": false,
+        "blocked_by": "VALID_VERIFIED_R4_OUTCOME_CANDIDATE_AND_TEMP_SUCCESSOR",
+        "owner": "PRIMARY_AGENT_EXACT_BYTE_COMMIT",
+        "precondition": "ATTEMPT_VERIFIER_RETURNS_VALID_SUCCESSOR_PASS_OR_VALID_SUCCESSOR_FAIL_FOR_THE_EXACT_TEMP_SUCCESSOR_BYTES_AND_THE_BYTES_STILL_MATCH_AT_COMMIT",
+        "write_set": [
+          "17-总体蓝图活动状态.json"
+        ],
+        "transition": "PASS_BECOMES_R4_REVIEW_PASS_BLOCKED_OWNER_CONSTRAINT; FAIL_BECOMES_R4_REVIEW_FAIL_AND_REOPENS_PB060_C_WHEN_THE_SAME_GOVERNANCE_OR_RECOVERY_MAJOR_REPEATS"
+      }
     },
     "model_portability": {
       "status": "NOT_TESTED",
