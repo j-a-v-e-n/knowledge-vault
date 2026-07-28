@@ -180,7 +180,7 @@ EXPECTED_CA_SENDER_PROFILE_CLAIM_BOUNDARY = (
 EXPECTED_REVIEW_STATE_PATHS = {
     "legacy_runtime_tombstone": "evidence/review-legacy-opportunity-tombstone-2026-07-27.json",
     "ca012650_internal_candidate": (
-        "evidence/review-ca012650-precontact-rejection-successor-2026-07-27-r1.json"
+        "evidence/review-ca012650-precontact-rejection-successor-2026-07-28-r2.json"
     ),
 }
 EXPECTED_CA_R2_SCHEMA_VERSION = "ca012650-durable-candidate-independent-review/2"
@@ -242,13 +242,13 @@ EXPECTED_CA_R2_CLAIM_BOUNDARY = (
 # and excludes both mutable 08 and the review receipt itself from its candidate
 # set, avoiding a hash cycle.
 EXPECTED_CA_PRECONTACT_SUCCESSOR_SCHEMA_VERSION = (
-    "ca012650-precontact-rejection-successor-independent-review/1"
+    "ca012650-precontact-rejection-successor-independent-review/2"
 )
 EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEW_ID = (
-    "review-ca012650-precontact-rejection-successor-2026-07-27-r1"
+    "review-ca012650-precontact-rejection-successor-2026-07-28-r2"
 )
 EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWER_IDENTITY = (
-    "/root/ca_precontact_successor_review"
+    "/root/ca_precontact_successor_r2_review"
 )
 EXPECTED_CA_PRECONTACT_SUCCESSOR_SEVERITY_COUNTS = {"critical": 0, "major": 0}
 EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES = {
@@ -256,6 +256,11 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_REVIEWED_PROPERTIES = {
         "The historical r2 PASS is preserved only as a predecessor by "
         "byte-identical snapshots and a strict continuity record; it is not "
         "treated as review authority for successor bytes."
+    ),
+    (
+        "The attempt-1 successor FAIL is preserved as an immutable predecessor; "
+        "its symlink-laundering Critical remains a rejection of the old /1 and r1 "
+        "review contract, never authority for this /2 and r2 successor."
     ),
     (
         "The successor candidate binds the validator, adversarial tests, sender "
@@ -333,6 +338,13 @@ EXPECTED_CA_PRETRANSITION_STATE_SNAPSHOT_BINDING = {
     "path": "evidence/active-state-ca012650-precontact-rejection-precursor-2026-07-27.json",
     "sha256": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
 }
+EXPECTED_CA_PRECONTACT_SUCCESSOR_ATTEMPT1_FAIL_BINDING = {
+    "path": (
+        "evidence/"
+        "review-ca012650-precontact-rejection-successor-2026-07-28-attempt-1.json"
+    ),
+    "sha256": "ee68cd328a029f3e6a954592c3a4903d78cab46c122bbd47e148fbc4f31f643e",
+}
 EXPECTED_CA_PREDECESSOR_CONTINUITY_BINDING = {
     "path": "evidence/ca012650-r2-predecessor-continuity-2026-07-27.json",
     "sha256": "3bfd51fe97e29203648a0f14e1d724c1f48a77dd837bfaa5998774a3ff38c195",
@@ -385,7 +397,7 @@ CA_R2_RECEIPT_KEYS = {
     "missing_external_bindings",
     "claim_boundary",
 }
-EXPECTED_CA_R2_CANDIDATE_PATHS = {
+EXPECTED_CA_R2_CANDIDATE_PATHS = (
     "03-否决门与反方审查.md",
     "07-自主运行协议.md",
     "09-校验活动状态.py",
@@ -404,7 +416,7 @@ EXPECTED_CA_R2_CANDIDATE_PATHS = {
     "evidence/review-ca012650-durable-evidence-2026-07-27-r1.json",
     "evidence/review-ca012650-detached-gate-2026-07-27-attempt-1.json",
     "evidence/review-ca012650-detached-gate-2026-07-27-attempt-2.json",
-}
+)
 EXPECTED_CA_R2_HISTORICAL_REJECTIONS = {
     "evidence/review-ca012650-durable-evidence-2026-07-27-r1.json": {
         "sha256": "6b122f068b46b5a3ba93aab03d17f0772be75913251ea8b69989cd4275c5fcaf",
@@ -440,6 +452,7 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS = {
     "evidence/review-ca012650-presend-readiness-2026-07-27-attempt-1.json": "bd87bf413704dbd2920cf88161228c2f7ab459f981adfce66d78db9936499494",
     "evidence/review-ca012650-sender-provenance-remediation-2026-07-27-r1.json": "19e4d6bbd2b333e225642ea9502480da50d2011253ee66bc1bd913d0a3d118b0",
     "evidence/review-ca012650-recipient-value-2026-07-27-r1.json": "7fc4563288cc03a41e2f3748474c82845d10b68f23c308dbfb7127f3daf0c8bc",
+    "evidence/review-ca012650-precontact-rejection-successor-2026-07-28-attempt-1.json": "ee68cd328a029f3e6a954592c3a4903d78cab46c122bbd47e148fbc4f31f643e",
     "evidence/receipt-ca012650-precontact-rejection-2026-07-27-r1.json": "aa53d97f35859a6548653640293ffca5df9f326e0dda00727a074e06a235c73a",
     "evidence/ca012650-r2-predecessor-continuity-2026-07-27.json": "3bfd51fe97e29203648a0f14e1d724c1f48a77dd837bfaa5998774a3ff38c195",
     "evidence/active-state-ca012650-precontact-rejection-precursor-2026-07-27.json": "17815b0ff22a1250f0f47d2fda22b65c344eee3d359729fa6d67a8f7d45ba2ab",
@@ -452,14 +465,13 @@ EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS = {
     "evidence/raw/CoveredBuildingsExport-pre-send-2026-07-27T2317.csv": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75",
     "evidence/raw/bwmarinagateway-contact-pre-send-2026-07-27T2317.html": "5751bd861a96a5d3a93e8527603e5dd49febf076065b3a1fc682d03ed8736663",
 }
-EXPECTED_CA_PRECONTACT_SUCCESSOR_DYNAMIC_PATHS = {
+EXPECTED_CA_PRECONTACT_SUCCESSOR_DYNAMIC_PATHS = (
     "09-校验活动状态.py",
     "tests/test_active_state_validator.py",
-}
-EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS = (
-    set(EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS)
-    | EXPECTED_CA_PRECONTACT_SUCCESSOR_DYNAMIC_PATHS
 )
+EXPECTED_CA_PRECONTACT_SUCCESSOR_CANDIDATE_PATHS = tuple(
+    EXPECTED_CA_PRECONTACT_SUCCESSOR_STATIC_BINDINGS
+) + EXPECTED_CA_PRECONTACT_SUCCESSOR_DYNAMIC_PATHS
 EXPECTED_CA_RECIPIENT_VALUE_REVIEW_CLAIM_BOUNDARY = (
     "This review rejects only the bound message and its ability to measure demand. "
     "It does not prove that the public record is wrong, that the organization has "
@@ -724,7 +736,7 @@ EXPECTED_OPPORTUNITY_REVIEW_FACTS = {
             "也不授权 Gmail 草稿、联系或跟进。"
         ),
         "evidence_locator": (
-            "evidence/review-ca012650-precontact-rejection-successor-2026-07-27-r1.json"
+            "evidence/review-ca012650-precontact-rejection-successor-2026-07-28-r2.json"
         ),
     },
 }

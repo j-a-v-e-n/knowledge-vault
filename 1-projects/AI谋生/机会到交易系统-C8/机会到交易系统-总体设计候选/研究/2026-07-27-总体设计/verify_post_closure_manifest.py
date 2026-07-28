@@ -24,11 +24,15 @@ from verify_candidate_manifest import (  # noqa: E402
 )
 from run_shadow_acceptance import (  # noqa: E402
     CapabilityError,
+    DOMAIN_REJECTION_CODES,
+    REQUIRED_ACCEPTANCE_REJECTION_CODES,
     Snapshot,
     canonical_load_snapshot,
     load_policy_snapshot,
     read_once_member,
     read_once_regular,
+    sha256_json,
+    validate_acceptance_case,
     validate_shadow_acceptance,
 )
 
@@ -123,7 +127,6 @@ SHADOW_MANIFEST_KEYS = {
     "external_action_authority",
     "entries",
 }
-ACCEPTANCE_CASE_KEYS = {"case_id", "fixture_path", "expected_result_sha256"}
 SHADOW_ENTRY_KEYS = {
     "path",
     "sha256",
@@ -178,6 +181,7 @@ SHADOW_REVIEW_RECEIPT_KEYS = {
     "runtime_tcb_digest_sha256",
     "loaded_module_file_closure_digest_sha256",
     "acceptance_output_set_digest_sha256",
+    "domain_rejection_code_set_sha256",
     "sandbox_support_status",
     "artifact_external_action_capability_absent",
     "exact_opened_unlinked_snapshot_execution",
@@ -187,7 +191,13 @@ SHADOW_REVIEW_RECEIPT_KEYS = {
     "aggregate_deadline_enforced",
     "aggregate_wall_timeout_seconds",
     "host_level_universal_noninterference_proven",
-    "local_declarative_shadow_candidate_accepted",
+    "domain_semantic_gate_accepted",
+    "rejection_protocol_bound",
+    "natural_language_speech_act_inference_proven",
+    "semantic_truth_of_human_labels_proven",
+    "real_world_temporal_order_proven",
+    "actual_lane_generation_isolation_proven",
+    "local_domain_gate_shadow_candidate_accepted",
     "capability_authority",
     "runtime_authority",
     "deployment_authority",
@@ -671,7 +681,7 @@ def validate_shadow(
         "shadow_manifest",
     )
     require_exact_keys(shadow, SHADOW_MANIFEST_KEYS, "shadow_manifest")
-    if shadow["schema_version"] != "otts.shadow-artifact-manifest/2":
+    if shadow["schema_version"] != "otts.shadow-artifact-manifest/3":
         raise ManifestError("shadow manifest schema_version mismatch")
     if shadow["artifact_kind"] != "READ_ONLY_SHADOW_MVP":
         raise ManifestError("shadow artifact_kind mismatch")
@@ -743,17 +753,33 @@ def validate_shadow(
             "shadow acceptance_cases must be non-empty and within fixed limit"
         )
     case_ids: set[str] = set()
+    expected_pass_count = 0
+    expected_rejection_codes: set[str] = set()
     for index, case in enumerate(cases):
         label = f"shadow.acceptance_cases[{index}]"
-        if not isinstance(case, dict):
-            raise ManifestError(f"{label}: expected object")
-        require_exact_keys(case, ACCEPTANCE_CASE_KEYS, label)
+        try:
+            validate_acceptance_case(case, label)
+        except CapabilityError as exc:
+            raise ManifestError(f"{label}: invalid acceptance contract: {exc}") from exc
         case_id = require_string(case["case_id"], f"{label}.case_id")
         if case_id in case_ids:
             raise ManifestError(f"{label}: duplicate case_id")
         case_ids.add(case_id)
         normalized_relative(case["fixture_path"], f"{label}.fixture_path")
-        require_sha(case["expected_result_sha256"], f"{label}.expected_result_sha256")
+        if case["expected_outcome"] == "PASS":
+            expected_pass_count += 1
+        else:
+            expected_rejection_codes.add(case["expected_rejection_code"])
+    if expected_pass_count < 1:
+        raise ManifestError("shadow acceptance suite requires at least one PASS case")
+    missing_rejection_coverage = sorted(
+        REQUIRED_ACCEPTANCE_REJECTION_CODES - expected_rejection_codes
+    )
+    if missing_rejection_coverage:
+        raise ManifestError(
+            "shadow acceptance suite missing required domain rejection coverage: "
+            f"{missing_rejection_coverage}"
+        )
     for ref_name in (
         "snapshot_ledger",
         "sbom",
@@ -888,8 +914,16 @@ def validate_shadow(
     except CapabilityError as exc:
         raise ManifestError(f"shadow capability/runtime acceptance failed: {exc}") from exc
 
-    if acceptance["local_deterministic_declarative_evaluation_pass"] is not True:
-        raise ManifestError("shadow acceptance did not pass declarative evaluation")
+    if acceptance["local_deterministic_domain_gate_acceptance_pass"] is not True:
+        raise ManifestError("shadow acceptance did not pass the closed domain Gate")
+    if acceptance["pass_case_count"] < 1:
+        raise ManifestError("shadow domain Gate has no accepted neighboring valid case")
+    if acceptance["reject_case_count"] < len(REQUIRED_ACCEPTANCE_REJECTION_CODES):
+        raise ManifestError("shadow domain Gate rejection coverage count is incomplete")
+    if acceptance["domain_rejection_code_set_sha256"] != sha256_json(
+        sorted(DOMAIN_REJECTION_CODES)
+    ):
+        raise ManifestError("shadow domain rejection code set binding mismatch")
     if acceptance["exact_opened_unlinked_snapshot_execution"] is not True:
         raise ManifestError("shadow acceptance did not use opened-and-unlinked snapshots")
     reopen_count = acceptance["staged_target_controlled_pathname_reopen_count"]
@@ -903,6 +937,14 @@ def validate_shadow(
         raise ManifestError("shadow acceptance must preserve same-uid race non-claim")
     if acceptance["host_level_universal_noninterference_proven"] is not False:
         raise ManifestError("shadow acceptance must preserve host noninterference non-claim")
+    for nonclaim in (
+        "natural_language_speech_act_inference_proven",
+        "semantic_truth_of_human_labels_proven",
+        "real_world_temporal_order_proven",
+        "actual_lane_generation_isolation_proven",
+    ):
+        if acceptance[nonclaim] is not False:
+            raise ManifestError(f"shadow acceptance must preserve {nonclaim}=false")
     if acceptance["memory_boundary"] != (
         "NO_HOST_RSS_LIMIT_ON_DARWIN; FIXED_STRUCTURAL_IR_BYTE_BOUNDS_ENFORCED"
     ):
@@ -992,7 +1034,7 @@ def validate_shadow_review(
         SHADOW_REVIEW_MANIFEST_KEYS,
         "shadow_review_manifest",
     )
-    if review_manifest["schema_version"] != "otts.shadow-review-manifest/1":
+    if review_manifest["schema_version"] != "otts.shadow-review-manifest/2":
         raise ManifestError("shadow review manifest schema mismatch")
     if review_manifest["artifact_kind"] != "SHADOW_INDEPENDENT_REVIEW":
         raise ManifestError("shadow review artifact_kind mismatch")
@@ -1036,7 +1078,7 @@ def validate_shadow_review(
         SHADOW_REVIEW_RECEIPT_KEYS,
         "shadow_independent_review_receipt",
     )
-    if receipt["schema_version"] != "otts.shadow-independent-review-receipt/1":
+    if receipt["schema_version"] != "otts.shadow-independent-review-receipt/2":
         raise ManifestError("shadow review receipt schema mismatch")
     require_string(receipt["receipt_id"], "shadow_review.receipt_id")
     require_string(receipt["reviewer_id"], "shadow_review.reviewer_id")
@@ -1046,7 +1088,7 @@ def validate_shadow_review(
     )
     if (
         receipt["review_scope"]
-        != "EXACT_DECLARATIVE_SHADOW_MANIFEST_POLICY_SNAPSHOT_RUNTIME_AND_OUTPUTS"
+        != "EXACT_CLOSED_DOMAIN_GATE_SHADOW_MANIFEST_POLICY_SNAPSHOT_RUNTIME_AND_OUTCOMES"
     ):
         raise ManifestError("shadow independent review scope is incomplete")
     if receipt["verdict"] != "PASS":
@@ -1092,6 +1134,9 @@ def validate_shadow_review(
         "acceptance_output_set_digest_sha256": shadow_result[
             "shadow_mechanical_acceptance"
         ]["acceptance_output_set_digest_sha256"],
+        "domain_rejection_code_set_sha256": shadow_result[
+            "shadow_mechanical_acceptance"
+        ]["domain_rejection_code_set_sha256"],
     }
     for key, expected in expected_hashes.items():
         if require_sha(receipt[key], f"shadow_review.{key}") != expected:
@@ -1103,6 +1148,10 @@ def validate_shadow_review(
         raise ManifestError("shadow review sandbox support status mismatch")
     if receipt["artifact_external_action_capability_absent"] is not True:
         raise ManifestError("shadow review does not accept the closed IR capability result")
+    if receipt["domain_semantic_gate_accepted"] is not True:
+        raise ManifestError("shadow review does not accept the closed domain Gate")
+    if receipt["rejection_protocol_bound"] is not True:
+        raise ManifestError("shadow review does not bind PASS/REJECT outcomes")
     if receipt["exact_opened_unlinked_snapshot_execution"] is not True:
         raise ManifestError("shadow review did not accept opened-and-unlinked execution")
     receipt_reopen_count = receipt["staged_target_controlled_pathname_reopen_count"]
@@ -1126,8 +1175,16 @@ def validate_shadow_review(
         raise ManifestError("shadow review aggregate timeout mismatch")
     if receipt["host_level_universal_noninterference_proven"] is not False:
         raise ManifestError("shadow review must preserve the host noninterference non-claim")
-    if receipt["local_declarative_shadow_candidate_accepted"] is not True:
-        raise ManifestError("shadow review does not accept the limited declarative candidate")
+    for nonclaim in (
+        "natural_language_speech_act_inference_proven",
+        "semantic_truth_of_human_labels_proven",
+        "real_world_temporal_order_proven",
+        "actual_lane_generation_isolation_proven",
+    ):
+        if receipt[nonclaim] is not False:
+            raise ManifestError(f"shadow review must preserve {nonclaim}=false")
+    if receipt["local_domain_gate_shadow_candidate_accepted"] is not True:
+        raise ManifestError("shadow review does not accept the limited domain Gate candidate")
     for key in (
         "capability_authority",
         "runtime_authority",
@@ -1156,6 +1213,8 @@ def validate_shadow_review(
         "shadow_review_manifest_sha256": review_manifest_snapshot.sha256,
         "shadow_review_receipt_sha256": receipt_hash,
         "local_shadow_candidate_accepted": True,
+        "domain_semantic_gate_accepted": True,
+        "rejection_protocol_bound": True,
         "exact_opened_unlinked_snapshot_execution": True,
         "staged_target_controlled_pathname_reopen_count": 0,
         "same_uid_concurrent_mutation_resistance_proven": False,
@@ -1167,6 +1226,10 @@ def validate_shadow_review(
             "shadow_mechanical_acceptance"
         ]["aggregate_wall_timeout_seconds"],
         "host_level_universal_noninterference_proven": False,
+        "natural_language_speech_act_inference_proven": False,
+        "semantic_truth_of_human_labels_proven": False,
+        "real_world_temporal_order_proven": False,
+        "actual_lane_generation_isolation_proven": False,
         "capability_authority": False,
         "runtime_authority": False,
         "deployment_authority": False,
@@ -1247,12 +1310,17 @@ def validate_aggregate(
                     "shadow_manifest_sha256"
                 ],
                 "shadow_state": (
-                    "PRESENT_ACCEPTED_LOCAL_DECLARATIVE_SHADOW_CANDIDATE"
+                    "PRESENT_ACCEPTED_LOCAL_DOMAIN_GATE_SHADOW_CANDIDATE"
                 ),
                 "shadow_manifest_hash_bound": True,
+                "domain_gate_mechanical_acceptance_observed": True,
                 "shadow_generation_valid": True,
                 "local_shadow_candidate_accepted": True,
                 "host_level_universal_noninterference_proven": False,
+                "natural_language_speech_act_inference_proven": False,
+                "semantic_truth_of_human_labels_proven": False,
+                "real_world_temporal_order_proven": False,
+                "actual_lane_generation_isolation_proven": False,
                 "capability_authority": False,
                 "runtime_authority": False,
                 "deployment_authority": False,
@@ -1274,9 +1342,16 @@ def validate_aggregate(
                 ],
                 "shadow_state": "PRESENT_SNAPSHOT_OBSERVED_UNREVIEWED",
                 "shadow_manifest_hash_bound": True,
+                "domain_gate_mechanical_acceptance_observed": True,
+                "domain_semantic_gate_accepted": False,
+                "rejection_protocol_bound": False,
                 "shadow_generation_valid": False,
                 "local_shadow_candidate_accepted": False,
                 "host_level_universal_noninterference_proven": False,
+                "natural_language_speech_act_inference_proven": False,
+                "semantic_truth_of_human_labels_proven": False,
+                "real_world_temporal_order_proven": False,
+                "actual_lane_generation_isolation_proven": False,
                 "capability_authority": False,
                 "runtime_authority": False,
                 "deployment_authority": False,
@@ -1297,8 +1372,15 @@ def validate_aggregate(
             "shadow_generation_valid": False,
             "shadow_state": "ABSENT_AUTHORIZED",
             "shadow_manifest_hash_bound": False,
+            "domain_gate_mechanical_acceptance_observed": False,
+            "domain_semantic_gate_accepted": False,
+            "rejection_protocol_bound": False,
             "local_shadow_candidate_accepted": False,
             "host_level_universal_noninterference_proven": False,
+            "natural_language_speech_act_inference_proven": False,
+            "semantic_truth_of_human_labels_proven": False,
+            "real_world_temporal_order_proven": False,
+            "actual_lane_generation_isolation_proven": False,
             "capability_authority": False,
             "runtime_authority": False,
             "deployment_authority": False,

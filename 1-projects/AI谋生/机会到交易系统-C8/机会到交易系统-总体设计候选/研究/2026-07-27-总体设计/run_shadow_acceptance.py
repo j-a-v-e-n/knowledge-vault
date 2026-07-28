@@ -1202,8 +1202,11 @@ def validate_opportunity_record(
         "record": normalized_record,
         "semantic_boundary": {
             "structured_contract_valid": True,
+            "target_controlled_synthetic_record_internal_consistency_only": True,
             "natural_language_speech_act_inferred": False,
             "semantic_truth_of_human_labels_proven": False,
+            "real_world_temporal_order_proven": False,
+            "actual_lane_generation_isolation_proven": False,
             "demand_proven": False,
             "market_validated": False,
             "customer_exists_proven": False,
@@ -1633,6 +1636,13 @@ def build_static_reports(
         "required_acceptance_rejection_codes": sorted(
             REQUIRED_ACCEPTANCE_REJECTION_CODES
         ),
+        "domain_validation_scope": (
+            "TARGET_CONTROLLED_SYNTHETIC_RECORD_INTERNAL_CONSISTENCY_ONLY"
+        ),
+        "real_world_temporal_order_proven": False,
+        "actual_lane_generation_isolation_proven": False,
+        "natural_language_speech_act_inference_proven": False,
+        "semantic_truth_of_human_labels_proven": False,
         "language_level_artifact_executable_constructs": "ABSENT_BY_EXACT_SCHEMA",
         "os_sandbox_observed_enforcement": "NOT_OBSERVED_STATIC_PHASE",
         "exact_opened_unlinked_snapshot_execution": "NOT_EXECUTED_STATIC_PHASE",
@@ -2424,6 +2434,8 @@ def validate_shadow_acceptance(
         "memory_boundary": "NO_HOST_RSS_LIMIT_ON_DARWIN; FIXED_STRUCTURAL_IR_BYTE_BOUNDS_ENFORCED",
         "natural_language_speech_act_inference_proven": False,
         "semantic_truth_of_human_labels_proven": False,
+        "real_world_temporal_order_proven": False,
+        "actual_lane_generation_isolation_proven": False,
         "aggregate_deadline_enforced": True,
         "aggregate_wall_timeout_seconds": policy["limits"]["aggregate_wall_timeout_seconds"],
         "runtime_authority": False,
@@ -2471,6 +2483,8 @@ def validate_shadow_acceptance(
         "host_level_universal_noninterference_proven": False,
         "natural_language_speech_act_inference_proven": False,
         "semantic_truth_of_human_labels_proven": False,
+        "real_world_temporal_order_proven": False,
+        "actual_lane_generation_isolation_proven": False,
         "runtime_authority": False,
         "deployment_authority": False,
         "freeze_authority": False,
