@@ -1,0 +1,135 @@
+{
+  "schema_version": "ca012650-durable-evidence-review/1",
+  "review_id": "reviewer-ca012650-durable-evidence-2026-07-27-r1",
+  "recorded_at": "2026-07-27T21:20:00-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/ca_durable_evidence_review",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 0,
+    "major": 2
+  },
+  "candidate_bindings": [
+    {
+      "path": "raw/CoveredBuildingsExport-2026-07-27.csv",
+      "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75"
+    },
+    {
+      "path": "raw/2024_Download_ADA-2026-07-27.xlsx",
+      "sha256": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00"
+    },
+    {
+      "path": "raw/README.md",
+      "sha256": "025fa48b4398ab18342a10b45df0a565bb9a5740bb20ff44940806bed6c1fe65"
+    },
+    {
+      "path": "../README.md",
+      "sha256": "aa6453b3a6d8d93cfb7a713f3f235a6ef207ae69995b70c0a2160e4961440b43"
+    },
+    {
+      "path": "reproduce_cec_prescreen.py",
+      "sha256": "814ad0dd926404370a14f1ef557eca881c9717dfadbf0b78826adb621410e9db"
+    },
+    {
+      "path": "cec-building-benchmarking-reproduction-2026-07-27.json",
+      "sha256": "d711cd145207961d85e57e6be8f97972283678820de32323a47f596ef8ef4dc2"
+    },
+    {
+      "path": "cec-building-benchmarking-prescreen-2026-07-27.json",
+      "sha256": "02650ec4bb4244643d7f04042c2bd122f69b096268c9a725d20c8b8c5d15a7be"
+    },
+    {
+      "path": "experiment-ca012650-internal-2026-07-27.json",
+      "sha256": "8b6dd4ddfadd3b08f6e72f24f76f8f407a784231e82c69689aca471ba71d21bf"
+    },
+    {
+      "path": "../03-否决门与反方审查.md",
+      "sha256": "aeac11438eb06fdcd33b435a9522121983014740c32928d2ea62954a1dda22fd"
+    },
+    {
+      "path": "../07-自主运行协议.md",
+      "sha256": "6993acf3eaea61d9209882796b089bdf0147c97a0893dd84049bcbab7eae3d8a"
+    },
+    {
+      "path": "../10-现实候选预筛与首个反证实验.md",
+      "sha256": "3cb39b9c7d84cf018bb728a3041b6f91d4d58a7be89a2ea979e616ec21dc380a"
+    },
+    {
+      "path": "../11-内部诊断页-CA012650.md",
+      "sha256": "7604d35448d8212cab89d1d865d656972847acec73624db250b3de7d81313b8e"
+    },
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "c0dab2ed8a3de155a0feb72c11bad47b4dd226f35a3881cd0d5200cd67add9a1"
+    },
+    {
+      "path": "../08-活动状态.json",
+      "sha256": "80abdd274fddb78ca1961ed9ad2e37b4e2802775e6ccde6e52e8cdfe1fc0088e"
+    },
+    {
+      "path": "../09-校验活动状态.py",
+      "sha256": "37d0e8247f2a573222874e92926c1e45d3c01a69c84c4add494ba347c6e67768"
+    },
+    {
+      "path": "review-ca012650-internal-2026-07-27.json",
+      "sha256": "0c9cb0bbb055435f7df8878f252f4dfbe221d88416b0addf216f6f29d4c7eb3d"
+    }
+  ],
+  "major_findings": [
+    {
+      "id": "CA-DURABLE-R1-M1",
+      "title": "Current bytes contradict the pending machine state by asserting an independent PASS",
+      "exact_locations": [
+        "11-内部诊断页-CA012650.md:3",
+        "11-内部诊断页-CA012650.md:75",
+        "12-首个反证实验与对外动作候选.md:3",
+        "12-首个反证实验与对外动作候选.md:67",
+        "README.md:39",
+        "README.md:48"
+      ],
+      "evidence": "The current experiment and active-state binding are pending fresh review, while the surviving PASS receipt binds prescreen 4aae43f0415df54b34b2c97445920582566741ac588b3792c30f1444bb82ffc8 and experiment bf1cf7e9161961672c0a174896aa7300bf266cb0440744db8fe8ef1491264368 rather than the current candidate.",
+      "required_fix": "Make every human-readable status pending, retain the stale receipt only as historical evidence, then require a detached exact-candidate review before an explicit state transition may register PASS."
+    },
+    {
+      "id": "CA-DURABLE-R1-M2",
+      "title": "The deterministic pre-send refresh gate can accept evidence unrelated to current CEC status",
+      "exact_locations": [
+        "10-现实候选预筛与首个反证实验.md:70",
+        "11-内部诊断页-CA012650.md:79-83",
+        "08-活动状态.json:260-266",
+        "09-校验活动状态.py:1458-1488"
+      ],
+      "reproduction": {
+        "mutation": "Use evidence/raw/README.md as pre_send_source_refresh evidence.",
+        "observed_result": {
+          "errors": [],
+          "accepted_without_cec_status_binding": true
+        }
+      },
+      "required_fix": "At request_ready and beyond, require separate content-addressed fresh records for the exact CEC building row/status/address/reporting year and for organization liveness/exact public channel, with captured time, freshness limit, target binding, and negative tests for missing, unrelated, wrong-target, and stale evidence."
+    }
+  ],
+  "checks_that_passed": [
+    "Both retained raw files match the recorded sizes and SHA-256 values.",
+    "The bundled-Python deterministic reproduction exits successfully and all transformation, profile, cross-check, target, and claim-boundary fields match the reproduction record.",
+    "All demand, payment, delivery, profit, repeatability, and asset result claims remain false.",
+    "Contact, quote, account, submission, payment, and delivery authorities remain false.",
+    "The candidate message uses a public organization routing channel, forbids follow-up, and does not claim CEC affiliation, quote a price, or request credentials or non-public data."
+  ],
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "missing_external_bindings": [
+    "sender_account",
+    "observation_cutoff_at",
+    "complete_semantically_bound_pre_send_refresh",
+    "exact_one_message_user_authorization"
+  ],
+  "residual_limits": [
+    "The review was offline and does not re-establish current URL availability, source ownership, organization status, or channel validity.",
+    "The written private-workspace boundary is not an audit of Google Drive sharing ACLs.",
+    "The reproduction establishes retained source bytes, not the current online record.",
+    "No legal, jurisdiction, ownership, reporting-duty, or redistribution-right conclusion is made."
+  ],
+  "claim_boundary": "This is a historical independent rejection of the exact bound candidate. It records no authority to contact, follow up, quote, access accounts, submit, pay, receive payment, deliver, publish, or reuse private data."
+}

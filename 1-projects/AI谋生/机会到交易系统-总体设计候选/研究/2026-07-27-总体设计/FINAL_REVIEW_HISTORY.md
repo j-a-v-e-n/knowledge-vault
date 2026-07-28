@@ -107,3 +107,112 @@ Minor：human manifest、closure matrix、frozen pre-acceptance crosswalk 和 En
 - `REVIEW_RECEIPT_KEYS` 正式加入 `external_action_authority`，aggregate Gate 要求其逐字为 `false`；测试证明即使重算后续 receipt/decision/governance hashes，改成 `true` 仍 fail closed；
 - 人类可读 successor 状态改用不依赖“冻结前/后”瞬时切换的 `BLOCKED-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW`；frozen Run2 crosswalk 的旧 header 只作为 pre-acceptance 输入状态，由 exact acceptance receipt 覆盖当前有效状态；
 - C4 exact receipt 不得迁移复用。C5 必须产生新 manifest、新 freeze report，并重新接受完整 RC-01–RC-26 independent review。
+
+## `OTTS-DESIGN-20260727-C5`
+
+- Candidate manifest SHA-256：`06c8624b0c2d8ef82bfe9ec4759c7cfa064fa5864681c09d285b35b54edc49a9`
+- External freeze report SHA-256：`0ce0786f6c311d9558ade895dfd5487158bbc202d6d5b53601842fd466d676d3`
+- 审查范围 A：完整 manifest、全部 `63` 个 active entries、依赖 DAG、C4 remediation、Run2 限定语义、RC-01–RC-26、legacy isolation 与权限边界
+- 审查范围 B：同一 exact manifest/freeze 的 shadow capability、旧根逃逸与零外部副作用语义
+- 裁决：两轮均为 `FAIL`；每轮各为 `0` Critical、`1` Major；两项 Major 相互独立
+- PASS receipt：两轮均未签发
+- 文件修改：reviewer 只在 `/private/tmp` 副本复现，未修改 candidate；两个 post-closure sibling roots 均不存在
+
+### 拒绝项
+
+**文档化的 post-closure aggregate Gate 会在验证前污染 immutable candidate。** `verify_post_closure_manifest.py` 在任何 bytecode 禁写设置之前导入本地 `verify_candidate_manifest`，而 `FINAL_CANDIDATE_MANIFEST.md` 给出的唯一 post-closure 命令使用不带 `-B` 的 `python3`。独立审查者在临时副本按该入口启动时，立即得到 `__pycache__/verify_candidate_manifest.cpython-314.pyc`；候选 verifier 会把新目录和 `.pyc` 判为 unlisted inventory。因此照文档执行会先改变已冻结候选，再使唯一 aggregate Gate 拒绝它，阻断 RC-25/RC-26 与 governance closure。
+
+该缺口保持 fail closed，没有扩大现实权限，所以是 Major 而不是 Critical。C5 exact candidate 本身未被复现污染；C4 的 freeze-report schema 和 receipt 权限字段两项修复、Run2 限定语义及此前机械测试仍通过，但不能覆盖本项承重失败。
+
+### 补充独立审查拒绝项
+
+另一名只读 reviewer `/root/opportunity_successor_audit` 对同一 C5 manifest、inventory digest `f4cd5063f66a9967650b9a8c630e4ffe2d7187b000717cb9728eddc4fe28ea48` 与同一 external freeze report 给出 `FAIL / 0 Critical / 1 Major`，未修改文件：C5 的 post-closure Gate 只核对 shadow 文件路径、hash、role、自称的 `NO_EXTERNAL_AUTHORITY`、依赖 DAG 与 inventory；任意源码只要被标成允许的 `source` 或 `verification-script`，即使包含网络、账户、凭据、支付、旧根读取或其他外部副作用能力，仍可返回 `PRESENT_VALID / shadow_generation_valid=true`。Gate 没有 capability/SBOM 闭包、隔离运行、zero-side-effect 测试回执或绑定 exact shadow 的独立实现验收。
+
+这没有直接把 `external_action_authority` 改为 true，但会把只完成文件哈希绑定的实现错误表示为有效 shadow，与 Envelope“禁止能力必须不存在且可机械证明”的要求冲突。因此这是第二项独立 Major，RC-25/RC-26 仍不能通过。
+
+### C6 根因修复
+
+- `verify_post_closure_manifest.py` 必须在任何 local import 前设置 `sys.dont_write_bytecode=True`；
+- 人类可读 post-closure 命令必须同时使用 `python3 -B`，作为调用层第二道防线；
+- phase regression 必须把入口及其 local imports 复制到系统临时目录，清除 child 的 `PYTHONDONTWRITEBYTECODE` 与 `PYTHONPYCACHEPREFIX`，用不带 `-B` 的 subprocess 启动，并证明没有 `__pycache__`/`.pyc`、真实 candidate 的文件集合、逐文件 hash 与 inventory digest 前后不变；
+- shadow manifest 必须绑定 capability policy、Python-source SBOM、静态 capability report、隔离 runtime acceptance report、入口与合成 acceptance cases；未取得 exact independent shadow review 前只能输出 `PRESENT_HASH_BOUND_UNREVIEWED`，全部 capability/runtime/external authority 保持 false；
+- 另设预声明的 `shadow-review` sibling root；只有 caller 提供的 exact review receipt hash、shadow manifest、policy、SBOM、capability report、acceptance report、runner 与治理链全部匹配，且无 unresolved critical/major，才能得到限定的 local zero-external-side-effect candidate acceptance；
+- C5 manifest、freeze report 与任何派生 receipt/decision/governance 均不得迁移。C6 必须重新计算全部 candidate hashes、生成新的 external freeze report，并重新接受完整 manifest-bound independent review。
+
+## C6 pre-freeze Capability Gate draft（未形成 frozen candidate）
+
+- 被审 policy SHA-256：`768ad742fdb702816c09647f04242c10c5278f51c515d9b5fa2309fcaa8c4241`
+- 被审 runner SHA-256：`d271b4a09a0880ea50404eff118b9b62cbd584a1709c19528b7006164eb78836`
+- 被审 tests SHA-256：`030712de48880080a6743ba15fbba170e944fe9f0c7744c9fbef3a7f07e456dd`
+- 审查身份：`/root/independent_review` 与 `/root/capability_escape_challenge`；两者只读，未修改文件
+- 裁决：`FREEZE BLOCKED / NO-GO`
+- candidate manifest、freeze report、PASS receipt、governance/shadow roots：均未生成
+
+### 阻断原因
+
+该草案把 shadow 自带的任意 Python source 放进高能力 CPython，再用 AST denylist 与有限 audit events 推断“网络、进程、native、环境、项目外读取和非临时写入均不存在”。这只能发现一部分直接语法和已枚举事件，无法关闭别名、反射、预载模块、未枚举 audit event 或解释器/stdlib 可达能力，却会无条件生成强于机制的 runtime 结论。另有独立 TOCTOU：源码先按 pathname 解析、hash，worker 随后再按 pathname 打开执行；事后重算无法证明执行的是先前被绑定的同一字节。worker 还缺少内存、进程、文件描述符、stdout/stderr、输出数量/总量和整个 process group 的完整资源边界。
+
+这些发现没有让任何现实权限变为 true，但会让一个只能称为 best-effort lint/audit smoke test 的机制被误读成 Capability Gate；因此 C6 不得在该草案上冻结。已通过的 bytecode 修复不覆盖本拒绝。
+
+### 根因级替代契约
+
+- shadow artifact 不再携带或执行 target-controlled Python、bytecode、native code、脚本、plugin、callback、模板求值或其他通用代码；只允许 canonical JSON/text 与 exact closed declarative IR；
+- opcode 使用逐类型 exact-key schema，数据不能选择新 opcode、路径、URI、模块或函数，且无循环、递归、跳转、动态 instruction、环境、时间、随机、网络、进程、connector 或任意文件原语；
+- 当时提议 manifest、program、fixture、policy 与 runner 使用 `O_NOFOLLOW` opened-object 的单次有界读取完成 hash+copy，前后 `fstat` 不一致即拒绝，并称 runner-owned private staging 为 immutable；后续 iteration A 证明同 UID 仍可覆写该 pathname，iteration B 才改为 opened-and-unlinked descriptor；
+- 唯一写原语是由 SHA-256 digest 推导路径的本次私有临时 CAS；输入不能提供路径或文件名；资源、JSON 深度、节点、放大率、输出和日志均有闭集上限；
+- macOS `sandbox-exec` 只能作为当前主机的 deprecated/unsupported defense-in-depth 并必须实测、失败关闭，不能作为跨平台或 host-level universal noninterference 证明；真正承重边界是 artifact IR 中相应能力不可表达；
+- receipt 只允许声明 exact local deterministic declarative evaluation、snapshot/output identities 与全部 authority false；不得声明 runner/TCB 无 bug、跨平台 OS attestation、保密性、deployment、production 或外部行动权限。
+
+只有这套替代实现、对抗回归、三根 producer/consumer schema 和人类文档全部闭合后，才能生成第一份 C6 canonical manifest；上述 pre-freeze draft hashes 不得作为 successor PASS 证据。
+
+## C6 declarative Gate pre-freeze iteration A（未形成 frozen candidate）
+
+- 被审 policy SHA-256：`04f300fa5a9bc0c77bfa9419c77acd8aeaad625868945d03e8d20fa092a40319`
+- 被审 runner SHA-256：`00f04acaa8d8efc8fb775e58eee0f0f9d5a65317d65b89307bf38f73f41fecee`
+- 被审 tests SHA-256：`78f3c9ccd343dcd92bff76a5e2011b0dd8071fdd84404d8845332ae08cb7fad8`
+- 当时 aggregate verifier SHA-256：`84c1c060efc826dd73b6ae92316a9cffe698c4d2ffc22110d6f0d7e4acbd9b50`
+- 审查身份：`/root/declarative_gate_code_review`；只读，未修改文件
+- 裁决：`FAIL / NO-GO`；`1` Critical、`4` Major、`1` documented residual
+- candidate manifest、freeze report、PASS receipt、governance/shadow roots：均未生成
+
+### 阻断原因
+
+1. **同一 uid 下的 staged pathname 不是不可变执行对象。** Runner 只在 launch 前检查一次 `0400`，随后又按路径打开 runner、profile 和 request；同 uid 进程可以 `chmod`、覆写并伪造 probe/worker 响应。审查者实测得到 `before=trusted / after=attacker / mode=0o600`。这与当时文档的“immutable staged execution”强主张冲突。
+2. **Aggregate 末端只重算路径 inventory，不重算已接受 snapshot。** 同名文件内容替换后 path set 不变，Gate 仍可返回基于旧快照的结果，却没有显式说当前 root 已漂移。
+3. **Runtime TCB identity 只哈希 Python executable 与 `sandbox-exec`，没有闭合实际加载的 stdlib/extension/dylib。** 当时选用的 Python 3.14 home 为 `root:admin` 且 group-writable，当前用户属于该 group；改动已导入模块不会改变当时的 TCB digest。
+4. **Resource policy 可自我放大且 workload 无 aggregate bound。** Loader 接受任意正整数；acceptance case 数、`BUILD_OBJECT` fan-out 和全程时间没有闭集上限；CAS 数量/总字节在写后才检查；Darwin 上没有实际 RSS/address-space 限制。
+5. **Managed suite 的绿色可以没有任何真实 sandbox positive path。** 主流程测试 mock `run_case`；真 sandbox 测试捕获任意 `CapabilityError` 也算通过。这正确证明生产代码在 nested sandbox 中 fail closed，却不能作为宿主 profile/probe/worker 已成功的证据。
+
+Reviewer 同时确认 closed opcode 没有 import/eval/shell/subprocess/connector/path/URI primitive，未发现 unsandboxed fallback，且所有 authority 仍为 false。因此本轮拒绝不说明 artifact 已经执行外部动作；它说明 snapshot/TCB/resource/test 证据强度不足以支撑当时的 acceptance 命名。修订后必须换用新 exact hashes 重新审查，本轮不得迁移为 PASS。
+
+## C6 declarative Gate pre-freeze iteration B（代码/接口审查 PASS；尚非总体候选终审）
+
+- capability policy SHA-256：`8ca4d90c958ea04adf14d003226a620a4000ad805e439823b5c5cc34a7e7ebb9`
+- runner SHA-256：`ba5bb3aeb55b14eaa8135c8367ed16295d0782a4f7813b337397998117edbc97`
+- runner tests SHA-256：`a870a2262633b19d40bd892a00c72240d8e8f4c65be436f32573cc8378176eec`
+- aggregate verifier SHA-256：`823acd5aba8ac2949312c663acd25bd4c3de203a7c18604d9da066df2f2d45b3`
+- phase tests SHA-256：`d6ea9916c9bff14e9111d5b881dce518a35df9d9c23a9841b1e3f84d91f9bcad`
+- 审查身份：`/root/declarative_gate_code_review`；只读，未修改文件
+- exact-byte 代码/接口裁决：`PASS`；无 Critical、无 Major
+- managed suite：`OK (skipped=1)`；唯一 skip 是必须显式启用的 host sandbox positive path，不能被算作 host PASS
+- lead 在真实 host context 独立运行 `OTTS_REQUIRE_HOST_SANDBOX=1 python3 -B test_shadow_acceptance.py -v`：`OK`，host 项未 skip
+- phase-boundary suite：`OK`
+- candidate manifest、freeze report、总体 final-review receipt、governance/shadow roots：本节审查时均未生成
+
+### 已关闭的 iteration A 根因
+
+- target-controlled artifact 只能使用 canonical JSON closed IR；runner、policy、program、fixture 与 request 通过 opened-and-unlinked read-only descriptor 传入，profile 以 exact bytes 交给 `sandbox-exec -p`，不再重开 target-controlled pathname；
+- policy 每个 limit 必须等于 runner 内置 ceiling；case、entry、总输入、node/depth/fan-out、结构值、CAS、output/log、per-case 与 aggregate deadline 都有限定，CAS 在 create/write 前检查配额；
+- runtime 改用 Xcode 内 root-owned/non-writable anchor chain，final TCB 同时绑定实际 worker 观察到的 Python module file rows/digest；完整 dynamic-library/host closure 仍为 false；
+- post-closure verifier 在读取 shadow entry 前先 hash-bind/解析 fixed policy，前置限制 case/entry 数，并对每个 role 和总输入使用固定上限；末端重新 snapshot candidate、shadow manifest、每个 entry、policy 与 runner；
+- shadow review receipt exact schema 绑定 loaded-module closure、opened-unlinked execution、target-controlled pathname reopen count、same-UID non-claim、memory boundary、aggregate deadline/timeout 与全部 authority false；数值零必须是 non-boolean integer，JSON `false` 不能冒充；
+- 未经 exact shadow review 的初见状态只能是 `PRESENT_SNAPSHOT_OBSERVED_UNREVIEWED`；限定接受状态仍保持 host universal noninterference 与全部现实权限 false。
+
+### 保留的 Minor / non-claims
+
+- stdout/stderr 的命名 ceiling 在进程结束后读取时检查；写入阶段承重的是更宽的固定 `RLIMIT_FSIZE`，所以该命名 ceiling 不是严格 pre-write enforcement；
+- 结构值累计字节 ceiling 在节点构造与 canonical serialization 后检查；其他 fixed input/node/fan-out/output ceilings 使范围有界，但该累计 ceiling 仍是检测型边界；
+- parent 只证明 `close_fds/pass_fds` 配置，worker 未在 sandbox-exec 后枚举实际 FD set，因此回执只允许写 `PARENT_CONFIGURED_ONLY ... POST_SANDBOX_FD_ENUMERATION_NOT_PERFORMED`；
+- hostile same-UID/admin race-and-restore、完整 dylib/host TCB、Darwin 进程级 RSS 隔离、跨平台隔离、runner 无 bug、保密性和 host-level universal noninterference 均未证明。
+
+该 PASS 只关闭上述五个 exact files 的 Gate 代码/接口拒绝项，不是 RC-26、freeze、deployment、runtime 或外部行动授权。下一步仍须把全部候选字节封装成新的 C6 manifest/freeze，并接受另一轮完整 manifest-bound independent review；本节 PASS 不得迁移成总体终审 PASS。

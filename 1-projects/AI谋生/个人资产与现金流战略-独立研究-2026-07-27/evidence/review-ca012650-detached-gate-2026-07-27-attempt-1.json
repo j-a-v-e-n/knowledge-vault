@@ -1,0 +1,104 @@
+{
+  "schema_version": "ca012650-detached-gate-review/1",
+  "review_id": "review-ca012650-detached-gate-2026-07-27-attempt-1",
+  "recorded_at": "2026-07-27T21:36:32-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/ca_gate_fix_map",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 0,
+    "major": 3
+  },
+  "candidate_bindings": [
+    {
+      "path": "experiment-ca012650-internal-2026-07-27.json",
+      "sha256": "f16b463f4259e1032a672b41dc42eda41b51d1a4fe600cae350c71b62181feda"
+    },
+    {
+      "path": "../11-内部诊断页-CA012650.md",
+      "sha256": "84d40ee6d2548e2f4de9034740aa8e9244f38f9c9aacc793a961c5dd78a8dce7"
+    },
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
+    },
+    {
+      "path": "../README.md",
+      "sha256": "56a73c9f1aedbc02a66a2d357f4c65816fb5bd01943de4dce29e1ffef82fbc3f"
+    },
+    {
+      "path": "../09-校验活动状态.py",
+      "sha256": "9c00d6f5930725b0aa845460ae0802ecf17396fc4cb235c6ee71495f37060d0f"
+    },
+    {
+      "path": "../tests/test_active_state_validator.py",
+      "sha256": "cceca8475b424da165a6c397c18a4f0d423dfd5801a06a119d0e1e6cbdab007e"
+    },
+    {
+      "path": "../08-活动状态.json",
+      "sha256": "59b1056f1b9eae884410a00ed5b5f76229ffa912f9e9454f4f90302701f6b2b6"
+    },
+    {
+      "path": "review-ca012650-durable-evidence-2026-07-27-r1.json",
+      "sha256": "6b122f068b46b5a3ba93aab03d17f0772be75913251ea8b69989cd4275c5fcaf"
+    }
+  ],
+  "reproduction_results": {
+    "validator_cli": "PASS",
+    "unit_tests": [
+      "Ran 17 tests",
+      "OK"
+    ],
+    "generated_python_cache_found": false,
+    "r2_receipt_present": false
+  },
+  "major_findings": [
+    {
+      "id": "CA-DETACHED-A1-M1",
+      "title": "The exact r2 candidate closure omits the validator, its adversarial tests, and the prior rejection receipt",
+      "exact_location": "09-校验活动状态.py:1104-1132",
+      "impact": "An r2 receipt can be accepted after the validator, its tests, or the historical rejection record drift or are omitted.",
+      "required_fix": "Require a unique closed binding set that includes the validator, its tests, and every superseded historical FAIL receipt."
+    },
+    {
+      "id": "CA-DETACHED-A1-M2",
+      "title": "The detached receipt can still be semantically self-signed",
+      "exact_location": "09-校验活动状态.py:1087-1097",
+      "impact": "A local writer can self-fill role strings and a PASS verdict without a stable reviewer identity, exact review contract, zero-severity requirement, or temporal relation to the rejected predecessor.",
+      "required_fix": "Require exact schema and review ID, a stable reviewer agent identity, zero Critical and Major findings, a unique closed binding set, a review time later than the superseded rejections, and an explicit BLOCKED_NOT_AUTHORIZED boundary."
+    },
+    {
+      "id": "CA-DETACHED-A1-M3",
+      "title": "A newer refresh source can mask another source that is stale at execution time",
+      "exact_locations": [
+        "09-校验活动状态.py:1923-1928",
+        "09-校验活动状态.py:1931-1951"
+      ],
+      "counterexample": {
+        "cec_capture": "t0",
+        "organization_capture_and_completion": "t+23h",
+        "execution": "t+46h",
+        "old_gate_result": "accepted_as_23h_since_latest_refresh",
+        "actual_cec_age": "46h"
+      },
+      "required_fix": "Check execution-time freshness against each source capture independently; use the latest source only for event ordering, not as the freshness baseline."
+    }
+  ],
+  "checks_that_passed": [
+    "The candidate documents no longer self-declare PASS and the experiment uses a detached-receipt-only review result.",
+    "Without r2, the pending candidate cannot enter request_ready.",
+    "The validator recomputes the unique CEC target row, address, reporting year, and status from bound raw content.",
+    "The validator recomputes organization identity and exact public email from bound raw HTML and checks HTTP status and final URL.",
+    "Pre-execution freshness uses validation_now, and wrong status, duplicate target, unrelated content, wrong channel, non-200 status, and future or stale timestamps fail closed."
+  ],
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "missing_external_bindings": [
+    "sender_account",
+    "observation_cutoff_at",
+    "complete_semantically_bound_pre_send_refresh",
+    "exact_one_message_user_authorization"
+  ],
+  "claim_boundary": "This is a historical independent rejection of r2 attempt 1. It authorizes no contact, follow-up, quote, account access, submission, payment, delivery, publication, or external execution."
+}

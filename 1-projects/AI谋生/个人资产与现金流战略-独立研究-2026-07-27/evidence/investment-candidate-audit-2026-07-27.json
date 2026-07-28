@@ -1,21 +1,48 @@
 {
   "schema_version": "1.0",
   "captured_at": "2026-07-27T20:27:19-07:00",
+  "durability_extended_at": "2026-07-27T21:06:33-07:00",
+  "fresh_full_suite_persisted_at": "2026-07-27T21:26:22-07:00",
   "scope": "Read-only acceptance audit of one exact clean investment-discipline candidate. No recovery, runtime start, live action, shadow action, or investment decision was authorized.",
   "candidate_identity": {
     "commit": "fed7d6694dc1b47490848b83e3ff0b56e04a3f39",
     "tree": "2da5f0af186345da05738f971cb8afbdb6dac8db",
     "parent": "d8c108f81f84f4c5be99fe09902ace161bda5745",
-    "clean_clone_path": "/private/tmp/ids-fed7-audit.kowOr4/repo"
+    "clean_clone_path": "/private/tmp/ids-fed7-audit.kowOr4/repo",
+    "project_path": "MyBrain/projects/investment-discipline-system",
+    "project_subtree": "77edce348cb622fe40d598902ac898c981514808"
+  },
+  "durable_candidate": {
+    "record_path": "investment-discipline-fed7-durable-candidate.json",
+    "record_sha256": "9800b6aead4a4ce5b5235bc804202b65c22d81d6626d756ac766b59d0965f3f9",
+    "bundle_path": "investment-discipline-fed7-subtree.bundle",
+    "bundle_sha256": "aa36d78d87f3f76ebf73e543c77b7a7711695ccdd6c1d9a126570f47d5e87877",
+    "bundle_bytes": 62374247,
+    "reconstructed_project_tree": "77edce348cb622fe40d598902ac898c981514808",
+    "fresh_reconstruction_check": "pass"
+  },
+  "independent_root_cause_review": {
+    "path": "review-investment-fed7-root-causes-2026-07-27.json",
+    "sha256": "c5ccf9a10b4c993f052a984a6f1c03e2c18a742e178b8e8d174ac8cd55c65d1f",
+    "reviewer_id": "/root/investment_blocker_analysis",
+    "verdict": "NO_GO_BLOCKED_INTERNAL",
+    "reviewer_modified_candidate": false
   },
   "observed_checks": [
     {
       "check": "full_governance_suite",
       "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s governance_tests -v",
       "verbatim_summary": [
-        "Ran 532 tests in 1319.315s",
+        "Ran 532 tests in 862.542s",
         "FAILED (failures=40, errors=2)"
       ],
+      "run_record_path": "investment-fed7-full-suite-run-2026-07-27.json",
+      "run_record_sha256": "58652cd15aa7698a57e3cf5c0148d310f3ca55c0cc9cda2936dd9512a8340bd7",
+      "complete_output_path": "investment-fed7-full-governance-suite-2026-07-27.log",
+      "complete_output_sha256": "02332c7c1cae91ead41df9d00976048c7e697b5bc9ddabe92413a143046a8c16",
+      "complete_output_bytes": 530124,
+      "complete_output_lines": 1308,
+      "process_exit_code": 1,
       "acceptance": "fail"
     },
     {

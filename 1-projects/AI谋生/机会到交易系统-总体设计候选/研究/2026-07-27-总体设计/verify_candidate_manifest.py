@@ -69,9 +69,19 @@ POST_CLOSURE_ROOT_POLICIES = {
         "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
         "activation_gate": "EXACT_CLOSURE_DECISION",
     },
+    "shadow-review": {
+        "path_from_candidate_parent": "机会到交易系统-shadow-review",
+        "artifact_kind": "SHADOW_INDEPENDENT_REVIEW",
+        "required_manifest": "SHADOW_REVIEW_MANIFEST.json",
+        "freeze_required_state": "MUST_BE_ABSENT",
+        "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
+        "activation_gate": (
+            "EXACT_DECLARATIVE_SHADOW_SNAPSHOT_AND_CALLER_BOUND_REVIEW"
+        ),
+    },
 }
 REAL_CANDIDATE_ROOT_NAME = "机会到交易系统-总体设计候选"
-REAL_CANDIDATE_ID = "OTTS-DESIGN-20260727-C5"
+REAL_CANDIDATE_ID = "OTTS-DESIGN-20260727-C6"
 REAL_CANDIDATE_ROOT = Path(__file__).resolve().parents[2]
 RUN2_ACCEPTANCE_PATH = (
     "研究/2026-07-27-总体设计/ssp-run2/"

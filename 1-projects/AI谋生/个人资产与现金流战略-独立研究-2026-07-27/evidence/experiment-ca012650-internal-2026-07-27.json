@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "experiment_id": "experiment-ca012650-public-record-verification",
   "captured_at": "2026-07-27T20:19:35-07:00",
-  "internal_review_recorded_at": "2026-07-27T20:38:26-07:00",
+  "internal_review_recorded_at": null,
   "status": "blocked_before_external_action",
   "authority": {
     "internal_research_authorized": true,
@@ -36,20 +36,45 @@
   "observation_cutoff_at": null,
   "primary_unknown": "Whether the current public record corresponds to an unresolved issue and whether the organization channel can route to an owner-authorized handler; this message does not test delivery capability.",
   "bound_inputs": [
-    {
-      "path": "cec-building-benchmarking-prescreen-2026-07-27.json",
-      "sha256": "4aae43f0415df54b34b2c97445920582566741ac588b3792c30f1444bb82ffc8",
-      "role": "source_identity_and_target_observations"
-    },
+        {
+            "path": "cec-building-benchmarking-prescreen-2026-07-27.json",
+            "sha256": "02650ec4bb4244643d7f04042c2bd122f69b096268c9a725d20c8b8c5d15a7be",
+            "role": "source_identity_and_target_observations"
+        },
+        {
+            "path": "reproduce_cec_prescreen.py",
+            "sha256": "814ad0dd926404370a14f1ef557eca881c9717dfadbf0b78826adb621410e9db",
+            "role": "deterministic_transformation_code"
+        },
+        {
+            "path": "cec-building-benchmarking-reproduction-2026-07-27.json",
+            "sha256": "d711cd145207961d85e57e6be8f97972283678820de32323a47f596ef8ef4dc2",
+            "role": "fresh_reproduction_record"
+        },
+        {
+            "path": "raw/CoveredBuildingsExport-2026-07-27.csv",
+            "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75",
+            "role": "durable_public_source_bytes"
+        },
+        {
+            "path": "raw/2024_Download_ADA-2026-07-27.xlsx",
+            "sha256": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00",
+            "role": "durable_public_source_bytes"
+        },
     {
       "path": "../11-内部诊断页-CA012650.md",
-      "sha256": "7604d35448d8212cab89d1d865d656972847acec73624db250b3de7d81313b8e",
+      "sha256": "84d40ee6d2548e2f4de9034740aa8e9244f38f9c9aacc793a961c5dd78a8dce7",
       "role": "internal_diagnostic"
     },
     {
       "path": "../12-首个反证实验与对外动作候选.md",
-      "sha256": "c0dab2ed8a3de155a0feb72c11bad47b4dd226f35a3881cd0d5200cd67add9a1",
+      "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691",
       "role": "unexecuted_experiment_and_message_draft"
+    },
+    {
+      "path": "../README.md",
+      "sha256": "56a73c9f1aedbc02a66a2d357f4c65816fb5bd01943de4dce29e1ffef82fbc3f",
+      "role": "human_readable_current_status_boundary"
     }
   ],
   "gate_results": [
@@ -83,12 +108,12 @@
       "claim_class": "inferred",
       "limit": "The current public label and prior same-ID submission support a reasonable hypothesis, not a confirmed problem or demand."
     },
-    {
-      "gate": "one_message_verification_probe",
-      "result": "independent_internal_pass",
-      "claim_class": "observed",
-      "limit": "Independent review passed the current internal package only. Exact sending still requires a bound sending account, a pre-send source refresh, an exact observation cutoff, and one-message user authorization."
-    },
+        {
+            "gate": "one_message_verification_probe",
+            "result": "detached_receipt_required",
+            "claim_class": "observed",
+            "limit": "This candidate never self-certifies review PASS. Current review status is derived only when the active state binds an independent detached receipt for the exact bytes; sending remains separately unauthorized."
+        },
     {
       "gate": "delivery_feasibility",
       "result": "blocked",

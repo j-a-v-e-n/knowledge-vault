@@ -1,0 +1,582 @@
+from __future__ import annotations
+
+import copy
+import hashlib
+import importlib.util
+import json
+import os
+import tempfile
+import unittest
+from datetime import datetime, timedelta
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+STATE_PATH = ROOT / "08-活动状态.json"
+VALIDATOR_PATH = ROOT / "09-校验活动状态.py"
+
+SPEC = importlib.util.spec_from_file_location("active_state_validator", VALIDATOR_PATH)
+assert SPEC is not None and SPEC.loader is not None
+VALIDATOR = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(VALIDATOR)
+
+
+class ActiveStateValidatorTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.state = VALIDATOR.loads_json_strict(STATE_PATH.read_text(encoding="utf-8"))
+        assert isinstance(self.state, dict)
+        self.now = datetime.fromisoformat(self.state["as_of"]) + timedelta(hours=1)
+
+    def errors_for(self, state: dict, *, now: datetime | None = None) -> list[str]:
+        return VALIDATOR.validate(state, now=now or self.now)
+
+    def assert_detected(self, state: dict, needle: str, *, now: datetime | None = None) -> None:
+        errors = self.errors_for(state, now=now)
+        self.assertTrue(
+            any(needle in error for error in errors),
+            msg=f"expected {needle!r}; errors were: {errors}",
+        )
+
+    def ca_r2_bindings(self) -> list[dict[str, str]]:
+        receipt_parent = ROOT / "evidence"
+        return [
+            {
+                "path": os.path.relpath(path, start=receipt_parent),
+                "sha256": VALIDATOR.sha256_file(path),
+            }
+            for path in sorted(VALIDATOR.ca_r2_candidate_paths())
+        ]
+
+    def ca_r2_receipt(self) -> dict:
+        return {
+            "schema_version": VALIDATOR.EXPECTED_CA_R2_SCHEMA_VERSION,
+            "review_id": VALIDATOR.EXPECTED_CA_R2_REVIEW_ID,
+            "recorded_at": "2026-07-27T21:54:10-07:00",
+            "reviewer_agent_identity": VALIDATOR.EXPECTED_CA_R2_REVIEWER_IDENTITY,
+            "reviewer_role": "independent_read_only_subagent",
+            "reviewer_modified_candidate": False,
+            "verdict": "PASS",
+            "severity_counts": copy.deepcopy(
+                VALIDATOR.EXPECTED_CA_R2_SEVERITY_COUNTS
+            ),
+            "candidate_bindings": self.ca_r2_bindings(),
+            "reviewed_properties": sorted(
+                VALIDATOR.EXPECTED_CA_R2_REVIEWED_PROPERTIES
+            ),
+            "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+            "missing_external_bindings": sorted(
+                VALIDATOR.EXPECTED_CA_R2_MISSING_EXTERNAL_BINDINGS
+            ),
+            "claim_boundary": VALIDATOR.EXPECTED_CA_R2_CLAIM_BOUNDARY,
+        }
+
+    def test_current_state_passes(self) -> None:
+        self.assertEqual([], self.errors_for(self.state))
+
+    def test_closed_schema_rejects_unknown_and_missing_fields(self) -> None:
+        with self.subTest("unknown top-level"):
+            state = copy.deepcopy(self.state)
+            state["surprise"] = True
+            self.assert_detected(state, "unknown fields")
+        with self.subTest("missing approval field"):
+            state = copy.deepcopy(self.state)
+            del state["approval_queue"][0]["claim_boundary"]
+            self.assert_detected(state, "missing fields")
+
+    def test_authority_default_allow_is_detected(self) -> None:
+        state = copy.deepcopy(self.state)
+        state["authority_envelope"]["default"] = "allow"
+        self.assert_detected(state, "default must deny")
+
+    def test_truth_policy_authority_changes_are_detected(self) -> None:
+        mutations = (
+            ("old_documents_are_authority", True, "old_documents_are_authority"),
+            ("ai_summary_is_evidence", True, "ai_summary_is_evidence"),
+        )
+        for key, value, needle in mutations:
+            with self.subTest(key=key):
+                state = copy.deepcopy(self.state)
+                state["truth_policy"][key] = value
+                self.assert_detected(state, needle)
+        state = copy.deepcopy(self.state)
+        state["truth_policy"]["required_claim_classes"].append("observed")
+        self.assert_detected(state, "duplicates are forbidden")
+
+    def test_target_and_channel_source_substitution_are_detected(self) -> None:
+        with self.subTest("target"):
+            state = copy.deepcopy(self.state)
+            state["approval_queue"][0]["exact_target"]["public_building_id"] = (
+                "Building #REPLACED"
+            )
+            self.assert_detected(state, "exact target changed")
+        with self.subTest("channel source"):
+            state = copy.deepcopy(self.state)
+            state["approval_queue"][0]["channel_source"] = (
+                "https://example.invalid/replacement"
+            )
+            self.assert_detected(state, "channel source changed")
+        with self.subTest("channel"):
+            state = copy.deepcopy(self.state)
+            state["approval_queue"][0]["exact_channel"] = "replacement@example.invalid"
+            self.assert_detected(state, "exact channel changed")
+
+    def test_stale_as_of_fails_closed_but_injected_fresh_now_passes(self) -> None:
+        due = datetime.fromisoformat(self.state["freshness_policy"]["refresh_due_at"])
+        self.assert_detected(
+            copy.deepcopy(self.state),
+            "active state is stale",
+            now=due + timedelta(seconds=1),
+        )
+        self.assertEqual([], self.errors_for(self.state, now=self.now))
+
+    def test_nonexistent_semicolon_evidence_locator_is_detected(self) -> None:
+        state = copy.deepcopy(self.state)
+        fact = state["workstreams"][0]["observed_facts"][0]
+        fact["evidence_locator"] += "; evidence/does-not-exist.json"
+        self.assert_detected(state, "locator does not resolve")
+
+    def test_symlink_evidence_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="validator-symlink-") as temp_dir:
+            root = Path(temp_dir)
+            target = root / "target.txt"
+            target.write_text("evidence", encoding="utf-8")
+            link = root / "link.txt"
+            link.symlink_to(target)
+            errors: list[str] = []
+            resolved = VALIDATOR.confined_file(
+                "link.txt",
+                base=root,
+                allowed_root=root,
+                errors=errors,
+                label="symlink-test",
+            )
+            self.assertIsNone(resolved)
+            self.assertTrue(any("symlink" in error for error in errors), errors)
+
+    def test_evidence_locator_traversal_is_rejected(self) -> None:
+        state = copy.deepcopy(self.state)
+        state["workstreams"][0]["observed_facts"][0]["evidence_locator"] = (
+            "../README.md"
+        )
+        self.assert_detected(state, "confined relative path")
+
+    def test_request_ready_refresh_recomputes_bound_raw_content(self) -> None:
+        with tempfile.TemporaryDirectory(
+            prefix="validator-refresh-", dir="/private/tmp"
+        ) as temp_dir:
+            root = Path(temp_dir)
+            raw = root / "evidence/raw"
+            raw.mkdir(parents=True)
+            csv_path = raw / "fresh-cec.csv"
+            csv_path.write_text(
+                '"Building ID",Street,City,"Gross Floor Area","Reporting Year","Compliance Status"\n'
+                '"Building #CA012650","800 bay marina drive","national city",64888,2026,"in compliance"\n',
+                encoding="utf-8",
+            )
+            csv_binding = {
+                "path": "evidence/raw/fresh-cec.csv",
+                "sha256": hashlib.sha256(csv_path.read_bytes()).hexdigest(),
+            }
+            record = {
+                "schema_version": "ca012650-cec-status-refresh/1",
+                "captured_at": self.state["as_of"],
+                "source_url": (
+                    "https://touchstone-content.s3.us-east-1.amazonaws.com/governments/"
+                    "CoveredBuildingsExport.csv"
+                ),
+                "source_content_binding": csv_binding,
+                "exact_target": {
+                    "public_building_id": "Building #CA012650",
+                    "public_record_location": "Best Western Plus Marina Gateway Hotel",
+                    "public_address": "800 Bay Marina Drive, National City",
+                },
+                "observed_reporting_year": "2026",
+                "observed_compliance_status": "not submitted",
+                "claim_boundary": VALIDATOR.EXPECTED_CA_REFRESH_CLAIM_BOUNDARIES[
+                    "CEC status/address"
+                ],
+            }
+            record_path = root / "cec-record.json"
+            record_path.write_text(json.dumps(record), encoding="utf-8")
+            binding = {
+                "path": record_path.name,
+                "sha256": hashlib.sha256(record_path.read_bytes()).hexdigest(),
+            }
+            errors: list[str] = []
+            VALIDATOR.validate_refresh_record(
+                binding,
+                record_type="CEC status/address",
+                completed_at=datetime.fromisoformat(self.state["as_of"]),
+                stage="request_ready",
+                validation_now=self.now,
+                snapshot_at=datetime.fromisoformat(self.state["as_of"]),
+                errors=errors,
+                base=root,
+                allowed_root=root,
+            )
+            self.assertTrue(
+                any("differs from bound raw CSV" in error for error in errors), errors
+            )
+
+            record["claim_boundary"] = (
+                "External contact, quoting, payment, and delivery are authorized now."
+            )
+            record_path.write_text(json.dumps(record), encoding="utf-8")
+            binding["sha256"] = hashlib.sha256(record_path.read_bytes()).hexdigest()
+            boundary_errors: list[str] = []
+            VALIDATOR.validate_refresh_record(
+                binding,
+                record_type="CEC status/address",
+                completed_at=datetime.fromisoformat(self.state["as_of"]),
+                stage="request_ready",
+                validation_now=self.now,
+                snapshot_at=datetime.fromisoformat(self.state["as_of"]),
+                errors=boundary_errors,
+                base=root,
+                allowed_root=root,
+            )
+            self.assertTrue(
+                any("claim boundary differs" in error for error in boundary_errors),
+                boundary_errors,
+            )
+
+    def test_pre_send_refresh_age_uses_validation_now(self) -> None:
+        refresh = {
+            "status": "completed",
+            "completed_at": self.state["as_of"],
+            "cec_status_record": None,
+            "organization_channel_record": None,
+        }
+        errors: list[str] = []
+        snapshot_at = datetime.fromisoformat(self.state["as_of"])
+        VALIDATOR.validate_source_refresh(
+            refresh,
+            stage="request_ready",
+            validation_now=snapshot_at
+            + timedelta(hours=VALIDATOR.PRE_SEND_REFRESH_MAX_AGE_HOURS, seconds=1),
+            snapshot_at=snapshot_at,
+            errors=errors,
+        )
+        self.assertTrue(
+            any("older than the pre-send freshness window" in error for error in errors),
+            errors,
+        )
+        boundary_errors: list[str] = []
+        VALIDATOR.validate_source_refresh(
+            refresh,
+            stage="request_ready",
+            validation_now=snapshot_at
+            + timedelta(hours=VALIDATOR.PRE_SEND_REFRESH_MAX_AGE_HOURS),
+            snapshot_at=snapshot_at,
+            errors=boundary_errors,
+        )
+        self.assertFalse(
+            any(
+                "older than the pre-send freshness window" in error
+                for error in boundary_errors
+            ),
+            boundary_errors,
+        )
+
+    def test_post_execution_must_be_inside_refresh_window(self) -> None:
+        refresh_at = datetime.fromisoformat(self.state["as_of"])
+        errors: list[str] = []
+        VALIDATOR.validate_execution_refresh_window(
+            executed_at=refresh_at
+            + timedelta(hours=VALIDATOR.PRE_SEND_REFRESH_MAX_AGE_HOURS, seconds=1),
+            refresh_timestamps=[refresh_at],
+            errors=errors,
+        )
+        self.assertTrue(
+            any("after at least one source freshness window" in error for error in errors),
+            errors,
+        )
+        boundary_errors: list[str] = []
+        VALIDATOR.validate_execution_refresh_window(
+            executed_at=refresh_at
+            + timedelta(hours=VALIDATOR.PRE_SEND_REFRESH_MAX_AGE_HOURS),
+            refresh_timestamps=[refresh_at],
+            errors=boundary_errors,
+        )
+        self.assertEqual([], boundary_errors)
+
+    def test_one_stale_source_cannot_hide_behind_newer_refresh(self) -> None:
+        start = datetime.fromisoformat(self.state["as_of"])
+        errors: list[str] = []
+        VALIDATOR.validate_execution_refresh_window(
+            executed_at=start + timedelta(hours=46),
+            refresh_timestamps=[
+                start,
+                start + timedelta(hours=23),
+                start + timedelta(hours=23),
+            ],
+            errors=errors,
+        )
+        self.assertTrue(
+            any("at least one source freshness window" in error for error in errors),
+            errors,
+        )
+
+    def test_ca_r2_candidate_set_rejects_omission_and_hash_drift(self) -> None:
+        bindings = self.ca_r2_bindings()
+        with self.subTest("validator omitted"):
+            errors: list[str] = []
+            VALIDATOR.validate_ca_r2_candidate_bindings(
+                [
+                    binding
+                    for binding in bindings
+                    if binding["path"] != "../09-校验活动状态.py"
+                ],
+                receipt_parent=ROOT / "evidence",
+                errors=errors,
+            )
+            self.assertTrue(
+                any("exact unique closed review candidate" in error for error in errors),
+                errors,
+            )
+        with self.subTest("latest historical FAIL omitted"):
+            errors = []
+            VALIDATOR.validate_ca_r2_candidate_bindings(
+                [
+                    binding
+                    for binding in bindings
+                    if binding["path"]
+                    != "review-ca012650-detached-gate-2026-07-27-attempt-2.json"
+                ],
+                receipt_parent=ROOT / "evidence",
+                errors=errors,
+            )
+            self.assertTrue(
+                any("exact unique closed review candidate" in error for error in errors),
+                errors,
+            )
+        with self.subTest("validator hash drift"):
+            drifted = copy.deepcopy(bindings)
+            validator_binding = next(
+                binding
+                for binding in drifted
+                if binding["path"] == "../09-校验活动状态.py"
+            )
+            validator_binding["sha256"] = "0" * 64
+            errors = []
+            VALIDATOR.validate_ca_r2_candidate_bindings(
+                drifted,
+                receipt_parent=ROOT / "evidence",
+                errors=errors,
+            )
+            self.assertTrue(any("sha256 mismatch" in error for error in errors), errors)
+
+    def test_ca_r2_receipt_contract_binds_identity_schema_and_predecessors(self) -> None:
+        receipt_path = ROOT / "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json"
+        now = datetime.fromisoformat("2026-07-27T22:00:00-07:00")
+        valid = self.ca_r2_receipt()
+        errors: list[str] = []
+        VALIDATOR.validate_ca_r2_receipt_contract(
+            valid,
+            receipt_path=receipt_path,
+            now=now,
+            errors=errors,
+        )
+        self.assertEqual([], errors)
+
+        with self.subTest("reviewer substitution"):
+            changed = copy.deepcopy(valid)
+            changed["reviewer_agent_identity"] = "/root/another_agent"
+            errors = []
+            VALIDATOR.validate_ca_r2_receipt_contract(
+                changed, receipt_path=receipt_path, now=now, errors=errors
+            )
+            self.assertTrue(
+                any("reviewer_agent_identity changed" in error for error in errors),
+                errors,
+            )
+        with self.subTest("unknown root field"):
+            changed = copy.deepcopy(valid)
+            changed["self_asserted_quality"] = "PASS"
+            errors = []
+            VALIDATOR.validate_ca_r2_receipt_contract(
+                changed, receipt_path=receipt_path, now=now, errors=errors
+            )
+            self.assertTrue(any("unknown fields" in error for error in errors), errors)
+        with self.subTest("not later than predecessor"):
+            changed = copy.deepcopy(valid)
+            changed["recorded_at"] = "2026-07-27T21:54:09-07:00"
+            errors = []
+            VALIDATOR.validate_ca_r2_receipt_contract(
+                changed, receipt_path=receipt_path, now=now, errors=errors
+            )
+            self.assertTrue(
+                any("later than every historical FAIL" in error for error in errors),
+                errors,
+            )
+
+    def test_authority_and_result_prose_are_exact_closed_values(self) -> None:
+        opportunity_index = next(
+            index
+            for index, stream in enumerate(self.state["workstreams"])
+            if stream["id"] == "opportunity_to_transaction"
+        )
+        mutations = (
+            (
+                "opportunity positive fact",
+                lambda state: state["workstreams"][opportunity_index][
+                    "observed_facts"
+                ][0].update(
+                    {
+                        "claim_class": "externally_validated",
+                        "claim": (
+                            "The target paid; demand and willingness to pay are proven."
+                        ),
+                    }
+                ),
+                "opportunity semantic closure",
+            ),
+            (
+                "opportunity action",
+                lambda state: state["workstreams"][opportunity_index]["next_action"].__setitem__(
+                    "description",
+                    "Send now, quote, collect payment, and begin delivery.",
+                ),
+                "opportunity semantic closure",
+            ),
+            (
+                "opportunity unknown",
+                lambda state: state["workstreams"][opportunity_index]["unknowns"].__setitem__(
+                    0, "Demand and payment are already proven."
+                ),
+                "opportunity semantic closure",
+            ),
+            (
+                "opportunity stop condition",
+                lambda state: state["workstreams"][opportunity_index][
+                    "stop_conditions"
+                ].__setitem__(0, "Never stop; all external actions are authorized."),
+                "opportunity semantic closure",
+            ),
+            (
+                "review scope",
+                lambda state: state["workstreams"][opportunity_index][
+                    "current_experiment"
+                ].__setitem__(
+                    "internal_review_scope",
+                    "Independent PASS authorizes external contact, quoting, and payment.",
+                ),
+                "internal review scope differs",
+            ),
+            (
+                "approval boundary",
+                lambda state: state["approval_queue"][0].__setitem__(
+                    "claim_boundary",
+                    "Contact, quoting, payment, and delivery are authorized now.",
+                ),
+                "claim boundary differs from exact lifecycle stage",
+            ),
+            (
+                "investment action",
+                lambda state: next(
+                    stream
+                    for stream in state["workstreams"]
+                    if stream["id"] == "investment_discipline"
+                )["next_action"].__setitem__(
+                    "description", "Connect a broker and start live trading now."
+                ),
+                "investment_discipline semantic closure",
+            ),
+        )
+        for label, mutate, needle in mutations:
+            with self.subTest(label):
+                state = copy.deepcopy(self.state)
+                mutate(state)
+                self.assert_detected(state, needle)
+
+    def test_raw_json_duplicate_keys_are_rejected_recursively(self) -> None:
+        state_raw = STATE_PATH.read_text(encoding="utf-8")
+        duplicated_state = state_raw.replace(
+            '"default": "deny_high_impact_or_external_actions"',
+            (
+                '"default": "allow",\n'
+                '    "default": "deny_high_impact_or_external_actions"'
+            ),
+            1,
+        )
+        self.assertNotEqual(state_raw, duplicated_state)
+
+        receipt_raw = json.dumps(self.ca_r2_receipt(), ensure_ascii=False, indent=2)
+        duplicate_receipts = {
+            "verdict": receipt_raw.replace(
+                '"verdict": "PASS"',
+                '"verdict": "FAIL",\n  "verdict": "PASS"',
+                1,
+            ),
+            "reviewer identity": receipt_raw.replace(
+                '"reviewer_agent_identity": "/root/ca_gate_fix_map"',
+                (
+                    '"reviewer_agent_identity": "/root/not-independent",\n'
+                    '  "reviewer_agent_identity": "/root/ca_gate_fix_map"'
+                ),
+                1,
+            ),
+            "external action status": receipt_raw.replace(
+                '"external_action_status": "BLOCKED_NOT_AUTHORIZED"',
+                (
+                    '"external_action_status": "AUTHORIZED",\n'
+                    '  "external_action_status": "BLOCKED_NOT_AUTHORIZED"'
+                ),
+                1,
+            ),
+        }
+        raw_cases = {"nested state authority": duplicated_state, **duplicate_receipts}
+        with tempfile.TemporaryDirectory(
+            prefix="validator-duplicate-json-", dir="/private/tmp"
+        ) as temp_dir:
+            for label, raw in raw_cases.items():
+                with self.subTest(label):
+                    path = Path(temp_dir) / f"{label.replace(' ', '-')}.json"
+                    path.write_text(raw, encoding="utf-8")
+                    errors: list[str] = []
+                    loaded = VALIDATOR.load_json(
+                        path, errors=errors, label=f"duplicate {label}"
+                    )
+                    self.assertIsNone(loaded)
+                    self.assertTrue(
+                        any("duplicate JSON key rejected" in error for error in errors),
+                        errors,
+                    )
+
+    def test_duplicate_strategy_artifact_is_detected(self) -> None:
+        state = copy.deepcopy(self.state)
+        artifacts = state["workstreams"][0]["strategy_artifacts"]
+        artifacts[1] = copy.deepcopy(artifacts[0])
+        self.assert_detected(state, "duplicate")
+
+    def test_extra_approval_is_detected(self) -> None:
+        state = copy.deepcopy(self.state)
+        extra = copy.deepcopy(state["approval_queue"][0])
+        extra["id"] = "unexpected-extra-approval"
+        state["approval_queue"].append(extra)
+        self.assert_detected(state, "only the exact CA012650 entry")
+
+    def test_scope_expansion_is_detected(self) -> None:
+        state = copy.deepcopy(self.state)
+        state["authority_envelope"]["autonomous_scopes"].append(
+            "external_contact_without_approval"
+        )
+        self.assert_detected(state, "exact required set changed")
+
+    def test_hash_tampering_is_detected(self) -> None:
+        state = copy.deepcopy(self.state)
+        state["workstreams"][0]["strategy_artifacts"][0]["sha256"] = "0" * 64
+        self.assert_detected(state, "sha256 mismatch")
+
+    def test_illegal_lifecycle_transition_is_detected(self) -> None:
+        state = copy.deepcopy(self.state)
+        approval = state["approval_queue"][0]
+        approval["status"] = "authorized_once"
+        approval["lifecycle"]["stage"] = "authorized_once"
+        approval["lifecycle"]["previous_stage"] = "blocked_missing_bindings"
+        self.assert_detected(state, "illegal or skipped transition")
+        self.assert_detected(state, "requires readiness_receipt")
+
+
+if __name__ == "__main__":
+    unittest.main()

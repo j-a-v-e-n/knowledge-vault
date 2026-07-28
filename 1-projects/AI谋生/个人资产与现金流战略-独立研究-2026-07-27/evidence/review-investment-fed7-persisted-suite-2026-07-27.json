@@ -1,0 +1,109 @@
+{
+  "schema_version": "investment-fed7-persisted-suite-review/1",
+  "review_id": "review-investment-fed7-persisted-suite-2026-07-27",
+  "recorded_at": "2026-07-27T21:33:41-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/investment_blocker_analysis",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate_or_evidence": false,
+  "verdict": "NO_GO_BLOCKED_INTERNAL",
+  "new_critical_findings": 0,
+  "new_evidence_inconsistencies": 0,
+  "candidate_identity": {
+    "commit": "fed7d6694dc1b47490848b83e3ff0b56e04a3f39",
+    "tree": "2da5f0af186345da05738f971cb8afbdb6dac8db",
+    "parent": "d8c108f81f84f4c5be99fe09902ace161bda5745",
+    "project_subtree": "77edce348cb622fe40d598902ac898c981514808",
+    "clean_after_review": true
+  },
+  "reviewed_bindings": [
+    {
+      "path": "investment-fed7-full-governance-suite-2026-07-27.log",
+      "sha256": "02332c7c1cae91ead41df9d00976048c7e697b5bc9ddabe92413a143046a8c16"
+    },
+    {
+      "path": "investment-fed7-full-suite-run-2026-07-27.json",
+      "sha256": "58652cd15aa7698a57e3cf5c0148d310f3ca55c0cc9cda2936dd9512a8340bd7"
+    },
+    {
+      "path": "investment-candidate-audit-2026-07-27.json",
+      "sha256": "9e3de7267dfe1b90fd0d331fe0d0b4bc5e956b29d002401a16e6097e2c747e09"
+    },
+    {
+      "path": "review-investment-fed7-root-causes-2026-07-27.json",
+      "sha256": "c5ccf9a10b4c993f052a984a6f1c03e2c18a742e178b8e8d174ac8cd55c65d1f"
+    }
+  ],
+  "complete_log_verification": {
+    "bytes": 530124,
+    "lines": 1308,
+    "verbatim_summary": [
+      "Ran 532 tests in 862.542s",
+      "FAILED (failures=40, errors=2)"
+    ],
+    "fail_headings": 40,
+    "error_headings": 2
+  },
+  "failure_clusters_confirmed": [
+    {
+      "cluster": "assurance_metadata",
+      "failures": 2
+    },
+    {
+      "cluster": "attack_runner",
+      "failures": 4
+    },
+    {
+      "cluster": "component_registry",
+      "failures": 1
+    },
+    {
+      "cluster": "context_recovery",
+      "failures": 10
+    },
+    {
+      "cluster": "final_review_attacks",
+      "failures": 6
+    },
+    {
+      "cluster": "freeze_git_remote",
+      "failures": 15
+    },
+    {
+      "cluster": "research_sufficiency",
+      "failures": 1
+    },
+    {
+      "cluster": "verify_governance_aggregate",
+      "failures": 1
+    },
+    {
+      "cluster": "final_review_schema",
+      "errors": 1
+    },
+    {
+      "cluster": "frozen_tests",
+      "errors": 1
+    }
+  ],
+  "root_causes_still_supported": [
+    "The R8 and R10 ground-truth artifacts are missing from assurance metadata.",
+    "Seven component-registry locator hashes are stale.",
+    "The former Markdown-marker recovery contract conflicts with the generated-JSON state representation.",
+    "The research-sufficiency receipt and frozen source/AST hashes are stale.",
+    "Attack and freeze tests cascade from an already-invalid common baseline.",
+    "The required independent review tag is still absent.",
+    "The post-acceptance evolution protocol is not composable for legitimate successor candidates."
+  ],
+  "evidence_limit": "The unittest log body does not embed the candidate hashes or outer shell exit code. Those are separately recorded by the run record and bound by the audit; they are not claimed to be self-proven by the log alone.",
+  "claim_boundary": {
+    "supports": [
+      "The exact candidate remains blocked for internal governance acceptance.",
+      "The persisted full-suite evidence and root-cause classification are mutually consistent."
+    ],
+    "does_not_support": [
+      "Recovery completion, runtime activation, system completion, investment performance, or production safety.",
+      "Any live or shadow investment action, account or broker access, funds movement, risk-rule change, or bypass of human-final authority."
+    ]
+  }
+}

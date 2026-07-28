@@ -1,0 +1,100 @@
+{
+  "schema_version": "ca012650-durable-candidate-independent-review/2",
+  "review_id": "review-ca012650-durable-candidate-2026-07-27-r2",
+  "recorded_at": "2026-07-27T22:11:56-07:00",
+  "reviewer_agent_identity": "/root/ca_gate_fix_map",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "PASS",
+  "severity_counts": {
+    "critical": 0,
+    "major": 0
+  },
+  "candidate_bindings": [
+    {
+      "path": "../03-否决门与反方审查.md",
+      "sha256": "aeac11438eb06fdcd33b435a9522121983014740c32928d2ea62954a1dda22fd"
+    },
+    {
+      "path": "../07-自主运行协议.md",
+      "sha256": "6993acf3eaea61d9209882796b089bdf0147c97a0893dd84049bcbab7eae3d8a"
+    },
+    {
+      "path": "../09-校验活动状态.py",
+      "sha256": "584d02cd8e5bf3541f594bf53944fa12a524ea17873381e999f3d779285d194c"
+    },
+    {
+      "path": "../10-现实候选预筛与首个反证实验.md",
+      "sha256": "3cb39b9c7d84cf018bb728a3041b6f91d4d58a7be89a2ea979e616ec21dc380a"
+    },
+    {
+      "path": "../11-内部诊断页-CA012650.md",
+      "sha256": "84d40ee6d2548e2f4de9034740aa8e9244f38f9c9aacc793a961c5dd78a8dce7"
+    },
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
+    },
+    {
+      "path": "../README.md",
+      "sha256": "56a73c9f1aedbc02a66a2d357f4c65816fb5bd01943de4dce29e1ffef82fbc3f"
+    },
+    {
+      "path": "../tests/test_active_state_validator.py",
+      "sha256": "244d22b14fa8670ee3b63c52bf5937b8a999b12bc24fc8df94edd567c86435ae"
+    },
+    {
+      "path": "cec-building-benchmarking-prescreen-2026-07-27.json",
+      "sha256": "02650ec4bb4244643d7f04042c2bd122f69b096268c9a725d20c8b8c5d15a7be"
+    },
+    {
+      "path": "experiment-ca012650-internal-2026-07-27.json",
+      "sha256": "f16b463f4259e1032a672b41dc42eda41b51d1a4fe600cae350c71b62181feda"
+    },
+    {
+      "path": "reproduce_cec_prescreen.py",
+      "sha256": "814ad0dd926404370a14f1ef557eca881c9717dfadbf0b78826adb621410e9db"
+    },
+    {
+      "path": "cec-building-benchmarking-reproduction-2026-07-27.json",
+      "sha256": "d711cd145207961d85e57e6be8f97972283678820de32323a47f596ef8ef4dc2"
+    },
+    {
+      "path": "raw/CoveredBuildingsExport-2026-07-27.csv",
+      "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75"
+    },
+    {
+      "path": "raw/2024_Download_ADA-2026-07-27.xlsx",
+      "sha256": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00"
+    },
+    {
+      "path": "review-ca012650-durable-evidence-2026-07-27-r1.json",
+      "sha256": "6b122f068b46b5a3ba93aab03d17f0772be75913251ea8b69989cd4275c5fcaf"
+    },
+    {
+      "path": "review-ca012650-detached-gate-2026-07-27-attempt-1.json",
+      "sha256": "b1c723efb84d469e5a010a1b2b9087648502e85fc95294cf41a35348eb2704f0"
+    },
+    {
+      "path": "review-ca012650-detached-gate-2026-07-27-attempt-2.json",
+      "sha256": "e2a2eedc3f84f6390f32983913c887500d842959324ce0e76e6ac50bd1ec7d69"
+    }
+  ],
+  "reviewed_properties": [
+    "The exact candidate binding set is unique and closed, includes the validator, adversarial tests, and all three superseded historical FAIL receipts, and every bound digest matches.",
+    "The detached receipt gate enforces this exact schema, review ID, reviewer agent identity, zero Critical and Major findings, and a review time later than all three historical FAIL receipts.",
+    "Execution-time freshness is checked independently against completion, CEC capture, and organization/channel capture; a newer source cannot mask a stale source.",
+    "All authority- and result-critical active-state prose and refresh claim boundaries are exact, stage-dependent closed values; opposite-semantics mutations fail validation.",
+    "Every controlled JSON byte boundary recursively rejects duplicate keys, including state authority fields and receipt verdict, identity, and external-action fields.",
+    "Both durable-evidence r1 major findings remain remediated in the candidate bytes.",
+    "All demand, payment, delivery, profit, repeatability, and asset claims remain false; no external action is authorized, and sender account, observation cutoff, fresh source records, and exact user authorization remain missing."
+  ],
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "missing_external_bindings": [
+    "sender_account",
+    "observation_cutoff_at",
+    "pre_send_source_refresh",
+    "exact_user_authorization"
+  ],
+  "claim_boundary": "This detached receipt records a read-only review of the exact internal candidate bytes. It does not authorize contact, follow-up, quoting, account access, submission, payment, delivery, publication, investment execution, or any claim of demand, willingness to pay, delivery feasibility, profit, repeatability, or asset value."
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the canonical C5 candidate manifest from an explicit closed inventory.
+"""Build the canonical C6 candidate manifest from an explicit closed inventory.
 
 The builder is intentionally not a discovery tool.  Every admissible path,
 role, authority status and dependency is declared below.  An unexpected file,
@@ -81,6 +81,10 @@ POST_VERIFIER = f"{RESEARCH}/verify_post_closure_manifest.py"
 PHASE_TEST = f"{RESEARCH}/test_phase_manifests.py"
 BUILDER = f"{RESEARCH}/build_candidate_manifest.py"
 FREEZE_BUILDER = f"{RESEARCH}/build_freeze_report.py"
+CAPABILITY_POLICY = f"{RESEARCH}/SHADOW_CAPABILITY_POLICY.json"
+SHADOW_ACCEPTANCE_RUNNER = f"{RESEARCH}/run_shadow_acceptance.py"
+SHADOW_ACCEPTANCE_TEST = f"{RESEARCH}/test_shadow_acceptance.py"
+SANDBOX_PROBE_REPORT = f"{RESEARCH}/C6_SANDBOX_PROBE_REPORT.md"
 
 
 SPECS: dict[str, dict[str, Any]] = {
@@ -152,10 +156,37 @@ SPECS: dict[str, dict[str, Any]] = {
         ACCEPTANCE_VERIFIER,
         ENVELOPE,
     ),
+    CAPABILITY_POLICY: spec(
+        "closed declarative shadow IR and capability policy",
+        "LANGUAGE_AND_RUNTIME_POLICY_NO_EXTERNAL_AUTHORITY",
+        ENVELOPE,
+        SANDBOX_PROBE_REPORT,
+    ),
+    SANDBOX_PROBE_REPORT: spec(
+        "host-specific sandbox probe evidence and non-claims",
+        "LOCAL_PROBE_EVIDENCE_ONLY_NO_PORTABLE_ATTESTATION",
+        ENVELOPE,
+    ),
+    SHADOW_ACCEPTANCE_RUNNER: spec(
+        "exact-snapshot declarative shadow interpreter and acceptance runner",
+        "MECHANICAL_LOCAL_EVALUATION_ONLY",
+        CAPABILITY_POLICY,
+        SANDBOX_PROBE_REPORT,
+        ENVELOPE,
+    ),
+    SHADOW_ACCEPTANCE_TEST: spec(
+        "adversarial tests for declarative shadow capability and runtime boundary",
+        "MECHANICAL_TEST_ONLY",
+        SHADOW_ACCEPTANCE_RUNNER,
+        CAPABILITY_POLICY,
+        SANDBOX_PROBE_REPORT,
+    ),
     POST_VERIFIER: spec(
         "post-closure governance and shadow aggregate verifier",
         "MECHANICAL_VALIDATION_ONLY",
         CANDIDATE_VERIFIER,
+        CAPABILITY_POLICY,
+        SHADOW_ACCEPTANCE_RUNNER,
         ENVELOPE,
     ),
     PHASE_TEST: spec(
@@ -163,6 +194,7 @@ SPECS: dict[str, dict[str, Any]] = {
         "MECHANICAL_TEST_ONLY",
         CANDIDATE_VERIFIER,
         POST_VERIFIER,
+        SHADOW_ACCEPTANCE_TEST,
         FREEZE_BUILDER,
         ENVELOPE,
     ),
@@ -362,6 +394,10 @@ SPECS.update(
             POST_VERIFIER,
             PHASE_TEST,
             FREEZE_BUILDER,
+            CAPABILITY_POLICY,
+            SHADOW_ACCEPTANCE_RUNNER,
+            SHADOW_ACCEPTANCE_TEST,
+            SANDBOX_PROBE_REPORT,
         ),
         "FINAL_CANDIDATE_MANIFEST.md": spec(
             "human-readable final candidate freeze and review instructions",
@@ -373,6 +409,10 @@ SPECS.update(
             POST_VERIFIER,
             PHASE_TEST,
             FREEZE_BUILDER,
+            CAPABILITY_POLICY,
+            SHADOW_ACCEPTANCE_RUNNER,
+            SHADOW_ACCEPTANCE_TEST,
+            SANDBOX_PROBE_REPORT,
             ACCEPTANCE_VERIFIER,
             ACCEPTANCE_TEST,
         ),
@@ -480,7 +520,7 @@ def build() -> dict[str, Any]:
         )
     return {
         "schema_version": "1.1",
-        "candidate_id": "OTTS-DESIGN-20260727-C5",
+        "candidate_id": "OTTS-DESIGN-20260727-C6",
         "status": "FROZEN-PENDING-MANIFEST-BOUND-INDEPENDENT-REVIEW",
         "scope": (
             "Research and design closure candidate for a local read-only, "
@@ -508,6 +548,19 @@ def build() -> dict[str, Any]:
                 "freeze_required_state": "MUST_BE_ABSENT",
                 "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
                 "activation_gate": "EXACT_CLOSURE_DECISION",
+                "governed_by_path": ENVELOPE,
+                "governed_by_sha256": envelope_hash,
+            },
+            {
+                "root_id": "shadow-review",
+                "path_from_candidate_parent": "机会到交易系统-shadow-review",
+                "artifact_kind": "SHADOW_INDEPENDENT_REVIEW",
+                "required_manifest": "SHADOW_REVIEW_MANIFEST.json",
+                "freeze_required_state": "MUST_BE_ABSENT",
+                "post_closure_required_state": "MAY_BE_ABSENT_OR_VALID",
+                "activation_gate": (
+                    "EXACT_DECLARATIVE_SHADOW_SNAPSHOT_AND_CALLER_BOUND_REVIEW"
+                ),
                 "governed_by_path": ENVELOPE,
                 "governed_by_sha256": envelope_hash,
             },

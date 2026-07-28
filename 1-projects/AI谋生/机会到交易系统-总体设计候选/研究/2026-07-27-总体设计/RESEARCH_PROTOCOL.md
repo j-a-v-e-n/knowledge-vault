@@ -1,6 +1,6 @@
 # 机会到交易系统：研究协议
 
-状态：`CANDIDATE-C5 / RUN2-EXACT-ACCEPTED / BLOCKED-PENDING-FINAL-REVIEW`。C1–C4 的阶段、自污染、Run2、旧根与 governance schema 失败均记录在 [`FINAL_REVIEW_HISTORY.md`](./FINAL_REVIEW_HISTORY.md)。C5 保留完整 CE-IN crosswalk及同一 exact Run2 final-status 的明确独立接受，并统一 freeze-report/final-receipt 的 producer/consumer schema；只有 successor manifest review、外部 closure decision 与 sibling governance root 继续全部闭合后，才可能改变总体 `BLOCKED`。
+状态：`CANDIDATE-C6 / RUN2-EXACT-ACCEPTED / DECLARATIVE-GATE-ITERATION-B-CODE-INTERFACE-PASS / BLOCKED-PENDING-C6-MANIFEST-BOUND-INDEPENDENT-REVIEW`。C1–C5 的阶段、自污染、Run2、旧根、governance schema 与 Capability Gate 失败均记录在 [`FINAL_REVIEW_HISTORY.md`](./FINAL_REVIEW_HISTORY.md)。C6 pre-freeze arbitrary-Python Gate 被两份只读挑战阻断后，declarative iteration A 又被 exact-hash 只读挑战以 staged-path 同 uid 竞态、末端 snapshot 未复核、partial TCB、可放大/无 aggregate 上限的资源策略和可无 host positive path 仍绿色的测试拒绝；两轮均未形成 manifest。Iteration B 已用 opened-and-unlinked descriptor、fixed limits/aggregate deadline、Xcode runtime anchor、loaded-module closure 与 mandatory host path 修复，并取得真实 host suite 和 exact-byte 独立代码/接口 `PASS`；保留的 residual/nonclaims 没有被提升为权限。该局部 PASS 仍不等于 RC-26；只有新的全候选 manifest、builder-produced freeze 与完整 independent review 可以改变总体 `BLOCKED`。
 
 ## 决策问题
 
@@ -84,7 +84,7 @@
 
 ## 研究闭合条件
 
-检索类别饱和只按冻结的 [SEARCH_SATURATION_PROTOCOL.md](./SEARCH_SATURATION_PROTOCOL.md) 执行。协议文件本身保持冻结时的 `NOT_RUN`，动态执行状态位于 Run2 外部工件；Run2 已完成两轮执行、joint 与完整 crosswalk，[`FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json`](./ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json) 已对同一 [`FINAL_RUN_STATUS.md`](./ssp-run2/FINAL_RUN_STATUS.md) exact bytes 明确 `ACCEPT`。因此 `SATURATED-WITHIN-PROTOCOL` 现只关闭类别代码本谓词，不追认历史检索，不替代主张证据、架构审查、现实外部有效性或 C5 final review。
+检索类别饱和只按冻结的 [SEARCH_SATURATION_PROTOCOL.md](./SEARCH_SATURATION_PROTOCOL.md) 执行。协议文件本身保持冻结时的 `NOT_RUN`，动态执行状态位于 Run2 外部工件；Run2 已完成两轮执行、joint 与完整 crosswalk，[`FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json`](./ssp-run2/FINAL_RUN_STATUS_INDEPENDENT_ACCEPTANCE.json) 已对同一 [`FINAL_RUN_STATUS.md`](./ssp-run2/FINAL_RUN_STATUS.md) exact bytes 明确 `ACCEPT`。因此 `SATURATED-WITHIN-PROTOCOL` 现只关闭类别代码本谓词，不追认历史检索，不替代主张证据、架构审查、现实外部有效性或 C6 final review。
 
 只有同时满足以下条件，状态才能从 `BLOCKED` 变为 `CONDITIONALLY_READY`：
 
@@ -112,9 +112,9 @@
 - OutcomeMaturityState 处理 cohort age、右删失、退款/续费/质保/支持尾部和迟到事件重算；OwnerObjectiveSpec 与 IncomeSufficiencyState 将收入耐久与用户目标充分性分离；
 - 残余未知点和变化监控条件明确；
 - 冻结协议 Run2 `SSP-1.0-RUN-20260727T154803-0700` 下的两轮全部查询都被逐结果筛选，没有 `NEW-CRITICAL` 或 `UNRESOLVED`，完整 CE-IN crosswalk 通过机械复算，且 lead 与独立审查者对同一 exact final-status 对象形成明确一致意见；
-- candidate inventory、governance 工件与 shadow implementation 使用不重叠的精确 roots：freeze 时后两者必须不存在，后闭合时各自由单独 canonical manifest 完整覆盖并绑定 exact parent，不能用 ignore glob、symlink、路径逃逸或逐文件重封把未来可变实现混入已审设计快照；
+- candidate inventory、governance、declarative shadow 与 independent shadow review 使用四个不重叠的精确 roots：freeze 时三个后闭合 roots 必须不存在，后闭合时各自由单独 canonical manifest 完整覆盖并绑定 exact parent，不能用 ignore glob、symlink、路径逃逸或逐文件重封把未来可变实现/审查混入已审设计快照；
 - 最终独立复核绑定完整候选 manifest 与每个文件的 SHA-256，没有发现会改变总体架构的未处理缺口。
 
 上述条件的候选级判定、证据路径、exact hash、残余限制和最终审查待办统一记录在 [`RESEARCH_CLOSURE_PREDICATE_MATRIX.md`](./RESEARCH_CLOSURE_PREDICATE_MATRIX.md)。矩阵不能自行把状态改成 `CONDITIONALLY_READY`：其 final-review predicate 只有在 manifest 冻结后才能由独立审查满足；随后 freeze report、review receipt 与外部 `RESEARCH_CLOSURE_DECISION` 必须进入预声明的 `机会到交易系统-闭合记录/` sibling root，由该 root 的 `GOVERNANCE_ARTIFACT_MANIFEST.json` 绑定同一 candidate manifest、receipt 与 decision，并在调用者提供 decision exact hash 的条件下通过 [`verify_post_closure_manifest.py`](./verify_post_closure_manifest.py) aggregate Gate。该哈希锚只证明调用对象的精确身份，不自行证明签发者身份或审查独立性。
 
-`CONDITIONALLY_READY` 只允许把通过 exact-hash 终审的设计作为**本地隔离、零外部副作用的只读 shadow MVP**及其验证方案的规格输入。这个实现只能出现在另一个预声明的 sibling root `机会到交易系统-shadow-mvp/`，其 manifest 必须绑定 exact candidate、governance manifest 与 closure decision；首版可变运行数据只进入系统临时目录。这个阶段的实现只能处理合成 fixture 或已有明确授权且已本地化的只读 fixture，只能产出可追溯观察、sealed-lane 输出、需求假设、未执行的实验草案与评测记录；不得装载或暴露浏览器写入、外联、发送、发布、部署、账户、凭据、签约、报价、付款、收款、客户数据写入或生产 Harness 执行器。它也不授权把某个行业、对象、需求、价格、商机或盈利判断写成已验证事实。任何真实网络采集、具体 Pilot、外部实验或商业动作都需要在其精确 SamplingPlan、权利、身份、合规、伦理、能力与 ActionEnvelope Gate 下另行取得权限。
+`CONDITIONALLY_READY` 只允许把通过 exact-hash 终审的设计作为**本地隔离、无外部行动能力的只读 declarative shadow MVP**及其验证方案的规格输入。shadow root 只含 canonical data/text、closed IR、fixture 与 derived reports；target-controlled Python/native/脚本/插件均禁止，唯一 interpreter 属于 exact parent candidate。运行只消费 read-once private staging，唯一写入为 runner-owned temporary digest-addressed CAS；当前 Mac 的 deprecated/unsupported OS sandbox 只作 defense-in-depth，不能被描述为跨平台或 host-level universal proof。shadow manifest 必须绑定 exact candidate、governance、closure decision、policy、interpreter、snapshot/outputs；第三个 `shadow-review` root 与 caller-supplied exact receipt hash 关闭独立实现验收。在此之前只能处理合成 fixture 或已有明确授权且已本地化的只读 fixture，只能产出可追溯观察、sealed-lane 输出、需求假设、未执行的实验草案与评测记录；不得装载或暴露浏览器写入、外联、发送、发布、部署、账户、凭据、签约、报价、付款、收款、客户数据写入或 production Harness executor，也不授权把任何商机或盈利判断写成已验证事实。

@@ -18,6 +18,29 @@
       "sha256": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00"
     }
   ],
+  "durable_reproduction": {
+    "redownload_and_reproduction_verified_at": "2026-07-27T21:02:41-07:00",
+    "raw_files": [
+      {
+        "path": "raw/CoveredBuildingsExport-2026-07-27.csv",
+        "bytes": 3919934,
+        "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75"
+      },
+      {
+        "path": "raw/2024_Download_ADA-2026-07-27.xlsx",
+        "bytes": 5668934,
+        "sha256": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00"
+      }
+    ],
+    "transformation_script": {
+      "path": "reproduce_cec_prescreen.py",
+      "sha256": "814ad0dd926404370a14f1ef557eca881c9717dfadbf0b78826adb621410e9db"
+    },
+    "reproduction_record": {
+      "path": "cec-building-benchmarking-reproduction-2026-07-27.json",
+      "sha256": "d711cd145207961d85e57e6be8f97972283678820de32323a47f596ef8ef4dc2"
+    }
+  },
   "covered_dataset_profile": {
     "rows": 46519,
     "reporting_year_counts": {

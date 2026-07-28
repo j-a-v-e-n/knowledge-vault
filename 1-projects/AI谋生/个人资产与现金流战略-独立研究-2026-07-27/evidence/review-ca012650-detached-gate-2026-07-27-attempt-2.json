@@ -1,0 +1,139 @@
+{
+  "schema_version": "ca012650-detached-gate-review/1",
+  "review_id": "review-ca012650-detached-gate-2026-07-27-attempt-2",
+  "recorded_at": "2026-07-27T21:54:09-07:00",
+  "recorded_by": "/root",
+  "reviewer_agent_identity": "/root/ca_gate_fix_map",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "verdict": "FAIL",
+  "severity_counts": {
+    "critical": 0,
+    "major": 2
+  },
+  "candidate_bindings": [
+    {
+      "path": "../03-否决门与反方审查.md",
+      "sha256": "aeac11438eb06fdcd33b435a9522121983014740c32928d2ea62954a1dda22fd"
+    },
+    {
+      "path": "../07-自主运行协议.md",
+      "sha256": "6993acf3eaea61d9209882796b089bdf0147c97a0893dd84049bcbab7eae3d8a"
+    },
+    {
+      "path": "../09-校验活动状态.py",
+      "sha256": "410510a7f643c5bd55235b8ff148cd77a3384c6730e552b73f31db70748a0dc5"
+    },
+    {
+      "path": "../10-现实候选预筛与首个反证实验.md",
+      "sha256": "3cb39b9c7d84cf018bb728a3041b6f91d4d58a7be89a2ea979e616ec21dc380a"
+    },
+    {
+      "path": "../11-内部诊断页-CA012650.md",
+      "sha256": "84d40ee6d2548e2f4de9034740aa8e9244f38f9c9aacc793a961c5dd78a8dce7"
+    },
+    {
+      "path": "../12-首个反证实验与对外动作候选.md",
+      "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
+    },
+    {
+      "path": "../README.md",
+      "sha256": "56a73c9f1aedbc02a66a2d357f4c65816fb5bd01943de4dce29e1ffef82fbc3f"
+    },
+    {
+      "path": "../tests/test_active_state_validator.py",
+      "sha256": "1e8b70b7edaa67dbf4fd18aabcd9ff1db851f3e2a151fe7bcd3ba56907ea3284"
+    },
+    {
+      "path": "cec-building-benchmarking-prescreen-2026-07-27.json",
+      "sha256": "02650ec4bb4244643d7f04042c2bd122f69b096268c9a725d20c8b8c5d15a7be"
+    },
+    {
+      "path": "experiment-ca012650-internal-2026-07-27.json",
+      "sha256": "f16b463f4259e1032a672b41dc42eda41b51d1a4fe600cae350c71b62181feda"
+    },
+    {
+      "path": "reproduce_cec_prescreen.py",
+      "sha256": "814ad0dd926404370a14f1ef557eca881c9717dfadbf0b78826adb621410e9db"
+    },
+    {
+      "path": "cec-building-benchmarking-reproduction-2026-07-27.json",
+      "sha256": "d711cd145207961d85e57e6be8f97972283678820de32323a47f596ef8ef4dc2"
+    },
+    {
+      "path": "raw/CoveredBuildingsExport-2026-07-27.csv",
+      "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75"
+    },
+    {
+      "path": "raw/2024_Download_ADA-2026-07-27.xlsx",
+      "sha256": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00"
+    },
+    {
+      "path": "review-ca012650-durable-evidence-2026-07-27-r1.json",
+      "sha256": "6b122f068b46b5a3ba93aab03d17f0772be75913251ea8b69989cd4275c5fcaf"
+    },
+    {
+      "path": "review-ca012650-detached-gate-2026-07-27-attempt-1.json",
+      "sha256": "b1c723efb84d469e5a010a1b2b9087648502e85fc95294cf41a35348eb2704f0"
+    }
+  ],
+  "pending_state_context": {
+    "path": "../08-活动状态.json",
+    "sha256": "59b1056f1b9eae884410a00ed5b5f76229ffa912f9e9454f4f90302701f6b2b6",
+    "is_candidate_binding": false,
+    "reason": "Live state cannot be part of the detached candidate closure because the later receipt-binding transition would create a receipt-state hash cycle."
+  },
+  "reproduction_results": {
+    "validator_cli": "PASS",
+    "validator_note": "NOTE: this does not validate demand, payment, delivery, profit, investment performance, review quality, or runtime acceptance",
+    "unit_tests": [
+      "Ran 20 tests in 3.047s",
+      "OK"
+    ],
+    "generated_python_cache_found_after_clean_run": false,
+    "r2_receipt_present": false
+  },
+  "attempt_1_remediation_confirmed": [
+    "The closed candidate binding set includes the validator, its adversarial tests, and both then-existing historical FAIL receipts.",
+    "The r2 contract fixes schema, review ID, reviewer identity, zero severity, temporal succession, and a no-authority boundary.",
+    "Execution-time freshness is checked against each source independently rather than only the newest refresh timestamp."
+  ],
+  "major_findings": [
+    {
+      "id": "CA-DETACHED-A2-M1",
+      "title": "Safety-critical human-readable claims are not semantically closed",
+      "exact_locations": [
+        "09-校验活动状态.py:730-767",
+        "09-校验活动状态.py:987-990",
+        "09-校验活动状态.py:1943-1946",
+        "09-校验活动状态.py:2457-2460"
+      ],
+      "counterexamples_accepted_with_no_errors": [
+        "An externally_validated fact claims the target has paid and that demand and willingness to pay are proven.",
+        "next_action.description instructs immediate sending, quoting, payment collection, and delivery.",
+        "internal_review_scope claims independent PASS is complete and external contact is authorized.",
+        "approval claim_boundary claims contact, quoting, payment, and delivery are authorized now."
+      ],
+      "required_fix": "Use exact stage-dependent constants or machine enums with deterministic rendering for opportunity facts, action descriptions, review scope, approval boundaries, and refresh boundaries; add opposite-semantics negative tests and do not use keyword filtering."
+    },
+    {
+      "id": "CA-DETACHED-A2-M2",
+      "title": "Raw JSON duplicate keys are accepted with last-write-wins semantics",
+      "exact_location": "09-校验活动状态.py:597-606",
+      "counterexamples": [
+        "A receipt containing verdict FAIL followed by verdict PASS parses as PASS.",
+        "A non-independent reviewer identity followed by the expected identity parses as the expected identity.",
+        "An AUTHORIZED external-action status followed by BLOCKED_NOT_AUTHORIZED parses as blocked."
+      ],
+      "required_fix": "Reject duplicate keys recursively at every state, evidence, and receipt raw-JSON boundary and cover verdict, identity, authority, status, and nested duplicates with file-level negative tests."
+    }
+  ],
+  "external_action_status": "BLOCKED_NOT_AUTHORIZED",
+  "missing_external_bindings": [
+    "sender_account",
+    "observation_cutoff_at",
+    "complete_semantically_bound_pre_send_refresh",
+    "exact_one_message_user_authorization"
+  ],
+  "claim_boundary": "This is a historical independent rejection of r2 attempt 2. It authorizes no contact, follow-up, quote, account access, submission, payment, delivery, publication, investment execution, or external action."
+}

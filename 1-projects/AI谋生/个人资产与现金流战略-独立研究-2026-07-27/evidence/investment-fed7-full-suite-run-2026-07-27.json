@@ -1,0 +1,40 @@
+{
+  "schema_version": "investment-fed7-full-suite-run/1",
+  "recorded_at": "2026-07-27T21:26:22-07:00",
+  "runner_identity": "/root",
+  "candidate_identity": {
+    "commit": "fed7d6694dc1b47490848b83e3ff0b56e04a3f39",
+    "tree": "2da5f0af186345da05738f971cb8afbdb6dac8db",
+    "parent": "d8c108f81f84f4c5be99fe09902ace161bda5745",
+    "project_path": "MyBrain/projects/investment-discipline-system",
+    "project_subtree": "77edce348cb622fe40d598902ac898c981514808",
+    "clean_clone_path": "/private/tmp/ids-fed7-audit.kowOr4/repo"
+  },
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s governance_tests -v",
+  "process_exit_code": 1,
+  "verbatim_summary": [
+    "Ran 532 tests in 862.542s",
+    "FAILED (failures=40, errors=2)"
+  ],
+  "parsed_headings": {
+    "fail": 40,
+    "error": 2
+  },
+  "complete_output": {
+    "path": "investment-fed7-full-governance-suite-2026-07-27.log",
+    "sha256": "02332c7c1cae91ead41df9d00976048c7e697b5bc9ddabe92413a143046a8c16",
+    "bytes": 530124,
+    "lines": 1308
+  },
+  "acceptance": "FAIL_BLOCKED_INTERNAL",
+  "claim_boundary": {
+    "supports": [
+      "A fresh serial run of the exact full governance suite completed and its complete output is retained.",
+      "The exact candidate did not pass internal governance acceptance."
+    ],
+    "does_not_support": [
+      "Recovery, runtime activation, completion, investment performance, or production safety.",
+      "Any live or shadow investment action, broker or account access, funds movement, risk-rule change, or bypass of human-final authority."
+    ]
+  }
+}

@@ -33,6 +33,7 @@ FREEZE_REPORT_KEYS = {
 POST_CLOSURE_ROOT_NAMES = {
     "机会到交易系统-闭合记录",
     "机会到交易系统-shadow-mvp",
+    "机会到交易系统-shadow-review",
 }
 
 
@@ -60,9 +61,10 @@ def build_freeze_report(candidate_manifest_path: Path) -> dict[str, Any]:
     expected_states = [
         {"root_id": "closure-governance", "state": "ABSENT"},
         {"root_id": "shadow-mvp", "state": "ABSENT"},
+        {"root_id": "shadow-review", "state": "ABSENT"},
     ]
     if root_states != expected_states:
-        raise FreezeReportError("freeze does not prove both post-closure roots absent")
+        raise FreezeReportError("freeze does not prove all post-closure roots absent")
     document = {
         "schema_version": "otts.candidate-freeze-report/1",
         "candidate_id": result["candidate_id"],

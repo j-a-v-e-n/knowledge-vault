@@ -1,0 +1,48 @@
+{
+  "schema_version": "investment-discipline-durable-candidate/1",
+  "recorded_at": "2026-07-27T21:06:33-07:00",
+  "source_candidate": {
+    "repository_commit": "fed7d6694dc1b47490848b83e3ff0b56e04a3f39",
+    "repository_tree": "2da5f0af186345da05738f971cb8afbdb6dac8db",
+    "repository_parent": "d8c108f81f84f4c5be99fe09902ace161bda5745",
+    "project_path": "MyBrain/projects/investment-discipline-system",
+    "project_subtree": "77edce348cb622fe40d598902ac898c981514808",
+    "source_clone_was_clean": true
+  },
+  "durable_bundle": {
+    "path": "investment-discipline-fed7-subtree.bundle",
+    "bytes": 62374247,
+    "sha256": "aa36d78d87f3f76ebf73e543c77b7a7711695ccdd6c1d9a126570f47d5e87877",
+    "ref": "refs/heads/durable-investment-fed7",
+    "archive_commit": "2f4fd7fe85858db302dc1ba1cd61415aa1adf0de",
+    "archive_tree": "77edce348cb622fe40d598902ac898c981514808",
+    "history_shape": "one root commit whose root tree is the exact project subtree from the source candidate"
+  },
+  "fresh_reconstruction_check": {
+    "temporary_clone": "/private/tmp/ids-durable-verify.nijvIv/repo",
+    "git_bundle_verify_exit": 0,
+    "git_clone_exit": 0,
+    "git_fsck_full_exit": 0,
+    "git_status_porcelain": "",
+    "reconstructed_commit": "2f4fd7fe85858db302dc1ba1cd61415aa1adf0de",
+    "reconstructed_tree": "77edce348cb622fe40d598902ac898c981514808",
+    "regular_worktree_file_count": 370
+  },
+  "reconstruction_commands": [
+    "git bundle verify evidence/investment-discipline-fed7-subtree.bundle",
+    "git clone evidence/investment-discipline-fed7-subtree.bundle <fresh-directory>",
+    "git -C <fresh-directory> switch durable-investment-fed7",
+    "git -C <fresh-directory> rev-parse HEAD^{tree}",
+    "git -C <fresh-directory> fsck --full"
+  ],
+  "claim_boundary": {
+    "supports": [
+      "The exact investment-discipline project subtree audited at the source candidate is durably reconstructible without the original temporary clone.",
+      "The durable bundle reconstructs to project tree 77edce348cb622fe40d598902ac898c981514808."
+    ],
+    "does_not_support": [
+      "That the original full-repository commit, parent history, branches, tags, or unrelated vault files are contained in the bundle.",
+      "Candidate acceptance, recovery, runtime operation, investment-system completion, investment performance, or authority for live or shadow action."
+    ]
+  }
+}

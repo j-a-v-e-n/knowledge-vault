@@ -19,6 +19,6 @@
 - 不删除旧材料，也不静默把它们改名成新系统证据；
 - 只有逐项映射到新记录、状态、Gate、权限和测试语义并重新验证的代码，才可能被保留。
 
-若最终 closure decision 通过，第一版也只能在与本候选目录不重叠的精确 sibling root `机会到交易系统-shadow-mvp/` 内，按研究候选的 `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` 搭建；governance 记录另存于 `机会到交易系统-闭合记录/`。两个 root 都必须由各自的 post-closure manifest 绑定，且不能解除外部旧根、旧 CLI、旧 `make-harness` 或餐馆 Pilot 的历史状态。
+若最终 closure decision 通过，第一版也只能在与本候选目录不重叠的精确 sibling root `机会到交易系统-shadow-mvp/` 内，按研究候选的 `READ_ONLY_SHADOW_ACTION_ENVELOPE.md` 搭建；governance 记录另存于 `机会到交易系统-闭合记录/`，独立 shadow 验收另存于 `机会到交易系统-shadow-review/`。三个 post-closure roots 都必须由各自 manifest 绑定，且不能解除外部旧根、旧 CLI、旧 `make-harness` 或餐馆 Pilot 的历史状态。
 
 已知必须重点复核的一项旧规则是：旧测试允许在出现 commitment/deposit 后生成 delivery Harness；新设计要求在不可取消订金、结果承诺或正式协议前，同一 exact offer 必须先通过独立的 `DeliveryFeasibilityGate`。旧规则不得继续作为授权依据。

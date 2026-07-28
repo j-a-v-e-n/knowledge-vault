@@ -1,0 +1,156 @@
+{
+  "schema_version": "investment-fed7-independent-root-cause-review/1",
+  "recorded_at": "2026-07-27T21:14:52-07:00",
+  "reviewer_id": "/root/investment_blocker_analysis",
+  "reviewer_role": "independent_read_only_subagent",
+  "reviewer_modified_candidate": false,
+  "review_scope": "Exact clean fed7 candidate, full governance suite failure identities, recovery/loop/state causal isolation, durable subtree bundle, and safe remediation order.",
+  "candidate_identity": {
+    "commit": "fed7d6694dc1b47490848b83e3ff0b56e04a3f39",
+    "tree": "2da5f0af186345da05738f971cb8afbdb6dac8db",
+    "parent": "d8c108f81f84f4c5be99fe09902ace161bda5745",
+    "project_path": "MyBrain/projects/investment-discipline-system",
+    "project_subtree": "77edce348cb622fe40d598902ac898c981514808",
+    "candidate_clean_after_tests": true
+  },
+  "verdict": "NO_GO_BLOCKED_INTERNAL",
+  "fresh_full_suite": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s governance_tests -v",
+    "verbatim_summary": [
+      "Ran 532 tests in 976.171s",
+      "FAILED (failures=40, errors=2)"
+    ]
+  },
+  "failure_clusters": [
+    {
+      "cluster": "assurance_metadata",
+      "surface_failures": 2,
+      "classification": "real_metadata_gap",
+      "root_cause": "Ground-truth manifest omits existing R8/R10 primary artifacts."
+    },
+    {
+      "cluster": "component_registry",
+      "surface_failures": 1,
+      "classification": "real_metadata_gap",
+      "root_cause": "Seven component locator hashes are stale."
+    },
+    {
+      "cluster": "context_recovery",
+      "surface_failures": 10,
+      "classification": "real_contract_migration_gap",
+      "root_cause": "CTX-02 expects former Markdown headings while STATUS/TASK_BOARD have moved to generated JSON semantics."
+    },
+    {
+      "cluster": "research_sufficiency",
+      "surface_failures": 1,
+      "classification": "real_stale_receipt",
+      "root_cause": "Stored current_evaluation differs from current controlled inputs."
+    },
+    {
+      "cluster": "frozen_tests",
+      "surface_errors": 1,
+      "classification": "real_stale_freeze_manifest",
+      "root_cause": "The regression-runner source and class AST hashes changed."
+    },
+    {
+      "cluster": "attack_runner",
+      "surface_failures": 4,
+      "classification": "cascade_from_invalid_shared_baseline",
+      "root_cause": "The common governance baseline is already failing, so the attack branch cannot be attributed."
+    },
+    {
+      "cluster": "final_review_attacks",
+      "surface_failures": 6,
+      "classification": "cascade_from_invalid_shared_baseline",
+      "root_cause": "The common governance baseline is already failing, so the expected mutation oracle is not isolated."
+    },
+    {
+      "cluster": "freeze_git_remote",
+      "surface_failures": 15,
+      "classification": "cascade_plus_fixture_portability_gap",
+      "root_cause": "Fixtures cannot construct a valid governance baseline, omit required fixed tag/history, and conflict with a hard-coded project prefix."
+    },
+    {
+      "cluster": "final_review_schema",
+      "surface_errors": 1,
+      "classification": "fixture_snapshot_gap",
+      "root_cause": "setUp fails before the target assertion; the temporary repository also lacks a referenced historical commit."
+    },
+    {
+      "cluster": "verify_governance",
+      "surface_failures": 1,
+      "classification": "aggregate_only",
+      "root_cause": "This is the aggregate failure of the preceding clusters, not an additional independent defect."
+    }
+  ],
+  "recovery_causal_isolation": {
+    "missing_required_ref": "refs/tags/foundation-successor-recovery-review-2026-07-27-r3",
+    "observed_without_ref": [
+      "foundation recovery fail",
+      "recovery alias and predecessor-receipt waiver absent",
+      "execution-loop V2 graph invalid",
+      "derived state fails closed"
+    ],
+    "test_only_counterfactual": {
+      "authority": "NONE_TEST_FIXTURE_ONLY",
+      "description": "The reviewer created an explicitly fictional correctly shaped annotated tag only inside an independent temporary clone.",
+      "observed_result": [
+        "foundation verifier pass",
+        "execution-loop-v2 valid/current",
+        "derived state fresh"
+      ],
+      "interpretation": "The apparent DAG/root/sink/supersession/parallel-conflict cluster is a cascade from the missing review object, not a set of independent packet-graph implementation defects.",
+      "must_not_be_used_as": "A real review tag, acceptance receipt, recovery proof, or authorization."
+    }
+  },
+  "post_acceptance_evolution_gap": {
+    "observed_contract": [
+      "The review tag must point to the reviewed candidate.",
+      "The candidate must be the unique direct child of d8c108f81f84f4c5be99fe09902ace161bda5745.",
+      "Current HEAD must exactly equal that candidate.",
+      "The transition diff must exactly equal the frozen write set."
+    ],
+    "consequence": "Even a legitimate later commit that repairs context, manifests, or tests invalidates the alias/waiver. The protocol has no sustainable descendant evolution path.",
+    "forbidden_shortcut": "Do not add a retrospective tag and then continue patching fed7 as if the transition proof remained current."
+  },
+  "durable_bundle_review": {
+    "record_path": "investment-discipline-fed7-durable-candidate.json",
+    "record_sha256": "9800b6aead4a4ce5b5235bc804202b65c22d81d6626d756ac766b59d0965f3f9",
+    "bundle_path": "investment-discipline-fed7-subtree.bundle",
+    "bundle_bytes": 62374247,
+    "bundle_sha256": "aa36d78d87f3f76ebf73e543c77b7a7711695ccdd6c1d9a126570f47d5e87877",
+    "fresh_clone_tree": "77edce348cb622fe40d598902ac898c981514808",
+    "matches_source_project_subtree": true,
+    "git_fsck_full_pass": true,
+    "clean_status": true,
+    "file_count": 370,
+    "limitations": [
+      "The archive is a one-root-commit project-subtree bundle, not the full repository history.",
+      "It does not contain the source parent, R8/R10 related commits, or any tag.",
+      "It does not repair or supply the missing independent review tag.",
+      "A fresh clone must explicitly switch durable-investment-fed7 because the bundle has no remote HEAD."
+    ]
+  },
+  "safe_remediation_order": [
+    "Keep fed7 and its durable bundle immutable as historical evidence; do not patch or retrospectively self-approve them.",
+    "Design a composable recovery proof in which a historical transition remains provable while later descendants are allowed only when critical blobs are unchanged or a new companion review binds the change.",
+    "Add positive and negative tests for a legitimate descendant, changed controlled blob, non-ancestor, and missing tag.",
+    "In a separate successor candidate, migrate CTX-02 to generated-JSON semantics, add missing ground-truth artifacts, recompute research sufficiency, refresh component locators, then refresh frozen-test source/AST hashes.",
+    "Repair temporary test repository assumptions about historical commits, tags, and project prefixes.",
+    "Run targeted suites in root-cause order, then run the full suite serially in a faithful fresh clone and preserve complete output.",
+    "Require two candidate-bound independent reviews before creating a genuine annotated review envelope and a durable full-history/tag bundle."
+  ],
+  "claim_boundary": {
+    "supports": [
+      "The exact candidate remains blocked for internal acceptance.",
+      "The current no-live check is a narrow point-in-time pass.",
+      "The durable project subtree is independently reconstructible.",
+      "The missing review tag explains one large execution-loop/state cascade."
+    ],
+    "does_not_support": [
+      "Recovery, runtime activation, completion, investment performance, or production safety.",
+      "Any live or shadow investment action, broker or account access, funds movement, risk-rule change, or bypass of human-final authority."
+    ]
+  },
+  "live_or_shadow_investment_authority": false
+}

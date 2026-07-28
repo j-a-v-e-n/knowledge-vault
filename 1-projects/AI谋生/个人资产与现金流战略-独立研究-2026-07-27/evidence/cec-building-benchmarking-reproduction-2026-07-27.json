@@ -1,0 +1,82 @@
+{
+  "schema_version": "cec-prescreen-reproduction-record/1",
+  "reproduced_at": "2026-07-27T21:02:41-07:00",
+  "execution": {
+    "command": "/Users/javencao/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 evidence/reproduce_cec_prescreen.py --covered evidence/raw/CoveredBuildingsExport-2026-07-27.csv --submitted evidence/raw/2024_Download_ADA-2026-07-27.xlsx",
+    "exit_code": 0,
+    "python_version": "3.12.13",
+    "pandas_version": "2.2.3",
+    "script_path": "reproduce_cec_prescreen.py",
+    "script_sha256": "814ad0dd926404370a14f1ef557eca881c9717dfadbf0b78826adb621410e9db"
+  },
+  "sources": {
+    "covered": {
+      "path": "raw/CoveredBuildingsExport-2026-07-27.csv",
+      "url": "https://touchstone-content.s3.us-east-1.amazonaws.com/governments/CoveredBuildingsExport.csv",
+      "bytes": 3919934,
+      "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75"
+    },
+    "submitted": {
+      "path": "raw/2024_Download_ADA-2026-07-27.xlsx",
+      "url": "https://www.energy.ca.gov/sites/default/files/2025-10/2024_Download_ADA.xlsx",
+      "discovered_via": "https://www.energy.ca.gov/programs-and-topics/programs/building-energy-benchmarking-program",
+      "bytes": 5668934,
+      "sha256": "dab1834454bd5ff6c17d9240e978084dd2a4f59c5ee02e7ee2ad70d266b65b00"
+    }
+  },
+  "transformation": {
+    "covered_reader": "Python csv.DictReader with utf-8-sig",
+    "submitted_reader": "pandas.read_excel sheet=2024 header=2 dtype=object",
+    "normalization": "Unicode NFKD; ASCII fold; lowercase; collapse non-[a-z0-9] to spaces; exact normalized address|city equality"
+  },
+  "covered_dataset_profile": {
+    "rows": 46519,
+    "reporting_year_counts": {
+      "2026": 46519
+    },
+    "compliance_status_counts": {
+      "exempt": 207,
+      "in compliance": 21189,
+      "not submitted": 23705,
+      "pending revisions": 1418
+    },
+    "unique_normalized_address_city_keys": 46332
+  },
+  "prior_submission_crosscheck": {
+    "submitted_2024_rows": 25591,
+    "current_not_submitted_rows_with_exact_prior_address_city_match": 7416,
+    "current_not_submitted_unique_keys_with_exact_prior_address_city_match": 7332
+  },
+  "selected_target_observations": {
+    "covered_2026_row": {
+      "Building ID": "Building #CA012650",
+      "Street": "800 bay marina drive",
+      "City": "national city",
+      "Gross Floor Area": "64888",
+      "Reporting Year": "2026",
+      "Compliance Status": "not submitted"
+    },
+    "submitted_2024_exact_address_city_row": {
+      "Standard ID": "CA012650",
+      "Property Name": "best western plus marina gateway",
+      "Address 1": "800 bay marina drive",
+      "City": "national city",
+      "Primary Property Type - Portfolio Manager-Calculated": "Hotel",
+      "Property GFA - Calculated (Buildings) (ft²)": "95757",
+      "Report Generation Date": "Fri Aug 08 15:31:55 EDT 2025",
+      "Year Ending": "2024-12-31"
+    }
+  },
+  "claim_boundary": {
+    "supports": [
+      "The exact bound raw bytes reproduce the stated row counts, status counts, address-city crosscheck, and selected rows."
+    ],
+    "does_not_support": [
+      "Current status after the download timestamp.",
+      "Why a row has its status or who is responsible.",
+      "Demand, willingness to pay, delivery feasibility, profit, repeatability, or an asset claim.",
+      "Legal advice or authority for external contact or account access."
+    ]
+  },
+  "tool_limit": "The preferred spreadsheet artifact importer stalled twice on this workbook and was terminated; the bundled Python runtime completed read-only parsing."
+}

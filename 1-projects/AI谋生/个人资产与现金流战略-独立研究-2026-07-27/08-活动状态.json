@@ -1,6 +1,12 @@
 {
-  "schema_version": "1.0",
-  "as_of": "2026-07-27T20:41:19-07:00",
+  "schema_version": "1.1",
+  "as_of": "2026-07-27T22:14:56-07:00",
+  "freshness_policy": {
+    "max_age_hours": 72,
+    "pre_send_refresh_max_age_hours": 24,
+    "refresh_due_at": "2026-07-30T22:14:56-07:00",
+    "on_stale": "fail_closed"
+  },
   "state_scope": "Current durable state for the independent personal-asset and cash-flow research root; legacy documents are locators or evidence subjects, never authority.",
   "truth_policy": {
     "old_documents_are_authority": false,
@@ -114,8 +120,8 @@
         },
         {
           "claim_class": "observed",
-          "claim": "CA012650 当前内部实验包的精确输入绑定已匹配，独立复审结论为 PASS；该 PASS 只认可内部研究设计，不授权发送、报价、账户访问、提交、付款动作或交付。",
-          "evidence_locator": "evidence/review-ca012650-internal-2026-07-27.json"
+          "claim": "CA012650 内部实验包的持久公开源字节、确定性转换脚本、复现记录、校验器与对抗测试已由当前精确 detached receipt 独立复核为 PASS；该 PASS 只支持内部候选闭包，不证明需求、付款、交付、利润、复购或资产价值，也不授权任何发送。",
+          "evidence_locator": "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json"
         },
         {
           "claim_class": "observed",
@@ -136,18 +142,18 @@
           "sha256": "416fadef2832825793118b05346abb745c7e55456a0c1e60e36d67a858cc9aee",
           "verdict": "PASS"
         },
-        "ca012650_internal_candidate": {
-          "path": "evidence/review-ca012650-internal-2026-07-27.json",
-          "sha256": "0c9cb0bbb055435f7df8878f252f4dfbe221d88416b0addf216f6f29d4c7eb3d",
-          "verdict": "PASS"
-        }
+      "ca012650_internal_candidate": {
+        "path": "evidence/review-ca012650-durable-candidate-2026-07-27-r2.json",
+        "sha256": "70b7e8e44d1095452fd26209eb43e65630bff4441a466db00e29fa7ef5790e07",
+        "verdict": "PASS"
+      }
       },
       "current_experiment": {
         "experiment_id": "experiment-ca012650-public-record-verification",
         "spec_path": "evidence/experiment-ca012650-internal-2026-07-27.json",
-        "spec_sha256": "bf1cf7e9161961672c0a174896aa7300bf266cb0440744db8fe8ef1491264368",
-        "internal_review_result": "PASS",
-        "internal_review_scope": "Exact current internal package only; no external action, demand, payment, delivery, profit, repeatability, or asset claim.",
+        "spec_sha256": "f16b463f4259e1032a672b41dc42eda41b51d1a4fe600cae350c71b62181feda",
+      "internal_review_result": "PASS",
+      "internal_review_scope": "The exact detached receipt passed only the current internal candidate closure; it does not validate demand, payment, delivery, profit, repeatability, asset value, current source freshness, or any external authorization.",
         "external_action_status": "blocked",
         "external_contact_authorized": false,
         "result_claims": {
@@ -185,7 +191,7 @@
         },
         {
           "claim_class": "observed",
-          "claim": "完整治理测试输出 Ran 532 tests in 1319.315s 与 FAILED (failures=40, errors=2)，因此候选未通过整体接纳。",
+          "claim": "最新持久完整治理测试输出 Ran 532 tests in 862.542s 与 FAILED (failures=40, errors=2)，因此候选未通过整体接纳。",
           "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
         },
         {
@@ -193,24 +199,24 @@
           "claim": "目标 no-live 测试输出 Ran 18 tests in 7.518s 与 OK，点时 no-live verifier 也 pass；这只支持狭窄的 no-live 检查，不证明系统恢复、运行、完整、安全或收益。",
           "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
         },
-        {
-          "claim_class": "observed",
-          "claim": "foundation recovery 因 candidate snapshot/review envelope tag 失败，execution loop 失败，derive state fail closed。",
-          "evidence_locator": "evidence/investment-candidate-audit-2026-07-27.json"
-        }
+      {
+        "claim_class": "observed",
+        "claim": "独立根因审查已把完整治理测试的 failures/errors 分类为 metadata、contract migration、stale receipt、stale freeze、shared-baseline cascade 与 fixture gaps；独立持久 suite 转录复核确认 failure headings 40、error headings 2，裁决仍为 NO_GO_BLOCKED_INTERNAL。",
+        "evidence_locator": "evidence/review-investment-fed7-root-causes-2026-07-27.json; evidence/review-investment-fed7-persisted-suite-2026-07-27.json"
+      }
       ],
       "candidate_audit": {
         "path": "evidence/investment-candidate-audit-2026-07-27.json",
-        "sha256": "69550f2e378824cbe38664b72aeece6d72a5a92298455a2c8bbd9c31e178a688",
+        "sha256": "9e3de7267dfe1b90fd0d331fe0d0b4bc5e956b29d002401a16e6097e2c747e09",
         "overall_acceptance": "blocked_internal"
       },
-      "unknowns": [
-        "完整治理测试中的失败与错误分别对应哪些生产接纳缺口",
-        "candidate snapshot 与 review envelope tag 缺口的最小根因修复是什么",
-        "修复后 exact candidate 是否能通过新的独立审查和全部必需接纳检查"
-      ],
-      "next_action": {
-        "description": "只在隔离候选上分类完整治理测试的失败与错误并追到根因；不运行恢复、启动、live 或 shadow 脚本。",
+    "unknowns": [
+      "可组合 successor recovery proof 的精确协议能否同时保留历史过渡证明并安全允许后续合法后代",
+      "独立 successor candidate 按已分类根因顺序修复后能否通过 targeted suites 与完整 suite",
+      "修复后的 exact successor 能否通过两份 candidate-bound 独立审查并形成真实 review envelope 和 full-history/tag bundle"
+    ],
+    "next_action": {
+      "description": "保持 fed7 及其持久 bundle 不变；只在新的隔离 successor candidate 中先设计可组合 recovery proof 与正反测试，再按已确认根因顺序修复；不创建追溯性 review tag，不运行恢复、启动、live 或 shadow 脚本。",
         "scope": "local_test",
         "external_effect": false,
         "destructive": false
@@ -239,6 +245,7 @@
       "authorized": false,
       "ready": false,
       "executable": false,
+      "authorization_consumed": false,
       "exact_target": {
         "public_building_id": "Building #CA012650",
         "public_record_location": "Best Western Plus Marina Gateway Hotel",
@@ -248,12 +255,15 @@
       "channel_source": "https://www.bwmarinagateway.com/contact.htm",
       "message_binding": {
         "path": "12-首个反证实验与对外动作候选.md",
-        "sha256": "c0dab2ed8a3de155a0feb72c11bad47b4dd226f35a3881cd0d5200cd67add9a1"
+        "sha256": "f7a2ea150dcc28d439966dbc7d1501f7720307763aa480fe29b959715f34c691"
       },
       "sender_account": null,
       "observation_cutoff_at": null,
       "pre_send_source_refresh": {
-        "status": "not_completed"
+        "status": "not_completed",
+        "completed_at": null,
+        "cec_status_record": null,
+        "organization_channel_record": null
       },
       "exact_user_authorization": false,
       "missing_bindings": [
@@ -262,7 +272,16 @@
         "pre_send_source_refresh",
         "exact_user_authorization"
       ],
-      "claim_boundary": "Internal review PASS does not authorize sending and does not establish demand, payment, delivery, profit, repeatability, or an asset."
+      "lifecycle": {
+        "stage": "blocked_missing_bindings",
+        "previous_stage": null,
+        "readiness_receipt": null,
+        "authorization_receipt": null,
+        "execution_receipt": null,
+        "observation_receipt": null,
+        "closure_receipt": null
+      },
+      "claim_boundary": "Any future detached internal review PASS would not authorize sending and would not establish demand, payment, delivery, profit, repeatability, or an asset."
     }
   ]
 }
