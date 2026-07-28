@@ -12,6 +12,7 @@ sys.dont_write_bytecode = True
 
 from verify_run2_crosswalk import (  # noqa: E402
     CrosswalkError,
+    SEMANTICALLY_REJECTED_CLAIM_BINDINGS,
     SEMANTICALLY_REJECTED_DIRECT_IDENTITIES,
     canonical_jsonl,
     final_rows,
@@ -92,23 +93,56 @@ class Run2CrosswalkTests(unittest.TestCase):
                 self.assertEqual(row["dd_ids"], [])
 
     def test_rejected_identity_cannot_be_reintroduced_by_count_change(self) -> None:
-        mappings = parse_direct_mappings(ROOT / "RUN2_CLAIM_EVIDENCE_CROSSWALK.md")
-        mappings["S2-K03/R16/turn163academia15"] = {
-            "rq_ids": ["RQ1"],
-            "claim_ids": ["SS-01"],
-            "dd_ids": ["DD-05"],
-            "residual_unknown": "synthetic re-promotion",
-        }
-        with patch("verify_run2_crosswalk.parse_direct_mappings", return_value=mappings):
-            with self.assertRaisesRegex(CrosswalkError, "semantically rejected identities"):
-                final_rows(ROOT)
+        for identity in sorted(SEMANTICALLY_REJECTED_DIRECT_IDENTITIES):
+            with self.subTest(identity=identity):
+                mappings = parse_direct_mappings(
+                    ROOT / "RUN2_CLAIM_EVIDENCE_CROSSWALK.md"
+                )
+                mappings[identity] = {
+                    "rq_ids": ["RQ1"],
+                    "claim_ids": ["SS-01"],
+                    "dd_ids": ["DD-05"],
+                    "residual_unknown": "synthetic re-promotion",
+                }
+                with patch(
+                    "verify_run2_crosswalk.parse_direct_mappings",
+                    return_value=mappings,
+                ):
+                    with self.assertRaisesRegex(
+                        CrosswalkError, "semantically rejected identities"
+                    ):
+                        final_rows(ROOT)
 
-    def test_r05_cannot_regain_ss01_bridge(self) -> None:
-        mappings = parse_direct_mappings(ROOT / "RUN2_CLAIM_EVIDENCE_CROSSWALK.md")
-        mappings["S2-K06/R05/turn166search3"]["claim_ids"].append("SS-01")
-        with patch("verify_run2_crosswalk.parse_direct_mappings", return_value=mappings):
-            with self.assertRaisesRegex(CrosswalkError, "semantically rejected claim bridge"):
-                final_rows(ROOT)
+    def test_rejected_claim_bindings_are_absent(self) -> None:
+        by_identity = {row["identity"]: row for row in self.rows}
+        for identity, rejected_claims in sorted(
+            SEMANTICALLY_REJECTED_CLAIM_BINDINGS.items()
+        ):
+            with self.subTest(identity=identity):
+                self.assertTrue(
+                    rejected_claims.isdisjoint(by_identity[identity]["claim_ids"])
+                )
+
+    def test_each_remaining_direct_row_cannot_regain_rejected_claim(self) -> None:
+        current = parse_direct_mappings(ROOT / "RUN2_CLAIM_EVIDENCE_CROSSWALK.md")
+        for identity, rejected_claims in sorted(
+            SEMANTICALLY_REJECTED_CLAIM_BINDINGS.items()
+        ):
+            if identity not in current:
+                continue
+            with self.subTest(identity=identity):
+                mappings = parse_direct_mappings(
+                    ROOT / "RUN2_CLAIM_EVIDENCE_CROSSWALK.md"
+                )
+                mappings[identity]["claim_ids"].append(sorted(rejected_claims)[0])
+                with patch(
+                    "verify_run2_crosswalk.parse_direct_mappings",
+                    return_value=mappings,
+                ):
+                    with self.assertRaisesRegex(
+                        CrosswalkError, "semantically rejected claim bridge"
+                    ):
+                        final_rows(ROOT)
 
     def test_r05_retains_only_narrow_tf04_bridge(self) -> None:
         row = next(

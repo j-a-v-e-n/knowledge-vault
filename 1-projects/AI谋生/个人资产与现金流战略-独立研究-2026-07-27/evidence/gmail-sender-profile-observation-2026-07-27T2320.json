@@ -1,0 +1,12 @@
+{
+  "schema_version": "gmail-sender-profile-observation/1",
+  "observed_at": "2026-07-27T23:20:26-07:00",
+  "connector_operation": "gmail_get_profile",
+  "account_email": "jacao@ucsd.edu",
+  "display_name": "Javen Cao",
+  "read_only": true,
+  "draft_created": false,
+  "message_sent": false,
+  "proposed_use": "sender_account_candidate_for_unexecuted_one_message_approval",
+  "claim_boundary": "This observation identifies the authenticated Gmail profile only. It does not authorize creating a draft, sending, following up, quoting, payment, account sharing, or any other external action."
+}

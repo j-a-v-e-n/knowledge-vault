@@ -1,0 +1,16 @@
+{
+  "schema_version": "ca012650-organization-channel-refresh/1",
+  "captured_at": "2026-07-27T23:17:54-07:00",
+  "source_url": "https://www.bwmarinagateway.com/contact.htm",
+  "source_content_binding": {
+    "path": "raw/bwmarinagateway-contact-pre-send-2026-07-27T2317.html",
+    "sha256": "5751bd861a96a5d3a93e8527603e5dd49febf076065b3a1fc682d03ed8736663"
+  },
+  "organization_name": "Best Western Plus Marina Gateway Hotel",
+  "organization_liveness": "public_contact_page_accessible",
+  "http_status": 200,
+  "final_url": "https://www.bwmarinagateway.com/contact.htm",
+  "exact_channel": "guestservices@bwmarinagateway.com",
+  "routing_contact_only": true,
+  "claim_boundary": "This refresh establishes only current page liveness, organization identity, and a public routing channel at capture time. It does not establish recipient authority, consent, demand, payment, or authority to contact."
+}

@@ -58,7 +58,7 @@ K_TO_RQ = {
 
 EXPECTED_STAGE_UNIVERSE = {"S1": 432, "S2": 345}
 EXPECTED_FINAL_CE_IN = {"S1": 131, "S2": 141}
-EXPECTED_DIRECT_MAPPINGS = {"S1": 18, "S2": 6}
+EXPECTED_DIRECT_MAPPINGS = {"S1": 18, "S2": 5}
 
 # These identities remain admitted CE-IN candidates, but the exact C6 semantic
 # review established that they do not directly support the current Claim/DD
@@ -67,6 +67,7 @@ EXPECTED_DIRECT_MAPPINGS = {"S1": 18, "S2": 6}
 SEMANTICALLY_REJECTED_DIRECT_IDENTITIES = {
     "S2-K03/R16/turn163academia15",
     "S2-K06/R06/turn166search4",
+    "S2-K07/R17/turn167academia16",
 }
 
 # The same review exposed a broader bridge error: none of these returned
@@ -77,6 +78,11 @@ SEMANTICALLY_REJECTED_CLAIM_BINDINGS = {
     "S2-K03/R16/turn163academia15": {"SS-01"},
     "S2-K06/R05/turn166search3": {"SS-01"},
     "S2-K06/R06/turn166search4": {"SS-01"},
+    "S1-K07/R01/turn153search0": {"SS-11"},
+    "S1-K07/R03/turn153search2": {"SS-11"},
+    "S1-K09/R16/turn155search11": {"EF-09"},
+    "S1-K12/R19/turn159search18": {"SS-06"},
+    "S2-K07/R17/turn167academia16": {"SS-04"},
 }
 
 

@@ -8,7 +8,7 @@
 
 本文件是 lead 的精确 final-status 对象，不再把 S2 joint 的独立接受误写成对后续最终运行状态的接受。只有独立审查者对本文件精确 SHA-256、完整 CE-IN crosswalk 和同一 Run2 链给出明确接受，且该接受记录随后被 successor candidate 精确绑定，lead 提议状态才生效；在此之前按协议只能是 `INCOMPLETE`。
 
-先前 acceptance receipt 绑定的是已经被 C6 终审发现语义桥错误的旧 crosswalk 字节；human/JSONL crosswalk、verifier 与 tests 已修订，旧 receipt 因任一绑定字节变化而自动失效，不能迁移或补签。本状态对象现在绑定下列修订字节，必须重新接受。修订不改变 S1/S2 final CE-IN universe 或冻结类别饱和命题，只把两个无充分语义桥的 S2 identity 降为 `NO_DIRECT_LOAD_BEARING_USE`，并把另一条来源对 `SS-01` 的过度关系删除。
+先前 acceptance receipt 绑定的是已经被 C6 终审发现语义桥错误的旧 crosswalk 字节；其后的 semantic remediation attempt 1 又被两份逐条审查拒绝。human/JSONL crosswalk、verifier 与 tests 已再次修订，所有旧 receipt/attempt 因任一绑定字节变化而自动失效，不能迁移或补签。本状态对象现在绑定下列修订字节，必须重新接受。修订不改变 S1/S2 final CE-IN universe 或冻结类别饱和命题；它只把三条无充分语义桥的 S2 identity 降为 `NO_DIRECT_LOAD_BEARING_USE`，并从仍保留的直接身份中删除其他超出原件命题的 Claim 关系。
 
 ## 精确身份
 
@@ -25,10 +25,10 @@
 | `independent-screening/S2.md` | `325555b723d748cb9cdc3c1442df179eaeb25dd8a31380488bfe8c84db64effe` | S2 independent 初始账本 |
 | `S2_JOINT_ADJUDICATION.md` | `c6b2f73f41f1669f1d4a096ebede551353f84024d6d281df091feab4a79907d3` | S2 第二次共同裁决 |
 | `S2_INDEPENDENT_ACCEPTANCE_RECEIPT.md` | `f10b6f36810bfd5ae441d6286ddb923f379dad4447d37bcecda9485b3a33bbf1` | S2 exact-byte independent ACCEPT 转录 |
-| `../RUN2_CLAIM_EVIDENCE_CROSSWALK.md` | `3f4747ab232ea2639b1265f04b4cdb8871f9218bf6d3c037d7e94a93e0892afb` | `24` 条直接 bridge、`248` 条 non-load-bearing 及语义降级说明 |
-| `../RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl` | `cbcbf182b03c157a23a2593f888859454d426d49e7aeb82e22863b3797dfaa38` | 全部 `272` 条最终 CE-IN 的 canonical 逐条映射 |
-| `../verify_run2_crosswalk.py` | `9a0e875fffd630594f99c59da17d020d6df3b3b32e64abb215173997fd651250` | 从 sealed inputs 复算 crosswalk，并独立拒绝已否决语义桥 |
-| `../test_run2_crosswalk.py` | `9c57ec9c0ddced4d7fd3b0b5c388be748c81915d4de7be72b523c1e1cc0f6576` | 缺失、重复、篡改、自晋级与语义桥回归 |
+| `../RUN2_CLAIM_EVIDENCE_CROSSWALK.md` | `8c71e9b5e5b5069259e820db8e1eae490aa21822094ef2e519d815c209ba8a0a` | `23` 条直接 bridge、`249` 条 non-load-bearing 及语义降级说明 |
+| `../RUN2_CLAIM_EVIDENCE_CROSSWALK.jsonl` | `b31b67b255a6f2b797e261199c5ff8196001963e21011b07396e837ab8b0273b` | 全部 `272` 条最终 CE-IN 的 canonical 逐条映射 |
+| `../verify_run2_crosswalk.py` | `1c1dafd1f7abfa9ae1ab6c918ccf1b7089c68d9c755c53663fe5a9d823a43ae0` | 从 sealed inputs 复算 crosswalk，并独立拒绝已否决 identity/Claim 语义桥 |
+| `../test_run2_crosswalk.py` | `0b58f975d46d9a17f91881f4362623fdc36716031c603f935a5abfd82e50c99d` | 缺失、重复、篡改、自晋级与全组语义桥回归 |
 
 S1/S2 raw manifests 进一步逐文件绑定各自的 raw 查询响应。冻结协议本身的 `NOT_RUN` 是预注册时的静态封印，未被修改；动态执行与本状态只存在于上述外部工件。
 

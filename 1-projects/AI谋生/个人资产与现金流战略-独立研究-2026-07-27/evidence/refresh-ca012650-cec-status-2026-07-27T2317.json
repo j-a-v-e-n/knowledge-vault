@@ -1,0 +1,17 @@
+{
+  "schema_version": "ca012650-cec-status-refresh/1",
+  "captured_at": "2026-07-27T23:17:59-07:00",
+  "source_url": "https://touchstone-content.s3.us-east-1.amazonaws.com/governments/CoveredBuildingsExport.csv",
+  "source_content_binding": {
+    "path": "raw/CoveredBuildingsExport-pre-send-2026-07-27T2317.csv",
+    "sha256": "8a996c43d04a8a690d60087c361e6f9580e1492868ee367f9958ff0b1a23bb75"
+  },
+  "exact_target": {
+    "public_building_id": "Building #CA012650",
+    "public_record_location": "Best Western Plus Marina Gateway Hotel",
+    "public_address": "800 Bay Marina Drive, National City"
+  },
+  "observed_reporting_year": "2026",
+  "observed_compliance_status": "not submitted",
+  "claim_boundary": "This refresh establishes only the exact public record row, address, reporting year, and compliance status at capture time. It does not establish demand, payment, legal duty, ownership, delivery feasibility, or authority to contact."
+}

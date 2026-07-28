@@ -246,3 +246,23 @@ Minor：`RESEARCH_CLOSURE_PREDICATE_MATRIX.md` 仍用“manifest/freeze 待生�
 - 修订后的 human/JSONL crosswalk、verifier、tests 与 `FINAL_RUN_STATUS.md` 必须形成新 exact bytes，并取得新的独立 Run2 acceptance；
 - closure matrix 的阶段措辞与 candidate 顶层 `status/scope` 必须改为 forward-stable、exact closed values；
 - 只有重建全候选 manifest/freeze 并由 fresh full reviewer 给出无 Critical/Major 的 PASS 后，才可创建 governance root。当前没有 implementation、shadow operation、deployment 或 external-action authority。
+
+## C6 后 Run2 semantic remediation attempt 1（exact package rejected）
+
+- Final-status SHA-256：`5030600b63e96377064bc7d0dd0e892394deabc1a726def0752f99141f712730`
+- Human crosswalk SHA-256：`3f4747ab232ea2639b1265f04b4cdb8871f9218bf6d3c037d7e94a93e0892afb`
+- Canonical JSONL SHA-256：`cbcbf182b03c157a23a2593f888859454d426d49e7aeb82e22863b3797dfaa38`
+- Crosswalk verifier SHA-256：`9a0e875fffd630594f99c59da17d020d6df3b3b32e64abb215173997fd651250`
+- Crosswalk tests SHA-256：`9c57ec9c0ddced4d7fd3b0b5c388be748c81915d4de7be72b523c1e1cc0f6576`
+- 审查 A：`fresh-c2-final-review`；`FAIL / 0 Critical / 2 Major / 0 Minor`；两项 Major 分别合并两个 S1 identity 与一个 S2 identity
+- 审查 B：`/root/declarative_gate_code_review`；`FAIL / 0 Critical / 5 Major / 0 Minor`；逐条审查全部 `24` 个当时的 direct mappings
+- 文件修改：两名 reviewer 均只读；未生成 acceptance receipt、governance 或 shadow root
+
+### 两份审查的并集修复
+
+- `S1-K07/R01`、`S1-K07/R03` 只保留对 `EF-16` 的窄限制，删除没有 portfolio capacity、parallelism、multiple-comparison 或 Agent-cost 命题的 `SS-11` 关系；`R03` 同时删除不能由该来源导出的 `DD-24`；
+- `S1-K09/R16` 只保留超长时程/评测框架对 `EF-10` 的窄桥，删除没有 tools/state/memory/retry/verifier/budget 干预比较的 `EF-09` 关系；
+- `S1-K12/R19` 只保留 dark-pattern 操纵/伤害材料对 `SS-05` 的窄桥，删除没有“合法合规不足以证明客户利益/信任/长期价值”命题的 `SS-06` 关系；
+- `S2-K07/R17` 保留 data-integration truth-discovery 算法及 source FP/FN quality 的 CE-IN/category value，但降为 `NO_DIRECT_LOAD_BEARING_USE`；该模型不认证网页作者、经历、独立性或未被操纵，不能桥到 `SS-04`；
+- 两份审查均明确接受 `S2-K06/R05 → TF-04` 的形式模型窄桥，且要求继续禁止经验 WTP、AI 降本、卖方利润、价值捕获或效果量外推；
+- verifier/test 必须把上述五项加入独立于计数的语义拒绝不变量。Attempt 1 的 exact bytes 永久保持 rejected，不得生成或迁移 acceptance receipt。
