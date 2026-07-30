@@ -9,10 +9,10 @@ flowchart TB
     G["✅ Graph 回溯方向<br/>已冻结并通过 fresh review"] --> R1["✖ Paper Gate R1<br/>冻结前失败 · 原样保留"]
     R1 --> R2["✖ Paper Gate R2<br/>无界数值环境依赖 · 已保留"]
     R2 --> R3["✖ Paper Gate R3<br/>重复同根故障 · 已保留"]
-    R3 --> D(["▶ Fresh 方向审查<br/>当前动作 · 禁止字段补丁"])
-    D --> Q["○ 方向判定<br/>统一数值权威，或保持 stalled"]
-    Q --> S["○ 下一结构性 successor<br/>仅在方向审查放行后"]
-    Q --> H["○ 保持 stalled<br/>若无可证伪技术路线"]
+    R3 --> D["✅ Fresh 方向审查<br/>选择统一数值权威控制层"]
+    D --> Q(["▶ Graph 方向绑定 R4<br/>当前动作 · 消费两个 trigger"])
+    Q --> S["○ 唯一 closed-domain successor<br/>仅在绑定通过后"]
+    Q -. "若绑定不能保持现有 Graph 权威" .-> H["○ 保持 stalled<br/>Ledger 继续锁定"]
     S --> P["○ Mutable prefreeze<br/>攻击 + 独立复审必须 PASS"]
     P --> F["○ 冻结 exact candidate"]
     F --> V["○ Fresh 独立审查"]
@@ -25,12 +25,13 @@ flowchart TB
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
     class G done;
-    class D current;
+    class D done;
+    class Q current;
     class R1,R2,R3,X failed;
-    class Q,S,H,P,F,V,L pending;
+    class S,H,P,F,V,L pending;
 ```
 
-一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R3 虽然通过了现有测试，但两路独立冻结前审查证明它仍让无界数值在统一权威表示前被进程环境解释，因此它与 R2 同根失败，已经原样保留。当前不再修某个字段，而是在做 Graph 要求的 fresh 方向审查；Ledger 没有开放。
+一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。Fresh 方向审查已选择“所有权威数值先进入一个闭合、环境无关的表示域”。当前先让 Product Graph 正确绑定并消费这次同根失败与新控制层两个 trigger；绑定通过前不写新的 prototype，Ledger 没有开放。
 
 ## 项目目标与产品主路径
 
@@ -60,8 +61,8 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T04:57:20-0700`
-- 执行状态：`RUNNING_DIRECTION_REVIEW`
+- 更新时间：`2026-07-30T05:10:14-0700`
+- 执行状态：`RUNNING_ROUTE_CONTROL_BINDING`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前实现：`没有可接受的 mutable candidate；R3 已冻结为失败证据`
 - R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
@@ -69,7 +70,8 @@ flowchart TB
 - R3 失败快照：`b2745910770c016327f73e749771e63626983d58`
 - R3 失败收据：`/private/tmp/PAPER_GATE_R3_B274591.prefreeze-failure.json`
 - 当前根因：并非某一个 Decimal 字段，而是没有在 canonical event、reducer 和 replay 之前，把所有权威数值原语收敛到同一个封闭、有界、环境无关的表示域。
-- 当前动作：fresh direction review 正在判断“统一数值权威控制层”是否是当前 Graph 内最小、可证伪的结构性回退；在方向证据被绑定前不继续编码。
+- 方向结论：`一个覆盖所有权威 numeric primitive 的 closed canonical scalar/value domain；不是 R3 字段补丁`
+- 当前动作：建立窄范围 R4 route-control candidate，让现有 Graph 校验分别消费 `same_acceptance_obligation_fails_after_a_claimed_root_fix` 与 `new_abstraction_or_protocol_layer_is_proposed`；node、work、obligation、objective 与风险规则均不改变。
 - 当前候选：`尚无可冻结候选`
 - Ledger：`未开放`
 - 用户参与：`当前不需要`
