@@ -8,7 +8,7 @@
 flowchart TB
     G["✅ Graph 回溯方向<br/>已冻结并通过 fresh review"] --> R1["✖ Paper Gate R1<br/>冻结前失败 · 原样保留"]
     R1 --> R2(["▶ Paper Gate R2<br/>当前实现候选"])
-    R2 --> D(["▶ 当前动作<br/>固定 Decimal 权威语义"])
+    R2 --> D(["▶ 当前动作<br/>精确比较 + 显式量化"])
     D --> T["○ 跨环境重放攻击验证"]
     T --> P["○ 冻结前独立复审"]
     P --> F["○ 冻结 exact candidate"]
@@ -27,7 +27,7 @@ flowchart TB
     class T,P,F,V,L pending;
 ```
 
-一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R2 的冻结前审查发现 Decimal 计算会随运行环境改变结果，所以现在修根因，尚未冻结，也没有开放 Ledger。
+一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R2 的冻结前审查先发现环境精度会改变结果，新的审查又证明固定有限精度仍会静默舍入或下溢；该方案已放弃，当前改为精确比较和显式量化，尚未冻结，也没有开放 Ledger。
 
 ## 项目目标与产品主路径
 
@@ -57,12 +57,12 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T03:17:58-0700`
+- 更新时间：`2026-07-30T03:50:19-0700`
 - 执行状态：`RUNNING`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前实现：`Paper Gate R2`
-- 当前根因：权威 Decimal 运算依赖进程环境，导致相同事件可能无法确定性重放。
-- 当前动作：复用项目既有金额语义，固定计算 context 与 canonical decimal 表示，并补跨环境重放攻击验证。
+- 当前根因：环境 Decimal context 和固定有限精度都会静默改变已批准的精确经济输入。
+- 当前动作：风险阈值改为精确整数系数比较；cash、position、fill 只在项目既有 quantum 上显式 `ROUND_HALF_EVEN`，并复演阈值舍入、正输入零金额和跨环境重放攻击。
 - 当前候选：`尚无可冻结候选`
 - Ledger：`未开放`
 - 用户参与：`当前不需要`
