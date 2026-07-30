@@ -12,11 +12,11 @@ flowchart TB
     R3 --> D["✅ Fresh 方向审查<br/>选择统一数值权威控制层"]
     D --> Q["✖ Graph 方向绑定 R4<br/>拓扑与事件绑定不足 · 已保留"]
     Q --> B["✖ Graph 方向绑定 R4B<br/>测试 oracle 自引用 · 已保留"]
-    B --> C["✅ Graph 方向绑定 R4C<br/>Mutable prefreeze PASS"]
-    C --> F["✅ Exact candidate 40c8898<br/>已冻结 · clean worktree"]
-    F --> V(["▶ Fresh frozen review<br/>检查 exact Git object"])
-    V --> S["○ 唯一 closed-domain successor<br/>仅在 fresh review 通过后"]
-    C -. "若不能保持现有 Graph 权威" .-> H["○ 保持 stalled<br/>Ledger 继续锁定"]
+    B --> C["✖ Graph 方向绑定 R4C<br/>Git authority 可重定向 · 已保留"]
+    C --> F["✖ Exact candidate 40c8898<br/>Fresh review 未接受"]
+    F --> V(["▶ 结构性 backtrack R4D<br/>复用 hardened Git authority"])
+    V --> S["○ 唯一 closed-domain successor<br/>仅在 R4D 验收后"]
+    V -. "若仍为同根失败" .-> H["○ 保持 stalled<br/>Ledger 继续锁定"]
     S --> P["○ 产品 Mutable prefreeze<br/>攻击 + 独立复审必须 PASS"]
     P --> K["○ 冻结产品 exact candidate"]
     K --> W["○ 产品 Fresh 独立审查"]
@@ -28,13 +28,13 @@ flowchart TB
     classDef current fill:#fff3bf,stroke:#e67700,stroke-width:3px;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class G,D,C,F done;
+    class G,D done;
     class V current;
-    class R1,R2,R3,Q,B,X failed;
+    class R1,R2,R3,Q,B,C,F,X failed;
     class S,H,P,K,W,L pending;
 ```
 
-一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R4C 已从冻结 Git 基线独立得出 Graph 合同答案，并通过 coordinated-rewrite 攻击与 mutable prefreeze 复审；exact candidate `40c8898` 已冻结。当前 fresh reviewer 只检查这个不可变 Git 对象，通过前不写新的 prototype，Ledger 没有开放。
+一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R4C 的 ordinary coordinated-rewrite 防护有效，但 fresh review 发现它读取冻结 Git 对象时没有复用项目已存在的 authority transport，因此 `GIT_*` 或 replace refs 仍可重定向答案；`40c8898` 未接受并已保留。当前 R4D 只复用现有 hardened transport，不新增治理或产品机制。通过前不写新的 prototype，Ledger 没有开放。
 
 ## 项目目标与产品主路径
 
@@ -64,10 +64,10 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T06:33:30-0700`
-- 执行状态：`RUNNING_ROUTE_CONTROL_R4C_FROZEN_REVIEW`
+- 更新时间：`2026-07-30T06:48:15-0700`
+- 执行状态：`STALLED_BACKTRACK_ROUTE_CONTROL_R4D_PREFREEZE`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
-- 当前实现：`R4C exact route-control candidate 已冻结；fresh review 尚未接受`
+- 当前实现：`R4C fresh review 失败；R4D structural backtrack 正在 mutable prefreeze`
 - R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
 - R2 失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
 - R3 失败快照：`b2745910770c016327f73e749771e63626983d58`
@@ -76,10 +76,12 @@ flowchart TB
 - R4 路线绑定失败收据：`/private/tmp/PAPER_GATE_DIRECTION_R4_AB021E9.prefreeze-failure.json`
 - R4B 路线绑定失败快照：`c1a19d2f33b3a2c40b2938b5c381b10f2cd1803c`
 - R4B 路线绑定失败收据：`/private/tmp/PAPER_GATE_DIRECTION_R4B_C1A19D2.prefreeze-failure.json`
+- R4C 路线绑定失败快照：`40c88981942bea40502010521623d8d9fef61e58`
+- R4C frozen-review 失败收据：`/private/tmp/PAPER_GATE_DIRECTION_R4C_40C8898.frozen-review-failure.json`
 - 当前根因：并非某一个 Decimal 字段，而是没有在 canonical event、reducer 和 replay 之前，把所有权威数值原语收敛到同一个封闭、有界、环境无关的表示域。
 - 方向结论：`一个覆盖所有权威 numeric primitive 的 closed canonical scalar/value domain；不是 R3 字段补丁`
-- 当前动作：fresh reviewer 直接检查 commit `40c88981942bea40502010521623d8d9fef61e58` 的 tree、parent、subtree、两文件写集、冻结基线 oracle 与 coordinated-rewrite 反例；不信任 mutable worktree 或 prefreeze 声称。
-- 当前候选：`40c88981942bea40502010521623d8d9fef61e58`（route-control only；pending fresh review）
+- 当前动作：R4D 删除临时 direct Git lookup，改用项目已有 `verify_execution_loop_v2` Git authority/object reader，在 hostile `GIT_DIR`、`GIT_WORK_TREE`、`GIT_REPLACE_REF_BASE` 下读取同一个冻结 base；同时保存 R4C 失败收据。Graph、验证器、边界、prototype 与风险规则均不改变。
+- 当前候选：`mutable prefreeze；R4C 未接受，产品 successor 与 R5 均未授权`
 - Ledger：`未开放`
 - 用户参与：`当前不需要`
 
