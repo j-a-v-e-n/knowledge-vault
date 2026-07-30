@@ -8,13 +8,15 @@
 flowchart TB
     G["✅ Graph 回溯方向<br/>已冻结并通过 fresh review"] --> R1["✖ Paper Gate R1<br/>冻结前失败 · 原样保留"]
     R1 --> R2["✖ Paper Gate R2<br/>无界数值环境依赖 · 已保留"]
-    R2 --> R3(["▶ Paper Gate R3<br/>当前唯一 successor"])
-    R3 --> D(["▶ 当前动作<br/>有界 fixed-point units"])
-    D --> T["○ 边界 + 跨环境攻击验证"]
-    T --> P["○ 冻结前独立复审"]
-    P --> F["○ 冻结 bounded candidate"]
+    R2 --> R3["✖ Paper Gate R3<br/>重复同根故障 · 已保留"]
+    R3 --> D(["▶ Fresh 方向审查<br/>当前动作 · 禁止字段补丁"])
+    D --> Q["○ 方向判定<br/>统一数值权威，或保持 stalled"]
+    Q --> S["○ 下一结构性 successor<br/>仅在方向审查放行后"]
+    Q --> H["○ 保持 stalled<br/>若无可证伪技术路线"]
+    S --> P["○ Mutable prefreeze<br/>攻击 + 独立复审必须 PASS"]
+    P --> F["○ 冻结 exact candidate"]
     F --> V["○ Fresh 独立审查"]
-    V --> L["○ Ledger 节点开放"]
+    V --> L["○ Ledger 节点才可能开放"]
 
     G -. "已否决的旁路" .-> X["✖ Ledger 候选<br/>均未获接受 · 返回 Paper Gate"]
 
@@ -23,12 +25,12 @@ flowchart TB
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
     class G done;
-    class R3,D current;
-    class R1,R2,X failed;
-    class T,P,F,V,L pending;
+    class D current;
+    class R1,R2,R3,X failed;
+    class Q,S,H,P,F,V,L pending;
 ```
 
-一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R2 的两路独立冻结前审查都复现了同一权威输入会随 Python 进程设置产生不同终态，因此 R2 已作为失败快照保留。当前已换控制层到 R3：先把输入规范化为有界 fixed-point units，再进入 canonical approval、整数 reducer 和 SQLite INTEGER 重放；尚未冻结，也没有开放 Ledger。
+一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R3 虽然通过了现有测试，但两路独立冻结前审查证明它仍让无界数值在统一权威表示前被进程环境解释，因此它与 R2 同根失败，已经原样保留。当前不再修某个字段，而是在做 Graph 要求的 fresh 方向审查；Ledger 没有开放。
 
 ## 项目目标与产品主路径
 
@@ -58,14 +60,16 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T04:11:54-0700`
-- 执行状态：`RUNNING`
+- 更新时间：`2026-07-30T04:57:20-0700`
+- 执行状态：`RUNNING_DIRECTION_REVIEW`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
-- 当前实现：`Paper Gate R3 bounded fixed-point successor`
-- 已保留失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
-- R2 失败收据：`/private/tmp/PAPER_GATE_R2_1AFC87D.prefreeze-failure.json`
-- 当前根因：允许无界 Decimal 进入权威状态机，会让进程级整数转换限制改变 canonical 结果、durable terminal 和重放能力。
-- 当前动作：在任何 canonical expansion 或大整数构造前，把 price、quantity、money、fee、ratio 映射到项目既有 quantum 的有界 units；之后只允许受检整数运算与 SQLite INTEGER 存储。
+- 当前实现：`没有可接受的 mutable candidate；R3 已冻结为失败证据`
+- R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
+- R2 失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
+- R3 失败快照：`b2745910770c016327f73e749771e63626983d58`
+- R3 失败收据：`/private/tmp/PAPER_GATE_R3_B274591.prefreeze-failure.json`
+- 当前根因：并非某一个 Decimal 字段，而是没有在 canonical event、reducer 和 replay 之前，把所有权威数值原语收敛到同一个封闭、有界、环境无关的表示域。
+- 当前动作：fresh direction review 正在判断“统一数值权威控制层”是否是当前 Graph 内最小、可证伪的结构性回退；在方向证据被绑定前不继续编码。
 - 当前候选：`尚无可冻结候选`
 - Ledger：`未开放`
 - 用户参与：`当前不需要`
