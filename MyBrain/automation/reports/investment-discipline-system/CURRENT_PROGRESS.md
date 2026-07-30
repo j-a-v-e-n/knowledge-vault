@@ -10,12 +10,15 @@ flowchart LR
     A[["✅ 根因与回溯方向<br/>已确认"]] --> B[["✅ Graph 回溯候选<br/>定向检查通过"]]
     B --> C[["✅ exact candidate<br/>已冻结"]]
     C --> D[["✅ Fresh 独立审查<br/>FINAL_PASS"]]
-    D --> E(["▶ 当前：Paper Gate<br/>单一状态机实现"])
-    E --> F["○ Ledger 后续切片"]
+    D --> E["✖ Paper Gate R1<br/>prefreeze 未通过，已保留"]
+    E --> F(["▶ 当前：Paper Gate R2<br/>单批准 · 单 reducer · 单 replay · 单 sink"])
+    F --> G["○ 冻结产品候选"]
+    G --> H["○ Fresh 独立审查"]
+    H --> I["○ Ledger 后续切片"]
 ```
 
-当前不是“项目停了”，也不是“继续修 Ledger”：Graph 回溯候选已经通过
-fresh review，现在进入一个单独、有界的 Paper Gate 产品实现候选。
+当前不是“项目停了”，也不是“继续修 Ledger”：R1 在冻结前发现同根 authority
+overlap，已经原样保留；R2 从已通过审查的 Graph 基线重新收敛唯一权威。
 
 ## 项目 Mission Graph（产品主路径）
 
@@ -40,14 +43,16 @@ flowchart LR
 
 ## 当前观察
 
-- 更新时间：`2026-07-30T01:16:53-07:00`
+- 更新时间：`2026-07-30T02:16:06-07:00`
 - 执行状态：`RUNNING`
-- 当前阶段：`实现单一 SQLite-backed record_paper_commit Paper Gate vertical slice`
+- 当前阶段：`从 Graph 基线实现 Paper Gate single-authority R2`
 - 当前路线判断：停止第四个 Ledger/kernel 补丁，回溯 `CAP-PAPER-GATE-INTEGRITY`
-- 工作分支：`codex/paper-gate-state-machine-r1`
-- 隔离 worktree：`/private/tmp/investment-paper-gate-impl-r1.lAUEjK/vault/MyBrain/projects/investment-discipline-system`
+- 工作分支：`codex/paper-gate-single-authority-r2`
+- 隔离 worktree：`/private/tmp/investment-paper-gate-r2.bKnnTF/vault/MyBrain/projects/investment-discipline-system`
 - 当前实现基线：`23ffe3dc67d17fde1e42fc53ac845945849f4dd2`
-- 冻结候选：`23ffe3dc67d17fde1e42fc53ac845945849f4dd2`
+- Graph 冻结基线：`23ffe3dc67d17fde1e42fc53ac845945849f4dd2`
+- R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
+- 当前产品冻结候选：`尚无`
 - 用户参与：`当前不需要`
 
 ## 已经完成
@@ -64,23 +69,26 @@ flowchart LR
   `23ffe3dc67d17fde1e42fc53ac845945849f4dd2`；prototype subtree 未改变。
 - 未参与构造的 fresh reviewer 对冻结原件给出 `FINAL_PASS`，没有 Critical、
   Major 或 Minor finding；通过上限仅为 Graph 回退与有界实现交接。
+- R1 prefreeze review 发现旧公开 replay、新提交前验证和人工批准仍有分裂权威；
+  R1 已作为失败样本冻结保存，没有被当作 acceptance candidate。
 
 ## 正在进行
 
-- 从已通过审查的 Graph 候选建立新的隔离实现 worktree。
-- 只实现一个 Paper Gate submission envelope、reducer 和 SQLite-backed
-  `record_paper_commit` 提交入口。
+- 从已通过审查的 Graph 基线建立 R2 隔离 worktree。
+- 只保留一个 canonical approval artifact、一个 reducer、一个 replay 和一个
+  SQLite-backed `record_paper_commit` sink。
+- replay 从冻结 envelope 和历史前缀重算转移；新 identity 在写入前先完成同一回放。
 - 继续保持不新增 node、obligation、program intervention 或全局治理路线。
 
 ## 下一道门
 
-1. 完成并验证一个有界 Paper Gate 产品候选。
+1. 完成 R2 并通过新的 prefreeze root review。
 2. 冻结 exact candidate，生成 deterministic receipt。
 3. 由新的独立审查者挑战实现与反例；同根失败则按 stall/backtrack，不做字段补丁。
 
 ## 明确未完成
 
-- Paper Gate 产品候选尚未完成、冻结或通过 fresh review。
+- R1 明确失败；R2 尚未完成、冻结或通过 fresh review。
 - Ledger 节点没有完成。
 - 没有 live、shadow、券商、资金、凭据、provider account 或风险规则权限。
 
