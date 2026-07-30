@@ -8,14 +8,14 @@
 ```mermaid
 flowchart LR
     A[["✅ 根因与回溯方向<br/>已确认"]] --> B[["✅ Graph 回溯候选<br/>定向检查通过"]]
-    B --> C(["▶ 当前：冻结 exact candidate"])
-    C --> D["○ Fresh 独立审查"]
+    B --> C[["✅ exact candidate<br/>已冻结"]]
+    C --> D(["▶ 当前：Fresh 独立审查"])
     D --> E["○ Paper Gate 单一状态机实现"]
     E --> F["○ Ledger 后续切片"]
 ```
 
-当前不是“项目停了”，也不是“继续修 Ledger”：现在正把已经验证的 Graph
-回溯候选冻结成不可变对象，随后交给未参与构造的审查者。
+当前不是“项目停了”，也不是“继续修 Ledger”：Graph 回溯候选已经冻结，
+现在由未参与构造的审查者检查原件。
 
 ## 项目 Mission Graph（产品主路径）
 
@@ -40,13 +40,14 @@ flowchart LR
 
 ## 当前观察
 
-- 更新时间：`2026-07-30T01:00:03-07:00`
+- 更新时间：`2026-07-30T01:08:16-07:00`
 - 执行状态：`RUNNING`
-- 当前阶段：`冻结已通过定向检查的 Paper Gate Graph 回溯候选`
+- 当前阶段：`对冻结的 Paper Gate Graph 回溯候选做 fresh 独立审查`
 - 当前路线判断：停止第四个 Ledger/kernel 补丁，回溯 `CAP-PAPER-GATE-INTEGRITY`
 - 工作分支：`codex/paper-gate-boundary-r1`
 - 隔离 worktree：`/private/tmp/investment-paper-gate-backtrack-r1.uoDVNC/vault/MyBrain/projects/investment-discipline-system`
 - 基线：`931817a0251bef1ad3975afee7ad06f59aedf06a`
+- 冻结候选：`23ffe3dc67d17fde1e42fc53ac845945849f4dd2`
 - 用户参与：`当前不需要`
 
 ## 已经完成
@@ -58,23 +59,23 @@ flowchart LR
 - 复演 SQLite 同 ID 语义回归：首次风险拒绝后，替换 intent 可被接受。
 - 已生成有界方向审查记录与 Paper Gate 状态机边界契约；尚未宣称验收。
 - Graph 定向测试、Mission Graph、Product Graph、派生视图和精确 current-work
-  检查均已通过；候选尚未冻结提交。
+  检查均已通过。
+- exact Graph 回溯候选已冻结为
+  `23ffe3dc67d17fde1e42fc53ac845945849f4dd2`；prototype subtree 未改变。
 
 ## 正在进行
 
-- 核对候选的精确写集并冻结 commit/tree。
-- 准备交给未参与构造的 fresh reviewer 做原件审查。
+- 由未参与构造的 fresh reviewer 核对冻结 commit/tree、原始文件和负向门禁。
 - 继续保持不新增 node、obligation、program intervention 或全局治理路线。
 
 ## 下一道门
 
-1. 冻结 exact Graph 回溯候选。
-2. 由未参与构造的上下文做 fresh review。
-3. 只有 review 通过，才开始单一 `record_paper_commit` 产品实现。
+1. fresh review 对冻结候选给出明确结论。
+2. 只有 review 通过，才开始单一 `record_paper_commit` 产品实现。
 
 ## 明确未完成
 
-- Graph 指针尚未冻结提交。
+- 冻结 Graph 候选尚未通过 fresh review，因此还不是路线验收。
 - Paper Gate 新实现尚未开始。
 - Ledger 节点没有完成。
 - 没有 live、shadow、券商、资金、凭据、provider account 或风险规则权限。
