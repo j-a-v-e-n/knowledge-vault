@@ -7,11 +7,12 @@
 ```mermaid
 flowchart TB
     G["✅ Graph 回溯方向<br/>已冻结并通过 fresh review"] --> R1["✖ Paper Gate R1<br/>冻结前失败 · 原样保留"]
-    R1 --> R2(["▶ Paper Gate R2<br/>当前实现候选"])
-    R2 --> D(["▶ 当前动作<br/>精确比较 + 显式量化"])
-    D --> T["○ 跨环境重放攻击验证"]
+    R1 --> R2["✖ Paper Gate R2<br/>无界数值环境依赖 · 已保留"]
+    R2 --> R3(["▶ Paper Gate R3<br/>当前唯一 successor"])
+    R3 --> D(["▶ 当前动作<br/>有界 fixed-point units"])
+    D --> T["○ 边界 + 跨环境攻击验证"]
     T --> P["○ 冻结前独立复审"]
-    P --> F["○ 冻结 exact candidate"]
+    P --> F["○ 冻结 bounded candidate"]
     F --> V["○ Fresh 独立审查"]
     V --> L["○ Ledger 节点开放"]
 
@@ -22,12 +23,12 @@ flowchart TB
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
     class G done;
-    class R2,D current;
-    class R1,X failed;
+    class R3,D current;
+    class R1,R2,X failed;
     class T,P,F,V,L pending;
 ```
 
-一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R2 的冻结前审查先发现环境精度会改变结果，新的审查又证明固定有限精度仍会静默舍入或下溢；该方案已放弃，当前改为精确比较和显式量化，尚未冻结，也没有开放 Ledger。
+一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R2 的两路独立冻结前审查都复现了同一权威输入会随 Python 进程设置产生不同终态，因此 R2 已作为失败快照保留。当前已换控制层到 R3：先把输入规范化为有界 fixed-point units，再进入 canonical approval、整数 reducer 和 SQLite INTEGER 重放；尚未冻结，也没有开放 Ledger。
 
 ## 项目目标与产品主路径
 
@@ -57,12 +58,14 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T03:50:19-0700`
+- 更新时间：`2026-07-30T04:11:54-0700`
 - 执行状态：`RUNNING`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
-- 当前实现：`Paper Gate R2`
-- 当前根因：环境 Decimal context 和固定有限精度都会静默改变已批准的精确经济输入。
-- 当前动作：风险阈值改为精确整数系数比较；cash、position、fill 只在项目既有 quantum 上显式 `ROUND_HALF_EVEN`，并复演阈值舍入、正输入零金额和跨环境重放攻击。
+- 当前实现：`Paper Gate R3 bounded fixed-point successor`
+- 已保留失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
+- R2 失败收据：`/private/tmp/PAPER_GATE_R2_1AFC87D.prefreeze-failure.json`
+- 当前根因：允许无界 Decimal 进入权威状态机，会让进程级整数转换限制改变 canonical 结果、durable terminal 和重放能力。
+- 当前动作：在任何 canonical expansion 或大整数构造前，把 price、quantity、money、fee、ratio 映射到项目既有 quantum 的有界 units；之后只允许受检整数运算与 SQLite INTEGER 存储。
 - 当前候选：`尚无可冻结候选`
 - Ledger：`未开放`
 - 用户参与：`当前不需要`
