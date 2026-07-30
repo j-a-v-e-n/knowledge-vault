@@ -9,13 +9,13 @@
 flowchart LR
     A[["✅ 根因与回溯方向<br/>已确认"]] --> B[["✅ Graph 回溯候选<br/>定向检查通过"]]
     B --> C[["✅ exact candidate<br/>已冻结"]]
-    C --> D(["▶ 当前：Fresh 独立审查"])
-    D --> E["○ Paper Gate 单一状态机实现"]
+    C --> D[["✅ Fresh 独立审查<br/>FINAL_PASS"]]
+    D --> E(["▶ 当前：Paper Gate<br/>单一状态机实现"])
     E --> F["○ Ledger 后续切片"]
 ```
 
-当前不是“项目停了”，也不是“继续修 Ledger”：Graph 回溯候选已经冻结，
-现在由未参与构造的审查者检查原件。
+当前不是“项目停了”，也不是“继续修 Ledger”：Graph 回溯候选已经通过
+fresh review，现在进入一个单独、有界的 Paper Gate 产品实现候选。
 
 ## 项目 Mission Graph（产品主路径）
 
@@ -40,13 +40,13 @@ flowchart LR
 
 ## 当前观察
 
-- 更新时间：`2026-07-30T01:08:16-07:00`
+- 更新时间：`2026-07-30T01:16:53-07:00`
 - 执行状态：`RUNNING`
-- 当前阶段：`对冻结的 Paper Gate Graph 回溯候选做 fresh 独立审查`
+- 当前阶段：`实现单一 SQLite-backed record_paper_commit Paper Gate vertical slice`
 - 当前路线判断：停止第四个 Ledger/kernel 补丁，回溯 `CAP-PAPER-GATE-INTEGRITY`
-- 工作分支：`codex/paper-gate-boundary-r1`
-- 隔离 worktree：`/private/tmp/investment-paper-gate-backtrack-r1.uoDVNC/vault/MyBrain/projects/investment-discipline-system`
-- 基线：`931817a0251bef1ad3975afee7ad06f59aedf06a`
+- 工作分支：`codex/paper-gate-state-machine-r1`
+- 隔离 worktree：`/private/tmp/investment-paper-gate-impl-r1.lAUEjK/vault/MyBrain/projects/investment-discipline-system`
+- 当前实现基线：`23ffe3dc67d17fde1e42fc53ac845945849f4dd2`
 - 冻结候选：`23ffe3dc67d17fde1e42fc53ac845945849f4dd2`
 - 用户参与：`当前不需要`
 
@@ -62,21 +62,25 @@ flowchart LR
   检查均已通过。
 - exact Graph 回溯候选已冻结为
   `23ffe3dc67d17fde1e42fc53ac845945849f4dd2`；prototype subtree 未改变。
+- 未参与构造的 fresh reviewer 对冻结原件给出 `FINAL_PASS`，没有 Critical、
+  Major 或 Minor finding；通过上限仅为 Graph 回退与有界实现交接。
 
 ## 正在进行
 
-- 由未参与构造的 fresh reviewer 核对冻结 commit/tree、原始文件和负向门禁。
+- 从已通过审查的 Graph 候选建立新的隔离实现 worktree。
+- 只实现一个 Paper Gate submission envelope、reducer 和 SQLite-backed
+  `record_paper_commit` 提交入口。
 - 继续保持不新增 node、obligation、program intervention 或全局治理路线。
 
 ## 下一道门
 
-1. fresh review 对冻结候选给出明确结论。
-2. 只有 review 通过，才开始单一 `record_paper_commit` 产品实现。
+1. 完成并验证一个有界 Paper Gate 产品候选。
+2. 冻结 exact candidate，生成 deterministic receipt。
+3. 由新的独立审查者挑战实现与反例；同根失败则按 stall/backtrack，不做字段补丁。
 
 ## 明确未完成
 
-- 冻结 Graph 候选尚未通过 fresh review，因此还不是路线验收。
-- Paper Gate 新实现尚未开始。
+- Paper Gate 产品候选尚未完成、冻结或通过 fresh review。
 - Ledger 节点没有完成。
 - 没有 live、shadow、券商、资金、凭据、provider account 或风险规则权限。
 
