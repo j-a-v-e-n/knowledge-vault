@@ -10,9 +10,10 @@ flowchart TB
     R1 --> R2["✖ Paper Gate R2<br/>无界数值环境依赖 · 已保留"]
     R2 --> R3["✖ Paper Gate R3<br/>重复同根故障 · 已保留"]
     R3 --> D["✅ Fresh 方向审查<br/>选择统一数值权威控制层"]
-    D --> Q(["▶ Graph 方向绑定 R4<br/>当前动作 · 消费两个 trigger"])
-    Q --> S["○ 唯一 closed-domain successor<br/>仅在绑定通过后"]
-    Q -. "若绑定不能保持现有 Graph 权威" .-> H["○ 保持 stalled<br/>Ledger 继续锁定"]
+    D --> Q["✖ Graph 方向绑定 R4<br/>拓扑与事件绑定不足 · 已保留"]
+    Q --> B(["▶ Graph 方向绑定 R4B<br/>完整拓扑 + R3 特定事件收据"])
+    B --> S["○ 唯一 closed-domain successor<br/>仅在 R4B 通过后"]
+    B -. "若不能保持现有 Graph 权威" .-> H["○ 保持 stalled<br/>Ledger 继续锁定"]
     S --> P["○ Mutable prefreeze<br/>攻击 + 独立复审必须 PASS"]
     P --> F["○ 冻结 exact candidate"]
     F --> V["○ Fresh 独立审查"]
@@ -26,12 +27,12 @@ flowchart TB
     classDef pending fill:#f1f3f5,stroke:#868e96;
     class G done;
     class D done;
-    class Q current;
-    class R1,R2,R3,X failed;
+    class B current;
+    class R1,R2,R3,Q,X failed;
     class S,H,P,F,V,L pending;
 ```
 
-一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。Fresh 方向审查已选择“所有权威数值先进入一个闭合、环境无关的表示域”。当前先让 Product Graph 正确绑定并消费这次同根失败与新控制层两个 trigger；绑定通过前不写新的 prototype，Ledger 没有开放。
+一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。首个 R4 路线绑定候选通过了现有测试，但独立攻击证明它没有锁死完整 Product Graph 拓扑，而且只校验 trigger 字符串，不能区分 R3 历史事件与未来失败。R4 已作为失败证据保留；当前 R4B 只修这两个根因，绑定通过前不写新的 prototype，Ledger 没有开放。
 
 ## 项目目标与产品主路径
 
@@ -61,17 +62,19 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T05:10:14-0700`
-- 执行状态：`RUNNING_ROUTE_CONTROL_BINDING`
+- 更新时间：`2026-07-30T05:43:40-0700`
+- 执行状态：`RUNNING_ROUTE_CONTROL_R4B`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前实现：`没有可接受的 mutable candidate；R3 已冻结为失败证据`
 - R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
 - R2 失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
 - R3 失败快照：`b2745910770c016327f73e749771e63626983d58`
 - R3 失败收据：`/private/tmp/PAPER_GATE_R3_B274591.prefreeze-failure.json`
+- R4 路线绑定失败快照：`ab021e94d94357e9a82255dbf62f3f53c60d50c0`
+- R4 路线绑定失败收据：`/private/tmp/PAPER_GATE_DIRECTION_R4_AB021E9.prefreeze-failure.json`
 - 当前根因：并非某一个 Decimal 字段，而是没有在 canonical event、reducer 和 replay 之前，把所有权威数值原语收敛到同一个封闭、有界、环境无关的表示域。
 - 方向结论：`一个覆盖所有权威 numeric primitive 的 closed canonical scalar/value domain；不是 R3 字段补丁`
-- 当前动作：建立窄范围 R4 route-control candidate，让现有 Graph 校验分别消费 `same_acceptance_obligation_fails_after_a_claimed_root_fix` 与 `new_abstraction_or_protocol_layer_is_proposed`；node、work、obligation、objective 与风险规则均不改变。
+- 当前动作：R4B 用一个完整的 baseline Graph 合同锁住除四个已授权 `current_work` 字段外的全部拓扑与权威；另用候选特定的 R3 trigger receipt 绑定同根失败、唯一 R4 attempt 与 no-R5 规则。node、work、obligation、objective 与风险规则均不改变。
 - 当前候选：`尚无可冻结候选`
 - Ledger：`未开放`
 - 用户参与：`当前不需要`
