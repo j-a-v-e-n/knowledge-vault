@@ -6,37 +6,29 @@
 
 ```mermaid
 flowchart TB
-    G["✅ Graph 回溯方向<br/>已冻结并通过 fresh review"] --> R1["✖ Paper Gate R1<br/>冻结前失败 · 原样保留"]
-    R1 --> R2["✖ Paper Gate R2<br/>无界数值环境依赖 · 已保留"]
-    R2 --> R3["✖ Paper Gate R3<br/>重复同根故障 · 已保留"]
-    R3 --> D["✅ Fresh 方向审查<br/>选择统一数值权威控制层"]
-    D --> Q["✖ Graph 方向绑定 R4<br/>拓扑与事件绑定不足 · 已保留"]
-    Q --> B["✖ Graph 方向绑定 R4B<br/>测试 oracle 自引用 · 已保留"]
-    B --> C["✖ Graph 方向绑定 R4C<br/>Git authority 可重定向 · 已保留"]
-    C --> F["✖ Exact candidate 40c8898<br/>Fresh review 未接受"]
-    F --> V["✅ 结构性 backtrack R4D<br/>Mutable prefreeze PASS"]
-    V --> E["✅ Exact candidate 610328c<br/>已冻结 · clean worktree"]
-    E --> Z(["▶ Fresh frozen review<br/>检查 exact Git object"])
-    Z --> S["○ 唯一 closed-domain successor<br/>仅在 fresh review 通过后"]
-    V -. "若仍为同根失败" .-> H["○ 保持 stalled<br/>Ledger 继续锁定"]
-    S --> P["○ 产品 Mutable prefreeze<br/>攻击 + 独立复审必须 PASS"]
+    G["✅ Graph 基线<br/>冻结 + fresh review"] --> D["✅ 方向结论<br/>一个闭合数值权威域"]
+    D --> R["✅ 路线控制 R4D<br/>610328c 已接受"]
+    R --> S(["▶ Paper Gate 产品实现<br/>14-path bounded slice"])
+    S --> P["○ Mutable prefreeze<br/>攻击验证"]
     P --> K["○ 冻结产品 exact candidate"]
-    K --> W["○ 产品 Fresh 独立审查"]
-    W --> L["○ Ledger 节点才可能开放"]
+    K --> W["○ Fresh 独立审查"]
+    W --> A["○ Paper Gate 验收"]
+    A --> L["🔒 Ledger<br/>当前未开放"]
 
-    G -. "已否决的旁路" .-> X["✖ Ledger 候选<br/>均未获接受 · 返回 Paper Gate"]
+    D -. "失败历史保留" .-> F["✖ R1 / R2 / R3 / R4 / R4B / R4C"]
+    S -. "若再现同根失败" .-> H["■ 停止并 backtrack<br/>不做 R5"]
 
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#fff3bf,stroke:#e67700,stroke-width:3px;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class G,D,V,E done;
-    class Z current;
-    class R1,R2,R3,Q,B,C,F,X failed;
-    class S,H,P,K,W,L pending;
+    class G,D,R done;
+    class S current;
+    class F,H,L failed;
+    class P,K,W,A pending;
 ```
 
-一句话：项目没有停；Graph 仍把工作锁在 **Paper Gate**。R4C 未接受并已保留；R4D 已复用项目现有 hardened Git authority transport，恶意 `GIT_*`、decoy authority、replace ref 与 Graph/常量协同改写攻击均失败。exact candidate `610328c` 已冻结，当前 fresh reviewer 只检查这个不可变 Git 对象。通过前不写新的 prototype，Ledger 没有开放。
+一句话：项目没有停。路线控制 `610328c` 已通过 fresh frozen review；当前只实现一个闭合数值域的 Paper Gate 产品切片。Ledger 仍锁定。
 
 ## 项目目标与产品主路径
 
@@ -66,10 +58,12 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T06:57:22-0700`
-- 执行状态：`RUNNING_ROUTE_CONTROL_R4D_FROZEN_REVIEW`
+- 更新时间：`2026-07-30T07:21:48-0700`
+- 执行状态：`RUNNING_CLOSED_NUMERIC_DOMAIN_PRODUCT_R4`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
-- 当前实现：`R4D exact route-control candidate 已冻结；fresh review 尚未接受`
+- 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
+- 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
+- 当前实现：`唯一 closed-domain Paper Gate successor；mutable worktree，尚未验收`
 - R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
 - R2 失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
 - R3 失败快照：`b2745910770c016327f73e749771e63626983d58`
@@ -82,8 +76,11 @@ flowchart TB
 - R4C frozen-review 失败收据：`/private/tmp/PAPER_GATE_DIRECTION_R4C_40C8898.frozen-review-failure.json`
 - 当前根因：并非某一个 Decimal 字段，而是没有在 canonical event、reducer 和 replay 之前，把所有权威数值原语收敛到同一个封闭、有界、环境无关的表示域。
 - 方向结论：`一个覆盖所有权威 numeric primitive 的 closed canonical scalar/value domain；不是 R3 字段补丁`
-- 当前动作：fresh reviewer 直接检查 commit `610328ce328834bd43c60e1cc0fa2aaa7d5866c7` 的 tree、parent、subtree、两文件写集、hardened Git authority transport 与 hostile-environment 反例；不信任 mutable worktree 或 prefreeze 声称。
-- 当前候选：`610328ce328834bd43c60e1cc0fa2aaa7d5866c7`（route-control only；pending fresh review；产品 successor 与 R5 均未授权）
+- 已接受的路线控制：`610328ce328834bd43c60e1cc0fa2aaa7d5866c7`
+- Route-control fresh review 收据：`/private/tmp/PAPER_GATE_DIRECTION_R4D_610328C.fresh-review-pass.json`
+- 当前动作：在 Graph 允许的既有产品写集内，把所有权威数值在 identity、event、reducer、SQLite 和 replay 之前收敛到同一个 signed-64 fixed-point / integer domain；完成后先做 mutable prefreeze，再冻结 exact product candidate，并由 fresh reviewer 只检查冻结对象。
+- 当前产品写集：`14 paths`（既有 inventory；不新增 Graph、governance、authority kernel 或 parallel numeric protocol）
+- 当前产品候选：`尚未冻结`
 - Ledger：`未开放`
 - 用户参与：`当前不需要`
 
