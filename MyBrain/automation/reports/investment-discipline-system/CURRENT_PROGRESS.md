@@ -26,8 +26,9 @@ flowchart TB
     B2 --> FIX
     FIX --> T["✅ 攻击回归 + 全量测试<br/>74 + 74 · PASS"]
     T --> PF2["✖ Mutable prefreeze<br/>NO-GO · cross-clone replay"]
-    PF2 --> LR["◐ Local authority registration<br/>ROOT CORRECTION"]
-    LR --> RT["○ 重跑 prefreeze<br/>PENDING"]
+    PF2 --> LR["✅ Local authority registration<br/>ROOT CORRECTION"]
+    LR --> NG["✅ 跨 clone / 并发 / 损坏反例<br/>74 + 74 · PASS"]
+    NG --> RT["◐ 新一轮 mutable prefreeze<br/>双重只读挑战"]
     RT --> FC["○ 冻结 exact Graph candidate C<br/>PENDING"]
     FC --> FR["○ Fresh 独立原件审查<br/>PENDING"]
     FR --> AC["○ 单收据 activation A<br/>PENDING"]
@@ -41,13 +42,13 @@ flowchart TB
     classDef running fill:#e7f5ff,stroke:#1971c2,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
     class G,D,R,S,P,K done;
-    class N,Q,DP,DR,GR,B1,T done;
+    class N,Q,DP,DR,GR,B1,T,LR,NG done;
     class W,A,C9,F,H,L,PF,B2,PF2 failed;
-    class FIX,LR running;
-    class RT,FC,FR,AC pending;
+    class FIX,RT running;
+    class FC,FR,AC pending;
 ```
 
-一句话：项目未完成；旧实现继续 rejected/stalled，新“整数时间单一权威”方向已获 fresh PASS。首轮启动门攻击回归通过，但 mutable prefreeze 发现普通 clone 不携带 attempt ref，可能再次启动，因此冻结仍为 NO-GO。当前正在加入机器本地 authority registration；尚未冻结 C、尚未 fresh review、尚未生成 activation A，也没有运行 `start-work`。当前 accepted authority 仍是 Paper stalled、Ledger blocked；prototype 没有新授权。
+一句话：项目未完成；旧实现继续 rejected/stalled，新“整数时间单一权威”方向已获 fresh PASS。首轮 mutable prefreeze 发现的跨 clone 重放根因已经用机器本地 authority registration + Git attempt ref 修正，并通过跨 clone、并发、损坏登记和错误 ref 反例；当前正由两个新上下文做冻结前只读挑战。尚未冻结 C、尚未 fresh exact review、尚未生成 activation A，也没有运行 `start-work`。当前 accepted authority 仍是 Paper stalled、Ledger blocked；prototype 没有新授权。
 
 ## 项目目标与产品主路径
 
@@ -77,19 +78,20 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-31T00:26:00-07:00`
-- 执行状态：`INTEGER_AUTHORITY_GRAPH_GATE_CROSS_CLONE_REPLAY_ROOT_CORRECTION`
+- 更新时间：`2026-07-31T00:59:44-07:00`
+- 执行状态：`INTEGER_AUTHORITY_GRAPH_MUTABLE_PREFREEZE_REVIEW`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
 - 当前路线状态：`Paper Gate = STALLED；Ledger = BLOCKED；execution_authorized = false`
 - 未接受的 Graph 候选内部工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 候选实际写集：`12 paths`；方向审查要求的最小写集：`12 paths`
-- 已关闭的权限阻塞：Javen 已明确允许更新本项目 `AGENTS.md`；当前文件为 `11451 bytes`，SHA-256 `a3a7640a7461250102fa7b67d55c0ea983e914186979aea330d2dfe92b8efe0c`。
-- 当前启动协议：mutable overlay 与冻结 C 只能通过非授权 `check-candidate`；只有 fresh-reviewed C 的单收据 activation successor A 才能进入 `check-work`。`check-work` 仍输出 `execution_authorized=false`；只有 `start-work` 原子创建唯一 attempt ref 后才可输出 true。
-- 当前 smoke 证据：Product 与 Mission `check`、`check-view`、`check-candidate` 均 PASS 且 `execution_authorized=false`；mutable candidate 的完整 `check-work` exit `1`。
-- 正在验证的攻击面：仓库外夹带提交、tracked/untracked/ignored prototype 漂移、`assume-unchanged`/`skip-worktree` 隐藏索引位、旧 R4 重放和 attempt ref 重放。
-- 完整 Graph 回归：`PYTHONINTMAXSTRDIGITS=640` 下 `74 tests`、`PYTHONINTMAXSTRDIGITS=0` 下 `74 tests`，均 OK。
+- 已关闭的权限阻塞：Javen 已明确允许更新本项目 `AGENTS.md`；当前文件为 `12978 bytes`，SHA-256 `ffe45f8a9be06f45b8b68db370d8e7b6da24f3fbc6e4cc4723c1a0a848e018c5`。
+- 当前启动协议：mutable overlay 与冻结 C 只能通过非授权 `check-candidate`；只有 fresh-reviewed C 的单收据 activation successor A 才能先登记唯一机器本地 authority。登记仍不授权；已登记 A 的 `check-work` 仍输出 `execution_authorized=false`；只有 `start-work` 原子创建唯一 attempt ref 后才可输出 true。
+- 当前 smoke 证据：Product 与 Mission `check`、`check-view`、`check-candidate` 均 PASS 且 `execution_authorized=false`；mutable candidate 的 `register-authority`、`check-work`、`start-work` 均 exit `1`，生产 registration 与 attempt ref 均不存在。
+- 已通过的攻击面：候选与 activation 的仓库外夹带提交、tracked/untracked/ignored prototype 漂移、`assume-unchanged`/`skip-worktree` 隐藏索引位、未注册 A、普通 no-local clone 重放、并发登记、非 canonical/未知字段/截断/重复键/类型混淆/symlink/错误权限/额外 hardlink 的登记损坏、错误 attempt ref 和已消费 ref 重放。
+- 完整 Graph 回归：`PYTHONINTMAXSTRDIGITS=640` 下 `74 tests in 153.530s`，`PYTHONINTMAXSTRDIGITS=0` 下 `74 tests in 149.479s`，均 `OK`。
+- 完整 prototype 回归：`PYTHONINTMAXSTRDIGITS=640` 下 `95 tests in 1.715s`，`PYTHONINTMAXSTRDIGITS=0` 下 `95 tests in 1.697s`，均 `OK`。
 - Mutable prefreeze：`NO-GO`；`critical=1`、`major=1`、`minor=0`。根因是 attempt ref 只在一个 Git common directory 内唯一，普通 clone 不携带它，因此跨 clone 仍可能重新启动。
 - R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
 - R2 失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
@@ -120,7 +122,7 @@ flowchart TB
 - Corrected 方向审查收据：`/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.fresh-review-pass.json`（`9360 bytes`；SHA-256 `70a8ae7e103433baa453e35e01a772661b7acb5a103e154072203762bdf06861`）
 - 收据生成历史错误：首版错误列出 reviewer 未直接读取的 `prototype/workflow.py`，fidelity review 为 `critical=0`、`major=1`、`minor=0`；已单独保留 `/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.receipt-fidelity-failure.json`（`1323 bytes`；SHA-256 `71c627ecdd74f0c25cd7036d431bf9114dcbf97e7fb19bd8407e7dbe1562c956`）。
 - Corrected 收据 fidelity review：`PASS`；`critical=0`、`major=0`、`minor=0`。
-- 当前动作：保持停滞态权威不变；用一份不会随普通 clone 复制的机器本地 authority registration，把唯一允许启动的 Git common directory 与 exact activation A 绑定；补跨 clone replay 负例并重新 prefreeze。只有新审查 PASS 后才能冻结 12-path candidate C。
+- 当前动作：保持停滞态权威不变；两个新只读上下文正在对完整 12-path mutable candidate、机器本地 authority registration 和跨 clone 单次消费语义做冻结前挑战。只有新审查均无 Critical/Major 且方向仍成立，才冻结 exact candidate C。
 - 当前产品写集：`NONE_AUTHORIZED`（被拒绝候选曾是 `14 paths`；不得继承为新路线写权限）
 - 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；rejected；保留作失败证据）
 - 产品候选收据：`/private/tmp/PAPER_GATE_R4_F821479.candidate.json`（`5339 bytes`；SHA-256 `db383182fa8c379409966399c285a2ec9708898ff5ca1203dd6b89833a5eec67`）
