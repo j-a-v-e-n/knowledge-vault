@@ -77,7 +77,7 @@ flowchart LR
 
 ## 当前事实
 
-- 更新时间：`2026-07-31T02:59:00-07:00`
+- 更新时间：`2026-07-31T03:20:54-07:00`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前候选工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -88,29 +88,26 @@ flowchart LR
 - 生产 registration：不存在
 - 生产 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：不存在
 - Ledger 产品写集：`NONE_AUTHORIZED`
-- 当前 reviewer：全新、只读、未参与候选构造；正在完成 E2
+- E2 最新结论：`NO-GO`；旧 review 已失效，候选仍停在 E2
+- 当前动作：不改蓝图，修正同一 authority-root 实现并重跑反例与完整回归
+- 当前 reviewer：根因修正完成后重新启用全新、只读、未参与构造的 reviewer
 
-## 当前候选已经证明什么
+## 当前候选正在重新证明什么
 
-- 项目级 `AGENTS.md` 已要求：只有冻结且通过独立审查的 Graph 候选，才可能通过后续 `check-work` 启动链。
+- 项目级 `AGENTS.md` 已要求：只有冻结且通过独立审查的 Graph 候选，才可能通过后续 `check-work` 启动链；Graph 只能版本化修订，不能按进展原地改写。
 - `HEAD tree ↔ stage-0 index ↔ worktree literal bytes + owner execute mode` 使用同一中央 Gate。
 - tracked 原始一致性不再依赖 Git `status` 或 `diff` 自报 clean。
-- clean filter、repository attributes、fsmonitor、stat cache、hidden index、跨 clone replay、registration 损坏和并发启动都有 fail-closed 回归。
+- 当前补强项：ignored prototype、mutable added file、physical index、canonical receipt、handoff 指定 original common directory。
 - `register-authority` 与 `check-work` 不授权；只有一次成功的 `start-work` 能原子消费 attempt ref。
 - 安全边界保持 `personal/local-first/paper-only/human-final`。
 
 ## 当前验证证据
 
-- Graph，`PYTHONINTMAXSTRDIGITS=640`：`75 tests in 419.896s`，`OK`
-- Graph，`PYTHONINTMAXSTRDIGITS=0`：`75 tests in 424.443s`，`OK`
-- Prototype，`PYTHONINTMAXSTRDIGITS=640`：`95 tests in 3.258s`，`OK`
-- Prototype，`PYTHONINTMAXSTRDIGITS=0`：`95 tests in 2.738s`，`OK`
-- 完整 activation 集成：`1 test in 371.931s`，`OK`
-- Raw-identity 独立代码审查：`GO — C0 / M0 / m1`
-- 该 review 的唯一 minor 已固化为 NFC/NFD 回归：`1 test in 0.751s`，`OK`
-- Product 与 Mission 的 `check`、`check-view`、`check-candidate`：PASS
-- Ruff：`All checks passed!`
-- Ruff format：`4 files already formatted`
+- 旧版 Graph 完整回归与 activation 集成：曾 `OK`，但候选字节已变化，不可作为当前 E2 acceptance
+- 最新 prefreeze review：`NO-GO`
+- 两项实现级 subaudit：发现 original-common-directory registration、canonical receipt、ignored prototype、mutable added file 和 physical index 缺口
+- Product 与 Mission 的当前 `check`、`check-candidate`：PASS；`execution_authorized=false`
+- 新增反例与完整双配置回归：运行中
 - `git diff --check`：PASS
 - tracked `prototype/**` diff：空
 
