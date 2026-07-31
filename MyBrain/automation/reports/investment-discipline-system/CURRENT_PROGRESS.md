@@ -29,7 +29,7 @@ flowchart TB
     PF2 --> LR["✅ Local authority registration<br/>ROOT CORRECTION"]
     LR --> NG["✅ 跨 clone / 并发 / 损坏反例<br/>74 + 74 · PASS"]
     NG --> RT["✖ 新一轮 mutable prefreeze<br/>NO-GO · C1 / M2 / m0"]
-    RT --> F2["◐ 启动门根修正<br/>fsmonitor · FIFO · crash/concurrency"]
+    RT --> F2["◐ 启动门根修正<br/>fsmonitor 位 · FIFO · crash/race · receipt types"]
     F2 --> RT2["○ 重跑 mutable prefreeze<br/>PENDING"]
     RT2 --> FC["○ 冻结 exact Graph candidate C<br/>PENDING"]
     FC --> FR["○ Fresh 独立原件审查<br/>PENDING"]
@@ -80,8 +80,8 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-31T01:06:07-07:00`
-- 执行状态：`INTEGER_AUTHORITY_GRAPH_GATE_FSMONITOR_REGISTRATION_ROOT_CORRECTION`
+- 更新时间：`2026-07-31T01:23:28-07:00`
+- 执行状态：`INTEGER_AUTHORITY_GRAPH_GATE_HIDDEN_INDEX_AND_RECEIPT_TYPE_ROOT_CORRECTION`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -96,6 +96,8 @@ flowchart TB
 - 完整 prototype 回归：`PYTHONINTMAXSTRDIGITS=640` 下 `95 tests in 1.715s`，`PYTHONINTMAXSTRDIGITS=0` 下 `95 tests in 1.697s`，均 `OK`。
 - Mutable prefreeze：`NO-GO`；`critical=1`、`major=1`、`minor=0`。根因是 attempt ref 只在一个 Git common directory 内唯一，普通 clone 不携带它，因此跨 clone 仍可能重新启动。
 - 最新 mutable prefreeze：`NO-GO`；`critical=1`、`major=2`、`minor=0`。Critical 是 fsmonitor-valid + 仓库 hook 可把 tracked 漂移伪装成干净树；Major 是 FIFO 型 registration 会阻塞，以及原 hardlink 发布存在 crash wedge 且缺并发 start/register-vs-start 证据。
+- 根修正 closure review：`NO-GO`；`critical=0`、`major=1`、`minor=0`。实际 dirty-tree 授权绕过、FIFO 阻塞和 crash/race 已关闭；剩余问题是强制 `core.fsmonitor=false` 也让 `ls-files -f` 看不到一个没有实际 drift 的 fsmonitor-valid 隐藏位，未兑现“任何隐藏 index 状态失败”。
+- Fresh mutable challenger：`NO_GO`；`critical=0`、`major=1`、`minor=0`；`user_decision_needed=false`。整数权威方向仍有效；剩余问题是 activation review receipt 对 `bytes` 的 float/int 使用普通 Python equality，可能接受 `12754.0 == 12754` 的标量类型混淆。
 - R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
 - R2 失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
 - R3 失败快照：`b2745910770c016327f73e749771e63626983d58`
@@ -125,7 +127,7 @@ flowchart TB
 - Corrected 方向审查收据：`/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.fresh-review-pass.json`（`9360 bytes`；SHA-256 `70a8ae7e103433baa453e35e01a772661b7acb5a103e154072203762bdf06861`）
 - 收据生成历史错误：首版错误列出 reviewer 未直接读取的 `prototype/workflow.py`，fidelity review 为 `critical=0`、`major=1`、`minor=0`；已单独保留 `/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.receipt-fidelity-failure.json`（`1323 bytes`；SHA-256 `71c627ecdd74f0c25cd7036d431bf9114dcbf97e7fb19bd8407e7dbe1562c956`）。
 - Corrected 收据 fidelity review：`PASS`；`critical=0`、`major=0`、`minor=0`。
-- 当前动作：保持停滞态权威不变；在既有 12-path 范围内统一关闭 Git fsmonitor/untracked cache 与 reference hook、显式拒绝 fsmonitor-valid 位，把 registration 改为 no-follow/nonblocking/先验类型与大小验证，并用锁内 atomic rename 消除 hardlink crash wedge；补 FIFO/超大文件/并发 start/register-vs-start/hook 反例后再启动全新 prefreeze。只有新审查无 Critical/Major 且方向仍成立，才冻结 exact candidate C。
+- 当前动作：保持停滞态权威不变；在既有 12-path 范围内拒绝 repo/worktree 的 fsmonitor 配置，并用不会抹掉 index 标志的专用 `ls-files -f` 观察拒绝 clean fsmonitor-valid 位；对 review receipt 的 base、candidate/write-set、direction bindings、verification 和 verdict 统一做递归 exact-type 比较。补 clean hidden-index 与四类 float-for-int receipt 反例后重跑全量测试和全新 prefreeze。只有新审查无 Critical/Major 且方向仍成立，才冻结 exact candidate C。
 - 当前产品写集：`NONE_AUTHORIZED`（被拒绝候选曾是 `14 paths`；不得继承为新路线写权限）
 - 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；rejected；保留作失败证据）
 - 产品候选收据：`/private/tmp/PAPER_GATE_R4_F821479.candidate.json`（`5339 bytes`；SHA-256 `db383182fa8c379409966399c285a2ec9708898ff5ca1203dd6b89833a5eec67`）
