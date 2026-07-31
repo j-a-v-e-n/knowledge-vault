@@ -11,32 +11,28 @@ flowchart TB
     R --> S["✅ Paper Gate 产品实现<br/>14-path bounded slice"]
     S --> P["✅ Mutable prefreeze<br/>攻击验证 + 独立复审"]
     P --> K["✅ 冻结产品 exact candidate<br/>f821479"]
-    K --> W(["▶ Fresh 独立审查<br/>只检查 exact Git object"])
-    W --> A["○ Paper Gate 验收"]
-    A --> L["🔒 Ledger<br/>当前未开放"]
+    K --> W["✖ Fresh 独立审查<br/>FAIL · C1 / M0 / m0"]
+    W --> A(["■ Paper Gate<br/>STALLED · 未验收"])
+    A --> L["🔒 Ledger<br/>BLOCKED · KEEP LOCKED"]
 
     D -. "失败历史保留" .-> F["✖ R1 / R2 / R3 / R4 / R4B / R4C"]
-    S -. "若再现同根失败" .-> H["■ 停止并 backtrack<br/>不做 R5"]
+    W -. "同根失败" .-> H["■ Stall 规则已触发<br/>不做 R5"]
 
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
-    classDef current fill:#fff3bf,stroke:#e67700,stroke-width:3px;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
-    classDef pending fill:#f1f3f5,stroke:#868e96;
     class G,D,R,S,P,K done;
-    class W current;
-    class F,H,L failed;
-    class A pending;
+    class W,A,F,H,L failed;
 ```
 
-一句话：闭合数值域产品切片已经实现并通过 mutable prefreeze；exact candidate `f821479` 已冻结，当前 fresh reviewer 只检查该不可变 Git 对象。Ledger 仍锁定。
+一句话：exact candidate `f821479` 在 fresh source review 中出现同根 Critical；候选不接受，Paper Gate 进入 stall，Ledger 保持 blocked，不授权 R5。
 
 ## 项目目标与产品主路径
 
 ```mermaid
 flowchart TB
-    M["项目目标<br/>个人 · 本地优先 · 只做纸面投资<br/>AI 辅助 · Javen 最终决定"] --> PG(["▶ 纸面风险闸门<br/>当前唯一节点"])
+    M["项目目标<br/>个人 · 本地优先 · 只做纸面投资<br/>AI 辅助 · Javen 最终决定"] --> PG(["■ 纸面风险闸门<br/>STALLED · 无执行授权"])
 
-    PG --> L["事务化账本与复盘<br/>等待 Paper Gate"]
+    PG --> L["事务化账本与复盘<br/>BLOCKED · Ledger 锁定"]
     PG --> H["AI 证据 + 人类决定<br/>等待 Paper Gate"]
     B["诚实历史检验<br/>待完成"] --> W["本地工作台<br/>待开放"]
     D["公开数据证据<br/>待完成"] --> W
@@ -48,22 +44,22 @@ flowchart TB
     R --> G
     G --> X["个人 Paper MVP<br/>发布候选"]
 
-    classDef current fill:#fff3bf,stroke:#e67700,stroke-width:3px;
+    classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:3px;
     classDef boundary fill:#e7f5ff,stroke:#1971c2,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class PG current;
+    class PG,L failed;
     class M,X boundary;
-    class L,H,B,D,W,R,G pending;
+    class H,B,D,W,R,G pending;
 ```
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T17:44:06-0700`
-- 执行状态：`RUNNING_PRODUCT_R4_FROZEN_REVIEW`
+- 更新时间：`2026-07-30T18:09:22-0700`
+- 执行状态：`RUNNING_STALL_GRAPH_TRANSITION`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
-- 当前实现：`唯一 closed-domain Paper Gate successor；已冻结，fresh review 中`
+- 当前路线状态：`Paper Gate = STALLED；Ledger = BLOCKED；execution_authorized = false`
 - R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
 - R2 失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
 - R3 失败快照：`b2745910770c016327f73e749771e63626983d58`
@@ -74,16 +70,20 @@ flowchart TB
 - R4B 路线绑定失败收据：`/private/tmp/PAPER_GATE_DIRECTION_R4B_C1A19D2.prefreeze-failure.json`
 - R4C 路线绑定失败快照：`40c88981942bea40502010521623d8d9fef61e58`
 - R4C frozen-review 失败收据：`/private/tmp/PAPER_GATE_DIRECTION_R4C_40C8898.frozen-review-failure.json`
-- 当前根因：并非某一个 Decimal 字段，而是没有在 canonical event、reducer 和 replay 之前，把所有权威数值原语收敛到同一个封闭、有界、环境无关的表示域。
+- 当前根因：最终 R4 仍让一个非 canonical 的时间小数形式在因果检查、identity 和 commit 前被解析器截断；这属于同一个“权威标量域未先闭合”的根因，不是孤立字段错误。
 - 方向结论：`一个覆盖所有权威 numeric primitive 的 closed canonical scalar/value domain；不是 R3 字段补丁`
 - 已接受的路线控制：`610328ce328834bd43c60e1cc0fa2aaa7d5866c7`
 - Route-control fresh review 收据：`/private/tmp/PAPER_GATE_DIRECTION_R4D_610328C.fresh-review-pass.json`
 - Mutable prefreeze：`PASS`（完整 prototype 在 `sys.int_max_str_digits=640` 与 `0` 下均为 `95 passed in 2.20s`；独立源码复审 `PASS_PREFREEZE`）
-- 当前动作：fresh reviewer 直接检查 commit `f821479111c8925220219dffd45b47e60086cb22`、tree `8e61b9c0750c66bb0da8c930e2fe261d0ab456f5`、parent、subtree、14-path diff、源码与反例；不信任 mutable worktree 或 prefreeze 声称。
+- Fresh frozen review：`FAIL_DO_NOT_ACCEPT`；`critical=1`、`major=0`、`minor=0`。
+- 审查反例：实际更晚的 evidence 时间在解析后与 human decision 落入同一微秒，观察到 `status=COMMITTED`、`fills=1`。
+- 当前动作：保存 exact failure evidence，并验证、冻结 11-path stall transition；不修改 `prototype/**`。
 - 当前产品写集：`14 paths`（既有 inventory；不新增 Graph、governance、authority kernel 或 parallel numeric protocol）
-- 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；pending fresh review）
+- 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；rejected；保留作失败证据）
 - 产品候选收据：`/private/tmp/PAPER_GATE_R4_F821479.candidate.json`（`5339 bytes`；SHA-256 `db383182fa8c379409966399c285a2ec9708898ff5ca1203dd6b89833a5eec67`）
-- Ledger：`未开放`
+- Frozen-review 失败收据：`governance/evidence/PAPER_GATE_R4_F821479.frozen-review-failure.json`（`4610 bytes`；SHA-256 `ef90aa5228804123563f914d4211f38ce69e327a4c8e8d7f4301f5a770893a1e`）
+- Ledger：`BLOCKED / KEEP LOCKED`
+- R5：`未授权`
 - 用户参与：`当前不需要`
 
 ## 权威来源
