@@ -36,6 +36,7 @@ flowchart TB
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef running fill:#e7f5ff,stroke:#1971c2,stroke-width:2px;
+    classDef pending fill:#f1f3f5,stroke:#868e96;
     class G,D,R,S,P,K done;
     class N,Q,DP,DR,GR,B1 done;
     class W,A,C9,F,H,L,PF,B2 failed;
