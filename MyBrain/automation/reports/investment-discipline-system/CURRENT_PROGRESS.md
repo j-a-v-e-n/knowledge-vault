@@ -12,8 +12,8 @@
 | 层 | 现在是什么 | 允许怎么变 |
 |---|---|---|
 | 冻结蓝图 | Mission Graph + Product Capability Graph | 不能按进度原地改写；只能被“冻结且独立审查通过”的新版本替代 |
-| 当前指针 | Paper Gate；三次 exact-decoder direction review 均拒绝，三组失败对象已完整保存，versioned R3 正在第四次 fresh review | 只随已发生且有证据的状态移动 |
-| 隔离候选 | `154782315b2e50ebedd74d4e78f7a2e3cd985d71`，失败历史 | 已提交为不可变失败证据；不能修成 PASS、不能激活、不能启动产品工作 |
+| 当前指针 | Paper Gate；versioned R3 已通过第四次 fresh direction review，正在构造精确 21-path mutable Graph candidate | 只随已发生且有证据的状态移动 |
+| 隔离候选 | accepted Graph 仍是 `f5ccd438bfed54fbe618d225431c61f65800b475`；新候选尚未冻结 | mutable 候选无执行权；冻结、fresh exact review 与单收据 activation 缺一不可 |
 
 ## 固定产品蓝图
 
@@ -71,14 +71,13 @@ flowchart LR
 
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
-    classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class E0 current;
-    class E1,E2 failed;
-    class E3,E4,E5,E6,E7,E8,E9 pending;
+    class E0 done;
+    class E1 current;
+    class E2,E3,E4,E5,E6,E7,E8,E9 pending;
 ```
 
-**当前指针：退回 `E0｜fresh direction review`。bounded JSON 候选到达 `E2` 后被独立审查拒绝；它没有进入 E3，也没有获得任何执行权。**
+**当前指针：`E1｜Mutable Graph 候选构造`。R3 方向审查已 PASS，但它只允许构造候选；候选尚未冻结、审查或激活，因此没有任何产品执行权。**
 
 每一次失败候选都保留，但证据不能转移给下一候选。若 fresh direction review 选出新方向，新的 E1–E8 必须重新逐步完成；方向审查通过本身也不等于 Graph 已修改或产品已获授权。
 
@@ -101,7 +100,8 @@ flowchart LR
     R4 --> D6["保存第一组 exact bytes + FAIL<br/>版本化 R2 · 17 paths"]
     D6 --> R5["第三次 fresh review<br/>FAIL · Major 1"]
     R5 --> D7["保存三组 exact bytes + FAIL<br/>版本化 R3 · 21 paths"]
-    D7 --> R6["当前<br/>第四次 fresh review"]
+    D7 --> R6["第四次 fresh review<br/>PASS · 0 / 0 / 0"]
+    R6 --> C2["当前<br/>精确 21-path mutable Graph candidate"]
 
     classDef accepted fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef historical fill:#f1f3f5,stroke:#868e96;
@@ -111,7 +111,8 @@ flowchart LR
     class D1,C1,D3,D4,D5,D6,D7 historical;
     class R1,R2,R3,R4,R5 failed;
     class D2 historical;
-    class R6 current;
+    class R6 accepted;
+    class C2 current;
 ```
 
 ## 当前最短状态
@@ -122,9 +123,9 @@ flowchart LR
 | 固定能力蓝图变了吗？ | 没有。当前能力仍是 Paper Gate，Ledger 仍 blocked |
 | accepted Graph 变了吗？ | 没有。仍停在 terminal-stall activation `f5ccd438bfed54fbe618d225431c61f65800b475` |
 | 产品有编辑权吗？ | 没有。Graph activation、registration、check-work、start-work 均未发生 |
-| 哪些东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71`；随后两层 compositional 方向提案也在 fresh review 失败 |
+| 哪些东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71`、compositional 方向，以及三份不完整的 exact-decoder 方向提案；全部保留为历史 |
 | 第二次为什么失败？ | 有限共享 H、Ledger 不改、V3 当前无界 typed 行为完整保留，三项不能同时成立 |
-| 现在做什么？ | 第四个 fresh reviewer 正在审查 versioned R3、三组 exact 失败对象与 21-path scope；尚未构造 Graph candidate |
+| 现在做什么？ | 构造精确 21-path mutable Graph candidate；当前仍须通过 prefreeze、冻结、fresh exact review 和单收据 activation |
 
 ## 历史明细（只作追溯，不决定当前路线）
 
@@ -169,7 +170,9 @@ flowchart LR
 - R2 FAIL receipt SHA-256：`a72ff1d418e4d4286a4b74f418dd4222cf433adfd85922e72c9a5a1b1343eb62`
 - versioned R3 proposal bytes：`26884`
 - versioned R3 proposal SHA-256：`2dbaf3104be6a850653829850feabc081f46e60e8f84f691c873faedda64f9e5`
-- exact-decoder direction review R4：`IN_PROGRESS — no authority`
+- exact-decoder direction review R4：`PASS_DIRECTION_ONLY — Critical 0 / Major 0 / Minor 0`
+- exact-decoder R3 review receipt bytes：`9410`
+- exact-decoder R3 review receipt SHA-256：`0d26af5ffb96447ee2ee8774c333e0d0cb98e9031cbbb620b17f05f57f8ddfff`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 冻结产品候选 P：`e1ec606ec245cc136ea32f98b61ab1bb6a3702dd`
@@ -191,7 +194,7 @@ flowchart LR
 - 新方向审查 receipt bytes：`16680`
 - 新方向审查 receipt SHA-256：`5984e94abb3e757aeeadf56c62420f4862268cfca0336b2ed255954a1a1c1d30`
 - 新 Graph candidate 允许写集：精确 `12 paths`；prototype 必须不变
-- 当前状态：bounded JSON Graph candidate、compositional 方向和三次 exact-decoder review 均已失败；没有产品编辑权，versioned R3 正在第四次 fresh review
+- 当前状态：bounded JSON Graph candidate、compositional 方向和前三次 exact-decoder review 均已失败；R3 第四次 fresh review 已 PASS_DIRECTION_ONLY；新 21-path mutable Graph candidate 正在构造，仍无产品编辑权
 - 当前运行路线：accepted Graph 显示 `Paper Gate = STALLED`、`Ledger = BLOCKED`、eligible work 为空、execution 未授权
 - 历史 registration：原样保留但只绑定旧 attempt，不能转移或复用
 - 历史 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：原样保留并继续只指向旧 activation A
@@ -200,8 +203,8 @@ flowchart LR
 - bounded JSON E2 最终结论：`FAIL — Critical 1 / Major 2 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
 - S2 预冻结审查：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
-- 当前动作：审查“只在 exact loader 归一化 `RecursionError → ValueError → MALFORMED`”是否足以关闭原 FAIL；不新增 public E、global H、Ledger resource domain 或容量数字
-- 当前工作：`NONE_AUTHORIZED_DURING_FRESH_DIRECTION_REVIEW`
+- 当前动作：只构造、验证并送审精确 21-path Graph candidate；不新增 public E、global H、Ledger resource domain 或容量数字
+- 当前工作：`GRAPH_CANDIDATE_CONSTRUCTION_ONLY_NO_EXECUTION_AUTHORITY`
 
 ## 这次失败证明了什么
 
