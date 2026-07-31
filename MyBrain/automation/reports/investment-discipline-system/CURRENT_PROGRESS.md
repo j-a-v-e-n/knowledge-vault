@@ -16,6 +16,7 @@ flowchart TB
     A --> C9["✖ 首份 Stall transition<br/>c9e8bad · M0 / M2 / m0"]
     C9 --> N["✅ Bounded successor<br/>15b9d74 · 3-file exact object"]
     N --> Q(["✅ Fresh 独立审查<br/>PASS · C0 / M0 / m0"])
+    Q --> DR(["◐ 方向层 Backtrack<br/>只读重建 · RUNNING"])
     A --> L["🔒 Ledger<br/>BLOCKED · KEEP LOCKED"]
 
     D -. "失败历史保留" .-> F["✖ R1 / R2 / R3 / R4 / R4B / R4C"]
@@ -23,9 +24,11 @@ flowchart TB
 
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
+    classDef running fill:#e7f5ff,stroke:#1971c2,stroke-width:2px;
     class G,D,R,S,P,K done;
     class N,Q done;
     class W,A,C9,F,H,L failed;
+    class DR running;
 ```
 
 一句话：exact candidate `f821479` 在 fresh source review 中出现同根 Critical；候选不接受，Paper Gate 进入 stall，Ledger 保持 blocked，不授权 R5。
@@ -58,8 +61,8 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T19:11:48-0700`
-- 执行状态：`TERMINAL_STALL_TRANSITION_ACCEPTED`
+- 更新时间：`2026-07-30T21:49:33-0700`
+- 执行状态：`DIRECTION_BACKTRACK_RESEARCH_RUNNING_NO_PRODUCT_AUTHORITY`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -87,7 +90,7 @@ flowchart TB
 - 当前 Stall successor 收据：`/private/tmp/PAPER_GATE_STALL_15B9D74.candidate.json`（`5643 bytes`；SHA-256 `b34e764cb0a2aaedd61d27254122f94281058c564a48c3c140487d34c7376d06`）
 - Stall successor fresh review 收据：`/private/tmp/PAPER_GATE_STALL_15B9D74.fresh-review-pass.json`（`4775 bytes`；SHA-256 `cf7379be0822d9a3d20243516233bc0153c4eed5933536534086fa549eb55d5a`）
 - 独立完整 clone 验证：`73 tests in 34.515s`；`95 tests in 2.146s`（digit limit `640`）；`95 tests in 2.097s`（digit limit `0`）；均 `OK`。
-- 当前动作：终止停滞态已可信冻结；没有产品执行授权，不修改 `prototype/**`，不启动 R5 或 Ledger。
+- 当前动作：终止停滞态保持冻结；正在方向层比较结构不同的 Paper Gate 架构。此阶段只读研究与独立方向审查，不修改 `prototype/**`，不启动 R5 或 Ledger。
 - 当前产品写集：`14 paths`（既有 inventory；不新增 Graph、governance、authority kernel 或 parallel numeric protocol）
 - 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；rejected；保留作失败证据）
 - 产品候选收据：`/private/tmp/PAPER_GATE_R4_F821479.candidate.json`（`5339 bytes`；SHA-256 `db383182fa8c379409966399c285a2ec9708898ff5ca1203dd6b89833a5eec67`）
