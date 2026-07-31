@@ -66,31 +66,32 @@ flowchart LR
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class E0,E1 done;
-    class E2 current;
-    class E3,E4,E5,E6,E7,E8,E9 pending;
+    class E0,E1,E2,E3 done;
+    class E4 current;
+    class E5,E6,E7,E8,E9 pending;
 ```
 
-**当前指针：`E2｜预冻结独立审查`。**
+**当前指针：`E4｜Fresh exact review`。**
 
-完成 E2 不等于完成项目；它只决定当前 12-path Graph 候选能否冻结。只有依次通过 E3–E7，才获得第一次 Paper Gate 产品编辑授权。Paper Gate 完成并验收后，固定产品蓝图中的指针才会移动到 Ledger。
+完成 E4 不等于完成项目；它只决定冻结的 12-path Graph 候选能否增加一份独立审查收据。只有依次通过 E5–E7，才获得第一次 Paper Gate 产品编辑授权。Paper Gate 完成并验收后，固定产品蓝图中的指针才会移动到 Ledger。
 
 ## 当前事实
 
-- 更新时间：`2026-07-31T03:20:54-07:00`
+- 更新时间：`2026-07-31T04:58:59-07:00`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前候选工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
-- 候选阶段：`mutable_candidate`
+- 候选阶段：`frozen_candidate`
+- 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - 候选写集：要求 `12 paths`；实际 `12 paths`
 - 当前状态：`candidate_valid=true`；`execution_authorized=false`
 - 当前 accepted authority：`Paper Gate = STALLED`；`Ledger = BLOCKED`
 - 生产 registration：不存在
 - 生产 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：不存在
 - Ledger 产品写集：`NONE_AUTHORIZED`
-- E2 最新结论：`NO-GO`；旧 review 已失效，候选仍停在 E2
-- 当前动作：不改蓝图，修正同一 authority-root 实现并重跑反例与完整回归
-- 当前 reviewer：根因修正完成后重新启用全新、只读、未参与构造的 reviewer
+- E2 最终结论：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
+- 当前动作：在完整 `--no-local`、non-promisor clone 中审查 exact C
+- 当前 reviewer：`/root/integer_authority_graph_exact_review`
 
 ## 当前候选正在重新证明什么
 
@@ -103,24 +104,24 @@ flowchart LR
 
 ## 当前验证证据
 
-- 旧版 Graph 完整回归与 activation 集成：曾 `OK`，但候选字节已变化，不可作为当前 E2 acceptance
-- 最新 prefreeze review：`NO-GO`
-- 两项实现级 subaudit：发现 original-common-directory registration、canonical receipt、ignored prototype、mutable added file 和 physical index 缺口
-- Product 与 Mission 的当前 `check`、`check-candidate`：PASS；`execution_authorized=false`
-- 新增反例与完整双配置回归：运行中
+- Graph，`PYTHONINTMAXSTRDIGITS=640`：`76 tests in 1327.360s`，`OK`
+- Graph，`PYTHONINTMAXSTRDIGITS=0`：`76 tests in 1329.978s`，`OK`
+- Prototype，`PYTHONINTMAXSTRDIGITS=640`：`95 tests in 3.234s`，`OK`
+- Prototype，`PYTHONINTMAXSTRDIGITS=0`：`95 tests in 4.536s`，`OK`
+- Fresh mutable prefreeze review：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
+- Product 与 Mission 的冻结态 `check-candidate`：PASS；`execution_authorized=false`
+- Frozen candidate C 的 fresh exact-object review：运行中
 - `git diff --check`：PASS
 - tracked `prototype/**` diff：空
 
-## E2 之后固定怎么走
+## E4 之后固定怎么走
 
-1. E2 reviewer 返回 `GO / critical=0 / major=0`，才进入 E3。
-2. E3 冻结 exact candidate C。
-3. E4 从完整 `--no-local`、non-promisor clone 做 fresh exact-object review。
-4. E5 只增加一份 fresh-review receipt，形成 activation A。
-5. E6 在 handoff 指定的唯一 Git common directory 注册本机 authority。
-6. E7 先 `check-work`，再由一次 `start-work` 原子消费 attempt。
-7. E8 才允许 Paper Gate 产品文件首次移动并接受节点级验收。
-8. Paper Gate 验收后，固定产品蓝图指针移动到 Ledger；蓝图本身不重画。
+1. E4 从完整 `--no-local`、non-promisor clone 完成 fresh exact-object review。
+2. E5 只增加一份 fresh-review receipt，形成 activation A。
+3. E6 在 handoff 指定的唯一 Git common directory 注册本机 authority。
+4. E7 先 `check-work`，再由一次 `start-work` 原子消费 attempt。
+5. E8 才允许 Paper Gate 产品文件首次移动并接受节点级验收。
+6. Paper Gate 验收后，固定产品蓝图指针移动到 Ledger；蓝图本身不重画。
 
 ## 权威入口
 
