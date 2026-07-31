@@ -13,6 +13,9 @@ flowchart TB
     P --> K["✅ 冻结产品 exact candidate<br/>f821479"]
     K --> W["✖ Fresh 独立审查<br/>FAIL · C1 / M0 / m0"]
     W --> A(["■ Paper Gate<br/>STALLED · 未验收"])
+    A --> C9["✖ 首份 Stall transition<br/>c9e8bad · M0 / M2 / m0"]
+    C9 --> N["✅ Bounded successor<br/>15b9d74 · 3-file exact object"]
+    N --> Q(["◐ Fresh 独立审查<br/>RUNNING"])
     A --> L["🔒 Ledger<br/>BLOCKED · KEEP LOCKED"]
 
     D -. "失败历史保留" .-> F["✖ R1 / R2 / R3 / R4 / R4B / R4C"]
@@ -21,7 +24,8 @@ flowchart TB
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     class G,D,R,S,P,K done;
-    class W,A,F,H,L failed;
+    class N done;
+    class W,A,C9,F,H,L failed;
 ```
 
 一句话：exact candidate `f821479` 在 fresh source review 中出现同根 Critical；候选不接受，Paper Gate 进入 stall，Ledger 保持 blocked，不授权 R5。
@@ -54,8 +58,8 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T18:09:22-0700`
-- 执行状态：`RUNNING_STALL_GRAPH_TRANSITION`
+- 更新时间：`2026-07-30T19:02:19-0700`
+- 执行状态：`FROZEN_STALL_SUCCESSOR_UNDER_FRESH_REVIEW`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -77,7 +81,12 @@ flowchart TB
 - Mutable prefreeze：`PASS`（完整 prototype 在 `sys.int_max_str_digits=640` 与 `0` 下均为 `95 passed in 2.20s`；独立源码复审 `PASS_PREFREEZE`）
 - Fresh frozen review：`FAIL_DO_NOT_ACCEPT`；`critical=1`、`major=0`、`minor=0`。
 - 审查反例：实际更晚的 evidence 时间在解析后与 human decision 落入同一微秒，观察到 `status=COMMITTED`、`fills=1`。
-- 当前动作：保存 exact failure evidence，并验证、冻结 11-path stall transition；不修改 `prototype/**`。
+- 首份 Stall transition：`c9e8bad088d509a012235c53701a063016796fe5`（fresh review `FAIL`；`critical=0`、`major=2`、`minor=0`；未接受）
+- 首份 Stall transition 失败收据：`governance/evidence/PAPER_GATE_STALL_C9E8BAD.frozen-review-failure.json`（`4399 bytes`；SHA-256 `407e8a93e18d0cc8a0d5cc96cdeb052b1ce9ccaedc905719661b2bf88d84d6db`）
+- 当前 Stall successor：`15b9d74221d045a65a66b56d5a3f0ada9d541c58`（`3 paths`；frozen；fresh review 正在进行）
+- 当前 Stall successor 收据：`/private/tmp/PAPER_GATE_STALL_15B9D74.candidate.json`（`5643 bytes`；SHA-256 `b34e764cb0a2aaedd61d27254122f94281058c564a48c3c140487d34c7376d06`）
+- 独立完整 clone 验证：`73 tests in 34.515s`；`95 tests in 2.146s`（digit limit `640`）；`95 tests in 2.097s`（digit limit `0`）；均 `OK`。
+- 当前动作：等待新的独立审查员检查精确 `15b9d74` 对象；不修改候选，不修改 `prototype/**`。
 - 当前产品写集：`14 paths`（既有 inventory；不新增 Graph、governance、authority kernel 或 parallel numeric protocol）
 - 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；rejected；保留作失败证据）
 - 产品候选收据：`/private/tmp/PAPER_GATE_R4_F821479.candidate.json`（`5339 bytes`；SHA-256 `db383182fa8c379409966399c285a2ec9708898ff5ca1203dd6b89833a5eec67`）
