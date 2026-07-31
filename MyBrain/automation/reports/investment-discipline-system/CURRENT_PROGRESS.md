@@ -77,14 +77,16 @@ E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收�
 
 ## 当前事实
 
-- 更新时间：`2026-07-31T06:33:19-0700`
+- 更新时间：`2026-07-31T06:45:45-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前候选工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
 - Graph 阶段：`activated_review_successor`
-- 产品候选阶段：`mutable_prefreeze_review`
+- 产品候选阶段：`frozen_exact_object_review`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
+- 冻结产品候选 P：`e1ec606ec245cc136ea32f98b61ab1bb6a3702dd`
+- 产品候选 tree：`00b269ce2e0ae0597e3eacd43cdccb071e814453`
 - 候选写集：要求 `12 paths`；实际 `12 paths`
 - 当前状态：Graph exact review 已通过；当前 attempt 的 `execution_authorized=true`
 - 当前运行路线：`Paper Gate = ACTIVE ONE ATTEMPT`；`Ledger = BLOCKED`
@@ -94,7 +96,7 @@ E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收�
 - Paper Gate 产品写集：仅既定 `8 paths`，当前无额外 tracked、untracked 或 ignored 文件
 - E2 最终结论：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
-- 当前动作：最终 mutable 产品候选已锁定；fresh prefreeze review 正从 activation A、原始源码与对抗输入重新审查，尚未冻结
+- 当前动作：产品候选 P 已以 activation A 为唯一父提交冻结；fresh reviewer 正在完整 `--no-local` clone 中检查 exact object，尚未验收
 - 当前工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 
 ## 当前候选正在重新证明什么
@@ -110,11 +112,12 @@ E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收�
 
 - Graph，`PYTHONINTMAXSTRDIGITS=640`：`76 tests in 1327.360s`，`OK`
 - Graph，`PYTHONINTMAXSTRDIGITS=0`：`76 tests in 1329.978s`，`OK`
-- 当前产品候选，`PYTHONINTMAXSTRDIGITS=640`：`112 tests in 4.131s`，`OK`
-- 当前产品候选，`PYTHONINTMAXSTRDIGITS=0`：`112 tests in 9.995s`，`OK`
+- 冻结前最终候选，`PYTHONINTMAXSTRDIGITS=640`：`114 tests in 11.625s`，`OK`
+- 冻结前最终候选，`PYTHONINTMAXSTRDIGITS=0`：`114 tests in 4.919s`，`OK`
 - 当前产品候选 Ruff：`All checks passed!`；`6 files already formatted`
 - 当前产品候选 `git diff --check`：PASS
-- 冻结前审查已发现并关闭两类真实缺陷：post-admission 故障错误分类；损坏 typed command 未封闭为 `MALFORMED`
+- 冻结前审查最终结论：`GO_FREEZE_PRODUCT_C — Critical 0 / Major 0 / Minor 0`
+- 冻结前审查已发现并关闭三类真实缺陷：post-admission 故障错误分类；损坏 typed command 未封闭为 `MALFORMED`；普通 pre-COMMIT/reconcile 故障未返回 closed outcome
 - Fresh mutable prefreeze review：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - Product 与 Mission 的冻结态 `check-candidate`：PASS；`execution_authorized=false`
 - Frozen candidate C 的 fresh exact-object review：`PASS — Critical 0 / Major 0 / Minor 0`
