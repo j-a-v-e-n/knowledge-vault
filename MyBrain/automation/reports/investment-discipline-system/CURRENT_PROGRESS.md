@@ -15,7 +15,7 @@ flowchart TB
     W --> A(["■ Paper Gate<br/>STALLED · 未验收"])
     A --> C9["✖ 首份 Stall transition<br/>c9e8bad · M0 / M2 / m0"]
     C9 --> N["✅ Bounded successor<br/>15b9d74 · 3-file exact object"]
-    N --> Q(["◐ Fresh 独立审查<br/>RUNNING"])
+    N --> Q(["✅ Fresh 独立审查<br/>PASS · C0 / M0 / m0"])
     A --> L["🔒 Ledger<br/>BLOCKED · KEEP LOCKED"]
 
     D -. "失败历史保留" .-> F["✖ R1 / R2 / R3 / R4 / R4B / R4C"]
@@ -24,7 +24,7 @@ flowchart TB
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     class G,D,R,S,P,K done;
-    class N done;
+    class N,Q done;
     class W,A,C9,F,H,L failed;
 ```
 
@@ -58,8 +58,8 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T19:02:19-0700`
-- 执行状态：`FROZEN_STALL_SUCCESSOR_UNDER_FRESH_REVIEW`
+- 更新时间：`2026-07-30T19:11:48-0700`
+- 执行状态：`TERMINAL_STALL_TRANSITION_ACCEPTED`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -83,17 +83,18 @@ flowchart TB
 - 审查反例：实际更晚的 evidence 时间在解析后与 human decision 落入同一微秒，观察到 `status=COMMITTED`、`fills=1`。
 - 首份 Stall transition：`c9e8bad088d509a012235c53701a063016796fe5`（fresh review `FAIL`；`critical=0`、`major=2`、`minor=0`；未接受）
 - 首份 Stall transition 失败收据：`governance/evidence/PAPER_GATE_STALL_C9E8BAD.frozen-review-failure.json`（`4399 bytes`；SHA-256 `407e8a93e18d0cc8a0d5cc96cdeb052b1ce9ccaedc905719661b2bf88d84d6db`）
-- 当前 Stall successor：`15b9d74221d045a65a66b56d5a3f0ada9d541c58`（`3 paths`；frozen；fresh review 正在进行）
+- 当前 Stall successor：`15b9d74221d045a65a66b56d5a3f0ada9d541c58`（`3 paths`；frozen；fresh review `PASS`；`critical=0`、`major=0`、`minor=0`）
 - 当前 Stall successor 收据：`/private/tmp/PAPER_GATE_STALL_15B9D74.candidate.json`（`5643 bytes`；SHA-256 `b34e764cb0a2aaedd61d27254122f94281058c564a48c3c140487d34c7376d06`）
+- Stall successor fresh review 收据：`/private/tmp/PAPER_GATE_STALL_15B9D74.fresh-review-pass.json`（`4775 bytes`；SHA-256 `cf7379be0822d9a3d20243516233bc0153c4eed5933536534086fa549eb55d5a`）
 - 独立完整 clone 验证：`73 tests in 34.515s`；`95 tests in 2.146s`（digit limit `640`）；`95 tests in 2.097s`（digit limit `0`）；均 `OK`。
-- 当前动作：等待新的独立审查员检查精确 `15b9d74` 对象；不修改候选，不修改 `prototype/**`。
+- 当前动作：终止停滞态已可信冻结；没有产品执行授权，不修改 `prototype/**`，不启动 R5 或 Ledger。
 - 当前产品写集：`14 paths`（既有 inventory；不新增 Graph、governance、authority kernel 或 parallel numeric protocol）
 - 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；rejected；保留作失败证据）
 - 产品候选收据：`/private/tmp/PAPER_GATE_R4_F821479.candidate.json`（`5339 bytes`；SHA-256 `db383182fa8c379409966399c285a2ec9708898ff5ca1203dd6b89833a5eec67`）
 - Frozen-review 失败收据：`governance/evidence/PAPER_GATE_R4_F821479.frozen-review-failure.json`（`4610 bytes`；SHA-256 `ef90aa5228804123563f914d4211f38ce69e327a4c8e8d7f4301f5a770893a1e`）
 - Ledger：`BLOCKED / KEEP LOCKED`
 - R5：`未授权`
-- 用户参与：`当前不需要`
+- 用户参与：`当前不需要；若要重开产品路线，必须另做新的方向决策，不能把本状态当作 R5 授权`
 
 ## 权威来源
 
