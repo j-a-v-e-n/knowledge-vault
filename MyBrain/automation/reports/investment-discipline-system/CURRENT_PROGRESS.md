@@ -6,8 +6,14 @@
 
 - **固定蓝图不随日常工作重画。** 下方产品能力节点和依赖来自 `IDS-PERSONAL-PAPER-PRODUCT-CAPABILITIES-V1`。
 - **固定交付链不增删步骤。** 今后只移动当前高亮、更新证据和时间。
-- 只有项目目标或能力依赖真的改变，并形成新的权威 Graph 版本时，蓝图结构才会改变；届时必须单独说明“为什么改版”。
+- 只有项目目标或能力依赖真的改变，形成单独候选、冻结 exact bytes 并通过独立审查后，蓝图结构才可能产生新版本；候选在被接受前对本页蓝图没有任何影响。
 - 调试反例、失败根因和历史回溯不再长进主图，只写在本页后面的当前证据或项目 evidence 中。
+
+| 层 | 现在是什么 | 允许怎么变 |
+|---|---|---|
+| 冻结蓝图 | Mission Graph + Product Capability Graph | 不能按进度原地改写；只能被“冻结且独立审查通过”的新版本替代 |
+| 当前指针 | Paper Gate；正在走失败后的方向重审 | 只随已发生且有证据的状态移动 |
+| 隔离候选 | bounded JSON ingress 方向提案 | 可被审查、拒绝或重写；在接受前不能改蓝图、不能启动产品工作 |
 
 ## 固定产品蓝图
 
@@ -65,27 +71,29 @@ flowchart LR
 
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
+    classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class E0,E1,E2,E3,E4,E5,E6,E7 done;
-    class E8 current;
-    class E9 pending;
+    class E0 current;
+    class E8 failed;
+    class E1,E2,E3,E4,E5,E6,E7,E9 pending;
 ```
 
-**当前指针：`E8｜实现与节点验收（产品 exact review 失败；terminal-stall S2 复审中）`。**
+**当前指针：上一次 attempt 在 `E8` 独立审查失败并已完成 terminal-stall；现在按已接受的 backtrack 规则返回 `E0` 做 fresh direction review。**
 
-E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收据 activation A 已形成，本机 authority 已注册，一次性 attempt 已原子启动。现在只授权当前 Paper Gate 整数权威切片；Paper Gate 完成并验收后，固定产品蓝图中的指针才会移动到 Ledger。
+上一次 attempt 的 E0–E7 证据全部保留，但不能转移给下一次 attempt。新的 E1–E8 必须重新逐步完成；方向审查通过本身也不等于 Graph 已修改或产品已获授权。
 
-E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`。因此 E8 没有完成，指针也没有移动到 E9；当前只在执行 Graph 预先规定的 stall/backtrack 分支。
+固定产品蓝图中的能力指针仍停在 Paper Gate；只有 Paper Gate 通过产品验收后，才会移动到 Ledger。
 
 ## 当前事实
 
-- 更新时间：`2026-07-31T09:09:50-0700`
+- 更新时间：`2026-07-31T09:38:40-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
-- 当前候选工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
+- 历史失败工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
 - accepted Graph 阶段：`activated_review_successor`
 - 产品候选阶段：`frozen_exact_review_failed`
-- terminal-stall Graph 候选阶段：`frozen_candidate_r2_fresh_exact_review_running`
+- terminal-stall Graph 阶段：`accepted_single_receipt_activation`
+- fresh direction 阶段：`exact_proposal_pending_independent_review`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 冻结产品候选 P：`e1ec606ec245cc136ea32f98b61ab1bb6a3702dd`
@@ -96,25 +104,33 @@ E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`
 - 冻结 terminal-stall 候选 S2：`59cd60e6c3e549f0e30fa02ea7a28b10e0bdf578`
 - S2 tree：`cb1b91592cda0c3497e26d98760ce0878c2d8954`
 - terminal-stall 候选写集：要求 `11 paths`；实际 `11 paths`
+- S2 fresh exact review：`PASS — Critical 0 / Major 0 / Minor 0`
+- terminal-stall activation As：`f5ccd438bfed54fbe618d225431c61f65800b475`
+- As tree：`3c8874a77ca601c2611103d3b6aab8ce45782ef4`
+- 新方向提案：`DIR-PAPER-GATE-BOUNDED-JSON-INGRESS-R1`
+- 新方向提案阶段：`READ_ONLY_DIRECTION_PROPOSAL_PENDING_INDEPENDENT_REVIEW`
+- 新方向提案 bytes：`19734`
+- 新方向提案 SHA-256：`8d1fe8144b0e23b30e69306fad62952fad99fa4cc1a5eb571071be51a675273f`
 - 当前状态：唯一产品 attempt 已冻结并在 fresh exact review 失败；不再拥有继续编辑产品的权限
-- 当前运行路线：accepted Graph 尚显示 `Paper Gate = ACTIVE`、`Ledger = BLOCKED`；冻结 stall candidate 提议 `Paper Gate = STALLED`，但 fresh exact review 和单收据 activation 完成前不能称为已接受
-- 生产 registration：已建立；父目录模式 `drwx------`，文件模式 `-rw-------`
-- 生产 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：指向 activation A
+- 当前运行路线：accepted Graph 显示 `Paper Gate = STALLED`、`Ledger = BLOCKED`、eligible work 为空、execution 未授权
+- 历史 registration：原样保留但只绑定旧 attempt，不能转移或复用
+- 历史 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：原样保留并继续只指向旧 activation A
 - Ledger 产品写集：`NONE_AUTHORIZED`
-- Paper Gate 产品写集：冻结为既定 `8 paths`；terminal-stall 候选不修改任何 prototype 文件
+- Paper Gate 当前产品写集：`NONE_AUTHORIZED`
 - E2 最终结论：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
 - S2 预冻结审查：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
-- 当前动作：在独立完整 clone 中审查 immutable S2；不做产品字段补丁、不创建 R5、不解锁 Ledger
-- 当前工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
+- 当前动作：独立审查 exact 新方向提案；不改 Graph、不改产品、不复用旧 attempt、不解锁 Ledger
+- 当前工作：`NONE_AUTHORIZED_DURING_DIRECTION_REVIEW`
 
-## 当前候选正在重新证明什么
+## 当前方向提案正在证明什么
 
 - 项目级 `AGENTS.md` 已要求：只有冻结且通过独立审查的 Graph 候选，才可能进入后续启动链；Graph 只能版本化修订，不能按进展原地改写。
-- S 只记录已发生的失败分支：Paper Gate `active → stalled`、Product Build `active → stalled`；Graph 拓扑、目标、current work、义务、V3 和 prototype 均不改变。
-- P 的 FAIL 收据按 raw bytes、canonical semantics、commit、tree、唯一父提交、子树与 `8 paths` 写集绑定。
-- S 的候选写集固定为 `11 paths`；其 future activation 只能新增一份 fresh-review receipt。
-- 即使 future stall activation 被接受，`register-authority`、`check-work`、`start-work` 和产品 execution 仍全部硬拒绝。
+- 已接受的 stall 只记录已发生的失败分支：Paper Gate `active → stalled`、Product Build `active → stalled`；Graph 拓扑、目标、旧 current work、义务、V3 和 prototype 均未改变。
+- 新提案把根因界定为“JSON 入口没有显式结构资源合同，也没有封闭唯一 decoder 的输入失败边界”，而不是整数、reducer 或 SQLite 问题。
+- 它比较并拒绝了只 catch `RecursionError`、取消 bytes facade、降低或推迟义务三条路线。
+- 被提议的最小方向是：保留单一 canonical bytes authority，在解码前做非递归的 bytes、nesting、structural-token preflight，并只在 exact loader 边界归一化输入导致的普通解析失败。
+- 即使方向审查通过，也只允许构造一个新的隔离 Graph candidate；不能直接编辑产品。
 - 安全边界保持 `personal/local-first/paper-only/human-final`。
 
 ## 当前验证证据
@@ -138,16 +154,22 @@ E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`
 - S2 prefreeze review：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
 - Product 与 Mission 的 S2 冻结态 `check-candidate`：PASS；`candidate_phase=frozen_candidate`；`execution_authorized=false`
 - S2 的唯一父提交：P；prototype subtree：`bde10889591debce701ff4f7a91fb27ae023e902`
-- S2 的 fresh exact-object review：运行中；尚无 PASS receipt、尚无 activation
+- S2 fresh exact-object review：`PASS — Critical 0 / Major 0 / Minor 0`
+- S2 review receipt：`4635` bytes；SHA-256 `ecb506ac4dda141b304ae54b8d87d5d41691660c767c9081154575f6cc4ad269`
+- terminal-stall 单收据 activation：`f5ccd438bfed54fbe618d225431c61f65800b475`
+- activation 后 Product 与 Mission 的 `check`、`check-view`、`check-candidate`：PASS 且 `execution_authorized=false`
+- activation 后 Product 与 Mission 的 `register-authority`、`check-work`、`start-work`：全部 fail closed；registration、designation ref、attempt ref 均未改变
+- fresh direction proposal：JSON 有效；base identity 和 clean worktree 已复核；当前由未参与编写的 reviewer 审查
 - tracked `prototype/**` diff：空；冻结 V3 diff：空
 
-## E8 当前怎么走
+## 当前回退链怎么走
 
 1. 产品候选 P 的 fresh exact review 已失败，保留 P 与 FAIL 收据。
 2. 最小 terminal-stall candidate S 已冻结但 fresh exact review 失败；S 与 FAIL 收据均保留。
-3. S2 从同一父基线重新冻结；相对 S 只关闭该 review finding，当前在独立完整 clone 中复审。
-4. 只有 S2 通过，才形成只增加该 PASS receipt 的单文件 activation；它仍不授权产品执行。
-5. Stall 被接受后，从该 accepted base 形成新的方向提案与独立方向审查；方向通过前不构造新产品尝试，Ledger 继续 blocked。
+3. S2 从同一父基线重新冻结；相对 S 只关闭该 review finding，并已通过独立 exact review。
+4. 只增加 S2 PASS receipt 的 activation As 已形成；它接受 stall，但不授权产品执行。
+5. 从 As 形成的 exact 新方向提案正在独立审查；方向通过前不构造 Graph candidate，更不构造产品 attempt，Ledger 继续 blocked。
+6. 如果方向审查不通过，回到提案层修改；如果通过，才创建一个以 As 为唯一父提交、prototype 不变的 Graph candidate，并重新走冻结、fresh review、单收据 activation、registration、check-work、start-work 全链。
 
 ## 权威入口
 
@@ -157,6 +179,8 @@ E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`
 - 冻结失败 attempt 边界：`governance/PAPER_GATE_STATE_MACHINE_BOUNDARY_V3.json`
 - terminal-stall candidate contract：`governance/PAPER_GATE_INTEGER_AUTHORITY_STALL_TRANSITION_R1.json`
 - 产品 FAIL 收据：`governance/evidence/PAPER_GATE_INTEGER_AUTHORITY_PRODUCT_R1.fresh-exact-review.json`
+- terminal-stall PASS 收据：`governance/evidence/PAPER_GATE_INTEGER_AUTHORITY_STALL_TRANSITION_R1.fresh-review-pass.json`
 - S fresh review FAIL 收据：`PAPER_GATE_INTEGER_AUTHORITY_STALL_TRANSITION_R1.fresh-review-fail.json`
+- 当前无权限方向提案：`/private/tmp/PAPER_GATE_BOUNDED_JSON_INGRESS_DIRECTION_R1.proposal.json`
 
 以后本页只更新：**当前指针、节点状态、证据、时间**。蓝图结构变化必须作为单独的版本决策说明。
