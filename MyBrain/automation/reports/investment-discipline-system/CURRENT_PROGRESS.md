@@ -77,11 +77,12 @@ E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收�
 
 ## 当前事实
 
-- 更新时间：`2026-07-31T05:33:29-0700`
+- 更新时间：`2026-07-31T06:33:19-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前候选工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
-- 候选阶段：`activated_review_successor`
+- Graph 阶段：`activated_review_successor`
+- 产品候选阶段：`mutable_prefreeze_review`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 候选写集：要求 `12 paths`；实际 `12 paths`
@@ -90,9 +91,10 @@ E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收�
 - 生产 registration：已建立；父目录模式 `drwx------`，文件模式 `-rw-------`
 - 生产 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：指向 activation A
 - Ledger 产品写集：`NONE_AUTHORIZED`
+- Paper Gate 产品写集：仅既定 `8 paths`，当前无额外 tracked、untracked 或 ignored 文件
 - E2 最终结论：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
-- 当前动作：重建 E8 的最小 owner inventory，随后实现 `record_paper_commit` 整数权威切片
+- 当前动作：最终 mutable 产品候选已锁定；fresh prefreeze review 正从 activation A、原始源码与对抗输入重新审查，尚未冻结
 - 当前工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 
 ## 当前候选正在重新证明什么
@@ -108,8 +110,11 @@ E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收�
 
 - Graph，`PYTHONINTMAXSTRDIGITS=640`：`76 tests in 1327.360s`，`OK`
 - Graph，`PYTHONINTMAXSTRDIGITS=0`：`76 tests in 1329.978s`，`OK`
-- Prototype，`PYTHONINTMAXSTRDIGITS=640`：`95 tests in 3.234s`，`OK`
-- Prototype，`PYTHONINTMAXSTRDIGITS=0`：`95 tests in 4.536s`，`OK`
+- 当前产品候选，`PYTHONINTMAXSTRDIGITS=640`：`112 tests in 4.131s`，`OK`
+- 当前产品候选，`PYTHONINTMAXSTRDIGITS=0`：`112 tests in 9.995s`，`OK`
+- 当前产品候选 Ruff：`All checks passed!`；`6 files already formatted`
+- 当前产品候选 `git diff --check`：PASS
+- 冻结前审查已发现并关闭两类真实缺陷：post-admission 故障错误分类；损坏 typed command 未封闭为 `MALFORMED`
 - Fresh mutable prefreeze review：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - Product 与 Mission 的冻结态 `check-candidate`：PASS；`execution_authorized=false`
 - Frozen candidate C 的 fresh exact-object review：`PASS — Critical 0 / Major 0 / Minor 0`
