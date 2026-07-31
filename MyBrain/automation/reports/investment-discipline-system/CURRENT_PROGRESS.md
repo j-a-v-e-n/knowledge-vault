@@ -12,7 +12,7 @@
 | 层 | 现在是什么 | 允许怎么变 |
 |---|---|---|
 | 冻结蓝图 | Mission Graph + Product Capability Graph | 不能按进度原地改写；只能被“冻结且独立审查通过”的新版本替代 |
-| 当前指针 | Paper Gate；bounded JSON 候选已在预冻结审查失败，已回到 fresh direction review | 只随已发生且有证据的状态移动 |
+| 当前指针 | Paper Gate；两条资源预算路线均被拒绝，exact-decoder 异常边界提案正在 fresh direction review | 只随已发生且有证据的状态移动 |
 | 隔离候选 | `154782315b2e50ebedd74d4e78f7a2e3cd985d71`，失败历史 | 已提交为不可变失败证据；不能修成 PASS、不能激活、不能启动产品工作 |
 
 ## 固定产品蓝图
@@ -93,17 +93,19 @@ flowchart LR
     C1 --> R1["预冻结独立审查<br/>FAIL · Critical 1 / Major 2"]
     R1 --> D2["两层 compositional 方向<br/>只读提案"]
     D2 --> R2["Fresh direction review<br/>FAIL · Critical 1 / Major 2"]
-    R2 --> D3["当前<br/>resource-domain ownership review"]
+    R2 --> D3["边界重建<br/>回到原 FAIL 与 V3"]
+    D3 --> D4["exact-decoder 方向提案<br/>无 Graph / 产品权限"]
+    D4 --> R3["当前<br/>Fresh direction review"]
 
     classDef accepted fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef historical fill:#f1f3f5,stroke:#868e96;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
     class AS accepted;
-    class D1,C1 historical;
+    class D1,C1,D3,D4 historical;
     class R1,R2 failed;
     class D2 historical;
-    class D3 current;
+    class R3 current;
 ```
 
 ## 当前最短状态
@@ -116,11 +118,11 @@ flowchart LR
 | 产品有编辑权吗？ | 没有。Graph activation、registration、check-work、start-work 均未发生 |
 | 哪些东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71`；随后两层 compositional 方向提案也在 fresh review 失败 |
 | 第二次为什么失败？ | 有限共享 H、Ledger 不改、V3 当前无界 typed 行为完整保留，三项不能同时成立 |
-| 现在做什么？ | 保留两次失败证据，在 resource-domain ownership 层比较“缩小到真正公共 ingress”与“扩大到全入口 + Ledger” |
+| 现在做什么？ | 审查最小 exact-decoder 修正：只归一化输入触发的 `RecursionError`，不新增 JSON 容量政策；尚未构造 Graph candidate |
 
 ## 历史明细（只作追溯，不决定当前路线）
 
-- 更新时间：`2026-07-31T11:59:11-0700`
+- 更新时间：`2026-07-31T12:08:50-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 历史失败工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -141,6 +143,10 @@ flowchart LR
 - compositional direction FAIL receipt bytes：`9100`
 - compositional direction FAIL receipt SHA-256：`22ca4fa65d9891eb70ee6391979cafc1e036759ba86adf7a1650ec4add119d09`
 - compositional direction evidence commit：`a71717780105cbdb42377041c330623be9e5c25c`
+- exact-decoder direction proposal：`DIR-PAPER-GATE-EXACT-DECODER-EXCEPTION-R1`
+- exact-decoder direction proposal bytes：`20988`
+- exact-decoder direction proposal SHA-256：`55be62f5041156a23e33f4af60ed9a0a462b2184ec16f0a9b012ed4ae3e676a1`
+- exact-decoder direction review：`IN_PROGRESS — no authority`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 冻结产品候选 P：`e1ec606ec245cc136ea32f98b61ab1bb6a3702dd`
@@ -162,7 +168,7 @@ flowchart LR
 - 新方向审查 receipt bytes：`16680`
 - 新方向审查 receipt SHA-256：`5984e94abb3e757aeeadf56c62420f4862268cfca0336b2ed255954a1a1c1d30`
 - 新 Graph candidate 允许写集：精确 `12 paths`；prototype 必须不变
-- 当前状态：bounded JSON Graph candidate 与其后两层 compositional 方向均已失败；没有产品编辑权，正在 resource-domain ownership 层重新选方向
+- 当前状态：bounded JSON Graph candidate 与其后两层 compositional 方向均已失败；没有产品编辑权，exact-decoder 最小方向正在 fresh review
 - 当前运行路线：accepted Graph 显示 `Paper Gate = STALLED`、`Ledger = BLOCKED`、eligible work 为空、execution 未授权
 - 历史 registration：原样保留但只绑定旧 attempt，不能转移或复用
 - 历史 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：原样保留并继续只指向旧 activation A
@@ -171,7 +177,7 @@ flowchart LR
 - bounded JSON E2 最终结论：`FAIL — Critical 1 / Major 2 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
 - S2 预冻结审查：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
-- 当前动作：比较 public-ingress claim shrink 与全入口 Ledger resource domain；不得原地修补 H、失败候选或失败提案
+- 当前动作：审查“只在 exact loader 归一化 `RecursionError → ValueError → MALFORMED`”是否足以关闭原 FAIL；不新增 public E、global H、Ledger resource domain 或容量数字
 - 当前工作：`NONE_AUTHORIZED_DURING_FRESH_DIRECTION_REVIEW`
 
 ## 这次失败证明了什么
@@ -182,7 +188,8 @@ flowchart LR
 - V4 还把 V3 的真实产品范围误标为“旧授权历史”，会无意缩小既有验收；独立审查因此拒绝候选。
 - 失败候选和失败收据已经保存；旧 direction PASS 只允许过这一个候选，不能成为下一候选的授权。
 - 后续两层 compositional 提案证明 envelope 派生链可以用 E/H 闭包，但遗漏了同一个 loader 还消费独立的 account/rules typed 输入；fresh review 因此再次 FAIL。
-- 这次不能再调 H 数字。下一步必须换到 resource-domain ownership 层：要么明确把有限资源主张缩到真正公共 mutation bytes，要么把所有 authority-producing ingress 与 Ledger callsite 纳入产品写集和兼容性决策。
+- 原 FAIL 与 V3 复核证明：当前义务要求的是公开 writer 的闭合 typed outcome；原收据明确允许“有限 depth/size policy”或“在 exact decoder 归一化 parser recursion”二选一，V3 没有 byte/depth/token 的全局预算。
+- 因而当前提案不再调 H，也不再顺手增加 public E；它只把 `RecursionError` 放回既有 `ValueError → MALFORMED` 通道，并明确不声称全局 JSON 资源闭包。该方向仍须 fresh review。
 - 安全边界保持 `personal/local-first/paper-only/human-final`。
 
 ## 当前验证证据
@@ -224,6 +231,9 @@ flowchart LR
 - compositional direction FAIL receipt：`9100` bytes；SHA-256 `22ca4fa65d9891eb70ee6391979cafc1e036759ba86adf7a1650ec4add119d09`
 - reviewer 已再次核验 FAIL receipt 的 exact bytes、hash、finding 与无授权语义一致
 - compositional direction evidence commit：`a71717780105cbdb42377041c330623be9e5c25c`
+- exact-decoder direction proposal：JSON 有效；`20988` bytes；SHA-256 `55be62f5041156a23e33f4af60ed9a0a462b2184ec16f0a9b012ed4ae3e676a1`
+- exact-decoder direction proposal 的产品预估写集：仅 `README.md`、`discipline_system.py`、`test_paper_gate_state_machine.py`；这只是待审 scope，不是权限
+- fresh non-builder exact-decoder direction review：进行中
 - tracked `prototype/**` diff：空；冻结 V3 diff：空
 
 ## 当前回退链怎么走
@@ -236,7 +246,8 @@ flowchart LR
 6. 该 `12-path` Graph candidate 已保存为 `154782315b2e50ebedd74d4e78f7a2e3cd985d71`，并在 prefreeze review 以 `Critical 1 / Major 2 / Minor 0` 失败。
 7. 单文件失败收据保存在 commit `2d46b54eb9214d5e07bb2a9d57326ea724312924`；当前从 As 回到 fresh direction review，不能从失败候选继续。
 8. 两层 compositional JSON 方向提案随后在 fresh review 以 `Critical 1 / Major 2 / Minor 0` 失败；proposal 与 exact FAIL receipt 保存在 `a71717780105cbdb42377041c330623be9e5c25c`。
-9. 当前继续以 As 为 accepted authority，在 resource-domain ownership 层重新选方向；仍未进入任何 Graph candidate 或产品写集。
+9. 当前继续以 As 为 accepted authority；复核原 FAIL 后形成 project-external exact-decoder 方向提案，只选择异常边界根因修正，不新增资源预算。
+10. fresh non-builder direction review 正在直接检查该提案、V3、原 FAIL 和六个 loader callsite；仍未进入任何 Graph candidate 或产品写集。
 
 ## 权威入口
 
