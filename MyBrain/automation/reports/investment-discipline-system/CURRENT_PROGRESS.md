@@ -77,26 +77,26 @@ E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收�
 
 ## 当前事实
 
-- 更新时间：`2026-07-31T06:45:45-0700`
+- 更新时间：`2026-07-31T07:07:19-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前候选工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
 - Graph 阶段：`activated_review_successor`
-- 产品候选阶段：`frozen_exact_object_review`
+- 产品候选阶段：`frozen_exact_review_failed`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 冻结产品候选 P：`e1ec606ec245cc136ea32f98b61ab1bb6a3702dd`
 - 产品候选 tree：`00b269ce2e0ae0597e3eacd43cdccb071e814453`
 - 候选写集：要求 `12 paths`；实际 `12 paths`
-- 当前状态：Graph exact review 已通过；当前 attempt 的 `execution_authorized=true`
-- 当前运行路线：`Paper Gate = ACTIVE ONE ATTEMPT`；`Ledger = BLOCKED`
+- 当前状态：唯一产品 attempt 已冻结并在 fresh exact review 失败；不再拥有继续编辑产品的权限
+- 当前运行路线：accepted Graph 尚显示 `Paper Gate = ACTIVE`、`Ledger = BLOCKED`；预声明的 stall transition 正待冻结与独立接受
 - 生产 registration：已建立；父目录模式 `drwx------`，文件模式 `-rw-------`
 - 生产 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：指向 activation A
 - Ledger 产品写集：`NONE_AUTHORIZED`
 - Paper Gate 产品写集：仅既定 `8 paths`，当前无额外 tracked、untracked 或 ignored 文件
 - E2 最终结论：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
-- 当前动作：产品候选 P 已以 activation A 为唯一父提交冻结；fresh reviewer 正在完整 `--no-local` clone 中检查 exact object，尚未验收
+- 当前动作：保留 P 与 exact FAIL 收据；按 frozen Graph 形成最小 terminal stall transition，不做产品字段补丁、不创建 R5
 - 当前工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 
 ## 当前候选正在重新证明什么
@@ -118,6 +118,10 @@ E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收�
 - 当前产品候选 `git diff --check`：PASS
 - 冻结前审查最终结论：`GO_FREEZE_PRODUCT_C — Critical 0 / Major 0 / Minor 0`
 - 冻结前审查已发现并关闭三类真实缺陷：post-admission 故障错误分类；损坏 typed command 未封闭为 `MALFORMED`；普通 pre-COMMIT/reconcile 故障未返回 closed outcome
+- Fresh exact-object review：`FAIL — Critical 1 / Major 0 / Minor 0`
+- Fresh exact FAIL receipt：SHA-256 `304fbbadaa6f1e3bd133013cae9307ea4187d9729bb8f9d3e50c646b0381dfc1`
+- 未满足义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`；有限深层 JSON bytes 会泄漏非 typed `RecursionError`
+- Graph 规定的结果：`STALL_AND_BACKTRACK_TO_FRESH_DIRECTION_REVIEW`；`automatic_successor=false`、`R5=false`、`field_patch=false`
 - Fresh mutable prefreeze review：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - Product 与 Mission 的冻结态 `check-candidate`：PASS；`execution_authorized=false`
 - Frozen candidate C 的 fresh exact-object review：`PASS — Critical 0 / Major 0 / Minor 0`
