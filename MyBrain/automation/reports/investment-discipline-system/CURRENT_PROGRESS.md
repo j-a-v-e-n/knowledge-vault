@@ -91,7 +91,9 @@ flowchart LR
     AS["已接受 authority<br/>As f5ccd438"] --> D1["旧方向审查<br/>PASS，但只允许一个候选"]
     D1 --> C1["bounded JSON Graph 候选<br/>15478231"]
     C1 --> R1["预冻结独立审查<br/>FAIL · Critical 1 / Major 2"]
-    R1 --> D2["当前<br/>fresh direction review"]
+    R1 --> D2["两层 compositional 方向<br/>只读提案"]
+    D2 --> R2["Fresh direction review<br/>FAIL · Critical 1 / Major 2"]
+    R2 --> D3["当前<br/>resource-domain ownership review"]
 
     classDef accepted fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef historical fill:#f1f3f5,stroke:#868e96;
@@ -99,8 +101,9 @@ flowchart LR
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
     class AS accepted;
     class D1,C1 historical;
-    class R1 failed;
-    class D2 current;
+    class R1,R2 failed;
+    class D2 historical;
+    class D3 current;
 ```
 
 ## 当前最短状态
@@ -111,13 +114,13 @@ flowchart LR
 | 固定能力蓝图变了吗？ | 没有。当前能力仍是 Paper Gate，Ledger 仍 blocked |
 | accepted Graph 变了吗？ | 没有。仍停在 terminal-stall activation `f5ccd438bfed54fbe618d225431c61f65800b475` |
 | 产品有编辑权吗？ | 没有。Graph activation、registration、check-work、start-work 均未发生 |
-| 哪个东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71` |
-| 为什么失败？ | 同一有限上限无法覆盖 envelope → approval 的增大；reference trace 不能按声明配方复现；V3 产品范围继承有缺口 |
-| 现在做什么？ | 保留失败候选和收据，从 accepted stall 基线做 fresh direction review |
+| 哪些东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71`；随后两层 compositional 方向提案也在 fresh review 失败 |
+| 第二次为什么失败？ | 有限共享 H、Ledger 不改、V3 当前无界 typed 行为完整保留，三项不能同时成立 |
+| 现在做什么？ | 保留两次失败证据，在 resource-domain ownership 层比较“缩小到真正公共 ingress”与“扩大到全入口 + Ledger” |
 
 ## 历史明细（只作追溯，不决定当前路线）
 
-- 更新时间：`2026-07-31T11:27:50-0700`
+- 更新时间：`2026-07-31T11:59:11-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 历史失败工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -132,6 +135,12 @@ flowchart LR
 - bounded JSON failure receipt commit：`2d46b54eb9214d5e07bb2a9d57326ea724312924`
 - bounded JSON failure receipt bytes：`8644`
 - bounded JSON failure receipt SHA-256：`6e46d473d4f52efb160f8697c15d48d8c1fc064fe80e150a40f0ce47539d5fa9`
+- compositional direction proposal bytes：`20567`
+- compositional direction proposal SHA-256：`6858efcc4ecf8f0c6316c237a3cf6cb7d31552b8d66aa0a10a2cf2e1710a7513`
+- compositional direction fresh review：`FAIL — Critical 1 / Major 2 / Minor 0`
+- compositional direction FAIL receipt bytes：`9100`
+- compositional direction FAIL receipt SHA-256：`22ca4fa65d9891eb70ee6391979cafc1e036759ba86adf7a1650ec4add119d09`
+- compositional direction evidence commit：`a71717780105cbdb42377041c330623be9e5c25c`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 冻结产品候选 P：`e1ec606ec245cc136ea32f98b61ab1bb6a3702dd`
@@ -153,7 +162,7 @@ flowchart LR
 - 新方向审查 receipt bytes：`16680`
 - 新方向审查 receipt SHA-256：`5984e94abb3e757aeeadf56c62420f4862268cfca0336b2ed255954a1a1c1d30`
 - 新 Graph candidate 允许写集：精确 `12 paths`；prototype 必须不变
-- 当前状态：bounded JSON Graph candidate 在预冻结审查失败；没有产品编辑权，正在回到 fresh direction review
+- 当前状态：bounded JSON Graph candidate 与其后两层 compositional 方向均已失败；没有产品编辑权，正在 resource-domain ownership 层重新选方向
 - 当前运行路线：accepted Graph 显示 `Paper Gate = STALLED`、`Ledger = BLOCKED`、eligible work 为空、execution 未授权
 - 历史 registration：原样保留但只绑定旧 attempt，不能转移或复用
 - 历史 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：原样保留并继续只指向旧 activation A
@@ -162,7 +171,7 @@ flowchart LR
 - bounded JSON E2 最终结论：`FAIL — Critical 1 / Major 2 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
 - S2 预冻结审查：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
-- 当前动作：从 accepted stall activation 做 fresh direction review；不得原地修补失败候选
+- 当前动作：比较 public-ingress claim shrink 与全入口 Ledger resource domain；不得原地修补 H、失败候选或失败提案
 - 当前工作：`NONE_AUTHORIZED_DURING_FRESH_DIRECTION_REVIEW`
 
 ## 这次失败证明了什么
@@ -172,7 +181,8 @@ flowchart LR
 - V4 的 trace 尺寸指标能够复现，但生成时把第一次 `create_account` 放在固定时钟 patch 之外；后续事件 hash 链和两个 receipt 因此不能按文档配方复现。
 - V4 还把 V3 的真实产品范围误标为“旧授权历史”，会无意缩小既有验收；独立审查因此拒绝候选。
 - 失败候选和失败收据已经保存；旧 direction PASS 只允许过这一个候选，不能成为下一候选的授权。
-- 下一步必须比较新的根因级方向并做 fresh 独立方向审查；不能只换 7 个 hash、抬高同一个上限或加 R2 字段。
+- 后续两层 compositional 提案证明 envelope 派生链可以用 E/H 闭包，但遗漏了同一个 loader 还消费独立的 account/rules typed 输入；fresh review 因此再次 FAIL。
+- 这次不能再调 H 数字。下一步必须换到 resource-domain ownership 层：要么明确把有限资源主张缩到真正公共 mutation bytes，要么把所有 authority-producing ingress 与 Ledger callsite 纳入产品写集和兼容性决策。
 - 安全边界保持 `personal/local-first/paper-only/human-final`。
 
 ## 当前验证证据
@@ -209,6 +219,11 @@ flowchart LR
 - bounded JSON prefreeze review：`FAIL — Critical 1 / Major 2 / Minor 0`
 - failure receipt：`8644` bytes；SHA-256 `6e46d473d4f52efb160f8697c15d48d8c1fc064fe80e150a40f0ce47539d5fa9`
 - failure receipt commit：`2d46b54eb9214d5e07bb2a9d57326ea724312924`
+- compositional direction proposal：`20567` bytes；SHA-256 `6858efcc4ecf8f0c6316c237a3cf6cb7d31552b8d66aa0a10a2cf2e1710a7513`
+- compositional direction fresh review：`FAIL — Critical 1 / Major 2 / Minor 0`
+- compositional direction FAIL receipt：`9100` bytes；SHA-256 `22ca4fa65d9891eb70ee6391979cafc1e036759ba86adf7a1650ec4add119d09`
+- reviewer 已再次核验 FAIL receipt 的 exact bytes、hash、finding 与无授权语义一致
+- compositional direction evidence commit：`a71717780105cbdb42377041c330623be9e5c25c`
 - tracked `prototype/**` diff：空；冻结 V3 diff：空
 
 ## 当前回退链怎么走
@@ -220,6 +235,8 @@ flowchart LR
 5. 从 As 形成的 bounded JSON 方向提案通过独立方向审查；该 PASS 只允许一个新候选，不改 accepted Graph，也不授权产品。
 6. 该 `12-path` Graph candidate 已保存为 `154782315b2e50ebedd74d4e78f7a2e3cd985d71`，并在 prefreeze review 以 `Critical 1 / Major 2 / Minor 0` 失败。
 7. 单文件失败收据保存在 commit `2d46b54eb9214d5e07bb2a9d57326ea724312924`；当前从 As 回到 fresh direction review，不能从失败候选继续。
+8. 两层 compositional JSON 方向提案随后在 fresh review 以 `Critical 1 / Major 2 / Minor 0` 失败；proposal 与 exact FAIL receipt 保存在 `a71717780105cbdb42377041c330623be9e5c25c`。
+9. 当前继续以 As 为 accepted authority，在 resource-domain ownership 层重新选方向；仍未进入任何 Graph candidate 或产品写集。
 
 ## 权威入口
 
@@ -234,5 +251,7 @@ flowchart LR
 - 历史 bounded JSON 方向提案：`governance/evidence/PAPER_GATE_BOUNDED_JSON_INGRESS_DIRECTION_R1.proposal.json`，只存在于失败候选历史
 - 历史方向 PASS 收据：`governance/evidence/PAPER_GATE_BOUNDED_JSON_INGRESS_DIRECTION_R1.fresh-review-pass.json`，不可复用
 - bounded JSON Graph prefreeze FAIL 收据：`governance/evidence/PAPER_GATE_BOUNDED_JSON_INGRESS_GRAPH_R1.prefreeze-failure.json`
+- compositional direction 失败提案：`governance/evidence/PAPER_GATE_COMPOSITIONAL_JSON_RESOURCE_DIRECTION_R1.proposal.json`
+- compositional direction FAIL 收据：`governance/evidence/PAPER_GATE_COMPOSITIONAL_JSON_RESOURCE_DIRECTION_R1.fresh-review-fail.json`
 
 以后本页只更新：**当前指针、节点状态、证据、时间**。蓝图结构变化必须作为单独的版本决策说明。
