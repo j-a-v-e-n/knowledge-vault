@@ -66,32 +66,34 @@ flowchart LR
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class E0,E1,E2,E3 done;
-    class E4 current;
-    class E5,E6,E7,E8,E9 pending;
+    class E0,E1,E2,E3,E4,E5,E6,E7 done;
+    class E8 current;
+    class E9 pending;
 ```
 
-**当前指针：`E4｜Fresh exact review`。**
+**当前指针：`E8｜实现与节点验收`。**
 
-完成 E4 不等于完成项目；它只决定冻结的 12-path Graph 候选能否增加一份独立审查收据。只有依次通过 E5–E7，才获得第一次 Paper Gate 产品编辑授权。Paper Gate 完成并验收后，固定产品蓝图中的指针才会移动到 Ledger。
+E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收据 activation A 已形成，本机 authority 已注册，一次性 attempt 已原子启动。现在只授权当前 Paper Gate 整数权威切片；Paper Gate 完成并验收后，固定产品蓝图中的指针才会移动到 Ledger。
 
 ## 当前事实
 
-- 更新时间：`2026-07-31T04:58:59-07:00`
+- 更新时间：`2026-07-31T05:33:29-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前候选工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
-- 候选阶段：`frozen_candidate`
+- 候选阶段：`activated_review_successor`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
+- activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 候选写集：要求 `12 paths`；实际 `12 paths`
-- 当前状态：`candidate_valid=true`；`execution_authorized=false`
-- 当前 accepted authority：`Paper Gate = STALLED`；`Ledger = BLOCKED`
-- 生产 registration：不存在
-- 生产 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：不存在
+- 当前状态：Graph exact review 已通过；当前 attempt 的 `execution_authorized=true`
+- 当前运行路线：`Paper Gate = ACTIVE ONE ATTEMPT`；`Ledger = BLOCKED`
+- 生产 registration：已建立；父目录模式 `drwx------`，文件模式 `-rw-------`
+- 生产 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：指向 activation A
 - Ledger 产品写集：`NONE_AUTHORIZED`
 - E2 最终结论：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
-- 当前动作：在完整 `--no-local`、non-promisor clone 中审查 exact C
-- 当前 reviewer：`/root/integer_authority_graph_exact_review`
+- E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
+- 当前动作：重建 E8 的最小 owner inventory，随后实现 `record_paper_commit` 整数权威切片
+- 当前工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 
 ## 当前候选正在重新证明什么
 
@@ -110,18 +112,24 @@ flowchart LR
 - Prototype，`PYTHONINTMAXSTRDIGITS=0`：`95 tests in 4.536s`，`OK`
 - Fresh mutable prefreeze review：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - Product 与 Mission 的冻结态 `check-candidate`：PASS；`execution_authorized=false`
-- Frozen candidate C 的 fresh exact-object review：运行中
+- Frozen candidate C 的 fresh exact-object review：`PASS — Critical 0 / Major 0 / Minor 0`
+- Exact-clone Graph，`PYTHONINTMAXSTRDIGITS=640`：`76 tests in 789.168s`，`OK`
+- Exact-clone Graph，`PYTHONINTMAXSTRDIGITS=0`：`76 tests in 789.155s`，`OK`
+- Exact-clone Prototype，`PYTHONINTMAXSTRDIGITS=640`：`95 tests in 6.924s`，`OK`
+- Exact-clone Prototype，`PYTHONINTMAXSTRDIGITS=0`：`95 tests in 6.692s`，`OK`
+- Fresh review receipt：`7710` bytes；SHA-256 `af31c15f0e4d1f01dc604cd28b45a511a6847fa05734090d61d19250dbc9122e`
+- `check-work`：`pass_start_eligible`
+- `start-work`：`pass_attempt_started`
 - `git diff --check`：PASS
 - tracked `prototype/**` diff：空
 
-## E4 之后固定怎么走
+## E8 当前怎么走
 
-1. E4 从完整 `--no-local`、non-promisor clone 完成 fresh exact-object review。
-2. E5 只增加一份 fresh-review receipt，形成 activation A。
-3. E6 在 handoff 指定的唯一 Git common directory 注册本机 authority。
-4. E7 先 `check-work`，再由一次 `start-work` 原子消费 attempt。
-5. E8 才允许 Paper Gate 产品文件首次移动并接受节点级验收。
-6. Paper Gate 验收后，固定产品蓝图指针移动到 Ledger；蓝图本身不重画。
+1. 锁定 E8 的 exact owner inventory 与最小产品写集。
+2. 实现唯一命令 `record_paper_commit` 的 signed-64 integer authority；不增加其他命令。
+3. 验证 canonical identity、审批、Gate、SQLite event、重启与 replay 使用同一组整数。
+4. 冻结 exact 产品候选并做 fresh independent review。
+5. Paper Gate 验收后，固定产品蓝图指针移动到 Ledger；蓝图本身不重画。
 
 ## 权威入口
 
