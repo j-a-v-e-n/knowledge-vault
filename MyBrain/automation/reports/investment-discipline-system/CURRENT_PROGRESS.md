@@ -71,7 +71,7 @@ flowchart LR
     class E9 pending;
 ```
 
-**当前指针：`E8｜实现与节点验收（产品 exact review 失败；terminal-stall 候选复审中）`。**
+**当前指针：`E8｜实现与节点验收（产品 exact review 失败；terminal-stall S2 复审中）`。**
 
 E4–E7 已依次完成：冻结候选通过独立 exact-object review，单收据 activation A 已形成，本机 authority 已注册，一次性 attempt 已原子启动。现在只授权当前 Paper Gate 整数权威切片；Paper Gate 完成并验收后，固定产品蓝图中的指针才会移动到 Ledger。
 
@@ -79,19 +79,22 @@ E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`
 
 ## 当前事实
 
-- 更新时间：`2026-07-31T08:34:20-0700`
+- 更新时间：`2026-07-31T09:09:50-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前候选工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
 - accepted Graph 阶段：`activated_review_successor`
 - 产品候选阶段：`frozen_exact_review_failed`
-- terminal-stall Graph 候选阶段：`frozen_candidate_fresh_exact_review_running`
+- terminal-stall Graph 候选阶段：`frozen_candidate_r2_fresh_exact_review_running`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 冻结产品候选 P：`e1ec606ec245cc136ea32f98b61ab1bb6a3702dd`
 - 产品候选 tree：`00b269ce2e0ae0597e3eacd43cdccb071e814453`
 - 冻结 terminal-stall 候选 S：`02a2512c7423bad2f90358737aaae052a1bedd46`
 - terminal-stall 候选 tree：`74b399b8be66359b875abfd904348bb327a87624`
+- S fresh exact review：`FAIL — Critical 0 / Major 1 / Minor 0`
+- 冻结 terminal-stall 候选 S2：`59cd60e6c3e549f0e30fa02ea7a28b10e0bdf578`
+- S2 tree：`cb1b91592cda0c3497e26d98760ce0878c2d8954`
 - terminal-stall 候选写集：要求 `11 paths`；实际 `11 paths`
 - 当前状态：唯一产品 attempt 已冻结并在 fresh exact review 失败；不再拥有继续编辑产品的权限
 - 当前运行路线：accepted Graph 尚显示 `Paper Gate = ACTIVE`、`Ledger = BLOCKED`；冻结 stall candidate 提议 `Paper Gate = STALLED`，但 fresh exact review 和单收据 activation 完成前不能称为已接受
@@ -101,8 +104,8 @@ E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`
 - Paper Gate 产品写集：冻结为既定 `8 paths`；terminal-stall 候选不修改任何 prototype 文件
 - E2 最终结论：`GO_FREEZE_C — Critical 0 / Major 0 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
-- terminal-stall 预冻结审查：`GO_FREEZE_STALL_C — Critical 0 / Major 0 / Minor 0`
-- 当前动作：在独立完整 clone 中审查 immutable S；不做产品字段补丁、不创建 R5、不解锁 Ledger
+- S2 预冻结审查：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
+- 当前动作：在独立完整 clone 中审查 immutable S2；不做产品字段补丁、不创建 R5、不解锁 Ledger
 - 当前工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 
 ## 当前候选正在重新证明什么
@@ -116,10 +119,10 @@ E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`
 
 ## 当前验证证据
 
-- terminal-stall Product + Mission，`PYTHONINTMAXSTRDIGITS=640`：`77 tests in 39.881s`，`OK (skipped=1)`
-- terminal-stall Product + Mission，`PYTHONINTMAXSTRDIGITS=0`：`77 tests in 37.526s`，`OK (skipped=1)`
-- 冻结 P 的 prototype 回归，`PYTHONINTMAXSTRDIGITS=640`：`114 tests in 14.894s`，`OK`
-- 冻结 P 的 prototype 回归，`PYTHONINTMAXSTRDIGITS=0`：`114 tests in 8.780s`，`OK`
+- S2 Product + Mission，`PYTHONINTMAXSTRDIGITS=640`：`77 tests in 33.733s`，`OK (skipped=1)`
+- S2 Product + Mission，`PYTHONINTMAXSTRDIGITS=0`：`77 tests in 34.327s`，`OK (skipped=1)`
+- 冻结 P 的 prototype 回归，`PYTHONINTMAXSTRDIGITS=640`：`114 tests in 3.334s`，`OK`
+- 冻结 P 的 prototype 回归，`PYTHONINTMAXSTRDIGITS=0`：`114 tests in 4.521s`，`OK`
 - terminal-stall Ruff：`All checks passed!`；`4 files already formatted`
 - terminal-stall `git diff --check`：PASS
 - 冻结前审查最终结论：`GO_FREEZE_PRODUCT_C — Critical 0 / Major 0 / Minor 0`
@@ -129,17 +132,21 @@ E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`
 - 未满足义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`；有限深层 JSON bytes 会泄漏非 typed `RecursionError`
 - Graph 规定的结果：`STALL_AND_BACKTRACK_TO_FRESH_DIRECTION_REVIEW`；`automatic_successor=false`、`R5=false`、`field_patch=false`
 - terminal-stall prefreeze review：`GO_FREEZE_STALL_C — Critical 0 / Major 0 / Minor 0`
-- Product 与 Mission 的冻结态 `check-candidate`：PASS；`candidate_phase=frozen_candidate`；`execution_authorized=false`
-- S 的唯一父提交：P；prototype subtree：`bde10889591debce701ff4f7a91fb27ae023e902`
-- S 的 fresh exact-object review：运行中；尚无 PASS receipt、尚无 activation
+- S fresh exact-object review：`FAIL — Critical 0 / Major 1 / Minor 0`
+- S FAIL receipt：`11492` bytes；SHA-256 `fbbaa496b319ca59567cd2f71cf537e9f85f128d6d8ed0d3ace34eeef19e262c`
+- S→S2：10 个 candidate blob 相同；唯一差异是负例不再绑定 mutable-only 错误文案，仍要求拒绝
+- S2 prefreeze review：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
+- Product 与 Mission 的 S2 冻结态 `check-candidate`：PASS；`candidate_phase=frozen_candidate`；`execution_authorized=false`
+- S2 的唯一父提交：P；prototype subtree：`bde10889591debce701ff4f7a91fb27ae023e902`
+- S2 的 fresh exact-object review：运行中；尚无 PASS receipt、尚无 activation
 - tracked `prototype/**` diff：空；冻结 V3 diff：空
 
 ## E8 当前怎么走
 
 1. 产品候选 P 的 fresh exact review 已失败，保留 P 与 FAIL 收据。
-2. 最小 terminal-stall candidate S 已冻结；不修改产品。
-3. 当前在独立完整 clone 中做 S 的 fresh exact-object review。
-4. 只有 S 通过，才形成只增加该 PASS receipt 的单文件 activation；它仍不授权产品执行。
+2. 最小 terminal-stall candidate S 已冻结但 fresh exact review 失败；S 与 FAIL 收据均保留。
+3. S2 从同一父基线重新冻结；相对 S 只关闭该 review finding，当前在独立完整 clone 中复审。
+4. 只有 S2 通过，才形成只增加该 PASS receipt 的单文件 activation；它仍不授权产品执行。
 5. Stall 被接受后，从该 accepted base 形成新的方向提案与独立方向审查；方向通过前不构造新产品尝试，Ledger 继续 blocked。
 
 ## 权威入口
@@ -150,5 +157,6 @@ E8 的产品候选已经冻结并接受 fresh exact review，但结论是 `FAIL`
 - 冻结失败 attempt 边界：`governance/PAPER_GATE_STATE_MACHINE_BOUNDARY_V3.json`
 - terminal-stall candidate contract：`governance/PAPER_GATE_INTEGER_AUTHORITY_STALL_TRANSITION_R1.json`
 - 产品 FAIL 收据：`governance/evidence/PAPER_GATE_INTEGER_AUTHORITY_PRODUCT_R1.fresh-exact-review.json`
+- S fresh review FAIL 收据：`PAPER_GATE_INTEGER_AUTHORITY_STALL_TRANSITION_R1.fresh-review-fail.json`
 
 以后本页只更新：**当前指针、节点状态、证据、时间**。蓝图结构变化必须作为单独的版本决策说明。
