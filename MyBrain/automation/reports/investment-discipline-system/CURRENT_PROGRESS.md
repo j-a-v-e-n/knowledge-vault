@@ -12,7 +12,7 @@
 | 层 | 现在是什么 | 允许怎么变 |
 |---|---|---|
 | 冻结蓝图 | Mission Graph + Product Capability Graph | 不能按进度原地改写；只能被“冻结且独立审查通过”的新版本替代 |
-| 当前指针 | Paper Gate；两次 exact-decoder direction review 均拒绝，已保留旧 bytes/FAIL，版本化 R2 正在第三次 fresh review | 只随已发生且有证据的状态移动 |
+| 当前指针 | Paper Gate；三次 exact-decoder direction review 均拒绝，三组失败对象已完整保存，versioned R3 正在第四次 fresh review | 只随已发生且有证据的状态移动 |
 | 隔离候选 | `154782315b2e50ebedd74d4e78f7a2e3cd985d71`，失败历史 | 已提交为不可变失败证据；不能修成 PASS、不能激活、不能启动产品工作 |
 
 ## 固定产品蓝图
@@ -98,18 +98,20 @@ flowchart LR
     D4 --> R3["Fresh direction review<br/>FAIL · Major 1 / Minor 1"]
     R3 --> D5["修正事实措辞<br/>技术方向不变"]
     D5 --> R4["第二次 fresh review<br/>FAIL · Major 1"]
-    R4 --> D6["保存旧 exact bytes + FAIL<br/>版本化 R2 · 17 paths"]
-    D6 --> R5["当前<br/>第三次 fresh review"]
+    R4 --> D6["保存第一组 exact bytes + FAIL<br/>版本化 R2 · 17 paths"]
+    D6 --> R5["第三次 fresh review<br/>FAIL · Major 1"]
+    R5 --> D7["保存三组 exact bytes + FAIL<br/>版本化 R3 · 21 paths"]
+    D7 --> R6["当前<br/>第四次 fresh review"]
 
     classDef accepted fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef historical fill:#f1f3f5,stroke:#868e96;
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
     class AS accepted;
-    class D1,C1,D3,D4,D5,D6 historical;
-    class R1,R2,R3,R4 failed;
+    class D1,C1,D3,D4,D5,D6,D7 historical;
+    class R1,R2,R3,R4,R5 failed;
     class D2 historical;
-    class R5 current;
+    class R6 current;
 ```
 
 ## 当前最短状态
@@ -122,11 +124,11 @@ flowchart LR
 | 产品有编辑权吗？ | 没有。Graph activation、registration、check-work、start-work 均未发生 |
 | 哪些东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71`；随后两层 compositional 方向提案也在 fresh review 失败 |
 | 第二次为什么失败？ | 有限共享 H、Ledger 不改、V3 当前无界 typed 行为完整保留，三项不能同时成立 |
-| 现在做什么？ | 第三个 fresh reviewer 正在审查 versioned R2 与完整失败链；仍只归一化实测 `RecursionError`，尚未构造 Graph candidate |
+| 现在做什么？ | 第四个 fresh reviewer 正在审查 versioned R3、三组 exact 失败对象与 21-path scope；尚未构造 Graph candidate |
 
 ## 历史明细（只作追溯，不决定当前路线）
 
-- 更新时间：`2026-07-31T12:36:52-0700`
+- 更新时间：`2026-07-31T12:51:08-0700`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
 - 历史失败工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -158,7 +160,16 @@ flowchart LR
 - preserved R1 FAIL receipt SHA-256：`9eb43defd17383c6c699d9188d267c144412fdce09645c425a3425b99a83e72b`
 - versioned R2 proposal bytes：`23531`
 - versioned R2 proposal SHA-256：`f17e977b3dcd00a898470fe4421d94a3de14230df271b31ef94a3bca2bca8f7a`
-- exact-decoder direction review R3：`IN_PROGRESS — no authority`
+- exact-decoder direction review R3：`FAIL — Critical 0 / Major 1 / Minor 0`
+- corrected R1 proposal bytes：`21514`
+- corrected R1 proposal SHA-256：`094b0b95cb05d993ff7cc1e9385c52265b64d5bce5c4e41d74858a731138ae55`
+- corrected R1 FAIL receipt bytes：`5619`
+- corrected R1 FAIL receipt SHA-256：`abbcbba097b4a5902f36ca3ba4ff369ba7a9d141a59a76a1eb3b3e9d222d34d9`
+- R2 FAIL receipt bytes：`5491`
+- R2 FAIL receipt SHA-256：`a72ff1d418e4d4286a4b74f418dd4222cf433adfd85922e72c9a5a1b1343eb62`
+- versioned R3 proposal bytes：`26884`
+- versioned R3 proposal SHA-256：`2dbaf3104be6a850653829850feabc081f46e60e8f84f691c873faedda64f9e5`
+- exact-decoder direction review R4：`IN_PROGRESS — no authority`
 - 冻结 candidate C：`aebbbbc15c065cc957ed41a581de1fc8d3324519`
 - activation successor A：`4517d099f743bdb20b3e73c046f0296202a788fd`
 - 冻结产品候选 P：`e1ec606ec245cc136ea32f98b61ab1bb6a3702dd`
@@ -180,7 +191,7 @@ flowchart LR
 - 新方向审查 receipt bytes：`16680`
 - 新方向审查 receipt SHA-256：`5984e94abb3e757aeeadf56c62420f4862268cfca0336b2ed255954a1a1c1d30`
 - 新 Graph candidate 允许写集：精确 `12 paths`；prototype 必须不变
-- 当前状态：bounded JSON Graph candidate、compositional 方向和两次 exact-decoder review 均已失败；没有产品编辑权，versioned R2 正在第三次 fresh review
+- 当前状态：bounded JSON Graph candidate、compositional 方向和三次 exact-decoder review 均已失败；没有产品编辑权，versioned R3 正在第四次 fresh review
 - 当前运行路线：accepted Graph 显示 `Paper Gate = STALLED`、`Ledger = BLOCKED`、eligible work 为空、execution 未授权
 - 历史 registration：原样保留但只绑定旧 attempt，不能转移或复用
 - 历史 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：原样保留并继续只指向旧 activation A
@@ -250,7 +261,11 @@ flowchart LR
 - versioned R2 proposal：JSON 有效；`23531` bytes；SHA-256 `f17e977b3dcd00a898470fe4421d94a3de14230df271b31ef94a3bca2bca8f7a`
 - exact-decoder direction proposal 的产品预估写集：仅 `README.md`、`discipline_system.py`、`test_paper_gate_state_machine.py`；这只是待审 scope，不是权限
 - versioned R2 的 Graph 预估写集：精确 `17 paths`；这只是待审 scope，不是权限
-- 第三个 fresh non-builder exact-decoder direction review：进行中
+- exact-decoder direction review R3：`FAIL — Critical 0 / Major 1 / Minor 0`；17-path scope 又遗漏了 21,514-byte intermediate 与第二 FAIL
+- 三组 failed proposal + FAIL receipt 均已恢复为 exact objects；三份 receipt 均经原 reviewer 确认忠实
+- versioned R3 proposal：`26884` bytes；SHA-256 `2dbaf3104be6a850653829850feabc081f46e60e8f84f691c873faedda64f9e5`
+- versioned R3 的 Graph 预估写集：精确 `21 paths`；产品预估写集仍为 `3 paths`
+- 第四个 fresh non-builder exact-decoder direction review：进行中
 - tracked `prototype/**` diff：空；冻结 V3 diff：空
 
 ## 当前回退链怎么走
@@ -267,7 +282,9 @@ flowchart LR
 10. R1 fresh direction review 因一项来源措辞 Major 和一项 stored-error 说明 Minor 拒绝提案；旧 review 不可转为 PASS。
 11. 只修正两项事实后的 exact bytes 在第二次 review 因遗漏即时失败历史而再次 FAIL；15-path scope 被否定。
 12. 原 20,988-byte proposal 与 8,537-byte FAIL receipt 已独立保留并校验；新 proposal 改为 R2 身份与 17-path scope。
-13. 第三个 fresh reviewer 正在重读 R2、完整失败链和原始 source；仍未进入任何 Graph candidate 或产品写集。
+13. 第三个 fresh review 又发现 21,514-byte intermediate proposal 与第二 FAIL 未保存，R2 与 17-path scope 因此 FAIL。
+14. 三组失败 proposal 与三份 FAIL receipt 现均已恢复 exact bytes，并由各自原 reviewer 确认转录忠实。
+15. versioned R3 以 21-path scope 进入第四次 fresh review；仍未进入任何 Graph candidate 或产品写集。
 
 ## 权威入口
 
