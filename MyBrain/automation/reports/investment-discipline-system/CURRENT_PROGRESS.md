@@ -18,7 +18,12 @@ flowchart TB
     N --> Q(["✅ Fresh 独立审查<br/>PASS · C0 / M0 / m0"])
     Q --> DP["✅ 新方向 exact proposal<br/>整数时间单一权威 · FROZEN"]
     DP --> DR["✅ Fresh 方向审查<br/>PASS · C0 / M0 / m0"]
-    DR --> GR(["◐ Graph revision candidate<br/>12-path bounded build · RUNNING"])
+    DR --> GR["◐ Graph revision candidate<br/>11 / 12 paths built"]
+    GR --> PF(["✖ Prefreeze challenge<br/>NO-GO · do not freeze"])
+    PF --> B1["🔒 AGENTS.md<br/>explicit permission required"]
+    PF --> B2["✖ check-work seam<br/>unauthorized prototype drift not rejected"]
+    B1 --> FIX(["◐ Root correction<br/>WAITING FOR PERMISSION"])
+    B2 --> FIX
     A --> L["🔒 Ledger<br/>BLOCKED · KEEP LOCKED"]
 
     D -. "失败历史保留" .-> F["✖ R1 / R2 / R3 / R4 / R4B / R4C"]
@@ -29,11 +34,11 @@ flowchart TB
     classDef running fill:#e7f5ff,stroke:#1971c2,stroke-width:2px;
     class G,D,R,S,P,K done;
     class N,Q,DP,DR done;
-    class W,A,C9,F,H,L failed;
-    class GR running;
+    class W,A,C9,F,H,L,PF,B2 failed;
+    class GR,B1,FIX running;
 ```
 
-一句话：项目未完成；旧实现继续 rejected/stalled，新“整数时间单一权威”方向已获 fresh PASS，当前只在重建独立 Graph revision 的最小写集，Ledger 仍 blocked，产品仍未获授权。
+一句话：项目未完成；旧实现继续 rejected/stalled，新“整数时间单一权威”方向已获 fresh PASS，但 Graph 候选在冻结前挑战中是 NO-GO。当前 accepted authority 仍是 Paper stalled、Ledger blocked；prototype 没有新授权。
 
 ## 项目目标与产品主路径
 
@@ -63,12 +68,16 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T22:16:30-0700`
-- 执行状态：`INTEGER_AUTHORITY_GRAPH_REVISION_CANDIDATE_BUILD_RUNNING_NO_PRODUCT_AUTHORITY`
+- 更新时间：`2026-07-30T23:03:14-0700`
+- 执行状态：`INTEGER_AUTHORITY_GRAPH_REVISION_PREFREEZE_NO_GO_PERMISSION_REQUIRED`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
 - 当前路线状态：`Paper Gate = STALLED；Ledger = BLOCKED；execution_authorized = false`
+- 未接受的 Graph 候选内部工作：`WORK-PAPER-GATE-INTEGER-AUTHORITY-R1`
+- 候选实际写集：`11 paths`；方向审查要求的最小写集：`12 paths`
+- Prefreeze 结论：`NO-GO`。`AGENTS.md` 仍声明任何 `check-work` 必须失败，与候选 Graph 相反；它又属于方向审查明确要求的最小写集。
+- 第二个阻塞：当前候选的 Product 与 Mission `check-work` 会在 `prototype/paper.py` 被注入未授权 tracked edit 时仍返回 PASS；因此尚未把 Graph 冻结状态、当前 prototype 边界与执行授权关在同一个门内。
 - R1 失败快照：`294e92b2d53c024dd99d1f787dd6e82f0926081d`
 - R2 失败快照：`1afc87d2df802efd1563ce9c43c1b0cb7efcf7c4`
 - R3 失败快照：`b2745910770c016327f73e749771e63626983d58`
@@ -98,14 +107,14 @@ flowchart TB
 - Corrected 方向审查收据：`/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.fresh-review-pass.json`（`9360 bytes`；SHA-256 `70a8ae7e103433baa453e35e01a772661b7acb5a103e154072203762bdf06861`）
 - 收据生成历史错误：首版错误列出 reviewer 未直接读取的 `prototype/workflow.py`，fidelity review 为 `critical=0`、`major=1`、`minor=0`；已单独保留 `/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.receipt-fidelity-failure.json`（`1323 bytes`；SHA-256 `71c627ecdd74f0c25cd7036d431bf9114dcbf97e7fb19bd8407e7dbe1562c956`）。
 - Corrected 收据 fidelity review：`PASS`；`critical=0`、`major=0`、`minor=0`。
-- 当前动作：终止停滞态保持冻结；正在构建独立 Graph revision candidate，写集限定为 `12 paths`。只有该候选冻结并通过 fresh review、且新 `check-work` 通过后，才能修改 `prototype/**`。
+- 当前动作：保持停滞态权威不变；先取得对 `AGENTS.md` 这一长期运行规则文件的明确修改授权，再同时关闭 `check-work` 的候选/工作树绑定缺口，重跑 prefreeze。只有完整 `12 paths` 候选冻结并通过 fresh review 后，才能修改 `prototype/**`。
 - 当前产品写集：`NONE_AUTHORIZED`（被拒绝候选曾是 `14 paths`；不得继承为新路线写权限）
 - 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；rejected；保留作失败证据）
 - 产品候选收据：`/private/tmp/PAPER_GATE_R4_F821479.candidate.json`（`5339 bytes`；SHA-256 `db383182fa8c379409966399c285a2ec9708898ff5ca1203dd6b89833a5eec67`）
 - Frozen-review 失败收据：`governance/evidence/PAPER_GATE_R4_F821479.frozen-review-failure.json`（`4610 bytes`；SHA-256 `ef90aa5228804123563f914d4211f38ce69e327a4c8e8d7f4301f5a770893a1e`）
 - Ledger：`BLOCKED / KEEP LOCKED`
 - R5：`未授权`
-- 用户参与：`当前不需要；新路线必须先取得独立方向 PASS，再由另一个冻结且 fresh-reviewed 的 Graph revision 产生新 work identity 与产品写权限`
+- 用户参与：`现在只需要一次明确权限决定：是否允许更新本项目 AGENTS.md，使其与已审方向和新的 fail-closed check-work 启动协议一致；除此之外不需要参与`
 
 ## 权威来源
 
