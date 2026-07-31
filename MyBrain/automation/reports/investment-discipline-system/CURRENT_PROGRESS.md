@@ -17,7 +17,8 @@ flowchart TB
     C9 --> N["✅ Bounded successor<br/>15b9d74 · 3-file exact object"]
     N --> Q(["✅ Fresh 独立审查<br/>PASS · C0 / M0 / m0"])
     Q --> DP["✅ 新方向 exact proposal<br/>整数时间单一权威 · FROZEN"]
-    DP --> DR(["◐ Fresh 方向审查<br/>独立反驳 · RUNNING"])
+    DP --> DR["✅ Fresh 方向审查<br/>PASS · C0 / M0 / m0"]
+    DR --> GR(["◐ Graph revision candidate<br/>12-path bounded build · RUNNING"])
     A --> L["🔒 Ledger<br/>BLOCKED · KEEP LOCKED"]
 
     D -. "失败历史保留" .-> F["✖ R1 / R2 / R3 / R4 / R4B / R4C"]
@@ -27,12 +28,12 @@ flowchart TB
     classDef failed fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef running fill:#e7f5ff,stroke:#1971c2,stroke-width:2px;
     class G,D,R,S,P,K done;
-    class N,Q,DP done;
+    class N,Q,DP,DR done;
     class W,A,C9,F,H,L failed;
-    class DR running;
+    class GR running;
 ```
 
-一句话：项目未完成；旧实现因同根 Critical 保持 rejected/stalled，新“整数时间单一权威”方向提案已冻结并正接受独立审查，Ledger 仍 blocked，不授权 R5 或产品修改。
+一句话：项目未完成；旧实现继续 rejected/stalled，新“整数时间单一权威”方向已获 fresh PASS，当前只在重建独立 Graph revision 的最小写集，Ledger 仍 blocked，产品仍未获授权。
 
 ## 项目目标与产品主路径
 
@@ -62,8 +63,8 @@ flowchart TB
 
 ## 当前状态
 
-- 更新时间：`2026-07-30T21:59:22-0700`
-- 执行状态：`INTEGER_AUTHORITY_DIRECTION_FROZEN_FRESH_REVIEW_RUNNING_NO_PRODUCT_AUTHORITY`
+- 更新时间：`2026-07-30T22:16:30-0700`
+- 执行状态：`INTEGER_AUTHORITY_GRAPH_REVISION_CANDIDATE_BUILD_RUNNING_NO_PRODUCT_AUTHORITY`
 - Graph 当前节点：`CAP-PAPER-GATE-INTEGRITY`
 - 当前工作项：`WORK-PAPER-GATE-SINGLE-STATE-MACHINE-R1`
 - 当前义务：`OBL-PAPER-UNIQUE-COMMIT-SINK`
@@ -93,7 +94,11 @@ flowchart TB
 - 独立完整 clone 验证：`73 tests in 34.515s`；`95 tests in 2.146s`（digit limit `640`）；`95 tests in 2.097s`（digit limit `0`）；均 `OK`。
 - 已冻结的新方向提案：`/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.proposal.json`（`12754 bytes`；SHA-256 `0a03360348bf572c7957e572b73484c173b5ef7191b33009613734c809e7e566`）
 - 提案选择：权威命令从入口到 identity、gate、reducer、SQLite、event 与 replay 只使用 bounded integer；时间为 signed 64-bit epoch microseconds；继续使用既有 bounded canonical JSON，不增加 binary protocol。
-- 当前动作：终止停滞态保持冻结；fresh reviewer 正在反驳新方向、Graph 合法性、最小范围和是否需要 Javen 的价值决定。此阶段不修改 `prototype/**`、Graph 或 Ledger。
+- 方向 fresh review：`PASS`；`critical=0`、`major=0`、`minor=0`；`user_decision_required=false`。
+- Corrected 方向审查收据：`/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.fresh-review-pass.json`（`9360 bytes`；SHA-256 `70a8ae7e103433baa453e35e01a772661b7acb5a103e154072203762bdf06861`）
+- 收据生成历史错误：首版错误列出 reviewer 未直接读取的 `prototype/workflow.py`，fidelity review 为 `critical=0`、`major=1`、`minor=0`；已单独保留 `/private/tmp/PAPER_GATE_INTEGER_AUTHORITY_DIRECTION_R1.receipt-fidelity-failure.json`（`1323 bytes`；SHA-256 `71c627ecdd74f0c25cd7036d431bf9114dcbf97e7fb19bd8407e7dbe1562c956`）。
+- Corrected 收据 fidelity review：`PASS`；`critical=0`、`major=0`、`minor=0`。
+- 当前动作：终止停滞态保持冻结；正在构建独立 Graph revision candidate，写集限定为 `12 paths`。只有该候选冻结并通过 fresh review、且新 `check-work` 通过后，才能修改 `prototype/**`。
 - 当前产品写集：`NONE_AUTHORIZED`（被拒绝候选曾是 `14 paths`；不得继承为新路线写权限）
 - 当前产品候选：`f821479111c8925220219dffd45b47e60086cb22`（frozen；rejected；保留作失败证据）
 - 产品候选收据：`/private/tmp/PAPER_GATE_R4_F821479.candidate.json`（`5339 bytes`；SHA-256 `db383182fa8c379409966399c285a2ec9708898ff5ca1203dd6b89833a5eec67`）
