@@ -12,8 +12,8 @@
 | 层 | 现在是什么 | 允许怎么变 |
 |---|---|---|
 | 冻结蓝图 | Mission Graph + Product Capability Graph | 不能按进度原地改写；只能被“冻结且独立审查通过”的新版本替代 |
-| 当前指针 | Paper Gate 已完成；Ledger 已成为 accepted `active/current`；Ledger execution authority 已激活并启动唯一产品 attempt | 只随已发生且有证据的状态移动 |
-| 当前 authority | Ledger activation `ce8ba01dbf41ba659f99870b13abba9056943939`；attempt ref `refs/ids-attempts/ledger-sqlite-vertical-slice-r1` 精确绑定该 activation | 当前一次产品 attempt 已授权；只允许 handoff 内路径，仍不代表 Ledger 或项目完成 |
+| 当前指针 | Paper Gate 已完成；Ledger 是 accepted `active/current`；唯一产品 attempt 已产出并冻结候选 `f4276aaebf1a14ee09bb73851bb28f2eea2d6d18`，fresh review 为 `PASS — C0/M0/m0` | 只随已发生且有证据的状态移动；本次 PASS 不把 Ledger 标成 complete |
+| 当前 authority | Ledger activation `ce8ba01dbf41ba659f99870b13abba9056943939`；attempt ref `refs/ids-attempts/ledger-sqlite-vertical-slice-r1` 精确绑定该 activation | 产品候选已冻结，不再继续改动；尚无 post-review evidence transition authority |
 
 ## 固定产品蓝图
 
@@ -54,7 +54,7 @@ flowchart TB
     class SAFE boundary;
 ```
 
-**固定结构中的当前位置：** `CAP-LEDGER-REVIEW-INTEGRITY`。Paper Gate 已有候选绑定的完成证据并被 accepted transition 接受；Ledger 已选中，但它自己的执行 authority 尚未建立，因此还不能开始产品改动。
+**固定结构中的当前位置：** `CAP-LEDGER-REVIEW-INTEGRITY`。Paper Gate 已有候选绑定的完成证据并被 accepted transition 接受；Ledger execution authority 已完成并消耗唯一 attempt。该 attempt 的产品候选已经冻结且通过 fresh exact-object review，但这只是 Ledger 内部里程碑，不满足整个节点完成条件。
 
 ## 固定交付链与当前阶段
 
@@ -78,7 +78,7 @@ flowchart LR
     class E9 pending;
 ```
 
-**当前指针：Ledger 的 `E8｜实现与节点验收`。冻结 candidate `5d5ac05824e315094f0e37777b69ca3d7b5be6f8` 已获 fresh `PASS — C0/M0/m0`，单收据 activation `ce8ba01dbf41ba659f99870b13abba9056943939` 已完成 registration、两层 `check-work` 与一次 atomic `start-work`。现在只实现现有单 SQLite authority 上最薄的 run manifest + review lifecycle；保持 Ledger 节点 active，不冒充整个节点完成。**
+**当前指针：仍是 Ledger 的 `E8｜实现与节点验收`。执行 authority 的冻结 candidate `5d5ac05824e315094f0e37777b69ca3d7b5be6f8` 已获 fresh `PASS — C0/M0/m0`，单收据 activation `ce8ba01dbf41ba659f99870b13abba9056943939` 已完成 registration、两层 `check-work` 与一次 atomic `start-work`。该 attempt 已产出产品候选 `f4276aaebf1a14ee09bb73851bb28f2eea2d6d18`，它在既有单 SQLite authority 上补齐最薄的 run manifest + review lifecycle，并已获 fresh `PASS — C0/M0/m0`。Graph 节点仍保持 active，不能冒充整个 Ledger 完成。**
 
 每一次失败候选都保留，但证据不能转移给下一候选。若 fresh direction review 选出新方向，新的 E1–E8 必须重新逐步完成；方向审查通过本身也不等于 Graph 已修改或产品已获授权。
 
@@ -125,8 +125,20 @@ flowchart LR
 | accepted Graph 变了吗？ | 是。单收据 activation `4872e64172d361aceb891b59bb12c0b8cf3f18fc` 已接受精确 transition candidate `76aac3c783396b5ed79d5918d903a61b3dd0644a` |
 | Paper 阶段完成了吗？ | 是。产品候选、确定性证据、fresh 产品审查和 Paper → Ledger 状态迁移均已闭合 |
 | 项目完成了吗？ | 没有。Ledger、AI—人工决定、诚实回测、公开数据、工作台、恢复、dogfood 和个人 paper MVP 仍在蓝图中 |
-| 产品有编辑权吗？ | 当前唯一 Ledger attempt 有编辑权；范围只限 handoff 的产品路径，重复启动已 fail closed |
-| 现在做什么？ | 在既有单 SQLite authority 上补 run manifest + review lifecycle 的最薄可运行闭环；不重建 Paper，不宣称整个 Ledger 节点完成 |
+| 产品有编辑权吗？ | 当前没有继续改产品的权限：唯一 Ledger attempt 已消费并冻结为 `f4276aa`；重复启动已 fail closed，任何下一产品候选都要先有新的独立受审 authority |
+| 现在做什么？ | 产品候选不再改动；先形成并独立审查“如何持久记录这个阶段证据”的最小方向提案。Graph、current work、Ledger active 状态和 `completion_evidence=[]` 暂时都不变 |
+
+## Ledger E8 当前证据
+
+| 项目 | 已发生的事实 | 不能推出什么 |
+|---|---|---|
+| 冻结产品候选 | commit `f4276aaebf1a14ee09bb73851bb28f2eea2d6d18`；tree `c4ed21e17b98db36a1e54d8392ee1f94c918c738`；唯一父提交 `ce8ba01dbf41ba659f99870b13abba9056943939`；精确五个产品路径 | 不是 Graph transition，也不是 Ledger completion |
+| Fresh exact review | `2026-07-31T22:36:59-07:00`；`PASS — C0/M0/m0` | 不自动产生 post-review authority |
+| 完整 prototype 回归 | `PYTHONINTMAXSTRDIGITS=640`：`128 tests，OK，3.028s`；`PYTHONINTMAXSTRDIGITS=0`：`128 tests，OK，3.011s` | 不是所有现实输入或长期个人价值证明 |
+| 混合本地流程 | Paper `COMMITTED` → manifest → review completion → research link → fresh reopen；同一全局链 `7` 个 events | 不代表 Paper commit 会在同一事务自动创建 review |
+| 事务与重放 | manifest、plan、completion、link 的 event/row 共 `8` 个故障点全部回滚；伪造 materialization 被 replay 拒绝 | 不证明 backup/restore 或同管理员防篡改 |
+| no-live 边界 | 历史 verifier 在父提交和候选上都为 FAIL；两边仍是相同 `8` 条 FRED 只读 endpoint observation，且没有新增网络、券商、凭据、资金、provider、外部执行或反射能力 | **不能声称完整 no-live verifier 已通过** |
+| 下一合法动作 | 当前没有绑定 `f4276aa` 的现成 evidence-transition verifier 或授权写集；先做独立受审的 stage-evidence direction proposal | 不得直接增加 receipt 后称其为 authority，不得解锁 `CAP-LOCAL-WORKBENCH` |
 
 ## 历史明细（只作追溯，不决定当前路线）
 
