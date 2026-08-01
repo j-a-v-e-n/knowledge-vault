@@ -12,8 +12,8 @@
 | 层 | 现在是什么 | 允许怎么变 |
 |---|---|---|
 | 冻结蓝图 | Mission Graph + Product Capability Graph | 不能按进度原地改写；只能被“冻结且独立审查通过”的新版本替代 |
-| 当前指针 | Paper Gate；精确 Graph candidate 已冻结，正在 fresh exact-object review | 只随已发生且有证据的状态移动 |
-| 隔离候选 | accepted Graph 仍是 `f5ccd438bfed54fbe618d225431c61f65800b475`；冻结候选是 `f9db672637df754a6fbc608777e7504c31fd7b70` | frozen-but-unreviewed 候选无执行权；fresh exact review 与单收据 activation 缺一不可 |
+| 当前指针 | Paper Gate；Graph 已完成 fresh review、单收据 activation、本机登记与一次性 start，正在实现三文件最小产品切片 | 只随已发生且有证据的状态移动 |
+| 当前 authority | activation `38abb0bf3eb276495a93b0d86e110f6eb98a85c2`；其冻结候选是 `f9db672637df754a6fbc608777e7504c31fd7b70` | 只授权当前 attempt 的精确三文件产品写集；Ledger 继续 blocked |
 
 ## 固定产品蓝图
 
@@ -72,12 +72,12 @@ flowchart LR
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class E0,E1,E2,E3 done;
-    class E4 current;
-    class E5,E6,E7,E8,E9 pending;
+    class E0,E1,E2,E3,E4,E5,E6,E7 done;
+    class E8 current;
+    class E9 pending;
 ```
 
-**当前指针：`E4｜Fresh exact review`。候选已经完成预冻结审查和串行 activation E2E，再以 accepted stall 为唯一父提交冻结；它尚未通过 fresh exact review 或激活，因此没有任何产品执行权。**
+**当前指针：`E8｜实现与节点验收`。冻结候选已通过 fresh exact review，单收据 activation、本机 registration、`check-work` 和唯一一次 `start-work` 均已完成；当前只实现获权的三个产品文件，Ledger 继续 blocked。**
 
 每一次失败候选都保留，但证据不能转移给下一候选。若 fresh direction review 选出新方向，新的 E1–E8 必须重新逐步完成；方向审查通过本身也不等于 Graph 已修改或产品已获授权。
 
@@ -121,11 +121,11 @@ flowchart LR
 |---|---|
 | 固定目标变了吗？ | 没有。仍是 personal / local-first / paper-only / human-final |
 | 固定能力蓝图变了吗？ | 没有。当前能力仍是 Paper Gate，Ledger 仍 blocked |
-| accepted Graph 变了吗？ | 没有。仍停在 terminal-stall activation `f5ccd438bfed54fbe618d225431c61f65800b475` |
-| 产品有编辑权吗？ | 没有。冻结候选仍为 `execution_authorized=false`；Graph activation、registration、check-work、start-work 均未发生 |
+| accepted Graph 变了吗？ | 变为独立审查通过后的单收据 activation `38abb0bf3eb276495a93b0d86e110f6eb98a85c2`；固定能力蓝图没有改变 |
+| 产品有编辑权吗？ | 有，但只限当前一次 attempt 的 `prototype/README.md`、`prototype/discipline_system.py`、`prototype/tests/test_paper_gate_state_machine.py`；Ledger 没有编辑权 |
 | 哪些东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71`、compositional 方向，以及三份不完整的 exact-decoder 方向提案；全部保留为历史 |
 | 第二次为什么失败？ | 有限共享 H、Ledger 不改、V3 当前无界 typed 行为完整保留，三项不能同时成立 |
-| 现在做什么？ | 只审查冻结候选 `f9db672637df754a6fbc608777e7504c31fd7b70`；PASS 后才允许单收据 activation |
+| 现在做什么？ | 实现并验证共享 JSON loader 的精确 `RecursionError → ValueError → MALFORMED` 闭环；达到冻结 acceptance 后前进，不扩建通用资源治理 |
 
 ## 历史明细（只作追溯，不决定当前路线）
 
@@ -194,17 +194,17 @@ flowchart LR
 - 新方向审查 receipt bytes：`16680`
 - 新方向审查 receipt SHA-256：`5984e94abb3e757aeeadf56c62420f4862268cfca0336b2ed255954a1a1c1d30`
 - 新 Graph candidate 允许写集：精确 `12 paths`；prototype 必须不变
-- 当前状态：精确 21-path Graph candidate 已通过 prefreeze 和串行 activation E2E，并冻结为 `f9db672637df754a6fbc608777e7504c31fd7b70`；fresh exact review 进行中，仍无产品编辑权
-- 当前运行路线：accepted Graph 仍显示 `Paper Gate = STALLED`、`Ledger = BLOCKED`；冻结候选显示 Paper Gate active，但 `execution_authorized=false`，不能反向覆盖 accepted 状态
+- 当前状态：精确 21-path Graph candidate `f9db672637df754a6fbc608777e7504c31fd7b70` 已通过 fresh exact review，并由单收据 activation `38abb0bf3eb276495a93b0d86e110f6eb98a85c2` 接受；registration、`check-work`、唯一一次 `start-work` 已完成
+- 当前运行路线：`Paper Gate = ACTIVE`、`Ledger = BLOCKED`；产品写权只覆盖当前 attempt 的三个文件
 - 历史 registration：原样保留但只绑定旧 attempt，不能转移或复用
 - 历史 attempt ref `refs/ids-attempts/paper-gate-integer-authority-r1`：原样保留并继续只指向旧 activation A
 - Ledger 产品写集：`NONE_AUTHORIZED`
-- Paper Gate 当前产品写集：`NONE_AUTHORIZED`
+- Paper Gate 当前产品写集：`prototype/README.md`、`prototype/discipline_system.py`、`prototype/tests/test_paper_gate_state_machine.py`
 - bounded JSON E2 最终结论：`FAIL — Critical 1 / Major 2 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
 - S2 预冻结审查：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
-- 当前动作：只对冻结 candidate 做 fresh exact-object review；不修改候选、不新增 public E、global H、Ledger resource domain 或容量数字
-- 当前工作：`FROZEN_GRAPH_CANDIDATE_EXACT_REVIEW_ONLY_NO_EXECUTION_AUTHORITY`
+- 当前动作：完成三文件最小产品实现、双环境回归、冻结 product candidate 与 fresh product review；不新增 public E、global H、Ledger resource domain 或容量数字
+- 当前工作：`AUTHORIZED_MINIMAL_PRODUCT_SLICE_IMPLEMENTATION_AND_REVIEW`
 
 ## 这次失败证明了什么
 
