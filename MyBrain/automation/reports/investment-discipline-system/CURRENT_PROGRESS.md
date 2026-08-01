@@ -12,8 +12,8 @@
 | 层 | 现在是什么 | 允许怎么变 |
 |---|---|---|
 | 冻结蓝图 | Mission Graph + Product Capability Graph | 不能按进度原地改写；只能被“冻结且独立审查通过”的新版本替代 |
-| 当前指针 | Paper Gate 产品候选 `f34d8100be50bbd41e28390babaacbe97ddee0ca` 已通过 fresh exact-object 产品审查；正在构造 Paper 完成 → Ledger current 的最小状态迁移 | 只随已发生且有证据的状态移动 |
-| 当前 authority | activation `38abb0bf3eb276495a93b0d86e110f6eb98a85c2`；其冻结候选是 `f9db672637df754a6fbc608777e7504c31fd7b70` | 只授权当前 attempt 的精确三文件产品写集；Ledger 继续 blocked |
+| 当前指针 | Paper Gate 已完成；Ledger 已成为 accepted `active/current`，现在构造它自己的最小执行 authority | 只随已发生且有证据的状态移动 |
+| 当前 authority | transition activation `4872e64172d361aceb891b59bb12c0b8cf3f18fc`；其冻结候选是 `76aac3c783396b5ed79d5918d903a61b3dd0644a` | 只接受 Paper → Ledger 状态迁移；当前仍 `execution_authorized=false`，不能编辑 Ledger 产品 |
 
 ## 固定产品蓝图
 
@@ -42,18 +42,19 @@ flowchart TB
     SAFE["永久安全边界<br/>无真实或 shadow 交易<br/>无券商、资金、凭据、provider account<br/>AI 不修改风险规则"] -.约束全部能力.-> M
 
     classDef mission fill:#e7f5ff,stroke:#1971c2,stroke-width:2px;
+    classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#fff3bf,stroke:#f08c00,stroke-width:3px;
     classDef blocked fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
     classDef boundary fill:#fff3bf,stroke:#f08c00,stroke-width:2px;
     class M,MVP mission;
-    class PG current;
-    class LEDGER blocked;
+    class PG done;
+    class LEDGER current;
     class HUMAN,BT,DATA,WB,REC,DOG pending;
     class SAFE boundary;
 ```
 
-**固定结构中的当前位置：** `CAP-PAPER-GATE-INTEGRITY`。它没有验收，所以依赖它的 Ledger 仍是 `BLOCKED`。
+**固定结构中的当前位置：** `CAP-LEDGER-REVIEW-INTEGRITY`。Paper Gate 已有候选绑定的完成证据并被 accepted transition 接受；Ledger 已选中，但它自己的执行 authority 尚未建立，因此还不能开始产品改动。
 
 ## 固定交付链与当前阶段
 
@@ -72,17 +73,18 @@ flowchart LR
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class E0,E1,E2,E3,E4,E5,E6,E7,E8 done;
-    class E9 current;
+    class E0 done;
+    class E1 current;
+    class E2,E3,E4,E5,E6,E7,E8,E9 pending;
 ```
 
-**当前指针：`E9｜移动到下一能力`。Graph 启动链、三文件实现、双环境回归和 fresh exact-object 产品审查均已完成；当前只构造绑定这些证据的 Paper→Ledger 状态迁移。该迁移尚未 fresh review/activation，因此 accepted Graph 里 Ledger 暂时仍 blocked。**
+**当前指针：Ledger 的 `E1｜Mutable 候选`。Ledger 节点、单一 SQLite authority 工作和 handoff 已由 accepted Graph 选定；现在只构造 Ledger 专属执行 authority。它冻结、独立审查、激活、注册并成功完成 `check-work → start-work` 之前，不得编辑产品。**
 
 每一次失败候选都保留，但证据不能转移给下一候选。若 fresh direction review 选出新方向，新的 E1–E8 必须重新逐步完成；方向审查通过本身也不等于 Graph 已修改或产品已获授权。
 
-固定产品蓝图中的能力指针仍停在 Paper Gate；只有 Paper Gate 通过产品验收后，才会移动到 Ledger。
+固定产品蓝图中的能力指针已经从 Paper Gate 移到 Ledger；蓝图结构没有变化，只移动了当前高亮。
 
-## 这一次指针为什么退回
+## Paper 阶段为什么曾退回（封存历史）
 
 ```mermaid
 flowchart LR
@@ -100,7 +102,7 @@ flowchart LR
     D6 --> R5["第三次 fresh review<br/>FAIL · Major 1"]
     R5 --> D7["保存三组 exact bytes + FAIL<br/>版本化 R3 · 21 paths"]
     D7 --> R6["第四次 fresh review<br/>PASS · 0 / 0 / 0"]
-    R6 --> C2["当前<br/>冻结 candidate f9db672<br/>fresh exact review 中"]
+    R6 --> C2["后来已完成<br/>f9db672 → 38abb0b → f34d810"]
 
     classDef accepted fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef historical fill:#f1f3f5,stroke:#868e96;
@@ -111,7 +113,7 @@ flowchart LR
     class R1,R2,R3,R4,R5 failed;
     class D2 historical;
     class R6 accepted;
-    class C2 current;
+    class C2 accepted;
 ```
 
 ## 当前最短状态
@@ -119,14 +121,16 @@ flowchart LR
 | 问题 | 现在的答案 |
 |---|---|
 | 固定目标变了吗？ | 没有。仍是 personal / local-first / paper-only / human-final |
-| 固定能力蓝图变了吗？ | 没有。当前能力仍是 Paper Gate，Ledger 仍 blocked |
-| accepted Graph 变了吗？ | 变为独立审查通过后的单收据 activation `38abb0bf3eb276495a93b0d86e110f6eb98a85c2`；固定能力蓝图没有改变 |
-| 产品有编辑权吗？ | 有，但只限当前一次 attempt 的 `prototype/README.md`、`prototype/discipline_system.py`、`prototype/tests/test_paper_gate_state_machine.py`；Ledger 没有编辑权 |
-| 哪些东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71`、compositional 方向，以及三份不完整的 exact-decoder 方向提案；全部保留为历史 |
-| 第二次为什么失败？ | 有限共享 H、Ledger 不改、V3 当前无界 typed 行为完整保留，三项不能同时成立 |
-| 现在做什么？ | 形成并审查最小 Paper → Ledger 状态迁移；复用既有 Ledger handoff，不增加节点、义务、保障面或新的 Ledger 设计 |
+| 固定能力蓝图变了吗？ | 没有。节点与依赖完全相同；只把当前高亮从 Paper Gate 移到 Ledger |
+| accepted Graph 变了吗？ | 是。单收据 activation `4872e64172d361aceb891b59bb12c0b8cf3f18fc` 已接受精确 transition candidate `76aac3c783396b5ed79d5918d903a61b3dd0644a` |
+| Paper 阶段完成了吗？ | 是。产品候选、确定性证据、fresh 产品审查和 Paper → Ledger 状态迁移均已闭合 |
+| 项目完成了吗？ | 没有。Ledger、AI—人工决定、诚实回测、公开数据、工作台、恢复、dogfood 和个人 paper MVP 仍在蓝图中 |
+| 产品有编辑权吗？ | 现在没有。Ledger 已是 current，但它自己的 frozen/reviewed authority、registration、`check-work` 和 `start-work` 尚未完成 |
+| 现在做什么？ | 建立最小 Ledger 专属执行 authority，然后只实现单一 SQLite authority 的最薄可运行闭环 |
 
 ## 历史明细（只作追溯，不决定当前路线）
+
+> 以下是 Paper 阶段封存的历史快照，其中出现的“当前”只代表当时，不覆盖本页顶部的 accepted 当前指针。
 
 - 更新时间：`2026-07-31`
 - 当前 Graph 节点：`CAP-PAPER-GATE-INTEGRITY`
