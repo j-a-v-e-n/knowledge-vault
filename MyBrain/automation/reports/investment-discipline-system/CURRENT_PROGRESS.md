@@ -12,7 +12,7 @@
 | 层 | 现在是什么 | 允许怎么变 |
 |---|---|---|
 | 冻结蓝图 | Mission Graph + Product Capability Graph | 不能按进度原地改写；只能被“冻结且独立审查通过”的新版本替代 |
-| 当前指针 | Paper Gate；三文件最小产品切片已实现并冻结为 `f34d8100be50bbd41e28390babaacbe97ddee0ca`，正在 fresh exact-object 产品审查 | 只随已发生且有证据的状态移动 |
+| 当前指针 | Paper Gate 产品候选 `f34d8100be50bbd41e28390babaacbe97ddee0ca` 已通过 fresh exact-object 产品审查；正在构造 Paper 完成 → Ledger current 的最小状态迁移 | 只随已发生且有证据的状态移动 |
 | 当前 authority | activation `38abb0bf3eb276495a93b0d86e110f6eb98a85c2`；其冻结候选是 `f9db672637df754a6fbc608777e7504c31fd7b70` | 只授权当前 attempt 的精确三文件产品写集；Ledger 继续 blocked |
 
 ## 固定产品蓝图
@@ -72,12 +72,11 @@ flowchart LR
     classDef done fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
     classDef current fill:#e7f5ff,stroke:#1971c2,stroke-width:3px;
     classDef pending fill:#f1f3f5,stroke:#868e96;
-    class E0,E1,E2,E3,E4,E5,E6,E7 done;
-    class E8 current;
-    class E9 pending;
+    class E0,E1,E2,E3,E4,E5,E6,E7,E8 done;
+    class E9 current;
 ```
 
-**当前指针：`E8｜实现与节点验收`。Graph 的 fresh review、单收据 activation、本机 registration、`check-work` 和唯一一次 `start-work` 均已完成；三文件产品候选已经冻结，当前只做 fresh exact-object 产品审查，Ledger 继续 blocked。**
+**当前指针：`E9｜移动到下一能力`。Graph 启动链、三文件实现、双环境回归和 fresh exact-object 产品审查均已完成；当前只构造绑定这些证据的 Paper→Ledger 状态迁移。该迁移尚未 fresh review/activation，因此 accepted Graph 里 Ledger 暂时仍 blocked。**
 
 每一次失败候选都保留，但证据不能转移给下一候选。若 fresh direction review 选出新方向，新的 E1–E8 必须重新逐步完成；方向审查通过本身也不等于 Graph 已修改或产品已获授权。
 
@@ -125,7 +124,7 @@ flowchart LR
 | 产品有编辑权吗？ | 有，但只限当前一次 attempt 的 `prototype/README.md`、`prototype/discipline_system.py`、`prototype/tests/test_paper_gate_state_machine.py`；Ledger 没有编辑权 |
 | 哪些东西失败了？ | 未获权的 bounded JSON Graph candidate `154782315b2e50ebedd74d4e78f7a2e3cd985d71`、compositional 方向，以及三份不完整的 exact-decoder 方向提案；全部保留为历史 |
 | 第二次为什么失败？ | 有限共享 H、Ledger 不改、V3 当前无界 typed 行为完整保留，三项不能同时成立 |
-| 现在做什么？ | 独立审查冻结产品候选 `f34d8100be50bbd41e28390babaacbe97ddee0ca`；PASS 后形成最小 Paper → Ledger 状态转换，不扩建通用资源治理 |
+| 现在做什么？ | 形成并审查最小 Paper → Ledger 状态迁移；复用既有 Ledger handoff，不增加节点、义务、保障面或新的 Ledger 设计 |
 
 ## 历史明细（只作追溯，不决定当前路线）
 
@@ -203,8 +202,8 @@ flowchart LR
 - bounded JSON E2 最终结论：`FAIL — Critical 1 / Major 2 / Minor 0`
 - E4 最终结论：`PASS — Critical 0 / Major 0 / Minor 0`
 - S2 预冻结审查：`GO_FREEZE_STALL_C_R2 — Critical 0 / Major 0 / Minor 0`
-- 当前动作：fresh review 冻结 product candidate；通过后只做 Paper 完成证据与 Ledger 解锁的最小 Graph transition，不新增 public E、global H、Ledger resource domain 或容量数字
-- 当前工作：`FROZEN_MINIMAL_PRODUCT_CANDIDATE_FRESH_REVIEW`
+- 当前动作：只做 Paper 完成证据与 Ledger current 的最小 Graph transition；不新增 public E、global H、Ledger resource domain 或容量数字
+- 当前工作：`PAPER_COMPLETE_TO_LEDGER_CURRENT_TRANSITION_CANDIDATE`
 
 ## 这次失败证明了什么
 
