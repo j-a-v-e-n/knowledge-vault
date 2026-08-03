@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-08-02 03:00 by daemon dawn-shift [审批 0 条待执行（⏳ 列 4 条 [ ] 未勾选，无 [x]）；ai-watch ✅ 写了 2 条（DeepSeek-V4-Flash-0731 开源 MIT/Terminal-Bench 2.1 82.7/$0.14-$0.28 直连 task-013 router 💡⚡、Embodied-AI 年中盘点 world-model 成 VLA 标配 🔍；2 search+3 fetch）；email-triage ❌ Gmail MCP daemon 上下文不可用（ToolSearch 无 Gmail 工具，连续第 12 次，同 6/22~8/01 → task-011e 待 Javen 主对话验证）；看板扫描：待启动+进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/pptx/web-in-task/npm 或 @javen 决策/GUI 或需主对话交互，含 task-020g 需与 Javen 讨论），0 个新可推进任务。⚠️ **连续第 4 晚**：看板多数 task deadline 已过 2.6+ 月（5/8~5/15），task-021/022/023/027 已成历史，强烈建议 Javen 做一次归账清理]
-上一次：2026-08-01 03:00 by daemon dawn-shift [审批 0 条；ai-watch ✅ 3 条（Opus 5 编码分数 ⚡、LingBot-VLA 2.0 💡、ACE-Brain-0.5 🔍）；email-triage ❌ 连续第 11 次；看板无新可推进任务；建议归账清理 021/022/023/027]
+**最后更新**：2026-08-03 03:00 by daemon dawn-shift [审批 0 条待执行（⏳ 列 4 条 [ ] 未勾选，无 [x]）；ai-watch ✅ 写了 2 条（Thinking Machines 开源 Inkling-Small 276B/12B-active Apache 2.0 多模态 MoE、SWE-bench 80.2% ⚡ + on-policy distillation 落地点接 175B 💡；模型发布节奏「每 2 天一个」+ o3 本月退役 🔍；2 search+2 fetch）；email-triage ❌ Gmail MCP daemon 上下文不可用（ToolSearch 无 Gmail 工具，连续第 13 次，同 6/22~8/02 → task-011e 待 Javen 主对话验证）；看板扫描：待启动+进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/pptx/web-in-task/npm 或 @javen 决策/GUI 或需主对话交互），0 个新可推进任务。⚠️ **新发现**：`MyBrain/automation/CLAUDE.md` 不存在（task-016 归并疑似丢失，task-001g 声称已写、footer 仍引用）→ 建议 Javen 主对话补回。⚠️ **连续第 5 晚**：看板多数 task deadline 已过 2.6+ 月（5/8~5/15），task-021/022/023/027 已成历史，task-027i「8月底等录取通知」现已到期，强烈建议 Javen 做一次归账清理]
+上一次：2026-08-02 03:00 by daemon dawn-shift [审批 0 条；ai-watch ✅ 2 条（DeepSeek-V4-Flash-0731 💡⚡、Embodied-AI world-model 🔍）；email-triage ❌ 连续第 12 次；看板无新可推进任务；建议归账清理 021/022/023/027]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
