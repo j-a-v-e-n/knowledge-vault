@@ -2,8 +2,8 @@
 
 > Javen 和 Claude 共用的任务看板。Javen 写下方向，Claude 接管执行；遇到需要决策的事写 `⚠️ blocked on @javen`，移到"🔒 阻塞"列等 Javen 拍板。
 
-**最后更新**：2026-08-03 03:00 by daemon dawn-shift [审批 0 条待执行（⏳ 列 4 条 [ ] 未勾选，无 [x]）；ai-watch ✅ 写了 2 条（Thinking Machines 开源 Inkling-Small 276B/12B-active Apache 2.0 多模态 MoE、SWE-bench 80.2% ⚡ + on-policy distillation 落地点接 175B 💡；模型发布节奏「每 2 天一个」+ o3 本月退役 🔍；2 search+2 fetch）；email-triage ❌ Gmail MCP daemon 上下文不可用（ToolSearch 无 Gmail 工具，连续第 13 次，同 6/22~8/02 → task-011e 待 Javen 主对话验证）；看板扫描：待启动+进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/pptx/web-in-task/npm 或 @javen 决策/GUI 或需主对话交互），0 个新可推进任务。⚠️ **新发现**：`MyBrain/automation/CLAUDE.md` 不存在（task-016 归并疑似丢失，task-001g 声称已写、footer 仍引用）→ 建议 Javen 主对话补回。⚠️ **连续第 5 晚**：看板多数 task deadline 已过 2.6+ 月（5/8~5/15），task-021/022/023/027 已成历史，task-027i「8月底等录取通知」现已到期，强烈建议 Javen 做一次归账清理]
-上一次：2026-08-02 03:00 by daemon dawn-shift [审批 0 条；ai-watch ✅ 2 条（DeepSeek-V4-Flash-0731 💡⚡、Embodied-AI world-model 🔍）；email-triage ❌ 连续第 12 次；看板无新可推进任务；建议归账清理 021/022/023/027]
+**最后更新**：2026-08-04 03:02 by daemon dawn-shift [审批 0 条待执行（⏳ 列 4 条 [ ] 未勾选，无 [x]）；ai-watch ✅ 换赛道扫 robotics VLA：**X-VLA** 0.9B soft-prompted cross-embodiment（只调 1% 参数 9M 逼近 π₀、LIBERO 93%、Apache 开源挂 LeRobot）⚡ + ABot-M0（Qwen3-VL 4B+0.16B DiT、LIBERO 98.6%）+ VLA 占 40% 新部署 🔍；落地点接 ECE148 → lerobot-eval 纯仿真 30-60min 复现当简历料 💡；2 search+2 fetch；email-triage ❌ Gmail MCP daemon 上下文不可用（ToolSearch 无 Gmail 工具，连续第 14 次，同 6/22~8/03 → task-011e 待 Javen 主对话验证）；看板扫描：待启动+进行中全部 @claude 子任务已完成或 blocked（forbidden tool: python/pptx/web-in-task/npm 或 @javen 决策/GUI），**连续第 6 晚 0 个新可推进任务**。⚠️ `MyBrain/automation/CLAUDE.md` 仍不存在（task-016 归并疑似丢失）→ 建议主对话补回或删引用。⚠️ **连续第 6 晚**：多数 task deadline 已过 2.6+ 月，021/022/023/027 已成历史，027i「8月底等录取」现已到期，强烈建议 Javen 归账清理]
+上一次：2026-08-03 03:00 by daemon dawn-shift [审批 0 条；ai-watch ✅ 2 条（Thinking Machines Inkling-Small 276B Apache ⚡、模型每2天一个+o3退役 🔍）；email-triage ❌ 连续第 13 次；看板无新可推进任务；建议归账清理 021/022/023/027 + 补 automation/CLAUDE.md]
 **当前状态**：2 进行中（task-020 + task-003）/ 2 阻塞（task-022 + task-027）/ **10** 待启动 / **10** 已完成
 
 > 🪟 **2026-05-05 多 tab 协作分工**（Javen 决定，3 tab 并行）：
