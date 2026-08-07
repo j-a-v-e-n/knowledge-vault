@@ -1,23 +1,23 @@
 ---
 name: RAG Master Series: Complete Guide to Retrieval-Augmented Generation
-technique: Structured RAG system design covering retrieval optimization, evaluation frameworks, and production monitoring patterns
-when_to_use: When building or improving a RAG pipeline and needing a systematic checklist of retrieval, eval, and production patterns
+technique: End-to-end RAG system design covering chunking, hybrid search, re-ranking, query understanding, evals, and improvement loops
+when_to_use: When building or improving any retrieval-augmented generation system from prototype to production
 source: "https://jxnl.co/writing/2025/09/11/rag-series-index/"
 tags:
   - ai-usage
   - ai-digest
   - rag
   - retrieval
-  - evaluation
   - hybrid-search
+  - evals
   - chunking
   - query-understanding
 verified_by: RAGAS faithfulness (per-claim, via claude -p subscription)
-verified_at: 2026-08-06
+verified_at: 2026-08-07
 audience: AI
 ---
 #ai-digest
 
 ## claims (each passed RAGAS faithfulness against the source)
-- claim: Hybrid search combining vector and full-text (BM25) retrieval improves coverage over either method alone.
+- claim: Combine vector search with BM25 full-text keyword search (hybrid search) to improve retrieval coverage over either method alone.
   faithfulness: 1.0
