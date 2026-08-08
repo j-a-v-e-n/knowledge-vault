@@ -1,7 +1,7 @@
 ---
 name: RAG Master Series: Complete Guide to Retrieval-Augmented Generation
-technique: End-to-end RAG system design covering chunking, hybrid search, re-ranking, query understanding, evals, and improvement loops
-when_to_use: When building or improving any retrieval-augmented generation system from prototype to production
+technique: Systematic RAG optimization via hybrid search, re-ranking, query understanding, metadata filtering, and data-flywheel evaluation loops
+when_to_use: When building or improving a retrieval-augmented generation system and needing a structured sequence of optimizations to apply
 source: "https://jxnl.co/writing/2025/09/11/rag-series-index/"
 tags:
   - ai-usage
@@ -9,15 +9,19 @@ tags:
   - rag
   - retrieval
   - hybrid-search
-  - evals
-  - chunking
+  - re-ranking
   - query-understanding
+  - evals
 verified_by: RAGAS faithfulness (per-claim, via claude -p subscription)
-verified_at: 2026-08-07
+verified_at: 2026-08-08
 audience: AI
 ---
 #ai-digest
 
 ## claims (each passed RAGAS faithfulness against the source)
-- claim: Combine vector search with BM25 full-text keyword search (hybrid search) to improve retrieval coverage over either method alone.
+- claim: Hybrid search combines vector and full-text search to improve retrieval coverage beyond what either method provides alone.
+  faithfulness: 1.0
+- claim: Chunking strategy should break documents into retrievable pieces while preserving semantic meaning.
+  faithfulness: 1.0
+- claim: Six core RAG evaluation dimensions are: retrieval quality, generation accuracy, relevance assessment, citation validation, latency measurement, and user satisfaction.
   faithfulness: 1.0
