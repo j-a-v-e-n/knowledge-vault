@@ -14,7 +14,7 @@ Aim for about 10 minutes per person. The script leaves room for a natural pace, 
 SLIDE 1
 JAVEN — about 40 seconds
 
-Hi everyone, I’m Javen Cao, and my groupmate is Juqy Chen. We’re Group 8, and today we’re talking about Bruner’s paper on Piaget and Vygotsky. We’ll use one simple question: how does a mind grow? Piaget and Vygotsky both care about that question, but they answer it in very different ways.
+Hi everyone, I’m Javen Cao. We’re Group 8, and today we’re talking about Bruner’s paper on Piaget and Vygotsky. We’ll use one simple question: how does a mind grow? Piaget and Vygotsky both care about that question, but they answer it in very different ways.
 
 The quiz link is on this slide. Every answer shows up in our presentation.
 
@@ -64,7 +64,7 @@ Here is Piaget’s basic sequence. First, a child does things: touching, moving,
 
 Piaget calls the pressure behind this growth disequilibration. Imagine you meet something that does not fit what you already think. You can try to fit it into your old idea. That is assimilation. Or you can change the old idea. That is accommodation.
 
-Look at the blocks on the right. Imagine the child expects one arrangement to work, but the structure falls. They can treat that failure as just another version of the old pattern and keep using the same rule. That is assimilation. Or they can revise the rule, perhaps by changing which block goes underneath. That is accommodation. The surprise creates a problem for the old idea, and changing the idea solves that problem.
+Here is a simple made-up example. A young child might call every four-legged animal a dog. When they see a horse, they could force it into the old category. Or they could revise the category and learn that not every four-legged animal is a dog. The surprise creates a problem for the old idea, and changing the idea solves that problem.
 
 Piaget says the tension between those two moves pushes thinking forward. Bruner’s criticism is that the basic idea is clear, but the exact mechanism is still not fully explained.
 
